@@ -1,0 +1,7 @@
+#this part is conditionally added if the source was not DFSG free
+
+This version of the mplayer binary and sources contains all the code
+found in the original @UPSTREAMSOURCE@
+
+For this reason, it is not fit for inclusion in the main Debian archive.
+

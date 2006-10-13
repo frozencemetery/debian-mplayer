@@ -1,0 +1,275 @@
+----- Debian package
+
+This package was first  debianized by * TeLeNiEkO * telenieko@telenieko.com on
+Mon, 26 Feb 2001 12:24:04 +0100.
+
+The current Debian Mantainer is: Dariush Pietrzak <eyck@ghost.anime.pl>
+sponsored by: A Mennucci <mennucc1@debian.org>
+
+Dariush Pietrzak and A Mennucci hold copyright (c) on the Debian
+packaging, that is available under the terms of GNU GPL v2 (see below
+for header).
+
+Original source can be found at: http://www.mplayerhq.hu/
+but (!) the orig.tar.gz contained in Debian is not the 
+upstream one. See README.Debian for details.
+
+MPlayer was originally written by Árpád Gereöffy and has been extended and
+worked on by many more since then; see the AUTHORS file for an (incomplete)
+list.
+
+----- Copyright of MPlayer
+
+MPlayer  is nowadays copyrighted by the MPlayer team ;
+this copyright applies to code written specifically for MPlayer
+(see (*) below for the list exceptions).
+
+----- License of MPlayer
+
+MPlayer is licensed under the terms of GNU GPL v2 ;the licence header is:
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
+On Debian systems, the complete text of the GNU General Public
+License, version 2, can be found in /usr/share/common-licenses/GPL-2.
+
+This license applies to code written specifically for MPlayer;
+(see (*) below for the list exceptions).
+
+---- (*) Other License and Copyright
+
+MPlayer includes code from several external sources; this is shipped
+in subdirectories; (summarized) copyrights and licenses are as follows:
+
+Name:       FFmpeg
+Version:    CVS snapshot
+Homepage:   http://www.ffmpeg.org
+Directory:  libavcodec, libavformat, libavutil, libpostproc
+Copyright (c)  The ffmpeg Project
+	  (see individual files for other copyrights)
+License:    GNU Lesser General Public License, some parts GNU General Public
+            License, GNU General Public License when combined
+
+Name:       FAAD2
+Version:    2.1 beta (20040915 CVS snapshot) + fixes and portability patches
+Homepage:   http://www.audiocoding.com
+Directory:  libfaad2
+Copyright (C) 2003-2004 M. Bakker, Ahead Software AG, http://www.nero.com
+License:    GNU General Public License
+
+Name:       GSM 06.10 library
+Version:    patchlevel 10
+Homepage:   http://kbs.cs.tu-berlin.de/~jutta/toast.html
+Copyright 1992 by Jutta Degener and Carsten Bormann,  Technische Universitaet Berlin
+Directory:  libmpcodecs/native/
+License:
+ Any use of this software is permitted provided that this notice is
+ not removed and that neither the authors nor the Technische
+ Universitaet Berlin are deemed to have made any representations as to
+ the suitability of this software for any purpose nor are held
+ responsible for any defects of this software.  THERE IS ABSOLUTELY NO
+ WARRANTY FOR THIS SOFTWARE.
+ As a matter of courtesy, the authors request to be informed about
+ uses this software has found, about bugs in this software, and about
+ any improvements that may be of general interest.
+
+Name:       miniLZO
+Version:    1.07
+Homepage:   http://www.oberhumer.com/opensource/lzo/#minilzo
+File:	    libmpcodecs/native/minilzo.c libmpcodecs/native/minilzo.h
+Copyright (C) 1996-2000 Markus Franz Xaver Johannes Oberhumer
+License:    GNU General Public License
+
+Name:       liba52
+Version:    0.7.4 + patches
+Homepage:   http://liba52.sourceforge.net/
+Directory:  liba52
+Copyright (C) 2000-2001 Michel Lespinasse <walken@zoy.org>
+Copyright (C) 1999-2000 Aaron Holtzman <aholtzma@ess.engr.uvic.ca>
+License:    GNU General Public License
+
+Name:       libmpeg2
+Version:    0.4.0b + patches
+Homepage:   http://libmpeg2.sourceforge.net/
+Directory:  libmpeg2
+Copyright (C) 2000-2003 Michel Lespinasse <walken@zoy.org>
+Copyright (C) 1999-2000 Aaron Holtzman <aholtzma@ess.engr.uvic.ca>
+Copyright (C) 2003 David S. Miller <davem@redhat.com>
+Copyright (c) 2002-2003 Falk Hueffner <falk@debian.org>
+License:    GNU General Public License
+
+Name:       mpg123
+Version:    0.59s + significant changes
+Homepage:   http://www.mpg123.de/
+Directory:  mp3lib
+Copyright (c) 1995 by Michael Hipp
+License:    GNU General Public License
+
+Name:       Tremor
+Version:    1.0 + parts CVS from December 2004 + patches
+Homepage:   http://xiph.org/
+Directory:  tremor
+Copyright (c) 2002, Xiph.org Foundation
+License:    BSD-like:
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ - Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ - Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in the
+ documentation and/or other materials provided with the distribution.
+ - Neither the name of the Xiph.org Foundation nor the names of its
+ contributors may be used to endorse or promote products derived from
+ this software without specific prior written permission.
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION
+ OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Name:       avifile DLL loader
+Version:    0.47 + patches + CVS updates
+Homepage:   http://avifile.sourceforge.net/
+Directory:  loader/
+Copyright 1995 Alexandre Julliard
+Copyright 1994    Eric Youndale & Erik Bos
+Copyright 1996-98 Marcus Meissner
+Copyright 1995 Thomas Sandford
+Copyright 1996 Martin von Loewis
+Copyright 1993 Robert J. Amstadt
+Copyright 1995-1996 Alexandre Julliard
+Copyright 2000-2001 Eugene Kuznetsov  (divx@euro.ru)
+License:    GNU General Public License
+
+Name:       dvbstream
+Version:    0.4.3-pre3 (cvs checkout)
+Homepage:   http://www.linuxstb.org/dvbstream/
+	    now at http://prdownloads.sourceforge.net/dvbtools/
+File:	    libmpdemux/dvbin.h  libmpdemux/dvbin.c libmpdemux/rtp.h
+Copyright (C) 2002 the xine project
+License:    GNU General Public License
+
+Name:       librtsp
+Version:    xine CVS 2003/04/10 + patches
+Homepage:   http://www.xinehq.de
+Directory:  stream/librtsp/
+Copyright (C) 2000-2002 the xine project
+License:    GNU General Public License
+
+Name:       realrtsp
+Version:    xine CVS 2003/04/17 + patches
+Homepage:   http://www.xinehq.de
+Directory:  stream/realrtsp/
+Copyright (C) 2000-2002 the xine project
+License:    GNU General Public License
+
+Name:       id3edit
+Version:    1.9 + patches
+Homepage:   http://id3edit.sourceforge.net/
+Directory:  libmpdemux/genres.h
+Copyright (C) 2001  Jason Carter
+License:    GNU General Public License
+
+Name:       matroxset
+Version:    0.3
+Homepage:   ftp://platan.vc.cvut.cz/pub/linux/matrox-latest/
+Directory:  TOOLS/TVout/matroxset/
+License:    GNU General Public License
+
+Name:       unrarlib
+Version:    0.4.0 + patches
+Homepage:   http://www.unrarlib.org/
+File:	    unrarlib.[ch]
+Copyright (C) 2000-2002 by Christian Scheurer (www.ChristianScheurer.ch)
+  UNIX port copyright (c) 2000-2002 by Johannes Winkelmann (jw@tks6.net)
+License:    GNU General Public License / UniquE RAR File Library License
+
+File:	    mmx.h
+Copyright: 1997-99 by H. Dietz and R. Fisher
+License:   
+        THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY
+        EXPRESS OR IMPLIED WARRANTIES, INCLUDING, WITHOUT
+        LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+        AND FITNESS FOR ANY PARTICULAR PURPOSE.
+
+Name:       uCIFS library
+Version:    development files as of september 2004
+Homepage:   http://ubiqx.org/libcifs/
+Directory:  libvo/md5sum.[ch]
+License:    GNU Lesser General Public License
+
+Name:       FreeSDP
+Version:    0.4.1
+Homepage:   https://savannah.nongnu.org/projects/freesdp/
+Directory:  stream/freesdp/
+Copyright (C) 2001,2002,2003 Federico Montesino Pouzols <fedemp@suidzer0.org>
+License:    GNU General Public License
+
+--- libmpdemux
+libmpdemux is itself a collection of code from different sources
+
+File:	    libmpdemux/pnm.c libmpdemux/pnm.h
+Copyright (C) 2000-2002 the xine project
+License:    GNU General Public License
+
+File:	    libmpdemux/demux_avs.c libmpdemux/demux_avs.h 
+Copyright (c) 2005 Gianluigi Tiesi <sherpya@netfarm.it>
+Copyright 2003 Kevin Atkinson
+License:    GNU General Public License
+
+
+Name:	    Demuxer for Musepack v7 bitstream (from FFmpeg)
+File:	    libmpdemux/demux_mpc.c
+Copyright:  Reimar Doeffinger <Reimar.Doeffinger@stud.uni-karlsruhe.de>
+License:   currently relicensed as GNU LGPL 
+
+
+Name:	    lavtools
+File:	    libmpdemux/yuv4mpeg.h
+Home:	  mjpeg.sourceforge.net
+Copyright (C) 2001 Matthew J. Marjanovic <maddog@mir.com>
+License:    GNU General Public License
+
+
+Name:   XMMS - Cross-platform multimedia player
+File:  libmpdemux/demux_xmms_plugin.h
+Copyright (C) 1998-2000  Peter Alm, Mikael Alm, Olle Hallnas, Thomas Nilsson and 4Front Technologies
+License:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met: 1. Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer. 2.
+ * Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.

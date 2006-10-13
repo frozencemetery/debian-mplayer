@@ -1,0 +1,268 @@
+#!/usr/bin/make -f
+# Made with the aid of debmake, by Christoph Lameter,
+# based on the sample debian/rules file for GNU hello by Ian Jackson.
+
+#export DH_VERBOSE=1
+
+# This is the debhelper compatibility version to use.
+# (3 would be fine actually, but it is deprecated in etch; anyway sarge has 4)
+export DH_COMPAT=4
+
+package        := mplayer
+
+svn_revision := $(shell if test -r .svn ; then LC_ALL=C svn info 2> /dev/null | grep Revision | cut -d' ' -f2 ; elif test -r revision.svn ; then cat revision.svn ; fi )
+
+CC_version := $(shell $(CC) -dumpversion)
+
+UPSTREAMSOURCE := upstream SVN repository
+#http://www1.mplayerhq.hu/MPlayer/releases/MPlayer-1.0pre8.tar.bz2
+
+#was troublesom stuff removed ?
+# see target "fix-orig-source" in this makefile
+DFSG := $(shell test -d libmpdvdkit2 && echo 'This version of mplayer contains  libmpdvdkit2.' )
+
+ifeq ($(DFSG),)
+extraversion  := DFSG-free
+else
+extraversion := DFSG-nonfree
+endif
+
+
+debian_version := $(shell cat /etc/debian_version)
+
+
+ifeq ($(debian_version),3.1) #a.k.a. Sarge
+XLIBS := xlibs-dev
+else
+XLIBS := libx11-dev, libxext-dev, libxinerama-dev, libxv-dev, libxvmc-dev, libxxf86dga-dev, libxxf86vm-dev, x-dev
+endif
+
+ifeq  ($(wildcard DOCS/.upstream_ships_docs),DOCS/.upstream_ships_docs)  
+DOCDEP := 
+else
+DOCDEP := docbook-xml, docbook-xsl, xsltproc
+endif
+
+destdir := $(shell pwd)/debian/$(package)
+
+arch   := $(shell dpkg --print-architecture)
+#fixme: how to use this? mplayer has a non-standard configure script
+DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+
+# Choose whether we want binary codec support (default on unknown archs: no)
+with_real_and_xanim = false
+with_win32 = false
+
+ifeq ($(arch),i386)
+#avoid high optimization of gcc
+  archconf += --target=i586-linux
+  with_real_and_xanim = true
+  with_win32 = true
+endif
+ifeq ($(arch),x86_64)
+  # FIXME: will the i386 codecs work here?
+endif
+ifeq ($(arch),powerpc)
+  with_real_and_xanim = true
+endif
+ifeq ($(arch),alpha)
+  with_real_and_xanim = true
+endif
+ifeq ($(with_win32),false)
+  archconf += --disable-win32
+else
+  archconf += --enable-win32
+endif
+ifeq ($(with_real_and_xanim),false)
+  archconf += --disable-real --disable-xanim
+else
+  archconf += --enable-real --enable-xanim
+endif
+
+
+
+## this can be overridden from command line. See README.Debian
+DEB_BUILD_CONFIGURE=--enable-runtime-cpudetection --disable-aa --disable-ggi  --disable-xvid --disable-gl  --language=all  --disable-xmms --disable-no-PIC $(archconf)
+
+ifeq ($(DFSG),)
+DEB_BUILD_CONFIGURE += --disable-mpdvdkit --enable-dvdread
+endif
+
+ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
+    DEB_BUILD_CONFIGURE += --enable-debug=3
+endif
+
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	#check consistency between debian/control and what we are compiling
+	grep -x 'Source: $(package)'  debian/control
+	grep -x 'Package: $(package)' debian/control
+	# Add here commands to configure the package.
+	[ -r DOCS/.upstream_ships_docs ] || { cd DOCS/xml && ./configure ; }
+	#
+	./configure --prefix=/usr --confdir=/etc/mplayer  \
+        --datadir=/usr/share/mplayer --enable-libdv \
+	--enable-xmga --enable-mga --enable-3dfx --enable-tdfxfb \
+	--enable-fbdev  --enable-directfb --enable-xinerama  --enable-xvmc \
+        --enable-tv-v4l2 --enable-sdl --enable-ossaudio \
+	--enable-lirc --enable-gui --enable-freetype --enable-menu \
+	--enable-largefiles --enable-dynamic-plugins \
+	--disable-mencoder \
+	$(DEB_BUILD_CONFIGURE)
+	#
+	if test "$(svn_revision)" ; then echo  "#define VERSION \"dev-SVN-r$(svn_revision)-$(CC_version)-$(extraversion)\""  > version.h ; else sh version.sh $(CC_version)-$(extraversion) ; fi
+
+	touch configure-stamp
+
+build: configure-stamp build-stamp
+# commands to compile the package.
+build-stamp:  build-indep build-arch
+	dh_testdir
+	touch build-stamp
+
+build-indep:
+	dh_testdir
+	[ -r DOCS/.upstream_ships_docs ] || ${MAKE} -C DOCS/xml html-chunked
+
+build-arch:
+	dh_testdir
+	${MAKE} 
+
+clean:
+	dh_testdir
+	dh_testroot
+	#
+	# commands to clean up after the build process.
+	-[ -r DOCS/.upstream_ships_docs ] || ${MAKE} -C DOCS/xml distclean
+	- $(MAKE) distclean
+	- $(MAKE) -C Gui distclean
+	#
+	rm -f build-stamp configure-stamp 
+	#some leftovers
+	rm -f config.h version.h .depends codec-cfg config.mak */config.mak libavcodec/libavcodec.a
+	find -name '*.o' -or -name '*.a' -or -name '*~' -print0 |\
+		xargs -r0 rm -v
+	#
+	dh_clean
+
+clean-deb:
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+# Build architecture-independent files here.
+binary-indep: clean-deb build
+	dh_installdebconf -p mplayer-doc	
+	dh_installdocs --exclude=CVS -X.cvsignore -p mplayer-doc Copyright DOCS/HTML DOCS/it DOCS/tech DOCS/zh
+
+manlangs := $(notdir $(wildcard DOCS/man/*) )
+
+# Build architecture-dependent files here.
+binary-arch: clean-deb build
+	# scripts
+	chmod a+x debian/scripts/*
+	dh_install debian/scripts usr/share/mplayer/
+	dh_install debian/prefs var/lib/mplayer/
+	#
+	# commands to install the package into debian/<packagename>
+	$(MAKE) prefix=$(destdir)/usr BINDIR=$(destdir)/usr/bin CONFDIR=$(destdir)/etc/mplayer LIBDIR=$(destdir)/usr/lib DATADIR=$(destdir)/usr/share/mplayer  MANDIR=$(destdir)/usr/share/man  install
+	#
+	dh_link usr/bin/mplayer usr/bin/gmplayer 
+	dh_link usr/share/man/man1/mplayer.1.gz usr/share/man/man1/gmplayer.1.gz
+	#
+	#install man pages
+	set -e && for i in $(manlangs) ; do mkdir -p $(destdir)/usr/share/man/$$i/man1/ && cp DOCS/man/$$i/mplayer.1 $(destdir)/usr/share/man/$$i/man1/ && dh_link usr/share/man/$$i/man1/mplayer.1.gz usr/share/man/$$i/man1/gmplayer.1.gz ; done
+	#
+	dh_installdebconf -p $(package)	
+	dh_installdocs --exclude=CVS -X.cvsignore -p $(package) Copyright
+	#
+	dh_installexamples etc/example.conf etc/menu.conf etc/input.conf etc/codecs.conf
+	dh_installmenu
+	dh_installmime
+	dh_installinit
+
+binary: binary-indep binary-arch
+	dh_installchangelogs
+	dh_compress
+	dh_fixperms
+	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_strip 
+	dh_gencontrol
+	#add automatic vo list
+	sh -e debian/config.augmenter debian/$(package)/DEBIAN/config
+	#rewrite README.Debian and add free or non-free statement
+ifeq ($(DFSG),)
+	tail +2  debian/README.Debian.free | sed 's!@UPSTREAMSOURCE@!$(UPSTREAMSOURCE)!' > debian/$(package)/usr/share/doc/$(package)/README.Debian
+else
+	tail +2  debian/README.Debian.nonfree | sed 's!@UPSTREAMSOURCE@!$(UPSTREAMSOURCE)!' > debian/$(package)/usr/share/doc/$(package)/README.Debian
+endif
+	sed 's!@DEB_BUILD_CONFIGURE@!$(DEB_BUILD_CONFIGURE)!' < debian/README.Debian  >>	 debian/$(package)/usr/share/doc/$(package)/README.Debian
+	#
+	dh_md5sums
+	dh_builddeb
+
+#####################################################
+##this target generates debian/control . It is not automatically invoked
+autocontrol:
+	mv -b debian/control debian/control.bak
+	sed 's/@MPLAYER@/$(package)/;s/@XLIBS@/$(XLIBS)/;s/@DFSG@/$(DFSG)/;s/@DOCDEP@/$(DOCDEP)/' < debian/control.in >  debian/control
+	#enjoy  the difference
+	-diff -u debian/control.bak debian/control
+
+###############################################
+##these targets generate the DFSG-free tar.gz 
+## They are not automatically invoked
+
+##temporary dir
+D := temp_dir_to_debianize_mplayer
+
+## the svn revision is not autodetected here
+upstreamversion := 1.0~rc1~svn20199
+
+##what we expect to find in a tar.bz2 from upstream
+M := MPlayer-$(upstreamversion)
+
+download-and-unpack-orig:
+	mkdir $(D)	
+	###darn this does not work in any dir (as requested by policy)
+	# $(dirname ??)/scripts/win32codecs.sh download MPlayer-$(upstreamversion).tar.bz2
+	### download file, or link it if available
+	if [ -r  $(M).tar.bz2 ] ; then  ln -s ../$(M).tar.bz2 $(D)/. ; elif 	  [ -r  ../$(M).tar.bz2 ] ; then  ln -s ../../$(M).tar.bz2 $(D)/. ; else  cd  $(D) && wget -N $(UPSTREAMSOURCE) ; fi
+	cd $(D) && tar xjf  $(M).tar.bz2 && rm $(M).tar.bz2
+
+copy-orig-from-svn: ../mplayer/.svn /usr/bin/svn
+	mkdir $(D)
+	cp -al ../mplayer $(D)/$(M)
+	cd $(D)/$(M) && LC_ALL=C svn info 2> /dev/null | grep Revision | cut -d' ' -f2 > revision.svn
+	find $(D)/$(M) -type d -name .svn  | xargs rm -r
+
+fix-orig-source: $(D)
+	#according to the README, this file should be there
+	cp  /usr/share/doc/libjpeg62/README.gz    $(D)/$(M)/libavcodec/README.jfdct.gz
+	# this contains the dreaded DeCSS code. We can live without, by
+	#  using libdvdread3 (and the optional library installed by
+	#    /usr/share/doc/libdvdread3/examples/install-css.sh   :-)
+	cd $(D)/$(M) && rm -r libmpdvdkit2 
+	# Well this may seem a bit excessive... but this code is not useful
+	#  for building the package, and most of it does not correctly state
+	#  author-license-copyright :  so I throw out the baby and the bath...
+	# When and if someone needs this stuff, I will carefully scrutinize
+	#  it and add what is suitable
+	cd $(D)/$(M) && rm  -r TOOLS
+	#check if upstream includes DOCS and then dont rebuild them
+	cd $(D)/$(M)/DOCS && if [ -r HTML ] ; then touch .upstream_ships_docs; fi
+	# my debian dir is too different, 
+	cd $(D)/$(M) && mv debian debian_upstream
+	# do not support encoding in any way 
+	cd $(D)/$(M) && rm mencoder.c 
+	# ok lets repackage
+	cd $(D) && mv MPlayer-$(upstreamversion) mplayer-$(upstreamversion) && 	 tar czf  mplayer_$(upstreamversion).orig.tar.gz mplayer-$(upstreamversion) && 	 mv mplayer_$(upstreamversion).orig.tar.gz .. && rm -r mplayer-$(upstreamversion)
+	rmdir $(D)
+
+.PHONY: binary binary-arch binary-indep clean checkroot get-orig-source autocontrol fix-orig-source copy-orig-from-svn download-and-unpack-orig

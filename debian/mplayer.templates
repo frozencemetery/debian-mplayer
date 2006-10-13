@@ -1,0 +1,84 @@
+Template: mplayer/cfgnote
+Type: note
+Description: Create your ~/.mplayer/mplayer.conf file
+ Remember to read documentation and edit your ~/.mplayer/mplayer.conf
+ (or /etc/mplayer/mplayer.conf) file. This binary depends heavily on
+ your hardware - which means that it needs tweaking for every single
+ machine it's installed to. And it also means that it will use
+ your setup very effectively. Install package 'mplayer-doc'
+ and read docs in /usr/share/doc/mplayer-doc/
+
+Template: mplayer/rtc
+Type: boolean
+Default: true
+Description: Enable access to RTC?
+ MPlayer can use the RTC (Real Time Clock) to provide for better timing
+ in reproduction, with less CPU cost; to this end, though, 
+ the device /dev/rtc must be accessible to group audio,
+ and the default max-user-freq must be raised to 1024.
+ Any needed change must be done by root.
+ If you wish, mplayer will automatically do this at boot,
+ so that any user can enjoy this feature. Note that there may be
+ security issues with this (although none are known now).
+
+Template: mplayer/replace-existing-files
+Type: boolean
+Default: true
+Description: Upgrade existing system?
+ It looks like you've configured your mplayer already.
+ If you'd like to configure it with this program, I'll have
+ to delete the old configuration  /etc/mplayer/mplayer.conf   .
+ If you want to continue configuration with this program, you may say
+ "yes", and I'll go ahead and delete your old configuration, so you can
+ create it anew with this program.
+
+Template: mplayer/replace-existing-files-bail
+Type: note
+Description: Files not replaced
+ It seems that you don't want to replace your existing configuration
+ files.  If you change your mind later, you can run dpkg-reconfigure
+ mplayer.
+
+Template: mplayer/voutput
+Type: select
+Default: autodetect
+Choices: ${vochoices}
+Description: MPlayer Video Output
+ Mplayer can use very wide range of video output drivers;
+ it will try to autodetect the best one, but you may choose a preferred one.
+ Here is the a guide to the choice (in decreasing speed order):
+ (1) if you see an entry that matches your video card, choose that;
+ (2) if your video card supports 'XV', choose that (use 'xvinfo' to know).
+ You should read /usr/share/doc/mplayer-doc/HTML/en/devices.html (it is in
+ package 'mplayer-doc').
+
+Template: mplayer/install_codecs
+Type: note
+Description: HOWTO download binary codecs
+ MPlayer supports most codecs out of the box and the rest with the
+ help of binary codecs. Binary codecs are only necessary for Real 3.0 
+ and 4.0, Windows Media 9, QuickTime audio and some very obscure codecs.
+ Debian cannot distribute these codecs, but these are available on the
+ internet for download. Run the script
+ `/usr/share/mplayer/scripts/win32codecs.sh' to install those 
+ made available from MPlayer web site.
+
+Template: mplayer/dvd_device
+Type: string
+Default: /dev/cdrom
+Description: DVD device name
+ What is the name of your DVD device (if any):
+
+Template: mplayer/ttfont
+Type: select
+Choices: ${ttfontchoices}
+Default: ${ttfontdefault}
+Description: MPlayer Fonts
+  Mplayer can use True Type fonts. Choose your favorite:
+
+Template: mplayer/no-ttfont
+Type: note
+Description: MPlayer cannot find TrueType Fonts
+ You should install a package providing truetype fonts (such as  
+ 'ttf-freefont' or 'ttf-bitstream-vera' or  'msttcorefonts' )
+ and reconfigure mplayer.

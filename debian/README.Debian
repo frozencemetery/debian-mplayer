@@ -1,0 +1,31 @@
+
+---------------------- on performance
+
+Most options are autodetected or configured during compilation thus
+users get a better performance if they rebuild this package themselves.
+
+In case you would like to change the parameters passed to ./configure,
+set variable DEB_BUILD_CONFIGURE.  When this binary was compiled, the
+variable was set to
+
+DEB_BUILD_CONFIGURE=@DEB_BUILD_CONFIGURE@
+
+So, recommended method is running 
+
+$  fakeroot debian/rules DEB_BUILD_CONFIGURE="" binary
+
+in the top directory of source code: this will reset that variable,
+and will then optimize mplayer strictly for your CPU.
+  
+Dariush Pietrzak <eyck@ghost.anime.pl>  Sat Jan  5 20:28:23 CET 2002
+
+--------------
+
+This binary conforms to 
+ http://www.mplayerhq.hu/DOCS/tech/binary-packaging.txt
+but for the following notes and exceptions:
+*E* the GUI does not come as a separate package (it would save no disk space!)
+*N* to avoid stripping, use DEB_BUILD_OPTIONS=nostrip
+    to enable debugging, use DEB_BUILD_OPTIONS=nostrip,debug
+
+ -- A Mennucc <mennucc1@debian.org>, Mon Jan 16 15:18:13 2006

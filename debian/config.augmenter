@@ -1,0 +1,43 @@
+#!/bin/sh
+
+set -e
+
+C=$1
+
+vo=$(tempfile)
+
+vo_filter () {
+ grep  '.' |  \
+ awk '{if(f){print}}/Available video output drivers:/{f=1}'  | \
+ sed 's/^\t//'
+}
+
+env -i ./mplayer -vo help 2> /dev/null | vo_filter >> $vo
+
+#fallback in case of crisis
+grep -q  'x11'  $vo || cp  debian/mplayer.vo.help.fallback $vo
+
+
+######### create automagic part
+t=$(tempfile)
+echo  '#start automagic part' >> $t
+echo  'cat_vo_complete_list () { cat << EOF' >> $t
+cat $vo >> $t
+echo  'EOF' >> $t
+echo  '}' >> $t
+echo 'CONFIG_OF_MPLAYER_WAS_AUGMENTED=1'  >> $t
+echo  '#end automagic part' >> $t
+############# insert it
+mv  $C{,~}
+
+awk '{if(f==0){print}}
+/#MPLAYER_AUTOMAGIC#/{f=1}'  $C~  > $C
+
+cat $t >> $C
+
+awk '{if(f){print}}
+/#MPLAYER_AUTOMAGIC#/{f=1}'  $C~  >> $C
+
+rm  $C~ $vo $t
+
+chmod +x  $C

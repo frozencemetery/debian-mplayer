@@ -1,0 +1,63 @@
+#this part is conditionally added if the source was DFSG free
+
+-------------
+
+WARNING WARNING WARNING WARNING
+
+the  mplayer*.tar.gz in Debian is  different from  @UPSTREAMSOURCE@
+
+
+* If the code is pulled from SVN, then tar.gz in Debian is
+obtained by
+  debian/rules copy-orig-from-svn
+  debian/rules fix-orig-source
+If the code is from an upstream .tar.gz , then tar.gz in Debian is
+obtained by
+  debian/rules download-and-unpack-orig
+  debian/rules fix-orig-source
+
+* In particular, the mpdvdkit internal library was deleted: so
+  mplayer.deb is uncapable to play encrypted dvd-s ; if you live in
+  country where using libdvdcss code is not illegal, you may install it
+  using the script /usr/share/doc/libdvdread3/install-css.sh
+
+* PLEASE DO NOT BOTHER UPSTREAM MPLAYER'S AUTHORS WITH BUGS AND REQUESTS
+ FOR FEATURES, but, send bugs to Debian: indeed, missing features
+ and/or bugs may be due to my butchering of the upstream code
+
+A. Mennucc
+
+-------------- on GPLv2 sec 2.a
+
+MPlayer contains source code from other GPL libraries, such as 
+ FFMpeg - libavcodec
+ mp3lib
+ liba52
+ ...
+ 
+See file 'Copyright'.
+
+During the flames in 2002-03 in debian-legal, it was pointed out 
+that mplayer may not be respecting the following section of the GPL v2:
+
+>2. You may modify your copy or copies of the Program or any portion of
+>it, thus forming a work based on the Program, and copy and distribute
+>such modifications or work under the terms of Section 1 above, provided
+>that you also meet all of these conditions:
+>
+>a) You must cause the modified files to carry prominent notices stating
+>that you changed the files and the date of any change.
+
+this issue is e.g. pointed out in 
+  http://lists.debian.org/debian-legal/2003/debian-legal-200301/msg00231.html
+
+Currently mplayer ships many files such as 
+ liba52/liba52_changes.diff           libmpdvdkit2/libdvdread_changes.diff
+ libfaad2/local_changes.diff          libmpeg2/libmpeg-0.4.0.diff
+ libmpdvdkit2/libdvdcss_changes.diff  tremor/tremor.diff
+to comply with this request.
+
+Moreover all changes to the code are documented
+in the AVN public repository of MPlayer (that is publicly accessible).
+
+A. Mennucc

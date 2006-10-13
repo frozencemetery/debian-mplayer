@@ -17,7 +17,7 @@ extern char *fb_mode_cfgfile;
 extern char *fb_mode_name;
 #endif
 #ifdef HAVE_DIRECTFB
-#if DIRECTFBVERSION > 912
+#if DIRECTFBVERSION > (9*256+12)
 extern char *dfb_params;
 #endif
 #endif
@@ -193,7 +193,7 @@ m_option_t mplayer_opts[]={
 	{"fbmodeconfig", &fb_mode_cfgfile, CONF_TYPE_STRING, 0, 0, 0, NULL},
 #endif
 #ifdef HAVE_DIRECTFB
-#if DIRECTFBVERSION > 912
+#if DIRECTFBVERSION >  (9*256+12)
 	{"dfbopts", "-dfbopts is deprecated, use -vf directfb:dfbopts=... instead\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
 #endif
 #endif

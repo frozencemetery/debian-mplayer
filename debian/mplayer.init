@@ -1,0 +1,127 @@
+#!/bin/sh 
+### BEGIN INIT INFO
+# Provides: mplayer-RTC-settings
+# Required-Start: $local_fs $syslog
+# Required-Stop:
+# Default-Start:  2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: sets access to RTC device (for MPlayer)
+# Description: loads RTC module, creates and sets permission of /dev/rtc
+### END INIT INFO
+
+# Extract from /usr/share/doc/mplayer/...../documentation.html :
+
+#The new timer code uses PC's RTC (Real Time Clock) for this task,
+#because it has precise 1ms timers. It is automatically enabled when
+#available, but requires root privileges, a setuid root MPlayer binary
+#or a properly set up kernel. 
+#(this is solved in Debian by proper settings on /dev/rtc).
+# If you are running kernel 2.4.19pre8 or
+#later you can adjust the maximum RTC frequency for normal users
+#through the /proc filesystem. Use this command to enable RTC for
+#normal users: echo 1024 > /proc/sys/dev/rtc/max-user-freq
+# The power management functions of some notebook BIOSes with
+# speedstep CPUs interact badly with RTC. Audio and video may get out
+# of sync. Plugging the external power connector in before you power
+# up your notebook seems to help. You can always turn off RTC support
+# with the -nortc option. In some hardware combinations (confirmed
+# during usage of non-DMA DVD drive on an ALi1541 board) usage of the
+# RTC timer causes skippy playback.
+
+# To enable/disable, reconfigure  mplayer with   `dpkg-reconfigure mplayer'
+
+####################
+#so that lintian wont complain
+[ "$1" = stop ] && exit 0
+
+[ "$1" = start -o "$1" = restart -o "$1" = force-reload -o "$1" = reload ] || exit 0
+
+######################
+
+# If /lib/lsb/init-functions doesn't exist
+# define them here, otherwise installer breaks
+if [ -f /lib/lsb/init-functions ]; then
+    . /lib/lsb/init-functions
+else
+    log_begin_msg ()   {        echo -n "$@" ;    }
+    log_progress_msg ()   {        echo -n "$@" ;    }
+    log_warning_msg ()    {        echo "$@" ;    }
+    log_failure_msg ()    {        echo "$@" ;    }
+    log_end_msg ()    { 
+       if [ "$1" = 0 ]; then
+            echo "   ...done."
+        else
+            echo "   ...fail!"
+        fi
+    }
+fi
+
+
+######################
+
+if [ -r /etc/mplayer/mplayer.conf ] ; then
+ if grep -q "^ *nortc=1"  /etc/mplayer/mplayer.conf  ||
+    #simply add this comment to disable this script
+    grep -q "#disable RTC" /etc/mplayer/mplayer.conf  ; then
+  log_warning_msg Mplayer will not have RTC support.
+  exit 0
+ fi
+fi
+
+## this is somewhat slow...
+##debconf-show mplayer | grep -q 'mplayer/rtc.*true'  || exit 0
+
+###########
+
+log_begin_msg Setting RTS support for MPlayer
+comma=':'
+
+if [ ! -e /dev/rtc ] ; then
+ r=$( uname -r)
+ c=/boot/config-$r
+ if [ ! -e $c ] ||   grep -qx  'CONFIG_RTC=m'  $c ; then
+  if modprobe rtc > /dev/null ; then
+   log_progress_msg  $comma 'loaded module rtc' ; comma=,
+  else 
+   log_failure_msg  $comma 'error loading module rtc' ; comma=,
+  fi
+  if test -r /sbin/udevsettle ; then 
+     log_progress_msg  $comma ' and waiting for udev ' ; comma=,
+    /sbin/udevsettle --timeout=3
+  fi
+ fi
+ if [ ! -e /dev/rtc ] ; then
+  log_progress_msg $comma 'creating /dev/rtc' ; comma=,
+  mknod /dev/rtc c 10 135 ; chown root.audio /dev/rtc ; chmod 660 /dev/rtc 
+ fi
+fi
+
+if ! ls -lL  /dev/rtc | grep -qx 'crw-rw----.*root.*audio.*/dev/rtc' 
+    then
+    log_progress_msg $comma 'correcting permission/ownerskip of /dev/rtc' ; comma=,
+    #avoid using --dereference if unneeded (to be on safe side)
+    d='' ;    [ -L /dev/rtc ] && d='--dereference'
+    chown $d root.audio /dev/rtc ; chmod 660 /dev/rtc
+fi
+
+
+S=/proc/sys/dev/rtc/max-user-freq
+
+if [ ! -r $S ] ; then
+ log_failure_msg 'cannot find /proc interface for max-user-freq'
+ log_end_msg 1
+ exit 0
+fi
+
+f=$(cat $S )
+
+if test "$f" = "" || test "$f" -lt 1024 ; then
+ echo 1024 > $S
+ log_progress_msg $comma 'raising max-user-freq of RTC from '$f' to 1024'
+ comma=,
+fi 
+
+
+log_end_msg 0
+
+exit 0

@@ -1,0 +1,5 @@
+i386    @MAINSITE@ releases/codecs essential-20060611.tar.bz2
+alpha   @MAINSITE@ releases/codecs rp8codecs-alpha-20050115.tar.bz2
+ppc     @MAINSITE@ releases/codecs rp8codecs-ppc-20050115.tar.bz2
+ppc     @MAINSITE@ releases/codecs xanimdlls-ppc-20040626.tar.bz2
+ppc     @MAINSITE@ releases/codecs essential-ppc-20051120.tar.bz2
