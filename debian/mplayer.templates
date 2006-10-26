@@ -10,9 +10,10 @@ Description: Create your ~/.mplayer/mplayer.conf file
 
 Template: mplayer/rtc
 Type: boolean
-Default: true
+Default: false
 Description: Enable access to RTC?
- MPlayer can use the RTC (Real Time Clock) to provide for better timing
+ On older  kernels MPlayer can use the RTC (Real Time Clock)
+ to provide for better timing
  in reproduction, with less CPU cost; to this end, though, 
  the device /dev/rtc must be accessible to group audio,
  and the default max-user-freq must be raised to 1024.

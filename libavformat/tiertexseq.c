@@ -68,7 +68,7 @@ static int seq_probe(AVProbeData *p)
     /* there's no real header in a .seq file, the only thing they have in common */
     /* is the first 256 bytes of the file which are always filled with 0 */
     for (i = 0; i < 256; i++)
-        if (p->buf[0] != 0)
+        if (p->buf[i] != 0)
             return 0;
 
     /* only one fourth of the score since the previous check is too naive */
@@ -122,7 +122,7 @@ static int seq_parse_frame_data(SeqDemuxContext *seq, ByteIOContext *pb)
 {
     unsigned int offset_table[4], buffer_num[4];
     TiertexSeqFrameBuffer *seq_buffer;
-    int i, e;
+    int i, e, err;
 
     seq->current_frame_offs += SEQ_FRAME_SIZE;
     url_fseek(pb, seq->current_frame_offs, SEEK_SET);
@@ -153,13 +153,18 @@ static int seq_parse_frame_data(SeqDemuxContext *seq, ByteIOContext *pb)
     for (i = 0; i < 3; i++) {
         if (offset_table[i] != 0) {
             for (e = i + 1; e < 4 && offset_table[e] == 0; e++);
-            seq_fill_buffer(seq, pb, buffer_num[1 + i],
+            err = seq_fill_buffer(seq, pb, buffer_num[1 + i],
               offset_table[i],
               offset_table[e] - offset_table[i]);
+            if (err != 0)
+                return err;
         }
     }
 
     if (buffer_num[0] != 255) {
+        if (buffer_num[0] >= SEQ_NUM_FRAME_BUFFERS)
+            return AVERROR_INVALIDDATA;
+
         seq_buffer = &seq->frame_buffers[buffer_num[0]];
         seq->current_video_data_size = seq_buffer->fill_size;
         seq->current_video_data_ptr  = seq_buffer->data;

@@ -17,9 +17,7 @@ extern char *fb_mode_cfgfile;
 extern char *fb_mode_name;
 #endif
 #ifdef HAVE_DIRECTFB
-#if DIRECTFBVERSION > (9*256+12)
 extern char *dfb_params;
-#endif
 #endif
 #ifdef USE_FAKE_MONO
 extern int fakemono; // defined in dec_audio.c
@@ -102,6 +100,7 @@ extern int readPPOpt(void *conf, char *arg);
 extern void revertPPOpt(void *conf, char* opt);
 extern char* pp_help;
 extern int enable_mouse_movements;
+extern int use_filedir_conf;
 
 m_option_t vd_conf[]={
 	{"help", "Use MPlayer with an appropriate video file instead of live partners to avoid vd.\n", CONF_TYPE_PRINT, CONF_NOCFG|CONF_GLOBAL, 0, 0, NULL},
@@ -193,7 +192,7 @@ m_option_t mplayer_opts[]={
 	{"fbmodeconfig", &fb_mode_cfgfile, CONF_TYPE_STRING, 0, 0, 0, NULL},
 #endif
 #ifdef HAVE_DIRECTFB
-#if DIRECTFBVERSION >  (9*256+12)
+#if DIRECTFBVERSION > 912
 	{"dfbopts", "-dfbopts is deprecated, use -vf directfb:dfbopts=... instead\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
 #endif
 #endif
@@ -279,6 +278,8 @@ m_option_t mplayer_opts[]={
 
 //---------------------- mplayer-only options ------------------------
 
+	{"use-filedir-conf", &use_filedir_conf, CONF_TYPE_FLAG, CONF_GLOBAL, 0, 1, NULL},
+	{"use-filedir-conf", &use_filedir_conf, CONF_TYPE_FLAG, CONF_GLOBAL, 1, 0, NULL},
 #ifdef CRASH_DEBUG
 	{"crash-debug", &crash_debug, CONF_TYPE_FLAG, CONF_GLOBAL, 0, 1, NULL},
 	{"nocrash-debug", &crash_debug, CONF_TYPE_FLAG, CONF_GLOBAL, 1, 0, NULL},

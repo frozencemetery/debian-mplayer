@@ -193,6 +193,9 @@ void avcodec_register_all(void)
 #endif //CONFIG_RAWVIDEO_ENCODER
 
     /* decoders */
+#ifdef CONFIG_GIF_DECODER
+    register_avcodec(&gif_decoder);
+#endif
 #ifdef CONFIG_H263_DECODER
     register_avcodec(&h263_decoder);
 #endif //CONFIG_H263_DECODER
@@ -557,6 +560,9 @@ void avcodec_register_all(void)
 #ifdef CONFIG_TIERTEXSEQVIDEO_DECODER
     register_avcodec(&tiertexseqvideo_decoder);
 #endif //CONFIG_TIERTEXSEQVIDEO_DECODER
+#ifdef CONFIG_TIFF_DECODER
+    register_avcodec(&tiff_decoder);
+#endif //CONFIG_TIFF_DECODER
 
 #if defined(CONFIG_AMR_NB) || defined(CONFIG_AMR_NB_FIXED)
 #ifdef CONFIG_AMR_NB_DECODER

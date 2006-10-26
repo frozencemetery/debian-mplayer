@@ -1,0 +1,48 @@
+--- configure.orig	2006-10-23 00:32:31.000000000 +0200
++++ configure	2006-10-26 11:54:03.000000000 +0200
+@@ -410,6 +410,7 @@
+   --enable-iwmmxt        build with iWMMXt support (ARM) [autodetect]
+   --disable-fastmemcpy   disable 3DNow!/SSE/MMX optimized memcpy() [enable]
+   --enable-big-endian    Force byte order to big-endian [autodetect]
++  --enable-no-PIC           enable -fno-PIC in code compilation  [autodetect]
+   --enable-debug[=1-3]   compile debugging information into mplayer [disable]
+   --enable-profile       compile profiling information into mplayer [disable]
+   --disable-sighandler   disable sighandler for crashes [enable]
+@@ -1701,6 +1702,7 @@
+ _libdv=auto
+ _cdparanoia=auto
+ _big_endian=auto
++_fnoPIC=auto
+ _bitmap_font=yes
+ _freetype=auto
+ _fontconfig=auto
+@@ -2019,6 +2021,8 @@
+   --disable-cdparanoia)	_cdparanoia=no	;;
+   --enable-big-endian)  _big_endian=yes ;;
+   --disable-big-endian) _big_endian=no  ;;
++  --enable-no-PIC)         _fnoPIC=yes ;;
++  --disable-no-PIC)        _fnoPIC=no  ;;
+   --enable-bitmap-font)    _bitmap_font=yes   ;;
+   --disable-bitmap-font)   _bitmap_font=no    ;;
+   --enable-freetype)    _freetype=yes   ;;
+@@ -7230,6 +7234,12 @@
+ fi
+ 
+ echocheck "compiler support for -fno-PIC"
++if test "$_fnoPIC" = no ; then 
++   echores "disabled"
++elif test "$_fnoPIC" = yes ; then 
++   CFLAGS="-fno-PIC $CFLAGS"
++   echores "enabled"
++else
+ if x86; then
+ cat > $TMPC <<EOF
+ int main(void) { return 0; }
+@@ -7243,6 +7253,7 @@
+ else
+   echores "only used for x86"
+ fi
++fi
+ 
+ echocheck "compiler support for noexecstack"
+ cat > $TMPC <<EOF

@@ -1,4 +1,4 @@
-.\" $Revision: 20194 $
+.\" $Revision: 20369 $
 .\" MPlayer (C) 2000-2006 MPlayer Team
 .\" This man page was/is done by Gabucino, Diego Biurrun, Jonas Jermann
 .
@@ -31,7 +31,7 @@
 .\" Title
 .\" --------------------------------------------------------------------------
 .
-.TH MPlayer 1 "2006-04-29" "The MPlayer Project" "The Movie Player"
+.TH MPlayer 1 "2006-10-15" "The MPlayer Project" "The Movie Player"
 .
 .SH NAME
 mplayer  \- movie player
@@ -46,146 +46,96 @@ mencoder \- movie encoder
 .na
 .nh
 .B mplayer
-.RI [options]\ [ \ file\  | \ URL\  | \ playlist\  | \ \-\  ]
+[options] [file|URL|playlist|\-]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-[global options]
-.I file1
+[options] file1
 [specific options] [file2] [specific options]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-[global options]
-.RI { "group of files and options" }
-[group specific options]
+[options]
+{group of files and options}
+[group-specific options]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I [dvd|dvdnav]://[title | [start_title]\-end_title ]
+[dvd|dvdnav]://[title|[start_title]\-end_title]
 [options]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I vcd://track[/device]
+vcd://track[/device]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I tv://[channel]
+tv://[channel]
 [options]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I radio://[channel or frequency][/capture]
+radio://[channel|frequency][/capture]
 [options]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I pvr://
+pvr://
 [options]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I dvb://[card_number@]channel
+dvb://[card_number@]channel
 [options]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I mf://filemask
-[-mf options] [options]
+mf://filemask
+[\-mf options] [options]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I [cdda|cddb]://track[-endtrack][:speed][/device]
+[cdda|cddb]://track[-endtrack][:speed][/device]
 [options]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I cue://file[:track]
+cue://file[:track]
 [options]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.RI [ file | mms[t] | http | http_proxy | rt[s]p | ftp | udp | unsv] ://
-[user:passwd@]\fIURL\fP[:port] [options]
+[file|mms[t]|http|http_proxy|rt[s]p|ftp|udp|unsv]://
+[user:pass@]URL[:port] [options]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I sdp://file
+sdp://file
 [options]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I mpst://host[:port]/URL
+mpst://host[:port]/URL
 [options]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I tivo://host/list
+tivo://host/[list|llist|fsid]
 [options]
+.
 .br
-.in
-.B mplayer
-'in +\n[.k]u
-.I tivo://host/llist
-[options]
-.br
-.in
-.B mplayer
-'in +\n[.k]u
-.I tivo://host/fsid
-[options]
-.br
-.in
 .B gmplayer
-'in +\n[.k]u
 [options]
 [\-skin\ skin]
 .
 .br
-.in
 .B mencoder
-'in +\n[.k]u
-[options]
-.RI [ \ file\  | \ URL\  | \ \-\  ]
-[\-o\ file]
+[options] file
+[file|URL|\-] [\-o file]
 .
 .br
-.in
 .B mencoder
-'in +\n[.k]u
-[global options]
-.I file1
+[options] file1
 [specific options] [file2] [specific options]
 .ad
 .hy
@@ -506,7 +456,7 @@ If an option is marked as (XXX only), it will only work in combination with
 the XXX option or if XXX is compiled in.
 .PP
 .I NOTE:
-The suboption parser (used for example for -ao pcm suboptions) supports
+The suboption parser (used for example for \-ao pcm suboptions) supports
 a special kind of string-escaping intended for use with external GUIs.
 .br
 It has the following format:
@@ -515,11 +465,11 @@ It has the following format:
 .br
 .I EXAMPLES:
 .br
-mplayer -ao pcm:file=%10%C:test.wav test.avi
+mplayer \-ao pcm:file=%10%C:test.wav test.avi
 .br
 Or in a script:
 .br
-mplayer -ao pcm:file=%`expr length "$NAME"`%"$NAME" test.avi
+mplayer \-ao pcm:file=%`expr length "$NAME"`%"$NAME" test.avi
 .PP
 .
 .\" --------------------------------------------------------------------------
@@ -546,7 +496,10 @@ Even suboptions can be specified in this way.
 You can also write file-specific configuration files.
 If you wish to have a configuration file for a file called 'movie.avi', create a file
 named 'movie.avi.conf' with the file-specific options in it and put it in
-~/.mplayer/ or in the same directory as the file.
+~/.mplayer/.
+You can also put the configuration file in the same directory as the file to
+be played, as long as you give the \-use-filedir-conf option (either on the
+command line or in your global config file).
 .PP
 .I EXAMPLE MPLAYER CONFIGURATION FILE:
 .sp 1
@@ -639,7 +592,7 @@ Prints all available options.
 .TP
 .B \-msgcharset <charset>
 Convert console messages to the specified character set (default: autodetect).
-Text will be in the encoding specified with the --charset configure option.
+Text will be in the encoding specified with the \-\-charset configure option.
 Set this to "noconv" to disable conversion (for e.g.\& iconv problems).
 .br
 .I NOTE:
@@ -720,6 +673,14 @@ Display even less output and status messages than with \-quiet.
 Show the description and content of a profile.
 .
 .TP
+.B \-use-filedir-conf
+Look for a file-specific configuration file in the same directory as
+the file that is being played.
+.br
+.I WARNING:
+may be dangerous if playing from untrusted media.
+.
+.TP
 .B "\-v\ \ \ \ \ "
 Increment verbosity level, one level for each \-v
 found on the command line.
@@ -781,7 +742,7 @@ drivers.
 .TP
 .B \-crash-debug (DEBUG CODE)
 Automatically attaches gdb upon crash or SIGTRAP.
-Support must be compiled in by configuring with --enable-crash-debug.
+Support must be compiled in by configuring with \-\-enable-crash-debug.
 .
 .TP
 .B \-edlout <filename>
@@ -789,7 +750,7 @@ Creates a new file and writes edit decision list (EDL) records to it.
 During playback, the user hits 'i' to mark the start or end of a skip block.
 This provides a starting point from which the user can fine-tune EDL entries
 later.
-See DOCS/\:HTML/\:en/\:edl.html for details.
+See http://www.mplayerhq.hu/\:DOCS/\:HTML/\:en/\:edl.html for details.
 .
 .TP
 .B \-enqueue (GUI only)
@@ -1284,7 +1245,8 @@ Here you can tell MPlayer which angles to use (default: 1).
 Enables edit decision list (EDL) actions during playback.
 Video will be skipped over and audio will be muted and unmuted according to
 the entries in the given file.
-See DOCS/\:HTML/\:en/\:edl.html for details on how to use this.
+See http://www.mplayerhq.hu/\:DOCS/\:HTML/\:en/\:edl.html for details
+on how to use this.
 .
 .TP
 .B \-endpos <[[hh:]mm:]ss[.ms]|size[b|kb|mb]> (also see \-ss and \-sb)
@@ -3087,6 +3049,10 @@ Disables image display.
 Necessary for proper benchmarking of drivers that change
 image buffers on monitor retrace only (nVidia).
 Default is not to disable image display (nobenchmark).
+.IPs (no)bobdeint
+Very simple deinterlacer.
+Might not look better than \-vf tfields=1,
+but it is the only deinterlacer for xvmc (default: nobobdeint).
 .IPs (no)queue
 Queue frames for display to allow more parallel work of the video hardware.
 May add a small (not noticeable) constant A/V desync (default: noqueue).
@@ -5440,7 +5406,7 @@ Ultra simple & slow postprocessing filter that compresses and
 decompresses the image at several (or \- in the case of quality
 level 8 \- all) shifts and averages the results.
 The way this differs from the behavior of spp is that uspp actually
-encodes & decodes each case with libavcodec MPEG-4, whereas spp uses
+encodes & decodes each case with libavcodec Snow, whereas spp uses
 a simplified intra only 8x8 DCT similar to MJPEG.
 .RSs
 .IPs <quality>
@@ -8487,7 +8453,7 @@ Turn this option on for interlaced content.
 .br
 .I NOTE:
 Should you rescale the video, you would need an interlace-aware resizer,
-which you can activate with -vf scale=<width>:<height>:1.
+which you can activate with \-vf scale=<width>:<height>:1.
 .
 .TP
 .B "4mv\ \ \ \ "
@@ -8592,8 +8558,8 @@ This seems to be mandatory only for old versions of DivX's decoder.
 As of XviD-1.0.x, this option is replaced by the closed_gop option.
 .
 .TP
-.B (no)greyscale
-Make XviD discard chroma planes so the encoded video is greyscale only.
+.B (no)grayscale
+Make XviD discard chroma planes so the encoded video is grayscale only.
 Note that this does not speed up encoding, it just prevents chroma data
 from being written in the last stage of encoding.
 .
@@ -8728,7 +8694,7 @@ It will improve quality at the cost of encoding speed.
 It reduces PSNR by nature, as the mathematical deviation to the original
 picture will get bigger, but the subjective image quality will raise.
 Since it works with color information, you might want to turn it off when
-encoding in greyscale.
+encoding in grayscale.
 .
 .TP
 .B (no)hq_ac
@@ -10182,7 +10148,7 @@ mplayer dummy.avi \-sub source.sub \-dumpmpsub
 .PP
 .B Convert subtitles to MPsub format without watching the movie:
 .nf
-mplayer /dev/\:zero \-rawvideo pal:fps=xx -demuxer rawvideo \-vc null \-vo null \-noframedrop \-benchmark \-sub source.sub \-dumpmpsub
+mplayer /dev/\:zero \-rawvideo pal:fps=xx \-demuxer rawvideo \-vc null \-vo null \-noframedrop \-benchmark \-sub source.sub \-dumpmpsub
 .fi
 .
 .PP
@@ -10273,7 +10239,8 @@ If you find one, report it to us, but please make sure you have read all
 of the documentation first.
 Also look out for smileys. :)
 Many bugs are the result of incorrect setup or parameter usage.
-The bug reporting section of the documentation (DOCS/\:HTML/\:en/\:bugreports.html)
+The bug reporting section of the documentation
+(http://www.mplayerhq.hu/\:DOCS/\:HTML/\:en/\:bugreports.html)
 explains how to create useful bug reports.
 .
 .

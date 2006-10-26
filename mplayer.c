@@ -92,7 +92,6 @@ int enable_mouse_movements=0;
 char * proc_priority=NULL;
 #endif
 
-#define ABS(x) (((x)>=0)?(x):(-(x)))
 #define ROUND(x) ((int)((x)<0 ? (x)-0.5 : (x)+0.5))
 
 #ifdef HAVE_RTC
@@ -414,6 +413,7 @@ short edl_muted  = 0; ///< Stores whether EDL is currently in muted mode.
 short edl_decision = 0; ///< 1 when an EDL operation has been made.
 FILE* edl_fd = NULL; ///< fd to write to when in -edlout mode.
 float begin_skip = MP_NOPTS_VALUE; ///< start time of the current skip while on edlout mode
+int use_filedir_conf;
 
 static unsigned int inited_flags=0;
 #define INITED_VO 1
@@ -855,7 +855,7 @@ void load_per_file_config (m_config_t* conf, const char *const file)
 
     sprintf (cfg, "%s.conf", file);
     
-    if (!stat (cfg, &st))
+    if (use_filedir_conf && !stat (cfg, &st))
     {
 	mp_msg(MSGT_CPLAYER,MSGL_INFO,MSGTR_LoadingConfig, cfg);
 	m_config_parse_config_file (conf, cfg);
@@ -4351,6 +4351,11 @@ if(time_frame>0.001 && !(vo_flags&256)){
 
         current_module="flip_page";
         if (!frame_time_remaining) {
+
+         // FIXME: add size based support for -endpos
+         if ( end_at.type == END_AT_TIME && end_at.pos < sh_video->pts )
+              eof = PT_NEXT_ENTRY;
+
          if(blit_frame){
 	   unsigned int t2=GetTimer();
 	   double tt;
@@ -4364,10 +4369,6 @@ if(time_frame>0.001 && !(vo_flags&256)){
 	   else if (j > frame_time + frame_time * FRAME_LAG_WARN)
 		too_slow_frame_cnt++;
 		/* printf ("PANIC: too slow frame (%.3f)!\n", j); */
-
-           // FIXME: add size based support for -endpos
-           if ( end_at.type == END_AT_TIME && end_at.pos < sh_video->pts )
-                eof = PT_NEXT_ENTRY;
 
 	   if(vo_config_count) video_out->flip_page();
 	   if (play_n_frames >= 0) {
@@ -5531,12 +5532,12 @@ uninit_player(INITED_ALL-(INITED_GUI+INITED_INPUT+(fixed_vo?INITED_VO:0)));
 #endif
     }
     set_of_sub_size = 0;
+   }
     vo_sub_last = vo_sub=NULL;
     subdata=NULL;
 #ifdef USE_ASS
     ass_track = NULL;
 #endif
-   }
 #endif
 
 if(eof == PT_NEXT_ENTRY || eof == PT_PREV_ENTRY) {

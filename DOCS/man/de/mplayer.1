@@ -2,7 +2,7 @@
 .\" Diese Man-Page wurde/wird von Moritz Bunkus, Sebastian Krämer,
 .\" Tobias Diedrich gepflegt.
 .\"
-.\" In sync with r20132
+.\" In sync with r20358
 .
 .\" --------------------------------------------------------------------------
 .\" Makrodefinitionen
@@ -33,7 +33,7 @@
 .\" Titel
 .\" --------------------------------------------------------------------------
 .
-.TH MPlayer 1 "2006-04-29" "Das MPlayer Projekt"
+.TH MPlayer 1 "2006-10-15" "Das MPlayer Projekt"
 .
 .SH NAME
 mplayer  \- Movie Player
@@ -48,145 +48,96 @@ mencoder \- Movie Encoder
 .na
 .nh
 .B mplayer
-.RI [Optionen]\ [ \ Datei\  | \ URL\  | \ Playlist\  | \ \-\  ]
+[Optionen] [Datei|URL|Playlist|\-]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-[globale Optionen]
-.I Datei1
+[Optionen] Datei1
 [spezielle Optionen] [Datei2] [spezielle Optionen]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-[globale Optionen]
-.RI { "Liste von Dateien und Optionen" }
-[Liste von Dateien und Optionen]
+[Optionen]
+{Liste von Dateien und Optionen}
+[spezifische Optionen für die Optionen der Liste]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I [dvd|dvdnav]://[Titel | [Starttitel]\-Endtitel ]
+[dvd|dvdnav]://[Titel|[Starttitel]\-Endtitel]
 [Optionen]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I vcd://Titel[/Gerät]
+vcd://Titel[/Gerät]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I tv://[Kanal]
+tv://[Kanal]
 [Optionen]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I radio://[Kanal oder Frequenz][/capture]
+radio://[Kanal oder Frequenz][/capture]
 [Optionen]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I pvr://
+pvr://
 [Optionen]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I dvb://[Kartennummer@]Kanal
+dvb://[Kartennummer@]Kanal
 [Optionen]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I mf://Dateimaske
-[-mf Optionen] [Optionen]
+mf://Dateimaske
+[Optionen für \-mf] [Optionen]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I [cdda|cddb]://Titel[-Endtitel][:Geschwindigkeit][/Gerät]
+[cdda|cddb]://Titel[-Endtitel][:Geschwindigkeit][/Gerät]
 [Optionen]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I cue://Datei[:Titel]
+cue://Datei[:Titel]
 [Optionen]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.RI [ file | mms[t] | http | http_proxy | rt[s]p | ftp | udp | unsv] ://
-[Benutzer:Passwort@]\fIURL\fP[:Port] [Optionen]
+[file|mms[t]|http|http_proxy|rt[s]p|ftp|udp|unsv]://
+[Benutzer:Passwort@]URL[:Port] [Optionen]
+.
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I sdp://Datei
+sdp://Datei
 [Optionen]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I mpst://Rechnername[:Port]/URL
+mpst://Rechnername[:Port]/URL
 [Optionen]
 .
 .br
-.in
 .B mplayer
-'in +\n[.k]u
-.I tivo://Rechnername/list
+tivo://Rechnername/[list|llist|fsid]
 [Optionen]
+.
 .br
-.in
-.B mplayer
-'in +\n[.k]u
-.I tivo://Rechnername/llist
-[Optionen]
-.br
-.in
-.B mplayer
-'in +\n[.k]u
-.I tivo://Rechnername/fsid
-[Optionen]
-.br
-.in
 .B gmplayer
-'in +\n[.k]u
 [Optionen]
 [\-skin\ Skin]
 .
 .br
-.in
 .B mencoder
-'in +\n[.k]u
-[Optionen]
-.RI [ \ Datei\  | \ URL\  | \ \-\  ]
-[\-o\ Datei]
+[Optionen] Datei
+[Datei|URL|\-] [\-o Datei]
 .
 .br
-.in
 .B mencoder
-'in +\n[.k]u
-[globale Optionen]
-.I Datei1
+Optionen Datei1
 [spezielle Optionen] [Datei2] [spezielle Optionen]
 .ad
 .hy
@@ -265,10 +216,10 @@ anpassen kann.
 .RSs
 .IPs "<\- und \->"
 Springe 10 Sekunden zurück/\:vor.
-.IPs "HOCH und RUNTER"
-Springe 1 Minute zurück/\:vor.
+.IPs "hoch und runter"
+Springe 1 Minute vor/\:zurück.
 .IPs "BildHoch und BildRunter (bzw.\& PGUP/\:PGDOWN)"
-Springe 10 Minuten zurück/\:vor.
+Springe 10 Minuten vor/\:zurück.
 .IPs "[ und ]"
 Verringert/erhöht die Abspielgeschwindigkeit um 10%.
 .IPs "{ und }"
@@ -334,7 +285,7 @@ Datei.
 Mache einen Schnappschuss.
 .IPs "S (nur bei \-vf screenshot)"
 Beginne/beende die Aufnahme von Schnappschüssen.
-.IPs "I"
+.IPs "I\ \ \ \ "
 Zeige den Dateinamen im OSD.
 .IPs "! und @"
 Spult zum Anfang des vorigen/nächsten Kapitels
@@ -345,7 +296,7 @@ Spult zum Anfang des vorigen/nächsten Kapitels
 (Die folgenden Tasten funktionieren nur in Verbindung mit
 hardwarebeschleunigter
 Videoausgabe (xv, (x)vidix, (x)mga, etc.\&), dem Softwareequalizer-
-(\-vf eq oder \-vf eq2) oder dem Farbtonfilter (\-vf hue).
+(\-vf eq oder \-vf eq2) oder dem Farbtonfilter (\-vf hue).)
 .RE
 .PP
 .PD 0
@@ -470,7 +421,7 @@ Kehre zum Hauptmenü zurück.
 .IPs "Tastenfeld 7"
 Kehre zum nächsten Menü zurück (Vorzug erhält Kapitel->Titel->Ursprung, in
 dieser Reihenfolge).
-.IPs "Tastenfeld Enter"
+.IPs "Tastenfeld ENTER"
 Bestätige die Auswahl.
 .RE
 .PD 1
@@ -492,10 +443,10 @@ Verringert/\:erhöht die Lautstärke.
 .B Joysticksteuerung
 .PD 0
 .RS
-.IPs "Links und Rechts"
+.IPs "links und rechts"
 Spule 10 Sekunden zurück/\:vor.
-.IPs "Hoch und Runter"
-Spule 1 Minute zurück/\:vor.
+.IPs "hoch und runter"
+Spule 1 Minute vor/\:zurück.
 .IPs "Knopf 1"
 Pause.
 .IPs "Knopf 2"
@@ -529,11 +480,11 @@ Das Format ist folgendermaßen:
 .br
 .I BEISPIELE:
 .br
-mplayer -ao pcm:file=%10%C:test.wav test.avi
+mplayer \-ao pcm:file=%10%C:test.wav test.avi
 .br
 Oder in einem Skript:
 .br
-mplayer -ao pcm:file=%`expr length "$NAME"`%"$NAME" test.avi
+mplayer \-ao pcm:file=%`expr length "$NAME"`%"$NAME" test.avi
 .PP
 .
 .\" --------------------------------------------------------------------------
@@ -559,10 +510,13 @@ Auch Suboptionen können in dieser Art angegeben werden.
 .PP
 .PP
 Du kannst auch dateispezifische Konfigurationsdateien schreiben.
-Wenn du für einen Film namens 'movie.avi' eine Konfigurationsdatei schreiben
+Wenn du für eine Datei namens 'movie.avi' eine Konfigurationsdatei schreiben
 möchtest, dann nenne diese Datei 'movie.avi.conf' mit den für
-diesen Film relevanten Optionen und speichere die Datei in ~/\:.mplayer/
-oder im Verzeichnis der Datei.
+diesen Film relevanten Optionen und speichere die Datei in ~/\:.mplayer/.
+Du kannst die Konfigurationsdatei auch im selben Verzeichnis wie die Datei
+ablegen, die abgespielt werden soll, solange du die Option \-use-filedir-conf
+verwendest (entweder auf der Kommandozeile oder in deiner globalen
+Konfigurationsdatei).
 .PP
 .I BEISPIEL FÜR DIE MPLAYER-KONFIGURATIONSDATEI:
 .sp 1
@@ -661,7 +615,7 @@ Gibt alle verfügbaren Optionen aus.
 Konvertiere Konsolenausgaben in den angegebenen Zeichensatz (Standard:
 automatische Erkennung).
 Der Text wird diejenige Codierung haben, die mit der configure-Option
---charset angegeben wurde.
+\-\-charset angegeben wurde.
 Setze dies auf "noconv", um jegliche Konvertierung zu deaktivieren (z.B.\& bei
 Problemen mit iconv).
 .br
@@ -745,6 +699,11 @@ Zeige noch weniger Ausgaben und Statusmeldungen an als mit \-quiet.
 Zeige eine Beschreibung und den Inhalt eines Profils an.
 .
 .TP
+.B \-use-filedir-conf
+Schaue nach einer dateispezifischen Konfigurationsdatei im selben Verzeichnis
+wie die Datei, die abgespielt wird.
+.
+.TP
 .B "\-v\ \ \ \ \ "
 Erhöht die Ausführlichkeit der Ausgaben um eine Stufe für jedes \-v auf der
 Kommandozeile.
@@ -813,7 +772,7 @@ svga, vesa, winvidix, xmga, xvidix, xover, xv (siehe \-vo xv:ck), xvmc
 .B \-crash-debug (DEBUG-CODE)
 Führt bei einem Absturz oder SIGTRAP automatisch gdb aus.
 Unterstützung hierfür muß einkompiliert sein durch Ausführung von 'configure'
-mit --enable-crash-debug.
+mit \-\-enable-crash-debug.
 .
 .TP
 .B \-edlout <Dateiname>
@@ -823,7 +782,7 @@ Während der Wiedergabe drückt der Benutzer 'i', um Beginn oder Ende eines
 Blocks, der übersprungen werden soll, zu markieren.
 Damit erhält  er eine Ausgangsbasis, die er an seine Bedürfnisse
 anpassen kann.
-Siehe DOCS/\:HTML/\:en/\:edl.html für Details.
+Siehe http://www.mplayerhq.hu/\:DOCS/\:HTML/\:de/\:edl.html für Details.
 .
 .TP
 .B \-enqueue (nur beim GUI)
@@ -1358,7 +1317,8 @@ wiedergeben soll (Standard: 1).
 Aktiviert EDL-Aktionen (Edit Decision List) während der Wiedergabe.
 Teile des Videos werden entsprechend den Einträgen der angegebenen
 Datei übersprungen und Teile des Audios stummgeschaltet.
-Siehe DOCS/\:HTML/\:en/\:edl.html für Details, wie du dieses
+Siehe http://www.mplayerhq.hu/\:DOCS/\:HTML/\:de/\:edl.html für Details, wie
+du dieses
 Feature benutzen kannst.
 .
 .TP
@@ -1515,11 +1475,11 @@ anzuschauen, verwende 'pvr://' als Film-URL.
 Verfügbare Optionen sind folgende:
 .RSs
 .IPs aspect=<0\-3>
-Gib den Aspekt der Eingabe an (Standard: 4:3):
+Gib den Aspekt der Eingabe an:
 .RSss
 0: 1:1
 .br
-1: 4:3
+1: 4:3 (Standard)
 .br
 2: 16:9
 .br
@@ -1529,30 +1489,30 @@ Gib den Aspekt der Eingabe an (Standard: 4:3):
 Gib die Audio-Rate für die Encodierung an (Standard: 48000 Hz, verfügbar:
 32000, 44100 und 48000 Hz).
 .IPs alayer=<1\-3>
-Gib die Encodierung des MPEG-Audio-Layers an (Standard: Layer 2).
+Gib die Encodierung des MPEG-Audio-Layers an (Standard: 2).
 .IPs abitrate=<32\-448>
-Gib die Bitrate für die Audioencodierung in kbps an (Standard: 384 kbps).
+Gib die Bitrate für die Audioencodierung in kbps an (Standard: 384).
 .IPs amode=<Wert>
 Gib den Modus für die Audioencodierung an.
 Verfügbare Preset-Werte sind 'stereo', 'joint_stereo', 'dual' und 'mono'
 (Standard: stereo).
 .IPs vbitrate=<Wert>
 Gib die durchschnittliche Bitrate für die Videoencodierung an (Standard:
-6 Mbps).
+6).
 .IPs vmode=<Wert>
-Gib den Modus für die Videoencodierung an (Standard: vbr):
+Gib den Modus für die Videoencodierung an:
 .RSss
-vbr: variable Bitrate
+vbr: variable Bitrate (Standard)
 .br
 cbr: konstante Bitrate
 .REss
 .IPs vpeak=<Wert>
-Gib den Höchstwert für die Bitrate der Videoencodierung an (nur nützlich für
-VBR-Encodierung, Standard: 9.6 Mbps).
+Gib den Höchstwert für die Bitrate der Videoencodierung an
+(nur nützlich für VBR-Encodierung, Standard: 9.6).
 .IPs fmt=<Wert>
-Wähle ein MPEG-Format für die Encodierung (Standard: ps):
+Wähle ein MPEG-Format für die Encodierung:
 .RSss
-ps:    MPEG-2 Program Stream
+ps:    MPEG-2 Program Stream (Standard)
 .br
 ts:    MPEG-2 Transport Stream
 .br
@@ -3230,6 +3190,10 @@ Deaktiviert die Anzeige von Bildern.
 Benötigt für einwandfreies Benchmarking von Treibern, die den Bildpuffer nur
 bei einem Monitor-Retrace ändern (nVidia).
 Voreinstellung ist, die Bildwiedergabe nicht zu deaktivieren (nobenchmark).
+.IPs (no)bobdeint
+Sehr einfacher Deinterlacer.
+Sieht möglicherweise nicht besser als \-vf tfields=1 aus, ist aber
+der einzige Deinterlacer, der mit xvmc funktioniert (Standard: nobobdeint).
 .IPs (no)queue
 Frames werden in einer Queue angeordnet, um der Videohardware weitergehendes
 paralleles Arbeiten zu ermöglichen.
@@ -5692,11 +5656,10 @@ Erzwinge Quantisierungsparameter (Standard: 0, benutze QP vom Video).
 .B uspp[=Qualität[:qp]]
 Ultra-einfacher und -langsamer Nachbearbeitungsfilter, der das Bild
 mit mehreren (bzw.\& \- im Falle von Qualitätslevel 8 \- alle) Verschiebungen
-rekomprimiert und daraus den Mittelwert
-bildet.
+rekomprimiert und daraus den Mittelwert bildet.
 Dies unterscheidet sich im Verhalten zu spp insofern, dass uspp tatsächlich
-jeden Fall encodiert und decodiert, wohingegen spp eine vereinfachte nur-Intra
-8x8 DCT ähnlich der bei MJPEG benutzten verwendet.
+jeden Fall mit libavcodec Snow encodiert und decodiert, wohingegen spp eine
+vereinfachte nur-Intra 8x8 DCT ähnlich der bei MJPEG benutzten verwendet.
 .RSs
 .IPs <Qualität>
 0\-8 (Standard: 3)
@@ -8901,8 +8864,8 @@ Schalte diese Option bei interlaced Inhalten ein.
 .br
 .I ANMERKUNG:
 Solltest du das Video anders skalieren, brauchst du einen Skalierer, der
-interlaced Material bemerkt; du kannst einen solchen mit '-vf
-scale=<Breite>:<Höhe>:1' aktivieren.
+interlaced Material bemerkt; du kannst einen solchen mit \-vf
+scale=<Breite>:<Höhe>:1 aktivieren.
 .
 .TP
 .B "4mv\ \ \ \ "
@@ -9010,7 +8973,7 @@ Dies scheint nur für alte Versionen des DivX-Decoders notwendig zu sein.
 Seit XviD 1.0.x ist diese Option durch die Option closed_gop ersetzt.
 .
 .TP
-.B (no)greyscale
+.B (no)grayscale
 Sorge dafür, dass XviD die Chrominanzebenen verwirft, so dass das encodierte
 Video schwarz/weiß wird.
 Beachte, dass dies den Encodierungsvorgang nicht beschleunigt, es werden in
@@ -10712,7 +10675,7 @@ mplayer dummy.avi \-sub source.sub \-dumpmpsub
 .PP
 .B Konvertiere Untertitel in das MPsub-Format, ohne dabei das Video anzuschauen:
 .nf
-mplayer /dev/\:zero \-rawvideo pal:fps=xx -demuxer rawvideo \-vc null \-vo null
+mplayer /dev/\:zero \-rawvideo pal:fps=xx \-demuxer rawvideo \-vc null \-vo null
 \-noframedrop \-benchmark \-sub source.sub \-dumpmpsub
 .fi
 .
@@ -10815,7 +10778,8 @@ Achte auf Smilies. :)
 Viele Fehler sind das Resultat eines fehlerhaften Setups oder falscher
 Benutzung der Parameter.
 Die Sektion über Fehlerberichterstattung in der Dokumentation
-(DOCS/\:HTML/\:en/\:bugreports.html) beschreibt, wie man nutzbringende Fehlerberichte
+(http://www.mplayerhq.hu/\:DOCS/\:HTML/\:de/\:bugreports.html) beschreibt,
+wie man nutzbringende Fehlerberichte
 erstellt.
 .
 .

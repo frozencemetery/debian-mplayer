@@ -29,8 +29,8 @@ SRCS=libdha.c \
 
 OBJS=$(SRCS:.c=.o)
 
-CFLAGS  = -fPIC -I. -I.. $(OPTFLAGS)
-LIBS = 
+CFLAGS  = -I. -I.. $(OPTFLAGS) -fPIC
+
 ifeq ($(TARGET_OS),OpenBSD)
 ifeq ($(TARGET_ARCH_X86),yes)
 LIBS += -li386

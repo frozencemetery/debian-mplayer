@@ -1,3 +1,14 @@
+mplayer (1.0~rc1-1) unstable; urgency=low
+
+  * New upstream release
+  * -nortc is now default since -rtc has disadvantages with recent kernels
+    ( so the  mplayer/rtc question is now low priority, defaults to false )
+  * do not pass --enable-directfb (it fails)
+  * reorganized debian/rules file (Closes: #395238,#395240,#395303).
+  * reformat of scripts/win32codecs.sh
+
+ -- A Mennucc1 <mennucc1@debian.org>  Thu, 26 Oct 2006 12:55:33 +0200
+
 mplayer (1.0~rc1~svn20199-1) unstable; urgency=low
 
   * code pulled from SVN 

@@ -90,6 +90,7 @@ typedef struct glyph_info_s {
 //	int height;
 	int be; // blur edges
 	int shadow;
+	double frz; // z-axis rotation
 	
 	glyph_hash_key_t hash_key;
 } glyph_info_t;
@@ -220,6 +221,10 @@ ass_instance_t* ass_init(void)
 	FT_Library ft;
 	ass_instance_t* priv = 0;
 	
+	memset(&render_context, 0, sizeof(render_context));
+	memset(&frame_context, 0, sizeof(frame_context));
+	memset(&text_info, 0, sizeof(text_info));
+
 	if (font_fontconfig && font_name)
 		family = strdup(font_name);
 	
@@ -275,6 +280,10 @@ void ass_done(ass_instance_t* priv)
 {
 	ass_face_cache_done();
 	ass_glyph_cache_done();
+	if (render_context.stroker) {
+		FT_Stroker_Done(render_context.stroker);
+		render_context.stroker = 0;
+	}
 	if (priv && priv->library) FT_Done_FreeType(priv->library);
 	if (priv && priv->fontconfig_priv) fontconfig_done(priv->fontconfig_priv);
 	if (priv && priv->synth_priv) ass_synth_done(priv->synth_priv);
@@ -996,7 +1005,6 @@ static char* parse_tag(char* p, double pwr) {
 			render_context.be = val ? 1 : 0;
 		else
 			render_context.be = 0;
-		mp_msg(MSGT_GLOBAL, MSGL_V, "be unimplemented \n");
 	} else if (mystrcmp(&p, "b")) {
 		int b;
 		if (mystrtoi(&p, 10, &b))
@@ -1549,6 +1557,42 @@ static int get_face_descender(FT_Face face)
 }
 
 /**
+ * \brief Calculate base point for positioning and rotation
+ * \param bbox text bbox
+ * \param alignment alignment
+ * \param bx, by out: base point coordinates
+ */
+static void get_base_point(FT_BBox bbox, int alignment, int* bx, int* by)
+{
+	const int halign = alignment & 3;
+	const int valign = alignment & 12;
+	if (bx)
+		switch(halign) {
+		case HALIGN_LEFT:
+			*bx = bbox.xMin;
+			break;
+		case HALIGN_CENTER:
+			*bx = (bbox.xMax + bbox.xMin) / 2;
+			break;
+		case HALIGN_RIGHT:
+			*bx = bbox.xMax;
+			break;
+		}
+	if (by)
+		switch(valign) {
+		case VALIGN_TOP:
+			*by = bbox.yMin;
+			break;
+		case VALIGN_CENTER:
+			*by = (bbox.yMax + bbox.yMin) / 2;
+			break;
+		case VALIGN_SUB:
+			*by = bbox.yMax;
+			break;
+		}
+}
+
+/**
  * \brief Main ass rendering function, glues everything together
  * \param event event to render
  * Process event, appending resulting ass_image_t's to images_root.
@@ -1616,8 +1660,8 @@ static int ass_render_event(ass_event_t* event, event_images_t* event_images)
 		if ( use_kerning && previous && glyph_index ) {
 			FT_Vector delta;
 			FT_Get_Kerning( render_context.face, previous, glyph_index, FT_KERNING_DEFAULT, &delta );
-			pen.x += delta.x;
-			pen.y += delta.y;
+			pen.x += delta.x * render_context.scale_x;
+			pen.y += delta.y * render_context.scale_y;
 		}
 
 		shift.x = pen.x & 63;
@@ -1671,6 +1715,7 @@ static int ass_render_event(ass_event_t* event, event_images_t* event_images)
 		text_info.glyphs[text_info.length].desc = get_face_descender(render_context.face);
 		text_info.glyphs[text_info.length].be = render_context.be;
 		text_info.glyphs[text_info.length].shadow = render_context.shadow;
+		text_info.glyphs[text_info.length].frz = render_context.rotation;
 
 		text_info.length++;
 
@@ -1716,7 +1761,7 @@ static int ass_render_event(ass_event_t* event, event_images_t* event_images)
 				glyph_info_t* first_glyph = text_info.glyphs + last_break + 1;
 				glyph_info_t* last_glyph = text_info.glyphs + i - 1;
 
-				while ((last_glyph >= first_glyph) && ((last_glyph->symbol == '\n') || (last_glyph->symbol == 0)))
+				while ((last_glyph > first_glyph) && ((last_glyph->symbol == '\n') || (last_glyph->symbol == 0)))
 					last_glyph --;
 
 				width = last_glyph->pos.x + last_glyph->bbox.xMax - first_glyph->pos.x - first_glyph->bbox.xMin;
@@ -1781,33 +1826,12 @@ static int ass_render_event(ass_event_t* event, event_images_t* event_images)
 
 	// positioned events are totally different
 	if (render_context.evt_type == EVENT_POSITIONED) {
-		int align_shift_x = 0;
-		int align_shift_y = 0;
+		int base_x = 0;
+		int base_y = 0;
 		mp_msg(MSGT_GLOBAL, MSGL_DBG2, "positioned event at %d, %d\n", render_context.pos_x, render_context.pos_y);
-		switch(halign) {
-			case HALIGN_LEFT:
-				align_shift_x = - bbox.xMin;
-				break;
-			case HALIGN_CENTER:
-				align_shift_x = - (bbox.xMax + bbox.xMin) /2;
-				break;
-			case HALIGN_RIGHT:
-				align_shift_x = - bbox.xMax;
-				break;
-		}
-		switch(valign) {
-			case VALIGN_TOP:
-				align_shift_y = - bbox.yMin;
-				break;
-			case VALIGN_CENTER:
-				align_shift_y = - (bbox.yMax + bbox.yMin) /2;
-				break;
-			case VALIGN_SUB:
-				align_shift_y = - bbox.yMax;
-				break;
-		}
-		device_x = x2scr(render_context.pos_x) + align_shift_x;
-		device_y = y2scr(render_context.pos_y) + align_shift_y;
+		get_base_point(bbox, alignment, &base_x, &base_y);
+		device_x = x2scr(render_context.pos_x) - base_x;
+		device_y = y2scr(render_context.pos_y) - base_y;
 	}
 	
 	// fix clip coordinates (they depend on alignment)
@@ -1832,45 +1856,43 @@ static int ass_render_event(ass_event_t* event, event_images_t* event_images)
 	}
 
 	// rotate glyphs if needed
-	if (render_context.rotation != 0.) {
-		double angle = render_context.rotation;
+	{
+		double angle = 0.;
 		FT_Vector center;
 		FT_Matrix matrix_rotate;
-		
-		matrix_rotate.xx = (FT_Fixed)( cos( angle ) * 0x10000L );
-		matrix_rotate.xy = (FT_Fixed)( -sin( angle ) * 0x10000L );
-		matrix_rotate.yx = (FT_Fixed)( sin( angle ) * 0x10000L );
-		matrix_rotate.yy = (FT_Fixed)( cos( angle ) * 0x10000L );
 		
 		if (((render_context.org_x != 0) || (render_context.org_y != 0)) && (render_context.evt_type == EVENT_POSITIONED)) {
 			center.x = render_context.org_x;
 			center.y = render_context.org_y;
 		} else {
-			FT_BBox str_bbox;
-
-			center.x = text_info.glyphs[0].pos.x + device_x;
-			center.y = text_info.glyphs[0].pos.y + device_y;
-
-			compute_string_bbox(&text_info, &str_bbox);
-			center.x += (str_bbox.xMax - str_bbox.xMin) / 2;
-			center.y += (str_bbox.yMax - str_bbox.yMin) / 2;
+			int bx, by;
+			get_base_point(bbox, alignment, &bx, &by);
+			center.x = device_x + bx;
+			center.y = device_y + by;
 		}
-//		mp_msg(MSGT_GLOBAL, MSGL_DBG2, "\ncenter: %d, %d\n", center.x, center.y);
 
 		for (i = 0; i < text_info.length; ++i) {
+			FT_Vector start;
+			FT_Vector start_old;
 			glyph_info_t* info = text_info.glyphs + i;
+
+			if (info->frz < 0.00001 && info->frz > -0.00001)
+				continue;
+			
+			if (info->frz != angle) {
+				angle = info->frz;
+				matrix_rotate.xx = (FT_Fixed)( cos( angle ) * 0x10000L );
+				matrix_rotate.xy = (FT_Fixed)( -sin( angle ) * 0x10000L );
+				matrix_rotate.yx = (FT_Fixed)( sin( angle ) * 0x10000L );
+				matrix_rotate.yy = (FT_Fixed)( cos( angle ) * 0x10000L );
+			}
 
 			// calculating shift vector
 			// shift = (position - center)*M - (position - center)
-			FT_Vector start;
-			FT_Vector start_old;
-//			mp_msg(MSGT_GLOBAL, MSGL_INFO, "start: (%d, %d) + (%d, %d) - (%d, %d) = (%d, %d)\n", info->pos.x, info->pos.y, device_x, device_y, center.x, center.y,
-//					info->pos.x + device_x - center.x, info->pos.y + device_y - center.y);
 			start.x = (info->pos.x + device_x - center.x) << 6;
 			start.y = - (info->pos.y + device_y - center.y) << 6;
 			start_old.x = start.x;
 			start_old.y = start.y;
-//			mp_msg(MSGT_GLOBAL, MSGL_INFO, "start: %d, %d\n", start.x / 64, start.y / 64);
 
 			FT_Vector_Transform(&start, &matrix_rotate);
 			
@@ -1880,7 +1902,6 @@ static int ass_render_event(ass_event_t* event, event_images_t* event_images)
 			info->pos.x += start.x >> 6;
 			info->pos.y -= start.y >> 6;
 
-//			mp_msg(MSGT_GLOBAL, MSGL_DBG2, "shift: %d, %d\n", start.x / 64, start.y / 64);
 			if (info->glyph)
 				FT_Glyph_Transform( info->glyph, &matrix_rotate, 0 );
 			if (info->outline_glyph)
@@ -2002,7 +2023,7 @@ static int overlap(segment_t* s1, segment_t* s2)
 
 static int cmp_segment(const void* p1, const void* p2)
 {
-	return ((segment_t*)p1)->a - ((segment_t*)p1)->b;
+	return ((segment_t*)p1)->a - ((segment_t*)p2)->a;
 }
 
 static void shift_event(event_images_t* ei, int shift)

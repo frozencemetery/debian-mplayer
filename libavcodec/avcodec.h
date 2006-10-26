@@ -37,8 +37,8 @@ extern "C" {
 #define AV_STRINGIFY(s)         AV_TOSTRING(s)
 #define AV_TOSTRING(s) #s
 
-#define LIBAVCODEC_VERSION_INT  ((51<<16)+(19<<8)+0)
-#define LIBAVCODEC_VERSION      51.19.0
+#define LIBAVCODEC_VERSION_INT  ((51<<16)+(21<<8)+0)
+#define LIBAVCODEC_VERSION      51.21.0
 #define LIBAVCODEC_BUILD        LIBAVCODEC_VERSION_INT
 
 #define LIBAVCODEC_IDENT        "Lavc" AV_STRINGIFY(LIBAVCODEC_VERSION)
@@ -147,6 +147,8 @@ enum CodecID {
     CODEC_ID_TARGA,
     CODEC_ID_DSICINVIDEO,
     CODEC_ID_TIERTEXSEQVIDEO,
+    CODEC_ID_TIFF,
+    CODEC_ID_GIF,
 
     /* various pcm "codecs" */
     CODEC_ID_PCM_S16LE= 0x10000,
@@ -1888,7 +1890,7 @@ typedef struct AVCodecContext {
      * - encoding: set by user.
      * - decoding: unused
      */
-    int crf;
+    float crf;
 
     /**
      * constant quantization parameter rate control method
@@ -2176,6 +2178,7 @@ extern AVCodec sonic_ls_encoder;
 extern AVCodec svq1_encoder;
 extern AVCodec x264_encoder;
 
+extern AVCodec gif_decoder;
 extern AVCodec h263_decoder;
 extern AVCodec h261_decoder;
 extern AVCodec mpeg4_decoder;
@@ -2300,6 +2303,7 @@ extern AVCodec targa_decoder;
 extern AVCodec dsicinvideo_decoder;
 extern AVCodec dsicinaudio_decoder;
 extern AVCodec tiertexseqvideo_decoder;
+extern AVCodec tiff_decoder;
 
 /* pcm codecs */
 #define PCM_CODEC(id, name) \

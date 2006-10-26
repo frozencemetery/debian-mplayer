@@ -12,11 +12,18 @@ vo_filter () {
  sed 's/^\t//'
 }
 
-env -i ./mplayer -vo help 2> /dev/null | vo_filter >> $vo
-
-#fallback in case of crisis
-grep -q  'x11'  $vo || cp  debian/mplayer.vo.help.fallback $vo
-
+if test -x ./mplayer ; then
+ if env -i ./mplayer -vo help 2> /dev/null | vo_filter >> $vo ; then
+   #fallback in case of crisis 
+   grep -q  'x11'  $vo || cp -v debian/mplayer.vo.help.fallback $vo
+ else
+   #maybe we are cross compiling
+   cp -v debian/mplayer.vo.help.fallback $vo
+ fi
+else
+ #maybe it was not compiled
+ cp -v debian/mplayer.vo.help.fallback $vo
+fi
 
 ######### create automagic part
 t=$(tempfile)

@@ -1,8 +1,20 @@
 #!/usr/bin/make -f
-# Made with the aid of debmake, by Christoph Lameter,
-# based on the sample debian/rules file for GNU hello by Ian Jackson.
+###########
+## this snippet comes from debhelper-5.0.40/examples/rules.multi2
+#
+# Based on a sample debian/rules that uses debhelper.
+# (That file is public domain software, originally written by Joey Hess.)
+#
+# This version is for a multibinary package. It also allows you to build any
+# of the binary packages independantly, via binary-<package> targets.
 
+# Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+############
 
 # This is the debhelper compatibility version to use.
 # (3 would be fine actually, but it is deprecated in etch; anyway sarge has 4)
@@ -10,12 +22,20 @@ export DH_COMPAT=4
 
 package        := mplayer
 
+## the svn revision is not autodetected in some targets!
+upstreamversion := 1.0rc1
+
+## we add some ~ to it
+debian_version := 1.0~rc1
+
+
+
 svn_revision := $(shell if test -r .svn ; then LC_ALL=C svn info 2> /dev/null | grep Revision | cut -d' ' -f2 ; elif test -r revision.svn ; then cat revision.svn ; fi )
 
 CC_version := $(shell $(CC) -dumpversion)
 
-UPSTREAMSOURCE := upstream SVN repository
-#http://www1.mplayerhq.hu/MPlayer/releases/MPlayer-1.0pre8.tar.bz2
+#UPSTREAMSOURCE := upstream SVN repository
+UPSTREAMSOURCE := http://www1.mplayerhq.hu/MPlayer/releases/MPlayer-1.0rc1.tar.bz2
 
 #was troublesom stuff removed ?
 # see target "fix-orig-source" in this makefile
@@ -28,10 +48,8 @@ extraversion := DFSG-nonfree
 endif
 
 
-debian_version := $(shell cat /etc/debian_version)
 
-
-ifeq ($(debian_version),3.1) #a.k.a. Sarge
+ifeq ($(shell cat /etc/debian_version),3.1) #a.k.a. Sarge
 XLIBS := xlibs-dev
 else
 XLIBS := libx11-dev, libxext-dev, libxinerama-dev, libxv-dev, libxvmc-dev, libxxf86dga-dev, libxxf86vm-dev, x-dev
@@ -94,19 +112,21 @@ ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
 endif
 
 
+########### build
+####### build-arch
+
 configure: configure-stamp
+#this is actually a  configure-arch-stamp
 configure-stamp:
 	dh_testdir
 	#check consistency between debian/control and what we are compiling
 	grep -x 'Source: $(package)'  debian/control
 	grep -x 'Package: $(package)' debian/control
 	# Add here commands to configure the package.
-	[ -r DOCS/.upstream_ships_docs ] || { cd DOCS/xml && ./configure ; }
-	#
 	./configure --prefix=/usr --confdir=/etc/mplayer  \
         --datadir=/usr/share/mplayer --enable-libdv \
 	--enable-xmga --enable-mga --enable-3dfx --enable-tdfxfb \
-	--enable-fbdev  --enable-directfb --enable-xinerama  --enable-xvmc \
+	--enable-fbdev   --enable-xinerama  --enable-xvmc \
         --enable-tv-v4l2 --enable-sdl --enable-ossaudio \
 	--enable-lirc --enable-gui --enable-freetype --enable-menu \
 	--enable-largefiles --enable-dynamic-plugins \
@@ -117,19 +137,31 @@ configure-stamp:
 
 	touch configure-stamp
 
-build: configure-stamp build-stamp
+
 # commands to compile the package.
-build-stamp:  build-indep build-arch
-	dh_testdir
-	touch build-stamp
-
-build-indep:
-	dh_testdir
-	[ -r DOCS/.upstream_ships_docs ] || ${MAKE} -C DOCS/xml html-chunked
-
-build-arch:
+build-arch: configure-stamp build-arch-stamp
+build-arch-stamp:  build-arch
 	dh_testdir
 	${MAKE} 
+	touch build-arch-stamp
+
+###### build-indep
+
+# commands to compile the docs
+build-indep: build-indep-stamp
+build-indep-stamp:
+	dh_testdir
+	#configure the independent part (not in a separate block: it is fast!)
+	[ -r DOCS/.upstream_ships_docs ] || { cd DOCS/xml && ./configure ; }
+	#
+	[ -r DOCS/.upstream_ships_docs ] || ${MAKE} -C DOCS/xml html-chunked
+	touch build-indep-stamp
+
+
+build: build-indep build-arch
+
+
+################‡ clean
 
 clean:
 	dh_testdir
@@ -140,7 +172,7 @@ clean:
 	- $(MAKE) distclean
 	- $(MAKE) -C Gui distclean
 	#
-	rm -f build-stamp configure-stamp 
+	rm -f build-arch-stamp build-indep-stamp configure-stamp 
 	#some leftovers
 	rm -f config.h version.h .depends codec-cfg config.mak */config.mak libavcodec/libavcodec.a
 	find -name '*.o' -or -name '*.a' -or -name '*~' -print0 |\
@@ -148,64 +180,105 @@ clean:
 	#
 	dh_clean
 
-clean-deb:
-	dh_testdir
-	dh_testroot
-	dh_clean -k
-	dh_installdirs
 
-# Build architecture-independent files here.
-binary-indep: clean-deb build
-	dh_installdebconf -p mplayer-doc	
-	dh_installdocs --exclude=CVS -X.cvsignore -p mplayer-doc Copyright DOCS/HTML DOCS/it DOCS/tech DOCS/zh
+###############‡‡###### install
 
 manlangs := $(notdir $(wildcard DOCS/man/*) )
 
-# Build architecture-dependent files here.
-binary-arch: clean-deb build
-	# scripts
+install-arch:  build-arch
+	dh_testdir
+	dh_clean -a -k
+# scripts
 	chmod a+x debian/scripts/*
 	dh_install debian/scripts usr/share/mplayer/
 	dh_install debian/prefs var/lib/mplayer/
-	#
-	# commands to install the package into debian/<packagename>
+
+# commands to install the package into debian/<packagename>
 	$(MAKE) prefix=$(destdir)/usr BINDIR=$(destdir)/usr/bin CONFDIR=$(destdir)/etc/mplayer LIBDIR=$(destdir)/usr/lib DATADIR=$(destdir)/usr/share/mplayer  MANDIR=$(destdir)/usr/share/man  install
-	#
+
 	dh_link usr/bin/mplayer usr/bin/gmplayer 
 	dh_link usr/share/man/man1/mplayer.1.gz usr/share/man/man1/gmplayer.1.gz
-	#
-	#install man pages
+
+# install man pages
 	set -e && for i in $(manlangs) ; do mkdir -p $(destdir)/usr/share/man/$$i/man1/ && cp DOCS/man/$$i/mplayer.1 $(destdir)/usr/share/man/$$i/man1/ && dh_link usr/share/man/$$i/man1/mplayer.1.gz usr/share/man/$$i/man1/gmplayer.1.gz ; done
-	#
+
 	dh_installdebconf -p $(package)	
 	dh_installdocs --exclude=CVS -X.cvsignore -p $(package) Copyright
-	#
+
 	dh_installexamples etc/example.conf etc/menu.conf etc/input.conf etc/codecs.conf
+
+
+
+
+install-indep:  build-indep
+	dh_testdir
+	dh_clean -i -k
+	dh_installdocs --exclude=CVS -X.cvsignore -p mplayer-doc Copyright DOCS/HTML DOCS/tech DOCS/zh
+
+
+
+
+#####################################################
+## this snippet again comes from debhelper-5.0.40/examples/rules.multi2
+
+# This single target is used to build all the packages, all at once, or
+# one at a time. So keep in mind: any options passed to commands here will
+# affect _all_ packages. Anything you want to only affect one package
+# should be put in another target, such as the install target.
+binary-common:
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs
+	dh_installdocs
+	dh_installexamples
 	dh_installmenu
+	dh_installdebconf
 	dh_installmime
 	dh_installinit
+	dh_installman
+#       dh_installcron
+#       dh_installinfo
+#       dh_undocumented
+	dh_strip
+	dh_link
+###### non-orthodox mungling
+#	add automatic vo list
+	if test -r	debian/$(THISPACKAGE)/DEBIAN/config ; then sh -e debian/config.augmenter debian/$(THISPACKAGE)/DEBIAN/config ; fi
+#	rewrite README.Debian and add free or non-free statement
+ifeq ($(DFSG),)
+	tail +2  debian/README.Debian.free | sed 's!@UPSTREAMSOURCE@!$(UPSTREAMSOURCE)!' > debian/$(THISPACKAGE)/usr/share/doc/$(THISPACKAGE)/README.Debian
+else
+	tail +2  debian/README.Debian.nonfree | sed 's!@UPSTREAMSOURCE@!$(UPSTREAMSOURCE)!' > debian/$(THISPACKAGE)/usr/share/doc/$(THISPACKAGE)/README.Debian
+endif
+	sed 's!@DEB_BUILD_CONFIGURE@!$(DEB_BUILD_CONFIGURE)!' < debian/README.Debian  >>	 debian/$(THISPACKAGE)/usr/share/doc/$(THISPACKAGE)/README.Debian
 
-binary: binary-indep binary-arch
-	dh_installchangelogs
+########
 	dh_compress
 	dh_fixperms
 	dh_makeshlibs
 	dh_installdeb
 	dh_shlibdeps
-	dh_strip 
 	dh_gencontrol
-	#add automatic vo list
-	sh -e debian/config.augmenter debian/$(package)/DEBIAN/config
-	#rewrite README.Debian and add free or non-free statement
-ifeq ($(DFSG),)
-	tail +2  debian/README.Debian.free | sed 's!@UPSTREAMSOURCE@!$(UPSTREAMSOURCE)!' > debian/$(package)/usr/share/doc/$(package)/README.Debian
-else
-	tail +2  debian/README.Debian.nonfree | sed 's!@UPSTREAMSOURCE@!$(UPSTREAMSOURCE)!' > debian/$(package)/usr/share/doc/$(package)/README.Debian
-endif
-	sed 's!@DEB_BUILD_CONFIGURE@!$(DEB_BUILD_CONFIGURE)!' < debian/README.Debian  >>	 debian/$(package)/usr/share/doc/$(package)/README.Debian
-	#
 	dh_md5sums
 	dh_builddeb
+
+
+
+# Build architecture independant packages using the common target.
+binary-indep: build-indep install-indep
+	$(MAKE) -f debian/rules DH_OPTIONS=-i THISPACKAGE=mplayer-doc binary-common
+
+# Build architecture dependant packages using the common target.
+binary-arch: build-arch install-arch
+	$(MAKE) -f debian/rules DH_OPTIONS=-a THISPACKAGE=mplayer binary-common
+
+# Any other binary targets build just one binary package at a time.
+binary-%: build install
+	make -f debian/rules binary-common DH_OPTIONS=-p$*
+
+binary: binary-indep binary-arch
+
+
 
 #####################################################
 ##this target generates debian/control . It is not automatically invoked
@@ -222,14 +295,12 @@ autocontrol:
 ##temporary dir
 D := temp_dir_to_debianize_mplayer
 
-## the svn revision is not autodetected here
-upstreamversion := 1.0~rc1~svn20199
-
 ##what we expect to find in a tar.bz2 from upstream
 M := MPlayer-$(upstreamversion)
 
+
 download-and-unpack-orig:
-	mkdir $(D)	
+	mkdir $(D)
 	###darn this does not work in any dir (as requested by policy)
 	# $(dirname ??)/scripts/win32codecs.sh download MPlayer-$(upstreamversion).tar.bz2
 	### download file, or link it if available
@@ -242,27 +313,45 @@ copy-orig-from-svn: ../mplayer/.svn /usr/bin/svn
 	cd $(D)/$(M) && LC_ALL=C svn info 2> /dev/null | grep Revision | cut -d' ' -f2 > revision.svn
 	find $(D)/$(M) -type d -name .svn  | xargs rm -r
 
-fix-orig-source: $(D)
+##part of the source that is not shipped with Debian
+E := mplayer-non-DFSG-$(debian_version)
+
+##part of the source that is shipped with Debian
+S := mplayer-$(debian_version)
+
+
+fix-orig-source: $(D)/$(M)
+	mkdir $(D)/$(E)
 	#according to the README, this file should be there
 	cp  /usr/share/doc/libjpeg62/README.gz    $(D)/$(M)/libavcodec/README.jfdct.gz
 	# this contains the dreaded DeCSS code. We can live without, by
 	#  using libdvdread3 (and the optional library installed by
-	#    /usr/share/doc/libdvdread3/examples/install-css.sh   :-)
-	cd $(D)/$(M) && rm -r libmpdvdkit2 
+	#    http://www.debian-unofficial.org/   :-)
+	cd $(D) &&  mv $(M)/libmpdvdkit2  $(E)
 	# Well this may seem a bit excessive... but this code is not useful
 	#  for building the package, and most of it does not correctly state
 	#  author-license-copyright :  so I throw out the baby and the bath...
 	# When and if someone needs this stuff, I will carefully scrutinize
 	#  it and add what is suitable
-	cd $(D)/$(M) && rm  -r TOOLS
+	cd $(D) && mv $(M)/TOOLS $(E)
 	#check if upstream includes DOCS and then dont rebuild them
 	cd $(D)/$(M)/DOCS && if [ -r HTML ] ; then touch .upstream_ships_docs; fi
 	# my debian dir is too different, 
 	cd $(D)/$(M) && mv debian debian_upstream
 	# do not support encoding in any way 
-	cd $(D)/$(M) && rm mencoder.c 
+	cd $(D) && mv $(M)/mencoder.c  $(E)
 	# ok lets repackage
-	cd $(D) && mv MPlayer-$(upstreamversion) mplayer-$(upstreamversion) && 	 tar czf  mplayer_$(upstreamversion).orig.tar.gz mplayer-$(upstreamversion) && 	 mv mplayer_$(upstreamversion).orig.tar.gz .. && rm -r mplayer-$(upstreamversion)
+	cd $(D) && mv MPlayer-$(upstreamversion) $(S) && 	 tar czf  ../mplayer_$(debian_version).orig.tar.gz $(S) &&  rm -r $(S)
+
+	cd $(D) && tar czf  mplayer-non-DFSG_$(debian_version).tar.gz $(E) && gpg  --passphrase yes -c mplayer-non-DFSG_$(debian_version).tar.gz   && mv mplayer-non-DFSG_$(debian_version).tar.gz.gpg .. && rm -r $(E) mplayer-non-DFSG_$(debian_version).tar.gz
 	rmdir $(D)
 
-.PHONY: binary binary-arch binary-indep clean checkroot get-orig-source autocontrol fix-orig-source copy-orig-from-svn download-and-unpack-orig
+#unfix-orig-source: debian/mplayer.menu
+#	if [ -r  $(M).tar.bz2 ] ; then  ln -s ../$(M).tar.bz2 $(D)/. ; elif 	  [ -r  ../$(M).tar.bz2 ] ; then  ln -s ../../$(M).tar.bz2 $(D)/. ; else  cd  $(D) && wget -N $(UPSTREAMSOURCE) ; fi
+#	cd $(D) && tar xjf  $(M).tar.bz2 && rm $(M).tar.bz2
+
+
+# this will fail for SVN derived sources
+get-orig-source : download-and-unpack-orig  fix-orig-source 
+
+.PHONY: build clean binary-indep binary-arch binary-common binary install binary binary-arch binary-indep clean checkroot get-orig-source autocontrol fix-orig-source copy-orig-from-svn download-and-unpack-orig

@@ -645,7 +645,7 @@ static int gxf_write_header(AVFormatContext *s)
                 }
                 break;
             default:
-                av_log(NULL, AV_LOG_ERROR, "video codec not supported\n");
+                av_log(s, AV_LOG_ERROR, "video codec not supported\n");
                 return -1;
             }
         }
@@ -792,7 +792,7 @@ static int gxf_interleave_packet(AVFormatContext *s, AVPacket *out, AVPacket *pk
                 pkt = NULL;
             }
             if (flush || av_fifo_size(&sc->audio_buffer) >= GXF_AUDIO_PACKET_SIZE) {
-                if (gxf_new_audio_packet(gxf, sc, &new_pkt, flush) > 0) {
+                if (!pkt && gxf_new_audio_packet(gxf, sc, &new_pkt, flush) > 0) {
                     pkt = &new_pkt;
                     break; /* add pkt right now into list */
                 }

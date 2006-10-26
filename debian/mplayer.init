@@ -60,10 +60,8 @@ fi
 ######################
 
 if [ -r /etc/mplayer/mplayer.conf ] ; then
- if grep -q "^ *nortc=1"  /etc/mplayer/mplayer.conf  ||
-    #simply add this comment to disable this script
-    grep -q "#disable RTC" /etc/mplayer/mplayer.conf  ; then
-  log_warning_msg Mplayer will not have RTC support.
+ if ! grep -q "^ *rtc=1"  /etc/mplayer/mplayer.conf   ; then
+  #log_warning_msg Mplayer does not require RTC support.
   exit 0
  fi
 fi

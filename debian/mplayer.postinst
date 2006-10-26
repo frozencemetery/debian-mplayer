@@ -10,7 +10,17 @@ use Fcntl;
 my $version = version(2.0);
 my $didupgrade = 0;
 
-##########################
+
+
+###########################
+# pass control to debhelper scripts..
+#
+my $temp="set -e\nset -- @ARGV\n" . << 'DEBHELPER_EOF_';
+#DEBHELPER#
+DEBHELPER_EOF_
+system ($temp) / 256 == 0
+   or die "Problem with debhelper scripts: $!";
+#########################
 
 dealwithupgrades();
 
@@ -34,7 +44,7 @@ my $font =  scalar(get("mplayer/ttfont"))  ;
   $dcarea .= "#truetype font\nfont=" . $font . "\n"   if $font;
 
 
-$dcarea .= "#disable RTC (Real Time Clock) access (will use nanosleep)\nnortc=1"  if (get('mplayer/rtc') ne 'true')  ;
+$dcarea .= "#enable RTC (Real Time Clock) access\nrtc=1"  if (get('mplayer/rtc') ne 'false')  ;
 
 $mcfg->setconfarea($dcarea);
 
@@ -66,13 +76,3 @@ sub debug {
 }
 
 
-
-
-###########################
-# pass control to debhelper scripts..
-#
-my $temp="set -e\nset -- @ARGV\n" . << 'DEBHELPER_EOF_';
-#DEBHELPER#
-DEBHELPER_EOF_
-system ($temp) / 256 == 0
-   or die "Problem with debhelper scripts: $!";
