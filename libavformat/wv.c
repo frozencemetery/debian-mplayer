@@ -118,15 +118,15 @@ static int wv_read_block_header(AVFormatContext *ctx, ByteIOContext *pb)
     if(!wc->chan) wc->chan = chan;
     if(!wc->rate) wc->rate = rate;
 
-    if(bpp != wc->bpp){
+    if(wc->flags && bpp != wc->bpp){
         av_log(ctx, AV_LOG_ERROR, "Bits per sample differ, this block: %i, header block: %i\n", bpp, wc->bpp);
         return -1;
     }
-    if(chan != wc->chan){
+    if(wc->flags && chan != wc->chan){
         av_log(ctx, AV_LOG_ERROR, "Channels differ, this block: %i, header block: %i\n", chan, wc->chan);
         return -1;
     }
-    if(rate != wc->rate){
+    if(wc->flags && rate != wc->rate){
         av_log(ctx, AV_LOG_ERROR, "Sampling rate differ, this block: %i, header block: %i\n", rate, wc->rate);
         return -1;
     }
@@ -162,7 +162,7 @@ static int wv_read_packet(AVFormatContext *s,
                           AVPacket *pkt)
 {
     WVContext *wc = s->priv_data;
-    int ret, samples;
+    int ret;
 
     if (url_feof(&s->pb))
         return -EIO;
@@ -171,12 +171,6 @@ static int wv_read_packet(AVFormatContext *s,
             return -1;
     }
 
-    samples = LE_32(wc->extra);
-    /* should not happen but who knows */
-    if(samples * 2 * wc->chan > AVCODEC_MAX_AUDIO_FRAME_SIZE){
-        av_log(s, AV_LOG_ERROR, "Packet size is too big to be handled in lavc!\n");
-        return -EIO;
-    }
     if(av_new_packet(pkt, wc->blksize + WV_EXTRA_SIZE) < 0)
         return AVERROR_NOMEM;
     memcpy(pkt->data, wc->extra, WV_EXTRA_SIZE);

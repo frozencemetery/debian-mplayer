@@ -292,6 +292,7 @@ Codecs:
   --enable-theora        build with OggTheora support [autodetect]
   --enable-faad-external build with external FAAD2 (AAC) support [autodetect]
   --disable-faad-internal disable internal FAAD2 (AAC) support [autodetect]
+  --enable-faad-fixed    enable fixed-point mode in internal FAAD2 [disabled]
   --disable-faac         disable support for FAAC (AAC encoder) [autodetect]
   --disable-ladspa       disable LADSPA plugin support [autodetect]
   --disable-libdv        disable libdv 0.9.5 en/decoding support [autodetect]
@@ -1004,10 +1005,10 @@ cat > $TMPC << EOF
 int main(void) { return 0; }
 EOF
   if test "$_runtime_cpudetection" = no ; then
-    if test "$proc" = "k8" -o "$proc" = "opteron" -o "$proc" = "athlon64" -o "$proc" = "athlon-fx" ; then
+    if test "$proc" = "k8"; then
       cc_check -march=$proc $cpuopt=$proc || proc=athlon-xp
     fi
-    if test "$proc" = "athlon-xp" || test "$proc" = "athlon-4" || test "$proc" = "athlon-tbird"; then
+    if test "$proc" = "athlon-xp"; then
       cc_check -march=$proc $cpuopt=$proc || proc=athlon
     fi
     if test "$proc" = "k6-3" || test "$proc" = "k6-2"; then
@@ -1022,7 +1023,7 @@ EOF
 	fi
       fi
     fi
-    if test "$proc" = "nocona" || test "$proc" = "prescott" ; then
+    if test "$proc" = "prescott" ; then
       cc_check -march=$proc $cpuopt=$proc || proc=pentium4
     fi
     if test "$proc" = "pentium4" || test "$proc" = "pentium-m" || test "$proc" = "pentium3" || test "$proc" = "pentium2" || test "$proc" = "athlon" || test "$proc" = "c3-2"; then
@@ -1128,20 +1129,20 @@ EOF
     # This is a stripped-down version of the i386 fallback.
     if test "$_runtime_cpudetection" = no ; then
       # --- AMD processors ---
-      if test "$proc" = "k8" -o "$proc" = "opteron" -o "$proc" = "athlon64" -o "$proc" = "athlon-fx" ; then
+      if test "$proc" = "k8"; then
         cc_check -march=$proc $cpuopt=$proc || proc=athlon-xp
       fi
       # This will fail if gcc version < 3.3, which is ok because earlier
       # versions don't really support 64-bit on amd64.
       # Is this a valid assumption? -Corey
-      if test "$proc" = "athlon-xp" || test "$proc" = "athlon-4" ; then
+      if test "$proc" = "athlon-xp"; then
         cc_check -march=$proc $cpuopt=$proc || proc=error
       fi
       # --- Intel processors ---
-      if test "$proc" = "nocona" || test "$proc" = "prescott" ; then
+      if test "$proc" = "nocona"; then
         cc_check -march=$proc $cpuopt=$proc || proc=pentium4
       fi
-      if test "$proc" = "pentium4" || test "$proc" = "pentium4m" ; then
+      if test "$proc" = "pentium4"; then
         cc_check -march=$proc $cpuopt=$proc || proc=error
       fi
 
@@ -1152,9 +1153,12 @@ EOF
         _mcpu=""
         _march=""
       fi
-    else
-      _march=""
-      _mcpu=""
+    else # if test "$_runtime_cpudetection" = no
+      # x86-64 is an undocumented option, an intersection of k8 and nocona.
+      _march="-march=x86-64"
+      _mcpu="$cpuopt=x86-64"
+      cc_check $_mcpu || _mcpu=""
+      cc_check $_march $_mcpu || _march=""
     fi
     
     _optimizing=""
@@ -1508,40 +1512,6 @@ EOF
 fi
 
 
-# intrinsics headers for use with FFmpeg
-if test "$_sse" = yes ; then
-  echocheck "xmmintrin.h"
-  cat > $TMPC << EOF
-#include <xmmintrin.h>
-int main() { _mm_sfence(); return 0; }
-EOF
-  _builtin_vector=no
-  cc_check -msse && _builtin_vector=yes
-  if test "$_builtin_vector" = yes ; then
-    _def_builtin_vector='#define HAVE_BUILTIN_VECTOR 1'
-  else
-    _def_builtin_vector='#undef HAVE_BUILTIN_VECTOR'
-  fi
-  echores "$_builtin_vector"
-fi
-
-if test "$_3dnow" = yes ; then
-  echocheck "mm3dnow.h"
-  cat > $TMPC << EOF
-#include <mm3dnow.h>
-int main() { _m_femms(); return 0; }
-EOF
-  _mm3dnow=no
-  cc_check -m3dnow && _mm3dnow=yes
-  if test "$_mm3dnow" = yes ; then
-    _def_mm3dnow='#define HAVE_MM3DNOW 1'
-  else
-    _def_mm3dnow='#undef HAVE_MM3DNOW'
-  fi
-  echores "$_mm3dnow"
-fi
-
-
 echocheck "assembler support of -pipe option"
 cat > $TMPC << EOF
 int main(void) { return 0; }
@@ -1659,11 +1629,16 @@ _libdts=auto
 _libmpeg2=yes
 _faad_internal=auto
 _faad_external=auto
+_faad_fixed=no
 _faac=auto
 _ladspa=auto
 _xmms=no
 _have_dvd=no
 _dvdnav=auto
+# theres's some known linking issues with darwin and dvdnav, so disable autodetection
+if darwin; then
+  _dvdnav=no
+fi
 _dvdnavconfig=dvdnav-config
 _dvdread=auto
 _mpdvdkit=auto
@@ -1888,6 +1863,8 @@ for ac_option do
   --disable-faad-internal)	_faad_internal=no	;;
   --enable-faad-external)	_faad_external=yes	;;
   --disable-faad-external)	_faad_external=no	;;
+  --enable-faad-fixed)	_faad_fixed=yes	;;
+  --disable-faad-fixed)	_faad_fixed=no	;;
   --enable-faac)	_faac=yes	;;
   --disable-faac)	_faac=no	;;
   --enable-ladspa)	_ladspa=yes	;;
@@ -2868,6 +2845,7 @@ else
     typedef signed char int_fast8_t;
     typedef signed int  int_fast16_t;
     typedef signed int  int_fast32_t;
+    typedef signed long long int_fast64_t;
     typedef unsigned char uint_fast8_t;
     typedef unsigned int  uint_fast16_t;
     typedef unsigned int  uint_fast32_t;
@@ -3748,8 +3726,7 @@ echores "$_tga"
 echocheck "DirectFB"
 if test "$_directfb" = auto ; then
   _directfb=no
-  if linux && test -c /dev/fb0; then
-    cat > $TMPC <<EOF
+  cat > $TMPC <<EOF
 #include <directfb.h>
 int main(void) { IDirectFB *foo; DirectFBInit(0,0); return 0; }
 EOF
@@ -3758,7 +3735,6 @@ EOF
     cc_check $_inc_tmp -ldirectfb && _directfb=yes && \
       _inc_extra="$_inc_extra $_inc_tmp" && break
   done
-  fi
 fi
 
 dfb_version() {
@@ -3806,8 +3782,10 @@ if test "$_directfb" = yes ; then
   if test "$_dfb_version" -ge $(dfb_version 0 9 15); then
     _vosrc="$_vosrc vo_dfbmga.c"
     _vomodules="dfbmga $_vomodules"
+    _def_dfbmga='#define HAVE_DFBMGA 1'
   else
     _novomodules="dfbmga $_novomodules"
+    _def_dfbmga='#undef HAVE_DFBMGA'
   fi
 else
   _def_directfb='#undef HAVE_DIRECTFB'
@@ -5920,6 +5898,8 @@ fi
 if test "$_faad_internal" = yes ; then
   _def_faad_internal="#define USE_FAAD_INTERNAL 1"
   _faad=yes
+  _res_comment="internal floating-point"
+  test "$_faad_fixed" = yes && _res_comment="internal fixed-point"
 elif test "$_faad_external" = yes ; then
   _faad=yes
 else
@@ -6445,7 +6425,7 @@ if test "$_libdv" = auto ; then
 #include <libdv/dv.h>
 int main(void) { dv_encoder_t* enc=dv_encoder_new(1,1,1); return 0; }
 EOF
-  cc_check -ldv $_ld_lm && _libdv=yes
+  cc_check -ldv $_ld_pthread $_ld_lm && _libdv=yes
 fi
 if test "$_libdv" = yes ; then
   _def_libdv='#define HAVE_LIBDV095 1'
@@ -7012,7 +6992,8 @@ if test "$_inet6" = auto ; then
   cat > $TMPC << EOF
 #include <sys/types.h>
 #include <sys/socket.h>
-int main(void) { socket(AF_INET6, SOCK_STREAM, AF_INET6); }
+#include <netinet/in.h>
+int main(void) { struct sockaddr_in6 six; socket(AF_INET6, SOCK_STREAM, AF_INET6); }
 EOF
   _inet6=no
   if cc_check ; then
@@ -7393,13 +7374,11 @@ echores "$_joystick"
 echocheck "lirc"
 if test "$_lirc" = auto ; then
   _lirc=no
-  if test -c /dev/lirc -o -c /dev/lirc/0 ; then
-      cat > $TMPC <<EOF
+  cat > $TMPC <<EOF
 #include <lirc/lirc_client.h>
 int main(void) { return 0; }
 EOF
-      cc_check -llirc_client && _lirc=yes
-  fi
+  cc_check -llirc_client && _lirc=yes
 fi
 if test "$_lirc" = yes ; then
   _def_lirc='#define HAVE_LIRC 1'
@@ -7631,6 +7610,7 @@ LIBTHEORA = $_theora
 THEORA_LIB = $_ld_theora
 FAAD_LIB = $_ld_faad
 FAAD_INTERNAL = $_faad_internal
+FAAD_FIXED = $_faad_fixed
 LIBSMBCLIENT = $_smbsupport
 SMBSUPPORT_LIB = $_ld_smb
 XMMS_PLUGINS = $_xmms
@@ -8345,9 +8325,6 @@ $_def_iwmmxt	// only define if you have XScale IWMMX (ARM)
 
 $_def_altivec_h	// enables usage of altivec.h
 
-$_def_builtin_vector  // enables usage of xmmintrin.h
-$_def_mm3dnow         // enables usage of mm3dnow.h
-
 $_def_mlib  // Sun mediaLib, available only on solaris
 $_def_vis	// only define if you have VIS ( ultrasparc )
 
@@ -8381,6 +8358,7 @@ $_def_tdfxfb
 $_def_tdfxvid
 $_def_directfb
 $_def_directfb_version
+$_def_dfbmga
 $_def_zr
 $_def_bl
 $_def_mga

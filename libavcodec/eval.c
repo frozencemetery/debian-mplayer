@@ -170,11 +170,15 @@ static double evalPrimary(Parser *p){
     else if( strmatch(next, "sin"   ) ) d= sin(d);
     else if( strmatch(next, "cos"   ) ) d= cos(d);
     else if( strmatch(next, "tan"   ) ) d= tan(d);
+    else if( strmatch(next, "atan"  ) ) d= atan(d);
+    else if( strmatch(next, "asin"  ) ) d= asin(d);
+    else if( strmatch(next, "acos"  ) ) d= acos(d);
     else if( strmatch(next, "exp"   ) ) d= exp(d);
     else if( strmatch(next, "log"   ) ) d= log(d);
     else if( strmatch(next, "squish") ) d= 1/(1+exp(4*d));
     else if( strmatch(next, "gauss" ) ) d= exp(-d*d/2)/sqrt(2*M_PI);
     else if( strmatch(next, "abs"   ) ) d= fabs(d);
+    else if( strmatch(next, "mod"   ) ) d-= floor(d/d2)*d2;
     else if( strmatch(next, "max"   ) ) d= d >  d2 ?   d : d2;
     else if( strmatch(next, "min"   ) ) d= d <  d2 ?   d : d2;
     else if( strmatch(next, "gt"    ) ) d= d >  d2 ? 1.0 : 0.0;
@@ -205,19 +209,22 @@ static double evalPrimary(Parser *p){
     return d;
 }
 
-static double evalPow(Parser *p){
-    int sign= (*p->s == '+') - (*p->s == '-');
-    p->s += sign&1;
-    return (sign|1) * evalPrimary(p);
+static double evalPow(Parser *p, int *sign){
+    *sign= (*p->s == '+') - (*p->s == '-');
+    p->s += *sign&1;
+    return evalPrimary(p);
 }
 
 static double evalFactor(Parser *p){
-    double ret= evalPow(p);
+    int sign, sign2;
+    double ret, e;
+    ret= evalPow(p, &sign);
     while(p->s[0]=='^'){
         p->s++;
-        ret= pow(ret, evalPow(p));
+        e= evalPow(p, &sign2);
+        ret= pow(ret, (sign2|1) * e);
     }
-    return ret;
+    return (sign|1) * ret;
 }
 
 static double evalTerm(Parser *p){

@@ -81,7 +81,7 @@ static const CodecTag mov_video_tags[] = {
     { CODEC_ID_MJPEGB, MKTAG('m', 'j', 'p', 'b') }, /* Motion-JPEG (format B) */
     { CODEC_ID_MJPEG, MKTAG('A', 'V', 'D', 'J') }, /* MJPEG with alpha-channel (AVID JFIF meridien compressed) */
 /*    { CODEC_ID_MJPEG, MKTAG('A', 'V', 'R', 'n') }, *//* MJPEG with alpha-channel (AVID ABVB/Truevision NuVista) */
-/*    { CODEC_ID_GIF, MKTAG('g', 'i', 'f', ' ') }, *//* embedded gif files as frames (usually one "click to play movie" frame) */
+    { CODEC_ID_GIF, MKTAG('g', 'i', 'f', ' ') }, /* embedded gif files as frames (usually one "click to play movie" frame) */
 /* Sorenson video */
     { CODEC_ID_SVQ1, MKTAG('S', 'V', 'Q', '1') }, /* Sorenson Video v1 */
     { CODEC_ID_SVQ1, MKTAG('s', 'v', 'q', '1') }, /* Sorenson Video v1 */
@@ -118,6 +118,7 @@ static const CodecTag mov_video_tags[] = {
     { CODEC_ID_DVVIDEO, MKTAG('A', 'V', 'd', 'v') }, /* AVID DV */
     //{ CODEC_ID_JPEG2000, MKTAG('m', 'j', 'p', '2') }, /* JPEG 2000 produced by FCP */
     { CODEC_ID_TARGA, MKTAG('t', 'g', 'a', ' ') }, /* Truevision Targa */
+    { CODEC_ID_TIFF, MKTAG('t', 'i', 'f', 'f') }, /* TIFF embedded in MOV */
     { CODEC_ID_RAWVIDEO, MKTAG('2', 'v', 'u', 'y') }, /* UNCOMPRESSED 8BIT 4:2:2 */
     { CODEC_ID_NONE, 0 },
 };
@@ -1343,15 +1344,9 @@ static int mov_read_wide(MOVContext *c, ByteIOContext *pb, MOV_atom_t atom)
     return err;
 }
 
-
-#ifdef CONFIG_ZLIB
-static int null_read_packet(void *opaque, uint8_t *buf, int buf_size)
-{
-    return -1;
-}
-
 static int mov_read_cmov(MOVContext *c, ByteIOContext *pb, MOV_atom_t atom)
 {
+#ifdef CONFIG_ZLIB
     ByteIOContext ctx;
     uint8_t *cmov_data;
     uint8_t *moov_data; /* uncompressed data */
@@ -1382,9 +1377,8 @@ static int mov_read_cmov(MOVContext *c, ByteIOContext *pb, MOV_atom_t atom)
     get_buffer(pb, cmov_data, cmov_len);
     if(uncompress (moov_data, (uLongf *) &moov_len, (const Bytef *)cmov_data, cmov_len) != Z_OK)
         return -1;
-    if(init_put_byte(&ctx, moov_data, moov_len, 0, NULL, null_read_packet, NULL, NULL) != 0)
+    if(init_put_byte(&ctx, moov_data, moov_len, 0, NULL, NULL, NULL, NULL) != 0)
         return -1;
-    ctx.buf_end = ctx.buffer + moov_len;
     atom.type = MKTAG( 'm', 'o', 'o', 'v' );
     atom.offset = 0;
     atom.size = moov_len;
@@ -1394,10 +1388,12 @@ static int mov_read_cmov(MOVContext *c, ByteIOContext *pb, MOV_atom_t atom)
     ret = mov_read_default(c, &ctx, atom);
     av_free(moov_data);
     av_free(cmov_data);
-
     return ret;
-}
+#else
+    av_log(c->fc, AV_LOG_ERROR, "this file requires zlib support compiled in\n");
+    return -1;
 #endif
+}
 
 /* edit list atom */
 static int mov_read_elst(MOVContext *c, ByteIOContext *pb, MOV_atom_t atom)
@@ -1492,11 +1488,7 @@ static const MOVParseTableEntry mov_default_parse_table[] = {
 { MKTAG( 't', 'c', 'm', 'd' ), mov_read_leaf },
 { MKTAG( 'w', 'i', 'd', 'e' ), mov_read_wide }, /* place holder */
 //{ MKTAG( 'r', 'm', 'q', 'u' ), mov_read_leaf },
-#ifdef CONFIG_ZLIB
 { MKTAG( 'c', 'm', 'o', 'v' ), mov_read_cmov },
-#else
-{ MKTAG( 'c', 'm', 'o', 'v' ), mov_read_leaf },
-#endif
 { 0L, mov_read_leaf }
 };
 
@@ -1750,7 +1742,7 @@ static int mov_read_packet(AVFormatContext *s, AVPacket *pkt)
     /* must be done just before reading, to avoid infinite loop on sample */
     sc->current_sample++;
     if (sample->pos >= url_fsize(&s->pb)) {
-        av_log(mov->fc, AV_LOG_ERROR, "stream %d, offset 0x%llx: partial file\n", sc->ffindex, sample->pos);
+        av_log(mov->fc, AV_LOG_ERROR, "stream %d, offset 0x%"PRIx64": partial file\n", sc->ffindex, sample->pos);
         return -1;
     }
 #ifdef CONFIG_DV_DEMUXER

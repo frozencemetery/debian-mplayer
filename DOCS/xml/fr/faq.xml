@@ -154,7 +154,9 @@ problème sur les systèmes Mandrake).
 Y-a-t'il des listes de diffusion pour <application>MPlayer</application> ?
 </para></question>
 <answer><para>
-Oui. Voir la section <link linkend="mailinglists">listes de diffusion</link>
+Oui. Voir la section
+<ulink url="http://www.mplayerhq.hu/design7/info.html#mailing_lists">listes de diffusion</ulink>
+sur notre page web.
 </para></answer>
 </qandaentry>
 
@@ -405,7 +407,7 @@ J'ai des problèmes pour afficher mes sous-titres, à l'aide!!
 </para></question>
 <answer><para>
 Assurez-vous d'avoir installé les polices correctement. Suivez les étapes de la
-partie <link linkend="mpsub-install">OSD et sous-titres</link> de la section
+partie <link linkend="fonts-osd">polices et OSD</link> de la section
 installation. Si vous utilisez des polices TrueType, vérifiez que la librairie
 <systemitem class="library">FreeType</systemitem> est installée.
 Vous pouvez aussi essayer de vérifier vos sous-titres dans un éditeur de texte

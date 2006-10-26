@@ -344,7 +344,7 @@ static const AVOption options[]={
 
 static const AVClass av_format_context_class = { "AVFormatContext", format_to_name, options };
 
-#if LIBAVCODEC_VERSION_INT > ((52<<16)+(0<<8)+0)
+#if LIBAVFORMAT_VERSION_INT >= ((51<<16)+(0<<8)+0)
 static
 #endif
 void avformat_get_context_defaults(AVFormatContext *s){
@@ -826,7 +826,7 @@ static int av_read_frame_internal(AVFormatContext *s, AVPacket *pkt)
 
             st = s->streams[s->cur_pkt.stream_index];
             if(st->codec->debug & FF_DEBUG_PTS)
-                av_log(s, AV_LOG_DEBUG, "av_read_packet stream=%d, pts=%lld, dts=%lld, size=%d\n",
+                av_log(s, AV_LOG_DEBUG, "av_read_packet stream=%d, pts=%"PRId64", dts=%"PRId64", size=%d\n",
                     s->cur_pkt.stream_index,
                     s->cur_pkt.pts,
                     s->cur_pkt.dts,
@@ -847,7 +847,7 @@ static int av_read_frame_internal(AVFormatContext *s, AVPacket *pkt)
         }
     }
     if(st->codec->debug & FF_DEBUG_PTS)
-        av_log(s, AV_LOG_DEBUG, "av_read_frame_internal stream=%d, pts=%lld, dts=%lld, size=%d\n",
+        av_log(s, AV_LOG_DEBUG, "av_read_frame_internal stream=%d, pts=%"PRId64", dts=%"PRId64", size=%d\n",
             pkt->stream_index,
             pkt->pts,
             pkt->dts,

@@ -84,6 +84,7 @@ OBJS-$(CONFIG_FLASHSV_DECODER)         += flashsv.o
 OBJS-$(CONFIG_FLIC_DECODER)            += flicvideo.o
 OBJS-$(CONFIG_FOURXM_DECODER)          += 4xm.o
 OBJS-$(CONFIG_FRAPS_DECODER)           += fraps.o
+OBJS-$(CONFIG_GIF_DECODER)             += gifdec.o
 OBJS-$(CONFIG_H261_DECODER)            += h261.o
 OBJS-$(CONFIG_H261_ENCODER)            += h261.o
 OBJS-$(CONFIG_H264_DECODER)            += h264.o
@@ -134,6 +135,7 @@ OBJS-$(CONFIG_SVQ1_ENCODER)            += svq1.o
 OBJS-$(CONFIG_SVQ3_DECODER)            += h264.o
 OBJS-$(CONFIG_TARGA_DECODER)           += targa.o
 OBJS-$(CONFIG_THEORA_DECODER)          += vp3.o
+OBJS-$(CONFIG_TIFF_DECODER)            += tiff.o
 OBJS-$(CONFIG_TRUEMOTION1_DECODER)     += truemotion1.o
 OBJS-$(CONFIG_TRUEMOTION2_DECODER)     += truemotion2.o
 OBJS-$(CONFIG_TRUESPEECH_DECODER)      += truespeech.o
@@ -338,19 +340,6 @@ endif
 ifeq ($(CONFIG_CAVS_DECODER),yes)
 OBJS += i386/cavsdsp_mmx.o
 endif
-ifeq ($(TARGET_BUILTIN_VECTOR),yes)
-i386/fft_sse.o: CFLAGS+= -msse
-depend: CFLAGS+= -msse
-endif
-ifeq ($(TARGET_BUILTIN_3DNOW),yes)
-i386/fft_3dn.o: CFLAGS+= -m3dnow
-ifeq ($(TARGET_ARCH_X86),yes)
-i386/fft_3dn2.o: CFLAGS+= -march=athlon
-endif
-ifeq ($(TARGET_ARCH_X86_64),yes)
-i386/fft_3dn2.o: CFLAGS+= -march=k8
-endif
-endif
 endif
 
 # armv4l specific stuff
@@ -410,6 +399,8 @@ OBJS-$(TARGET_ARCH_BFIN)               += bfin/dsputil_bfin.o \
 CFLAGS += $(CFLAGS-yes)
 OBJS += $(OBJS-yes)
 ASM_OBJS += $(ASM_OBJS-yes)
+
+EXTRALIBS := -L$(BUILD_ROOT)/libavutil -lavutil$(BUILDSUF) $(EXTRALIBS)
 
 NAME=avcodec
 ifeq ($(BUILD_SHARED),yes)
