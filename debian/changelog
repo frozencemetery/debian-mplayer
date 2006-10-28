@@ -1,3 +1,18 @@
+mplayer (1.0~rc1-2) unstable; urgency=low
+
+  * rewrote mplayer.{config,template,postinst} ; this also fixes
+    "mplayer: Strange contents of default config file", thanks to
+    Sam Morris (Closes: #395829).
+  * Reviewed description, thanks to Filipus Klutiero (Closes: #395540).
+  * Use po-debconf
+  [Diego suggested:]
+  * Don't install codecs.conf. If people fiddle w/ it, playback *will* break.
+  * --disable-bitmap-font, so no more 
+    "annoying message on 'ttf doesn't look like a bitmap '",
+    thanks to Michael Piefel (Closes: #395325) and Diego
+
+ -- A Mennucc1 <mennucc1@debian.org>  Sat, 28 Oct 2006 17:49:41 +0200
+
 mplayer (1.0~rc1-1) unstable; urgency=low
 
   * New upstream release

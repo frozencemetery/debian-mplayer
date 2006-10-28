@@ -237,12 +237,6 @@ Copyright 2003 Kevin Atkinson
 License:    GNU General Public License
 
 
-Name:	    Demuxer for Musepack v7 bitstream (from FFmpeg)
-File:	    libmpdemux/demux_mpc.c
-Copyright:  Reimar Doeffinger <Reimar.Doeffinger@stud.uni-karlsruhe.de>
-License:   currently relicensed as GNU LGPL 
-
-
 Name:	    lavtools
 File:	    libmpdemux/yuv4mpeg.h
 Home:	  mjpeg.sourceforge.net
