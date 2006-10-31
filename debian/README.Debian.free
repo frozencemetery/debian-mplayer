@@ -17,9 +17,10 @@ obtained by
   debian/rules fix-orig-source
 
 * In particular, the mpdvdkit internal library was deleted: so
-  mplayer.deb is uncapable to play encrypted dvd-s ; if you live in
-  country where using libdvdcss code is not illegal, you may install it
-  using the script /usr/share/doc/libdvdread3/install-css.sh
+  mplayer.deb is uncapable to play encrypted DVDs ; if you want to
+  play encrypted DVDs (i.e. almost all video DVDs), see the file
+  /usr/share/doc/libdvdread3/README.Debian. This file contains
+  up-to-date instructions on how to obtain libdvdcss2.
 
 * PLEASE DO NOT BOTHER UPSTREAM MPLAYER'S AUTHORS WITH BUGS AND REQUESTS
  FOR FEATURES, but, send bugs to Debian: indeed, missing features

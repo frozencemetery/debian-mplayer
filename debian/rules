@@ -124,7 +124,8 @@ configure-stamp:
 	grep -x 'Package: $(package)' debian/control
 	# Add here commands to configure the package.
 	./configure --prefix=/usr --confdir=/etc/mplayer  \
-        --datadir=/usr/share/mplayer --enable-libdv \
+        --datadir=/usr/share/mplayer --with-codecsdir=/usr/lib/codecs \
+	--enable-libdv \
 	--enable-xmga --enable-mga --enable-3dfx --enable-tdfxfb \
 	--enable-fbdev   --enable-xinerama  --enable-xvmc \
         --enable-tv-v4l2 --enable-sdl --enable-ossaudio \

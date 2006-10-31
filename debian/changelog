@@ -1,3 +1,12 @@
+mplayer (1.0~rc1-3) unstable; urgency=low
+
+  * Bug fix: "Outdated info in /usr/share/doc/mplayer/README.Debian",
+    thanks to Sam Morris (Closes: #396281).
+  * set --with-codecsdir to avoid broken default; thanks to Emfox Zhou
+    (Closes: #396017).
+
+ -- A Mennucc1 <mennucc1@debian.org>  Tue, 31 Oct 2006 09:13:32 +0100
+
 mplayer (1.0~rc1-2) unstable; urgency=low
 
   * rewrote mplayer.{config,template,postinst} ; this also fixes
