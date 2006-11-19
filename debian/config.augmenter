@@ -35,7 +35,7 @@ echo  '}' >> $t
 echo 'CONFIG_OF_MPLAYER_WAS_AUGMENTED=1'  >> $t
 echo  '#end automagic part' >> $t
 ############# insert it
-mv  $C{,~}
+mv  $C $C~
 
 awk '{if(f==0){print}}
 /#MPLAYER_AUTOMAGIC#/{f=1}'  $C~  > $C

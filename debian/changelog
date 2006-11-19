@@ -1,3 +1,30 @@
+mplayer (1.0~rc1-4) unstable; urgency=low
+
+  * Depends on mplayer-skin
+  * Use fontconfig in /etc/mplayer/mplayer.conf , so that 'Sans' is
+    always a fallback; this solves:
+    "OSD missing numbers/letters", thanks to Sam Morris (Closes: #396531).
+    if fc-list is available, let the user choose between a huge list as well
+  * Bug fix: "mplayer: depends exclusively on debconf (debconf-2.0 should
+    be an alternative)", thanks to Eddy Petrișor (Closes: #397891).
+  * Patches from Diego Biurrun  :
+    - README.jfdct.gz  is already copied inside
+        libavcodec/jfdctfst.c  libavcodec/jfdctint.c
+    - do not use external libdv (ffmpeg has internally a better one)
+    - rename win32codecs.sh to binary_codecs.sh,
+  * Bug fix: "mplayer: win32codecs.sh will not uninstall", thanks to Joey
+    Morris (Closes: #397867) and Diego for the patch.
+  * Applied some changes in debconf template, thanks to Helge
+    Kreutzmann (Closes: #397819).
+  * Supports caca (Closes: #397749).
+  * "Initial German debconf translation",
+     thanks to Helge Kreutzmann (Closes: #397822).
+  * "French program translation", thanks to Yves  Rutschle (Closes: #398515).
+  * Bug fix: "FTBFS: bashisms in build scripts", thanks to
+    Florent Bayle (Closes: #396450).
+
+ -- A Mennucc1 <mennucc1@debian.org>  Sun, 19 Nov 2006 21:06:01 +0100
+
 mplayer (1.0~rc1-3) unstable; urgency=low
 
   * Bug fix: "Outdated info in /usr/share/doc/mplayer/README.Debian",

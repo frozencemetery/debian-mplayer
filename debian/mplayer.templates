@@ -3,9 +3,9 @@ Type: note
 _Description: Create your ~/.mplayer/mplayer.conf file
  Performance of MPlayer depends heavily on hardware - this means that
  it may benefit from tweaking options, for every single machine it's
- installed to. You may wish to read the documentation (it is in
- package 'mplayer-doc', under /share/doc/mplayer-doc/). This DebcConf
- interface will help you setup just few main features; you may wish to
+ installed to. You may wish to read the documentation (it is in the
+ package 'mplayer-doc', under /usr/share/doc/mplayer-doc/). This DebConf
+ interface will help you setup just a few main features; you may wish to
  add to /etc/mplayer/mplayer.conf some more refined options (to enable
  multichannel audio, or video postprocessing, etc etc); and any user
  similarly may customize MPlayer using the file ~/.mplayer/config
@@ -15,10 +15,10 @@ Type: boolean
 Default: false
 _Description: Enable access to RTC?
  On older kernels MPlayer can use the RTC (Real Time Clock) to provide
- for better timing in reproduction, with less CPU cost; to this end,
+ better timing in reproduction, with less CPU cost; to this end,
  though, the device /dev/rtc must be accessible to group audio, and
  the default max-user-freq must be raised to 1024.  Any needed change
- must be done by root.  If you wish, MPlayer will automatically do
+ must be done by root. If you wish, MPlayer will automatically do
  this at boot, so that any user can enjoy this feature. Note that
  there may be security issues with this (although none are known now).
 
@@ -26,10 +26,9 @@ Template: mplayer/replace-existing-files
 Type: boolean
 Default: false
 _Description: Replace existing configuration file?
-  There is already a file /etc/mplayer/mplayer.conf, but it does not
+ There is already a file /etc/mplayer/mplayer.conf, but it does not
  contain an automatically generated part. This script may generate a
- new file (the old file will be moved to
- /etc/mplayer/mplayer.conf.debconf-old).
+ new file (the old file will be moved to /etc/mplayer/mplayer.conf.debconf-old).
 
 Template: mplayer/replace-existing-files-bail
 Type: note
@@ -43,9 +42,9 @@ Type: select
 Default: autodetect
 Choices: ${vochoices}
 _Description: MPlayer video output:
- MPlayer can use very wide range of video output drivers;
+ MPlayer can use a very wide range of video output drivers;
  it will try to autodetect the best one, but you may choose a preferred one.
- Here is the a guide to the choice (in decreasing speed order):
+ Here is the a guide to the choice (in decreasing order of speed):
  (1) if you see an entry that matches your video card, choose that;
  (2) if your video card supports 'XV', choose that (use 'xvinfo' to know).
  You should read /usr/share/doc/mplayer-doc/HTML/en/devices.html (it is in
@@ -53,13 +52,13 @@ _Description: MPlayer video output:
 
 Template: mplayer/install_codecs
 Type: note
-_Description: HOWTO download binary codecs
+_Description: How to download binary codecs
  MPlayer supports most codecs out of the box and the rest with the
  help of binary codecs. Binary codecs are only necessary for Real 3.0 
  and 4.0, Windows Media 9, QuickTime audio and some very obscure codecs.
  Debian cannot distribute these codecs, but these are available on the
  internet for download. Run the script
- `/usr/share/mplayer/scripts/win32codecs.sh' to install those 
+ `/usr/share/mplayer/scripts/binary_codecs.sh' to install those 
  made available from MPlayer web site.
 
 Template: mplayer/dvd_device
@@ -80,4 +79,4 @@ Type: note
 _Description: MPlayer cannot find TrueType Fonts
  You should install a package providing truetype fonts (such as  
  'ttf-freefont' or 'ttf-bitstream-vera' or  'msttcorefonts' )
- and reconfigure mplayer (with the command "dpkg-reconfigure mplayer")
+ and reconfigure MPlayer (with the command "dpkg-reconfigure mplayer")

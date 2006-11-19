@@ -54,7 +54,7 @@ if (  dealwithupgrades() )  {
  $dcarea .= "#device for dvd\ndvd-device=" . $dvd . "\n" if $dvd;
 
  my $font =  scalar(get("mplayer/ttfont"))  ;
- $dcarea .= "#truetype font\nfont=" . $font . "\n"   if $font;
+ $dcarea .= "#truetype font, using fontconfig\nfontconfig=1\nfont='" . $font .   "'\n"   if $font;
 
  my $rtc =  scalar(get('mplayer/rtc')) ;
  $dcarea .= "#enable RTC (Real Time Clock) access\nrtc=1"  if ( $rtc eq 'true');

@@ -22,10 +22,10 @@ export DH_COMPAT=4
 
 package        := mplayer
 
-## the svn revision is not autodetected in some targets!
+## The Subversion revision is not autodetected in some targets!
 upstreamversion := 1.0rc1
 
-## we add some ~ to it
+## We add a ~ to it.
 debian_version := 1.0~rc1
 
 
@@ -37,26 +37,26 @@ CC_version := $(shell $(CC) -dumpversion)
 #UPSTREAMSOURCE := upstream SVN repository
 UPSTREAMSOURCE := http://www1.mplayerhq.hu/MPlayer/releases/MPlayer-1.0rc1.tar.bz2
 
-#was troublesom stuff removed ?
-# see target "fix-orig-source" in this makefile
-DFSG := $(shell test -d libmpdvdkit2 && echo 'This version of mplayer contains  libmpdvdkit2.' )
+#Was troublesome stuff removed ?
+# See target "fix-orig-source" in this makefile.
+DFSG := $(shell test -d libmpdvdkit2 && echo 'This version of MPlayer contains libmpdvdkit2.' )
 
 ifeq ($(DFSG),)
-extraversion  := DFSG-free
+extraversion := DFSG-free
 else
 extraversion := DFSG-nonfree
 endif
 
 
 
-ifeq ($(shell cat /etc/debian_version),3.1) #a.k.a. Sarge
+ifeq ($(shell cat /etc/debian_version),3.1) #AKA Sarge
 XLIBS := xlibs-dev
 else
 XLIBS := libx11-dev, libxext-dev, libxinerama-dev, libxv-dev, libxvmc-dev, libxxf86dga-dev, libxxf86vm-dev, x-dev
 endif
 
-ifeq  ($(wildcard DOCS/.upstream_ships_docs),DOCS/.upstream_ships_docs)  
-DOCDEP := 
+ifeq  ($(wildcard DOCS/.upstream_ships_docs),DOCS/.upstream_ships_docs)
+DOCDEP :=
 else
 DOCDEP := docbook-xml, docbook-xsl, xsltproc
 endif
@@ -64,22 +64,22 @@ endif
 destdir := $(shell pwd)/debian/$(package)
 
 arch   := $(shell dpkg --print-architecture)
-#fixme: how to use this? mplayer has a non-standard configure script
+#FIXME: How shall this be used? MPlayer has a non-autoconf configure script.
 DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
-# Choose whether we want binary codec support (default on unknown archs: no)
+# Choose whether we want binary codec support (default on unknown archs: no).
 with_real_and_xanim = false
 with_win32 = false
 
 ifeq ($(arch),i386)
-#avoid high optimization of gcc
+#Avoid high optimization through gcc.
   archconf += --target=i586-linux
   with_real_and_xanim = true
   with_win32 = true
 endif
 ifeq ($(arch),x86_64)
-  # unfortunately i386 codecs do not work here
+  # Unfortunately i386 codecs do not work here.
 endif
 ifeq ($(arch),powerpc)
   with_real_and_xanim = true
@@ -100,8 +100,8 @@ endif
 
 
 
-## this can be overridden from command line. See README.Debian
-DEB_BUILD_CONFIGURE=--disable-bitmap-font  --enable-runtime-cpudetection --disable-aa --disable-ggi  --disable-xvid --disable-gl  --language=all  --disable-xmms --disable-no-PIC $(archconf)
+## This can be overridden from the command line, see README.Debian.
+DEB_BUILD_CONFIGURE=--disable-bitmap-font  --enable-runtime-cpudetection --disable-ggi  --disable-xvid --disable-gl  --language=all  --disable-xmms --disable-no-PIC $(archconf)
 
 ifeq ($(DFSG),)
 DEB_BUILD_CONFIGURE += --disable-mpdvdkit --enable-dvdread --disable-mencoder
@@ -116,18 +116,17 @@ endif
 ####### build-arch
 
 configure: configure-stamp
-#this is actually a  configure-arch-stamp
+#This is actually a configure-arch-stamp.
 configure-stamp:
 	dh_testdir
-	#check consistency between debian/control and what we are compiling
+	#Check consistency between debian/control and what we are compiling.
 	grep -x 'Source: $(package)'  debian/control
 	grep -x 'Package: $(package)' debian/control
-	# Add here commands to configure the package.
+	# Add commands to configure the package here.
 	./configure --prefix=/usr --confdir=/etc/mplayer  \
-        --datadir=/usr/share/mplayer --with-codecsdir=/usr/lib/codecs \
-	--enable-libdv \
+        --datadir=/usr/share/mplayer \
 	--enable-xmga --enable-mga --enable-3dfx --enable-tdfxfb \
-	--enable-fbdev   --enable-xinerama  --enable-xvmc \
+	--enable-fbdev --enable-xvmc \
         --enable-tv-v4l2 --enable-sdl --enable-ossaudio \
 	--enable-lirc --enable-gui --enable-freetype --enable-menu \
 	--enable-largefiles 	$(DEB_BUILD_CONFIGURE)
@@ -137,11 +136,11 @@ configure-stamp:
 	touch configure-stamp
 
 
-# commands to compile the package.
+# commands to compile the package
 build-arch: configure-stamp build-arch-stamp
 build-arch-stamp:  build-arch
 	dh_testdir
-	${MAKE} 
+	${MAKE}
 	touch build-arch-stamp
 
 ###### build-indep
@@ -150,7 +149,7 @@ build-arch-stamp:  build-arch
 build-indep: build-indep-stamp
 build-indep-stamp:
 	dh_testdir
-	#configure the independent part (not in a separate block: it is fast!)
+	#Configure the independent part (not in a separate block: it is fast!).
 	[ -r DOCS/.upstream_ships_docs ] || { cd DOCS/xml && ./configure ; }
 	#
 	[ -r DOCS/.upstream_ships_docs ] || ${MAKE} -C DOCS/xml html-chunked
@@ -160,27 +159,26 @@ build-indep-stamp:
 build: build-indep build-arch
 
 
-################‡ clean
+################ clean
 
 clean:
 	dh_testdir
 	dh_testroot
 	#
-	# commands to clean up after the build process.
+	# commands to clean up after the build process
 	-[ -r DOCS/.upstream_ships_docs ] || ${MAKE} -C DOCS/xml distclean
 	- $(MAKE) distclean
 	- $(MAKE) -C Gui distclean
 	#
-	rm -f build-arch-stamp build-indep-stamp configure-stamp 
+	rm -f build-arch-stamp build-indep-stamp configure-stamp
 	#some leftovers
-	rm -f config.h version.h .depends codec-cfg config.mak */config.mak libavcodec/libavcodec.a
 	find -name '*.o' -or -name '*.a' -or -name '*~' -print0 |\
 		xargs -r0 rm -v
 	#
 	dh_clean
 
 
-###############‡‡###### install
+##################### install
 
 manlangs := $(notdir $(wildcard DOCS/man/*) )
 
@@ -195,13 +193,13 @@ install-arch:  build-arch
 # commands to install the package into debian/<packagename>
 	$(MAKE) prefix=$(destdir)/usr BINDIR=$(destdir)/usr/bin CONFDIR=$(destdir)/etc/mplayer LIBDIR=$(destdir)/usr/lib DATADIR=$(destdir)/usr/share/mplayer  MANDIR=$(destdir)/usr/share/man  install
 
-	dh_link usr/bin/mplayer usr/bin/gmplayer 
+	dh_link usr/bin/mplayer usr/bin/gmplayer
 	dh_link usr/share/man/man1/mplayer.1.gz usr/share/man/man1/gmplayer.1.gz
 
-# install man pages
+# Install man pages.
 	set -e && for i in $(manlangs) ; do mkdir -p $(destdir)/usr/share/man/$$i/man1/ && cp DOCS/man/$$i/mplayer.1 $(destdir)/usr/share/man/$$i/man1/ && dh_link usr/share/man/$$i/man1/mplayer.1.gz usr/share/man/$$i/man1/gmplayer.1.gz ; done
 
-	dh_installdebconf -p $(package)	
+	dh_installdebconf -p $(package)
 	dh_installdocs  -p $(package) Copyright
 
 	dh_installexamples etc/example.conf etc/menu.conf etc/input.conf
@@ -241,9 +239,9 @@ binary-common:
 	dh_strip
 	dh_link
 ###### non-orthodox mungling
-#	add automatic vo list
+#	Add automatic vo list.
 	if test -r	debian/$(THISPACKAGE)/DEBIAN/config ; then sh -e debian/config.augmenter debian/$(THISPACKAGE)/DEBIAN/config ; fi
-#	rewrite README.Debian and add free or non-free statement
+#	Rewrite README.Debian and add free or non-free statement.
 ifeq ($(DFSG),)
 	tail +2  debian/README.Debian.free | sed 's!@UPSTREAMSOURCE@!$(UPSTREAMSOURCE)!' > debian/$(THISPACKAGE)/usr/share/doc/$(THISPACKAGE)/README.Debian
 else
@@ -263,11 +261,11 @@ endif
 
 
 
-# Build architecture independant packages using the common target.
+# Build architecture-independent packages using the common target.
 binary-indep: build-indep install-indep
 	$(MAKE) -f debian/rules DH_OPTIONS=-i THISPACKAGE=mplayer-doc binary-common
 
-# Build architecture dependant packages using the common target.
+# Build architecture-dependent packages using the common target.
 binary-arch: build-arch install-arch
 	$(MAKE) -f debian/rules DH_OPTIONS=-a THISPACKAGE=mplayer binary-common
 
@@ -280,29 +278,29 @@ binary: binary-indep binary-arch
 
 
 #####################################################
-##this target generates debian/control . It is not automatically invoked
+##This target generates debian/control. It is not automatically invoked.
 autocontrol:
 	mv -b debian/control debian/control.bak
 	sed 's/@MPLAYER@/$(package)/;s/@XLIBS@/$(XLIBS)/;s/@DFSG@/$(DFSG)/;s/@DOCDEP@/$(DOCDEP)/' < debian/control.in >  debian/control
-	#enjoy  the difference
+	#Enjoy the difference.
 	-diff -u debian/control.bak debian/control
 
 ###############################################
-##these targets generate the DFSG-free tar.gz 
-## They are not automatically invoked
+##These targets generate the DFSG-free tar.gz.
+## They are not automatically invoked.
 
 ##temporary dir
 D := temp_dir_to_debianize_mplayer
 
-##what we expect to find in a tar.bz2 from upstream
+##What we expect to find in a tar.bz2 from upstream.
 M := MPlayer-$(upstreamversion)
 
 
 download-and-unpack-orig:
 	mkdir $(D)
-	###darn this does not work in any dir (as requested by policy)
-	# $(dirname ??)/scripts/win32codecs.sh download MPlayer-$(upstreamversion).tar.bz2
-	### download file, or link it if available
+	###Darn, this does not work in any dir (as requested by policy).
+	# $(dirname ??)/scripts/binary_codecs.sh download MPlayer-$(upstreamversion).tar.bz2
+	### Download file, or link it if available.
 	if [ -r  $(M).tar.bz2 ] ; then  ln -s ../$(M).tar.bz2 $(D)/. ; elif 	  [ -r  ../$(M).tar.bz2 ] ; then  ln -s ../../$(M).tar.bz2 $(D)/. ; else  cd  $(D) && wget -N $(UPSTREAMSOURCE) ; fi
 	cd $(D) && tar xjf  $(M).tar.bz2 && rm $(M).tar.bz2
 
@@ -312,34 +310,32 @@ copy-orig-from-svn: ../mplayer/.svn /usr/bin/svn
 	cd $(D)/$(M) && LC_ALL=C svn info 2> /dev/null | grep Revision | cut -d' ' -f2 > revision.svn
 	find $(D)/$(M) -type d -name .svn  | xargs rm -r
 
-##part of the source that is not shipped with Debian
+##Part of the source that is not shipped with Debian.
 E := mplayer-non-DFSG-$(debian_version)
 
-##part of the source that is shipped with Debian
+##Part of the source that is shipped with Debian.
 S := mplayer-$(debian_version)
 
 
 fix-orig-source: $(D)/$(M)
 	mkdir $(D)/$(E)
-	#according to the README, this file should be there
-	cp  /usr/share/doc/libjpeg62/README.gz    $(D)/$(M)/libavcodec/README.jfdct.gz
-	# this contains the dreaded DVD decrypt code. We can live without, by
-	#  using libdvdread3 (and the optional library installed by
+	# This contains the dreaded DVD decryption code. We can live without it
+	#  by using libdvdread3 (and the optional library installed by
 	#    http://www.debian-unofficial.org/   :-)
 	cd $(D) &&  mv $(M)/libmpdvdkit2  $(E)
-	# Well this may seem a bit excessive... but this code is not useful
+	# Well this may seem a bit excessive... But this code is not useful
 	#  for building the package, and most of it does not correctly state
-	#  author-license-copyright :  so I throw out the baby and the bath...
+	#  author-license-copyright:  So I throw out the baby and the bath...
 	# When and if someone needs this stuff, I will carefully scrutinize
-	#  it and add what is suitable
+	#  it and add what is suitable.
 	cd $(D) && mv $(M)/TOOLS $(E)
-	#check if upstream includes DOCS and then dont rebuild them
+	#Check if upstream includes DOCS and then don't rebuild them.
 	cd $(D)/$(M)/DOCS && if [ -r HTML ] ; then touch .upstream_ships_docs; fi
-	# my debian dir is too different, 
+	# My debian dir is too different.
 	cd $(D)/$(M) && mv debian debian_upstream
-	# do not support encoding in any way 
+	# Do not support encoding in any way.
 	cd $(D) && mv $(M)/mencoder.c  $(E)
-	# ok lets repackage
+	# OK, let's repackage.
 	cd $(D) && mv MPlayer-$(upstreamversion) $(S) && 	 tar czf  ../mplayer_$(debian_version).orig.tar.gz $(S) &&  rm -r $(S)
 
 	cd $(D) && tar czf  mplayer-non-DFSG_$(debian_version).tar.gz $(E) && gpg  --passphrase yes -c mplayer-non-DFSG_$(debian_version).tar.gz   && mv mplayer-non-DFSG_$(debian_version).tar.gz.gpg .. && rm -r $(E) mplayer-non-DFSG_$(debian_version).tar.gz
@@ -350,7 +346,7 @@ fix-orig-source: $(D)/$(M)
 #	cd $(D) && tar xjf  $(M).tar.bz2 && rm $(M).tar.bz2
 
 
-# this will fail for SVN derived sources
-get-orig-source : download-and-unpack-orig  fix-orig-source 
+# This will fail for Subversion-derived sources.
+get-orig-source : download-and-unpack-orig  fix-orig-source
 
 .PHONY: build clean binary-indep binary-arch binary-common binary install binary binary-arch binary-indep clean checkroot get-orig-source autocontrol fix-orig-source copy-orig-from-svn download-and-unpack-orig
