@@ -1,3 +1,25 @@
+mplayer (1.0~rc1-6) unstable; urgency=low
+
+  * debian/control : update mantainer fields
+  * debian/scripts/binary_codecs.sh : 'wget -c -N' -> 'wget -N'
+  * update debian/prefs/codecs_list and mirrors    (closes: #399144)
+  * debian/rules : x86_64  -> amd64   (closes: #401697)
+  * applied patch (that should support codecs in amd64 )
+    http://people.freedesktop.org/~jinghua/real64/mplayer-amd64-real-codecs.diff
+  * update french translation (closes: #400106)
+  * update german translation (closes: #400296)
+  * (again!) set --with-codecsdir to avoid broken default; thanks to Emfox Zhou
+    (Closes: #396017).
+
+ -- A Mennucc1 <mennucc1@debian.org>  Wed,  6 Dec 2006 10:56:02 +0100
+
+mplayer (1.0~rc1-5) unreleased; urgency=low
+
+  * this version was built with external ffmpeg 0.svn6767
+    it is in  http://tonelli.sns.it/pub/mplayer/experimental-shared
+
+ -- A Mennucc <debdev@tonelli.sns.it>  Mon, 27 Nov 2006 15:03:02 +0100
+
 mplayer (1.0~rc1-4) unstable; urgency=low
 
   * Depends on mplayer-skin

@@ -78,8 +78,11 @@ ifeq ($(arch),i386)
   with_real_and_xanim = true
   with_win32 = true
 endif
-ifeq ($(arch),x86_64)
-  # Unfortunately i386 codecs do not work here.
+ifeq ($(arch),amd64)
+  #this needs the patch 
+  # http://people.freedesktop.org/~jinghua/real64/mplayer-amd64-real-codecs.diff
+  with_real_and_xanim = true
+  with_win32 = true
 endif
 ifeq ($(arch),powerpc)
   with_real_and_xanim = true
@@ -112,6 +115,10 @@ ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
 endif
 
 
+USE_EXT_FFMPEG = no
+#DEB_BUILD_CONFIGURE += --enable-libavutil_so --enable-libavformat_so --enable-libavcodec_so --enable-libpostproc_so 
+#EXTRA_BUILDDEP += libavcodec-dev (>= 0.svn6767), libavformat-dev (>= 0.svn6767), libpostproc-dev (>= 0.svn6767)
+
 ########### build
 ####### build-arch
 
@@ -122,9 +129,10 @@ configure-stamp:
 	#Check consistency between debian/control and what we are compiling.
 	grep -x 'Source: $(package)'  debian/control
 	grep -x 'Package: $(package)' debian/control
+	if test "$(USE_EXT_FFMPEG)" = yes ; then for i in libavcodec libavformat libavutil libpostproc  ; do mv -v $$i $$i.disabled ; done ; fi
 	# Add commands to configure the package here.
 	./configure --prefix=/usr --confdir=/etc/mplayer  \
-        --datadir=/usr/share/mplayer \
+        --datadir=/usr/share/mplayer --with-codecsdir=/usr/lib/codecs \
 	--enable-xmga --enable-mga --enable-3dfx --enable-tdfxfb \
 	--enable-fbdev --enable-xvmc \
         --enable-tv-v4l2 --enable-sdl --enable-ossaudio \
@@ -132,6 +140,8 @@ configure-stamp:
 	--enable-largefiles 	$(DEB_BUILD_CONFIGURE)
 	#
 	if test "$(svn_revision)" ; then echo  "#define VERSION \"dev-SVN-r$(svn_revision)-$(CC_version)-$(extraversion)\""  > version.h ; else sh version.sh $(CC_version)-$(extraversion) ; fi
+
+	if test "$(USE_EXT_FFMPEG)" = yes ; then for i in libavcodec libavformat libavutil libpostproc  ; do mv -v  $$i.disabled $$i ; done ; fi
 
 	touch configure-stamp
 
@@ -164,6 +174,9 @@ build: build-indep build-arch
 clean:
 	dh_testdir
 	dh_testroot
+	#
+	#put back internal ffmpeg, just in case
+	for i in libavcodec libavformat libavutil libpostproc  ; do if test -d $$i.disabled ; then  mv -v  $$i.disabled $$i ; fi ; done 
 	#
 	# commands to clean up after the build process
 	-[ -r DOCS/.upstream_ships_docs ] || ${MAKE} -C DOCS/xml distclean
@@ -281,7 +294,7 @@ binary: binary-indep binary-arch
 ##This target generates debian/control. It is not automatically invoked.
 autocontrol:
 	mv -b debian/control debian/control.bak
-	sed 's/@MPLAYER@/$(package)/;s/@XLIBS@/$(XLIBS)/;s/@DFSG@/$(DFSG)/;s/@DOCDEP@/$(DOCDEP)/' < debian/control.in >  debian/control
+	sed 's/@MPLAYER@/$(package)/;s/@XLIBS@/$(XLIBS)/;s/@EXTRA_BUILDDEP@/$(EXTRA_BUILDDEP)/;s/@DFSG@/$(DFSG)/;s/@DOCDEP@/$(DOCDEP)/' < debian/control.in >  debian/control
 	#Enjoy the difference.
 	-diff -u debian/control.bak debian/control
 

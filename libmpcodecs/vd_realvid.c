@@ -46,11 +46,11 @@ typedef struct transform_in_s {
 	uint32_t timestamp;
 } transform_in_t;
 
-static unsigned long (*rvyuv_custom_message)(cmsg_data_t* ,void*);
-static unsigned long (*rvyuv_free)(void*);
-static unsigned long (*rvyuv_hive_message)(unsigned long,unsigned long);
-static unsigned long (*rvyuv_init)(void*, void*); // initdata,context
-static unsigned long (*rvyuv_transform)(char*, char*,transform_in_t*,unsigned int*,void*);
+static uint32_t (*rvyuv_custom_message)(cmsg_data_t* ,void*);
+static uint32_t (*rvyuv_free)(void*);
+static uint32_t (*rvyuv_hive_message)(uint32_t, void *);
+static uint32_t (*rvyuv_init)(void*, void*); // initdata,context
+static uint32_t (*rvyuv_transform)(char*, char*,transform_in_t*,void *,void*);
 #ifdef USE_WIN32DLL
 static unsigned long WINAPI (*wrvyuv_custom_message)(cmsg_data_t* ,void*);
 static unsigned long WINAPI (*wrvyuv_free)(void*);

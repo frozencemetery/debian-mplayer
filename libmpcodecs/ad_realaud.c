@@ -37,18 +37,18 @@ void __builtin_delete(void* ize) {
 void *__ctype_b=NULL;
 #endif
 
-static unsigned long (*raCloseCodec)(void*);
-static unsigned long (*raDecode)(void*, char*,unsigned long,char*,unsigned int*,long);
-static unsigned long (*raFlush)(unsigned long,unsigned long,unsigned long);
-static unsigned long (*raFreeDecoder)(void*);
-static void*         (*raGetFlavorProperty)(void*,unsigned long,unsigned long,int*);
+static uint32_t (*raCloseCodec)(void*);
+static uint32_t (*raDecode)(void*, char*,uint32_t,char*,unsigned int*,uint32_t);
+static uint32_t (*raFlush)(void *, char *,uint32_t);
+static uint32_t (*raFreeDecoder)(void*);
+static void*    (*raGetFlavorProperty)(void*,uint16_t,uint16_t, uint16_t*);
 //static unsigned long (*raGetNumberOfFlavors2)(void);
-static unsigned long (*raInitDecoder)(void*, void*);
-static unsigned long (*raOpenCodec)(void*);
-static unsigned long (*raOpenCodec2)(void*, void*);
-static unsigned long (*raSetFlavor)(void*,unsigned long);
-static void  (*raSetDLLAccessPath)(char*);
-static void  (*raSetPwd)(char*,char*);
+static uint32_t (*raInitDecoder)(void*, void*);
+static uint32_t (*raOpenCodec)(void*);
+static uint32_t (*raOpenCodec2)(void*, void*);
+static uint32_t (*raSetFlavor)(void*,uint16_t);
+static void     (*raSetDLLAccessPath)(char*);
+static void     (*raSetPwd)(char*,char*);
 #ifdef USE_WIN32DLL
 static unsigned long WINAPI (*wraCloseCodec)(void*);
 static unsigned long WINAPI (*wraDecode)(void*, char*,unsigned long,char*,unsigned int*,long);

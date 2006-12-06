@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: mplayer\n"
 "Report-Msgid-Bugs-To: eyck@ghost.anime.pl\n"
 "POT-Creation-Date: 2006-11-19 21:34+0100\n"
-"PO-Revision-Date: 2006-11-19 21:33+0100\n"
+"PO-Revision-Date: 2006-11-23 22:34+0100\n"
 "Last-Translator: Helge Kreutzmann <debian@helgefjell.de>\n"
 "Language-Team: de <debian-l10n-german@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
@@ -23,7 +23,6 @@ msgstr "Erstelle Ihre ~/.mplayer/mplayer.conf-Datei"
 #. Type: note
 #. Description
 #: ../mplayer.templates:1001
-#, fuzzy
 msgid ""
 "Performance of MPlayer depends heavily on hardware - this means that it may "
 "benefit from tweaking options, for every single machine it's installed to. "
@@ -35,9 +34,9 @@ msgid ""
 "the file ~/.mplayer/config"
 msgstr ""
 "Die Leistung von MPlayer hängt stark von der Hardware ab - das bedeutet, "
-"dass es von der Feineinstellung von Optionen auf jeder einzelnen Maschine "
-"abhängt. Hierzu steht vieles in der Dokumentation (diese ist im Paket "
-"»mplayer-doc« unter /share/doc/mplayer-doc/). Diese DebcConf-Schnittstelle "
+"dass sie von der Feineinstellung von Optionen auf jeder einzelnen Maschine "
+"abhängen kann. Hierzu steht vieles in der Dokumentation (diese ist im Paket "
+"»mplayer-doc« unter /share/doc/mplayer-doc/). Diese DebConf-Schnittstelle "
 "wird Ihnen nur dabei helfen, die wichtigsten Funktionen einzustellen; "
 "detailliertere Optionen können Sie /etc/mplayer/mplayer.conf hinzufügen (um "
 "Mehrkanalton oder Videonachbearbeitung usw. usf. einzustellen). Ähnlich kann "
@@ -52,7 +51,6 @@ msgstr "Zugriff auf RTC ermöglichen?"
 #. Type: boolean
 #. Description
 #: ../mplayer.templates:2001
-#, fuzzy
 msgid ""
 "On older kernels MPlayer can use the RTC (Real Time Clock) to provide better "
 "timing in reproduction, with less CPU cost; to this end, though, the device /"
@@ -81,13 +79,12 @@ msgstr "Vorhandene Konfigurationsdatei ersetzen?"
 #. Type: boolean
 #. Description
 #: ../mplayer.templates:3001
-#, fuzzy
 msgid ""
 "There is already a file /etc/mplayer/mplayer.conf, but it does not contain "
 "an automatically generated part. This script may generate a new file (the "
 "old file will be moved to /etc/mplayer/mplayer.conf.debconf-old)."
 msgstr ""
-" Es gibt bereits eine Datei /etc/mplayer/mplayer.conf, sie enthält aber "
+"Es gibt bereits eine Datei /etc/mplayer/mplayer.conf, sie enthält aber "
 "keinen automatisch erstellten Teil. Diese Skript kann eine neue Datei "
 "erstellen (die alte Datei wird in /etc/mplayer/mplayer.conf.debconf-old "
 "umbenannt)."
@@ -119,7 +116,6 @@ msgstr "MPlayer Video-Ausgabe:"
 #. Type: select
 #. Description
 #: ../mplayer.templates:5001
-#, fuzzy
 msgid ""
 "MPlayer can use a very wide range of video output drivers; it will try to "
 "autodetect the best one, but you may choose a preferred one. Here is the a "
@@ -133,21 +129,18 @@ msgstr ""
 "auswählen. Hier ist ein Ratgeber für die Wahl (in Reihenfolge absteigender "
 "Geschwindigkeit): (1) falls Sie einen Eintrag sehen, der zu Ihrer Videokarte "
 "passt, wählen Sie diesen; (2) falls Ihre Videokarte »XV« unterstützt (mit "
-"»xvinfo« finden Sie dies herauszu), verwenden Sie dies. Sie sollten /usr/"
-"share/doc/mplayer-doc/HTML/en/devices.html (aus dem Paket »mplayer-doc«) "
-"lesen."
+"»xvinfo« finden Sie dies heraus), verwenden Sie dies. Sie sollten /usr/share/"
+"doc/mplayer-doc/HTML/en/devices.html (aus dem Paket »mplayer-doc«) lesen."
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:6001
-#, fuzzy
 msgid "How to download binary codecs"
-msgstr "HOWTO - Herunterladen binärer Codecs"
+msgstr "Wie binärer Codecs heruntergeladen werden"
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:6001
-#, fuzzy
 msgid ""
 "MPlayer supports most codecs out of the box and the rest with the help of "
 "binary codecs. Binary codecs are only necessary for Real 3.0  and 4.0, "
@@ -158,7 +151,7 @@ msgid ""
 msgstr ""
 "MPlayer unterstützt die meisten Kodierungen von Werk aus und den Rest mit "
 "der Hilfe von binären Codecs. Binäre Codecs werden nur für Real 3.0 und 4.0, "
-"Windows Media 9, QuickTime Audio und einige unbedeutende Kodierungen "
+"Windows Media 9, QuickTime Audio und einige sehr unbedeutende Kodierungen "
 "benötigt. Debian kann diese Codes nicht vertreiben, aber sie sind im "
 "Internet zum Download erhältlich. Führen Sie das Skript »/usr/share/mplayer/"
 "scripts/binary_codecs.sh« aus, um diejenigen zu installieren, die von der "
@@ -200,7 +193,6 @@ msgstr "MPlayer kann keine TrueType-Schriften finden"
 #. Type: note
 #. Description
 #: ../mplayer.templates:9001
-#, fuzzy
 msgid ""
 "You should install a package providing truetype fonts (such as   'ttf-"
 "freefont' or 'ttf-bitstream-vera' or  'msttcorefonts' ) and reconfigure "

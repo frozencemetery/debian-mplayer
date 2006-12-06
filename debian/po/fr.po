@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: mplayer\n"
 "Report-Msgid-Bugs-To: eyck@ghost.anime.pl\n"
 "POT-Creation-Date: 2006-11-19 21:34+0100\n"
-"PO-Revision-Date: 2006-11-19 21:31+0100\n"
+"PO-Revision-Date: 2006-11-25 02:35+0100\n"
 "Last-Translator: Yves Rütschlé <l10n@rutschle.net>\n"
 "Language-Team: French <debian-l10n-french@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
@@ -24,7 +24,6 @@ msgstr "Création du fichier ~/.mplayer/mplayer.conf"
 #. Type: note
 #. Description
 #: ../mplayer.templates:1001
-#, fuzzy
 msgid ""
 "Performance of MPlayer depends heavily on hardware - this means that it may "
 "benefit from tweaking options, for every single machine it's installed to. "
@@ -54,7 +53,6 @@ msgstr "Faut-il autoriser l'accès à l'horloge matérielle (RTC) ?"
 #. Type: boolean
 #. Description
 #: ../mplayer.templates:2001
-#, fuzzy
 msgid ""
 "On older kernels MPlayer can use the RTC (Real Time Clock) to provide better "
 "timing in reproduction, with less CPU cost; to this end, though, the device /"
@@ -82,7 +80,6 @@ msgstr "Faut-il remplacer le fichier de configuration existant ?"
 #. Type: boolean
 #. Description
 #: ../mplayer.templates:3001
-#, fuzzy
 msgid ""
 "There is already a file /etc/mplayer/mplayer.conf, but it does not contain "
 "an automatically generated part. This script may generate a new file (the "
@@ -119,7 +116,6 @@ msgstr "Sortie vidéo de MPlayer :"
 #. Type: select
 #. Description
 #: ../mplayer.templates:5001
-#, fuzzy
 msgid ""
 "MPlayer can use a very wide range of video output drivers; it will try to "
 "autodetect the best one, but you may choose a preferred one. Here is the a "
@@ -139,14 +135,12 @@ msgstr ""
 #. Type: note
 #. Description
 #: ../mplayer.templates:6001
-#, fuzzy
 msgid "How to download binary codecs"
 msgstr "Méthode de téléchargement des « codecs » binaires"
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:6001
-#, fuzzy
 msgid ""
 "MPlayer supports most codecs out of the box and the rest with the help of "
 "binary codecs. Binary codecs are only necessary for Real 3.0  and 4.0, "
@@ -200,7 +194,6 @@ msgstr "Aucune police TrueType trouvée"
 #. Type: note
 #. Description
 #: ../mplayer.templates:9001
-#, fuzzy
 msgid ""
 "You should install a package providing truetype fonts (such as   'ttf-"
 "freefont' or 'ttf-bitstream-vera' or  'msttcorefonts' ) and reconfigure "

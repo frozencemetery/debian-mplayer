@@ -24,7 +24,7 @@ choosemirror ()
 
   #if [ ! -r mirrors ] || find  mirrors -mtime +20  ; then
     echo Downloading mirrors list..
-    wget -nv -c -N $MYSITE/mirrors || true
+    wget -nv -N $MYSITE/mirrors || true
   #fi
   if [ ! -r bestsites ] || [ mirrors -nt bestsites ] || \
     find  bestsites -mtime +20 > /dev/null ; then
@@ -139,7 +139,7 @@ case "$1" in
     cd $PREFDIR
     #if [ ! -r codecs_list ] || find  codecs_list -mtime +20  ; then
       echo 'Getting  codecs list ...'
-      wget -nv -c -N $MYSITE/codecs_list || true
+      wget -nv -N $MYSITE/codecs_list || true
     #fi
 
     if  grep -q "^$dpkgarch" $PREFDIR/codecs_list   ] ; then
