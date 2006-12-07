@@ -1,3 +1,10 @@
+mplayer (1.0~rc1-7) unstable; urgency=low
+
+  * Bug fix: "mplayer: FTBFS on AMD64", thanks to Emfox Zhou (Closes:
+    #401893).
+
+ -- A Mennucc1 <mennucc1@debian.org>  Thu,  7 Dec 2006 14:26:10 +0100
+
 mplayer (1.0~rc1-6) unstable; urgency=low
 
   * debian/control : update mantainer fields

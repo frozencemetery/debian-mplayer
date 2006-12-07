@@ -82,7 +82,7 @@ ifeq ($(arch),amd64)
   #this needs the patch 
   # http://people.freedesktop.org/~jinghua/real64/mplayer-amd64-real-codecs.diff
   with_real_and_xanim = true
-  with_win32 = true
+  #this does not compile, though : with_win32 = true
 endif
 ifeq ($(arch),powerpc)
   with_real_and_xanim = true
