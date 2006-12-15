@@ -63,10 +63,12 @@ endif
 
 destdir := $(shell pwd)/debian/$(package)
 
-arch   := $(shell dpkg --print-architecture)
+arch   := $(shell dpkg-architecture -qDEB_HOST_ARCH)
 #FIXME: How shall this be used? MPlayer has a non-autoconf configure script.
 DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+DEB_HOST_ARCH_OS    ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
+DEB_HOST_ARCH_CPU   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_CPU)
 
 # Choose whether we want binary codec support (default on unknown archs: no).
 with_real_and_xanim = false
@@ -83,6 +85,12 @@ ifeq ($(arch),amd64)
   # http://people.freedesktop.org/~jinghua/real64/mplayer-amd64-real-codecs.diff
   with_real_and_xanim = true
   #this does not compile, though : with_win32 = true
+endif
+ifeq ($(arch),kfreebsd-i386)
+  with_real_and_xanim = true
+endif
+ifeq ($(arch),kfreebsd-amd64)
+  with_real_and_xanim = true
 endif
 ifeq ($(arch),powerpc)
   with_real_and_xanim = true
@@ -110,8 +118,20 @@ ifeq ($(DFSG),)
 DEB_BUILD_CONFIGURE += --disable-mpdvdkit --enable-dvdread --disable-mencoder
 endif
 
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+DEB_BUILD_CONFIGURE += --enable-debug
+#some other stuff below
+else
 ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
-    DEB_BUILD_CONFIGURE += --enable-debug=3
+DEB_BUILD_CONFIGURE += --enable-debug=3
+endif
+endif
+
+ifeq (linux,$(DEB_HOST_ARCH_OS))
+    DEB_BUILD_CONFIGURE += --enable-tv-v4l2 --enable-xmga --enable-mga --enable-3dfx --enable-tdfxfb --enable-fbdev
+endif
+ifeq (kfreebsd,$(DEB_HOST_ARCH_OS))
+    DEB_BUILD_CONFIGURE += --enable-tv-bsdbt848 --disable-directfb
 endif
 
 
@@ -133,9 +153,7 @@ configure-stamp:
 	# Add commands to configure the package here.
 	./configure --prefix=/usr --confdir=/etc/mplayer  \
         --datadir=/usr/share/mplayer --with-codecsdir=/usr/lib/codecs \
-	--enable-xmga --enable-mga --enable-3dfx --enable-tdfxfb \
-	--enable-fbdev --enable-xvmc \
-        --enable-tv-v4l2 --enable-sdl --enable-ossaudio \
+        --enable-xvmc --enable-sdl --enable-ossaudio \
 	--enable-lirc --enable-gui --enable-freetype --enable-menu \
 	--enable-largefiles 	$(DEB_BUILD_CONFIGURE)
 	#
@@ -143,13 +161,26 @@ configure-stamp:
 
 	if test "$(USE_EXT_FFMPEG)" = yes ; then for i in libavcodec libavformat libavutil libpostproc  ; do mv -v  $$i.disabled $$i ; done ; fi
 
+	#tweak config.mak on request
+ifneq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+	mv config.mak  config.mak~~
+	sed 's/STRIPBINARIES.*/STRIPBINARIES = no/' config.mak~~ > config.mak
+	#dh_strip does(n't) the rest of the job
+endif
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	mv config.mak  config.mak~~
+	sed '/FLAGS/s/ -O[0-9] /  /' config.mak~~ > config.mak
+endif
 	touch configure-stamp
 
 
 # commands to compile the package
 build-arch: configure-stamp build-arch-stamp
-build-arch-stamp:  build-arch
+build-arch-stamp:
 	dh_testdir
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	cd libvo && make  CC='gcc -O'  osd.o
+endif
 	${MAKE}
 	touch build-arch-stamp
 
@@ -183,7 +214,7 @@ clean:
 	- $(MAKE) distclean
 	- $(MAKE) -C Gui distclean
 	#
-	rm -f build-arch-stamp build-indep-stamp configure-stamp
+	rm -f build-arch-stamp build-indep-stamp configure-stamp configure.log
 	#some leftovers
 	find -name '*.o' -or -name '*.a' -or -name '*~' -print0 |\
 		xargs -r0 rm -v

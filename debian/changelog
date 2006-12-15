@@ -1,3 +1,16 @@
+mplayer (1.0~rc1-8) unstable; urgency=low
+
+  * fix segfault on (broken) MPEGs without I frames, (Closes: #402922).  
+  * README.Debian: document apt pinning and debian-multimedia
+  * can be compiled with --enable-debug (Closes: #402920).
+  * supports DEB_BUILD_OPTIONS=nostrip/noopt (Closes: #402950)
+    (see README.Debian, though, for gory details)
+  * Spanish po-debconf translation", thanks
+    to Javier Fernández-Sanguino Peña (Closes: #402205).
+  * patch to compile in GNU/kFreeBSD, thanks to Petr Salinger (Closes: #402872).
+
+ -- A Mennucc1 <mennucc1@debian.org>  Fri, 15 Dec 2006 14:40:54 +0100
+
 mplayer (1.0~rc1-7) unstable; urgency=low
 
   * Bug fix: "mplayer: FTBFS on AMD64", thanks to Emfox Zhou (Closes:

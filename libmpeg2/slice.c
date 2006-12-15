@@ -1282,7 +1282,11 @@ static void motion_mp1 (mpeg2_decoder_t * const decoder,
 				    motion->f_code[0] + motion->f_code[1]);
     motion->pmv[0][1] = motion_y;
 
-    MOTION_420 (table, motion->ref[0], motion_x, motion_y, 16, 0);
+    /* if the stream is damaged, and there was no I frame, 
+       then this pointer will be zero*/
+    if (motion->ref[0][0]) {
+       MOTION_420 (table, motion->ref[0], motion_x, motion_y, 16, 0);
+    }
 }
 
 #define MOTION_FUNCTIONS(FORMAT,MOTION,MOTION_FIELD,MOTION_DMV,MOTION_ZERO)   \
@@ -1557,15 +1561,19 @@ static void motion_fi_conceal (mpeg2_decoder_t * const decoder)
 #undef bits
 #undef bit_ptr
 
+/* if the stream is damaged, and there was no I frame, 
+   then those pointers may be zero */
 #define MOTION_CALL(routine,direction)				\
-do {								\
-    if ((direction) & MACROBLOCK_MOTION_FORWARD)		\
+{								\
+  if ((decoder)->f_motion.ref[0][0] &&				\
+      ((direction) & MACROBLOCK_MOTION_FORWARD))		\
 	routine (decoder, &(decoder->f_motion), mpeg2_mc.put);	\
-    if ((direction) & MACROBLOCK_MOTION_BACKWARD)		\
+  if ((decoder)->b_motion.ref[0][0] &&				\
+	  ((direction) & MACROBLOCK_MOTION_BACKWARD))		\
 	routine (decoder, &(decoder->b_motion),			\
 		 ((direction) & MACROBLOCK_MOTION_FORWARD ?	\
 		  mpeg2_mc.avg : mpeg2_mc.put));		\
-} while (0)
+};
 
 #define NEXT_MACROBLOCK							\
 do {									\
@@ -1879,7 +1887,7 @@ void mpeg2_slice (mpeg2_decoder_t * const decoder, const int code,
 
 	    parser =
 		decoder->motion_parser[macroblock_modes >> MOTION_TYPE_SHIFT];
-	    MOTION_CALL (parser, macroblock_modes);
+	    MOTION_CALL (parser, macroblock_modes);	    
 
 	    if (macroblock_modes & MACROBLOCK_PATTERN) {
 		int coded_block_pattern;

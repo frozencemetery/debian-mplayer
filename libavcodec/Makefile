@@ -300,7 +300,24 @@ OBJS-$(CONFIG_DVBSUB_PARSER)           += dvbsubdec.o
 OBJS-$(CONFIG_DVDSUB_PARSER)           += dvdsub.o
 OBJS-$(CONFIG_H261_PARSER)             += h261.o
 OBJS-$(CONFIG_H263_PARSER)             += h263dec.o
+###
+#if --enable-debug is passed to MPlayer's configure, then
+#  OPTFLAGS = '-O4 -ffast-math -fomit-frame-pointer ...'
+# is replaced by '-O2...'
+# but cabac.h cannot be compiled in x86, it fails as follows
+#cabac.h:513: error: can't find a register in class 'GENERAL_REGS' while reloading 'asm'
+#
+#This was reported as a bug against GCC, in 
+# http://gcc.gnu.org/bugzilla/show_bug.cgi?id=11203
+# http://gcc.gnu.org/bugzilla/show_bug.cgi?id=13850
+#but is actually not: i386 simply cannot compile that asm w/o those parameters
+ifeq ($(TARGET_ARCH_X86),yes)
+ifneq ($(CONFIG_DEBUG),)
+h264.o : OPTFLAGS = -O4 -ffast-math -fomit-frame-pointer
+endif
+endif
 OBJS-$(CONFIG_H264_PARSER)             += h264.o
+##
 OBJS-$(CONFIG_MJPEG_PARSER)            += mjpeg.o
 OBJS-$(CONFIG_MPEG4VIDEO_PARSER)       += parser.o
 OBJS-$(CONFIG_MPEGAUDIO_PARSER)        += parser.o

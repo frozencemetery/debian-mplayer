@@ -1,3 +1,49 @@
+--------------------- on debian-multimedia
+
+Christian Marillat  offers many multimedia-related packages in his repository,
+including, for example, 'mencoder' ;
+so you may want to add in  /etc/apt/sources.list   the line
+  deb http://www.debian-multimedia.org etch main
+
+But! some packages are both in Debian  and in that repository;
+If the versions of packages from that repository are newer than
+those in Debian, you will substitute them; and this is the case of
+mplayer; so, if you do not wish this to happen, you may add 
+vvvvvvvvvvvv
+Package: *
+Pin: release o=Unofficial Multimedia Packages
+Pin-Priority: 450
+^^^^^^^^^^
+into /etc/apt/preferences. (This is called "apt pinning").  This will
+give preference to a Debian package.  (If you want to give preference
+to Christian's package, use Pin-Priority: 550 )
+
+
+To know if the above works, you can use the command
+$ apt-cache policy mplayer
+  mplayer:
+   Installed : ....
+    Candidate : 1.0~rc1-8
+    Table de version :
+     [version]  [??]
+        450 http://www.debian-multimedia.org etch main
+ *** [version]  [??]
+        500 http://ftp.de.debian.org ustable/main Packages
+        100 /var/lib/dpkg/status
+
+Look where the *** are, and what "Candidate:..." says.
+(But, do not trust the output [??] in that list: see bug  254820).
+
+
+Unfortunately, currently (see bug 317186), the following 
+ "apt package pinning" does not work
+vvvvvvvvvvvv
+Package: mplayer
+Pin: release o=Unofficial Multimedia Packages
+Pin-Priority: 450
+^^^^^^^^^^
+
+a.
 
 ---------------------- on performance
 
@@ -19,6 +65,41 @@ and will then optimize mplayer strictly for your CPU.
   
 Dariush Pietrzak <eyck@ghost.anime.pl>  Sat Jan  5 20:28:23 CET 2002
 
+-------------------- on debugging
+
+if you need to debug this package, you may recompile it with
+ "debugging options"
+
+one way to do this is
+$ DEB_BUILD_OPTIONS=debug debuild binary
+this will compile the package passing '--enable-debug=-g3' :
+so the sources will be compiled with CFLAGS
+   CFLAGS="-W -Wall -O2 -g3 ...arch.. ..cpu.. "
+this is the "upstream preferred way" of debugging mplayer.
+
+I also implemented 
+ DEB_BUILD_OPTIONS=noopt
+that will compile without '-O2' , as is recommended by the policy
+
+Whereas DEB_BUILD_OPTIONS=nostrip  will make sure that, in the final
+package, all binaries will be unstripped
+
+One warning: the above requires a lot of disk space! the building tree 
+is ~380Mb , and the final mplayer is ~90Mb , so you need ~500Mb to
+to a successfull debug building
+
+There is moreover a huge catch: some code in mplayer (particularly,
+asm code for mmx/sse) does not compile on some
+architectures when optimizations is disabled; see
+ http://gcc.gnu.org/bugzilla/show_bug.cgi?id=11203
+ http://gcc.gnu.org/bugzilla/show_bug.cgi?id=13850
+
+For this reason, I have hacked up workarounds
+(reenabling optimization for files that fail w/o it)
+but your mileage may vary
+
+a.
+
 --------------
 
 This binary conforms to 
@@ -28,4 +109,4 @@ but for the following notes and exceptions:
 *N* to avoid stripping, use DEB_BUILD_OPTIONS=nostrip
     to enable debugging, use DEB_BUILD_OPTIONS=nostrip,debug
 
- -- A Mennucc <mennucc1@debian.org>, Mon Jan 16 15:18:13 2006
+ -- A Mennucc <debdev@tonelli.sns.it>, Fri, 15 Dec 2006 14:53:12 +0100

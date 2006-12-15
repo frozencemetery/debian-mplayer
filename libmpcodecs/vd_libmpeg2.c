@@ -155,7 +155,7 @@ static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags){
     while(1){
 	int state=mpeg2_parse (mpeg2dec);
 	int type, use_callback;
-	mp_image_t* mpi_new;
+	mp_image_t* mpi_new=NULL;
 	unsigned long pw, ph;
 	
 	switch(state){
