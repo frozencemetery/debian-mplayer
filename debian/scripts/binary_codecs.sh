@@ -142,7 +142,7 @@ case "$1" in
       wget -nv -N $MYSITE/codecs_list || true
     #fi
 
-    if  grep -q "^$dpkgarch" $PREFDIR/codecs_list   ] ; then
+    if  grep -q "^$dpkgarch" $PREFDIR/codecs_list  ; then
       egrep -v "^[[:space:]]*(#|$)" $PREFDIR/codecs_list | \
         while read arch url dir file info ; do
           if [ "$dpkgarch" = "$arch" ]; then

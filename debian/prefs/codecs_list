@@ -1,4 +1,4 @@
 i386    @MAINSITE@ releases/codecs essential-20061022.tar.bz2
-ppc     @MAINSITE@ releases/codecs essential-ppc-20061022.tar.bz2
+powerpc @MAINSITE@ releases/codecs essential-ppc-20061022.tar.bz2
 amd64   @MAINSITE@ releases/codecs essential-amd64-20061203.tar.bz2
 alpha   @MAINSITE@ releases/codecs essential-alpha-20061028.tar.bz2

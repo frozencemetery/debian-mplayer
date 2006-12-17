@@ -1,3 +1,11 @@
+mplayer (1.0~rc1-9) unstable; urgency=low
+
+  * fix another segfault on (broken) MPEGs without I frames (Closes: #403379).
+  * fix: binary_codecs.sh failed to install essential-ppc
+    codecs, thanks to Bin Zhang (Closes: #403442).
+
+ -- A Mennucc1 <mennucc1@debian.org>  Sun, 17 Dec 2006 13:06:43 +0100
+
 mplayer (1.0~rc1-8) unstable; urgency=low
 
   * fix segfault on (broken) MPEGs without I frames, (Closes: #402922).  
