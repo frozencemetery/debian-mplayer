@@ -1,3 +1,11 @@
+mplayer (1.0~rc1-10) unstable; urgency=high
+
+  * really apply patch for (Closes: #403379)
+  * many fixes to various codecs, to prevent crashes on 
+    randomly altered streams
+
+ -- A Mennucc1 <mennucc1@debian.org>  Mon, 18 Dec 2006 11:46:35 +0100
+
 mplayer (1.0~rc1-9) unstable; urgency=low
 
   * fix another segfault on (broken) MPEGs without I frames (Closes: #403379).

@@ -462,7 +462,11 @@ int video_read_frame(sh_video_t* sh_video,float* frame_time_ptr,unsigned char** 
     //newfps=frameratecode2framerate[picture->frame_rate_code]*0.0001f;
     if(sh_video->fps!=picture.fps) if(!force_fps && !telecine){
             mp_msg(MSGT_CPLAYER,MSGL_WARN,"Warning! FPS changed %5.3f -> %5.3f  (%f) [%d]  \n",sh_video->fps,picture.fps,sh_video->fps-picture.fps,picture.frame_rate_code);
-            sh_video->fps=picture.fps;
+            if(picture.fps < 0.01) {
+	      mp_msg(MSGT_CPLAYER,MSGL_ERR,"Error! FPS  %5.3f too small (broken stream?).\n", picture.fps);
+	      return -1;
+	    }
+	    sh_video->fps=picture.fps;
             sh_video->frametime=1.0/picture.fps;
     }
 #endif

@@ -518,6 +518,10 @@ static void fill_caches(H264Context *h, int mb_type, int for_deblock){
     int left_block[8];
     int i;
 
+    if(!h->slice_table) {
+      av_log(h->s.avctx, AV_LOG_ERROR, "h->slice_table==NULL\n");
+      return;
+    }
     //FIXME deblocking could skip the intra and nnz parts.
     if(for_deblock && (h->slice_num == 1 || h->slice_table[mb_xy] == h->slice_table[mb_xy-s->mb_stride]) && !FRAME_MBAFF)
         return;
@@ -3320,6 +3324,13 @@ static void init_dequant_tables(H264Context *h){
     }
 }
 
+/**
+ * tells if  tables are allocated
+ */
+static int alloc_tables_p(H264Context *h)
+{
+  return h->intra4x4_pred_mode != NULL;
+}
 
 /**
  * allocates tables.
@@ -5148,7 +5159,8 @@ static int decode_mb_cavlc(H264Context *h){
     int mb_type, partition_count, cbp;
     int dct8x8_allowed= h->pps.transform_8x8_mode;
 
-    s->dsp.clear_blocks(h->mb); //FIXME avoid if already clear (move after skip handlong?
+    if(s->dsp.clear_blocks)
+      s->dsp.clear_blocks(h->mb); //FIXME avoid if already clear (move after skip handlong?
 
     tprintf("pic:%d mb:%d/%d\n", h->frame_num, s->mb_x, s->mb_y);
     cbp = 0; /* avoid warning. FIXME: find a solution without slowing
@@ -7436,6 +7448,10 @@ static int decode_slice(H264Context *h){
                 h->cabac_state[i] = 2 * ( pre - 64 ) + 1;
         }
 
+      if (!alloc_tables_p(h)) {
+	av_log(h->s.avctx, AV_LOG_ERROR, "cant decode macroblocks now\n");
+	return -1;
+      }
         for(;;){
 //START_TIMER
             int ret = decode_mb_cabac(h);
@@ -7477,6 +7493,10 @@ static int decode_slice(H264Context *h){
         }
 
     } else {
+      if (!alloc_tables_p(h)) {
+	av_log(h->s.avctx, AV_LOG_ERROR, "cant decode mabroblocks now\n");
+	return -1;
+      }
         for(;;){
             int ret = decode_mb_cavlc(h);
 

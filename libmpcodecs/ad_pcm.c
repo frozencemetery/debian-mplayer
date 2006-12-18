@@ -20,6 +20,7 @@ LIBAD_EXTERN(pcm)
 static int init(sh_audio_t *sh_audio)
 {
   WAVEFORMATEX *h=sh_audio->wf;
+  if(h==NULL) return 0;
   sh_audio->i_bps=h->nAvgBytesPerSec;
   sh_audio->channels=h->nChannels;
   sh_audio->samplerate=h->nSamplesPerSec;

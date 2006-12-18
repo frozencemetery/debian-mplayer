@@ -2579,6 +2579,9 @@ static int mpeg_decode_slice(Mpeg1Context *s1, int mb_y,
         }
     }
 
+    if(!s->current_picture.mb_type) {
+      av_log(avctx, AV_LOG_ERROR, "mb_type==0\n");
+    } else
     for(;;) {
 #ifdef HAVE_XVMC
         //one 1 we memcpy blocks in xvmcvideo
