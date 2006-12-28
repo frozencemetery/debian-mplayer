@@ -1,3 +1,12 @@
+mplayer (1.0~rc1-11) unstable; urgency=high
+
+  * fix for CVE-2006-6172
+  * fixed "typo in the README.Debian", thanks to Aurelien
+    Jacobs (Closes: #403893).
+  * another (last?) fix for  (Closes: #402950), thanks Sam Hocevar.
+
+ -- A Mennucc1 <mennucc1@debian.org>  Thu, 28 Dec 2006 23:03:42 +0100
+
 mplayer (1.0~rc1-10) unstable; urgency=high
 
   * really apply patch for (Closes: #403379)

@@ -276,7 +276,7 @@ static rmff_header_t *real_parse_sdp(char *data, char **stream_rules, uint32_t b
 #ifdef LOG
     printf("calling asmrp_match with:\n%s\n%u\n", desc->stream[i]->asm_rule_book, bandwidth);
 #endif
-    n=asmrp_match(desc->stream[i]->asm_rule_book, bandwidth, rulematches);
+    n=asmrp_match(desc->stream[i]->asm_rule_book, bandwidth, rulematches, sizeof(rulematches)/sizeof(rulematches[0]));
     for (j=0; j<n; j++) {
 #ifdef LOG
       printf("asmrp rule match: %u for stream %u\n", rulematches[j], desc->stream[i]->stream_id);

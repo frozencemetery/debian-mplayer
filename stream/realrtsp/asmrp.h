@@ -40,6 +40,6 @@
 #ifndef HAVE_ASMRP_H
 #define HAVE_ASMRP_H
 
-int asmrp_match (const char *rules, int bandwidth, int *matches) ;
+int asmrp_match (const char *rules, int bandwidth, int *matches, int matchesizxe) ;
 
 #endif
