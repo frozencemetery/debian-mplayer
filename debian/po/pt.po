@@ -1,0 +1,203 @@
+# Portuguese translation of mplayer's debconf messages.
+# Copyright (C) 2007 Carlos Lisboa
+# This file is distributed under the same license as the mplayer package.
+# Carlos Lisboa <carloslisboa@gmail.com>, 2007.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: mplayer\n"
+"Report-Msgid-Bugs-To: eyck@ghost.anime.pl\n"
+"POT-Creation-Date: 2006-11-19 21:34+0100\n"
+"PO-Revision-Date: 2007-01-25 19:54+0000\n"
+"Last-Translator: Carlos Lisboa <carloslisboa@gmail.com>\n"
+"Language-Team: Portuguese <traduz@debianpt.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:1001
+msgid "Create your ~/.mplayer/mplayer.conf file"
+msgstr "Criar o seu ficheiro ~/.mplayer/mplayer.conf"
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:1001
+msgid ""
+"Performance of MPlayer depends heavily on hardware - this means that it may "
+"benefit from tweaking options, for every single machine it's installed to. "
+"You may wish to read the documentation (it is in the package 'mplayer-doc', "
+"under /usr/share/doc/mplayer-doc/). This DebConf interface will help you "
+"setup just a few main features; you may wish to add to /etc/mplayer/mplayer."
+"conf some more refined options (to enable multichannel audio, or video "
+"postprocessing, etc etc); and any user similarly may customize MPlayer using "
+"the file ~/.mplayer/config"
+msgstr ""
+"O desempenho do Mplayer depende fortemente do hardware - isto significa que "
+"poderá beneficiar alterando opções, para cada máquina em que é instalado. "
+"Poderá desejar ler a documentação (encontra-se no pacote 'mplayer-doc', "
+"em /usr/share/doc/mplayer-doc/). Esta interface Debconf irá ajudá-lo em "
+"apenas algumas funcionalidades principais; poderá desejar acrescentar algumas "
+"opções mais refinadas em /etc/mplayer/mplayer.conf (para activar audio "
+"multi-canal, ou pós-processamento de video, etc etc); e qualquer utilizador "
+"poderá personalizar o Mplayer utilizando o ficheiro ~/.mplayer/config ."
+
+#. Type: boolean
+#. Description
+#: ../mplayer.templates:2001
+msgid "Enable access to RTC?"
+msgstr "Activar o acesso ao RTC?"
+
+#. Type: boolean
+#. Description
+#: ../mplayer.templates:2001
+msgid ""
+"On older kernels MPlayer can use the RTC (Real Time Clock) to provide better "
+"timing in reproduction, with less CPU cost; to this end, though, the device /"
+"dev/rtc must be accessible to group audio, and the default max-user-freq "
+"must be raised to 1024.  Any needed change must be done by root. If you "
+"wish, MPlayer will automatically do this at boot, so that any user can enjoy "
+"this feature. Note that there may be security issues with this (although "
+"none are known now)."
+msgstr ""
+"Em kernels mais antigos, o Mplayer poderá utilizar o RTC (Real Time Clock - "
+"Relógio em Tempo Real) para providenciar uma melhor reprodução, com um custo "
+"inferior para o CPU; para que isto aconteça, o dispositivo /dev/rtc tem de "
+"estar acessível ao grupo audio, e a max-user-freq por omissão deverá ser "
+"subida para 1024.  Qualquer alteração que seja necessário fazer, terá de ser "
+"feito pelo root. Se desejar, o Mplayer fará isto automaticamente no arranque, "
+"para que qualquer utilizador possa disfrutar desta funcionalidade. Note que "
+"poderão existir problemas de segurança com isto (apesar de não haver nenhum "
+"conhecido)."
+
+#. Type: boolean
+#. Description
+#: ../mplayer.templates:3001
+msgid "Replace existing configuration file?"
+msgstr "Substituir o ficheiro de configuração existente?"
+
+#. Type: boolean
+#. Description
+#: ../mplayer.templates:3001
+msgid ""
+"There is already a file /etc/mplayer/mplayer.conf, but it does not contain "
+"an automatically generated part. This script may generate a new file (the "
+"old file will be moved to /etc/mplayer/mplayer.conf.debconf-old)."
+msgstr ""
+"Já existe o ficheiro /etc/mplayer/mplayer.conf, mas não contém uma secção "
+"gerada automaticamente. Este script irá gerar um novo ficheiro (o ficheiro "
+"antigo será movido para /etc/mplayer/mplayer.conf.debconf-old)."
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:4001
+msgid "Files not replaced"
+msgstr "Ficheiros não susbtítuidos"
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:4001
+msgid ""
+"It seems that you don't want to replace your existing configuration file /"
+"etc/mplayer/mplayer.conf.  If you change your mind later, you can run \"dpkg-"
+"reconfigure mplayer\"."
+msgstr ""
+"Parece que não substituiu o ficheiro de configuração existente em "
+"/etc/mplayer/mplayer.conf.  Se mudar de ideias mais tarde poderá correr "
+"\"dpkg-reconfigure mplayer\"."
+
+
+#. Type: select
+#. Description
+#: ../mplayer.templates:5001
+msgid "MPlayer video output:"
+msgstr "Saída de video do Mplayer:"
+
+#. Type: select
+#. Description
+#: ../mplayer.templates:5001
+msgid ""
+"MPlayer can use a very wide range of video output drivers; it will try to "
+"autodetect the best one, but you may choose a preferred one. Here is the a "
+"guide to the choice (in decreasing order of speed): (1) if you see an entry "
+"that matches your video card, choose that; (2) if your video card supports "
+"'XV', choose that (use 'xvinfo' to know). You should read /usr/share/doc/"
+"mplayer-doc/HTML/en/devices.html (it is in package 'mplayer-doc')."
+msgstr ""
+"O Mplayer pode utilizar uma grande variedade de controladores de saída de "
+"video; ele irá tentar detectar qual o melhor, mas você poderá escolher um "
+"que prefira. Aqui está um guia para a sua escolha (por ordem decrescente de "
+"desempenho): (1) se encontrar uma entrada que coincida com a sua placa "
+"gráfica, escolha essa; (2) se a sua placa gráfica suportar 'XV', escolha "
+"essa (use 'xvinfo' para saber). Deverá ler /usr/share/doc/mplayer-doc/HTML/"
+"en/devices.html (está no pacote 'mplayer-doc')."
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:6001
+msgid "How to download binary codecs"
+msgstr "Como descarregar os codecs binários"
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:6001
+msgid ""
+"MPlayer supports most codecs out of the box and the rest with the help of "
+"binary codecs. Binary codecs are only necessary for Real 3.0  and 4.0, "
+"Windows Media 9, QuickTime audio and some very obscure codecs. Debian cannot "
+"distribute these codecs, but these are available on the internet for "
+"download. Run the script `/usr/share/mplayer/scripts/binary_codecs.sh' to "
+"install those  made available from MPlayer web site."
+msgstr ""
+"O Mplayer suporta à partida a maior parte dos codecs e os restantes com a "
+"ajuda de codecs binários. Os codecs binários são apenas necessários para "
+"Real 3.0 e Real 4.0, Windows Media 9, Quicktime audio e alguns outros codecs "
+"mais obscuros. Debian não pode distribuir esses codecs, mas encontram-se "
+"disponíveis na internet. Corra o script `/usr/share/mplayer/scripts/"
+"binary_codecs.sh' para instalar os que estão disponíveis no site do Mplayer."
+
+#. Type: string
+#. Description
+#: ../mplayer.templates:7001
+msgid "DVD device name:"
+msgstr "Nome do dispositivo de DVD:"
+
+#. Type: string
+#. Description
+#: ../mplayer.templates:7001
+msgid "What is the name of your DVD device (if any):"
+msgstr "Qual o nome do seu dispositivo de DVD (se existir algum):"
+
+#. Type: select
+#. Description
+#: ../mplayer.templates:8001
+msgid "MPlayer OSD font:"
+msgstr "Fonte para OSD do Mplayer:"
+
+#. Type: select
+#. Description
+#: ../mplayer.templates:8001
+msgid ""
+" MPlayer needs True Type fonts for On Screen Display. Choose your favorite."
+msgstr ""
+"O Mplayer necessita de Fontes True Type para o On Screen Display. Escolha a "
+"a sua preferida."
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:9001
+msgid "MPlayer cannot find TrueType Fonts"
+msgstr "O Mplayer não conseguiu encontrar fontes TrueType"
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:9001
+msgid ""
+"You should install a package providing truetype fonts (such as   'ttf-"
+"freefont' or 'ttf-bitstream-vera' or  'msttcorefonts' ) and reconfigure "
+"MPlayer (with the command \"dpkg-reconfigure mplayer\")"
+msgstr ""
+"Deverá instalar o pacote que disponibiliza as fontes TrueType (tal como a "
+"'ttf-freefont' ou 'ttf-bitstream-vera' ou  'msttcorefonts' ) e reconfigure o "
+"Mplayer (com o comando \"dpkg-reconfigure mplayer\")."

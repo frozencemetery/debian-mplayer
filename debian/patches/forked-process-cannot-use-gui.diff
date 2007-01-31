@@ -1,0 +1,24 @@
+Index: stream/cache2.c
+===================================================================
+--- stream/cache2.c	(revision 22020)
++++ stream/cache2.c	(working copy)
+@@ -28,6 +28,9 @@
+ #include "help_mp.h"
+ 
+ #include "stream.h"
++#ifdef HAVE_NEW_GUI
++extern int use_gui;
++#endif
+ 
+ int stream_fill_buffer(stream_t *s);
+ int stream_seek_long(stream_t *s,off_t pos);
+@@ -306,6 +309,9 @@
+ static DWORD WINAPI ThreadProc(void*s){
+ #endif
+   
++#ifdef HAVE_NEW_GUI
++  use_gui = 0; // mp_msg may not use gui stuff in forked code
++#endif
+ // cache thread mainloop:
+   signal(SIGTERM,exit_sighandler); // kill
+   while(1){

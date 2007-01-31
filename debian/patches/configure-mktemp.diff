@@ -1,0 +1,28 @@
+# patch by Simon McVittie
+--- mplayer-1.0pre6a.orig/configure
++++ mplayer-1.0pre6a/configure
+@@ -507,6 +507,24 @@
+ for I in "$TMPDIR" "$TEMPDIR" "/tmp" ; do
+   test "$I" && break
+ done
++if which mktemp >/dev/null 2>/dev/null; then
++  # BSD/Debian/etc. mktemp avoids symlink attacks etc.
++  I="`mktemp -d "$I"/mplayer.XXXXXX`" || exit 1
++else
++  # Avoid symlink attacks by creating a directory (still susceptible to DoS
++  # by someone creating many similarly named directories)
++  loc="$I"
++  counter=0
++  while true; do
++    counter=`expr $counter + 1`
++    if test counter -ge 20; then
++      echo "Unable to make a safe temporary directory!" >&2
++      exit 1
++    fi
++    I="$loc/mplayer-conf-$RANDOM-$$"
++    mkdir "$I" && break
++  done
++fi
+
+ TMPLOG="configure.log"
+ rm -f "$TMPLOG"

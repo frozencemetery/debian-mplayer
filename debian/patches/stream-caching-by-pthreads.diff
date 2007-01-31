@@ -1,0 +1,245 @@
+diff -ru mplayer-1.0~rc1-11/stream/cache2.c mplayer-1.0~rc1-12/stream/cache2.c
+--- mplayer-1.0~rc1-11/stream/cache2.c	2006-10-23 00:32:25.000000000 +0200
++++ mplayer-1.0~rc1-12/stream/cache2.c	2007-01-26 23:27:04.000000000 +0100
+@@ -16,12 +16,26 @@
+ #include <unistd.h>
+ 
+ #include "osdep/timer.h"
+-#ifndef WIN32
+-#include <sys/wait.h>
+-#include "osdep/shmem.h"
+-#else
++
++#if defined(WIN32)
+ #include <windows.h>
+ static DWORD WINAPI ThreadProc(void* s);
++#define CACHE_HAS_SUBPROCESS(s) ((s)->cache_handle!=0)
++#elif  defined(HAVE_PTHREADS)
++#include <pthread.h>
++static void * ThreadProc(void* s);
++#define CACHE_HAS_SUBPROCESS(s) ((s)->cache_thread!=0)
++#else
++#include "osdep/shmem.h"
++#include <sys/wait.h>
++static void *ThreadProc(void* s);
++#define CACHE_HAS_SUBPROCESS(s) ((s)->cache_pid!=0)
++#endif
++
++#if defined(WIN32) || defined(HAVE_PTHREADS)
++#undef CACHE_FORKS
++#else
++#define CACHE_FORKS 1
+ #endif
+ 
+ #include "mp_msg.h"
+@@ -190,7 +204,7 @@
+ 
+ cache_vars_t* cache_init(int size,int sector){
+   int num;
+-#ifndef WIN32
++#ifdef CACHE_FORKS
+   cache_vars_t* s=shmem_alloc(sizeof(cache_vars_t));
+ #else
+   cache_vars_t* s=malloc(sizeof(cache_vars_t));
+@@ -204,14 +218,14 @@
+   }//32kb min_size
+   s->buffer_size=num*sector;
+   s->sector_size=sector;
+-#ifndef WIN32
++#ifdef CACHE_FORKS
+   s->buffer=shmem_alloc(s->buffer_size);
+ #else
+   s->buffer=malloc(s->buffer_size);
+ #endif
+ 
+   if(s->buffer == NULL){
+-#ifndef WIN32
++#ifdef CACHE_FORKS
+     shmem_free(s,sizeof(cache_vars_t));
+ #else
+     free(s);
+@@ -226,16 +240,26 @@
+ 
+ void cache_uninit(stream_t *s) {
+   cache_vars_t* c = s->cache_data;
++
++#if  defined(WIN32)
++  if(!s->cache_handle) return;
++  TerminateThread(s->cache_handle,0);
++  free(c->stream);
++#elif defined(HAVE_PTHREADS)
++  if(!s->cache_thread) return;
++  {
++    int err=pthread_cancel(s->cache_thread);
++    if(err) 
++      mp_msg(MSGT_CACHE,MSGL_ERR,"pthread_cancel return %d\n",err);
++  }
++  free(c->stream);
++#else
+   if(!s->cache_pid) return;
+-#ifndef WIN32
+   kill(s->cache_pid,SIGKILL);
+   waitpid(s->cache_pid,NULL,0);
+-#else
+-  TerminateThread((HANDLE)s->cache_pid,0);
+-  free(c->stream);
+ #endif
+   if(!c) return;
+-#ifndef WIN32
++#ifdef CACHE_FORKS
+   shmem_free(c->buffer,c->buffer_size);
+   shmem_free(s->cache_data,sizeof(cache_vars_t));
+ #else
+@@ -244,10 +268,12 @@
+ #endif
+ }
+ 
++#ifdef CACHE_FORKS
+ static void exit_sighandler(int x){
+   // close stream
+   exit(0);
+ }
++#endif
+ 
+ int stream_enable_cache(stream_t *stream,int size,int min,int seek_limit){
+   int ss=(stream->type==STREAMTYPE_VCD)?VCD_SECTOR_DATA:STREAM_BUFFER_SIZE;
+@@ -275,16 +301,35 @@
+      min = s->buffer_size - s->fill_limit;
+   }
+   
+-#ifndef WIN32  
+-  if((stream->cache_pid=fork())){
+-#else
++#if defined(WIN32)
+   {
+     DWORD threadId;
+     stream_t* stream2=malloc(sizeof(stream_t));
+     memcpy(stream2,s->stream,sizeof(stream_t));
+     s->stream=stream2;
+-    stream->cache_pid = CreateThread(NULL,0,ThreadProc,s,0,&threadId);
++    stream->cache_handle = CreateThread(NULL,0,ThreadProc,s,0,&threadId);
++   }
++#elif defined(HAVE_PTHREADS)
++  {  
++    stream_t* stream2=malloc(sizeof(stream_t));
++    memcpy(stream2,s->stream,sizeof(stream_t));
++    s->stream=stream2;
++    int err=pthread_create( &stream->cache_thread, NULL, ThreadProc, (void*) s); 
++    if(err)  {
++      mp_msg(MSGT_CACHE,MSGL_ERR,"pthread_cancel return %d\n",err);
++      stream->cache_thread=0;
++    }
++  }
++#else
++  stream->cache_pid=fork();
++  if (stream->cache_pid  == -1) {
++    mp_msg(MSGT_CACHE,MSGL_ERR,"Fork for caching failed\n"); 
++    return 1; 
++  }  else if(stream->cache_pid==0)
++    ThreadProc(s); 
++  else
+ #endif
++  { /*this code is executed in the main process/thread */
+     // wait until cache is filled at least prefill_init %
+     mp_msg(MSGT_CACHE,MSGL_V,"CACHE_PRE_INIT: %"PRId64" [%"PRId64"] %"PRId64"  pre:%d  eof:%d  \n",
+ 	(int64_t)s->min_filepos,(int64_t)s->read_filepos,(int64_t)s->max_filepos,min,s->eof);
+@@ -296,18 +341,24 @@
+ 	if(s->eof) break; // file is smaller than prefill size
+ 	if(mp_input_check_interrupt(PREFILL_SLEEP_TIME))
+ 	  return 0;
++	usec_sleep(100); // no use cycling like crazy while waiting 
+     }
+     mp_msg(MSGT_CACHE,MSGL_STATUS,"\n");
+     return 1; // parent exits
+   }
+-  
+-#ifdef WIN32
+ }
+-static DWORD WINAPI ThreadProc(void*s){
++
++
++#if defined(WIN32)
++static DWORD WINAPI WINAPI
++#else
++static void *
+ #endif
+-  
++ ThreadProc(void*s) {
+ // cache thread mainloop:
++#ifdef CACHE_FORKS
+   signal(SIGTERM,exit_sighandler); // kill
++#endif
+   while(1){
+     if(!cache_fill((cache_vars_t*)s)){
+ 	 usec_sleep(FILL_USLEEP_TIME); // idle
+@@ -319,7 +370,7 @@
+ int cache_stream_fill_buffer(stream_t *s){
+   int len;
+   if(s->eof){ s->buf_pos=s->buf_len=0; return 0; }
+-  if(!s->cache_pid) return stream_fill_buffer(s);
++  if(!CACHE_HAS_SUBPROCESS(s)) return stream_fill_buffer(s);
+ 
+ //  cache_stats(s->cache_data);
+ 
+@@ -340,7 +391,7 @@
+ int cache_stream_seek_long(stream_t *stream,off_t pos){
+   cache_vars_t* s;
+   off_t newpos;
+-  if(!stream->cache_pid) return stream_seek_long(stream,pos);
++  if(!CACHE_HAS_SUBPROCESS(stream)) return stream_seek_long(stream,pos);
+   
+   s=stream->cache_data;
+ //  s->seek_lock=1;
+diff -ru mplayer-1.0~rc1-11/stream/stream.c mplayer-1.0~rc1-12/stream/stream.c
+--- mplayer-1.0~rc1-11/stream/stream.c	2006-10-23 00:32:25.000000000 +0200
++++ mplayer-1.0~rc1-12/stream/stream.c	2007-01-26 23:25:04.000000000 +0100
+@@ -410,7 +410,13 @@
+   s->start_pos=s->end_pos=0;
+   s->priv=NULL;
+   s->url=NULL;
++#if  defined(WIN32)
++  s->cache_handle=0;
++#elif defined(HAVE_PTHREADS)
++  s->cache_thread=0;
++#else
+   s->cache_pid=0;
++#endif
+   stream_reset(s);
+   return s;
+ }
+@@ -418,9 +424,7 @@
+ void free_stream(stream_t *s){
+ //  printf("\n*** free_stream() called ***\n");
+ #ifdef USE_STREAM_CACHE
+-  if(s->cache_pid) {
+-    cache_uninit(s);
+-  }
++  cache_uninit(s);
+ #endif
+   if(s->close) s->close(s);
+   if(s->fd>0){
+Only in mplayer-1.0~rc1-12/stream: stream.c~
+Only in mplayer-1.0~rc1-12/stream: stream_cdda.o
+Only in mplayer-1.0~rc1-12/stream: stream_cddb.o
+Only in mplayer-1.0~rc1-12/stream: stream_cue.o
+Only in mplayer-1.0~rc1-12/stream: stream_dvb.o
+Only in mplayer-1.0~rc1-12/stream: stream_dvd.o
+Only in mplayer-1.0~rc1-12/stream: stream_file.o
+Only in mplayer-1.0~rc1-12/stream: stream_ftp.o
+diff -ru mplayer-1.0~rc1-11/stream/stream.h mplayer-1.0~rc1-12/stream/stream.h
+--- mplayer-1.0~rc1-11/stream/stream.h	2006-10-23 00:32:25.000000000 +0200
++++ mplayer-1.0~rc1-12/stream/stream.h	2007-01-26 23:25:05.000000000 +0100
+@@ -99,7 +99,13 @@
+   unsigned int buf_pos,buf_len;
+   off_t pos,start_pos,end_pos;
+   int eof;
++#if defined(WIN32)
++  HANDLE WINAPI cache_handle;
++#elif defined(HAVE_PTHREADS)
++  pthread_t cache_thread;
++#else
+   unsigned int cache_pid;
++#endif
+   void* cache_data;
+   void* priv; // used for DVD, TV, RTSP etc
+   char* url;  // strdup() of filename/url

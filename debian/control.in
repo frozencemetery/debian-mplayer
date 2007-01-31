@@ -6,9 +6,9 @@ Uploaders: Dariush Pietrzak <eyck@kuszelas.com>
 Standards-Version: 3.7.2.0
 Build-Depends-Indep: @DOCDEP@
 Build-Depends: debhelper (>= 4), make (>= 3.80), pkg-config, po-debconf,
- libsdl1.2-dev | libsdl1.1-dev, svgalibg1-dev [i386],
- libmad0-dev, libpng-dev, libncurses5-dev, zlib1g-dev,
- libtheora-dev (>= 0.0.0.alpha3-1), libesd0-dev,
+ libsdl1.2-dev | libsdl1.1-dev, svgalibg1-dev [i386], libdts-dev, ladspa-sdk,
+ libmad0-dev, libpng-dev, libncurses5-dev, zlib1g-dev, libspeex-dev,
+ libtheora-dev (>= 0.0.0.alpha3-1), libesd0-dev, liblzo-dev, libgl1-mesa-dev,
  libasound2-dev (>= 1.0.6-3) [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386],
  libvorbis-dev, liblircclient-dev, libfreetype6-dev, libdvdread3-dev,
  libcdparanoia0-dev, libfontconfig1-dev, libjpeg62-dev, libungif4-dev,

@@ -1,3 +1,26 @@
+mplayer (1.0~rc1-12) unstable; urgency=medium
+
+  * (possible) security fixes  backported from SVN
+     7585  7586  7591   for  libavcodec/h264.c
+     7640  7650         for  libavformat/asf.c
+     all thanks to Michael Niedermeyer
+  * Czech debconf translation;  thanks to Miroslav Kure (Closes: #408626).
+  * Portuguese debconf translation; thanks to Traduz! (Closes: #408449).
+  * Swedish debconf translation; thanks to Andreas Henriksson (Closes: #407864).
+  * binary_codecs.sh should specify umask;
+     thanks to Linas Žvirblis (Closes: #406346).
+  * clarify dependencies (do not pick up them randomly!),
+     thanks to EspeonEefi (Closes: #405170);
+     debian/rules: when configuring, disable also: arts , jack , aa , dv , smb 
+     debian/control: depend on: lzo, speex, dts, ladspa, gl (mesa)
+  * the above adds opengl video output (Closes: #400934).
+  * forked processes cannot use GTK gui; this fixes bug in caching streams
+     in gmplayer (Closes: #396962)
+     thanks to martin f krafft  and Reimar Döffinger for patch.
+  * added in debian/patches all patches that I applied or I am working on
+  
+ -- A Mennucc1 <mennucc1@debian.org>  Wed, 31 Jan 2007 10:30:24 +0100
+
 mplayer (1.0~rc1-11) unstable; urgency=high
 
   * fix for CVE-2006-6172

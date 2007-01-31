@@ -1,5 +1,6 @@
 #!/bin/sh
 set -e
+umask 0022
 
 # This script will download binary codecs for MPlayer unto a Debian system.
 

@@ -1,0 +1,61 @@
+# fix segfault on (broken) MPEGs without I frames, (Closes: #402922).  
+--- mplayer-1.0~rc1.orig/libmpcodecs/vf.c
++++ mplayer-1.0~rc1/libmpcodecs/vf.c
+@@ -325,6 +325,7 @@
+ 	    if(mpi->width<w2 || mpi->height<h){
+ 		// need to re-allocate buffer memory:
+ 		free(mpi->planes[0]);
++		mpi->planes[0]=NULL;
+ 		mpi->flags&=~MP_IMGFLAG_ALLOCATED;
+ 		mp_msg(MSGT_VFILTER,MSGL_V,"vf.c: have to REALLOCATE buffer memory :(\n");
+ 	    }
+--- mplayer-1.0~rc1.orig/libmpcodecs/vd_libmpeg2.c
++++ mplayer-1.0~rc1/libmpcodecs/vd_libmpeg2.c
+@@ -155,7 +155,7 @@
+     while(1){
+ 	int state=mpeg2_parse (mpeg2dec);
+ 	int type, use_callback;
+-	mp_image_t* mpi_new;
++	mp_image_t* mpi_new=NULL;
+ 	unsigned long pw, ph;
+ 	
+ 	switch(state){
+--- mplayer-1.0~rc1.orig/libmpeg2/slice.c
++++ mplayer-1.0~rc1/libmpeg2/slice.c
+@@ -1282,7 +1282,11 @@
+ 				    motion->f_code[0] + motion->f_code[1]);
+     motion->pmv[0][1] = motion_y;
+ 
+-    MOTION_420 (table, motion->ref[0], motion_x, motion_y, 16, 0);
++    /* if the stream is damaged, and there was no I frame, 
++       then this pointer will be zero*/
++    if (motion->ref[0][0]) {
++       MOTION_420 (table, motion->ref[0], motion_x, motion_y, 16, 0);
++    }
+ }
+ 
+ #define MOTION_FUNCTIONS(FORMAT,MOTION,MOTION_FIELD,MOTION_DMV,MOTION_ZERO)   \
+@@ -1557,15 +1561,19 @@
+ #undef bits
+ #undef bit_ptr
+ 
++/* if the stream is damaged, and there was no I frame, 
++   then those pointers may be zero */
+ #define MOTION_CALL(routine,direction)				\
+-do {								\
+-    if ((direction) & MACROBLOCK_MOTION_FORWARD)		\
++{								\
++  if ((decoder)->f_motion.ref[0][0] &&				\
++      ((direction) & MACROBLOCK_MOTION_FORWARD))		\
+ 	routine (decoder, &(decoder->f_motion), mpeg2_mc.put);	\
+-    if ((direction) & MACROBLOCK_MOTION_BACKWARD)		\
++  if ((decoder)->b_motion.ref[0][0] &&				\
++	  ((direction) & MACROBLOCK_MOTION_BACKWARD))		\
+ 	routine (decoder, &(decoder->b_motion),			\
+ 		 ((direction) & MACROBLOCK_MOTION_FORWARD ?	\
+ 		  mpeg2_mc.avg : mpeg2_mc.put));		\
+-} while (0)
++};
+ 
+ #define NEXT_MACROBLOCK							\
+ do {									\

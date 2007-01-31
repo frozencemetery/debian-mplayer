@@ -325,7 +325,7 @@ mp_image_t* vf_get_image(vf_instance_t* vf, unsigned int outfmt, int mp_imgtype,
 	    if(mpi->width<w2 || mpi->height<h){
 		// need to re-allocate buffer memory:
 		free(mpi->planes[0]);
-		mpi->planes[0]==NULL;
+		mpi->planes[0]=NULL;
 		mpi->flags&=~MP_IMGFLAG_ALLOCATED;
 		mp_msg(MSGT_VFILTER,MSGL_V,"vf.c: have to REALLOCATE buffer memory :(\n");
 	    }
