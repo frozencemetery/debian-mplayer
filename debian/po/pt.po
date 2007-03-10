@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: mplayer\n"
-"Report-Msgid-Bugs-To: eyck@ghost.anime.pl\n"
-"POT-Creation-Date: 2006-11-19 21:34+0100\n"
+"Report-Msgid-Bugs-To: mennucc1@debian.org\n"
+"POT-Creation-Date: 2007-03-10 13:03+0100\n"
 "PO-Revision-Date: 2007-01-25 19:54+0000\n"
 "Last-Translator: Carlos Lisboa <carloslisboa@gmail.com>\n"
 "Language-Team: Portuguese <traduz@debianpt.org>\n"
@@ -18,8 +18,8 @@ msgstr ""
 #. Type: note
 #. Description
 #: ../mplayer.templates:1001
-msgid "Create your ~/.mplayer/mplayer.conf file"
-msgstr "Criar o seu ficheiro ~/.mplayer/mplayer.conf"
+msgid "Create your ~/.mplayer/config file"
+msgstr "Criar o seu ficheiro ~/.mplayer/config"
 
 #. Type: note
 #. Description
@@ -36,12 +36,12 @@ msgid ""
 msgstr ""
 "O desempenho do Mplayer depende fortemente do hardware - isto significa que "
 "poderá beneficiar alterando opções, para cada máquina em que é instalado. "
-"Poderá desejar ler a documentação (encontra-se no pacote 'mplayer-doc', "
-"em /usr/share/doc/mplayer-doc/). Esta interface Debconf irá ajudá-lo em "
-"apenas algumas funcionalidades principais; poderá desejar acrescentar algumas "
-"opções mais refinadas em /etc/mplayer/mplayer.conf (para activar audio "
-"multi-canal, ou pós-processamento de video, etc etc); e qualquer utilizador "
-"poderá personalizar o Mplayer utilizando o ficheiro ~/.mplayer/config ."
+"Poderá desejar ler a documentação (encontra-se no pacote 'mplayer-doc', em /"
+"usr/share/doc/mplayer-doc/). Esta interface Debconf irá ajudá-lo em apenas "
+"algumas funcionalidades principais; poderá desejar acrescentar algumas "
+"opções mais refinadas em /etc/mplayer/mplayer.conf (para activar audio multi-"
+"canal, ou pós-processamento de video, etc etc); e qualquer utilizador poderá "
+"personalizar o Mplayer utilizando o ficheiro ~/.mplayer/config ."
 
 #. Type: boolean
 #. Description
@@ -66,10 +66,10 @@ msgstr ""
 "inferior para o CPU; para que isto aconteça, o dispositivo /dev/rtc tem de "
 "estar acessível ao grupo audio, e a max-user-freq por omissão deverá ser "
 "subida para 1024.  Qualquer alteração que seja necessário fazer, terá de ser "
-"feito pelo root. Se desejar, o Mplayer fará isto automaticamente no arranque, "
-"para que qualquer utilizador possa disfrutar desta funcionalidade. Note que "
-"poderão existir problemas de segurança com isto (apesar de não haver nenhum "
-"conhecido)."
+"feito pelo root. Se desejar, o Mplayer fará isto automaticamente no "
+"arranque, para que qualquer utilizador possa disfrutar desta funcionalidade. "
+"Note que poderão existir problemas de segurança com isto (apesar de não "
+"haver nenhum conhecido)."
 
 #. Type: boolean
 #. Description
@@ -103,10 +103,9 @@ msgid ""
 "etc/mplayer/mplayer.conf.  If you change your mind later, you can run \"dpkg-"
 "reconfigure mplayer\"."
 msgstr ""
-"Parece que não substituiu o ficheiro de configuração existente em "
-"/etc/mplayer/mplayer.conf.  Se mudar de ideias mais tarde poderá correr "
-"\"dpkg-reconfigure mplayer\"."
-
+"Parece que não substituiu o ficheiro de configuração existente em /etc/"
+"mplayer/mplayer.conf.  Se mudar de ideias mais tarde poderá correr \"dpkg-"
+"reconfigure mplayer\"."
 
 #. Type: select
 #. Description
@@ -119,11 +118,11 @@ msgstr "Saída de video do Mplayer:"
 #: ../mplayer.templates:5001
 msgid ""
 "MPlayer can use a very wide range of video output drivers; it will try to "
-"autodetect the best one, but you may choose a preferred one. Here is the a "
-"guide to the choice (in decreasing order of speed): (1) if you see an entry "
-"that matches your video card, choose that; (2) if your video card supports "
-"'XV', choose that (use 'xvinfo' to know). You should read /usr/share/doc/"
-"mplayer-doc/HTML/en/devices.html (it is in package 'mplayer-doc')."
+"autodetect the best one, but you may choose a preferred one. Here is a guide "
+"to the choice (in decreasing order of speed): (1) if you see an entry that "
+"matches your video card, choose that; (2) if your video card supports 'XV', "
+"choose that (use 'xvinfo' to know). You should read /usr/share/doc/mplayer-"
+"doc/HTML/en/video.html (it is in package 'mplayer-doc')."
 msgstr ""
 "O Mplayer pode utilizar uma grande variedade de controladores de saída de "
 "video; ele irá tentar detectar qual o melhor, mas você poderá escolher um "
@@ -131,7 +130,7 @@ msgstr ""
 "desempenho): (1) se encontrar uma entrada que coincida com a sua placa "
 "gráfica, escolha essa; (2) se a sua placa gráfica suportar 'XV', escolha "
 "essa (use 'xvinfo' para saber). Deverá ler /usr/share/doc/mplayer-doc/HTML/"
-"en/devices.html (está no pacote 'mplayer-doc')."
+"en/video.html (está no pacote 'mplayer-doc')."
 
 #. Type: note
 #. Description
@@ -181,8 +180,8 @@ msgstr "Fonte para OSD do Mplayer:"
 msgid ""
 " MPlayer needs True Type fonts for On Screen Display. Choose your favorite."
 msgstr ""
-"O Mplayer necessita de Fontes True Type para o On Screen Display. Escolha a "
-"a sua preferida."
+"O Mplayer necessita de Fontes TrueType para o On Screen Display. Escolha a a "
+"sua preferida."
 
 #. Type: note
 #. Description

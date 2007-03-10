@@ -51,8 +51,6 @@
 #include <fcntl.h>
 #endif
 
-#include "libavutil/common.h"
-
 #define BE_16(x) (((unsigned char *)(x))[0] <<  8 | \
 		  ((unsigned char *)(x))[1])
 #define BE_32(x) (((unsigned char *)(x))[0] << 24 | \
@@ -173,12 +171,11 @@ void mov_build_index(mov_track_t* trak,int timescale){
     i=trak->chunkmap_size;
     while(i>0){
 	--i;
-	j=FFMAX(trak->chunkmap[i].first, 0);
-	for(;j<last;j++){
+	for(j=trak->chunkmap[i].first;j<last;j++){
 	    trak->chunks[j].desc=trak->chunkmap[i].sdid;
 	    trak->chunks[j].size=trak->chunkmap[i].spc;
 	}
-	last=FFMIN(trak->chunkmap[i].first, trak->chunks_size);
+	last=trak->chunkmap[i].first;
     }
 
 #if 0
@@ -236,8 +233,6 @@ void mov_build_index(mov_track_t* trak,int timescale){
     s=0;
     for(j=0;j<trak->durmap_size;j++){
 	for(i=0;i<trak->durmap[j].num;i++){
-	    if (s >= trak->samples_size)
-		break;
 	    trak->samples[s].pts=pts;
 	    ++s;
 	    pts+=trak->durmap[j].dur;
@@ -249,8 +244,6 @@ void mov_build_index(mov_track_t* trak,int timescale){
     for(j=0;j<trak->chunks_size;j++){
 	off_t pos=trak->chunks[j].pos;
 	for(i=0;i<trak->chunks[j].size;i++){
-	    if (s >= trak->samples_size)
-		break;
 	    trak->samples[s].pos=pos;
 	    mp_msg(MSGT_DEMUX, MSGL_DBG3, "Sample %5d: pts=%8d  off=0x%08X  size=%d\n",s,
 		trak->samples[s].pts,
@@ -1533,7 +1526,8 @@ quit_vorbis_block:
 			if( udta_len>udta_size)
 				udta_len=udta_size;
 			{
-			stream_skip(demuxer->stream, udta_len-4-4);
+			char dump[udta_len-4];
+			stream_read(demuxer->stream, (char *)&dump, udta_len-4-4);
 			udta_size -= udta_len;
 			}
 		    }

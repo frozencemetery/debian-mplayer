@@ -1,51 +1,41 @@
-mplayer (1.0~rc1-12etch3) stable-security; urgency=low
-
-  * fix CVE-2008-0073, remote code execution via crafted rtsp stream,
-    thanks to Nico Golde and Reimar Döffinger (Closes: #473056).
-
- -- A Mennucc1 <mennucc1@debian.org>  Sat, 29 Mar 2008 07:53:32 +0100
-
-mplayer (1.0~rc1-12etch2) stable-security; urgency=high
-
-  * fix SVN25823 for 
-    CVE-2008-0630, buffer overflow via crafted url , 
-    thanks Niko Golde (closes: #464532)  
-  * fix SVN25824 for 
-    CVE-2008-0629, buffer overflow via crafted cddb title 
-    thanks Niko Golde (closes: #464533)
-  * fix for CVE-2008-0485 Array index error in libmpdemux/demux_mov.c 
-    a.k.a.  CORE-2007-1218: MPlayer 1.0rc2 buffer overflow vulnerability
-    thanks Stefan Fritsch
-  * fix for CVE-2008-0486 Array index vulnerability in libmpdemux/demux_audio.c
-    a.k.a.  CORE-2008-0122: MPlayer arbitrary pointer dereference
-    thanks Stefan Fritsch (closes: #464060)
+mplayer (1.0~rc1-13) unstable; urgency=low
   
- -- A Mennucc1 <mennucc1@debian.org>  Fri,  8 Feb 2008 20:32:41 +0100
-
-mplayer (1.0~rc1-12etch1) stable-security; urgency=high
-
-  * fix for stack overflow in the code used to handle cddb queries,
-    CVE-2007-2948 and SAID 24302, thanks Stefan Cornelius of Secunia Research
-
- -- A Mennucc1 <mennucc1@debian.org>  Wed,  6 Jun 2007 09:46:44 +0200
-
-mplayer (1.0~rc1-12etch) testing-proposed-updates; urgency=medium
-
   * fix for CVE-2007-1246 and similar (Closes: #414075)
     thanks Kees Cook & Moritz Jodeitand & R Togni
     patches for files
       loader/dmo/DMO_VideoDecoder.c from SVN 22204
       loader/dshow/DS_VideoDecoder.c from SVN 22205
-  * patch for ia64 unaligned access crash,
-     thanks to Bryan Stillwell for debugging &  
-      Reimar Döffinger for the patch (Closes: #409431).
   * [INTL] Japanese po-debconf templates translation,
      thanks to Kobayashi Noritada (Closes: #413120).
   * [INTL] Dutch po-debconf translation, thanks cobaco (Closes: #413880)
   * [INTL] Russian po-debconf translation, thanks  Yuri Kozlov (Closes: #414251)
-  
- -- A Mennucc1 <mennucc1@debian.org>  Sun, 18 Mar 2007 15:13:11 +0100
+  * patch for ia64 unaligned access crash,
+     thanks to Bryan Stillwell for debugging &  
+      Reimar Döffinger for the patch (Closes: #409431).
+  * mplayer-doc: add doc-base documentation indexes,
+     thanks to Martintxo (Closes: #405945).
+  * binary_codecs.sh: check MD5 on downloaded stuff (Closes: #405371).
+  * binary_codecs.sh: check if bzip2 is there, and bail out 
+      graciously otherwise; if untarring fails, allow for retry.
+    Fixes "binary_codecs.sh doesn't install already downloaded codecs",
+    thanks to Ingo Bressler for problem analysis (Closes: #413063).
+  * binary_codecs.sh: do not use fping (my code lost part of URLs) (closes: #399144)
+  * binary_codecs.sh: warn that essential-ppc codecs need libstdc++5, thanks to
+     Bin Zhang (Closes: #404473) for pointing out.
+  * enable smb:// (Closes: #412079).
+  * mplayer.postinst: when vo=x11 or vo=fbdev, zoom=1 is set as well,
+     thanks to Robert Millan (Closes: #412252).
+  *  -stop-xscreensaver option disables  gnome-screensaver as well
+     (but only if cursor is inside mplayer window) , thanks Adam Tlałka
+     and Reimar Döffinger (Closes: #404975).
+  * [INTL] fix small typo in English template, thanks cobaco  (closes: #414393)
+  * [INTL] devices.html -> video.html , thanks cobaco  (closes: #414392)
+  * [INTL] True Type -> TrueType , thanks cobaco  (closes: #414394)
+  * [INTL] ~/.mplayer/mplayer.conf -> ~/.mplayer/config , 
+     thanks Jacobo Tarrio (closes: #408055)
 
+ -- A Mennucc1 <mennucc1@debian.org>  Sat, 10 Mar 2007 12:57:16 +0100
+  
 mplayer (1.0~rc1-12) unstable; urgency=medium
 
   * (possible) security fixes  backported from SVN

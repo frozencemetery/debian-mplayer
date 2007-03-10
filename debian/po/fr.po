@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: mplayer\n"
-"Report-Msgid-Bugs-To: eyck@ghost.anime.pl\n"
-"POT-Creation-Date: 2006-11-19 21:34+0100\n"
+"Report-Msgid-Bugs-To: mennucc1@debian.org\n"
+"POT-Creation-Date: 2007-03-10 13:03+0100\n"
 "PO-Revision-Date: 2006-11-25 02:35+0100\n"
 "Last-Translator: Yves Rütschlé <l10n@rutschle.net>\n"
 "Language-Team: French <debian-l10n-french@lists.debian.org>\n"
@@ -18,8 +18,8 @@ msgstr ""
 #. Type: note
 #. Description
 #: ../mplayer.templates:1001
-msgid "Create your ~/.mplayer/mplayer.conf file"
-msgstr "Création du fichier ~/.mplayer/mplayer.conf"
+msgid "Create your ~/.mplayer/config file"
+msgstr "Création du fichier ~/.mplayer/config"
 
 #. Type: note
 #. Description
@@ -118,11 +118,11 @@ msgstr "Sortie vidéo de MPlayer :"
 #: ../mplayer.templates:5001
 msgid ""
 "MPlayer can use a very wide range of video output drivers; it will try to "
-"autodetect the best one, but you may choose a preferred one. Here is the a "
-"guide to the choice (in decreasing order of speed): (1) if you see an entry "
-"that matches your video card, choose that; (2) if your video card supports "
-"'XV', choose that (use 'xvinfo' to know). You should read /usr/share/doc/"
-"mplayer-doc/HTML/en/devices.html (it is in package 'mplayer-doc')."
+"autodetect the best one, but you may choose a preferred one. Here is a guide "
+"to the choice (in decreasing order of speed): (1) if you see an entry that "
+"matches your video card, choose that; (2) if your video card supports 'XV', "
+"choose that (use 'xvinfo' to know). You should read /usr/share/doc/mplayer-"
+"doc/HTML/en/video.html (it is in package 'mplayer-doc')."
 msgstr ""
 "MPlayer peut utiliser de nombreuses sorties vidéos différentes. Il tentera "
 "de détecter la meilleure, mais vous pouvez choisir la sortie que vous "
@@ -130,7 +130,7 @@ msgstr ""
 "vous voyez votre carte vidéo, choisissez-la; (2) si votre carte gère « XV », "
 "choisissez cette option (utilisez « xvinfo » pour contrôler cette "
 "possibilité).  Vous trouverez plus de détails dans /usr/share/doc/mplayer-"
-"doc/HTML/en/devices.html dans le paquet mplayer-doc."
+"doc/HTML/fr/video.html dans le paquet mplayer-doc."
 
 #. Type: note
 #. Description

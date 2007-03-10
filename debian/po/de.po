@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: mplayer\n"
-"Report-Msgid-Bugs-To: eyck@ghost.anime.pl\n"
-"POT-Creation-Date: 2006-11-19 21:34+0100\n"
+"Report-Msgid-Bugs-To: mennucc1@debian.org\n"
+"POT-Creation-Date: 2007-03-10 13:03+0100\n"
 "PO-Revision-Date: 2006-11-23 22:34+0100\n"
 "Last-Translator: Helge Kreutzmann <debian@helgefjell.de>\n"
 "Language-Team: de <debian-l10n-german@lists.debian.org>\n"
@@ -17,8 +17,8 @@ msgstr ""
 #. Type: note
 #. Description
 #: ../mplayer.templates:1001
-msgid "Create your ~/.mplayer/mplayer.conf file"
-msgstr "Erstelle Ihre ~/.mplayer/mplayer.conf-Datei"
+msgid "Create your ~/.mplayer/config file"
+msgstr "Erstelle Ihre ~/.mplayer/config-Datei"
 
 #. Type: note
 #. Description
@@ -118,11 +118,11 @@ msgstr "MPlayer Video-Ausgabe:"
 #: ../mplayer.templates:5001
 msgid ""
 "MPlayer can use a very wide range of video output drivers; it will try to "
-"autodetect the best one, but you may choose a preferred one. Here is the a "
-"guide to the choice (in decreasing order of speed): (1) if you see an entry "
-"that matches your video card, choose that; (2) if your video card supports "
-"'XV', choose that (use 'xvinfo' to know). You should read /usr/share/doc/"
-"mplayer-doc/HTML/en/devices.html (it is in package 'mplayer-doc')."
+"autodetect the best one, but you may choose a preferred one. Here is a guide "
+"to the choice (in decreasing order of speed): (1) if you see an entry that "
+"matches your video card, choose that; (2) if your video card supports 'XV', "
+"choose that (use 'xvinfo' to know). You should read /usr/share/doc/mplayer-"
+"doc/HTML/en/video.html (it is in package 'mplayer-doc')."
 msgstr ""
 "MPlayer kann eine große Bandbreite an Video-Ausgabegeräten verwenden; es "
 "versucht, das beste Gerät zu erkennen, aber Sie können auch ein bevorzugtes "
@@ -130,7 +130,7 @@ msgstr ""
 "Geschwindigkeit): (1) falls Sie einen Eintrag sehen, der zu Ihrer Videokarte "
 "passt, wählen Sie diesen; (2) falls Ihre Videokarte »XV« unterstützt (mit "
 "»xvinfo« finden Sie dies heraus), verwenden Sie dies. Sie sollten /usr/share/"
-"doc/mplayer-doc/HTML/en/devices.html (aus dem Paket »mplayer-doc«) lesen."
+"doc/mplayer-doc/HTML/de/video.html (aus dem Paket »mplayer-doc«) lesen."
 
 #. Type: note
 #. Description
@@ -181,7 +181,7 @@ msgstr "MPlayer OSD-Schrift"
 msgid ""
 " MPlayer needs True Type fonts for On Screen Display. Choose your favorite."
 msgstr ""
-" MPlayer benötigt True Type-Schriften für eingeblendeten Text. Wählen Sie "
+" MPlayer benötigt TrueType-Schriften für eingeblendeten Text. Wählen Sie "
 "Ihre Lieblingsschrift."
 
 #. Type: note

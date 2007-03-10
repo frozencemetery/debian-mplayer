@@ -1,6 +1,6 @@
 Template: mplayer/cfgnote
 Type: note
-_Description: Create your ~/.mplayer/mplayer.conf file
+_Description: Create your ~/.mplayer/config file
  Performance of MPlayer depends heavily on hardware - this means that
  it may benefit from tweaking options, for every single machine it's
  installed to. You may wish to read the documentation (it is in the
@@ -44,10 +44,10 @@ Choices: ${vochoices}
 _Description: MPlayer video output:
  MPlayer can use a very wide range of video output drivers;
  it will try to autodetect the best one, but you may choose a preferred one.
- Here is the a guide to the choice (in decreasing order of speed):
+ Here is a guide to the choice (in decreasing order of speed):
  (1) if you see an entry that matches your video card, choose that;
  (2) if your video card supports 'XV', choose that (use 'xvinfo' to know).
- You should read /usr/share/doc/mplayer-doc/HTML/en/devices.html (it is in
+ You should read /usr/share/doc/mplayer-doc/HTML/en/video.html (it is in
  package 'mplayer-doc').
 
 Template: mplayer/install_codecs

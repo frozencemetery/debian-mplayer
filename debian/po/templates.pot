@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: eyck@ghost.anime.pl\n"
-"POT-Creation-Date: 2006-11-19 21:34+0100\n"
+"Report-Msgid-Bugs-To: mennucc1@debian.org\n"
+"POT-Creation-Date: 2007-03-10 13:03+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 #. Type: note
 #. Description
 #: ../mplayer.templates:1001
-msgid "Create your ~/.mplayer/mplayer.conf file"
+msgid "Create your ~/.mplayer/config file"
 msgstr ""
 
 #. Type: note
@@ -96,11 +96,11 @@ msgstr ""
 #: ../mplayer.templates:5001
 msgid ""
 "MPlayer can use a very wide range of video output drivers; it will try to "
-"autodetect the best one, but you may choose a preferred one. Here is the a "
-"guide to the choice (in decreasing order of speed): (1) if you see an entry "
-"that matches your video card, choose that; (2) if your video card supports "
-"'XV', choose that (use 'xvinfo' to know). You should read /usr/share/doc/"
-"mplayer-doc/HTML/en/devices.html (it is in package 'mplayer-doc')."
+"autodetect the best one, but you may choose a preferred one. Here is a guide "
+"to the choice (in decreasing order of speed): (1) if you see an entry that "
+"matches your video card, choose that; (2) if your video card supports 'XV', "
+"choose that (use 'xvinfo' to know). You should read /usr/share/doc/mplayer-"
+"doc/HTML/en/video.html (it is in package 'mplayer-doc')."
 msgstr ""
 
 #. Type: note

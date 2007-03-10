@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: mplayer (debconf) 1.0~rc1-12\n"
-"Report-Msgid-Bugs-To: eyck@ghost.anime.pl\n"
-"POT-Creation-Date: 2006-11-19 21:34+0100\n"
+"Report-Msgid-Bugs-To: mennucc1@debian.org\n"
+"POT-Creation-Date: 2007-03-10 13:03+0100\n"
 "PO-Revision-Date: 2007-03-02 22:19+0900\n"
 "Last-Translator: Noritada Kobayashi <nori1@dolphin.c.u-tokyo.ac.jp>\n"
 "Language-Team: Japanese <debian-japanese@lists.debian.org>\n"
@@ -17,8 +17,8 @@ msgstr ""
 #. Type: note
 #. Description
 #: ../mplayer.templates:1001
-msgid "Create your ~/.mplayer/mplayer.conf file"
-msgstr "~/.mplayer/mplayer.conf ファイルを作成してください"
+msgid "Create your ~/.mplayer/config file"
+msgstr "~/.mplayer/config ファイルを作成してください"
 
 #. Type: note
 #. Description
@@ -119,19 +119,19 @@ msgstr "MPlayer ビデオ出力:"
 #: ../mplayer.templates:5001
 msgid ""
 "MPlayer can use a very wide range of video output drivers; it will try to "
-"autodetect the best one, but you may choose a preferred one. Here is the a "
-"guide to the choice (in decreasing order of speed): (1) if you see an entry "
-"that matches your video card, choose that; (2) if your video card supports "
-"'XV', choose that (use 'xvinfo' to know). You should read /usr/share/doc/"
-"mplayer-doc/HTML/en/devices.html (it is in package 'mplayer-doc')."
+"autodetect the best one, but you may choose a preferred one. Here is a guide "
+"to the choice (in decreasing order of speed): (1) if you see an entry that "
+"matches your video card, choose that; (2) if your video card supports 'XV', "
+"choose that (use 'xvinfo' to know). You should read /usr/share/doc/mplayer-"
+"doc/HTML/en/video.html (it is in package 'mplayer-doc')."
 msgstr ""
 "MPlayer は非常に多様なビデオ出力ドライバを使用できます。MPlayer は最良のドラ"
 "イバを自動検出しようとしますが、使用したいものを自分で選択することも可能で"
 "す。ここに選択の指針を示します (スピードの速い順です)。(1) ビデオカードにマッ"
 "チするエントリがある場合、それを選択してください。(2) ビデオカードが 'XV' を"
 "サポートしている場合、それを選択してください ('xvinfo' を使用するとわかるで"
-"しょう)。/usr/share/doc/mplayer-doc/HTML/en/devices.html も参照してください "
-"(このファイルは 'mplayer-doc' パッケージに含まれています)。"
+"しょう)。/usr/share/doc/mplayer-doc/HTML/en/video.html も参照してください (こ"
+"のファイルは 'mplayer-doc' パッケージに含まれています)。"
 
 #. Type: note
 #. Description
@@ -180,7 +180,7 @@ msgstr "(DVD デバイスがある場合は) デバイスの名前を入力し�
 msgid "MPlayer OSD font:"
 msgstr "MPlayer OSD フォント:"
 
-# FIXME: True Type should be TrueType.
+# FIXME: TrueType should be TrueType.
 #. Type: select
 #. Description
 #: ../mplayer.templates:8001

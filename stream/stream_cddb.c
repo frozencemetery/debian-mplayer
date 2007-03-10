@@ -53,7 +53,6 @@
 #include "version.h"
 #include "stream.h"
 #include "network.h"
-#include "libavutil/common.h"
 
 #define DEFAULT_FREEDB_SERVER	"freedb.freedb.org"
 #define DEFAULT_CACHE_DIR	"/.cddb/"
@@ -436,7 +435,7 @@ cddb_read_parse(HTTP_header_t *http_hdr, cddb_data_t *cddb_data) {
 
 	switch(status) {
 		case 210:
-			ret = sscanf( http_hdr->body, "%d %99s %08lx", &status, category, &disc_id);
+			ret = sscanf( http_hdr->body, "%d %s %08lx", &status, category, &disc_id);
 			if( ret!=3 ) {
 				mp_msg(MSGT_DEMUX, MSGL_ERR, MSGTR_ParseError);
 				return -1;
@@ -497,7 +496,7 @@ cddb_parse_matches_list(HTTP_header_t *http_hdr, cddb_data_t *cddb_data) {
 	ptr++;
 	// We have a list of exact/inexact matches, so which one do we use?
 	// So let's take the first one.
-	ret = sscanf(ptr, "%99s %08lx %99s", cddb_data->category, &(cddb_data->disc_id), album_title);
+	ret = sscanf(ptr, "%s %08lx %s", cddb_data->category, &(cddb_data->disc_id), album_title);
 	if( ret!=3 ) {
 		mp_msg(MSGT_DEMUX, MSGL_ERR, MSGTR_ParseError);
 		return -1;
@@ -512,9 +511,8 @@ cddb_parse_matches_list(HTTP_header_t *http_hdr, cddb_data_t *cddb_data) {
 		} else {
 			len = ptr2-ptr+1;
 		}
-		len = FFMIN(sizeof(album_title) - 1, len);
 		strncpy(album_title, ptr, len);
-		album_title[len]='\0';
+		album_title[len-2]='\0';
 	}
 	mp_msg(MSGT_DEMUX, MSGL_STATUS, MSGTR_MPDEMUX_CDDB_ParseOKFoundAlbumTitle, album_title);
 	return 0;
@@ -535,7 +533,7 @@ cddb_query_parse(HTTP_header_t *http_hdr, cddb_data_t *cddb_data) {
 	switch(status) {
 		case 200:
 			// Found exact match
-			ret = sscanf(http_hdr->body, "%d %99s %08lx %99s", &status, cddb_data->category, &(cddb_data->disc_id), album_title);
+			ret = sscanf(http_hdr->body, "%d %s %08lx %s", &status, cddb_data->category, &(cddb_data->disc_id), album_title);
 			if( ret!=4 ) {
 				mp_msg(MSGT_DEMUX, MSGL_ERR, MSGTR_ParseError);
 				return -1;
@@ -550,9 +548,8 @@ cddb_query_parse(HTTP_header_t *http_hdr, cddb_data_t *cddb_data) {
 				} else {
 					len = ptr2-ptr+1;
 				}
-				len = FFMIN(sizeof(album_title) - 1, len);
 				strncpy(album_title, ptr, len);
-				album_title[len]='\0';
+				album_title[len-2]='\0';
 			}
 			mp_msg(MSGT_DEMUX, MSGL_STATUS, MSGTR_MPDEMUX_CDDB_ParseOKFoundAlbumTitle, album_title);
 			return cddb_request_titles(cddb_data);

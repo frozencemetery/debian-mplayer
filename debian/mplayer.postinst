@@ -49,6 +49,7 @@ if (  dealwithupgrades() )  {
  $vo =~ s/_.*// ;
  $vo =~ s/\W.*// ;
  $dcarea .= "#video output driver\nvo=" . $vo . "\n" if $vo ne "" && $vo ne "autodetect"  ;
+ $dcarea .= "#needed for " . $vo . "\nzoom=1\n" if $vo eq 'x11' || $vo eq 'fbdev' ;
 
  my $dvd = scalar(get("mplayer/dvd_device"));
  $dcarea .= "#device for dvd\ndvd-device=" . $dvd . "\n" if $dvd;
