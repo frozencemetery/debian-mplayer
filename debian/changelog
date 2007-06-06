@@ -1,3 +1,27 @@
+mplayer (1.0~rc1-12etch1) stable-security; urgency=high
+
+  * fix for stack overflow in the code used to handle cddb queries,
+    CVE-2007-2948 and SAID 24302, thanks Stefan Cornelius of Secunia Research
+
+ -- A Mennucc1 <mennucc1@debian.org>  Wed,  6 Jun 2007 09:46:44 +0200
+
+mplayer (1.0~rc1-12etch) testing-proposed-updates; urgency=medium
+
+  * fix for CVE-2007-1246 and similar (Closes: #414075)
+    thanks Kees Cook & Moritz Jodeitand & R Togni
+    patches for files
+      loader/dmo/DMO_VideoDecoder.c from SVN 22204
+      loader/dshow/DS_VideoDecoder.c from SVN 22205
+  * patch for ia64 unaligned access crash,
+     thanks to Bryan Stillwell for debugging &  
+      Reimar Döffinger for the patch (Closes: #409431).
+  * [INTL] Japanese po-debconf templates translation,
+     thanks to Kobayashi Noritada (Closes: #413120).
+  * [INTL] Dutch po-debconf translation, thanks cobaco (Closes: #413880)
+  * [INTL] Russian po-debconf translation, thanks  Yuri Kozlov (Closes: #414251)
+  
+ -- A Mennucc1 <mennucc1@debian.org>  Sun, 18 Mar 2007 15:13:11 +0100
+
 mplayer (1.0~rc1-12) unstable; urgency=medium
 
   * (possible) security fixes  backported from SVN
