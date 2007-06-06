@@ -1,0 +1,169 @@
+# translation of mplayer_1.0~rc1-13_ml.po to malayalam
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Santhosh Thottingal <santhosh00@gmail.com>, 2007.
+# Reviewed by Praveen|പ്രവീണ്‍ A|എ <pravi.a@gmail.com>, 2007.
+msgid ""
+msgstr ""
+"Project-Id-Version: mplayer_1.0~rc1-13_ml\n"
+"Report-Msgid-Bugs-To: mennucc1@debian.org\n"
+"POT-Creation-Date: 2007-03-10 13:03+0100\n"
+"PO-Revision-Date: 2007-04-08 15:21-0400\n"
+"Last-Translator: Santhosh Thottingal <santhosh00@gmail.com>\n"
+"Language-Team: Swathanthra|സ്വതന്ത്ര Malayalam|മലയാളം Computing|കമ്പ്യൂട്ടിങ്ങ്  <smc-discuss@googlegroups.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:1001
+msgid "Create your ~/.mplayer/config file"
+msgstr "നിങ്ങളുടെ ~/.mplayer/config ഫയല്‍ ഉണ്ടാക്കുക"
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:1001
+msgid ""
+"Performance of MPlayer depends heavily on hardware - this means that it may "
+"benefit from tweaking options, for every single machine it's installed to. "
+"You may wish to read the documentation (it is in the package 'mplayer-doc', "
+"under /usr/share/doc/mplayer-doc/). This DebConf interface will help you "
+"setup just a few main features; you may wish to add to /etc/mplayer/mplayer."
+"conf some more refined options (to enable multichannel audio, or video "
+"postprocessing, etc etc); and any user similarly may customize MPlayer using "
+"the file ~/.mplayer/config"
+msgstr "എംപ്ലയറിന്റെ പ്രകടനം പ്രധാനമായും ഹാര്‍ഡ്‌വെയറിനെ ആശ്രയിച്ചിരിക്കുന്നു. ഇതിനര്‍ത്ഥം അത് ഇന്‍സ്റ്റാള്‍ ചെയ്യുന്ന ഓരൊ മെഷീനിലേയും ഹാര്‍ഡ്‌വെയര്‍ പരുവപ്പെടുത്തലുകളെ നന്നായി  ഉപയോഗിക്കും  എന്നാണ്. നിങ്ങള്‍ക്ക് ഇതിന്റെ വിവരണങ്ങള്‍ വായിക്കാവുന്നതാണ്(mplayer-doc എന്ന പാക്കേജില്‍ /usr/share/doc/mplayer-doc/ എന്ന കൂടയ്ക്കുള്ളിലാണതുള്ളത് ). ഈ ഡെബ്കോണ്‍ഫ് ഇന്റര്‍ഫേസ് വളരെ കുറച്ച് പ്രധാന കഴിവുകളെ മാത്രം സജ്ജീകരിയ്ക്കാന്‍ മാത്രമേ സഹായിയ്ക്കൂ; നിങ്ങള്‍ക്കു  കുറച്ചുകൂടി കടന്ന്‌ മറ്റുചില ഗുണഗണങ്ങള്‍ (മള്‍ട്ടിചാനല്‍ ശബ്ദം, ദൃശ്യ പോസ്റ്റ്‌‌പ്രൊസസ്സിങ്ങ്  മുതലായവ) കൂടി മാറ്റാനായി /etc/mplayer/mplayer.conf ലേയ്ക്ക് കൂട്ടിച്ചേര്‍ക്കണമെന്നുണ്ടാകാം.  ഏതൊരു ഉപയോക്താവിനും എംപ്ലയര്‍ ഇങ്ങനെ ~/.mplayer/config എന്ന ഫയല്‍ ഉപയോഗിച്ച്  ഇഷ്ടാനുസരണം സജ്ജീകരിക്കാവുന്നതാണ്"
+
+#. Type: boolean
+#. Description
+#: ../mplayer.templates:2001
+msgid "Enable access to RTC?"
+msgstr "ആര്‍.ടി.സി. ലഭ്യത പ്രാവര്‍ത്തികമാക്കട്ടെ?"
+
+#. Type: boolean
+#. Description
+#: ../mplayer.templates:2001
+msgid ""
+"On older kernels MPlayer can use the RTC (Real Time Clock) to provide better "
+"timing in reproduction, with less CPU cost; to this end, though, the device /"
+"dev/rtc must be accessible to group audio, and the default max-user-freq "
+"must be raised to 1024.  Any needed change must be done by root. If you "
+"wish, MPlayer will automatically do this at boot, so that any user can enjoy "
+"this feature. Note that there may be security issues with this (although "
+"none are known now)."
+msgstr "പുനരുത്പാദനത്തില്‍ കുറഞ്ഞ സി.പി.യു. ഉപയോഗത്തോടെ നല്ല സമയകൃത്യത പാലിക്കാന്‍, പഴയ കെര്‍ണലുകളില്‍ എംപ്ലയറിന്‌ ആര്‍.ടി.സി. (റിയല്‍ ടൈം ക്ലോക്ക്) ഉപയോഗിക്കാന്‍കഴിയും . പക്ഷേ, ഇതിനായി  /dev/rtc എന്ന ഉപകരണം group audio യ്ക്ക്‌ ലഭ്യമായിരിക്കണം. കൂടാതെ സ്വതവേയുള്ള max-user-freq 1024 ആയി ഉയര്‍ത്തുകയും വേണം. ആവശ്യമുള്ള മാറ്റങ്ങളെല്ലം ചെയ്യേണ്ടത് റൂട്ടാണ്. ഈ സൌകര്യം  നിങ്ങള്‍ക്കാസ്വദിക്കാന്‍ വേണമെങ്കില്‍ ബൂട്ട് ചെയ്യുന്ന സമയത്ത് എംപ്ലയറിനു ഇതു സ്വയം ചെയ്യാന്‍ കഴിയും.പക്ഷേ ഇതില്‍ സുരക്ഷാപാളിച്ചകള്‍ ഉണ്ടാകാം (ഇതുവരെ അറിവില്‍ അങ്ങനെ സംഭവിച്ചിട്ടില്ലെങ്കില്‍ പോലും)."
+
+#. Type: boolean
+#. Description
+#: ../mplayer.templates:3001
+msgid "Replace existing configuration file?"
+msgstr "ഇപ്പോഴുള്ള സജ്ജീകരണ ഫയല്‍ മാറ്റിയെഴുതട്ടെ?"
+
+#. Type: boolean
+#. Description
+#: ../mplayer.templates:3001
+msgid ""
+"There is already a file /etc/mplayer/mplayer.conf, but it does not contain "
+"an automatically generated part. This script may generate a new file (the "
+"old file will be moved to /etc/mplayer/mplayer.conf.debconf-old)."
+msgstr " /etc/mplayer/mplayer.conf എന്ന ഫയല്‍ ഇപ്പോള്‍തന്നെ ഉണ്ട്. പക്ഷെ, അതില്‍ ഓട്ടോമാറ്റിക്‌ ആയി ഉണ്ടായ ഭാഗങ്ങള്‍ ഇല്ല. ഈ സ്ക്രിപ്റ്റ് ഒരു പുതിയ ഫയല്‍ ഉണ്ടാക്കും(പഴയ ഫയല്‍  /etc/mplayer/mplayer.conf.debconf-old എന്ന പേരിലേക്ക് മാറ്റപ്പെടും)."
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:4001
+msgid "Files not replaced"
+msgstr "ഫയലുകള്‍ മാറ്റിയെഴുതപ്പെട്ടില്ല"
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:4001
+msgid ""
+"It seems that you don't want to replace your existing configuration file /"
+"etc/mplayer/mplayer.conf.  If you change your mind later, you can run \"dpkg-"
+"reconfigure mplayer\"."
+msgstr ""
+"നിങ്ങള്‍ക്കു ഇപ്പോഴുള്ള /etc/mplayer/mplayer.conf സജ്ജീകരണ ഫയല്‍ മാറ്റെണ്ടേന്നു തോന്നുന്നു. പിന്നീട് മാറ്റണമെന്നുണ്ടെങ്കില്‍ \"dpkg-"
+"reconfigure mplayer\" പ്രവര്‍ത്തിപ്പിയ്ക്കുക."
+
+#. Type: select
+#. Description
+#: ../mplayer.templates:5001
+msgid "MPlayer video output:"
+msgstr "എംപ്ലയര്‍ ദൃശ്യ ഔട്ട്പുട്ട്:"
+
+#. Type: select
+#. Description
+#: ../mplayer.templates:5001
+msgid ""
+"MPlayer can use a very wide range of video output drivers; it will try to "
+"autodetect the best one, but you may choose a preferred one. Here is a guide "
+"to the choice (in decreasing order of speed): (1) if you see an entry that "
+"matches your video card, choose that; (2) if your video card supports 'XV', "
+"choose that (use 'xvinfo' to know). You should read /usr/share/doc/mplayer-"
+"doc/HTML/en/video.html (it is in package 'mplayer-doc')."
+msgstr ""
+"എംപ്ലയറിന്‌ വീഡിയോ ഔട്ട്പുട്ട് പ്രവര്‍ത്തകങ്ങളുടെ ഒരു വലിയ നിരതന്നെ ഉപയോഗിക്കാന്‍ കഴിയും; നല്ലതൊന്ന് അതു തന്നേ തിരഞ്ഞെടുക്കും. പക്ഷെ നിങ്ങള്‍ക്കു ഇഷ്ടമുള്ളതൊന്ന് തിരഞ്ഞെടുക്കാം.ഇതാ ഒരു വഴികാട്ടി (വേഗത കുറയുന്ന ക്രമമനുസരിച്ച്): (1) നിങ്ങളുടെ വീഡിയോ കാര്‍ഡ് കാണുകയാണെങ്കില്‍ അതു തിരഞ്ഞെടുക്കുക. (2)നിങ്ങളുടെ വീഡിയോ കാര്‍ഡ് എക്സ്.വി സപ്പോര്‍ട്ടു ചെയ്യുമെങ്കില്‍ അതു തിരഞ്ഞെടുക്കുക (അതറിയാന്‍ 'xvinfo'  ഉപയോഗിക്കുക.).  നിങ്ങള്‍ /usr/share/doc/mplayer-"
+"doc/HTML/en/video.html വായിച്ചിരിക്കണം ('mplayer-doc' എന്ന പാക്കേജിലാണതുള്ളത്)."
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:6001
+msgid "How to download binary codecs"
+msgstr "ബൈനറി കോഡെക്കുകള്‍ എങ്ങനെ ഡൌണ്‍ലോഡ് ചെയ്യാം"
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:6001
+msgid ""
+"MPlayer supports most codecs out of the box and the rest with the help of "
+"binary codecs. Binary codecs are only necessary for Real 3.0  and 4.0, "
+"Windows Media 9, QuickTime audio and some very obscure codecs. Debian cannot "
+"distribute these codecs, but these are available on the internet for "
+"download. Run the script `/usr/share/mplayer/scripts/binary_codecs.sh' to "
+"install those  made available from MPlayer web site."
+msgstr "എംപ്ലയര്‍ മിക്ക കോഡെക്കുകളും ഗംഭീരമായും ബാക്കിയുള്ളവ ബൈനറി കോഡെക്കുകളുടെ സഹായത്തോടെയും സപ്പോര്‍ട്ടു ചെയ്യുന്നു. റിയല്‍ 3.0, വിന്‍ഡോസ് മീഡിയ 9, ക്വിക്ക് ടൈം, ചില അപൂര്‍വ കോഡെക്കുകള്‍ എന്നിവക്കു മാത്രമേ ബൈനറി കോഡെക്കുകള്‍  ആവശ്യമുള്ളൂ. ഡെബിയന്‌ ഇവ വിതരണം ചെയ്യാന്‍ കഴിയില്ല. പക്ഷേ ഇവ ഇന്റര്‍നെറ്റില്‍നിന്ന് ഡൌണ്‍ലോഡ് ചെയ്യാവുന്നതാണ്. എംപ്ലയറിന്റെ വെബ്സൈറ്റില്‍ ലഭ്യമായവ ഇന്‍സ്റ്റാള്‍ ചെയ്യാന്‍  '/usr/share/mplayer/scripts/binary_codecs.sh' എന്ന സ്കിപ്റ്റ് പ്രവര്‍ത്തിപ്പിയ്ക്കുക."
+
+#. Type: string
+#. Description
+#: ../mplayer.templates:7001
+msgid "DVD device name:"
+msgstr "ഡി.വി.ഡി ഉപകരണനാമം:"
+
+#. Type: string
+#. Description
+#: ../mplayer.templates:7001
+msgid "What is the name of your DVD device (if any):"
+msgstr "നിങ്ങളുടെ ഡി.വി.ഡി ഉപകരണത്തിന്റെ പേരെന്താണ് (ഉണ്ടെങ്കില്‍ മാത്രം):"
+
+#. Type: select
+#. Description
+#: ../mplayer.templates:8001
+msgid "MPlayer OSD font:"
+msgstr "എംപ്ലയര്‍ ഒ.എസ്.ഡി. അക്ഷരരൂപം:"
+
+#. Type: select
+#. Description
+#: ../mplayer.templates:8001
+msgid " MPlayer needs True Type fonts for On Screen Display. Choose your favorite."
+msgstr "എംപ്ലയറിന്‌  സ്ക്രീനിലെ പ്രദര്‍ശനത്തിന്‌  ട്രൂടൈപ്പ് അക്ഷരരൂപങ്ങള്‍ ആവശ്യമാണ്‌. നിങ്ങളുടെ പ്രിയപ്പെട്ടവ തിരഞ്ഞെടുക്കുക."
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:9001
+msgid "MPlayer cannot find TrueType Fonts"
+msgstr "എംപ്ലയറിന്‌ ട്രൂടൈപ്പ് അക്ഷരരൂപങ്ങള്‍ ഒന്നും കാണ്ടുപിടിയ്ക്കാന്‍ കഴിഞ്ഞില്ല"
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:9001
+msgid ""
+"You should install a package providing truetype fonts (such as   'ttf-"
+"freefont' or 'ttf-bitstream-vera' or  'msttcorefonts' ) and reconfigure "
+"MPlayer (with the command \"dpkg-reconfigure mplayer\")"
+msgstr ""
+"ട്രൂടൈപ്പ് അക്ഷരരൂപങ്ങള്‍ ('ttf-"
+"dejavu' , 'ttf-bitstream-vera' ,  'msttcorefonts' എന്നിവ പോലത്തെ ) ഉള്ള ഒരു പാക്കേജ് നിങ്ങള്‍ ഇന്‍സ്റ്റാള്‍ ചെയ്തതിനു ശേഷം എംപ്ലയര്‍ പുനഃക്രമീകരിയ്ക്കുക (\"dpkg-reconfigure mplayer\"എന്ന ആജ്ഞ ഉപയോഗിച്ച്)"
+

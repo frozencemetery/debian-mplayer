@@ -1,3 +1,17 @@
+mplayer (1.0~rc1-14) unstable; urgency=high
+
+  * fix for stack overflow in the code used to handle cddb queries,
+    CVE-2007-2948 and SAID 24302, thanks Stefan Cornelius of Secunia Research
+  * do not use libmad0, on request of upstream
+  * [INTL:ml] Malayalam debconf template translation
+    thanks to Santhosh Thottingal (Closes: #419527).
+  * [INTL:it] Italian debconf templates translation
+    thanks to Luca Monducci (Closes: #425259).
+  * [l10n:ro] Romanian debconf templates translation
+    thanks to Eddy Petrișor (Closes: #415368).
+
+ -- A Mennucc1 <mennucc1@debian.org>  Wed,  6 Jun 2007 10:17:22 +0200
+
 mplayer (1.0~rc1-13) unstable; urgency=low
   
   * fix for CVE-2007-1246 and similar (Closes: #414075)
