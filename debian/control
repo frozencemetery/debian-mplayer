@@ -16,8 +16,8 @@ Build-Depends: debhelper (>= 4), make (>= 3.80), pkg-config, po-debconf,
 
 Package: mplayer
 Architecture: any
-Suggests: mplayer-doc, ttf-freefont, netselect, bzip2, fontconfig
-Depends: ${shlibs:Depends}, debconf-2.0 | debconf, libconfhelper-perl, mplayer-skin
+Suggests: mplayer-doc, ttf-freefont, netselect | fping, bzip2, fontconfig
+Depends: ${shlibs:Depends}, debconf-2.0 | debconf, mplayer-skin
 Description: The Movie Player
  MPlayer is a movie player for GNU/Linux. 
  .

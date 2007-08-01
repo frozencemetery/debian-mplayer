@@ -1,77 +1,106 @@
-#!/usr/bin/perl -w
-
+#!/bin/sh 
 # mplayer postinst
 
-require ConfHelper;
+set -e
 
-use Debconf::Client::ConfModule qw(:all);
-use IO::Handle;
-use Fcntl;
-my $version = version(2.0);
-
-sub debug {
-  print STDERR @_, "\n";
+message () {
+    echo -n -e "$*"  >&2 ;
 }
 
-debug("Configuring mplayer ...");
 
-my $file = "/etc/mplayer/mplayer.conf" ;
+if test ! -e /usr/share/debconf/confmodule ; then
+    exit
+fi
 
-sub dealwithupgrades {
-  open(OLDCONF, $file) || return 1;
-  close OLDCONF;
+# Source debconf library.
+. /usr/share/debconf/confmodule 
 
-  my $mconf = new ConfHelper("mplayer", $file);
-  return 1 if ($mconf->hasconfarea());
-  undef $mconf;
+db_version 2.0
 
-  if (get('mplayer/replace-existing-files') eq 'true') {
-##Mennucc: I do not remember what is the rationale for this...
-## (the default  in the template is now false!) 
-##      (fget('mplayer/replace-existing-files', 'isdefault') eq 'false')
-        debug(" generating new $file,\n moving  previous to $file.debconf-old");
-        rename($file,$file . ".debconf-old");
-  } else {
-    debug(" not modifying /etc/mplayer/mplayer.conf.");
-    return 0; #do not exit... debhelper stuff follows!
-  }
+start="### mplayer DEBCONF AREA. DO NOT EDIT THIS AREA OR INSERT TEXT BEFORE IT."
+end='### END OF DEBCONF AREA.  PLACE YOUR EDITS BELOW; THEY WILL BE PRESERVED.'
+
+CONF="/etc/mplayer/mplayer.conf" 
+
+conf_has_nice_area () {
+    grep -q '^### mplayer DEBCONF AREA' $CONF \
+	&&  grep -q '^### END OF DEBCONF AREA.' $CONF
 }
 
-if (  dealwithupgrades() )  {
+
+create_conf () {
  #mark this question, so it will be asked again, if the user
  #replaces the file /etc/mplayer/mplayer.conf
- fset('mplayer/replace-existing-files', 'seen', 'false');
+ db_fset 'mplayer/replace-existing-files' 'seen' 'false'
 
- my $mcfg = new ConfHelper('mplayer', $file);
- my $dcarea = "" ;
+ t=`tempfile -m 644`
 
- my $vo =  scalar(get("mplayer/voutput"))  ;
- $vo =~ s/_.*// ;
- $vo =~ s/\W.*// ;
- $dcarea .= "#video output driver\nvo=" . $vo . "\n" if $vo ne "" && $vo ne "autodetect"  ;
- $dcarea .= "#needed for " . $vo . "\nzoom=1\n" if $vo eq 'x11' || $vo eq 'fbdev' ;
+ echo "$start" > $t
+ 
+ db_get "mplayer/voutput"
+ vo=`echo "$RET" | sed 's/_.*//;s/\W.*//'`
+ if test "$RET" -a "$vo" != "" -a "$vo" != "autodetect"  ; then
+     echo "#video output driver" >> $t
+     echo "vo=$vo" >> $t
+     if test "$vo"  = 'x11' -o "$vo" = 'fbdev' ; then
+	 echo "#needed for ${vo}" >> $t  
+	 echo "zoom=1" >> $t 
+     fi
+ fi
+ db_get "mplayer/dvd_device"
+ if test "$RET" ; then
+     echo "#device for dvd" >> $t
+     echo "dvd-device=${RET}" >> $t 
+     test -r "$RET" || message "Mplayer warning: dvd device '$RET' does not exist!\n"
+ fi
+ 
+ db_get "mplayer/ttfont"
+ if test "$RET" ; then
+     echo "#truetype font, using fontconfig" >> $t
+     echo "fontconfig=1" >> $t 
+     echo "font='${RET}'" >> $t
+ fi
 
- my $dvd = scalar(get("mplayer/dvd_device"));
- $dcarea .= "#device for dvd\ndvd-device=" . $dvd . "\n" if $dvd;
-
- my $font =  scalar(get("mplayer/ttfont"))  ;
- $dcarea .= "#truetype font, using fontconfig\nfontconfig=1\nfont='" . $font .   "'\n"   if $font;
-
- my $rtc =  scalar(get('mplayer/rtc')) ;
- $dcarea .= "#enable RTC (Real Time Clock) access\nrtc=1"  if ( $rtc eq 'true');
-
- $mcfg->setconfarea($dcarea);
+ db_get 'mplayer/rtc'
+ if test "$RET" -a "$RET" = true ; then
+     echo "#enable RTC (Real Time Clock) access" >> $t 
+     echo "rtc=1" >> $t
+ fi
+ 
+ echo "$end" >> $t 
+ if test -r $CONF ; then
+     awk 'BEGIN{a=0};//{if(a){print}};/### END OF DEBCONF AREA./{a=1};' $CONF >> $t
+ fi
+ mv -b $t $CONF
+ message done
 }
 
-stop () ; #using debconf
+message "Configuring mplayer ..."
+
+if  test -r $CONF ; then
+    if conf_has_nice_area  ; then
+	create_conf
+    else
+	db_get 'mplayer/replace-existing-files'
+	if test "$RET" = 'true' ; then 
+	    message " generating new $CONF,\n moving  previous to $CONF.debconf-old\n ..."
+	    mv  $CONF ${CONF}.debconf-old
+	    create_conf	
+	else
+	    message " not modifying $CONF.\n"
+	fi
+    fi
+else
+    create_conf
+fi
+
+db_stop  #using debconf
 
 
 ###########################
 # pass control to debhelper scripts..
 #
-my $temp="set -e\nset -- @ARGV\n" . << 'DEBHELPER_EOF_';
+
 #DEBHELPER#
-DEBHELPER_EOF_
-system ($temp) / 256 == 0
-   or die "Problem with debhelper scripts: $!";
+
 #########################

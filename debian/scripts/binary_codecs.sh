@@ -32,13 +32,13 @@ choosemirror ()
     if which netselect > /dev/null  ; then
       echo  Choosing best mirrors using netselect....
       netselect  -s 5 -t 5  $( cat mirrors ) | awk '{print $2}' > bestsites
-    #NO this loses part of the URL, and then it fails!
-    #elif which fping > /dev/null ; then
-    # fping -C 1   $( sed   's#.*//##;s#/.*##' mirrors ) 2>&1 | \
-    #   egrep -v 'bytes.*loss' | sort -n -k3  | \
-    #   grep -v ': *-' |  awk '/:/{print $1}' | head -5 > bestsites
+    elif which fping > /dev/null ; then
+     fping -C 1   $( sed   's#.*//##;s#/.*##' mirrors ) 2>&1 | \
+       egrep -v 'bytes.*loss' | sort -n -k3  | \
+       grep -v ': *-' |  awk '/:/{print $1}' | head -5 | ( while read mainsite ; do
+	   grep $mainsite $PREFDIR/mirrors ;    done ) > bestsites
     else
-      echo "(If you install 'netselect', it will select the best mirror for you"
+      echo "(If you install 'netselect' or 'fping', it will select the best mirror for you"
       echo "  you may wish to stop this script and rerun after installation)"
       sleep 3
       head -3 mirrors > bestsites

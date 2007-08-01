@@ -1,3 +1,12 @@
+mplayer (1.0~rc1-15) unstable; urgency=low
+
+  * Bug fix: "Depends on libconfhelper-perl, but this package has been
+    removed", thanks to David (Closes: #434509).
+  * Bug fix: "correction for binary_codecs.sh", thanks to nutzteil@web.de
+    (Closes: #431537).
+
+ -- A Mennucc1 <mennucc1@debian.org>  Wed,  1 Aug 2007 11:54:40 +0200
+
 mplayer (1.0~rc1-14) unstable; urgency=high
 
   * fix for stack overflow in the code used to handle cddb queries,

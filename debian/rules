@@ -288,9 +288,9 @@ binary-common:
 	if test -r	debian/$(THISPACKAGE)/DEBIAN/config ; then sh -e debian/config.augmenter debian/$(THISPACKAGE)/DEBIAN/config ; fi
 #	Rewrite README.Debian and add free or non-free statement.
 ifeq ($(DFSG),)
-	tail +2  debian/README.Debian.free | sed 's!@UPSTREAMSOURCE@!$(UPSTREAMSOURCE)!' > debian/$(THISPACKAGE)/usr/share/doc/$(THISPACKAGE)/README.Debian
+	tail -n +2  debian/README.Debian.free | sed 's!@UPSTREAMSOURCE@!$(UPSTREAMSOURCE)!' > debian/$(THISPACKAGE)/usr/share/doc/$(THISPACKAGE)/README.Debian
 else
-	tail +2  debian/README.Debian.nonfree | sed 's!@UPSTREAMSOURCE@!$(UPSTREAMSOURCE)!' > debian/$(THISPACKAGE)/usr/share/doc/$(THISPACKAGE)/README.Debian
+	tail -n +2  debian/README.Debian.nonfree | sed 's!@UPSTREAMSOURCE@!$(UPSTREAMSOURCE)!' > debian/$(THISPACKAGE)/usr/share/doc/$(THISPACKAGE)/README.Debian
 endif
 	sed 's!@DEB_BUILD_CONFIGURE@!$(DEB_BUILD_CONFIGURE)!' < debian/README.Debian  >>	 debian/$(THISPACKAGE)/usr/share/doc/$(THISPACKAGE)/README.Debian
 
