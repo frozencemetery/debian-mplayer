@@ -96,6 +96,9 @@ ifeq ($(arch),powerpc)
   with_real_and_xanim = true
 endif
 ifeq ($(arch),alpha)
+#Avoid high optimization through gcc.
+# see http://permalink.gmane.org/gmane.linux.debian.ports.alpha/7295
+  archconf += --target=alpha_ev5-linux
   with_real_and_xanim = true
 endif
 ifeq ($(with_win32),false)

@@ -47,7 +47,7 @@ a.
 
 ---------------------- on performance
 
-Most options are autodetected or configured during compilation thus
+Most options are autodetected or configured during compilation; thus
 users get a better performance if they rebuild this package themselves.
 
 In case you would like to change the parameters passed to ./configure,
@@ -96,7 +96,7 @@ architectures when optimizations is disabled; see
 
 For this reason, I have hacked up workarounds
 (reenabling optimization for files that fail w/o it)
-but your mileage may vary
+but your mileage may vary)
 
 a.
 

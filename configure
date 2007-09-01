@@ -140,7 +140,7 @@ ppc() {
 
 alpha() {
   case "$host_arch" in
-    alpha) return 0;;
+    alpha*) return 0;;
     *) return 1;;
   esac
 }
@@ -612,7 +612,7 @@ if test -z "$_target" ; then
         fi
       ;;
       macppc|ppc|ppc64) host_arch=ppc ;;
-      alpha) host_arch=alpha ;;
+      alpha*) host_arch=alpha ;;
       sparc) host_arch=sparc ;;
       sparc64) host_arch=sparc64 ;;
       parisc*|hppa*|9000*) host_arch=hppa ;;
@@ -1322,14 +1322,23 @@ EOF
 
     ;;
 
-  alpha)
+  alpha*)
     _def_arch='#define ARCH_ALPHA 1'
     _target_arch='TARGET_ARCH_ALPHA = yes'
     iproc='alpha'
     _march=''
-    
+
     echocheck "CPU type"
-    cat > $TMPC << EOF
+
+    ## Mennucc1 : --target takes effect here (hopefully...)
+    if test "$_target" ; then
+      # see http://permalink.gmane.org/gmane.linux.debian.ports.alpha/7295
+      proc=`echo $_target | cut -d '-' -f 1 | cut -d '_' -f 2`
+      _mcpu="$cpuopt=$proc"
+      #it seems that there is a runtime detection for the MVI code
+      cpu_understands_mvi="1";
+    else  
+      cat > $TMPC << EOF
 int main() {
     unsigned long ver, mask;
     asm ("implver %0" : "=r" (ver));
@@ -1338,9 +1347,8 @@ int main() {
     return 0;
 }
 EOF
-    $_cc -o "$TMPO" "$TMPC"
-    case `"$TMPO"` in
-
+      $_cc -o "$TMPO" "$TMPC"
+      case `"$TMPO"` in
         0-0)    proc="ev4";   cpu_understands_mvi="0";;
         1-0)    proc="ev5";   cpu_understands_mvi="0";;
         1-1)    proc="ev56";  cpu_understands_mvi="0";; 
@@ -1348,7 +1356,8 @@ EOF
         2-303)  proc="ev6";   cpu_understands_mvi="1";;
         2-307)  proc="ev67";  cpu_understands_mvi="1";;
         2-1307) proc="ev68";  cpu_understands_mvi="1";;
-    esac
+      esac
+    fi
     echores "$proc"
     
     echocheck "GCC & CPU optimization abilities"

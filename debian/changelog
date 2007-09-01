@@ -1,3 +1,13 @@
+mplayer (1.0~rc1-16) unstable; urgency=low
+
+  * compile for --mcpu=ev5 on alpha; fixes "Illegal instruction on EV56",
+    thanks to Tom Evans & Ivan Jager (Closes: #431139).
+  * removed debian/patches (Closes: #409352).
+  * correct mplayer.config to respect font default, thanks Simon Ruggier.
+  * linked with liblivemedia,    thanks to Hilmar Preusse (Closes: #440338).
+
+ -- A Mennucc1 <mennucc1@debian.org>  Sat, 01 Sep 2007 12:27:16 +0000
+
 mplayer (1.0~rc1-15) unstable; urgency=low
 
   * Bug fix: "Depends on libconfhelper-perl, but this package has been
