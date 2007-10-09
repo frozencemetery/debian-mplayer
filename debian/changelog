@@ -1,3 +1,11 @@
+mplayer (1.0~rc1-16+lenny1) testing-security; urgency=high
+
+  * Non-maintainer upload by testing security team.
+  * Check wLongsPerEntry in aviheader.c before using it to prevent
+    possible NULL pointer dereference (CVE-2007-4938) (Closes: #443478).
+
+ -- Nico Golde <nion@debian.org>  Tue, 09 Oct 2007 10:19:15 +0200
+
 mplayer (1.0~rc1-16) unstable; urgency=low
 
   * compile for --mcpu=ev5 on alpha; fixes "Illegal instruction on EV56",
