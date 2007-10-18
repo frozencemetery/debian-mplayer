@@ -1,12 +1,13 @@
 #include "config.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "stream.h"
 #include "m_option.h"
 #include "m_struct.h"
-#include "bswap.h"
-
-#include <stdio.h>
-#include <stdlib.h>
+#include "libavutil/common.h"
+#include "mpbswap.h"
 #include "libmpdemux/demuxer.h"
 
 #include "cdd.h"
@@ -113,7 +114,7 @@ static int open_cdda(stream_t *st,int m, void* opts, int* file_format) {
 
   if(m != STREAM_READ) {
     m_struct_free(&stream_opts,opts);
-    return STREAM_UNSUPORTED;
+    return STREAM_UNSUPPORTED;
   }
 
   if(!p->device) {
@@ -123,7 +124,7 @@ static int open_cdda(stream_t *st,int m, void* opts, int* file_format) {
       p->device = strdup(DEFAULT_CDROM_DEVICE);
   }
 
-#ifdef MPLAYER_NETWORK
+#ifdef HAVE_CDDB
   // cdd_identify returns -1 if it cannot read the TOC,
   // in which case there is no point in calling cddb_resolve
   if(cdd_identify(p->device) >= 0 && strncmp(st->url,"cddb",4) == 0) {
@@ -250,7 +251,7 @@ static int open_cdda(stream_t *st,int m, void* opts, int* file_format) {
   paranoia_seek(priv->cdp,priv->start_sector,SEEK_SET);
   priv->sector = priv->start_sector;
 
-#ifdef MPLAYER_NETWORK
+#ifdef HAVE_CDDB
   if(cddb_info) {
     cd_info_free(cd_info);
     priv->cd_info = cddb_info;
@@ -387,7 +388,11 @@ stream_info_t stream_info_cdda = {
   "Albeu",
   "",
   open_cdda,
-  { "cdda", "cddb", NULL },
+  { "cdda",
+#ifdef HAVE_CDDB
+    "cddb",
+#endif
+    NULL },
   &stream_opts,
   1 // Urls are an option string
 };

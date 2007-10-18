@@ -21,19 +21,15 @@ extern ass_track_t* ass_track;
 extern int sub_visibility;
 extern float sub_delay;
 
-typedef struct vf_vo_data_s {
+struct vf_priv_s {
     double pts;
     vo_functions_t *vo;
-} vf_vo_data_t;
-
-struct vf_priv_s {
-    vf_vo_data_t* vf_vo_data;
 #ifdef USE_ASS
-    ass_instance_t* ass_priv;
-    ass_settings_t ass_settings;
+    ass_renderer_t* ass_priv;
+    int prev_visibility;
 #endif
 };
-#define video_out (vf->priv->vf_vo_data->vo)
+#define video_out (vf->priv->vo)
 
 static int query_format(struct vf_instance_s* vf, unsigned int fmt); /* forward declaration */
 
@@ -64,17 +60,14 @@ static int config(struct vf_instance_s* vf,
   }
 
     // save vo's stride capability for the wanted colorspace:
-    vf->default_caps=query_format(vf,outfmt) & VFCAP_ACCEPT_STRIDE;
+    vf->default_caps=query_format(vf,outfmt);
 
-    if(video_out->config(width,height,d_width,d_height,flags,"MPlayer",outfmt))
+    if(config_video_out(video_out,width,height,d_width,d_height,flags,"MPlayer",outfmt))
 	return 0;
 
 #ifdef USE_ASS
-    if (vf->priv->ass_priv) {
-        vf->priv->ass_settings.font_size_coeff = ass_font_scale;
-        vf->priv->ass_settings.line_spacing = ass_line_spacing;
-        vf->priv->ass_settings.use_margins = ass_use_margins;
-    }
+    if (vf->priv->ass_priv)
+	ass_configure(vf->priv->ass_priv, width, height, !!(vf->default_caps & VFCAP_EOSD_UNSCALED));
 #endif
 
     ++vo_config_count;
@@ -84,12 +77,22 @@ static int config(struct vf_instance_s* vf,
 static int control(struct vf_instance_s* vf, int request, void* data)
 {
     switch(request){
-#ifdef USE_OSD
+    case VFCTRL_GET_DEINTERLACE:
+    {
+        if(!video_out) return CONTROL_FALSE; // vo not configured?
+        return(video_out->control(VOCTRL_GET_DEINTERLACE, data)
+                == VO_TRUE) ? CONTROL_TRUE : CONTROL_FALSE;
+    }
+    case VFCTRL_SET_DEINTERLACE:
+    {
+        if(!video_out) return CONTROL_FALSE; // vo not configured?
+        return(video_out->control(VOCTRL_SET_DEINTERLACE, data)
+                == VO_TRUE) ? CONTROL_TRUE : CONTROL_FALSE;
+    }
     case VFCTRL_DRAW_OSD:
 	if(!vo_config_count) return CONTROL_FALSE; // vo not configured?
 	video_out->draw_osd();
 	return CONTROL_TRUE;
-#endif
     case VFCTRL_FLIP_PAGE:
     {
 	if(!vo_config_count) return CONTROL_FALSE; // vo not configured?
@@ -111,34 +114,41 @@ static int control(struct vf_instance_s* vf, int request, void* data)
 #ifdef USE_ASS
     case VFCTRL_INIT_EOSD:
     {
-        vf->priv->ass_priv = ass_init();
-        return vf->priv->ass_priv ? CONTROL_TRUE : CONTROL_FALSE;
+        vf->priv->ass_priv = ass_renderer_init((ass_library_t*)data);
+        if (!vf->priv->ass_priv) return CONTROL_FALSE;
+        ass_configure_fonts(vf->priv->ass_priv);
+        vf->priv->prev_visibility = 0;
+        return CONTROL_TRUE;
     }
     case VFCTRL_DRAW_EOSD:
     {
-        ass_image_t* images = 0;
-        double pts = vf->priv->vf_vo_data->pts;
+        mp_eosd_images_t images = {NULL, 2};
+        double pts = vf->priv->pts;
         if (!vo_config_count || !vf->priv->ass_priv) return CONTROL_FALSE;
         if (sub_visibility && vf->priv->ass_priv && ass_track && (pts != MP_NOPTS_VALUE)) {
             mp_eosd_res_t res;
-            ass_settings_t* const settings = &vf->priv->ass_settings;
             memset(&res, 0, sizeof(res));
             if (video_out->control(VOCTRL_GET_EOSD_RES, &res) == VO_TRUE) {
-                settings->frame_width = res.w;
-                settings->frame_height = res.h;
-                settings->top_margin = res.mt;
-                settings->bottom_margin = res.mb;
-                settings->left_margin = res.ml;
-                settings->right_margin = res.mr;
-                settings->aspect = ((double)res.w) / res.h;
+                ass_set_frame_size(vf->priv->ass_priv, res.w, res.h);
+                ass_set_margins(vf->priv->ass_priv, res.mt, res.mb, res.ml, res.mr);
+                ass_set_aspect_ratio(vf->priv->ass_priv, (double)res.w / res.h);
             }
-            ass_configure(vf->priv->ass_priv, settings);
 
-            images = ass_render_frame(vf->priv->ass_priv, ass_track, (pts+sub_delay) * 1000 + .5);
-        }
-        return (video_out->control(VOCTRL_DRAW_EOSD, images) == VO_TRUE) ? CONTROL_TRUE : CONTROL_FALSE;
+            images.imgs = ass_render_frame(vf->priv->ass_priv, ass_track, (pts+sub_delay) * 1000 + .5, &images.changed);
+            if (!vf->priv->prev_visibility)
+                images.changed = 2;
+            vf->priv->prev_visibility = 1;
+        } else
+            vf->priv->prev_visibility = 0;
+        vf->priv->prev_visibility = sub_visibility;
+        return (video_out->control(VOCTRL_DRAW_EOSD, &images) == VO_TRUE) ? CONTROL_TRUE : CONTROL_FALSE;
     }
 #endif
+    case VFCTRL_GET_PTS:
+    {
+	*(double *)data = vf->priv->pts;
+	return CONTROL_TRUE;
+    }
     }
     // return video_out->control(request,data);
     return CONTROL_UNKNOWN;
@@ -163,7 +173,7 @@ static int put_image(struct vf_instance_s* vf,
         mp_image_t *mpi, double pts){
   if(!vo_config_count) return 0; // vo not configured?
   // record pts (potentially modified by filters) for main loop
-  vf->priv->vf_vo_data->pts = pts;
+  vf->priv->pts = pts;
   // first check, maybe the vo/vf plugin implements draw_image using mpi:
   if(video_out->control(VOCTRL_DRAW_IMAGE,mpi)==VO_TRUE) return 1; // done.
   // nope, fallback to old draw_frame/draw_slice:
@@ -195,7 +205,7 @@ static void uninit(struct vf_instance_s* vf)
     if (vf->priv) {
 #ifdef USE_ASS
         if (vf->priv->ass_priv)
-            ass_done(vf->priv->ass_priv);
+            ass_renderer_done(vf->priv->ass_priv);
 #endif
         free(vf->priv);
     }
@@ -212,7 +222,7 @@ static int open(vf_instance_t *vf, char* args){
     vf->start_slice=start_slice;
     vf->uninit=uninit;
     vf->priv=calloc(1, sizeof(struct vf_priv_s));
-    vf->priv->vf_vo_data=(vf_vo_data_t*)args;
+    vf->priv->vo = (vo_functions_t *)args;
     if(!video_out) return 0; // no vo ?
 //    if(video_out->preinit(args)) return 0; // preinit failed
     return 1;

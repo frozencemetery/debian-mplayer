@@ -3,7 +3,7 @@
 #define MP_CMD_AUDIO_DELAY 1
 #define MP_CMD_QUIT 2
 #define MP_CMD_PAUSE 3
-#define MP_CMD_GRAB_FRAMES 4
+// #define MP_CMD_GRAB_FRAMES 4  // was a no-op command for years
 #define MP_CMD_PLAY_TREE_STEP 5
 #define MP_CMD_PLAY_TREE_UP_STEP 6
 #define MP_CMD_PLAY_ALT_SRC_STEP 7
@@ -90,6 +90,15 @@
 #define MP_CMD_RADIO_SET_CHANNEL 88
 #define MP_CMD_RADIO_SET_FREQ 89
 #define MP_CMD_SET_MOUSE_POS 90
+#define MP_CMD_STEP_PROPERTY 91
+#define MP_CMD_RADIO_STEP_FREQ 92
+#define MP_CMD_TV_STEP_FREQ 93
+#define MP_CMD_LOOP 94
+#define MP_CMD_BALANCE 96
+#define MP_CMD_SUB_SCALE 97
+#define MP_CMD_TV_TELETEXT_ADD_DEC 98
+#define MP_CMD_TV_TELETEXT_GO_LINK 99
+#define MP_CMD_TV_START_SCAN 100
 
 #define MP_CMD_GUI_EVENTS       5000
 #define MP_CMD_GUI_LOADFILE     5001
@@ -221,6 +230,10 @@ mp_input_add_key_fd(int fd, int select, mp_key_func_t read_func, mp_close_func_t
 void
 mp_input_rm_key_fd(int fd);
 
+int mp_input_add_event_fd(int fd, void (*read_func)(void));
+
+void mp_input_rm_event_fd(int fd);
+
 // This function can be used to put a command in the system again. It's used by libmpdemux
 // when it performs a blocking operation to resend the command it received to the main
 // loop.
@@ -248,6 +261,14 @@ mp_cmd_free(mp_cmd_t* cmd);
 // This creates a copy of a command (used by the auto repeat stuff).
 mp_cmd_t*
 mp_cmd_clone(mp_cmd_t* cmd);
+
+// Set current input section
+void
+mp_input_set_section(char *name);
+
+// Get current input section
+char*
+mp_input_get_section(void);
 
 // When you create a new driver you should add it in these 2 functions.
 void

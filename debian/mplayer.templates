@@ -10,18 +10,6 @@ _Description: Create your ~/.mplayer/config file
  multichannel audio, or video postprocessing, etc etc); and any user
  similarly may customize MPlayer using the file ~/.mplayer/config
 
-Template: mplayer/rtc
-Type: boolean
-Default: false
-_Description: Enable access to RTC?
- On older kernels MPlayer can use the RTC (Real Time Clock) to provide
- better timing in reproduction, with less CPU cost; to this end,
- though, the device /dev/rtc must be accessible to group audio, and
- the default max-user-freq must be raised to 1024.  Any needed change
- must be done by root. If you wish, MPlayer will automatically do
- this at boot, so that any user can enjoy this feature. Note that
- there may be security issues with this (although none are known now).
-
 Template: mplayer/replace-existing-files
 Type: boolean
 Default: false

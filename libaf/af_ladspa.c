@@ -63,7 +63,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <unistd.h>
 #include <inttypes.h>
 #include <math.h>
 #include <limits.h>
@@ -131,7 +130,7 @@ typedef struct af_ladspa_s
 
 /* ------------------------------------------------------------------------- */
 
-static int open(af_instance_t *af);
+static int af_open(af_instance_t *af);
 static int af_ladspa_malloc_failed(char*);
 
 /* ------------------------------------------------------------------------- */
@@ -144,7 +143,7 @@ af_info_t af_info_ladspa = {
     "Ivo van Poorten",
     "",
     AF_FLAGS_REENTRANT,
-    open
+    af_open
 };
 
 /* ------------------------------------------------------------------------- */
@@ -253,12 +252,9 @@ static int af_ladspa_parse_plugin(af_ladspa_t *setup) {
         af_msg(AF_MSG_VERBOSE, "%s: this is a mono effect\n", setup->myname);
     } else if (setup->ninputs == 2) {
         af_msg(AF_MSG_VERBOSE, "%s: this is a stereo effect\n", setup->myname);
-    }
-
-    if (setup->ninputs > 2) {
-        af_msg(AF_MSG_ERROR, "%s: %s\n", setup->myname,
-                                            MSGTR_AF_LADSPA_ErrMultiChannel);
-        return AF_ERROR;
+    } else {
+        af_msg(AF_MSG_VERBOSE, "%s: this is a %i-channel effect, "
+               "support is experimental\n", setup->myname, setup->ninputs);
     }
 
     if (setup->noutputs == 0) {
@@ -704,11 +700,7 @@ static void uninit(struct af_instance_s *af) {
         }
 
         if (setup->chhandles) {
-            for(i=0; i<setup->nch; i++) {
-                if ( (setup->ninputs == 2) && (i & 1) ) { /* stereo effect */
-                    i++;
-                    continue;
-                }
+            for(i=0; i<setup->nch; i+=setup->ninputs) {
                 if (pdes->deactivate) pdes->deactivate(setup->chhandles[i]);
                 if (pdes->cleanup) pdes->cleanup(setup->chhandles[i]);
             }
@@ -837,7 +829,7 @@ static af_data_t* play(struct af_instance_s *af, af_data_t *data) {
 
             for(i=0; i<nch; i++) {
 
-                if ( (setup->ninputs == 2) && (i & 1) ) { /* stereo effect */
+                if (i % setup->ninputs) { /* stereo effect */
                     /* copy the handle from previous channel */
                     setup->chhandles[i] = setup->chhandles[i-1];
                     continue;
@@ -854,10 +846,10 @@ static af_data_t* play(struct af_instance_s *af, af_data_t *data) {
 
         for(i=0; i<nch; i++) {
             pdes->connect_port(setup->chhandles[i],
-                               setup->inputs[ (setup->ninputs==2) ? i&1 : 0 ],
+                               setup->inputs[i % setup->ninputs],
                                setup->inbufs[i]);
             pdes->connect_port(setup->chhandles[i],
-                               setup->outputs[ (setup->ninputs==2) ? i&1 : 0 ],
+                               setup->outputs[i % setup->ninputs],
                                setup->outbufs[i]);
 
             /* connect (input) controls */
@@ -888,12 +880,12 @@ static af_data_t* play(struct af_instance_s *af, af_data_t *data) {
          * and right. connect it to the second port.
          */
 
-        if( (setup->ninputs == 2) && (i&1) && (i >= 1) ) { 
+        for (p = i; p % setup->ninputs; p++) { 
             pdes->connect_port(setup->chhandles[i-1],
-                               setup->inputs[ (setup->ninputs==2) ? i&1 : 0 ],
+                               setup->inputs[p % setup->ninputs],
                                setup->inbufs[i-1]);
             pdes->connect_port(setup->chhandles[i-1],
-                               setup->outputs[ (setup->ninputs==2) ? i&1 : 0 ],
+                               setup->outputs[p % setup->ninputs],
                                setup->outbufs[i-1]);
         } /* done! */
 
@@ -917,10 +909,8 @@ static af_data_t* play(struct af_instance_s *af, af_data_t *data) {
 
     /* Run filter(s) */
 
-    for (i=0; i<nch; i++) {
+    for (i=0; i<nch; i+=setup->ninputs) {
         pdes->run(setup->chhandles[i], setup->bufsize);
-        if (setup->ninputs==2) // stereo effect just ran
-            i++;
     }
 
     /* Extract outbufs */
@@ -945,7 +935,7 @@ static af_data_t* play(struct af_instance_s *af, af_data_t *data) {
  * \return      Either AF_ERROR or AF_OK
  */
 
-static int open(af_instance_t *af) {
+static int af_open(af_instance_t *af) {
 
     af->control=control;
     af->uninit=uninit;

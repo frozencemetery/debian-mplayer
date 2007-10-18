@@ -18,13 +18,17 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef __ASS_FONTCONFIG_H__
-#define __ASS_FONTCONFIG_H__
+#ifndef ASS_FONTCONFIG_H
+#define ASS_FONTCONFIG_H
+
+#ifdef HAVE_FONTCONFIG
+#include <fontconfig/fontconfig.h>
+#endif
 
 typedef struct fc_instance_s fc_instance_t;
 
-fc_instance_t* fontconfig_init(const char* dir, const char* family, const char* path);
-char* fontconfig_select(fc_instance_t* priv, const char* family, unsigned bold, unsigned italic, int* index);
+fc_instance_t* fontconfig_init(ass_library_t* library, FT_Library ftlibrary, const char* family, const char* path);
+char* fontconfig_select(fc_instance_t* priv, const char* family, unsigned bold, unsigned italic, int* index, uint32_t code);
 void fontconfig_done(fc_instance_t* priv);
 
 #endif

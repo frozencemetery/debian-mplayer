@@ -19,18 +19,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 #include "avformat.h"
+#include "avstring.h"
 
 #include <unistd.h>
 #include <stdarg.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#ifndef __BEOS__
-# include <arpa/inet.h>
-#else
-# include "barpainet.h"
-#endif
-#include <netdb.h>
+#include "network.h"
 #include <fcntl.h>
 
 #define RTP_TX_BUF_SIZE  (64 * 1024)
@@ -80,11 +73,11 @@ static void url_add_option(char *buf, int buf_size, const char *fmt, ...)
 
     va_start(ap, fmt);
     if (strchr(buf, '?'))
-        pstrcat(buf, buf_size, "&");
+        av_strlcat(buf, "&", buf_size);
     else
-        pstrcat(buf, buf_size, "?");
+        av_strlcat(buf, "?", buf_size);
     vsnprintf(buf1, sizeof(buf1), fmt, ap);
-    pstrcat(buf, buf_size, buf1);
+    av_strlcat(buf, buf1, buf_size);
     va_end(ap);
 }
 
@@ -96,7 +89,7 @@ static void build_udp_url(char *buf, int buf_size,
     if (local_port >= 0)
         url_add_option(buf, buf_size, "localport=%d", local_port);
     if (multicast)
-        url_add_option(buf, buf_size, "multicast=1", multicast);
+        url_add_option(buf, buf_size, "multicast=1");
     if (ttl >= 0)
         url_add_option(buf, buf_size, "ttl=%d", ttl);
 }
@@ -121,7 +114,7 @@ static int rtp_open(URLContext *h, const char *uri, int flags)
 
     s = av_mallocz(sizeof(RTPContext));
     if (!s)
-        return -ENOMEM;
+        return AVERROR(ENOMEM);
     h->priv_data = s;
 
     url_split(NULL, 0, NULL, 0, hostname, sizeof(hostname), &port,
@@ -146,7 +139,7 @@ static int rtp_open(URLContext *h, const char *uri, int flags)
     if (url_open(&s->rtp_hd, buf, flags) < 0)
         goto fail;
     local_port = udp_get_local_port(s->rtp_hd);
-    /* XXX: need to open another connexion if the port is not even */
+    /* XXX: need to open another connection if the port is not even */
 
     /* well, should suppress localport in path */
 
@@ -170,7 +163,7 @@ static int rtp_open(URLContext *h, const char *uri, int flags)
     if (s->rtcp_hd)
         url_close(s->rtcp_hd);
     av_free(s);
-    return AVERROR_IO;
+    return AVERROR(EIO);
 }
 
 static int rtp_read(URLContext *h, uint8_t *buf, int size)
@@ -186,9 +179,10 @@ static int rtp_read(URLContext *h, uint8_t *buf, int size)
         len = recvfrom (s->rtp_fd, buf, size, 0,
                         (struct sockaddr *)&from, &from_len);
         if (len < 0) {
-            if (errno == EAGAIN || errno == EINTR)
+            if (ff_neterrno() == FF_NETERROR(EAGAIN) ||
+                ff_neterrno() == FF_NETERROR(EINTR))
                 continue;
-            return AVERROR_IO;
+            return AVERROR(EIO);
         }
         break;
     }
@@ -209,9 +203,10 @@ static int rtp_read(URLContext *h, uint8_t *buf, int size)
                 len = recvfrom (s->rtcp_fd, buf, size, 0,
                                 (struct sockaddr *)&from, &from_len);
                 if (len < 0) {
-                    if (errno == EAGAIN || errno == EINTR)
+                    if (ff_neterrno() == FF_NETERROR(EAGAIN) ||
+                        ff_neterrno() == FF_NETERROR(EINTR))
                         continue;
-                    return AVERROR_IO;
+                    return AVERROR(EIO);
                 }
                 break;
             }
@@ -221,9 +216,10 @@ static int rtp_read(URLContext *h, uint8_t *buf, int size)
                 len = recvfrom (s->rtp_fd, buf, size, 0,
                                 (struct sockaddr *)&from, &from_len);
                 if (len < 0) {
-                    if (errno == EAGAIN || errno == EINTR)
+                    if (ff_neterrno() == FF_NETERROR(EAGAIN) ||
+                        ff_neterrno() == FF_NETERROR(EINTR))
                         continue;
-                    return AVERROR_IO;
+                    return AVERROR(EIO);
                 }
                 break;
             }
@@ -270,7 +266,7 @@ static int rtp_close(URLContext *h)
 }
 
 /**
- * Return the local port used by the RTP connexion
+ * Return the local port used by the RTP connection
  * @param s1 media file context
  * @return the local port number
  */

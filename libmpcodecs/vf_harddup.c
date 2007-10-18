@@ -9,8 +9,6 @@
 #include "mp_image.h"
 #include "vf.h"
 
-#include "libvo/fastmemcpy.h"
-
 struct vf_priv_s {
 	mp_image_t *last_mpi;
 };
@@ -50,18 +48,6 @@ static int control(struct vf_instance_s* vf, int request, void* data)
 		break;
 	}
 	return vf_next_control(vf, request, data);
-}
-
-static int query_format(struct vf_instance_s* vf, unsigned int fmt)
-{
-	/* FIXME - figure out which other formats work */
-	switch (fmt) {
-	case IMGFMT_YV12:
-	case IMGFMT_IYUV:
-	case IMGFMT_I420:
-		return vf_next_query_format(vf, fmt);
-	}
-	return 0;
 }
 
 static void uninit(struct vf_instance_s* vf)

@@ -1,5 +1,5 @@
-#ifndef __MPLAYER_MIXER
-#define __MPLAYER_MIXER
+#ifndef MPLAYER_MIXER_H
+#define MPLAYER_MIXER_H
 
 #include "libaf/af.h"
 #include "libao2/audio_out.h"
@@ -23,8 +23,10 @@ void mixer_incvolume(mixer_t *mixer);
 void mixer_decvolume(mixer_t *mixer);
 void mixer_getbothvolume(mixer_t *mixer, float *b);
 void mixer_mute(mixer_t *mixer);
+void mixer_getbalance(mixer_t *mixer, float *bal);
+void mixer_setbalance(mixer_t *mixer, float bal);
 
 //extern void mixer_setbothvolume( int v );
 #define mixer_setbothvolume(m, v) mixer_setvolume(m, v, v)
 
-#endif
+#endif /* MPLAYER_MIXER_H */

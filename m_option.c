@@ -16,6 +16,7 @@
 //#include "m_config.h"
 #include "mp_msg.h"
 #include "stream/url.h"
+#include "libavutil/avstring.h"
 
 // Don't free for 'production' atm
 #ifndef MP_DEBUG
@@ -511,9 +512,22 @@ static int str_list_del(char** del, int n,void* dst) {
   return 1;
 }
   
+static char *get_nextsep(char *ptr, char sep, int modify) {
+    char *last_ptr = ptr;
+    for(;;){
+        ptr = strchr(ptr, sep);
+        if(ptr && ptr>last_ptr && ptr[-1]=='\\'){
+            if (modify) memmove(ptr-1, ptr, strlen(ptr)+1);
+            else ptr++;
+        }else
+            break;
+    }
+    return ptr;
+}
 
 static int parse_str_list(m_option_t* opt,char *name, char *param, void* dst, int src) {
   int n = 0,len = strlen(opt->name);
+  char *str;
   char *ptr = param, *last_ptr, **res;
   int op = OP_NONE;
 
@@ -544,8 +558,7 @@ static int parse_str_list(m_option_t* opt,char *name, char *param, void* dst, in
 
 
   while(ptr[0] != '\0') {
-    last_ptr = ptr;
-    ptr = strchr(ptr,LIST_SEPARATOR);
+    ptr = get_nextsep(ptr, LIST_SEPARATOR, 0);
     if(!ptr) {
       n++;
       break;
@@ -562,12 +575,12 @@ static int parse_str_list(m_option_t* opt,char *name, char *param, void* dst, in
   if(!dst) return 1;
 
   res = malloc((n+2)*sizeof(char*));
-  ptr = param;
+  ptr = str = strdup(param);
   n = 0;
 
   while(1) {
     last_ptr = ptr;
-    ptr = strchr(ptr,LIST_SEPARATOR);
+    ptr = get_nextsep(ptr, LIST_SEPARATOR, 1);
     if(!ptr) {
       res[n] = strdup(last_ptr);
       n++;
@@ -581,6 +594,7 @@ static int parse_str_list(m_option_t* opt,char *name, char *param, void* dst, in
     n++;
   }
   res[n] = NULL;
+  free(str);
 
   switch(op) {
   case OP_ADD:
@@ -907,7 +921,7 @@ static int parse_subconf(m_option_t* opt,char *name, char *param, void* dst, int
       int optlen = strcspn(p, ":=");
       /* clear out */
       subopt[0] = subparam[0] = 0;
-      strlcpy(subopt, p, optlen + 1);
+      av_strlcpy(subopt, p, optlen + 1);
       p = &p[optlen];
       if (p[0] == '=') {
         sscanf_ret = 2;
@@ -915,7 +929,7 @@ static int parse_subconf(m_option_t* opt,char *name, char *param, void* dst, int
         if (p[0] == '"') {
           p = &p[1];
           optlen = strcspn(p, "\"");
-          strlcpy(subparam, p, optlen + 1);
+          av_strlcpy(subparam, p, optlen + 1);
           p = &p[optlen];
           if (p[0] != '"') {
             mp_msg(MSGT_CFGPARSER, MSGL_ERR, "Terminating '\"' missing for '%s'\n", subopt);
@@ -930,11 +944,11 @@ static int parse_subconf(m_option_t* opt,char *name, char *param, void* dst, int
             return M_OPT_INVALID;
           }
           p = &p[1];
-          strlcpy(subparam, p, optlen + 1);
+          av_strlcpy(subparam, p, optlen + 1);
           p = &p[optlen];
         } else {
           optlen = strcspn(p, ":");
-          strlcpy(subparam, p, optlen + 1);
+          av_strlcpy(subparam, p, optlen + 1);
           p = &p[optlen];
         }
       }
@@ -1035,6 +1049,8 @@ static struct {
   {"argb", IMGFMT_ARGB},
   {"bgra", IMGFMT_BGRA},
   {"abgr", IMGFMT_ABGR},
+  {"mjpeg", IMGFMT_MJPEG},
+  {"mjpg", IMGFMT_MJPEG},
   { NULL, 0 }
 };
 
@@ -1175,13 +1191,58 @@ m_option_type_t m_option_type_afmt = {
 };
 
 
+static double parse_timestring(char *str)
+{
+  int a, b;
+  double d;
+  if (sscanf(str, "%d:%d:%lf", &a, &b, &d) == 3)
+    return 3600*a + 60*b + d;
+  else if (sscanf(str, "%d:%lf", &a, &d) == 2)
+    return 60*a + d;
+  else if (sscanf(str, "%lf", &d) == 1)
+    return d;
+  return -1e100;
+}
+    
+
+static int parse_time(m_option_t* opt,char *name, char *param, void* dst, int src)
+{
+  double time;
+
+  if (param == NULL || strlen(param) == 0)
+    return M_OPT_MISSING_PARAM;
+  
+  time = parse_timestring(param);
+  if (time == -1e100) {
+    mp_msg(MSGT_CFGPARSER, MSGL_ERR, "Option %s: invalid time: '%s'\n",
+           name,param);
+    return M_OPT_INVALID;
+  }
+  
+  if (dst)
+    *(double *)dst = time;
+  return 1;
+}
+
+m_option_type_t m_option_type_time = {
+  "Time",
+  "",
+  sizeof(double),
+  0,
+  parse_time,
+  print_double,
+  copy_opt,
+  copy_opt,
+  NULL,
+  NULL
+};
+
+
 // Time or size (-endpos)
 
 static int parse_time_size(m_option_t* opt,char *name, char *param, void* dst, int src) {
   m_time_size_t ts;
   char unit[4];
-  int a,b;
-  float d;
   double end_at;
 
   if (param == NULL || strlen(param) == 0)
@@ -1208,15 +1269,9 @@ static int parse_time_size(m_option_t* opt,char *name, char *param, void* dst, i
     }
   }
 
-  /* End at time parsing. This has to be last because of
-   * sscanf("%f", ...) below */
-  if (sscanf(param, "%d:%d:%f", &a, &b, &d) == 3)
-    end_at = 3600*a + 60*b + d;
-  else if (sscanf(param, "%d:%f", &a, &d) == 2)
-    end_at = 60*a + d;
-  else if (sscanf(param, "%f", &d) == 1)
-    end_at = d;
-  else {
+  /* End at time parsing. This has to be last because the parsing accepts
+   * even a number followed by garbage */
+  if ((end_at = parse_timestring(param)) == -1e100) {
     mp_msg(MSGT_CFGPARSER, MSGL_ERR, "Option %s: invalid time or size: '%s'\n",
            name,param);
     return M_OPT_INVALID;
@@ -1672,13 +1727,7 @@ static int parse_obj_settings_list(m_option_t* opt,char *name,
 
   while(ptr[0] != '\0') {
     last_ptr = ptr;
-    for(;;){
-        ptr = strchr(ptr,LIST_SEPARATOR);
-        if(ptr && ptr>last_ptr && ptr[-1]=='\\'){
-            memmove(ptr-1, ptr, strlen(ptr)+1);
-        }else
-            break;
-    }
+    ptr = get_nextsep(ptr, LIST_SEPARATOR, 1);
 
     if(!ptr) {
       r = parse_obj_settings(name,last_ptr,opt->priv,dst ? &res : NULL,n);

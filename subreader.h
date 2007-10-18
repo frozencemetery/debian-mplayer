@@ -1,5 +1,5 @@
-#ifndef __MPLAYER_SUBREADER_H
-#define __MPLAYER_SUBREADER_H
+#ifndef MPLAYER_SUBREADER_H
+#define MPLAYER_SUBREADER_H
 
 #include <stdio.h>
 
@@ -48,6 +48,7 @@ typedef struct {
     unsigned long end;
     
     char *text[SUB_MAX_TEXT];
+    double endpts[SUB_MAX_TEXT];
     unsigned char alignment;
 } subtitle;
 
@@ -66,7 +67,7 @@ extern int fribidi_flip_commas;
 #endif
 
 sub_data* sub_read_file (char *filename, float pts);
-subtitle* subcp_recode1 (subtitle *sub);
+subtitle* subcp_recode (subtitle *sub);
 // enca_fd is the file enca uses to determine the codepage.
 // setting to NULL disables enca.
 struct stream_st;
@@ -86,4 +87,6 @@ void dump_sami(sub_data* subd, float fps);
 void sub_free( sub_data * subd );
 void find_sub(sub_data* subd,int key);
 void step_sub(sub_data *subd, float pts, int movement);
+void sub_add_text(subtitle *sub, const char *txt, int len, double endpts);
+int sub_clear_text(subtitle *sub, double pts);
 #endif

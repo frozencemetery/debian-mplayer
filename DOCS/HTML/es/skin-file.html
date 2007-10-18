@@ -1,24 +1,23 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>C.2. El archivo de skin</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - El reproductor de Películas
-para LINUX"><link rel="up" href="skin.html" title="Apéndice C. Formato del skin de MPlayer"><link rel="prev" href="skin-overview.html" title="C.1. Visión general"><link rel="next" href="skin-fonts.html" title="C.3. Tipografías"><link rel="preface" href="howtoread.html" title="Como leer esta documentación"><link rel="chapter" href="intro.html" title="Capítulo 1. Introducción"><link rel="chapter" href="features.html" title="Capítulo 2. Características"><link rel="chapter" href="usage.html" title="Capítulo 3. Uso"><link rel="chapter" href="faq.html" title="Capítulo 4. Preguntas de Usuario Frecuentes"><link rel="chapter" href="cd-dvd.html" title="Capítulo 5. Uso de CD/DVD"><link rel="chapter" href="ports.html" title="Capítulo 6. Adaptaciones"><link rel="chapter" href="mencoder.html" title="Capítulo 7. Codificando con MEncoder"><link rel="appendix" href="bugreports.html" title="Apéndice A. Cómo reportar errores"><link rel="appendix" href="bugs.html" title="Apéndice B. Problemas conocidos"><link rel="appendix" href="skin.html" title="Apéndice C. Formato del skin de MPlayer"><link rel="subsection" href="skin-file.html#skin-file-main" title="C.2.1. Ventana principal y barra de reproducción"><link rel="subsection" href="skin-file.html#skin-file-subwindow" title="C.2.2. Subventana"><link rel="subsection" href="skin-file.html#skin-file-menu" title="C.2.3. Menú del skin"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">C.2. El archivo de skin</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="skin-overview.html">Anterior</a> </td><th width="60%" align="center">Apéndice C. Formato del skin de <span class="application">MPlayer</span></th><td width="20%" align="right"> <a accesskey="n" href="skin-fonts.html">Siguiente</a></td></tr></table><hr></div><div class="sect1" lang="es"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="skin-file"></a>C.2. El archivo de skin</h2></div></div></div><p>
-Como se menciona más arriba, este es el archivo de configuración del skin.
-Su orientación en lineal; las líneas que son comentarios comienzan por
-un caracter '<code class="literal">;</code>' al principio de la línea (solo espacios
-y tabuladores están permitidos antes del '<code class="literal">;</code>').
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>C.2. El archivo de skin</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - El reproductor de PelÃ­culas para LINUX"><link rel="up" href="skin.html" title="ApÃ©ndice C. Formato del skin de MPlayer"><link rel="prev" href="skin-overview.html" title="C.1. VisiÃ³n general"><link rel="next" href="skin-fonts.html" title="C.3. TipografÃ­as"><link rel="preface" href="howtoread.html" title="Como leer esta documentaciÃ³n"><link rel="chapter" href="intro.html" title="CapÃ­tulo 1. IntroducciÃ³n"><link rel="chapter" href="features.html" title="CapÃ­tulo 2. CaracterÃ­sticas"><link rel="chapter" href="usage.html" title="CapÃ­tulo 3. Uso"><link rel="chapter" href="faq.html" title="CapÃ­tulo 4. Preguntas de Usuario Frecuentes"><link rel="chapter" href="cd-dvd.html" title="CapÃ­tulo 5. Uso de CD/DVD"><link rel="chapter" href="ports.html" title="CapÃ­tulo 6. Adaptaciones"><link rel="chapter" href="mencoder.html" title="CapÃ­tulo 7. Codificando con MEncoder"><link rel="appendix" href="bugreports.html" title="ApÃ©ndice A. CÃ³mo reportar errores"><link rel="appendix" href="bugs.html" title="ApÃ©ndice B. Problemas conocidos"><link rel="appendix" href="skin.html" title="ApÃ©ndice C. Formato del skin de MPlayer"><link rel="subsection" href="skin-file.html#skin-file-main" title="C.2.1. Ventana principal y barra de reproducciÃ³n"><link rel="subsection" href="skin-file.html#skin-file-subwindow" title="C.2.2. Subventana"><link rel="subsection" href="skin-file.html#skin-file-menu" title="C.2.3. MenÃº del skin"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">C.2. El archivo de skin</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="skin-overview.html">Anterior</a>Â </td><th width="60%" align="center">ApÃ©ndice C. Formato del skin de <span class="application">MPlayer</span></th><td width="20%" align="right">Â <a accesskey="n" href="skin-fonts.html">Siguiente</a></td></tr></table><hr></div><div class="sect1" lang="es"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="skin-file"></a>C.2. El archivo de skin</h2></div></div></div><p>
+Como se menciona mÃ¡s arriba, este es el archivo de configuraciÃ³n del skin.
+Su orientaciÃ³n en lineal; las lÃ­neas que son comentarios comienzan por
+un caracter '<code class="literal">;</code>' al principio de la lÃ­nea (solo espacios
+y tabuladores estÃ¡n permitidos antes del '<code class="literal">;</code>').
 </p><p>
-El archivo está dividido en secciones. Cada sección describe el skin para
-una aplicación y tiene la siguiente forma:
+El archivo estÃ¡ dividido en secciones. Cada secciÃ³n describe el skin para
+una aplicaciÃ³n y tiene la siguiente forma:
 </p><pre class="programlisting">
-section = <em class="replaceable"><code>nombre de la sección</code></em>
+section = <em class="replaceable"><code>nombre de la secciÃ³n</code></em>
 .
 .
 .
 end
 </pre><p>
 </p><p>
-Actualmente solo hay una aplicación, por lo que necesita una sola sección: su nombre
+Actualmente solo hay una aplicaciÃ³n, por lo que necesita una sola secciÃ³n: su nombre
 es <span class="bold"><strong>movieplayer</strong></span>.
 </p><p>
-Dentro de esta sección cada ventana está descrita por un bloque de la siguiente forma:
+Dentro de esta secciÃ³n cada ventana estÃ¡ descrita por un bloque de la siguiente forma:
 </p><pre class="programlisting">
 window = <em class="replaceable"><code>nombre de la ventana</code></em>
 .
@@ -29,19 +28,19 @@ end
 </p><p>
 donde <em class="replaceable"><code>nombre de la ventana</code></em> puede ser una de las siguientes
 cadenas de texto:
-</p><div class="itemizedlist"><ul type="disc"><li><p><span class="bold"><strong>main</strong></span> - para la ventana principal</p></li><li><p><span class="bold"><strong>sub</strong></span> - para la subventana</p></li><li><p><span class="bold"><strong>menu</strong></span> - para el skin del menú</p></li><li><p><span class="bold"><strong>playbar</strong></span> - barra de reproducción</p></li></ul></div><p>
+</p><div class="itemizedlist"><ul type="disc"><li><p><span class="bold"><strong>main</strong></span> - para la ventana principal</p></li><li><p><span class="bold"><strong>sub</strong></span> - para la subventana</p></li><li><p><span class="bold"><strong>menu</strong></span> - para el skin del menÃº</p></li><li><p><span class="bold"><strong>playbar</strong></span> - barra de reproducciÃ³n</p></li></ul></div><p>
 </p><p>
-(Los bloques sub y menú son opcionales - no necesita crear un menú o decorar
+(Los bloques sub y menÃº son opcionales - no necesita crear un menÃº o decorar
 la subventana.)
 </p><p>
 Dentro de un bloque de ventana, puede definir cada objeto para la ventana con
-una línea del siguiente modo:
-</p><pre class="programlisting">objeto = parámetro</pre><p>
+una lÃ­nea del siguiente modo:
+</p><pre class="programlisting">objeto = parÃ¡metro</pre><p>
 Donde <code class="literal">objeto</code> es una cadena que identifica el tipo de objeto GUI,
-<code class="literal">parámetro</code> es un valor numérico o textual (o una lista
+<code class="literal">parÃ¡metro</code> es un valor numÃ©rico o textual (o una lista
 de valores separados por comas).
 </p><p>
-Poniendo todo lo de arriba jutno, el archivo entero quedará algo similar a esto:
+Poniendo todo lo de arriba jutno, el archivo entero quedarÃ¡ algo similar a esto:
 </p><pre class="programlisting">
 section = movieplayer
   window = main
@@ -53,23 +52,23 @@ section = movieplayer
   end
   
   window = menu
-  ; ... objetos para el menú ...
+  ; ... objetos para el menÃº ...
   end
 
   window = playbar
-  ; ... objetos para la barra de reproducción ...
+  ; ... objetos para la barra de reproducciÃ³n ...
   end
 end
 </pre><p>
 </p><p>
-El nombre de un archivo de imagen se debe dar sin los directorios - las imágenes
+El nombre de un archivo de imagen se debe dar sin los directorios - las imÃ¡genes
 se buscan en el directorio <tt class="filename">skins</tt>.
-También puede (pero necesita ser root) especificar la extensión del archivo. Si
-el archivo no existe, <span class="application">MPlayer</span> intentará cargar el
+TambiÃ©n puede (pero necesita ser root) especificar la extensiÃ³n del archivo. Si
+el archivo no existe, <span class="application">MPlayer</span> intentarÃ¡ cargar el
 archivo
 <tt class="filename">&lt;filename&gt;.&lt;ext&gt;</tt>, donde <code class="literal">png</code>
 y <code class="literal">PNG</code> son probados para <tt class="filename">&lt;ext&gt;</tt>
-(en ese orden). El primer nombre de archivo que coincida será el que se use.
+(en ese orden). El primer nombre de archivo que coincida serÃ¡ el que se use.
 </p><p>
 Finalmente unas palabras acerca del posicionamiento. La ventana principal y la
 subventana pueden ser colocadas en las diferentes esquinas de la pantalla dando
@@ -85,33 +84,33 @@ es a la derecha o abajo, como se muestra en la ilustracion:
   |          |          |
 (0,-2)----(-1,-2)----(-2,-2)
 </pre></div><p>
-Aquí tiene un ejemplo para clarificar esto. Suponga que tiene una imagen llamada
+AquÃ­ tiene un ejemplo para clarificar esto. Suponga que tiene una imagen llamada
 <tt class="filename">main.png</tt> que usa para la ventana principal:
 </p><pre class="programlisting">base = main, -1, -1</pre><p>
-<span class="application">MPlayer</span> intentará cargar los archivos
+<span class="application">MPlayer</span> intentarÃ¡ cargar los archivos
 <tt class="filename">main</tt>, <tt class="filename">main.png</tt>,
 <tt class="filename">main.PNG</tt>.
-</p><div class="sect2" lang="es"><div class="titlepage"><div><div><h3 class="title"><a name="skin-file-main"></a>C.2.1. Ventana principal y barra de reproducción</h3></div></div></div><p>
-Más abajo tiene la lista de entradas que pueden usarse en los bloques
+</p><div class="sect2" lang="es"><div class="titlepage"><div><div><h3 class="title"><a name="skin-file-main"></a>C.2.1. Ventana principal y barra de reproducciÃ³n</h3></div></div></div><p>
+MÃ¡s abajo tiene la lista de entradas que pueden usarse en los bloques
 '<code class="literal">window = main</code>' ... '<code class="literal">end</code>',
 y '<code class="literal">window = playbar</code>' ... '<code class="literal">end</code>'.
 </p><div class="variablelist"><dl><dt><span class="term"><code class="literal">
   <a name="skin-main-base"></a>base = image, X, Y
   </code></span></dt><dd><p>
 Le permite especificar la imagen de fondo para usar en la ventana principal.
-La ventana aparecerá en la posición <code class="literal">X,Y</code> dada de la pantalla.
-La ventana tendrá el tamaño de la imagen.
+La ventana aparecerÃ¡ en la posiciÃ³n <code class="literal">X,Y</code> dada de la pantalla.
+La ventana tendrÃ¡ el tamaÃ±o de la imagen.
     </p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Nota</h3><p>Estas coordenadas no funcionan actualmente para la ventana de
-    reproducción.</p></div><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Aviso</h3><p>Las regiones transparentes en la
+    reproducciÃ³n.</p></div><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Aviso</h3><p>Las regiones transparentes en la
     imagen (coloreadas con #FF00FF) aparecen en negro en servidores X sin la
-    extensión XShape. El ancho de la imagen debe ser divisible por 8.</p></div></dd><dt><span class="term"><code class="literal">
+    extensiÃ³n XShape. El ancho de la imagen debe ser divisible por 8.</p></div></dd><dt><span class="term"><code class="literal">
   <a name="skin-button"></a>button = imagen, X, Y, ancho, alto, mensaje
   </code></span></dt><dd><p>
-Coloca un botón de tamaño <code class="literal">ancho</code> * <code class="literal">alto</code> en
-la posición <code class="literal">X,Y</code>. El <code class="literal">mensaje</code> especificado
-es generado cuando se hace clic en el botón. La imagen dada en
+Coloca un botÃ³n de tamaÃ±o <code class="literal">ancho</code> * <code class="literal">alto</code> en
+la posiciÃ³n <code class="literal">X,Y</code>. El <code class="literal">mensaje</code> especificado
+es generado cuando se hace clic en el botÃ³n. La imagen dada en
 <code class="literal">imagen</code> debe tener tres partes una debajo de otra (de acuerdo con
-los posibles estados del botón), como esto:
+los posibles estados del botÃ³n), como esto:
 </p><div class="informalfigure"><pre class="screen">
 +--------------+
 |  pulsado     |
@@ -123,28 +122,28 @@ los posibles estados del botón), como esto:
 </pre></div></dd><dt><span class="term"><code class="literal">
   <a name="skin-decoration"></a>decoration = enable|disable
   </code></span></dt><dd><p>
-Activa o desactiva la decoración del administrador de ventanas para la
+Activa o desactiva la decoraciÃ³n del administrador de ventanas para la
 ventana principal. Por defecto toma el valor <span class="bold"><strong>disable</strong></span>.
-    </p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Nota</h3><p>Esto no funciona para la ventana de reproducción, no lo necesita.</p></div></dd><dt><span class="term"><code class="literal">
-  <a name="skin-hpotmeter"></a>hpotmeter = botón, bancho, balto, fases, numfases, defecto, X, Y, ancho, alto, mensaje
+    </p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Nota</h3><p>Esto no funciona para la ventana de reproducciÃ³n, no lo necesita.</p></div></dd><dt><span class="term"><code class="literal">
+  <a name="skin-hpotmeter"></a>hpotmeter = botÃ³n, bancho, balto, fases, numfases, defecto, X, Y, ancho, alto, mensaje
   </code></span></dt><dd><p>
 
     </p></dd><dt><span class="term"><code class="literal">
-  <a name="skin-vpotmeter"></a>vpotmeter = botón, bancho, balto, fases, numfases, defecto, X, Y, ancho, alto, mensaje
+  <a name="skin-vpotmeter"></a>vpotmeter = botÃ³n, bancho, balto, fases, numfases, defecto, X, Y, ancho, alto, mensaje
   </code></span></dt><dd><p>
-Coloca un medidor horizontal (hpotmeter) o vertical (vpotmeter) de tamaño
-<code class="literal">ancho</code> * <code class="literal">alto</code> en la posición
+Coloca un medidor horizontal (hpotmeter) o vertical (vpotmeter) de tamaÃ±o
+<code class="literal">ancho</code> * <code class="literal">alto</code> en la posiciÃ³n
 <code class="literal">X,Y</code>. La imagen puede ser dividida en diferentes partes para
 las diferentes fases del medidor (por ejemplo, puede tener un medidor para
 el control del volumen que vaya de verde a rojo mientras sus valores cambian
-desde el mínimo al máximo.). <code class="literal">hpotmeter</code> puede tener un botón
-que se desplaze horizontalmente. Los parámetros son:
-    </p><div class="itemizedlist"><ul type="disc"><li><p><code class="literal">botón</code> - la imagen que se usará para el
-    botón (debe tener tres partes una debajo de otra, como en el caso de
-    <a href="skin-file.html#skin-button">botón</a>)
-    </p></li><li><p><code class="literal">bancho</code>,<code class="literal">balto</code> - tamaño
-    del botón
-    </p></li><li><p><code class="literal">fases</code> - la imagen que se usará para las
+desde el mÃ­nimo al mÃ¡ximo.). <code class="literal">hpotmeter</code> puede tener un botÃ³n
+que se desplaze horizontalmente. Los parÃ¡metros son:
+    </p><div class="itemizedlist"><ul type="disc"><li><p><code class="literal">botÃ³n</code> - la imagen que se usarÃ¡ para el
+    botÃ³n (debe tener tres partes una debajo de otra, como en el caso de
+    <a href="skin-file.html#skin-button">botÃ³n</a>)
+    </p></li><li><p><code class="literal">bancho</code>,<code class="literal">balto</code> - tamaÃ±o
+    del botÃ³n
+    </p></li><li><p><code class="literal">fases</code> - la imagen que se usarÃ¡ para las
    diferentes fases del medidor horizontal. Un valor especial <code class="literal">NULL</code>
    puede usarse si no desea una imagen. La imagen debe estar dividida en
    <code class="literal">numfasespartes</code> verticalmente como esto:
@@ -158,11 +157,11 @@ que se desplaze horizontalmente. Los parámetros son:
 +------------+
 |  fase #n   |
 +------------+
-</pre></div></li><li><p><code class="literal">numfases</code> - número de fases almacenadas en la
+</pre></div></li><li><p><code class="literal">numfases</code> - nÃºmero de fases almacenadas en la
     imagen de <code class="literal">fases</code>
     </p></li><li><p><code class="literal">defecto</code> - valor por defecto en el medidor
     (en el rango de <code class="literal">0</code> a <code class="literal">100</code>)
-    </p></li><li><p><code class="literal">X</code>,<code class="literal">Y</code> - posición del medidor
+    </p></li><li><p><code class="literal">X</code>,<code class="literal">Y</code> - posiciÃ³n del medidor
     </p></li><li><p><code class="literal">ancho</code>,<code class="literal">alto</code> - ancho y alto
     del <code class="literal">medidor</code>
     </p></li><li><p><code class="literal">mensaje</code> - el mensaje que se ha de generar cuando
@@ -170,95 +169,95 @@ que se desplaze horizontalmente. Los parámetros son:
     </p></li></ul></div></dd><dt><span class="term"><code class="literal">
   <a name="skin-potmeter"></a>potmeter = fases, numfases, defecto, X, Y, ancho, alto, mensaje
   </code></span></dt><dd><p>
-Un <code class="literal">hpotmeter</code> sin un botón. (Creo que está hecho para hacer una especie
-de botón que gire sobre sí mismo, pero reacciona a arrastre horizontal solamente). Para la
-descripción de los parámetros vea <a href="skin-file.html#skin-hpotmeter">hpotmeter</a>.
-<code class="literal">fases</code> puede ser <code class="literal">NULL</code>, pero es poco útil,
-porque no le permite ver donde está establecido el valor del <code class="literal">potmeter</code>.
+Un <code class="literal">hpotmeter</code> sin un botÃ³n. (Creo que estÃ¡ hecho para hacer una especie
+de botÃ³n que gire sobre sÃ­ mismo, pero reacciona a arrastre horizontal solamente). Para la
+descripciÃ³n de los parÃ¡metros vea <a href="skin-file.html#skin-hpotmeter">hpotmeter</a>.
+<code class="literal">fases</code> puede ser <code class="literal">NULL</code>, pero es poco Ãºtil,
+porque no le permite ver donde estÃ¡ establecido el valor del <code class="literal">potmeter</code>.
     </p></dd><dt><span class="term"><code class="literal">
   <a name="skin-font"></a>font = fontfile, fontid
   </code></span></dt><dd><p>
-Define una tipografía. <code class="literal">fontfile</code> es el nombre del archivo de
-descripción de la tipografía con extensión <tt class="filename">.fnt</tt> (no especifique
-la extensión aquí). <code class="literal">fontid</code> es usado para referirse a la tipografía
+Define una tipografÃ­a. <code class="literal">fontfile</code> es el nombre del archivo de
+descripciÃ³n de la tipografÃ­a con extensiÃ³n <tt class="filename">.fnt</tt> (no especifique
+la extensiÃ³n aquÃ­). <code class="literal">fontid</code> es usado para referirse a la tipografÃ­a
 (vea <a href="skin-file.html#skin-dlabel">dlabel</a> y <a href="skin-file.html#skin-slabel">slabel</a>).
-Pueden definirse hasta 25 tipografías.
+Pueden definirse hasta 25 tipografÃ­as.
     </p></dd><dt><span class="term"><code class="literal">
   <a name="skin-slabel"></a>slabel = X, Y, fontid, "text"
   </code></span></dt><dd><p>
-Coloca una etiqueta estática en la posición <code class="literal">X,Y</code>. <code class="literal">text</code>
-se muestra usando la tipografía identificada con <code class="literal">fontid</code>. El texto es
-una cadena de texto en crudo (variables como <code class="literal">$x</code> no funcionarán) que debe
+Coloca una etiqueta estÃ¡tica en la posiciÃ³n <code class="literal">X,Y</code>. <code class="literal">text</code>
+se muestra usando la tipografÃ­a identificada con <code class="literal">fontid</code>. El texto es
+una cadena de texto en crudo (variables como <code class="literal">$x</code> no funcionarÃ¡n) que debe
 ser encerrada entre comillas dobles (el caracter " no puede ser parte del texto).
-La etiqueta es mostrada usando la tipografía identificada por <code class="literal">fontid</code>.
+La etiqueta es mostrada usando la tipografÃ­a identificada por <code class="literal">fontid</code>.
     </p></dd><dt><span class="term"><code class="literal">
   <a name="skin-dlabel"></a>dlabel = X, Y, length, align, fontid, "text"
   </code></span></dt><dd><p>
-Coloca una etiqueta dinámica en la posición <code class="literal">X,Y</code>. La etiqueta se
-llama dinámica porque su texto es refrescado periódicamente. La longitud máxima de la
+Coloca una etiqueta dinÃ¡mica en la posiciÃ³n <code class="literal">X,Y</code>. La etiqueta se
+llama dinÃ¡mica porque su texto es refrescado periÃ³dicamente. La longitud mÃ¡xima de la
 etiqueta viene dada por <code class="literal">length</code> (su altura es la altura de un caracter).
-Si el texto que ha de ser mostrado es más ancho que esta, será desplazado,
-si no será alineado dentro del espacio especificado por el valor del parámetro
+Si el texto que ha de ser mostrado es mÃ¡s ancho que esta, serÃ¡ desplazado,
+si no serÃ¡ alineado dentro del espacio especificado por el valor del parÃ¡metro
 <code class="literal">align</code>: <code class="literal">0</code> es para derecha,
 <code class="literal">1</code> para centrado, <code class="literal">2</code> para izquierda.
 </p><p>
 El texto que ha de ser mostrado viene dado por <code class="literal">text</code>: Debe ser
 escrito entre comillas dobles (por eso el caracter " no puede ser parte del
-texto). La etiqueta es mostrada usando la tipografía identificada por
+texto). La etiqueta es mostrada usando la tipografÃ­a identificada por
 <code class="literal">fontid</code>. Puede usar las siguientes variables en el texto:
-</p><div class="informaltable"><table border="1"><colgroup><col><col></colgroup><thead><tr><th>Variable</th><th>Significado</th></tr></thead><tbody><tr><td>$1</td><td>tiempo de reproducción en formato <span class="emphasis"><em>hh:mm:ss</em></span></td></tr><tr><td>$2</td><td>tiempo de reproducción en formato <span class="emphasis"><em>mmmm:ss</em></span></td></tr><tr><td>$3</td><td>tiempo de reproducción en formato <span class="emphasis"><em>hh</em></span> (horas)</td></tr><tr><td>$4</td><td>tiempo de reproducción en formato<span class="emphasis"><em>mm</em></span> (minutos)</td></tr><tr><td>$5</td><td>tiempo de reproducción en formato <span class="emphasis"><em>ss</em></span> (segundos)</td></tr><tr><td>$6</td><td>longitud de película en formato <span class="emphasis"><em>hh:mm:ss</em></span></td></tr><tr><td>$7</td><td>longitud de película en formato <span class="emphasis"><em>mmmm:ss</em></span></td></tr><tr><td>$8</td><td>tiempo de reproducción en formato <span class="emphasis"><em>h:mm:ss</em></span></td></tr><tr><td>$v</td><td>volumen en formato <span class="emphasis"><em>xxx.xx</em></span>%</td></tr><tr><td>$V</td><td>volumen en formato <span class="emphasis"><em>xxx.xx</em></span></td></tr><tr><td>$b</td><td>balance en formato <span class="emphasis"><em>xxx.xx</em></span>%</td></tr><tr><td>$B</td><td>balance en formato <span class="emphasis"><em>xxx.xx</em></span></td></tr><tr><td>$$</td><td>el caracter $</td></tr><tr><td>$a</td><td>un caracter de acuerdo con el tipo de audio (ninguno: <code class="literal">n</code>,
-mono: <code class="literal">m</code>, estéreo: <code class="literal">t</code>)</td></tr><tr><td>$t</td><td>número de pista (en lista de reproducción)</td></tr><tr><td>$o</td><td>nombre del archivo</td></tr><tr><td>$f</td><td>nombre del archivo en minúsculas</td></tr><tr><td>$F</td><td>nombre del archivo en mayúsculas</td></tr><tr><td>$T</td><td>un caracter en función del tipo de flujo (archivo: <code class="literal">f</code>,
-Video CD: <code class="literal">v</code>, DVD: <code class="literal">d</code>, URL: <code class="literal">u</code>)</td></tr><tr><td>$p</td><td>el caracter <span class="keycap"><b>p</b></span> (si una película está siendo mostrada y la
-tipografía tiene el caracter <span class="keycap"><b>p</b></span></td></tr><tr><td>$s</td><td>el caracter <span class="keycap"><b>s</b></span> (si la película ha sido detenida y la
-tipografía tiene el caracter <span class="keycap"><b>s</b></span></td></tr><tr><td>$e</td><td>el caracter <span class="keycap"><b>e</b></span> (si se ha pausado la reproducción y la
-tipografía tiene el caracter <span class="keycap"><b>e</b></span></td></tr><tr><td>$x</td><td>ancho de la película</td></tr><tr><td>$y</td><td>alto de la película</td></tr><tr><td>$C</td><td>nombre del codec usado</td></tr></tbody></table></div></dd></dl></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Nota</h3><p>
+</p><div class="informaltable"><table border="1"><colgroup><col><col></colgroup><thead><tr><th>Variable</th><th>Significado</th></tr></thead><tbody><tr><td>$1</td><td>tiempo de reproducciÃ³n en formato <span class="emphasis"><em>hh:mm:ss</em></span></td></tr><tr><td>$2</td><td>tiempo de reproducciÃ³n en formato <span class="emphasis"><em>mmmm:ss</em></span></td></tr><tr><td>$3</td><td>tiempo de reproducciÃ³n en formato <span class="emphasis"><em>hh</em></span> (horas)</td></tr><tr><td>$4</td><td>tiempo de reproducciÃ³n en formato<span class="emphasis"><em>mm</em></span> (minutos)</td></tr><tr><td>$5</td><td>tiempo de reproducciÃ³n en formato <span class="emphasis"><em>ss</em></span> (segundos)</td></tr><tr><td>$6</td><td>longitud de pelÃ­cula en formato <span class="emphasis"><em>hh:mm:ss</em></span></td></tr><tr><td>$7</td><td>longitud de pelÃ­cula en formato <span class="emphasis"><em>mmmm:ss</em></span></td></tr><tr><td>$8</td><td>tiempo de reproducciÃ³n en formato <span class="emphasis"><em>h:mm:ss</em></span></td></tr><tr><td>$v</td><td>volumen en formato <span class="emphasis"><em>xxx.xx</em></span>%</td></tr><tr><td>$V</td><td>volumen en formato <span class="emphasis"><em>xxx.xx</em></span></td></tr><tr><td>$b</td><td>balance en formato <span class="emphasis"><em>xxx.xx</em></span>%</td></tr><tr><td>$B</td><td>balance en formato <span class="emphasis"><em>xxx.xx</em></span></td></tr><tr><td>$$</td><td>el caracter $</td></tr><tr><td>$a</td><td>un caracter de acuerdo con el tipo de audio (ninguno: <code class="literal">n</code>,
+mono: <code class="literal">m</code>, estÃ©reo: <code class="literal">t</code>)</td></tr><tr><td>$t</td><td>nÃºmero de pista (en lista de reproducciÃ³n)</td></tr><tr><td>$o</td><td>nombre del archivo</td></tr><tr><td>$f</td><td>nombre del archivo en minÃºsculas</td></tr><tr><td>$F</td><td>nombre del archivo en mayÃºsculas</td></tr><tr><td>$T</td><td>un caracter en funciÃ³n del tipo de flujo (archivo: <code class="literal">f</code>,
+Video CD: <code class="literal">v</code>, DVD: <code class="literal">d</code>, URL: <code class="literal">u</code>)</td></tr><tr><td>$p</td><td>el caracter <span class="keycap"><b>p</b></span> (si una pelÃ­cula estÃ¡ siendo mostrada y la
+tipografÃ­a tiene el caracter <span class="keycap"><b>p</b></span></td></tr><tr><td>$s</td><td>el caracter <span class="keycap"><b>s</b></span> (si la pelÃ­cula ha sido detenida y la
+tipografÃ­a tiene el caracter <span class="keycap"><b>s</b></span></td></tr><tr><td>$e</td><td>el caracter <span class="keycap"><b>e</b></span> (si se ha pausado la reproducciÃ³n y la
+tipografÃ­a tiene el caracter <span class="keycap"><b>e</b></span></td></tr><tr><td>$x</td><td>ancho de la pelÃ­cula</td></tr><tr><td>$y</td><td>alto de la pelÃ­cula</td></tr><tr><td>$C</td><td>nombre del codec usado</td></tr></tbody></table></div></dd></dl></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Nota</h3><p>
 Las variables <code class="literal">$a, $T, $p, $s</code> y <code class="literal">$e</code> devuelven
-caracteres que deben mostrarse como símbolos especiales (por ejemplo, <span class="keycap"><b>e</b></span>
-es para el símbolo de la pausa que normalmente es algo parecido a ||). Debe tener
-una tipografía para caracteres normales y una diferente para los símbolos. Vea la
-sección acerca de <a href="skin-fonts.html#skin-fonts-symbols" title="C.3.1. Símbolos">símbolos</a> para más
-información.
+caracteres que deben mostrarse como sÃ­mbolos especiales (por ejemplo, <span class="keycap"><b>e</b></span>
+es para el sÃ­mbolo de la pausa que normalmente es algo parecido a ||). Debe tener
+una tipografÃ­a para caracteres normales y una diferente para los sÃ­mbolos. Vea la
+secciÃ³n acerca de <a href="skin-fonts.html#skin-fonts-symbols" title="C.3.1. SÃ­mbolos">sÃ­mbolos</a> para mÃ¡s
+informaciÃ³n.
 </p></div></div><div class="sect2" lang="es"><div class="titlepage"><div><div><h3 class="title"><a name="skin-file-subwindow"></a>C.2.2. Subventana</h3></div></div></div><p>
 Las siguientes entradas pueden ser usadas en el bloque
 '<code class="literal">window = sub</code>' . . . '<code class="literal">end</code>'.
 </p><div class="variablelist"><dl><dt><span class="term"><code class="literal">
   <a name="skin-sub-base"></a>base = image, X, Y, width, height
   </code></span></dt><dd><p>
-La imagen que se mostrará en la ventana. La ventana aparecerá en la posición
+La imagen que se mostrarÃ¡ en la ventana. La ventana aparecerÃ¡ en la posiciÃ³n
 <code class="literal">X,Y</code> dada de la pantalla (<code class="literal">0,0</code> es la
 esquina arriba a la izquierda). Puede especificar <code class="literal">-1</code> para
 el centro y <code class="literal">-2</code> para el lado derecho (<code class="literal">X</code>) y
-abajo (<code class="literal">Y</code>). La ventana será tan grande como sea la imagen.
-<code class="literal">width</code> y <code class="literal">height</code> definen el tamaño de la ventana;
-son opcionales (si no se especifican, la ventana tendrá el mismo tamaño que la imagen).
+abajo (<code class="literal">Y</code>). La ventana serÃ¡ tan grande como sea la imagen.
+<code class="literal">width</code> y <code class="literal">height</code> definen el tamaÃ±o de la ventana;
+son opcionales (si no se especifican, la ventana tendrÃ¡ el mismo tamaÃ±o que la imagen).
     </p></dd><dt><span class="term"><code class="literal">
   <a name="skin-background"></a>background = R, G, B
   </code></span></dt><dd><p>
-Le permite especificar el color de fondo. Es útil si la imagen es más pequeña
+Le permite especificar el color de fondo. Es Ãºtil si la imagen es mÃ¡s pequeÃ±a
 que la ventana. <code class="literal">R</code>, <code class="literal">G</code> y <code class="literal">B</code>
 especifican los valores de las componentes de color para rojo, verde y azul (cada
 uno ha de tener un valor decimal de 0 a 255).
-    </p></dd></dl></div></div><div class="sect2" lang="es"><div class="titlepage"><div><div><h3 class="title"><a name="skin-file-menu"></a>C.2.3. Menú del skin</h3></div></div></div><p>
-Como se mencionó anteriormente, el menú es mostrado usando dos imágenes. Las entradas
-normales para el menú se toman de la imagen especificada por el objeto <code class="literal">base</code>,
-mientras que la entrada que actualmente esté seleccionada es tomada desde la imagen
-especificada por el objeto <code class="literal">selected</code>. Debe definir la posición y el
-tamaño de cada entrada de menú a través del objeto de menú.
+    </p></dd></dl></div></div><div class="sect2" lang="es"><div class="titlepage"><div><div><h3 class="title"><a name="skin-file-menu"></a>C.2.3. MenÃº del skin</h3></div></div></div><p>
+Como se mencionÃ³ anteriormente, el menÃº es mostrado usando dos imÃ¡genes. Las entradas
+normales para el menÃº se toman de la imagen especificada por el objeto <code class="literal">base</code>,
+mientras que la entrada que actualmente estÃ© seleccionada es tomada desde la imagen
+especificada por el objeto <code class="literal">selected</code>. Debe definir la posiciÃ³n y el
+tamaÃ±o de cada entrada de menÃº a travÃ©s del objeto de menÃº.
 </p><p>
 Las siguientes entradas pueden usarse en el bloque de
 '<code class="literal">window = menu</code>'. . .'<code class="literal">end</code>'.
 </p><div class="variablelist"><dl><dt><span class="term"><code class="literal">
   <a name="skin-menu-base"></a>base = image
   </code></span></dt><dd><p>
-La imagen para las entradas normales del menú.
+La imagen para las entradas normales del menÃº.
     </p></dd><dt><span class="term"><code class="literal">
   <a name="skin-selected"></a>selected = image
   </code></span></dt><dd><p>
-La imagen mostrando el menú con todas las entradas seleccionadas.
+La imagen mostrando el menÃº con todas las entradas seleccionadas.
     </p></dd><dt><span class="term"><code class="literal">
   <a name="skin-menu"></a>menu = X, Y, width, height, message
   </code></span></dt><dd><p>
-Define la posición <code class="literal">X,Y</code> y el tamaño de una entrada
-de menú en la imagen. <code class="literal">message</code> es el mensaje que ha de
-generarse cuando el ratón del botón es soltado sobre la entrada.
-    </p></dd></dl></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="skin-overview.html">Anterior</a> </td><td width="20%" align="center"><a accesskey="u" href="skin.html">Subir</a></td><td width="40%" align="right"> <a accesskey="n" href="skin-fonts.html">Siguiente</a></td></tr><tr><td width="40%" align="left" valign="top">C.1. Visión general </td><td width="20%" align="center"><a accesskey="h" href="index.html">Inicio</a></td><td width="40%" align="right" valign="top"> C.3. Tipografías</td></tr></table></div></body></html>
+Define la posiciÃ³n <code class="literal">X,Y</code> y el tamaÃ±o de una entrada
+de menÃº en la imagen. <code class="literal">message</code> es el mensaje que ha de
+generarse cuando el ratÃ³n del botÃ³n es soltado sobre la entrada.
+    </p></dd></dl></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="skin-overview.html">Anterior</a>Â </td><td width="20%" align="center"><a accesskey="u" href="skin.html">Subir</a></td><td width="40%" align="right">Â <a accesskey="n" href="skin-fonts.html">Siguiente</a></td></tr><tr><td width="40%" align="left" valign="top">C.1. VisiÃ³n generalÂ </td><td width="20%" align="center"><a accesskey="h" href="index.html">Inicio</a></td><td width="40%" align="right" valign="top">Â C.3. TipografÃ­as</td></tr></table></div></body></html>

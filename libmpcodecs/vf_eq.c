@@ -12,7 +12,6 @@
 #include "vf.h"
 
 #include "libvo/video_out.h"
-#include "libvo/fastmemcpy.h"
 
 #include "m_option.h"
 #include "m_struct.h"
@@ -21,7 +20,7 @@ static struct vf_priv_s {
 	unsigned char *buf;
 	int brightness;
 	int contrast;
-} vf_priv_dflt = {
+} const vf_priv_dflt = {
   NULL,
   0,
   0

@@ -1,67 +1,80 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2"><title>13.7. Kodowanie z wielu wejściowych plików obrazkowych (JPEG, PNG, TGA, SGI)</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - Odtwarzacz filmów"><link rel="up" href="mencoder.html" title="Rozdział 13. Podstawy używania MEncodera"><link rel="prev" href="menc-feat-streamcopy.html" title="13.6. Kopiowanie strumienia"><link rel="next" href="menc-feat-extractsub.html" title="13.8. Wydobywanie napisów z DVD do pliku VOBsub"><link rel="preface" href="howtoread.html" title="Jak czytać tę dokumentację"><link rel="chapter" href="intro.html" title="Rozdział 1. Wprowadzenie"><link rel="chapter" href="install.html" title="Rozdział 2. Instalacja"><link rel="chapter" href="usage.html" title="Rozdział 3. Sposób użycia"><link rel="chapter" href="cd-dvd.html" title="Rozdział 4. Używanie CD/DVD"><link rel="chapter" href="faq.html" title="Rozdział 5. FAQ - Często Zadawane Pytania"><link rel="chapter" href="formats.html" title="Rozdział 6. Kontenery"><link rel="chapter" href="codecs.html" title="Rozdział 7. Obsługiwane kodeki"><link rel="chapter" href="video.html" title="Rozdział 8. Urządzenia wyjścia video"><link rel="chapter" href="audio.html" title="Rozdział 9. Urządzenia wyjściowe audio"><link rel="chapter" href="tv.html" title="Rozdział 10. TV"><link rel="chapter" href="radio.html" title="Rozdział 11. Radio"><link rel="chapter" href="ports.html" title="Rozdział 12. Porty"><link rel="chapter" href="mencoder.html" title="Rozdział 13. Podstawy używania MEncodera"><link rel="chapter" href="encoding-guide.html" title="Rozdział 14. Kodowanie przy użyciu MEncodera"><link rel="appendix" href="bugreports.html" title="Dodatek A. Jak zgłaszać błędy"><link rel="appendix" href="bugs.html" title="Dodatek B. Znane błędy"><link rel="appendix" href="skin.html" title="Dodatek C. Format skórki MPlayera"><link rel="appendix" href="history.html" title="Dodatek D. Historia"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">13.7. Kodowanie z wielu wejściowych plików obrazkowych (JPEG, PNG, TGA, SGI)</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="menc-feat-streamcopy.html">Poprzedni</a> </td><th width="60%" align="center">Rozdział 13. Podstawy używania <span class="application">MEncodera</span></th><td width="20%" align="right"> <a accesskey="n" href="menc-feat-extractsub.html">Następny</a></td></tr></table><hr></div><div class="sect1" lang="pl"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-enc-images"></a>13.7. Kodowanie z wielu wejściowych plików obrazkowych (JPEG, PNG, TGA, SGI)</h2></div></div></div><p>
-<span class="application">MEncoder</span> jest w stanie stworzyć film z jednego
-lub wielu plików JPEG, PNG lub TGA. Poprzez proste kopiowanie ramek może stworzyć pliki MJPEG
-(Motion (ruchomy - przypis tłumacza) JPEG), MPNG (Motion PNG) lub MTGA (Motion TGA).
-</p><div class="orderedlist"><p class="title"><b>Jak to działa:</b></p><ol type="1"><li><p>
-  <span class="application">MEncoder</span> <span class="emphasis"><em>dekoduje</em></span> wejściowy obrazek/obrazki z pomocą biblioteki
-  <code class="systemitem">libjpeg</code> (w przypadku dekodowania PNG, skorzysta z
-  <code class="systemitem">libpng</code>).
-  </p></li><li><p>
-  Potem <span class="application">MEncoder</span> kompresuje zdekodowane pliki podanym kompresorem
-  (DivX4, XviD, FFmpeg msmpeg4, itd.).
-  </p></li></ol></div><p><b>Przykłady. </b>
-Opis i sposób działania funkcji <tt class="option">-mf</tt> znajdują się na stronie man.
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>13.8. Kodowanie z wielu wejĹciowych plikĂłw obrazkowych (JPEG, PNG, TGA itp.)</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - Odtwarzacz filmĂłw"><link rel="up" href="mencoder.html" title="RozdziaĹ 13. Podstawy uĹźywania MEncodera"><link rel="prev" href="menc-feat-streamcopy.html" title="13.7. Kopiowanie strumieni"><link rel="next" href="menc-feat-extractsub.html" title="13.9. Wydobywanie napisĂłw z DVD do pliku VOBsub"><link rel="preface" href="howtoread.html" title="Jak czytaÄ tÄ dokumentacjÄ"><link rel="chapter" href="intro.html" title="RozdziaĹ 1. Wprowadzenie"><link rel="chapter" href="install.html" title="RozdziaĹ 2. Instalacja"><link rel="chapter" href="usage.html" title="RozdziaĹ 3. SposĂłb uĹźycia"><link rel="chapter" href="cd-dvd.html" title="RozdziaĹ 4. UĹźywanie CD/DVD"><link rel="chapter" href="faq.html" title="RozdziaĹ 5. FAQ - CzÄsto Zadawane Pytania"><link rel="chapter" href="formats.html" title="RozdziaĹ 6. Kontenery"><link rel="chapter" href="codecs.html" title="RozdziaĹ 7. ObsĹugiwane kodeki"><link rel="chapter" href="video.html" title="RozdziaĹ 8. UrzÄdzenia wyjĹcia video"><link rel="chapter" href="audio.html" title="RozdziaĹ 9. UrzÄdzenia wyjĹciowe audio"><link rel="chapter" href="tv.html" title="RozdziaĹ 10. TV"><link rel="chapter" href="radio.html" title="RozdziaĹ 11. Radio"><link rel="chapter" href="ports.html" title="RozdziaĹ 12. Porty"><link rel="chapter" href="mencoder.html" title="RozdziaĹ 13. Podstawy uĹźywania MEncodera"><link rel="chapter" href="encoding-guide.html" title="RozdziaĹ 14. Kodowanie przy uĹźyciu MEncodera"><link rel="appendix" href="bugreports.html" title="Dodatek A. Jak zgĹaszaÄ bĹÄdy"><link rel="appendix" href="bugs.html" title="Dodatek B. Znane bĹÄdy"><link rel="appendix" href="skin.html" title="Dodatek C. Format skĂłrki MPlayera"><link rel="appendix" href="history.html" title="Dodatek D. Historia"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">13.8. Kodowanie z wielu wejĹciowych plikĂłw obrazkowych
+  (JPEG, PNG, TGA itp.)</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="menc-feat-streamcopy.html">Poprzedni</a>Â </td><th width="60%" align="center">RozdziaĹ 13. Podstawy uĹźywania <span class="application">MEncodera</span></th><td width="20%" align="right">Â <a accesskey="n" href="menc-feat-extractsub.html">NastÄpny</a></td></tr></table><hr></div><div class="sect1" lang="pl"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-enc-images"></a>13.8. Kodowanie z wielu wejĹciowych plikĂłw obrazkowych
+  (JPEG, PNG, TGA itp.)</h2></div></div></div><p>
+<span class="application">MEncoder</span> jest w stanie stworzyÄ film z jednego
+lub wielu plikĂłw JPEG, PNG, TGA albo innych obrazkĂłw.
+Poprzez proste kopiowanie ramek moĹźe stworzyÄ pliki MJPEG
+(Motion (ruchomy - przypis tĹumacza) JPEG), MPNG (Motion PNG) lub MTGA (Motion TGA).
+</p><div class="orderedlist"><p class="title"><b>Jak to dziaĹa:</b></p><ol type="1"><li><p>
+  <span class="application">MEncoder</span> <span class="emphasis"><em>dekoduje</em></span> wejĹciowy
+  obrazek/obrazki z pomocÄ biblioteki
+  <code class="systemitem">libjpeg</code> (w przypadku dekodowania
+  PNG, skorzysta z <code class="systemitem">libpng</code>).
+</p></li><li><p>
+  Potem <span class="application">MEncoder</span> kompresuje zdekodowane pliki
+  podanym kompresorem (DivX4, Xvid, FFmpeg msmpeg4, itd.).
+</p></li></ol></div><p><b>PrzykĹady.Â </b>
+Opis i sposĂłb dziaĹania funkcji <tt class="option">-mf</tt> znajdujÄ siÄ na stronie man.
 
 </p><div class="informalexample"><p>
-Tworzenie pliku MPEG-4 ze wszystkich plików JPEG w aktualnym katalogu:
+Tworzenie pliku MPEG-4 ze wszystkich plikĂłw JPEG w aktualnym katalogu:
 </p><pre class="screen">
-mencoder mf://<em class="replaceable"><code>ramka001.jpg,ramka002.jpg</code></em> -mf w=800:h=600:fps=25:type=jpg -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o <em class="replaceable"><code>wyjście.avi</code></em>
+mencoder mf://<em class="replaceable"><code>*.jpg</code></em> -mf w=800:h=600:fps=25:type=jpg -ovc lavc\
+    -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o <em class="replaceable"><code>wyjĹcie.avi</code></em>
 </pre><p>
 </p></div><p>
 
 </p><div class="informalexample"><p>
-Tworzenie plików MPEG-4 z jawnie podanej listy plików JPEG (list.txt w aktualnym
-katalogu, zawiera listę plików, które mają zostać użyte jako źródło, po jednym w każdej linii):
+Tworzenie pliku MPEG-4 z niektĂłrych plikĂłw JPEG w aktualnym katalogu:
+</p><pre class="screen">
+mencoder mf://<em class="replaceable"><code>ramka001.jpg,ramka002.jpg</code></em> -mf w=800:h=600:fps=25:type=jpg \
+    -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o <em class="replaceable"><code>wyjĹcie.avi</code></em>
+</pre><p>
+</p></div><p>
+
+</p><div class="informalexample"><p>
+Tworzenie plikĂłw MPEG-4 z jawnie podanej listy plikĂłw JPEG (list.txt w aktualnym
+katalogu, zawiera listÄ plikĂłw, ktĂłre majÄ zostaÄ uĹźyte jako ĹşrĂłdĹo, po jednym
+w kaĹźdym wierszu):
 </p><pre class="screen">
 mencoder mf://<em class="replaceable"><code>@list.txt</code></em> -mf w=800:h=600:fps=25:type=jpg \ 
--ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o <em class="replaceable"><code>wyjscie.avi</code></em>
+    -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o <em class="replaceable"><code>wyjĹcie.avi</code></em>
+</pre><p>
+</p></div><p>
+
+MoĹźesz mieszaÄ rĂłzne typy obrazkĂłw, niezaleĹźnie od uĹźywanej metody
+â wymieniane pliki, znaki globalne czy plik z listÄ â o ile
+oczywiĹcie wszystkie majÄ te same wymiary.
+MoĹźesz wiÄc n.p. zrobiÄ klatkÄ tytuĹowÄ z obrazka PNG a potem umieĹciÄ pokaz
+swoich zdjÄÄ JPEG.
+
+</p><div class="informalexample"><p>
+Tworzenie pliku Motion JPEG (MJPEG) ze wszystkich plikĂłw JPEG w aktualnym katalogu:
+</p><pre class="screen">
+mencoder mf://*.jpg -mf w=800:h=600:fps=25:type=jpg -ovc copy -ovc copy -o <em class="replaceable"><code>wyjĹcie.avi</code></em>
 </pre><p>
 </p></div><p>
 
 </p><div class="informalexample"><p>
-Tworzenie pliku MPEG-4 z wybranych plików JPEG w aktualnym katalogu:
+Tworzenie nieskompresowanego pliku ze wszystkich plikĂłw PNG w aktualnym katalogu:
 </p><pre class="screen">
-mencoder mf://<em class="replaceable"><code>klatka001.jpg,klatka002.jpg</code></em> -mf w=800:h=600:fps=25:type=jpg -ovc lavc -lavcopts vcodec=mpeg4 -oac copy -o <em class="replaceable"><code>wyjscie.avi</code></em>
-</pre><p>
-</p></div><p>
-
-</p><div class="informalexample"><p>
-Tworzenie pliku Motion JPEG (MJPEG) ze wszystkich plików JPEG w aktualnym katalogu:
-</p><pre class="screen">
-mencoder mf://*.jpg -mf w=800:h=600:fps=25:type=jpg -ovc copy -ovc copy -o <em class="replaceable"><code>wyjście.avi</code></em>
-</pre><p>
-</p></div><p>
-
-</p><div class="informalexample"><p>
-Tworzenie nieskompresowanego pliku ze wszystkich plików PNG w aktualnym katalogu:
-</p><pre class="screen">
-mencoder mf://*.png -mf w=800:h=600:fps=25:type=png -ovc raw -oac copy -o <em class="replaceable"><code>output.avi</code></em>
+mencoder mf://*.png -mf w=800:h=600:fps=25:type=png -ovc raw -oac copy -o <em class="replaceable"><code>wyjĹcie.avi</code></em>
 </pre><p>
 </p></div><p>
 
 </p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Informacja:</h3><p>
-Szerokość musi być liczbą podzielną przez 4, takie są ograniczenia formatu RAW RGB AVI.
+SzerokoĹÄ musi byÄ liczbÄ podzielnÄ przez 4, takie sÄ ograniczenia formatu RAW RGB AVI.
 </p></div><p>
 
 </p><div class="informalexample"><p>
-Tworzenie pliku Motion PNG (MPNG) ze wszystkich plików PNG w aktualnym katalogu:
-</p><pre class="screen">mencoder mf://*.png -mf w=800:h=600:fps=25:type=png -ovc copy -oac copy -o <em class="replaceable"><code>wyjscie.avi</code></em> </pre><p>
+Tworzenie pliku Motion PNG (MPNG) ze wszystkich plikĂłw PNG w aktualnym katalogu:
+</p><pre class="screen">mencoder mf://*.png -mf w=800:h=600:fps=25:type=png -ovc copy -oac copy -o <em class="replaceable"><code>wyjĹcie.avi</code></em></pre><p>
 </p></div><p>
 
 </p><div class="informalexample"><p>
-Tworzenie pliku Motion TGA (MTGA) ze wszystkich plików TGA w aktualnym katalogu:
+Tworzenie pliku Motion TGA (MTGA) ze wszystkich plikĂłw TGA w aktualnym katalogu:
 </p><pre class="screen">
-mencoder mf://*.tga -mf w=800:h=600:fps=25:type=tga -ovc copy -oac copy -o <em class="replaceable"><code>wyjscie.avi</code></em></pre><p>
+mencoder mf://*.tga -mf w=800:h=600:fps=25:type=tga -ovc copy -oac copy -o <em class="replaceable"><code>wyjĹcie.avi</code></em></pre><p>
 </p></div><p>
 
-</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="menc-feat-streamcopy.html">Poprzedni</a> </td><td width="20%" align="center"><a accesskey="u" href="mencoder.html">Początek rozdziału</a></td><td width="40%" align="right"> <a accesskey="n" href="menc-feat-extractsub.html">Następny</a></td></tr><tr><td width="40%" align="left" valign="top">13.6. Kopiowanie strumienia </td><td width="20%" align="center"><a accesskey="h" href="index.html">Spis treści</a></td><td width="40%" align="right" valign="top"> 13.8. Wydobywanie napisów z DVD do pliku VOBsub</td></tr></table></div></body></html>
+</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="menc-feat-streamcopy.html">Poprzedni</a>Â </td><td width="20%" align="center"><a accesskey="u" href="mencoder.html">PoczÄtek rozdziaĹu</a></td><td width="40%" align="right">Â <a accesskey="n" href="menc-feat-extractsub.html">NastÄpny</a></td></tr><tr><td width="40%" align="left" valign="top">13.7. Kopiowanie strumieniÂ </td><td width="20%" align="center"><a accesskey="h" href="index.html">Spis treĹci</a></td><td width="40%" align="right" valign="top">Â 13.9. Wydobywanie napisĂłw z DVD do pliku VOBsub</td></tr></table></div></body></html>

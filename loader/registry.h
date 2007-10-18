@@ -11,7 +11,7 @@
 /*
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: registry.h 18786 2006-06-22 13:34:00Z diego $
+ * $Id: registry.h 24442 2007-09-13 08:50:21Z diego $
  */
 
 #ifdef __cplusplus
@@ -31,7 +31,7 @@ long __stdcall RegCreateKeyExA(long key, const char* name, long reserved,
 long __stdcall RegSetValueExA(long key, const char* name, long v1, long v2,
 		    const void* data, long size);
 
-#ifdef __WINE_WINERROR_H
+#ifdef WINE_WINERROR_H
 
 long __stdcall RegEnumKeyExA(HKEY hKey, DWORD dwIndex, LPSTR lpName, LPDWORD lpcbName,
 		   LPDWORD lpReserved, LPSTR lpClass, LPDWORD lpcbClass,

@@ -470,7 +470,7 @@ static int asf_http_streaming_read( int fd, char *buffer, int size, streaming_ct
       if (drop_chunk) continue;
     }
     if (rest == 0 && waiting > 0 && size-read > 0) {
-      int s = MIN(waiting,size-read);
+      int s = FFMIN(waiting,size-read);
       memset(buffer+read,0,s);
       waiting -= s;
       read += s;
@@ -534,7 +534,6 @@ static int asf_http_streaming_type(char *content_type, char *features, HTTP_head
 				(!strcasecmp(content_type, "audio/x-ms-wma")) ||
 				(!strcasecmp(content_type, "video/x-ms-asf")) ||
 				(!strcasecmp(content_type, "video/x-ms-afs")) ||
-				(!strcasecmp(content_type, "video/x-ms-wvx")) ||
 				(!strcasecmp(content_type, "video/x-ms-wmv")) ||
 				(!strcasecmp(content_type, "video/x-ms-wma")) ) {
 				mp_msg(MSGT_NETWORK,MSGL_ERR,MSGTR_MPDEMUX_ASF_ASFRedirector);
@@ -745,8 +744,7 @@ static int asf_http_streaming_start( stream_t *stream, int *demuxer_type ) {
 			int r = send( fd, http_hdr->buffer+i, http_hdr->buffer_size-i, 0 );
 			if(r <0) {
 				mp_msg(MSGT_NETWORK,MSGL_ERR,MSGTR_MPDEMUX_ASF_SocketWriteError,strerror(errno));
-				http_free( http_hdr );
-				return -1;
+				goto err_out;
 			}
 			i += r;
 		}       
@@ -757,8 +755,7 @@ static int asf_http_streaming_start( stream_t *stream, int *demuxer_type ) {
 //printf("read: %d\n", i );
 			if( i<=0 ) {
 				perror("read");
-				http_free( http_hdr );
-				return -1;
+				goto err_out;
 			}
 			http_response_append( http_hdr, buffer, i );
 		} while( !http_is_header_entire( http_hdr ) );
@@ -769,8 +766,7 @@ static int asf_http_streaming_start( stream_t *stream, int *demuxer_type ) {
 		ret = asf_http_parse_response(asf_http_ctrl, http_hdr);
 		if( ret<0 ) {
 			mp_msg(MSGT_NETWORK,MSGL_ERR,MSGTR_MPDEMUX_ASF_HeaderParseFailed);
-			http_free( http_hdr );
-			return -1;
+			goto err_out;
 		}
 		switch( asf_http_ctrl->streaming_type ) {
 			case ASF_Live_e:
@@ -778,18 +774,17 @@ static int asf_http_streaming_start( stream_t *stream, int *demuxer_type ) {
 			case ASF_PlainText_e:
 				if( http_hdr->body_size>0 ) {
 					if( streaming_bufferize( stream->streaming_ctrl, http_hdr->body, http_hdr->body_size )<0 ) {
-						http_free( http_hdr );
-						return -1;
+						goto err_out;
 					}
 				}
 				if( asf_http_ctrl->request==1 ) {
 					if( asf_http_ctrl->streaming_type!=ASF_PlainText_e ) {
 						// First request, we only got the ASF header.
 						ret = asf_streaming_parse_header(fd,stream->streaming_ctrl);
-						if(ret < 0) return -1;
+						if(ret < 0) goto err_out;
 						if(asf_http_ctrl->n_audio == 0 && asf_http_ctrl->n_video == 0) {
 							mp_msg(MSGT_NETWORK,MSGL_ERR,MSGTR_MPDEMUX_ASF_NoStreamFound);
-							return -1;
+							goto err_out;
 						}
 						asf_http_ctrl->request++;
 						done = 0;
@@ -801,8 +796,7 @@ static int asf_http_streaming_start( stream_t *stream, int *demuxer_type ) {
 			case ASF_Redirector_e:
 				if( http_hdr->body_size>0 ) {
 					if( streaming_bufferize( stream->streaming_ctrl, http_hdr->body, http_hdr->body_size )<0 ) {
-						http_free( http_hdr );
-						return -1;
+						goto err_out;
 					}
 				}
 				*demuxer_type = DEMUXER_TYPE_PLAYLIST;
@@ -816,9 +810,7 @@ static int asf_http_streaming_start( stream_t *stream, int *demuxer_type ) {
 			case ASF_Unknown_e:
 			default:
 				mp_msg(MSGT_NETWORK,MSGL_ERR,MSGTR_MPDEMUX_ASF_UnknownASFStreamingType);
-				closesocket(fd);
-				http_free( http_hdr );
-				return -1;
+				goto err_out;
 		}
 	// Check if we got a redirect.	
 	} while(!done);
@@ -837,6 +829,13 @@ static int asf_http_streaming_start( stream_t *stream, int *demuxer_type ) {
 
 	http_free( http_hdr );
 	return 0;
+
+err_out:
+	if (fd > 0)
+		closesocket(fd);
+	stream->fd = -1;
+	http_free(http_hdr);
+	return -1;
 }
 
 static int open_s(stream_t *stream,int mode, void* opts, int* file_format) {
@@ -855,14 +854,14 @@ static int open_s(stream_t *stream,int mode, void* opts, int* file_format) {
 	if((!strncmp(stream->url, "http", 4)) && (*file_format!=DEMUXER_TYPE_ASF && *file_format!=DEMUXER_TYPE_UNKNOWN)) {
 		streaming_ctrl_free(stream->streaming_ctrl);
 		stream->streaming_ctrl = NULL;
-		return STREAM_UNSUPORTED;
+		return STREAM_UNSUPPORTED;
 	}
 
 	if(asf_streaming_start(stream, file_format) < 0) {
 		mp_msg(MSGT_OPEN, MSGL_ERR, MSGTR_MPDEMUX_ASF_StreamingFailed);
 		streaming_ctrl_free(stream->streaming_ctrl);
 		stream->streaming_ctrl = NULL;
-		return STREAM_UNSUPORTED;
+		return STREAM_UNSUPPORTED;
 	}
 	
 	*file_format = DEMUXER_TYPE_ASF;

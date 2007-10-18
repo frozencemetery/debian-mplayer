@@ -20,12 +20,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-
-#ifdef CONFIG_DARWIN
-#define AVV(x...) (x)
-#else
-#define AVV(x...) {x}
-#endif
+#include "avutil.h"
 
 #define ALTIVEC_TRANSPOSE_8x8_SHORT(src_a,src_b,src_c,src_d,src_e,src_f,src_g,src_h) \
   do {                                                                  \
@@ -67,7 +62,7 @@ static inline int vertClassify_altivec(uint8_t src[], int stride, PPContext *c) 
     vector by assuming (stride % 16) == 0, unfortunately
     this is not always true.
   */
-  short __attribute__ ((aligned(16))) data[8];
+  DECLARE_ALIGNED(16, short, data[8]);
   int numEq;
   uint8_t *src2 = src;
   vector signed short v_dcOffset;
@@ -206,7 +201,7 @@ static inline void doVertLowPass_altivec(uint8_t *src, int stride, PPContext *c)
   const vector signed int zero = vec_splat_s32(0);
   const int properStride = (stride % 16);
   const int srcAlign = ((unsigned long)src2 % 16);
-  short __attribute__ ((aligned(16))) qp[8];
+  DECLARE_ALIGNED(16, short, qp[8]);
   qp[0] = c->QP;
   vector signed short vqp = vec_ld(0, qp);
   vqp = vec_splat(vqp, 0);
@@ -392,7 +387,7 @@ static inline void doVertDefFilter_altivec(uint8_t src[], int stride, PPContext 
   */
   uint8_t *src2 = src;
   const vector signed int zero = vec_splat_s32(0);
-  short __attribute__ ((aligned(16))) qp[8];
+  DECLARE_ALIGNED(16, short, qp[8]);
   qp[0] = 8*c->QP;
   vector signed short vqp = vec_ld(0, qp);
   vqp = vec_splat(vqp, 0);
@@ -515,7 +510,7 @@ static inline void dering_altivec(uint8_t src[], int stride, PPContext *c) {
     src & stride :-(
   */
   uint8_t *srcCopy = src;
-  uint8_t __attribute__((aligned(16))) dt[16];
+  DECLARE_ALIGNED(16, uint8_t, dt[16]);
   const vector signed int zero = vec_splat_s32(0);
   vector unsigned char v_dt;
   dt[0] = deringThreshold;
@@ -579,7 +574,7 @@ static inline void dering_altivec(uint8_t src[], int stride, PPContext *c) {
     v_avg = vec_avg(v_min, v_max);
   }
 
-  signed int __attribute__((aligned(16))) S[8];
+  DECLARE_ALIGNED(16, signed int, S[8]);
   {
     const vector unsigned short mask1 = (vector unsigned short)
       AVV(0x0001, 0x0002, 0x0004, 0x0008,
@@ -675,7 +670,7 @@ static inline void dering_altivec(uint8_t src[], int stride, PPContext *c) {
   /* I'm not sure the following is actually faster
      than straight, unvectorized C code :-( */
 
-  int __attribute__((aligned(16))) tQP2[4];
+  DECLARE_ALIGNED(16, int, tQP2[4]);
   tQP2[0]= c->QP/2 + 1;
   vector signed int vQP2 = vec_ld(0, tQP2);
   vQP2 = vec_splat(vQP2, 0);

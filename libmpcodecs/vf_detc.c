@@ -53,40 +53,6 @@ enum {
 	TC_IL2
 };
 
-static inline void *my_memcpy_pic(void * dst, void * src, int bytesPerLine, int height, int dstStride, int srcStride)
-{
-	int i;
-	void *retval=dst;
-
-	for(i=0; i<height; i++)
-	{
-		memcpy(dst, src, bytesPerLine);
-		src+= srcStride;
-		dst+= dstStride;
-	}
-
-	return retval;
-}
-
-static unsigned int hash_pic(unsigned char *img, int w, int h, int stride)
-{
-	int step = w*h/1024;
-	unsigned int hash=0;
-	int x=0, y;
-
-	step -= step % 3;
-
-	for (y=0; y<h; y++) {
-		for (; x<w; x+=step) {
-			hash = hash ^ (hash<<4) ^ img[x];
-		}
-		x -= w;
-		img += stride;
-	}
-	
-	return hash;
-}
-
 static void block_diffs(struct metrics *m, unsigned char *old, unsigned char *new, int os, int ns)
 {
 	int x, y, even=0, odd=0, noise, temp;

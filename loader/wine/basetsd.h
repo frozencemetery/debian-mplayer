@@ -6,15 +6,13 @@
 /*
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: basetsd.h 18786 2006-06-22 13:34:00Z diego $
+ * $Id: basetsd.h 24442 2007-09-13 08:50:21Z diego $
  */
 
-#ifndef __WINE_BASETSD_H
-#define __WINE_BASETSD_H
+#ifndef WINE_BASETSD_H
+#define WINE_BASETSD_H
 
-#ifdef __WINE__
 #include "config.h"
-#endif /* defined(__WINE__) */
 
 #ifdef __cplusplus
 extern "C" {
@@ -172,7 +170,4 @@ typedef UINT_PTR SIZE_T, *PSIZE_T;
 } /* extern "C" */
 #endif /* defined(__cplusplus) */
 
-#endif /* !defined(__WINE_BASETSD_H) */
-
-
-
+#endif /* !defined(WINE_BASETSD_H) */

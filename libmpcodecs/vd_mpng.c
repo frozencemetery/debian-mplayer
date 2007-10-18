@@ -6,7 +6,8 @@
 
 #include <png.h>
 
-#include "bswap.h"
+#include "libavutil/common.h"
+#include "mpbswap.h"
 #include "libvo/fastmemcpy.h"
 
 #include "vd_internal.h"
@@ -57,7 +58,7 @@ static void pngReadFN( png_structp pngstr,png_bytep buffer,png_size_t size )
 {
  char * p = pngstr->io_ptr;
  if(size>pngLength-pngPointer && pngLength>=pngPointer) size=pngLength-pngPointer;
- memcpy( buffer,(char *)&p[pngPointer],size );
+ fast_memcpy( buffer,(char *)&p[pngPointer],size );
  pngPointer+=size;
 }
 

@@ -5,7 +5,7 @@
  * Artur Zaprzala <zybi@fanthom.irc.pl>
  *
  * ported inside mplayer by Jindrich Makovicka 
- * <makovick@kmlinux.fjfi.cvut.cz>
+ * <makovick@gmail.com>
  *
  */
 
@@ -28,17 +28,17 @@
 #include <fontconfig/fontconfig.h>
 #endif
 
-#include "bswap.h"
+#include "libavutil/common.h"
+#include "mpbswap.h"
 #include "font_load.h"
 #include "mp_msg.h"
 #include "mplayer.h"
+#include "get_path.h"
 #include "osd_font.h"
 
 #if (FREETYPE_MAJOR > 2) || (FREETYPE_MAJOR == 2 && FREETYPE_MINOR >= 1)
 #define HAVE_FREETYPE21
 #endif
-
-char *get_path(const char *filename);
 
 char *subtitle_font_encoding = NULL;
 float text_font_scale_factor = 5.0;
@@ -453,22 +453,6 @@ void blur(
     }
 }
 
-// Gaussian matrix
-static unsigned gmatrix(unsigned char *m, int r, int w, double const A) {
-    unsigned volume = 0;		// volume under Gaussian area is exactly -pi*base/A
-    int mx, my;
-
-    for (my = 0; my<w; ++my) {
-	for (mx = 0; mx<w; ++mx) {
-	    m[mx+my*w] = (exp(A * ((mx-r)*(mx-r)+(my-r)*(my-r))) * base + .5);
-	    volume+= m[mx+my*w];
-	}
-    }
-    mp_msg(MSGT_OSD, MSGL_DBG2, "A= %f\n", A);
-    mp_msg(MSGT_OSD, MSGL_DBG2, "volume: %i; exact: %.0f; volume/exact: %.6f\n\n", volume, -M_PI*base/A, volume/(-M_PI*base/A));
-    return volume;
-}
-
 static void resample_alpha(unsigned char *abuf, unsigned char *bbuf, int width, int height, int stride, float factor)
 {
         int f=factor*256.0f;
@@ -795,6 +779,8 @@ static int prepare_charset(char *charmap, char *encoding, FT_ULong *charset, FT_
 static int prepare_charset_unicode(FT_Face face, FT_ULong *charset, FT_ULong *charcodes) {
 #ifdef HAVE_FREETYPE21
     FT_ULong  charcode;
+#else
+    int j;
 #endif
     FT_UInt   gindex;
     int i;
@@ -816,7 +802,6 @@ static int prepare_charset_unicode(FT_Face face, FT_ULong *charset, FT_ULong *ch
     }
 #else
     // for FT < 2.1 we have to use brute force enumeration
-    int j;
     i = 0;
     for (j = 33; j < 65536; j++) {
 	gindex = FT_Get_Char_Index(face, j);
@@ -940,7 +925,7 @@ int kerning(font_desc_t *desc, int prevc, int c)
 {
     FT_Vector kern;
     
-    if (!vo_font->dynamic) return 0;
+    if (!desc->dynamic) return 0;
     if (prevc < 0 || c < 0) return 0;
     if (desc->font[prevc] != desc->font[c]) return 0;
     if (desc->font[prevc] == -1 || desc->font[c] == -1) return 0;
@@ -1135,13 +1120,15 @@ int done_freetype(void)
     return 0;
 }
 
-void load_font_ft(int width, int height) 
+void load_font_ft(int width, int height, font_desc_t** fontp, const char *font_name) 
 {
 #ifdef HAVE_FONTCONFIG
     FcPattern *fc_pattern;
+    FcPattern *fc_pattern2;
     FcChar8 *s;
     FcBool scalable;
 #endif
+    font_desc_t *vo_font = *fontp;
     vo_image_width = width;
     vo_image_height = height;
 
@@ -1150,7 +1137,6 @@ void load_font_ft(int width, int height)
 
     if (vo_font) free_font_desc(vo_font);
 
-#ifdef USE_OSD
 #ifdef HAVE_FONTCONFIG
     if (font_fontconfig)
     {
@@ -1160,21 +1146,25 @@ void load_font_ft(int width, int height)
 	fc_pattern = FcNameParse(font_name);
 	FcConfigSubstitute(0, fc_pattern, FcMatchPattern);
 	FcDefaultSubstitute(fc_pattern);
+	fc_pattern2 = fc_pattern;
 	fc_pattern = FcFontMatch(0, fc_pattern, 0);
+	FcPatternDestroy(fc_pattern2);
 	FcPatternGetBool(fc_pattern, FC_SCALABLE, 0, &scalable);
 	if (scalable != FcTrue) {
+	    FcPatternDestroy(fc_pattern);
     	    fc_pattern = FcNameParse("sans-serif");
     	    FcConfigSubstitute(0, fc_pattern, FcMatchPattern);
     	    FcDefaultSubstitute(fc_pattern);
+	    fc_pattern2 = fc_pattern;
     	    fc_pattern = FcFontMatch(0, fc_pattern, 0);
+	    FcPatternDestroy(fc_pattern2);
 	}
 	// s doesn't need to be freed according to fontconfig docs
 	FcPatternGetString(fc_pattern, FC_FILE, 0, &s);
-	vo_font=read_font_desc_ft(s, width, height);
-	free(fc_pattern);
+	*fontp=read_font_desc_ft(s, width, height);
+	FcPatternDestroy(fc_pattern);
     }
     else
 #endif
-    vo_font=read_font_desc_ft(font_name, width, height);
-#endif
+    *fontp=read_font_desc_ft(font_name, width, height);
 }

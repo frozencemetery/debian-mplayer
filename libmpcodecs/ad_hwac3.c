@@ -15,6 +15,7 @@
 
 #include "mp_msg.h"
 #include "help_mp.h"
+#include "mpbswap.h"
 
 #include "ad_internal.h"
 
@@ -27,7 +28,7 @@ static ad_info_t info =
 {
   "AC3/DTS pass-through S/PDIF",
   "hwac3",
-  "Nick Kurshev/Peter Schüller",
+  "Nick Kurshev/Peter SchÃ¼ller",
   "???",
   ""
 };
@@ -158,18 +159,21 @@ static int decode_audio(sh_audio_t *sh_audio,unsigned char *buf,int minlen,int m
   }
   else if(isdts == 0)
   {
-    buf[0] = 0x72;
-    buf[1] = 0xF8;
-    buf[2] = 0x1F;
-    buf[3] = 0x4E;
-    buf[4] = 0x01; //(length) ? data_type : 0; /* & 0x1F; */
-    buf[5] = 0x00;
-    buf[6] = (len << 3) & 0xFF;
-    buf[7] = (len >> 5) & 0xFF;
+    uint16_t *buf16 = (uint16_t *)buf;
+    buf16[0] = 0xF872;   // iec 61937 syncword 1
+    buf16[1] = 0x4E1F;   // iec 61937 syncword 2
+    buf16[2] = 0x0001;   // data-type ac3
+    buf16[2] |= (sh_audio->a_in_buffer[5] & 0x7) << 8; // bsmod
+    buf16[3] = len << 3; // number of bits in payload
 #ifdef WORDS_BIGENDIAN
-    memcpy(buf + 8, sh_audio->a_in_buffer, len);  // untested
+    memcpy(buf + 8, sh_audio->a_in_buffer, len);
 #else
     swab(sh_audio->a_in_buffer, buf + 8, len);
+    if (len & 1) {
+      buf[8+len-1] = 0;
+      buf[8+len] = sh_audio->a_in_buffer[len-1];
+      len++;
+    }
 #endif
     memset(buf + 8 + len, 0, 6144 - 8 - len);
 
@@ -180,7 +184,7 @@ static int decode_audio(sh_audio_t *sh_audio,unsigned char *buf,int minlen,int m
 }
 
 
-static int DTS_SAMPLEFREQS[16] =
+static const int DTS_SAMPLEFREQS[16] =
 {
   0,
   8000,
@@ -200,7 +204,7 @@ static int DTS_SAMPLEFREQS[16] =
   192000
 };
 
-static int DTS_BITRATES[30] =
+static const int DTS_BITRATES[30] =
 {
   32000,
   56000,
@@ -326,6 +330,7 @@ static int decode_audio_dts(unsigned char *indata_ptr, int len, unsigned char *b
   int sfreq;
   int burst_len;
   int nr_samples;
+  uint16_t *buf16 = (uint16_t *)buf;
 
   fsize = dts_decode_header(indata_ptr, &rate, &nblks, &sfreq);
   if(fsize < 0)
@@ -334,39 +339,39 @@ static int decode_audio_dts(unsigned char *indata_ptr, int len, unsigned char *b
   burst_len = fsize * 8;
   nr_samples = nblks * 32;
 
-  buf[0] = 0x72; buf[1] = 0xf8; /* iec 61937     */
-  buf[2] = 0x1f; buf[3] = 0x4e; /*  syncword     */
+  buf16[0] = 0xf872; /* iec 61937     */
+  buf16[1] = 0x4e1f; /*  syncword     */
   switch(nr_samples) 
   {
   case 512:
-    buf[4] = 0x0b;      /* DTS-1 (512-sample bursts) */
+    buf16[2] = 0x000b;      /* DTS-1 (512-sample bursts) */
     break;
   case 1024:
-    buf[4] = 0x0c;      /* DTS-2 (1024-sample bursts) */
+    buf16[2] = 0x000c;      /* DTS-2 (1024-sample bursts) */
     break;
   case 2048:
-    buf[4] = 0x0d;      /* DTS-3 (2048-sample bursts) */
+    buf16[2] = 0x000d;      /* DTS-3 (2048-sample bursts) */
     break;
   default:
     mp_msg(MSGT_DECAUDIO, MSGL_ERR, "DTS: %d-sample bursts not supported\n", nr_samples);
-    buf[4] = 0x00;
+    buf16[2] = 0x0000;
     break;
   }
-  buf[5] = 0;                      /* ?? */    
-  buf[6] = (burst_len) & 0xff;   
-  buf[7] = (burst_len >> 8) & 0xff;
+  buf16[3] = burst_len;
  
   if(fsize + 8 > nr_samples * 2 * 2)
   {
     mp_msg(MSGT_DECAUDIO, MSGL_ERR, "DTS: more data than fits\n");
   }
 #ifdef WORDS_BIGENDIAN
-  memcpy(&buf[8], indata_ptr, fsize);  // untested
+  memcpy(&buf[8], indata_ptr, fsize);
 #else
-  //TODO if fzise is odd, swab doesn't copy the last byte
   swab(indata_ptr, &buf[8], fsize);
-  if (fsize & 1)
-    buf[8+fsize] = indata_ptr[fsize];
+  if (fsize & 1) {
+    buf[8+fsize-1] = 0;
+    buf[8+fsize] = indata_ptr[fsize-1];
+    fsize++;
+  }
 #endif
   memset(&buf[fsize + 8], 0, nr_samples * 2 * 2 - (fsize + 8));
 

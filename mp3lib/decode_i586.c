@@ -1,7 +1,7 @@
 /*
  * Modified for use with MPlayer, for details see the changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: decode_i586.c 18786 2006-06-22 13:34:00Z diego $
+ * $Id: decode_i586.c 23452 2007-06-02 16:25:18Z zuxy $
  */
 
 /*
@@ -27,15 +27,15 @@
 *
 * Stefan Bieschewski <stb@acm.org>
 *
-* $Id: decode_i586.c 18786 2006-06-22 13:34:00Z diego $
+* $Id: decode_i586.c 23452 2007-06-02 16:25:18Z zuxy $
 */
 #include "config.h"
 #include "mangle.h"
 #define real float /* ugly - but only way */
 
-static long attribute_used buffs[1088]={0};
-static long attribute_used bo=1;
-static long attribute_used saved_ebp=0;
+static int attribute_used buffs[1088]={0};
+static int attribute_used bo=1;
+static int attribute_used saved_ebp=0;
 
 int synth_1to1_pent(real *bandPtr, int channel, short *samples)
 {
@@ -313,6 +313,6 @@ int synth_1to1_pent(real *bandPtr, int channel, short *samples)
 "        movl "MANGLE(saved_ebp)",%%ebp\n\t"
 	:"=a"(retval)
 	:"m"(bandPtr),"m"(channel),"m"(samples),"m"(tmp[0])
-	:"memory","%edi","%esi","%ebx");
+	:"memory","%edi","%esi","%ebx","%ecx","%edx");
   return retval;
 }

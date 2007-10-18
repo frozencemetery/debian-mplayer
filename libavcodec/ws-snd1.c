@@ -57,11 +57,19 @@ static int ws_snd_decode_frame(AVCodecContext *avctx,
     if (!buf_size)
         return 0;
 
-    out_size = LE_16(&buf[0]);
+    out_size = AV_RL16(&buf[0]);
     *data_size = out_size * 2;
-    in_size = LE_16(&buf[2]);
+    in_size = AV_RL16(&buf[2]);
     buf += 4;
 
+    if (out_size > *data_size) {
+        av_log(avctx, AV_LOG_ERROR, "Frame is too large to fit in buffer\n");
+        return -1;
+    }
+    if (in_size > buf_size) {
+        av_log(avctx, AV_LOG_ERROR, "Frame data is larger than input buffer\n");
+        return -1;
+    }
     if (in_size == out_size) {
         for (i = 0; i < out_size; i++)
             *samples++ = (*buf++ - 0x80) << 8;

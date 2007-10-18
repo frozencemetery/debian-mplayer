@@ -5,16 +5,14 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "stream.h"
+#include "stream/stream.h"
 #include "demuxer.h"
 #include "stheader.h"
 #include "genres.h"
 #include "mp3_hdr.h"
+#include "libavutil/intreadwrite.h"
 
 #include <string.h>
-#ifdef MP_DEBUG
-#include <assert.h>
-#endif
 
 #define MP3 1
 #define WAV 2
@@ -25,14 +23,14 @@
 
 typedef struct da_priv {
   int frmt;
-  float last_pts;
+  double next_pts;
 } da_priv_t;
 
 //! rather arbitrary value for maximum length of wav-format headers
 #define MAX_WAVHDR_LEN (1 * 1024 * 1024)
 
-// how many valid frames in a row we need before accepting as valid MP3
-#define MIN_MP3_HDRS 5
+//! how many valid frames in a row we need before accepting as valid MP3
+#define MIN_MP3_HDRS 12
 
 //! Used to describe a potential (chain of) MP3 headers we found
 typedef struct mp3_hdr {
@@ -211,29 +209,26 @@ get_flac_metadata (demuxer_t* demuxer)
 
       uint32_t length, comment_list_len;
       char comments[blk_len];
-      void *ptr = comments;
+      uint8_t *ptr = comments;
       char *comment;
       int cn;
       char c;
 
       if (stream_read (s, comments, blk_len) == blk_len)
       {
-        uint8_t *p = ptr;
-        length = p[0] + (p[1] << 8) + (p[2] << 16) + (p[3] << 24);
+        length = AV_RL32(ptr);
         ptr += 4 + length;
 
-        p = ptr;
-        comment_list_len = p[0] + (p[1] << 8) + (p[2] << 16) + (p[3] << 24);
+        comment_list_len = AV_RL32(ptr);
         ptr += 4;
 
         cn = 0;
         for (; cn < comment_list_len; cn++)
         {
-          p = ptr;
-          length = p[0] + (p[1] << 8) + (p[2] << 16) + (p[3] << 24);
+          length = AV_RL32(ptr);
           ptr += 4;
 
-          comment = (char *) ptr;
+          comment = ptr;
           c = comment[length];
           comment[length] = 0;
 
@@ -286,10 +281,6 @@ static int demux_audio_open(demuxer_t* demuxer) {
   // mp3_hdrs list is sorted first by next_frame_pos and then by frame_pos
   mp3_hdr_t *mp3_hdrs = NULL, *mp3_found = NULL;
   da_priv_t* priv;
-#ifdef MP_DEBUG
-  assert(demuxer != NULL);
-  assert(demuxer->stream != NULL);
-#endif
   
   s = demuxer->stream;
 
@@ -423,7 +414,8 @@ static int demux_audio_open(demuxer_t* demuxer) {
     w->nSamplesPerSec = sh_audio->samplerate = stream_read_dword_le(s);
     w->nAvgBytesPerSec = stream_read_dword_le(s);
     w->nBlockAlign = stream_read_word_le(s);
-    w->wBitsPerSample = sh_audio->samplesize = stream_read_word_le(s);
+    w->wBitsPerSample = stream_read_word_le(s);
+    sh_audio->samplesize = (w->wBitsPerSample + 7) / 8;
     w->cbSize = 0;
     sh_audio->i_bps = sh_audio->wf->nAvgBytesPerSec;
     l -= 16;
@@ -452,9 +444,9 @@ static int demux_audio_open(demuxer_t* demuxer) {
       chunk_size = stream_read_dword_le(demuxer->stream);
       if (chunk_type != mmioFOURCC('d', 'a', 't', 'a'))
         stream_skip(demuxer->stream, chunk_size);
-    } while (chunk_type != mmioFOURCC('d', 'a', 't', 'a'));
+    } while (!s->eof && chunk_type != mmioFOURCC('d', 'a', 't', 'a'));
     demuxer->movi_start = stream_tell(s);
-    demuxer->movi_end = s->end_pos;
+    demuxer->movi_end = chunk_size ? demuxer->movi_start + chunk_size : s->end_pos;
 //    printf("wav: %X .. %X\n",(int)demuxer->movi_start,(int)demuxer->movi_end);
     // Check if it contains dts audio
     if((w->wFormatTag == 0x01) && (w->nChannels == 2) && (w->nSamplesPerSec == 44100)) {
@@ -522,7 +514,7 @@ static int demux_audio_open(demuxer_t* demuxer) {
 
   priv = malloc(sizeof(da_priv_t));
   priv->frmt = frmt;
-  priv->last_pts = -1;
+  priv->next_pts = 0;
   demuxer->priv = priv;
   demuxer->audio->id = 0;
   demuxer->audio->sh = sh_audio;
@@ -554,19 +546,11 @@ static int demux_audio_open(demuxer_t* demuxer) {
 static int demux_audio_fill_buffer(demuxer_t *demuxer, demux_stream_t *ds) {
   int l;
   demux_packet_t* dp;
-  sh_audio_t* sh_audio;
-  demuxer_t* demux;
-  da_priv_t* priv;
-  stream_t* s;
-#ifdef MP_DEBUG
-  assert(ds != NULL);
-  assert(ds->sh != NULL);
-  assert(ds->demuxer != NULL);
-#endif
-  sh_audio = ds->sh;
-  demux = ds->demuxer;
-  priv = demux->priv;
-  s = demux->stream;
+  sh_audio_t* sh_audio = ds->sh;
+  demuxer_t* demux = ds->demuxer;
+  da_priv_t* priv = demux->priv;
+  double this_pts = priv->next_pts;
+  stream_t* s = demux->stream;
 
   if(s->eof)
     return 0;
@@ -591,25 +575,31 @@ static int demux_audio_fill_buffer(demuxer_t *demuxer, demux_stream_t *ds) {
 	  free_demux_packet(dp);
 	  return 0;
 	}
-	priv->last_pts = priv->last_pts < 0 ? 0 : priv->last_pts + sh_audio->audio.dwScale/(float)sh_audio->samplerate;
+	priv->next_pts += sh_audio->audio.dwScale/(double)sh_audio->samplerate;
 	break;
       }
     } break;
   case WAV : {
     unsigned align = sh_audio->wf->nBlockAlign;
     l = sh_audio->wf->nAvgBytesPerSec;
+    if (demux->movi_end && l > demux->movi_end - stream_tell(s)) {
+      // do not read beyond end, there might be junk after data chunk
+      l = demux->movi_end - stream_tell(s);
+      if (l <= 0) return 0;
+    }
     if (align)
       l = (l + align - 1) / align * align;
     dp = new_demux_packet(l);
     l = stream_read(s,dp->buffer,l);
-    priv->last_pts = priv->last_pts < 0 ? 0 : priv->last_pts + l/(float)sh_audio->i_bps;
+    priv->next_pts += l/(double)sh_audio->i_bps;
     break;
   }
   case fLaC: {
     l = 65535;
     dp = new_demux_packet(l);
     l = stream_read(s,dp->buffer,l);
-    priv->last_pts = priv->last_pts < 0 ? 0 : priv->last_pts + l/(float)sh_audio->i_bps;
+    /* FLAC is not a constant-bitrate codec. These values will be wrong. */
+    priv->next_pts += l/(double)sh_audio->i_bps;
     break;
   }
   default:
@@ -618,7 +608,7 @@ static int demux_audio_fill_buffer(demuxer_t *demuxer, demux_stream_t *ds) {
   }
 
   resize_demux_packet(dp, l);
-  dp->pts = priv->last_pts;
+  dp->pts = this_pts;
   ds_add_packet(ds, dp);
   return 1;
 }
@@ -638,7 +628,7 @@ static void high_res_mp3_seek(demuxer_t *demuxer,float time) {
       continue;
     }
     stream_skip(demuxer->stream,len-4);
-    priv->last_pts += sh->audio.dwScale/(float)sh->samplerate;
+    priv->next_pts += sh->audio.dwScale/(double)sh->samplerate;
     nf--;
   }
 }
@@ -656,11 +646,11 @@ static void demux_audio_seek(demuxer_t *demuxer,float rel_seek_secs,float audio_
   priv = demuxer->priv;
 
   if(priv->frmt == MP3 && hr_mp3_seek && !(flags & 2)) {
-    len = (flags & 1) ? rel_seek_secs - priv->last_pts : rel_seek_secs;
+    len = (flags & 1) ? rel_seek_secs - priv->next_pts : rel_seek_secs;
     if(len < 0) {
       stream_seek(s,demuxer->movi_start);
-      len = priv->last_pts + len;
-      priv->last_pts = 0;
+      len = priv->next_pts + len;
+      priv->next_pts = 0;
     }
     if(len > 0)
       high_res_mp3_seek(demuxer,len);
@@ -678,15 +668,13 @@ static void demux_audio_seek(demuxer_t *demuxer,float rel_seek_secs,float audio_
   } else if(pos < demuxer->movi_start)
     pos = demuxer->movi_start;
 
-  priv->last_pts = (pos-demuxer->movi_start)/(float)sh_audio->i_bps;
+  priv->next_pts = (pos-demuxer->movi_start)/(double)sh_audio->i_bps;
   
   switch(priv->frmt) {
   case WAV:
     pos -= (pos - demuxer->movi_start) %
             (sh_audio->wf->nBlockAlign ? sh_audio->wf->nBlockAlign :
              (sh_audio->channels * sh_audio->samplesize));
-    // We need to decrease the pts by one step to make it the "last one"
-    priv->last_pts -= sh_audio->wf->nAvgBytesPerSec/(float)sh_audio->i_bps;
     break;
   }
 
@@ -715,7 +703,7 @@ static int demux_audio_control(demuxer_t *demuxer,int cmd, void *arg){
 	case DEMUXER_CTRL_GET_PERCENT_POS:
 	    if (audio_length<=0) 
     		return DEMUXER_CTRL_DONTKNOW;
-    	    *((int *)arg)=(int)( (priv->last_pts*100)  / audio_length);
+    	    *((int *)arg)=(int)( (priv->next_pts*100)  / audio_length);
 	    return DEMUXER_CTRL_OK;
 
 	default:

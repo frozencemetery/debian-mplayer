@@ -11,6 +11,8 @@
 
 #include "config.h"
 #include "video_out.h"
+#include "aspect.h"
+#include "geometry.h"
 
 #include "mp_msg.h"
 #include "help_mp.h"
@@ -73,7 +75,6 @@ extern vo_functions_t video_out_xv;
 extern vo_functions_t video_out_gl;
 extern vo_functions_t video_out_gl2;
 extern vo_functions_t video_out_dga;
-extern vo_functions_t video_out_fsdga;
 extern vo_functions_t video_out_sdl;
 extern vo_functions_t video_out_3dfx;
 extern vo_functions_t video_out_tdfxfb;
@@ -82,7 +83,6 @@ extern vo_functions_t video_out_null;
 extern vo_functions_t video_out_zr;
 extern vo_functions_t video_out_zr2;
 extern vo_functions_t video_out_bl;
-extern vo_functions_t video_out_syncfb;
 extern vo_functions_t video_out_fbdev;
 extern vo_functions_t video_out_fbdev2;
 extern vo_functions_t video_out_svga;
@@ -101,6 +101,9 @@ extern vo_functions_t video_out_dxr2;
 extern vo_functions_t video_out_dxr3;
 #ifdef HAVE_IVTV
 extern vo_functions_t video_out_ivtv;
+#endif
+#ifdef HAVE_V4L2_DECODER
+extern vo_functions_t video_out_v4l2;
 #endif
 #ifdef HAVE_JPEG
 extern vo_functions_t video_out_jpeg;
@@ -125,6 +128,9 @@ extern vo_functions_t video_out_cvidix;
 #ifdef HAVE_TDFX_VID
 extern vo_functions_t video_out_tdfx_vid;
 #endif
+#ifdef HAVE_XVR100
+extern vo_functions_t video_out_xvr100;
+#endif
 #ifdef HAVE_TGA
 extern vo_functions_t video_out_tga;
 #endif
@@ -143,6 +149,9 @@ extern vo_functions_t video_out_md5sum;
 
 vo_functions_t* video_out_drivers[] =
 {
+#ifdef HAVE_XVR100
+        &video_out_xvr100,
+#endif
 #ifdef HAVE_TDFX_VID
         &video_out_tdfx_vid,
 #endif
@@ -160,9 +169,6 @@ vo_functions_t* video_out_drivers[] =
 #endif
 #ifdef HAVE_MGA
         &video_out_mga,
-#endif
-#ifdef HAVE_SYNCFB
-        &video_out_syncfb,
 #endif
 #ifdef HAVE_TDFXFB
         &video_out_tdfxfb,
@@ -186,7 +192,6 @@ vo_functions_t* video_out_drivers[] =
 #endif
 #ifdef HAVE_DGA
         &video_out_dga,
-//        &video_out_fsdga,
 #endif
 #ifdef HAVE_SDL
         &video_out_sdl,
@@ -215,6 +220,9 @@ vo_functions_t* video_out_drivers[] =
 #endif
 #ifdef HAVE_IVTV
         &video_out_ivtv,
+#endif
+#ifdef HAVE_V4L2_DECODER
+        &video_out_v4l2,
 #endif
 #ifdef HAVE_ZR
 	&video_out_zr,
@@ -322,6 +330,27 @@ vo_functions_t* init_best_video_out(char** vo_list){
     return NULL;
 }
 
+int config_video_out(vo_functions_t *vo, uint32_t width, uint32_t height,
+                     uint32_t d_width, uint32_t d_height, uint32_t flags,
+                     char *title, uint32_t format) {
+  panscan_init();
+  aspect_save_orig(width,height);
+  aspect_save_prescale(d_width,d_height);
+
+  if (vo->control(VOCTRL_UPDATE_SCREENINFO, NULL) == VO_TRUE) {
+  aspect(&d_width,&d_height,A_NOZOOM);
+  vo_dx = (int)(vo_screenwidth - d_width) / 2;
+  vo_dy = (int)(vo_screenheight - d_height) / 2;
+  geometry(&vo_dx, &vo_dy, &d_width, &d_height,
+           vo_screenwidth, vo_screenheight);
+  vo_dx += xinerama_x;
+  vo_dy += xinerama_y;
+  vo_dwidth = d_width;
+  vo_dheight = d_height;
+  }
+
+  return vo->config(width, height, d_width, d_height, flags, title, format);
+}
 
 #if defined(HAVE_FBDEV)||defined(HAVE_VESA)  
 /* Borrowed from vo_fbdev.c 

@@ -7,8 +7,8 @@
  *
  */
  
-#ifndef __VIDEO_OUT_H
-#define __VIDEO_OUT_H 1
+#ifndef VIDEO_OUT_H
+#define VIDEO_OUT_H
 
 #include <inttypes.h>
 #include <stdarg.h>
@@ -64,6 +64,11 @@ typedef struct {
   int w, h; // screen dimensions, including black borders
   int mt, mb, ml, mr; // borders (top, bottom, left, right)
 } mp_eosd_res_t;
+
+#define VOCTRL_SET_DEINTERLACE 30
+#define VOCTRL_GET_DEINTERLACE 31
+
+#define VOCTRL_UPDATE_SCREENINFO 32
 
 // Vo can be used by xover
 #define VOCTRL_XOVERLAY_SUPPORT 22
@@ -172,10 +177,10 @@ typedef struct vo_functions_s
 
 } vo_functions_t;
 
-const char *vo_format_name(int format);
-int vo_init(void);
-
 vo_functions_t* init_best_video_out(char** vo_list);
+int config_video_out(vo_functions_t *vo, uint32_t width, uint32_t height,
+                     uint32_t d_width, uint32_t d_height, uint32_t flags,
+                     char *title, uint32_t format);
 void list_video_out(void);
 
 // NULL terminated array of all drivers
@@ -215,6 +220,7 @@ extern int vo_rootwin;
 extern int vo_ontop;
 extern int vo_border;
 
+extern int vo_gamma_gamma;
 extern int vo_gamma_brightness;
 extern int vo_gamma_saturation;
 extern int vo_gamma_contrast;

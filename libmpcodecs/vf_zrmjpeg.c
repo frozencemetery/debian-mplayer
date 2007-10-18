@@ -27,10 +27,6 @@
 #include "mp_image.h"
 #include "vf.h"
 
-#ifdef USE_FASTMEMCPY
-#include "libvo/fastmemcpy.h"
-#endif
-
 /* We need this #define because we need ../libavcodec/common.h to #define
  * be2me_32, otherwise the linker will complain that it doesn't exist */
 #define HAVE_AV_CONFIG_H
@@ -151,7 +147,7 @@ static void convert_matrix(MpegEncContext *s, int (*qmat)[64],
  * So 16           <= qscale * quant_matrix[i]             <= 7905
  * so (1<<19) / 16 >= (1<<19) / (qscale * quant_matrix[i]) >= (1<<19) / 7905
  * so 32768        >= (1<<19) / (qscale * quant_matrix[i]) >= 67 */
-				qmat[qscale][i] = (int)((uint64_t_C(1) <<
+				qmat[qscale][i] = (int)((UINT64_C(1) <<
 						QMAT_SHIFT_MMX) / (qscale
 							*quant_matrix[j]));
 				qmat16[qscale][0][i] = (1 << QMAT_SHIFT_MMX)
@@ -315,7 +311,7 @@ typedef struct {
  * macroblocks and it outputs the huffman code for 'no change' (dc) and
  * 'all zero' (ac)) and it takes 4 macroblocks (422) instead of 6 (420)
  */
-static always_inline void zr_mjpeg_encode_mb(jpeg_enc_t *j) {
+static av_always_inline void zr_mjpeg_encode_mb(jpeg_enc_t *j) {
 
 	MJpegContext *m = j->s->mjpeg_ctx;
 
@@ -354,7 +350,7 @@ static always_inline void zr_mjpeg_encode_mb(jpeg_enc_t *j) {
  * \param u_data pointer to the U plane
  * \param v_data pointer to the V plane
  */
-static always_inline void fill_block(jpeg_enc_t *j, int x, int y,
+static av_always_inline void fill_block(jpeg_enc_t *j, int x, int y,
 		unsigned char *y_data, unsigned char *u_data,
 		unsigned char *v_data)
 {
@@ -453,7 +449,6 @@ static jpeg_enc_t *jpeg_enc_init(int w, int h, int y_rsize,
 	j->s->height = h;
 	j->s->qscale = q;		// Encoding quality
 
-	j->s->mjpeg_data_only_frames = 0;
 	j->s->out_format = FMT_MJPEG;
 	j->s->intra_only = 1;		// Generate only intra pictures for jpeg
 	j->s->encoding = 1;		// Set mode to encode
@@ -469,7 +464,7 @@ static jpeg_enc_t *jpeg_enc_init(int w, int h, int y_rsize,
 	 * The current setup is simply YUV422, with two horizontal Y components
 	 * for every UV component.
 	 */
-	j->s->mjpeg_write_tables = 1;	// setup to write tables
+	//FIXME j->s->mjpeg_write_tables = 1;	// setup to write tables
 	j->s->mjpeg_vsample[0] = 1;	// 1 appearance of Y vertically
 	j->s->mjpeg_vsample[1] = 1;	// 1 appearance of U vertically
 	j->s->mjpeg_vsample[2] = 1;	// 1 appearance of V vertically
@@ -491,7 +486,7 @@ static jpeg_enc_t *jpeg_enc_init(int w, int h, int y_rsize,
 	}
 
 	// Build mjpeg huffman code tables, setting up j->s->mjpeg_ctx
-	if (mjpeg_init(j->s) < 0) {
+	if (ff_mjpeg_encode_init(j->s) < 0) {
 		av_free(j->s);
 		av_free(j);
 		return NULL;
@@ -530,7 +525,7 @@ static jpeg_enc_t *jpeg_enc_init(int w, int h, int y_rsize,
 	// Init q matrix
 	j->s->intra_matrix[0] = ff_mpeg1_default_intra_matrix[0];
 	for (i = 1; i < 64; i++)
-		j->s->intra_matrix[i] = clip_uint8(
+		j->s->intra_matrix[i] = av_clip_uint8(
 			(ff_mpeg1_default_intra_matrix[i]*j->s->qscale) >> 3);
 
 	// precompute matrix
@@ -575,7 +570,7 @@ static int jpeg_enc_frame(jpeg_enc_t *j, uint8_t *y_data,
 	init_put_bits(&j->s->pb, bufr, 1024*256);
 
 	// Emit the mjpeg header blocks
-	mjpeg_picture_header(j->s);
+	ff_mjpeg_encode_picture_header(j->s);
 
 	j->s->header_bits = put_bits_count(&j->s->pb);
 
@@ -619,11 +614,12 @@ static int jpeg_enc_frame(jpeg_enc_t *j, uint8_t *y_data,
 		}
 	}
 	emms_c();
-	mjpeg_picture_trailer(j->s);
+	ff_mjpeg_encode_picture_trailer(j->s);
 	flush_put_bits(&j->s->pb);
 
-	if (j->s->mjpeg_write_tables == 1)
-		j->s->mjpeg_write_tables = 0;
+	//FIXME
+	//if (j->s->mjpeg_write_tables == 1)
+	//	j->s->mjpeg_write_tables = 0;
 
 	return pbBufPtr(&(j->s->pb)) - j->s->pb.buf;
 }
@@ -635,7 +631,7 @@ static int jpeg_enc_frame(jpeg_enc_t *j, uint8_t *y_data,
  * \param j pointer to jpeg_enc structure
  */
 static void jpeg_enc_uninit(jpeg_enc_t *j) {
-	mjpeg_close(j->s);
+	ff_mjpeg_encode_close(j->s);
 	av_free(j->s);
 	av_free(j);
 }

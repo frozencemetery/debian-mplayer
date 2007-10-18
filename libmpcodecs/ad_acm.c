@@ -6,7 +6,7 @@
 #include "mp_msg.h"
 #include "help_mp.h"
 
-#include "wineacm.h"
+#include "loader/wineacm.h"
 
 #include "ad_internal.h"
 #include "osdep/timer.h"
@@ -137,6 +137,7 @@ static void uninit(sh_audio_t *sh)
     HRESULT ret;
     acm_context_t *priv = sh->context;
     
+retry:
     ret = acmStreamClose(priv->handle, 0);
     
     if (ret)
@@ -146,7 +147,7 @@ static void uninit(sh_audio_t *sh)
 	case ACMERR_CANCELED:
 	    mp_msg(MSGT_WIN32, MSGL_DBG2, "ACM_Decoder: stream busy, waiting..\n");
 	    usec_sleep(100000000);
-	    return(uninit(sh));
+	    goto retry;
 	case ACMERR_UNPREPARED:
 	case ACMERR_NOTPOSSIBLE:
 	    return;

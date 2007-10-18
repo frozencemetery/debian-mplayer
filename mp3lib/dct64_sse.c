@@ -5,17 +5,7 @@
  * and mp3lib/dct64_MMX.c
  */
 
-/* NOTE: The following code is suboptimal! It can be improved (at least) by
-
-   1. Replace all movups by movaps. (Can Parameter c be always aligned on 
-      a 16-byte boundary?)
-
-   2. Rewritten using intrinsics. (GCC generally optimizes intrinsics
-      better. However, when __m128 locals are involved, GCC may
-      produce bad code that uses movaps to access a stack not aligned
-      on a 16-byte boundary, which leads to run-time crashes.)
-
-*/
+#include <libavutil/mem.h>
 
 typedef float real;
 
@@ -30,14 +20,11 @@ static const int pnpn[4] __attribute__((aligned(16))) =
 static const int nnnn[4] __attribute__((aligned(16))) =
 { 1 << 31, 1 << 31, 1 << 31, 1 << 31 };
 
-void dct64_sse(real *a,real *b,real *c)
+void dct64_sse(short *out0,short *out1,real *c)
 {
-    static real __attribute__ ((aligned(16))) b1[0x20];
-    static real __attribute__ ((aligned(16))) b2[0x20];
+    DECLARE_ALIGNED(16, real, b1[0x20]);
+    DECLARE_ALIGNED(16, real, b2[0x20]);
     static real const one = 1.f;
-
-    short *out0 = (short*)a;
-    short *out1 = (short*)b;
 
     {
         real *costab = costab_mmx;
@@ -48,9 +35,9 @@ void dct64_sse(real *a,real *b,real *c)
             asm(
                 "movaps    %2, %%xmm3\n\t"
                 "shufps    $27, %%xmm3, %%xmm3\n\t"
-                "movups    %3, %%xmm1\n\t"
+                "movaps    %3, %%xmm1\n\t"
                 "movaps    %%xmm1, %%xmm4\n\t"
-                "movups    %4, %%xmm2\n\t"
+                "movaps    %4, %%xmm2\n\t"
                 "shufps    $27, %%xmm4, %%xmm4\n\t"
                 "movaps    %%xmm2, %%xmm0\n\t"
                 "shufps    $27, %%xmm0, %%xmm0\n\t"
@@ -274,7 +261,7 @@ void dct64_sse(real *a,real *b,real *c)
     out0[32] = (short)(b1[14] + b1[9]);
     out1[32] = (short)(b1[9] + b1[13]);
     out1[96] = (short)(b1[13] + b1[11]);
-    out1[222] = (short)b1[15];
+    out1[224] = (short)b1[15];
     out1[160] = (short)(b1[15] + b1[11]);
     out0[240] = (short)(b1[24] + b1[28] + b1[16]);
     out0[208] = (short)(b1[24] + b1[28] + b1[20]);
@@ -426,9 +413,9 @@ void dct64_sse(real *a,real *b,real *c)
         "fist  480(%4)\n\t"
         "fadds  92(%1)\n\t"
         "fistp 416(%4)\n\t"
-        "ffreep %%st(0)\n\t"
+        ".byte 0xdf, 0xc0\n\t" // ffreep %%st(0)
         :
-        :"m"(costab_mmx[30]), "r"(b1), "r"(b2), "r"(a), "r"(b)
+        :"m"(costab_mmx[30]), "r"(b1), "r"(b2), "r"(out0), "r"(out1)
         :"memory"
         );
 #endif

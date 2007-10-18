@@ -22,7 +22,9 @@
 #ifndef MATHOPS_H
 #define MATHOPS_H
 
-#ifdef ARCH_X86
+#include "common.h"
+
+#ifdef ARCH_X86_32
 
 #include "i386/mathops.h"
 
@@ -33,6 +35,10 @@
 #elif defined(ARCH_PPC)
 
 #include "ppc/mathops.h"
+
+#elif defined(ARCH_BFIN)
+
+#include "bfin/mathops.h"
 
 #endif
 
@@ -46,7 +52,7 @@
 //gcc 3.4 creates an incredibly bloated mess out of this
 //#    define MULH(a,b) (((int64_t)(a) * (int64_t)(b))>>32)
 
-static always_inline int MULH(int a, int b){
+static av_always_inline int MULH(int a, int b){
     return ((int64_t)(a) * (int64_t)(b))>>32;
 }
 #endif

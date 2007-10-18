@@ -5,14 +5,9 @@
 
 *********************************************************/
 #include "config.h"
-#ifndef NOAVIFILE_HEADERS
-#include "audiodecoder.h"
-#include "except.h"
-#else
-#include "libwin32.h"
+#include "dshow/libwin32.h"
 #ifdef WIN32_LOADER
 #include "ldt_keeper.h"
-#endif
 #endif
 
 #include "DMO_Filter.h"
@@ -34,8 +29,6 @@ struct _DMO_AudioDecoder
 #include <stdlib.h>
 
 #include "../../mp_msg.h"
-
-#define __MODULE__ "DirectShow audio decoder"
 
 typedef long STDCALL (*GETCLASS) (GUID*, GUID*, void**);
 extern void print_wave_header(WAVEFORMATEX *h, int verbose_level);

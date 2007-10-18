@@ -1,5 +1,5 @@
-#ifndef __STREAM_H
-#define __STREAM_H
+#ifndef STREAM_H
+#define STREAM_H
 
 #include "mp_msg.h"
 #include <string.h>
@@ -45,7 +45,7 @@
 //////////// Open return code
 /// This can't open the requested protocol (used by stream wich have a
 /// * protocol when they don't know the requested protocol)
-#define STREAM_UNSUPORTED -1
+#define STREAM_UNSUPPORTED -1
 #define STREAM_ERROR 0
 #define STREAM_OK    1
 
@@ -56,6 +56,10 @@
 #define STREAM_CTRL_SEEK_TO_CHAPTER 2
 #define STREAM_CTRL_GET_CURRENT_CHAPTER 3
 #define STREAM_CTRL_GET_NUM_CHAPTERS 4
+#define STREAM_CTRL_GET_CURRENT_TIME 5
+#define STREAM_CTRL_SEEK_TO_TIME 6
+#define STREAM_CTRL_GET_SIZE 7
+#define STREAM_CTRL_GET_ASPECT_RATIO 8
 
 #ifdef MPLAYER_NETWORK
 #include "network.h"
@@ -99,6 +103,7 @@ typedef struct stream_st {
   unsigned int buf_pos,buf_len;
   off_t pos,start_pos,end_pos;
   int eof;
+  int mode; //STREAM_READ or STREAM_WRITE
   unsigned int cache_pid;
   void* cache_data;
   void* priv; // used for DVD, TV, RTSP etc
@@ -115,11 +120,14 @@ int cache_stream_fill_buffer(stream_t *s);
 int cache_stream_seek_long(stream_t *s,off_t pos);
 #else
 // no cache, define wrappers:
+int stream_fill_buffer(stream_t *s);
+int stream_seek_long(stream_t *s,off_t pos);
 #define cache_stream_fill_buffer(x) stream_fill_buffer(x)
 #define cache_stream_seek_long(x,y) stream_seek_long(x,y)
 #define stream_enable_cache(x,y,z,w) 1
 #endif
 void fixup_network_stream_cache(stream_t *stream);
+int stream_write_buffer(stream_t *s, unsigned char *buf, int len);
 
 inline static int stream_read_char(stream_t *s){
   return (s->buf_pos<s->buf_len)?s->buffer[s->buf_pos++]:
@@ -179,14 +187,8 @@ inline static uint64_t stream_read_qword(stream_t *s){
 
 inline static uint64_t stream_read_qword_le(stream_t *s){
   uint64_t y;
-  y = stream_read_char(s);
-  y|=stream_read_char(s)<<8;
-  y|=stream_read_char(s)<<16;
-  y|=stream_read_char(s)<<24;
-  y|=(uint64_t)stream_read_char(s)<<32;
-  y|=(uint64_t)stream_read_char(s)<<40;
-  y|=(uint64_t)stream_read_char(s)<<48;
-  y|=(uint64_t)stream_read_char(s)<<56;
+  y = stream_read_dword_le(s);
+  y|=(uint64_t)stream_read_dword_le(s)<<32;
   return y;
 }
 
@@ -289,6 +291,7 @@ void free_stream(stream_t *s);
 stream_t* new_memory_stream(unsigned char* data,int len);
 stream_t* open_stream(char* filename,char** options,int* file_format);
 stream_t* open_stream_full(char* filename,int mode, char** options, int* file_format);
+stream_t* open_output_stream(char* filename,char** options);
 
 extern int dvd_title;
 extern int dvd_chapter;
@@ -304,4 +307,4 @@ typedef struct {
  int channels;
 } stream_language_t;
 
-#endif // __STREAM_H
+#endif // STREAM_H

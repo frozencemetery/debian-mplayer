@@ -1,73 +1,76 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>4.3. P&#345;ehrávání VCD</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - Multimediální p&#345;ehráva&#269;"><link rel="up" href="cd-dvd.html" title="Kapitola 4. Pou&#382;ití CD/DVD"><link rel="prev" href="dvd.html" title="4.2. P&#345;ehrávání DVD"><link rel="next" href="faq.html" title="Kapitola 5. &#268;asto Kladené Dotazy (FAQ)"><link rel="preface" href="howtoread.html" title="Jak &#269;íst tuto  dokumentaci"><link rel="chapter" href="intro.html" title="Kapitola 1. P&#345;edstavení"><link rel="chapter" href="install.html" title="Kapitola 2. Instalace"><link rel="chapter" href="usage.html" title="Kapitola 3. Pou&#382;ití"><link rel="chapter" href="cd-dvd.html" title="Kapitola 4. Pou&#382;ití CD/DVD"><link rel="chapter" href="faq.html" title="Kapitola 5. &#268;asto Kladené Dotazy (FAQ)"><link rel="chapter" href="containers.html" title="Kapitola 6. Nosné formáty (Containers)"><link rel="chapter" href="codecs.html" title="Kapitola 7. Kodeky"><link rel="chapter" href="video.html" title="Kapitola 8. Výstupní video za&#345;ízení/rozhraní"><link rel="chapter" href="audio.html" title="Kapitola 9. Výstupní zvuková za&#345;ízení"><link rel="chapter" href="tv.html" title="Kapitola 10. TV"><link rel="chapter" href="radio.html" title="Kapitola 11. Rádio"><link rel="chapter" href="ports.html" title="Kapitola 12. Porty"><link rel="chapter" href="mencoder.html" title="Kapitola 13. Základní pou&#382;ití MEncoderu"><link rel="chapter" href="encoding-guide.html" title="Kapitola 14. Enkódování s MEncoderem"><link rel="appendix" href="bugreports.html" title="P&#345;íloha A. Jak hlásit chyby"><link rel="appendix" href="bugs.html" title="P&#345;íloha B. Známé chyby"><link rel="appendix" href="skin.html" title="P&#345;íloha C. Formát skin&#367; MPlayeru"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.3. P&#345;ehrávání VCD</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="dvd.html">P&#345;edcházející</a> </td><th width="60%" align="center">Kapitola 4. Pou&#382;ití CD/DVD</th><td width="20%" align="right"> <a accesskey="n" href="faq.html">Dal&#353;í</a></td></tr></table><hr></div><div class="sect1" lang="cs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="vcd"></a>4.3. P&#345;ehrávání VCD</h2></div></div></div><p>
-Úplný seznam dostupných voleb naleznete v man stránce. Syntaxe pro standardní
-Video CD (VCD) je následující:
-</p><pre class="screen">mplayer vcd://<em class="replaceable"><code>&lt;stopa&gt;</code></em> [-cdrom-device <em class="replaceable"><code>&lt;za&#345;ízení&gt;</code></em>]</pre><p>
-P&#345;íklad:
-</p><pre class="screen">mplayer vcd://<em class="replaceable"><code>2</code></em> -cdrom-device <em class="replaceable"><code>/dev/hdc</code></em></pre><p>
-Výchozím VCD za&#345;ízením je <tt class="filename">/dev/cdrom</tt>. Pokud se va&#353;e nastavení
-li&#353;í, vytvo&#345;te symlink nebo uve&#271;te správné za&#345;ízení na p&#345;íkazovém &#345;ádku pomocí volby
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>4.3. PÅ™ehrÃ¡vÃ¡nÃ­ VCD</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - MultimediÃ¡lnÃ­ pÅ™ehrÃ¡vaÄ"><link rel="up" href="cd-dvd.html" title="Kapitola 4. PouÅ¾itÃ­ CD/DVD"><link rel="prev" href="dvd.html" title="4.2. PÅ™ehrÃ¡vÃ¡nÃ­ DVD"><link rel="next" href="faq.html" title="Kapitola 5. ÄŒasto KladenÃ© Dotazy (FAQ)"><link rel="preface" href="howtoread.html" title="Jak ÄÃ­st tuto dokumentaci"><link rel="chapter" href="intro.html" title="Kapitola 1. PÅ™edstavenÃ­"><link rel="chapter" href="install.html" title="Kapitola 2. Instalace"><link rel="chapter" href="usage.html" title="Kapitola 3. PouÅ¾itÃ­"><link rel="chapter" href="cd-dvd.html" title="Kapitola 4. PouÅ¾itÃ­ CD/DVD"><link rel="chapter" href="faq.html" title="Kapitola 5. ÄŒasto KladenÃ© Dotazy (FAQ)"><link rel="chapter" href="containers.html" title="Kapitola 6. NosnÃ© formÃ¡ty (Containers)"><link rel="chapter" href="codecs.html" title="Kapitola 7. Kodeky"><link rel="chapter" href="video.html" title="Kapitola 8. VÃ½stupnÃ­ video zaÅ™Ã­zenÃ­/rozhranÃ­"><link rel="chapter" href="audio.html" title="Kapitola 9. VÃ½stupnÃ­ zvukovÃ¡ zaÅ™Ã­zenÃ­"><link rel="chapter" href="tv.html" title="Kapitola 10. TV"><link rel="chapter" href="radio.html" title="Kapitola 11. RÃ¡dio"><link rel="chapter" href="ports.html" title="Kapitola 12. Porty"><link rel="chapter" href="mencoder.html" title="Kapitola 13. ZÃ¡kladnÃ­ pouÅ¾itÃ­ MEncoderu"><link rel="chapter" href="encoding-guide.html" title="Kapitola 14. EnkÃ³dovÃ¡nÃ­ s MEncoderem"><link rel="appendix" href="bugreports.html" title="PÅ™Ã­loha A. Jak hlÃ¡sit chyby"><link rel="appendix" href="bugs.html" title="PÅ™Ã­loha B. ZnÃ¡mÃ© chyby"><link rel="appendix" href="skin.html" title="PÅ™Ã­loha C. FormÃ¡t skinÅ¯ MPlayeru"><link rel="appendix" href="history.html" title="PÅ™Ã­loha D. Historie"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.3. PÅ™ehrÃ¡vÃ¡nÃ­ VCD</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="dvd.html">PÅ™edchÃ¡zejÃ­cÃ­</a>Â </td><th width="60%" align="center">Kapitola 4. PouÅ¾itÃ­ CD/DVD</th><td width="20%" align="right">Â <a accesskey="n" href="faq.html">DalÅ¡Ã­</a></td></tr></table><hr></div><div class="sect1" lang="cs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="vcd"></a>4.3. PÅ™ehrÃ¡vÃ¡nÃ­ VCD</h2></div></div></div><p>
+ÃšplnÃ½ seznam dostupnÃ½ch voleb naleznete v man strÃ¡nce. Syntaxe pro standardnÃ­
+Video CD (VCD) je nÃ¡sledujÃ­cÃ­:
+</p><pre class="screen">mplayer vcd://<em class="replaceable"><code>&lt;stopa&gt;</code></em> [-cdrom-device <em class="replaceable"><code>&lt;zaÅ™Ã­zenÃ­&gt;</code></em>]</pre><p>
+PÅ™Ã­klad:
+</p><pre class="screen">mplayer vcd://2 -cdrom-device /dev/hdc</pre><p>
+VÃ½chozÃ­m VCD zaÅ™Ã­zenÃ­m je <tt class="filename">/dev/cdrom</tt>. Pokud se vaÅ¡e nastavenÃ­
+liÅ¡Ã­, vytvoÅ™te symlink nebo uveÄte sprÃ¡vnÃ© zaÅ™Ã­zenÃ­ na pÅ™Ã­kazovÃ©m Å™Ã¡dku pomocÃ­ volby
 <tt class="option">-cdrom-device</tt>.
-</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Poznámka</h3><p>
-Minimáln&#283; SCSI CD-ROM mechaniky Plextor a Toshiba vykazují mizerný výkon
-p&#345;i &#269;tení VCD. To proto, &#382;e CDROMREADRAW <code class="systemitem">ioctl</code>
-není pro tyto mechaniky pln&#283; implementováno. Pokud máte zku&#353;enosti se
-SCSI programováním, prosíme
-<a href="../../tech/patches.txt" target="_top">pomozte nám</a>
+</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">PoznÃ¡mka</h3><p>
+MinimÃ¡lnÄ› SCSI CD-ROM mechaniky Plextor a Toshiba vykazujÃ­ mizernÃ½ vÃ½kon
+pÅ™i ÄtenÃ­ VCD. To proto, Å¾e CDROMREADRAW <code class="systemitem">ioctl</code>
+nenÃ­ pro tyto mechaniky plnÄ› implementovÃ¡no. Pokud mÃ¡te zkuÅ¡enosti se
+SCSI programovÃ¡nÃ­m, prosÃ­me
+<a href="../../tech/patches.txt" target="_top">pomozte nÃ¡m</a>
 implementovat obecnou SCSI podporu pro VCD.
 </p></div><p>
-Mezitím m&#367;&#382;ete extrahovat data z VCD pomocí
+MezitÃ­m mÅ¯Å¾ete extrahovat data z VCD pomocÃ­
 <a href="http://ftp.ntut.edu.tw/ftp/OS/Linux/packages/X/viewers/readvcd/" target="_top">readvcd</a>
-a výsledný soubor p&#345;ehrát v <span class="application">MPlayer</span>u.
-</p><p><b>Struktura VCD. </b>
-Video CD (VCD) je tvo&#345;eno CD-ROM XA sektory, &#269;ili stopy CD-ROM mode 2
-t&#345;ída 1 a 2:</p><div class="itemizedlist"><ul type="disc"><li><p>
-První stopa je ve formátu mode 2 t&#345;ída 2 co&#382; znamená, &#382;e pou&#382;ívá L2
-korekci chyb. Stopa obsahuje souborový systém ISO-9660 s 2048
-bajty/sektor. Tento souborový systém obsahuje VCD metadata informace,
-stejn&#283; jako statické snímky &#269;asto pou&#382;ívané v menu. MPEG segmenty menu
-mohou být rovn&#283;&#382; ulo&#382;eny v této první stop&#283;, ale tyto MPEGy musí být
-rozsekány na série 150 sektorových chunk&#367;. Souborový systém ISO-9660
-m&#367;&#382;e obsahovat dal&#353;í soubory, které nejsou pot&#345;eba pro operace
-s VCD.
+a vÃ½slednÃ½ soubor pÅ™ehrÃ¡t v <span class="application">MPlayer</span>u.
+</p><p><b>Struktura VCD.Â </b>
+Video CD (VCD) je tvoÅ™eno CD-ROM XA sektory, Äili stopy CD-ROM mode 2
+tÅ™Ã­da 1 a 2:
+</p><div class="itemizedlist"><ul type="disc"><li><p>
+  PrvnÃ­ stopa je ve formÃ¡tu mode 2 tÅ™Ã­da 2 coÅ¾ znamenÃ¡, Å¾e pouÅ¾Ã­vÃ¡ L2
+  korekci chyb. Stopa obsahuje souborovÃ½ systÃ©m ISO-9660 s 2048
+  bajty/sektor. Tento souborovÃ½ systÃ©m obsahuje VCD metadata informace,
+  spolu se statickÃ½mi snÃ­mky Äasto pouÅ¾Ã­vanÃ½mi v menu. MPEG segmenty menu
+  mohou bÃ½t rovnÄ›Å¾ uloÅ¾eny v tÃ©to prvnÃ­ stopÄ›, ale tyto MPEGy musÃ­ bÃ½t
+  rozsekÃ¡ny na sÃ©rie 150 sektorovÃ½ch chunkÅ¯. SouborovÃ½ systÃ©m ISO-9660
+  mÅ¯Å¾e obsahovat dalÅ¡Ã­ soubory, kterÃ© nejsou potÅ™eba pro operace
+  s VCD.
 </p></li><li><p>
-Druhá a ostatní stopy jsou v&#353;eobecn&#283; surovými MPEG (film) stopami
-s 2324 bajty/sektor, obsahující jeden MPEG PS datový paket na
-sektor. Ty jsou v mode 2 t&#345;ída 1 formátu, tak&#382;e obsahují více dat
-v ka&#382;dém sektoru za cenu omezení korekce chyb. Je rovn&#283;&#382; mo&#382;né mít
-CD-DA stopy na VCD za první stopou.
-V n&#283;kterých opera&#269;ních systémech jsou triky, které umo&#382;&#328;ují zp&#345;ístupnit
-tyto ne-ISO-9660 stopy v systému soubor&#367;. V dal&#353;ích opera&#269;ních
-systémech jako GNU/Linux to není mo&#382;né (zatím). Zde MPEG data
-<span class="bold"><strong>nemohou být p&#345;ipojena</strong></span>. Proto&#382;e v&#283;t&#353;ina
-film&#367; je ulo&#382;ena uvnit&#345; tohoto druhu stopy, m&#283;li byste nejprve zkusit
-<tt class="option">vcd://2</tt>.
+  DruhÃ¡ a ostatnÃ­ stopy jsou vÅ¡eobecnÄ› surovÃ½mi MPEG (film) stopami
+  s 2324 bajty/sektor, obsahujÃ­cÃ­ jeden MPEG PS datovÃ½ paket na
+  sektor. Ty jsou v mode 2 tÅ™Ã­da 1 formÃ¡tu, takÅ¾e obsahujÃ­ vÃ­ce dat
+  v kaÅ¾dÃ©m sektoru za cenu omezenÃ­ korekce chyb. Je rovnÄ›Å¾ moÅ¾nÃ© mÃ­t
+  CD-DA stopy na VCD za prvnÃ­ stopou.
+  V nÄ›kterÃ½ch operaÄnÃ­ch systÃ©mech jsou triky, kterÃ© umoÅ¾ÅˆujÃ­ zpÅ™Ã­stupnit
+  tyto ne-ISO-9660 stopy v systÃ©mu souborÅ¯. V dalÅ¡Ã­ch operaÄnÃ­ch
+  systÃ©mech jako GNU/Linux to nenÃ­ moÅ¾nÃ© (zatÃ­m). Zde MPEG data
+  <span class="bold"><strong>nemohou bÃ½t pÅ™ipojena</strong></span>. ProtoÅ¾e vÄ›tÅ¡ina
+  filmÅ¯ je uloÅ¾ena uvnitÅ™ tohoto druhu stopy, mÄ›li byste nejprve zkusit
+  <tt class="option">vcd://2</tt>.
 </p></li><li><p>
-Existují také VCD disky bez první stopy (jediná stopa bez systému soubor&#367;).
-M&#367;&#382;ete je p&#345;ehrát, ale nemohou být namountovány.
-</p></li><li><p> Definice standardu Video CD se nazývá
-Philips "White Book" a není obecn&#283; p&#345;ístupná online, ale musí být zakoupena
-od Philipsu. Podrobn&#283;j&#353;í informace o Video CD m&#367;&#382;ete nalézt
-<a href="http://www.vcdimager.org/pub/vcdimager/manuals/0.7/vcdimager.html#SEC4" target="_top">v dokumentaci programu vcdimager</a>.
-</p></li></ul></div><p><b>Pár slov o .DAT souborech. </b>
-Soubor veliký ~600 MB viditelný v první stop&#283; p&#345;ipojeného VCD není
-skute&#269;ným souborem! Je to takzvaná ISO gateway, vytvo&#345;ená proto,
-aby mohl Windows p&#345;istupovat k t&#283;mto stopám (Windows v&#367;bec neumo&#382;&#328;uje
-aplikacím surový p&#345;ístup k za&#345;ízení).
-Pod Linuxem nem&#367;&#382;ete kopírovat nebo p&#345;ehrávat tyto soubory
-(obsahují jen nesmysly). Pod Windows je to mo&#382;né, proto&#382;e jeho iso9660
-ovlada&#269; emuluje surový p&#345;ístup ke stop&#283; v tomto souboru. Abyste mohli
-p&#345;ehrát .DAT soubor, pot&#345;ebujete ovlada&#269; kernelu který m&#367;&#382;ete nalézt
-v Linuxové verzi PowerDVD. Obsahuje upravený ovlada&#269; systému soubor&#367;
-iso9660 (<tt class="filename">vcdfs/isofs-2.4.X.o</tt>), který umí emulovat
-surové stopy p&#345;es tento stínový .DAT soubor. Pokud p&#345;ipojíte disk
-s pomocí jejich ovlada&#269;e, m&#367;&#382;ete kopírovat &#269;i dokonce p&#345;ehrávat .DAT
+  ExistujÃ­ takÃ© VCD disky bez prvnÃ­ stopy (jedinÃ¡ stopa bez systÃ©mu souborÅ¯).
+  MÅ¯Å¾ete je pÅ™ehrÃ¡t, ale nemohou bÃ½t namountovÃ¡ny.
+</p></li><li><p>
+  Definice standardu Video CD se nazÃ½vÃ¡
+  Philips "White Book" a nenÃ­ obecnÄ› pÅ™Ã­stupnÃ¡ online, ale musÃ­ bÃ½t zakoupena
+  od Philipsu. PodrobnÄ›jÅ¡Ã­ informace o Video CD mÅ¯Å¾ete nalÃ©zt
+  <a href="http://www.vcdimager.org/pub/vcdimager/manuals/0.7/vcdimager.html#SEC4" target="_top">v dokumentaci programu vcdimager</a>.
+</p></li></ul></div><p>
+</p><p><b>PÃ¡r slov o .DAT souborech.Â </b>
+Soubor velikÃ½ ~600 MB viditelnÃ½ v prvnÃ­ stopÄ› pÅ™ipojenÃ©ho VCD nenÃ­
+skuteÄnÃ½m souborem! Je to takzvanÃ¡ ISO gateway, vytvoÅ™enÃ¡ proto,
+aby mohl Windows pÅ™istupovat k tÄ›mto stopÃ¡m (Windows vÅ¯bec neumoÅ¾Åˆuje
+aplikacÃ­m surovÃ½ pÅ™Ã­stup k zaÅ™Ã­zenÃ­).
+Pod Linuxem nemÅ¯Å¾ete kopÃ­rovat nebo pÅ™ehrÃ¡vat tyto soubory
+(obsahujÃ­ jen nesmysly). Pod Windows je to moÅ¾nÃ©, protoÅ¾e jeho iso9660
+ovladaÄ emuluje surovÃ½ pÅ™Ã­stup ke stopÄ› v tomto souboru. Abyste mohli
+pÅ™ehrÃ¡t .DAT soubor, potÅ™ebujete ovladaÄ kernelu kterÃ½ mÅ¯Å¾ete nalÃ©zt
+v LinuxovÃ© verzi PowerDVD. Obsahuje upravenÃ½ ovladaÄ systÃ©mu souborÅ¯
+iso9660 (<tt class="filename">vcdfs/isofs-2.4.X.o</tt>), kterÃ½ umÃ­ emulovat
+surovÃ© stopy pÅ™es tento stÃ­novÃ½ .DAT soubor. Pokud pÅ™ipojÃ­te disk
+s pomocÃ­ jejich ovladaÄe, mÅ¯Å¾ete kopÃ­rovat Äi dokonce pÅ™ehrÃ¡vat .DAT
 soubory <span class="application">MPlayer</span>em. Ale nebude to fungovat
-se standardním iso9660 ovlada&#269;em z Linuxového kernelu! Místo toho
-pou&#382;ijte <tt class="option">vcd://</tt>. Alternativou kopírování VCD je
-nový ovlada&#269; do kernelu jménem
+se standardnÃ­m iso9660 ovladaÄem z LinuxovÃ©ho kernelu! MÃ­sto toho
+pouÅ¾ijte <tt class="option">vcd://</tt>. Alternativou kopÃ­rovÃ¡nÃ­ VCD je
+novÃ½ jadernÃ½ ovladaÄ jmÃ©nem
 <a href="http://www.elis.rug.ac.be/~ronsse/cdfs/" target="_top">cdfs</a>
-(není sou&#269;ástí oficiálního kernelu), který zobrazuje CD sekce jako
-obrazové soubory a program
-<a href="http://cdrdao.sf.net/" target="_top">cdrdao</a>, který bit-po-bitu
-grabuje/kopíruje CD.
-</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="dvd.html">P&#345;edcházející</a> </td><td width="20%" align="center"><a accesskey="u" href="cd-dvd.html">Nahoru</a></td><td width="40%" align="right"> <a accesskey="n" href="faq.html">Dal&#353;í</a></td></tr><tr><td width="40%" align="left" valign="top">4.2. P&#345;ehrávání DVD </td><td width="20%" align="center"><a accesskey="h" href="index.html">Dom&#367;</a></td><td width="40%" align="right" valign="top"> Kapitola 5. &#268;asto Kladené Dotazy (FAQ)</td></tr></table></div></body></html>
+(nenÃ­ souÄÃ¡stÃ­ oficiÃ¡lnÃ­ho jÃ¡dra), kterÃ½ zobrazuje CD sekce jako
+obrazovÃ© soubory a program
+<a href="http://cdrdao.sf.net/" target="_top">cdrdao</a>, kterÃ½ bit-po-bitu
+grabuje/kopÃ­ruje CD.
+</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="dvd.html">PÅ™edchÃ¡zejÃ­cÃ­</a>Â </td><td width="20%" align="center"><a accesskey="u" href="cd-dvd.html">Nahoru</a></td><td width="40%" align="right">Â <a accesskey="n" href="faq.html">DalÅ¡Ã­</a></td></tr><tr><td width="40%" align="left" valign="top">4.2. PÅ™ehrÃ¡vÃ¡nÃ­ DVDÂ </td><td width="20%" align="center"><a accesskey="h" href="index.html">DomÅ¯</a></td><td width="40%" align="right" valign="top">Â Kapitola 5. ÄŒasto KladenÃ© Dotazy (FAQ)</td></tr></table></div></body></html>

@@ -51,8 +51,8 @@
 - (BOOL) resignFirstResponder;
 
 //window & rendering
-- (id) preinit;
-- (id) config;
+- (void) preinit;
+- (void) config;
 - (void) prepareOpenGL;
 - (void) render;
 - (void) reshape;
@@ -73,8 +73,11 @@
 - (void) keyDown: (NSEvent *) theEvent;
 - (void) mouseMoved: (NSEvent *) theEvent;
 - (void) mouseDown: (NSEvent *) theEvent;
+- (void) mouseUp: (NSEvent *) theEvent;
 - (void) rightMouseDown: (NSEvent *) theEvent;
+- (void) rightMouseUp: (NSEvent *) theEvent;
 - (void) otherMouseDown: (NSEvent *) theEvent;
+- (void) otherMouseUp: (NSEvent *) theEvent;
 - (void) scrollWheel: (NSEvent *) theEvent;
 - (void) mouseEvent: (NSEvent *) theEvent;
 - (void) check_events;

@@ -10,10 +10,9 @@
 #include "mp_msg.h"
 #include "help_mp.h"
 
-#include "stream.h"
+#include "stream/stream.h"
 #include "demuxer.h"
 #include "stheader.h"
-#include "bswap.h"
 
 #ifdef USE_LIBAVCODEC_SO
 #include <ffmpeg/avcodec.h>
@@ -80,7 +79,7 @@ typedef struct {
 } vivo_priv_t;
 
 /* parse all possible extra headers */
-/* (audio headers are seperate - mostly with recordtype=3 or 4) */
+/* (audio headers are separate - mostly with recordtype=3 or 4) */
 #define TEXTPARSE_ALL 1
 
 static void vivo_parse_text_header(demuxer_t *demux, int header_len)

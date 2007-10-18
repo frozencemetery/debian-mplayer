@@ -1,28 +1,40 @@
-#
-# libavutil Makefile
-#
 include ../config.mak
 
-CFLAGS+=-DBUILD_AVUTIL
+OBJS = adler32.o \
+       aes.o \
+       base64.o \
+       crc.o \
+       intfloat_readwrite.o \
+       fifo.o \
+       lls.o \
+       log.o \
+       lzo.o \
+       mathematics.o \
+       md5.o \
+       mem.o \
+       random.o \
+       rational.o \
+       string.o \
+       tree.o \
 
-OBJS= mathematics.o \
-      rational.o \
-      intfloat_readwrite.o \
-      crc.o \
-      md5.o \
-      lls.o \
-      adler32.o \
-      log.o \
-      mem.o \
-      fifo.o \
-
-HEADERS = avutil.h common.h mathematics.h integer.h rational.h \
-          intfloat_readwrite.h md5.h adler32.h log.h fifo.h
+HEADERS = adler32.h \
+          avstring.h \
+          avutil.h \
+          base64.h \
+          common.h \
+          fifo.h \
+          integer.h \
+          intfloat_readwrite.h \
+          log.h \
+          lzo.h \
+          mathematics.h \
+          md5.h \
+          mem.h \
+          random.h \
+          rational.h \
 
 NAME=avutil
-ifeq ($(BUILD_SHARED),yes)
 LIBVERSION=$(LAVUVERSION)
 LIBMAJOR=$(LAVUMAJOR)
-endif
 
-include $(SRC_PATH)/common.mak
+include ../common.mak

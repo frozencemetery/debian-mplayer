@@ -24,7 +24,6 @@
  * source code.
  */
 
-#include "common.h"
 #include "avcodec.h"
 #include "dsputil.h"
 
@@ -39,10 +38,10 @@
 
 #define M(a,b) (((a) * (b))>>16)
 
-static always_inline void idct(uint8_t *dst, int stride, int16_t *input, int type)
+static av_always_inline void idct(uint8_t *dst, int stride, int16_t *input, int type)
 {
     int16_t *ip = input;
-    uint8_t *cm = cropTbl + MAX_NEG_CROP;
+    uint8_t *cm = ff_cropTbl + MAX_NEG_CROP;
 
     int A, B, C, D, Ad, Bd, Cd, Dd, E, F, G, H;
     int Ed, Gd, Add, Bdd, Fd, Hd;

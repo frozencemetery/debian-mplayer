@@ -1,92 +1,98 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>7.2. Audió codec-ek</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="codecs.html" title="7. fejezet - Codec-ek"><link rel="prev" href="video-codecs.html" title="7.1. Videó codec-ek"><link rel="next" href="codec-importing.html" title="7.3. Win32 codec importálási HOGYAN"><link rel="preface" href="howtoread.html" title="Hogyan olvasd ezt a dokumentációt"><link rel="chapter" href="intro.html" title="1. fejezet - Bevezetés"><link rel="chapter" href="install.html" title="2. fejezet - Telepítés"><link rel="chapter" href="usage.html" title="3. fejezet - Használat"><link rel="chapter" href="cd-dvd.html" title="4. fejezet - CD/DVD használat"><link rel="chapter" href="faq.html" title="5. fejezet - Gyakran ismételt kérdések"><link rel="chapter" href="containers.html" title="6. fejezet - Konténerek"><link rel="chapter" href="codecs.html" title="7. fejezet - Codec-ek"><link rel="chapter" href="video.html" title="8. fejezet - Videó kimeneti eszközök"><link rel="chapter" href="audio.html" title="9. fejezet - Audió kimeneti eszközök"><link rel="chapter" href="tv.html" title="10. fejezet - TV"><link rel="chapter" href="radio.html" title="11. fejezet - Rádió"><link rel="chapter" href="ports.html" title="12. fejezet - Portok"><link rel="chapter" href="mencoder.html" title="13. fejezet - A MEncoder használatának alapjai"><link rel="chapter" href="encoding-guide.html" title="14. fejezet - Kódolás a MEncoderrel"><link rel="appendix" href="bugreports.html" title="A. függelék - Hogyan jelentsd a hibákat"><link rel="appendix" href="bugs.html" title="B. függelék - Ismert hibák"><link rel="appendix" href="skin.html" title="C. függelék - MPlayer skin formátum"><link rel="appendix" href="history.html" title="D. függelék - Történelem"><link rel="subsection" href="audio-codecs.html#swac3" title="7.2.1. Szoftveres AC3 dekódolás"><link rel="subsection" href="audio-codecs.html#hwac3" title="7.2.2. Hardveres AC3 dekódolás"><link rel="subsection" href="audio-codecs.html#libmad" title="7.2.3. libmad támogatás"><link rel="subsection" href="audio-codecs.html#hwmpa" title="7.2.4. Hardveres MPEG audió codec"><link rel="subsection" href="audio-codecs.html#aac" title="7.2.5. AAC codec"><link rel="subsection" href="audio-codecs.html#amr" title="7.2.6. AMR codec-ek"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">7.2. Audió codec-ek</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="video-codecs.html">El&#337;z&#337;</a> </td><th width="60%" align="center">7. fejezet - Codec-ek</th><td width="20%" align="right"> <a accesskey="n" href="codec-importing.html">Következ&#337;</a></td></tr></table><hr></div><div class="sect1" lang="hu"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="audio-codecs"></a>7.2. Audió codec-ek</h2></div></div></div><div class="itemizedlist"><p class="title"><b>A legfontosabb audió codec-ek:</b></p><ul type="disc"><li>
-  MPEG layer 1/2/3 (MP1/2/3) audió (<span class="bold"><strong>natív</strong></span>
-  kód, MMX/SSE/3DNow! optimalizációval)
-  </li><li>
-  Windows Media Audio 7 és 8 (ismert mint WMAv1 és WMAv2) (<span class="bold"><strong>natív</strong></span> kód,
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>7.2. AudiÃ³ codec-ek</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="codecs.html" title="7. fejezet - Codec-ek"><link rel="prev" href="video-codecs.html" title="7.1. VideÃ³ codec-ek"><link rel="next" href="codec-importing.html" title="7.3. Win32 codec importÃ¡lÃ¡si HOGYAN"><link rel="preface" href="howtoread.html" title="Hogyan olvasd ezt a dokumentÃ¡ciÃ³t"><link rel="chapter" href="intro.html" title="1. fejezet - BevezetÃ©s"><link rel="chapter" href="install.html" title="2. fejezet - TelepÃ­tÃ©s"><link rel="chapter" href="usage.html" title="3. fejezet - HasznÃ¡lat"><link rel="chapter" href="cd-dvd.html" title="4. fejezet - CD/DVD hasznÃ¡lat"><link rel="chapter" href="faq.html" title="5. fejezet - Gyakran ismÃ©telt kÃ©rdÃ©sek"><link rel="chapter" href="containers.html" title="6. fejezet - KontÃ©nerek"><link rel="chapter" href="codecs.html" title="7. fejezet - Codec-ek"><link rel="chapter" href="video.html" title="8. fejezet - VideÃ³ kimeneti eszkÃ¶zÃ¶k"><link rel="chapter" href="audio.html" title="9. fejezet - AudiÃ³ kimeneti eszkÃ¶zÃ¶k"><link rel="chapter" href="tv.html" title="10. fejezet - TV"><link rel="chapter" href="radio.html" title="11. fejezet - RÃ¡diÃ³"><link rel="chapter" href="ports.html" title="12. fejezet - Portok"><link rel="chapter" href="mencoder.html" title="13. fejezet - A MEncoder hasznÃ¡latÃ¡nak alapjai"><link rel="chapter" href="encoding-guide.html" title="14. fejezet - KÃ³dolÃ¡s a MEncoderrel"><link rel="appendix" href="bugreports.html" title="A. fÃ¼ggelÃ©k - Hogyan jelentsd a hibÃ¡kat"><link rel="appendix" href="bugs.html" title="B. fÃ¼ggelÃ©k - Ismert hibÃ¡k"><link rel="appendix" href="skin.html" title="C. fÃ¼ggelÃ©k - MPlayer skin formÃ¡tum"><link rel="appendix" href="history.html" title="D. fÃ¼ggelÃ©k - TÃ¶rtÃ©nelem"><link rel="subsection" href="audio-codecs.html#swac3" title="7.2.1. Szoftveres AC-3 dekÃ³dolÃ¡s"><link rel="subsection" href="audio-codecs.html#hwac3" title="7.2.2. Hardveres AC-3 dekÃ³dolÃ¡s"><link rel="subsection" href="audio-codecs.html#libmad" title="7.2.3. libmad tÃ¡mogatÃ¡s"><link rel="subsection" href="audio-codecs.html#hwmpa" title="7.2.4. Hardveres MPEG audiÃ³ codec"><link rel="subsection" href="audio-codecs.html#aac" title="7.2.5. AAC codec"><link rel="subsection" href="audio-codecs.html#amr" title="7.2.6. AMR codec-ek"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">7.2. AudiÃ³ codec-ek</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="video-codecs.html">ElÅ‘zÅ‘</a>Â </td><th width="60%" align="center">7. fejezet - Codec-ek</th><td width="20%" align="right">Â <a accesskey="n" href="codec-importing.html">KÃ¶vetkezÅ‘</a></td></tr></table><hr></div><div class="sect1" lang="hu"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="audio-codecs"></a>7.2. AudiÃ³ codec-ek</h2></div></div></div><div class="itemizedlist"><p class="title"><b>A legfontosabb audiÃ³ codec-ek:</b></p><ul type="disc"><li><p>
+  MPEG layer 1/2/3 (MP1/2/3) audiÃ³ (<span class="bold"><strong>natÃ­v</strong></span>
+  kÃ³d, MMX/SSE/3DNow! optimalizÃ¡ciÃ³val)
+</p></li><li><p>
+  Windows Media Audio 7 Ã©s 8 (ismert mint WMAv1 Ã©s WMAv2)
+  (<span class="bold"><strong>natÃ­v</strong></span> kÃ³d,
   <a href="video-codecs.html#ffmpeg" title="7.1.1. FFmpeg/libavcodec"><code class="systemitem">libavcodec</code></a>-kel)
-  </li><li>
+</p></li><li><p>
   Windows Media Audio 9 (WMAv3) (DMO DLL-lel)
-  </li><li>
-  AC3 Dolby audió (<span class="bold"><strong>natív</strong></span> kód,
-  MMX/SSE/3DNow! optimalizációval)
-  </li><li>
-  hangkártyán átereszt&#337; AC3
-  </li><li>
+</p></li><li><p>
+  AC-3 Dolby audiÃ³ (<span class="bold"><strong>natÃ­v</strong></span> kÃ³d,
+  MMX/SSE/3DNow! optimalizÃ¡ciÃ³val)
+</p></li><li><p>
+  hangkÃ¡rtyÃ¡n Ã¡teresztÅ‘ AC-3
+</p></li><li><p>
   AAC
-  </li><li>
-  Ogg Vorbis audió codec (<span class="bold"><strong>natív</strong></span> függvénykönyvtár)
-  </li><li>
-  RealAudio: DNET (alacsony bitrátájú AC3), Cook, Sipro és ATRAC3
-  </li><li>
-  QuickTime: Qualcomm és QDesign audió codec-ek
-  </li><li>
-  VIVO audió (g723, Vivo Siren)
-  </li><li>
-  Voxware audió (DirectShow DLL használatával)
-  </li><li>
-  alaw és ulaw, számos gsm, adpcm és pcm formátum és más, egyszer&#369;, régi
-  audió codec
-  </li><li>
-  Adaptive Multi-Rate (AMR) beszéd codec
-  </li></ul></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="swac3"></a>7.2.1. Szoftveres AC3 dekódolás</h3></div></div></div><p>
-Ez az alapértelmezésben használt dekódoló az AC3 audiójú fájlokhoz.
+</p></li><li><p>
+  Ogg Vorbis audiÃ³ codec (<span class="bold"><strong>natÃ­v</strong></span> fÃ¼ggvÃ©nykÃ¶nyvtÃ¡r)
+</p></li><li><p>
+  RealAudio: DNET (alacsony bitrÃ¡tÃ¡jÃº AC-3), Cook, Sipro Ã©s ATRAC3
+</p></li><li><p>
+  QuickTime: Qualcomm Ã©s QDesign audiÃ³ codec-ek
+</p></li><li><p>
+  VIVO audiÃ³ (g723, Vivo Siren)
+</p></li><li><p>
+  Voxware audiÃ³ (DirectShow DLL hasznÃ¡latÃ¡val)
+</p></li><li><p>
+  alaw Ã©s ulaw, szÃ¡mos gsm, adpcm Ã©s pcm formÃ¡tum Ã©s mÃ¡s, egyszerÅ±, rÃ©gi
+  audiÃ³ codec
+</p></li><li><p>
+  Adaptive Multi-Rate (AMR) beszÃ©d codec
+</p></li></ul></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="swac3"></a>7.2.1. Szoftveres AC-3 dekÃ³dolÃ¡s</h3></div></div></div><p>
+Ez az alapÃ©rtelmezÃ©sben hasznÃ¡lt dekÃ³dolÃ³ az AC-3 audiÃ³jÃº fÃ¡jlokhoz.
 </p><p>
-Az AC3 dekódoló 2, 4 vagy 6 csatornás hangkimenet keverést tud csinálni.
-Ha 6 hangszóróra van beállítva, ez a dekódoló külön kimenetet biztosít hang
-vezérl&#337; összes AC3 csatornájának, létrehozva így a teljes "surround
-sound" hatást, a hwac3 codec-hez szükséges küls&#337; AC3 dekódoló nélkül.
+Az AC-3 dekÃ³dolÃ³ 2, 4 vagy 6 csatornÃ¡s hangkimenet keverÃ©st tud csinÃ¡lni.
+Ha 6 hangszÃ³rÃ³ra van beÃ¡llÃ­tva, ez a dekÃ³dolÃ³ kÃ¼lÃ¶n kimenetet biztosÃ­t
+hang vezÃ©rlÅ‘ Ã¶sszes AC-3 csatornÃ¡jÃ¡nak, lÃ©trehozva Ã­gy a teljes "surround
+sound" hatÃ¡st, a hwac3 codec-hez szÃ¼ksÃ©ges kÃ¼lsÅ‘ AC-3 dekÃ³dolÃ³ nÃ©lkÃ¼l.
 </p><p>
-Használd a <tt class="option">-channels</tt> kapcsolót a kimeneti csatornák számának
-megadásához. A <tt class="option">-channels 2</tt> sztereo downmix-et produkál. Egy 4
-csatornás downmixhez (bal elüls&#337;, jobb elüls&#337;, bal Surround és jobb Surround
-kimenet) használd a <tt class="option">-channels 4</tt> kapcsolót. Ebben az esetben,
-bármelyik középs&#337; csatorna egyenl&#337;en lesz elkeverve az elüls&#337; csatornákhoz.
-A <tt class="option">-channels 6</tt> kapcsoló minden AC3 csatornát úgy ad ki, ahogy
-azok kódolva lettek - bal, jobb, bal Surround, jobb Surround, Center és LFE
+HasznÃ¡ld a <tt class="option">-channels</tt> kapcsolÃ³t a kimeneti csatornÃ¡k szÃ¡mÃ¡nak
+megadÃ¡sÃ¡hoz. A <tt class="option">-channels 2</tt> sztereo downmix-et produkÃ¡l. Egy 4
+csatornÃ¡s downmixhez (bal elÃ¼lsÅ‘, jobb elÃ¼lsÅ‘, bal Surround Ã©s jobb Surround
+kimenet) hasznÃ¡ld a <tt class="option">-channels 4</tt> kapcsolÃ³t. Ebben az esetben,
+bÃ¡rmelyik kÃ¶zÃ©psÅ‘ csatorna egyenlÅ‘en lesz elkeverve az elÃ¼lsÅ‘ csatornÃ¡khoz.
+A <tt class="option">-channels 6</tt> kapcsolÃ³ minden AC-3 csatornÃ¡t Ãºgy ad ki, ahogy
+azok kÃ³dolva lettek - bal, jobb, bal Surround, jobb Surround, Center Ã©s LFE
 sorrendben.
 </p><p>
-A csatornák alapértelmezett száma 2.
+A csatornÃ¡k alapÃ©rtelmezett szÃ¡ma 2.
 </p><p>
-2-nél több kimeneti csatorna használatához OSS-t kell használnod, és egy olyan
-hangkártyával kell rendelkezned, ami támogatja a megfelel&#337; számú kimeneti
-csatornát az SNDCTL_DSP_CHANNELS ioctl-en keresztül. Például az emu10k1
-2001. augusztus vagy kés&#337;bbi verziói megfelel&#337; vezérl&#337;k (a Soundblaster Live!
-kártyák használják, de az ALSA CVS is valószín&#369;leg m&#369;ködik).
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="hwac3"></a>7.2.2. Hardveres AC3 dekódolás</h3></div></div></div><p>
-AC3-at támogató hangkártyára lesz szükséges, digitális kimenettel (S/PDIF). A
-kártya vezérl&#337;jének megfelel&#337;en támogatnia kell az AFMT_AC3 formátumot
-(a C-Media támogatja). Csatlakoztasd az AC3 dekódolódat az S/PDIF kimenethez és
-használd a <tt class="option">-ac hwac3</tt> kapcsolót. Még kisérleti kód, de m&#369;ködik
-C-Media kártyákon és Soundblaster Live! + ALSA (de OSS-en nem) vezérl&#337;vel,
-valamint DXR3/Hollywood+ MPEG dekódoló kártyákon.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="libmad"></a>7.2.3. libmad támogatás</h3></div></div></div><p>
-A <a href="http://www.underbit.com/products/mad/" target="_top">libmad</a> egy többplatformos,
-csak egész (bels&#337; 24bit-es PCM) alapú MPEG audió dekódoló függvénykönyvtár.
-Nem kezeli jól a sérült fájlokat, és néha problémái vannak a kereséssel, de
-jobb a teljesítménye FPU nélküli rendszereken 
-(mint pl. az <a href="linux.html#arm" title="12.1.3. ARM">ARM</a>), mint az mp3lib-é.
+2-nÃ©l tÃ¶bb kimeneti csatorna hasznÃ¡latÃ¡hoz OSS-t kell hasznÃ¡lnod, Ã©s egy
+olyan hangkÃ¡rtyÃ¡val kell rendelkezned, ami tÃ¡mogatja a megfelelÅ‘ szÃ¡mÃº
+kimeneti csatornÃ¡t az SNDCTL_DSP_CHANNELS ioctl-en keresztÃ¼l. PÃ©ldÃ¡ul az
+emu10k1 2001. augusztus vagy kÃ©sÅ‘bbi verziÃ³i megfelelÅ‘ vezÃ©rlÅ‘k (a Soundblaster
+Live! kÃ¡rtyÃ¡k hasznÃ¡ljÃ¡k, de az ALSA CVS is valÃ³szÃ­nÅ±leg mÅ±kÃ¶dik).
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="hwac3"></a>7.2.2. Hardveres AC-3 dekÃ³dolÃ¡s</h3></div></div></div><p>
+AC-3-at tÃ¡mogatÃ³ hangkÃ¡rtyÃ¡ra lesz szÃ¼ksÃ©ges, digitÃ¡lis kimenettel (S/PDIF).
+A kÃ¡rtya vezÃ©rlÅ‘jÃ©nek megfelelÅ‘en tÃ¡mogatnia kell az AFMT_AC3 formÃ¡tumot
+(a C-Media tÃ¡mogatja). Csatlakoztasd az AC-3 dekÃ³dolÃ³dat az S/PDIF kimenethez
+Ã©s hasznÃ¡ld a <tt class="option">-ac hwac3</tt> kapcsolÃ³t. MÃ©g kisÃ©rleti kÃ³d, de
+mÅ±kÃ¶dik C-Media kÃ¡rtyÃ¡kon Ã©s Soundblaster Live! + ALSA (de OSS-en nem)
+vezÃ©rlÅ‘vel, valamint DXR3/Hollywood+ MPEG dekÃ³dolÃ³ kÃ¡rtyÃ¡kon.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="libmad"></a>7.2.3. <code class="systemitem">libmad</code> tÃ¡mogatÃ¡s</h3></div></div></div><p>
+A <a href="http://www.underbit.com/products/mad/" target="_top"><code class="systemitem">libmad</code></a>
+egy tÃ¶bbplatformos, csak egÃ©sz (belsÅ‘ 24bit-es PCM) alapÃº MPEG audiÃ³
+dekÃ³dolÃ³ fÃ¼ggvÃ©nykÃ¶nyvtÃ¡r. Nem kezeli jÃ³l a sÃ©rÃ¼lt fÃ¡jlokat, Ã©s nÃ©ha
+problÃ©mÃ¡i vannak a keresÃ©ssel, de jobb a teljesÃ­tmÃ©nye FPU nÃ©lkÃ¼li
+rendszereken (mint pl. az <a href="linux.html#arm" title="12.1.3. ARM">ARM</a>), mint az
+<code class="systemitem">mp3lib</code>-Ã©.
 </p><p>
-Ha van megfelel&#337; libmad telepítve, a <tt class="filename">configure</tt>
-automatikusan észleli és beépíti a támogatást az MPEG audió
-<code class="systemitem">libmad</code>-on keresztüli dekódolásához.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="hwmpa"></a>7.2.4. Hardveres MPEG audió codec</h3></div></div></div><p>
-Ez a codec (a -ac hwmpa kapcsolóval választhatod ki) az MPEG audió csomagokat
-átadja a hardveres dekódolóknak, mint amilyenek például a jól felszerelt DVB
-kártyákon és DXR2 adaptereken vannak.
-Ne használd másik audió kimeneti eszközzel együtt (mint az OSS vagy ALSA),
-ami nem képes dekódolni (csak zajt fogsz hallanis).
+Ha van megfelelÅ‘ <code class="systemitem">libmad</code> telepÃ­tve,
+a <tt class="filename">./configure</tt> automatikusan Ã©szleli Ã©s beÃ©pÃ­ti
+a tÃ¡mogatÃ¡st az MPEG audiÃ³
+<code class="systemitem">libmad</code>-on
+keresztÃ¼li dekÃ³dolÃ¡sÃ¡hoz.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="hwmpa"></a>7.2.4. Hardveres MPEG audiÃ³ codec</h3></div></div></div><p>
+Ez a codec (a <tt class="option">-ac hwmpa</tt> kapcsolÃ³val vÃ¡laszthatod ki) az
+MPEG audiÃ³ csomagokat Ã¡tadja a hardveres dekÃ³dolÃ³knak, mint amilyenek pÃ©ldÃ¡ul
+a jÃ³l felszerelt DVB kÃ¡rtyÃ¡kon Ã©s DXR2 adaptereken vannak.
+Ne hasznÃ¡ld mÃ¡sik audiÃ³ kimeneti eszkÃ¶zzel egyÃ¼tt (mint az OSS vagy ALSA),
+ami nem kÃ©pes dekÃ³dolni (csak zajt fogsz hallanis).
 </p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="aac"></a>7.2.5. AAC codec</h3></div></div></div><p>
-Az AAC (Advanced Audio Coding) egy audió codec, amit néha MOV és MP4 fájlokban
-található. Egy FAAD nev&#369;, nyílt forráskódú dekódoló elérhet&#337; a
-<a href="http://www.audiocoding.com" target="_top">http://www.audiocoding.com</a> címen.
-Az <span class="application">MPlayer</span> tartalmazza a libfaad 2.1 béta CVS kódját,
-nem szükséges külön beszerezni.
+Az AAC (Advanced Audio Coding) egy audiÃ³ codec, amit nÃ©ha MOV Ã©s MP4
+fÃ¡jlokban talÃ¡lhatÃ³. Egy FAAD nevÅ±, nyÃ­lt forrÃ¡skÃ³dÃº dekÃ³dolÃ³ elÃ©rhetÅ‘ a
+<a href="http://www.audiocoding.com" target="_top">http://www.audiocoding.com</a> cÃ­men.
+Az <span class="application">MPlayer</span> tartalmazza a libfaad 2.1 bÃ©ta
+CVS kÃ³djÃ¡t, nem szÃ¼ksÃ©ges kÃ¼lÃ¶n beszerezni.
 </p><p>
-Ha gcc 3.2-t használsz, ami nem tudja lefordítani a bels&#337; FAAD forrásunkat vagy valami
-más okból a küls&#337; függvénykönyvtárat szeretnéd használni, töltsd le a
-<a href="http://www.audiocoding.com/modules/mydownloads/" target="_top">letöltési oldalról</a>
-és add meg a <tt class="option">--enable-faad-external</tt> kapcsolót a <tt class="filename">configure</tt>-nak.
-Nem kell a teljes faad2 az AAC fájlok dekódolásához, a libfaad elég. Így készítsd el:
+Ha gcc 3.2-t hasznÃ¡lsz, ami nem tudja lefordÃ­tani a belsÅ‘ FAAD forrÃ¡sunkat vagy
+valami mÃ¡s okbÃ³l a kÃ¼lsÅ‘ fÃ¼ggvÃ©nykÃ¶nyvtÃ¡rat szeretnÃ©d hasznÃ¡lni, tÃ¶ltsd le a
+<a href="http://www.audiocoding.com/modules/mydownloads/" target="_top">letÃ¶ltÃ©si oldalrÃ³l</a>
+Ã©s add meg a <tt class="option">--enable-faad-external</tt>
+kapcsolÃ³t a <tt class="filename">./configure</tt>-nak.
+Nem kell a teljes faad2 az AAC fÃ¡jlok dekÃ³dolÃ¡sÃ¡hoz, a libfaad elÃ©g.
+Ãgy kÃ©szÃ­tsd el:
 </p><pre class="screen">
 cd faad2/
 sh bootstrap
@@ -95,31 +101,18 @@ cd libfaad
 make
 make install
 </pre><p>
-Binárisok nem tölthet&#337;ek le az audiocoding.com-ról, de (apt-)get-tel feltelepítheted
-Debian csomagokból <a href="http://www.debian-multimedia.org/" target="_top">Christian Marillat weboldaláról</a>,
-vagy Mandrake/Mandriva RPM-b&#337;l a <a href="http://plf.zarb.org" target="_top">P.L.F</a>-r&#337;l, RedHat RPM-b&#337;l
-pedig a <a href="http://greysector.rangers.eu.org/" target="_top">Grey Sector</a>-tól.
+BinÃ¡risok nem tÃ¶lthetÅ‘ek le az audiocoding.com-rÃ³l, de (apt-)get-tel
+feltelepÃ­theted Debian csomagokbÃ³l
+<a href="http://www.debian-multimedia.org/" target="_top">Christian Marillat weboldalÃ¡rÃ³l</a>,
+vagy Mandrake/Mandriva RPM-bÅ‘l a <a href="http://plf.zarb.org" target="_top">P.L.F</a>-rÅ‘l,
+Fedora RPM-bÅ‘l pedig a <a href="http://rpm.livna.org/" target="_top">Livna</a>-rÃ³l.
 </p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="amr"></a>7.2.6. AMR codec-ek</h3></div></div></div><p>
-Az Adaptive Multi-Rate beszéd codec-et harmadik generációs (3G) mobiltelefonokban
-használják.
-A referencia implementáció elérhet&#337;
-<a href="http://www.3gpp.org" target="_top">A 3. Generációs Együttm&#369;ködés Projekt</a>
-oldalán (személyes felhasználásra ingyenes).
-</p><p>
-A támogatás engedélyezéséhez töltsd le az
-<a href="http://www.3gpp.org/ftp/Specs/latest/Rel-6/26_series/26104-610.zip" target="_top">AMR-NB</a>
-és
-<a href="http://www.3gpp.org/ftp/Specs/latest/Rel-6/26_series/26204-600.zip" target="_top">AMR-WB</a>
-codec-ek forrását, tedd be abba a könyvtárba, ahol az
-<span class="application">MPlayer</span> forrása van és futtasd az alábbi parancsokat:
-</p><pre class="screen">
-unzip 26104-610.zip
-unzip 26104-610_ANSI_C_source_code.zip
-mv c-code libavcodec/amr_float
-unzip 26204-600.zip
-unzip 26204-600_ANSI-C_source_code.zip
-mv c-code libavcodec/amrwb_float
-</pre><p>
-Ezután kövesd a szokásos <span class="application">MPlayer</span>
-<a href="features.html" title="2.4. Jellemz&#337;k">fordítási lépéseket</a>.
-</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="video-codecs.html">El&#337;z&#337;</a> </td><td width="20%" align="center"><a accesskey="u" href="codecs.html">Fel</a></td><td width="40%" align="right"> <a accesskey="n" href="codec-importing.html">Következ&#337;</a></td></tr><tr><td width="40%" align="left" valign="top">7.1. Videó codec-ek </td><td width="20%" align="center"><a accesskey="h" href="index.html">Tartalom</a></td><td width="40%" align="right" valign="top"> 7.3. Win32 codec importálási HOGYAN</td></tr></table></div></body></html>
+Az Adaptive Multi-Rate beszÃ©d codec-et harmadik generÃ¡ciÃ³s (3G) mobiltelefonokban
+hasznÃ¡ljÃ¡k.
+A referencia implementÃ¡ciÃ³ elÃ©rhetÅ‘
+<a href="http://www.3gpp.org" target="_top">A 3. GenerÃ¡ciÃ³s EgyÃ¼ttmÅ±kÃ¶dÃ©s Projekt</a>
+oldalÃ¡n (szemÃ©lyes felhasznÃ¡lÃ¡sra ingyenes).
+A tÃ¡mogatÃ¡s bekapcsolÃ¡sÃ¡hoz tÃ¶ltsd le Ã©s telepÃ­tsd a fÃ¼ggvÃ©nykÃ¶nyvtÃ¡rakat az
+<a href="http://www.penguin.cz/~utx/amr" target="_top">AMR-NB Ã©s AMR-WB</a>-hez
+az oldal utasÃ­tÃ¡sait kÃ¶vetve. UtÃ¡na forgasd Ãºjra az MPlayert!
+</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="video-codecs.html">ElÅ‘zÅ‘</a>Â </td><td width="20%" align="center"><a accesskey="u" href="codecs.html">Fel</a></td><td width="40%" align="right">Â <a accesskey="n" href="codec-importing.html">KÃ¶vetkezÅ‘</a></td></tr><tr><td width="40%" align="left" valign="top">7.1. VideÃ³ codec-ekÂ </td><td width="20%" align="center"><a accesskey="h" href="index.html">Tartalom</a></td><td width="40%" align="right" valign="top">Â 7.3. Win32 codec importÃ¡lÃ¡si HOGYAN</td></tr></table></div></body></html>

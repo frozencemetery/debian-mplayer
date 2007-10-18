@@ -1,70 +1,78 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>13.8. Enkódování z mno&#382;ství vstupních obrázkových soubor&#367; (JPEG, PNG, TGA, SGI)</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - Multimediální p&#345;ehráva&#269;"><link rel="up" href="mencoder.html" title="Kapitola 13. Základní pou&#382;ití MEncoderu"><link rel="prev" href="menc-feat-streamcopy.html" title="13.7. Proudové kopírování"><link rel="next" href="menc-feat-extractsub.html" title="13.9. Extrakce DVD titulk&#367; do VOBsub souboru"><link rel="preface" href="howtoread.html" title="Jak &#269;íst tuto  dokumentaci"><link rel="chapter" href="intro.html" title="Kapitola 1. P&#345;edstavení"><link rel="chapter" href="install.html" title="Kapitola 2. Instalace"><link rel="chapter" href="usage.html" title="Kapitola 3. Pou&#382;ití"><link rel="chapter" href="cd-dvd.html" title="Kapitola 4. Pou&#382;ití CD/DVD"><link rel="chapter" href="faq.html" title="Kapitola 5. &#268;asto Kladené Dotazy (FAQ)"><link rel="chapter" href="containers.html" title="Kapitola 6. Nosné formáty (Containers)"><link rel="chapter" href="codecs.html" title="Kapitola 7. Kodeky"><link rel="chapter" href="video.html" title="Kapitola 8. Výstupní video za&#345;ízení/rozhraní"><link rel="chapter" href="audio.html" title="Kapitola 9. Výstupní zvuková za&#345;ízení"><link rel="chapter" href="tv.html" title="Kapitola 10. TV"><link rel="chapter" href="radio.html" title="Kapitola 11. Rádio"><link rel="chapter" href="ports.html" title="Kapitola 12. Porty"><link rel="chapter" href="mencoder.html" title="Kapitola 13. Základní pou&#382;ití MEncoderu"><link rel="chapter" href="encoding-guide.html" title="Kapitola 14. Enkódování s MEncoderem"><link rel="appendix" href="bugreports.html" title="P&#345;íloha A. Jak hlásit chyby"><link rel="appendix" href="bugs.html" title="P&#345;íloha B. Známé chyby"><link rel="appendix" href="skin.html" title="P&#345;íloha C. Formát skin&#367; MPlayeru"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">13.8. Enkódování z mno&#382;ství vstupních obrázkových soubor&#367; (JPEG, PNG, TGA, SGI)</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="menc-feat-streamcopy.html">P&#345;edcházející</a> </td><th width="60%" align="center">Kapitola 13. Základní pou&#382;ití <span class="application">MEncoder</span>u</th><td width="20%" align="right"> <a accesskey="n" href="menc-feat-extractsub.html">Dal&#353;í</a></td></tr></table><hr></div><div class="sect1" lang="cs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-enc-images"></a>13.8. Enkódování z mno&#382;ství vstupních obrázkových soubor&#367; (JPEG, PNG, TGA, SGI)</h2></div></div></div><p>
-<span class="application">MEncoder</span> je schopen vytvo&#345;it film z jednoho nebo více
-JPEG, PNG nebo TGA soubor&#367;. Pomocí jednoduchého snímkového kopírování m&#367;&#382;e
-vytvo&#345;it MJPEG (Motion JPEG), MPNG (Motion PNG) nebo MTGA (Motion TGA) soubory.
-</p><div class="orderedlist"><p class="title"><b>Vysv&#283;tlení procesu:</b></p><ol type="1"><li><p>
-  <span class="application">MEncoder</span> <span class="emphasis"><em>dekóduje</em></span> vstupní
-  soubor(y) pomocí knihovny <code class="systemitem">libjpeg</code>
-  (kdy&#382; dekóduje PNG, pou&#382;ije <code class="systemitem">libpng</code>).
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>13.8. EnkÃ³dovÃ¡nÃ­ z mnoÅ¾stvÃ­ vstupnÃ­ch obrÃ¡zkovÃ½ch souborÅ¯ (JPEG, PNG, TGA, atd.)</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - MultimediÃ¡lnÃ­ pÅ™ehrÃ¡vaÄ"><link rel="up" href="mencoder.html" title="Kapitola 13. ZÃ¡kladnÃ­ pouÅ¾itÃ­ MEncoderu"><link rel="prev" href="menc-feat-streamcopy.html" title="13.7. ProudovÃ© kopÃ­rovÃ¡nÃ­"><link rel="next" href="menc-feat-extractsub.html" title="13.9. Extrakce DVD titulkÅ¯ do VOBsub souboru"><link rel="preface" href="howtoread.html" title="Jak ÄÃ­st tuto dokumentaci"><link rel="chapter" href="intro.html" title="Kapitola 1. PÅ™edstavenÃ­"><link rel="chapter" href="install.html" title="Kapitola 2. Instalace"><link rel="chapter" href="usage.html" title="Kapitola 3. PouÅ¾itÃ­"><link rel="chapter" href="cd-dvd.html" title="Kapitola 4. PouÅ¾itÃ­ CD/DVD"><link rel="chapter" href="faq.html" title="Kapitola 5. ÄŒasto KladenÃ© Dotazy (FAQ)"><link rel="chapter" href="containers.html" title="Kapitola 6. NosnÃ© formÃ¡ty (Containers)"><link rel="chapter" href="codecs.html" title="Kapitola 7. Kodeky"><link rel="chapter" href="video.html" title="Kapitola 8. VÃ½stupnÃ­ video zaÅ™Ã­zenÃ­/rozhranÃ­"><link rel="chapter" href="audio.html" title="Kapitola 9. VÃ½stupnÃ­ zvukovÃ¡ zaÅ™Ã­zenÃ­"><link rel="chapter" href="tv.html" title="Kapitola 10. TV"><link rel="chapter" href="radio.html" title="Kapitola 11. RÃ¡dio"><link rel="chapter" href="ports.html" title="Kapitola 12. Porty"><link rel="chapter" href="mencoder.html" title="Kapitola 13. ZÃ¡kladnÃ­ pouÅ¾itÃ­ MEncoderu"><link rel="chapter" href="encoding-guide.html" title="Kapitola 14. EnkÃ³dovÃ¡nÃ­ s MEncoderem"><link rel="appendix" href="bugreports.html" title="PÅ™Ã­loha A. Jak hlÃ¡sit chyby"><link rel="appendix" href="bugs.html" title="PÅ™Ã­loha B. ZnÃ¡mÃ© chyby"><link rel="appendix" href="skin.html" title="PÅ™Ã­loha C. FormÃ¡t skinÅ¯ MPlayeru"><link rel="appendix" href="history.html" title="PÅ™Ã­loha D. Historie"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">13.8. EnkÃ³dovÃ¡nÃ­ z mnoÅ¾stvÃ­ vstupnÃ­ch obrÃ¡zkovÃ½ch souborÅ¯ (JPEG, PNG, TGA, atd.)</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="menc-feat-streamcopy.html">PÅ™edchÃ¡zejÃ­cÃ­</a>Â </td><th width="60%" align="center">Kapitola 13. ZÃ¡kladnÃ­ pouÅ¾itÃ­ <span class="application">MEncoder</span>u</th><td width="20%" align="right">Â <a accesskey="n" href="menc-feat-extractsub.html">DalÅ¡Ã­</a></td></tr></table><hr></div><div class="sect1" lang="cs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-enc-images"></a>13.8. EnkÃ³dovÃ¡nÃ­ z mnoÅ¾stvÃ­ vstupnÃ­ch obrÃ¡zkovÃ½ch souborÅ¯ (JPEG, PNG, TGA, atd.)</h2></div></div></div><p>
+<span class="application">MEncoder</span> je schopen vytvoÅ™it film z jednoho nebo vÃ­ce
+JPEG, PNG nebo TGA souborÅ¯. PomocÃ­ jednoduchÃ©ho snÃ­mkovÃ©ho kopÃ­rovÃ¡nÃ­ mÅ¯Å¾e
+vytvoÅ™it MJPEG (Motion JPEG), MPNG (Motion PNG) nebo MTGA (Motion TGA) soubory.
+</p><div class="orderedlist"><p class="title"><b>VysvÄ›tlenÃ­ procesu:</b></p><ol type="1"><li><p>
+  <span class="application">MEncoder</span> <span class="emphasis"><em>dekÃ³duje</em></span> vstupnÃ­
+  soubor(y) pomocÃ­ knihovny <code class="systemitem">libjpeg</code>
+  (kdyÅ¾ dekÃ³duje PNG, pouÅ¾ije <code class="systemitem">libpng</code>).
   </p></li><li><p>
-  Potom <span class="application">MEncoder</span> nakrmí dekódovaný snímek do
-  zvoleného video kompresoru (DivX4, XviD, FFmpeg msmpeg4, atd).
-  </p></li></ol></div><p><b>P&#345;íklady. </b>
-Vysv&#283;tlení volby <tt class="option">-mf</tt> je v man stránce.
+  Potom <span class="application">MEncoder</span> nakrmÃ­ dekÃ³dovanÃ½ snÃ­mek do
+  zvolenÃ©ho video kompresoru (DivX4, Xvid, FFmpeg msmpeg4, atd.).
+  </p></li></ol></div><p><b>PÅ™Ã­klady.Â </b>
+VysvÄ›tlenÃ­ volby <tt class="option">-mf</tt> je v man strÃ¡nce.
 
 </p><div class="informalexample"><p>
-Vytvo&#345;ení MPEG-4 souboru ze v&#353;ech JPEG soubor&#367; v aktuálním adresá&#345;i:
+VytvoÅ™enÃ­ MPEG-4 souboru ze vÅ¡ech JPEG souborÅ¯ v aktuÃ¡lnÃ­m adresÃ¡Å™i:
 </p><pre class="screen">
-mencoder mf://*.jpg -mf w=800:h=600:fps=25:type=jpg -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o <em class="replaceable"><code>výstup.avi</code></em>
+mencoder mf://*.jpg -mf w=800:h=600:fps=25:type=jpg -ovc lavc \
+    -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o <em class="replaceable"><code>vÃ½stup.avi</code></em>
 </pre><p>
 </p></div><p>
 
 </p><div class="informalexample"><p>
-Vytvo&#345;ení MPEG-4 souboru z n&#283;kterých JPEG soubor&#367; v aktuálním adresá&#345;i:
+VytvoÅ™enÃ­ MPEG-4 souboru z nÄ›kterÃ½ch JPEG souborÅ¯ v aktuÃ¡lnÃ­m adresÃ¡Å™i:
 </p><pre class="screen">
-mencoder mf://<em class="replaceable"><code>snímek001.jpg,snímek002.jpg</code></em> -mf w=800:h=600:fps=25:type=jpg -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o <em class="replaceable"><code>výstup.avi</code></em>
+mencoder mf://<em class="replaceable"><code>snÃ­mek001.jpg,snÃ­mek002.jpg</code></em> -mf w=800:h=600:fps=25:type=jpg \
+    -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o <em class="replaceable"><code>vÃ½stup.avi</code></em>
 </pre><p>
 </p></div><p>
 
 </p><div class="informalexample"><p>
-Vytvo&#345;ení MPEG-4 souboru ze seznamu vyjmenovaných JPEG soubor&#367;
-(seznam.txt v aktuálním adresá&#345;i obsahuje seznam soubor&#367; k pou&#382;ití
-jako zdroj, ka&#382;dý soubor na samostatném &#345;ádku):
+VytvoÅ™enÃ­ MPEG-4 souboru ze seznamu vyjmenovanÃ½ch JPEG souborÅ¯
+(seznam.txt v aktuÃ¡lnÃ­m adresÃ¡Å™i obsahuje seznam souborÅ¯ k pouÅ¾itÃ­
+jako zdroj, kaÅ¾dÃ½ soubor na samostatnÃ©m Å™Ã¡dku):
 </p><pre class="screen">
 mencoder mf://<em class="replaceable"><code>@seznam.txt</code></em> -mf w=800:h=600:fps=25:type=jpg \ 
--ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o <em class="replaceable"><code>výstup.avi</code></em>
+    -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o <em class="replaceable"><code>vÃ½stup.avi</code></em>
+</pre><p>
+</p></div><p>
+
+MÅ¯Å¾ete kombinovat rÅ¯znÃ© typy, bez ohledu na metodu, kterou pouÅ¾Ã­vÃ¡te
+â€“ individuÃ¡lnÃ­ jmÃ©na souborÅ¯, Å¾olÃ­ky nebo soubor se seznamem â€“ pÅ™iÄemÅ¾
+musÃ­ mÃ­t pÅ™irozenÄ› stejnÃ© rozmÄ›ry.
+TakÅ¾e mÅ¯Å¾ete napÅ™. vzÃ­t ÃºvodnÃ­ snÃ­mek z PNG souboru
+a pak vloÅ¾it slideshow z JPEG fotek.
+
+</p><div class="informalexample"><p>
+VytvoÅ™enÃ­ Motion JPEG (MJPEG) souboru ze vÅ¡ech JPEG souborÅ¯ v aktuÃ¡lnÃ­m
+adresÃ¡Å™i:
+</p><pre class="screen">
+mencoder mf://*.jpg -mf w=800:h=600:fps=25:type=jpg -ovc copy -oac copy -o <em class="replaceable"><code>vÃ½stup.avi</code></em>
 </pre><p>
 </p></div><p>
 
 </p><div class="informalexample"><p>
-Vytvo&#345;ení Motion JPEG (MJPEG) souboru ze v&#353;ech JPEG soubor&#367; v aktuálním
-adresá&#345;i:
+VytvoÅ™enÃ­ nekomprimovanÃ©ho souboru ze vÅ¡ech PNG souborÅ¯ v aktuÃ¡lnÃ­m adresÃ¡Å™i:
 </p><pre class="screen">
-mencoder mf://*.jpg -mf w=800:h=600:fps=25:type=jpg -ovc copy -oac copy -o <em class="replaceable"><code>výstup.avi</code></em>
+mencoder mf://*.png -mf w=800:h=600:fps=25:type=png -ovc raw -oac copy -o <em class="replaceable"><code>vÃ½stup.avi</code></em>
 </pre><p>
 </p></div><p>
 
-</p><div class="informalexample"><p>
-Vytvo&#345;ení nekomprimovaného souboru ze v&#353;ech PNG soubor&#367; v aktuálním adresá&#345;i:
-</p><pre class="screen">
-mencoder mf://*.png -mf w=800:h=600:fps=25:type=png -ovc raw -oac copy -o <em class="replaceable"><code>výstup.avi</code></em>
-</pre><p>
-</p></div><p>
-
-</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Poznámka</h3><p>
-&#352;í&#345;ka musí být celé &#269;íslo násobek 4, to je dáno omezením RAW RGB AVI formátu.
+</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">PoznÃ¡mka</h3><p>
+Å Ã­Å™ka musÃ­ bÃ½t celÃ© ÄÃ­slo nÃ¡sobek 4, to je dÃ¡no omezenÃ­m RAW RGB AVI
+formÃ¡tu.
 </p></div><p>
 
 </p><div class="informalexample"><p>
-Vytvo&#345;ení Motion PNG (MPNG) souboru ze v&#353;ech PNG soubor&#367; v aktuálním adresá&#345;i:
+VytvoÅ™enÃ­ Motion PNG (MPNG) souboru ze vÅ¡ech PNG souborÅ¯ v aktuÃ¡lnÃ­m adresÃ¡Å™i:
 </p><pre class="screen">
-mencoder mf://*.png -mf w=800:h=600:fps=25:type=png -ovc copy -oac copy -o <em class="replaceable"><code>výstup.avi</code></em> </pre><p>
+mencoder mf://*.png -mf w=800:h=600:fps=25:type=png -ovc copy -oac copy -o <em class="replaceable"><code>vÃ½stup.avi</code></em></pre><p>
 </p></div><p>
 
 </p><div class="informalexample"><p>
-Vytvo&#345;ení Motion TGA (MTGA) souboru ze v&#353;ech TGA soubor&#367; v aktuálním adresá&#345;i:
+VytvoÅ™enÃ­ Motion TGA (MTGA) souboru ze vÅ¡ech TGA souborÅ¯ v aktuÃ¡lnÃ­m adresÃ¡Å™i:
 </p><pre class="screen">
-mencoder mf://*.tga -mf w=800:h=600:fps=25:type=tga -ovc copy -oac copy -o <em class="replaceable"><code>výstup.avi</code></em></pre><p>
+mencoder mf://*.tga -mf w=800:h=600:fps=25:type=tga -ovc copy -oac copy -o <em class="replaceable"><code>vÃ½stup.avi</code></em></pre><p>
 </p></div><p>
-
-</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="menc-feat-streamcopy.html">P&#345;edcházející</a> </td><td width="20%" align="center"><a accesskey="u" href="mencoder.html">Nahoru</a></td><td width="40%" align="right"> <a accesskey="n" href="menc-feat-extractsub.html">Dal&#353;í</a></td></tr><tr><td width="40%" align="left" valign="top">13.7. Proudové kopírování </td><td width="20%" align="center"><a accesskey="h" href="index.html">Dom&#367;</a></td><td width="40%" align="right" valign="top"> 13.9. Extrakce DVD titulk&#367; do VOBsub souboru</td></tr></table></div></body></html>
+</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="menc-feat-streamcopy.html">PÅ™edchÃ¡zejÃ­cÃ­</a>Â </td><td width="20%" align="center"><a accesskey="u" href="mencoder.html">Nahoru</a></td><td width="40%" align="right">Â <a accesskey="n" href="menc-feat-extractsub.html">DalÅ¡Ã­</a></td></tr><tr><td width="40%" align="left" valign="top">13.7. ProudovÃ© kopÃ­rovÃ¡nÃ­Â </td><td width="20%" align="center"><a accesskey="h" href="index.html">DomÅ¯</a></td><td width="40%" align="right" valign="top">Â 13.9. Extrakce DVD titulkÅ¯ do VOBsub souboru</td></tr></table></div></body></html>

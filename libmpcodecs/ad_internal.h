@@ -2,12 +2,13 @@
 #include "codec-cfg.h"
 #include "libaf/af_format.h"
 
-#include "stream.h"
-#include "demuxer.h"
-#include "stheader.h"
+#include "stream/stream.h"
+#include "libmpdemux/demuxer.h"
+#include "libmpdemux/stheader.h"
 
 #include "ad.h"
 
+extern int audio_output_channels;
 static int init(sh_audio_t *sh);
 static int preinit(sh_audio_t *sh);
 static void uninit(sh_audio_t *sh);

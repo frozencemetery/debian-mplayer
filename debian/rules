@@ -23,10 +23,10 @@ export DH_COMPAT=4
 package        := mplayer
 
 ## The Subversion revision is not autodetected in some targets!
-upstreamversion := 1.0rc1
+upstreamversion := 1.0rc2
 
 ## We add a ~ to it.
-debian_version := 1.0~rc1
+debian_version := 1.0~rc2
 
 
 
@@ -39,7 +39,7 @@ UPSTREAMSOURCE := http://www1.mplayerhq.hu/MPlayer/releases/MPlayer-1.0rc1.tar.b
 
 #Was troublesome stuff removed ?
 # See target "fix-orig-source" in this makefile.
-DFSG := $(shell test -d libmpdvdkit2 && echo 'This version of MPlayer contains libmpdvdkit2.' )
+DFSG := $(shell test -d libdvdcss && echo 'This version of MPlayer contains libdvdcss.' )
 
 ifeq ($(DFSG),)
 extraversion := DFSG-free
@@ -102,9 +102,9 @@ ifeq ($(arch),alpha)
   with_real_and_xanim = true
 endif
 ifeq ($(with_win32),false)
-  archconf += --disable-win32
+  archconf += --disable-win32dll
 else
-  archconf += --enable-win32
+  archconf += --enable-win32dll
 endif
 ifeq ($(with_real_and_xanim),false)
   archconf += --disable-real --disable-xanim
@@ -115,10 +115,10 @@ endif
 
 
 ## This can be overridden from the command line, see README.Debian.
-DEB_BUILD_CONFIGURE=--disable-bitmap-font  --enable-runtime-cpudetection --disable-ggi  --disable-xvid --language=all  --disable-xmms --disable-no-PIC --disable-arts --disable-jack --disable-aa --disable-mad --disable-libdv $(archconf)
+DEB_BUILD_CONFIGURE=--disable-bitmap-font  --enable-runtime-cpudetection --disable-ggi  --disable-xvid --language=all  --disable-xmms --disable-arts --disable-jack --disable-aa --disable-mad --disable-libdv $(archconf)
 
 ifeq ($(DFSG),)
-DEB_BUILD_CONFIGURE += --disable-mpdvdkit --enable-dvdread --disable-mencoder
+DEB_BUILD_CONFIGURE += --disable-libdvdcss-internal --enable-dvdread --disable-mencoder
 endif
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
@@ -143,9 +143,18 @@ USE_EXT_FFMPEG = no
 #EXTRA_BUILDDEP += libavcodec-dev (>= 0.svn6767), libavformat-dev (>= 0.svn6767), libpostproc-dev (>= 0.svn6767)
 
 ########### build
+
+patch: patch-stamp
+patch-stamp:
+	dpatch apply-all
+	dpatch cat-all >patch-stamp
+unpatch:
+	dpatch deapply-all
+	rm -rf patch-stamp debian/patched
+
 ####### build-arch
 
-configure: configure-stamp
+configure: patch-stamp configure-stamp
 #This is actually a configure-arch-stamp.
 configure-stamp:
 	dh_testdir
@@ -155,7 +164,7 @@ configure-stamp:
 	if test "$(USE_EXT_FFMPEG)" = yes ; then for i in libavcodec libavformat libavutil libpostproc  ; do mv -v $$i $$i.disabled ; done ; fi
 	# Add commands to configure the package here.
 	./configure --prefix=/usr --confdir=/etc/mplayer  \
-        --datadir=/usr/share/mplayer --with-codecsdir=/usr/lib/codecs \
+        --datadir=/usr/share/mplayer --codecsdir=/usr/lib/codecs \
         --enable-xvmc --enable-sdl --enable-ossaudio \
 	--enable-lirc --enable-gui --enable-freetype --enable-menu \
 	--enable-largefiles 	$(DEB_BUILD_CONFIGURE)
@@ -178,7 +187,7 @@ endif
 
 
 # commands to compile the package
-build-arch: configure-stamp build-arch-stamp
+build-arch: patch configure-stamp build-arch-stamp
 build-arch-stamp:
 	dh_testdir
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
@@ -206,7 +215,9 @@ build: build-indep build-arch
 
 ################ clean
 
-clean:
+clean: clean-patched unpatch
+
+clean-patched:
 	dh_testdir
 	dh_testroot
 	#
@@ -216,11 +227,12 @@ clean:
 	# commands to clean up after the build process
 	-[ -r DOCS/.upstream_ships_docs ] || ${MAKE} -C DOCS/xml distclean
 	- $(MAKE) distclean
-	- $(MAKE) -C Gui distclean
+	#- $(MAKE) -C Gui distclean
 	#
 	rm -f build-arch-stamp build-indep-stamp configure-stamp configure.log
 	#some leftovers
-	find -name '*.o' -or -name '*.a' -or -name '*~' -print0 |\
+	find -name '*.o' -or -name '*.a' -or -name '*~' \
+		-or -name semantic.cache -print0 |\
 		xargs -r0 rm -v
 	#
 	dh_clean
@@ -258,7 +270,7 @@ install-arch:  build-arch
 install-indep:  build-indep
 	dh_testdir
 	dh_clean -i -k
-	dh_installdocs  -p mplayer-doc Copyright DOCS/HTML DOCS/tech DOCS/zh
+	dh_installdocs  -p mplayer-doc Copyright DOCS/HTML DOCS/tech
 
 
 
@@ -370,7 +382,7 @@ fix-orig-source: $(D)/$(M)
 	# This contains the dreaded DVD decryption code. We can live without it
 	#  by using libdvdread3 (and the optional library installed by
 	#    http://www.debian-unofficial.org/   :-)
-	cd $(D) &&  mv $(M)/libmpdvdkit2  $(E)
+	cd $(D) &&  mv $(M)/libdvdcss  $(E)
 	# Well this may seem a bit excessive... But this code is not useful
 	#  for building the package, and most of it does not correctly state
 	#  author-license-copyright:  So I throw out the baby and the bath...

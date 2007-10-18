@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
  */
 
 /**
@@ -35,12 +34,12 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "common.h"
 #include "avcodec.h"
 #include "dsputil.h"
 #include "mpegvideo.h"
 
 #include "vp3data.h"
+#include "xiph.h"
 
 #define FRAGMENT_PIXELS 8
 
@@ -329,8 +328,6 @@ typedef struct Vp3DecodeContext {
     uint32_t filter_limit_values[64];
     int bounding_values_array[256];
 } Vp3DecodeContext;
-
-static int theora_decode_tables(AVCodecContext *avctx, GetBitContext *gb);
 
 /************************************************************************
  * VP3 specific functions
@@ -633,7 +630,7 @@ static void init_dequantizer(Vp3DecodeContext *s)
                 int qmin= 8<<(inter + !i);
                 int qscale= i ? ac_scale_factor : dc_scale_factor;
 
-                s->qmat[inter][plane][i]= clip((qscale * coeff)/100 * 4, qmin, 4096);
+                s->qmat[inter][plane][i]= av_clip((qscale * coeff)/100 * 4, qmin, 4096);
             }
         }
     }
@@ -689,7 +686,7 @@ static int unpack_superblocks(Vp3DecodeContext *s, GetBitContext *gb)
     } else {
 
         /* unpack the list of partially-coded superblocks */
-        bit = get_bits(gb, 1);
+        bit = get_bits1(gb);
         /* toggle the bit because as soon as the first run length is
          * fetched the bit will be toggled again */
         bit ^= 1;
@@ -725,7 +722,7 @@ static int unpack_superblocks(Vp3DecodeContext *s, GetBitContext *gb)
 
             current_superblock = 0;
             current_run = 0;
-            bit = get_bits(gb, 1);
+            bit = get_bits1(gb);
             /* toggle the bit because as soon as the first run length is
              * fetched the bit will be toggled again */
             bit ^= 1;
@@ -756,7 +753,7 @@ static int unpack_superblocks(Vp3DecodeContext *s, GetBitContext *gb)
         if (decode_partial_blocks) {
 
             current_run = 0;
-            bit = get_bits(gb, 1);
+            bit = get_bits1(gb);
             /* toggle the bit because as soon as the first run length is
              * fetched the bit will be toggled again */
             bit ^= 1;
@@ -982,7 +979,7 @@ static int unpack_vectors(Vp3DecodeContext *s, GetBitContext *gb)
         memset(motion_y, 0, 6 * sizeof(int));
 
         /* coding mode 0 is the VLC scheme; 1 is the fixed code scheme */
-        coding_mode = get_bits(gb, 1);
+        coding_mode = get_bits1(gb);
         debug_vectors("    using %s scheme for unpacking motion vectors\n",
             (coding_mode == 0) ? "VLC" : "fixed-length");
 
@@ -1729,8 +1726,8 @@ static void horizontal_filter(unsigned char *first_pixel, int stride,
             (first_pixel[-2] - first_pixel[ 1])
          +3*(first_pixel[ 0] - first_pixel[-1]);
         filter_value = bounding_values[(filter_value + 4) >> 3];
-        first_pixel[-1] = clip_uint8(first_pixel[-1] + filter_value);
-        first_pixel[ 0] = clip_uint8(first_pixel[ 0] - filter_value);
+        first_pixel[-1] = av_clip_uint8(first_pixel[-1] + filter_value);
+        first_pixel[ 0] = av_clip_uint8(first_pixel[ 0] - filter_value);
     }
 }
 
@@ -1746,8 +1743,8 @@ static void vertical_filter(unsigned char *first_pixel, int stride,
             (first_pixel[2 * nstride] - first_pixel[ stride])
          +3*(first_pixel[0          ] - first_pixel[nstride]);
         filter_value = bounding_values[(filter_value + 4) >> 3];
-        first_pixel[nstride] = clip_uint8(first_pixel[nstride] + filter_value);
-        first_pixel[0] = clip_uint8(first_pixel[0] - filter_value);
+        first_pixel[nstride] = av_clip_uint8(first_pixel[nstride] + filter_value);
+        first_pixel[0] = av_clip_uint8(first_pixel[0] - filter_value);
     }
 }
 
@@ -1954,7 +1951,6 @@ static int vp3_decode_init(AVCodecContext *avctx)
     s->width = (avctx->width + 15) & 0xFFFFFFF0;
     s->height = (avctx->height + 15) & 0xFFFFFFF0;
     avctx->pix_fmt = PIX_FMT_YUV420P;
-    avctx->has_b_frames = 0;
     if(avctx->idct_algo==FF_IDCT_AUTO)
         avctx->idct_algo=FF_IDCT_VP3;
     dsputil_init(&s->dsp, avctx);
@@ -2141,28 +2137,8 @@ static int vp3_decode_frame(AVCodecContext *avctx,
 
     if (s->theora && get_bits1(&gb))
     {
-#if 1
         av_log(avctx, AV_LOG_ERROR, "Header packet passed to frame decoder, skipping\n");
         return -1;
-#else
-        int ptype = get_bits(&gb, 7);
-
-        skip_bits(&gb, 6*8); /* "theora" */
-
-        switch(ptype)
-        {
-            case 1:
-                theora_decode_comments(avctx, &gb);
-                break;
-            case 2:
-                theora_decode_tables(avctx, &gb);
-                    init_dequantizer(s);
-                break;
-            default:
-                av_log(avctx, AV_LOG_ERROR, "Unknown Theora config packet: %d\n", ptype);
-        }
-        return buf_size;
-#endif
     }
 
     s->keyframe = !get_bits1(&gb);
@@ -2361,7 +2337,7 @@ static int read_huffman_tree(AVCodecContext *avctx, GetBitContext *gb)
 {
     Vp3DecodeContext *s = avctx->priv_data;
 
-    if (get_bits(gb, 1)) {
+    if (get_bits1(gb)) {
         int token;
         if (s->entries >= 32) { /* overflow */
             av_log(avctx, AV_LOG_ERROR, "huffman tree overflow\n");
@@ -2389,12 +2365,14 @@ static int read_huffman_tree(AVCodecContext *avctx, GetBitContext *gb)
     return 0;
 }
 
+#ifdef CONFIG_THEORA_DECODER
 static int theora_decode_header(AVCodecContext *avctx, GetBitContext *gb)
 {
     Vp3DecodeContext *s = avctx->priv_data;
+    int visible_width, visible_height;
 
     s->theora = get_bits_long(gb, 24);
-    av_log(avctx, AV_LOG_INFO, "Theora bitstream version %X\n", s->theora);
+    av_log(avctx, AV_LOG_VERBOSE, "Theora bitstream version %X\n", s->theora);
 
     /* 3.2.0 aka alpha3 has the same frame orientation as original vp3 */
     /* but previous versions have the image flipped relative to vp3 */
@@ -2420,20 +2398,15 @@ static int theora_decode_header(AVCodecContext *avctx, GetBitContext *gb)
         skip_bits(gb, 32); /* total number of blocks in a frame */
         skip_bits(gb, 4); /* total number of blocks in a frame */
         skip_bits(gb, 32); /* total number of macroblocks in a frame */
-
-        skip_bits(gb, 24); /* frame width */
-        skip_bits(gb, 24); /* frame height */
-    }
-    else
-    {
-        skip_bits(gb, 24); /* frame width */
-        skip_bits(gb, 24); /* frame height */
     }
 
-  if (s->theora >= 0x030200) {
-    skip_bits(gb, 8); /* offset x */
-    skip_bits(gb, 8); /* offset y */
-  }
+    visible_width  = get_bits_long(gb, 24);
+    visible_height = get_bits_long(gb, 24);
+
+    if (s->theora >= 0x030200) {
+        skip_bits(gb, 8); /* offset x */
+        skip_bits(gb, 8); /* offset y */
+    }
 
     skip_bits(gb, 32); /* fps numerator */
     skip_bits(gb, 32); /* fps denumerator */
@@ -2459,8 +2432,11 @@ static int theora_decode_header(AVCodecContext *avctx, GetBitContext *gb)
 
 //    align_get_bits(gb);
 
-    avctx->width = s->width;
-    avctx->height = s->height;
+    if (   visible_width  <= s->width  && visible_width  > s->width-16
+        && visible_height <= s->height && visible_height > s->height-16)
+        avcodec_set_dimensions(avctx, visible_width, visible_height);
+    else
+        avcodec_set_dimensions(avctx, s->width, s->height);
 
     return 0;
 }
@@ -2512,10 +2488,10 @@ static int theora_decode_tables(AVCodecContext *avctx, GetBitContext *gb)
         for (plane = 0; plane <= 2; plane++) {
             int newqr= 1;
             if (inter || plane > 0)
-                newqr = get_bits(gb, 1);
+                newqr = get_bits1(gb);
             if (!newqr) {
                 int qtj, plj;
-                if(inter && get_bits(gb, 1)){
+                if(inter && get_bits1(gb)){
                     qtj = 0;
                     plj = plane;
                 }else{
@@ -2556,7 +2532,7 @@ static int theora_decode_tables(AVCodecContext *avctx, GetBitContext *gb)
     for (s->hti = 0; s->hti < 80; s->hti++) {
         s->entries = 0;
         s->huff_code_size = 1;
-        if (!get_bits(gb, 1)) {
+        if (!get_bits1(gb)) {
             s->hbits = 0;
             read_huffman_tree(avctx, gb);
             s->hbits = 1;
@@ -2574,8 +2550,9 @@ static int theora_decode_init(AVCodecContext *avctx)
     Vp3DecodeContext *s = avctx->priv_data;
     GetBitContext gb;
     int ptype;
-    uint8_t *p= avctx->extradata;
-    int op_bytes, i;
+    uint8_t *header_start[3];
+    int header_len[3];
+    int i;
 
     s->theora = 1;
 
@@ -2585,12 +2562,14 @@ static int theora_decode_init(AVCodecContext *avctx)
         return -1;
     }
 
-  for(i=0;i<3;i++) {
-    op_bytes = *(p++)<<8;
-    op_bytes += *(p++);
+    if (ff_split_xiph_headers(avctx->extradata, avctx->extradata_size,
+                              42, header_start, header_len) < 0) {
+        av_log(avctx, AV_LOG_ERROR, "Corrupt extradata\n");
+        return -1;
+    }
 
-    init_get_bits(&gb, p, op_bytes);
-    p += op_bytes;
+  for(i=0;i<3;i++) {
+    init_get_bits(&gb, header_start[i], header_len[i]);
 
     ptype = get_bits(&gb, 8);
     debug_vp3("Theora headerpacket type: %x\n", ptype);
@@ -2601,7 +2580,7 @@ static int theora_decode_init(AVCodecContext *avctx)
 //        return -1;
      }
 
-    // FIXME: check for this aswell
+    // FIXME: Check for this as well.
     skip_bits(&gb, 6*8); /* "theora" */
 
     switch(ptype)
@@ -2620,8 +2599,8 @@ static int theora_decode_init(AVCodecContext *avctx)
             av_log(avctx, AV_LOG_ERROR, "Unknown Theora config packet: %d\n", ptype&~0x80);
             break;
     }
-    if(8*op_bytes != get_bits_count(&gb))
-        av_log(avctx, AV_LOG_ERROR, "%d bits left in packet %X\n", 8*op_bytes - get_bits_count(&gb), ptype);
+    if(8*header_len[i] != get_bits_count(&gb))
+        av_log(avctx, AV_LOG_ERROR, "%d bits left in packet %X\n", 8*header_len[i] - get_bits_count(&gb), ptype);
     if (s->theora < 0x030200)
         break;
   }
@@ -2630,20 +2609,6 @@ static int theora_decode_init(AVCodecContext *avctx)
     return 0;
 }
 
-AVCodec vp3_decoder = {
-    "vp3",
-    CODEC_TYPE_VIDEO,
-    CODEC_ID_VP3,
-    sizeof(Vp3DecodeContext),
-    vp3_decode_init,
-    NULL,
-    vp3_decode_end,
-    vp3_decode_frame,
-    0,
-    NULL
-};
-
-#ifndef CONFIG_LIBTHEORA
 AVCodec theora_decoder = {
     "theora",
     CODEC_TYPE_VIDEO,
@@ -2657,3 +2622,16 @@ AVCodec theora_decoder = {
     NULL
 };
 #endif
+
+AVCodec vp3_decoder = {
+    "vp3",
+    CODEC_TYPE_VIDEO,
+    CODEC_ID_VP3,
+    sizeof(Vp3DecodeContext),
+    vp3_decode_init,
+    NULL,
+    vp3_decode_end,
+    vp3_decode_frame,
+    0,
+    NULL
+};

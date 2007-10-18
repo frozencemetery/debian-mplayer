@@ -30,7 +30,6 @@
 #include "avcodec.h"
 #include "dsputil.h"
 #include "mpegvideo.h"
-#include "common.h"
 
 static void decode_mb(MpegEncContext *s){
     s->dest[0] = s->current_picture.data[0] + (s->mb_y * 16* s->linesize  ) + s->mb_x * 16;
@@ -109,7 +108,7 @@ static void filter181(int16_t *data, int width, int height, int stride){
 }
 
 /**
- * guess the dc of blocks which dont have a undamaged dc
+ * guess the dc of blocks which do not have an undamaged dc
  * @param w     width in 8 pixel blocks
  * @param h     height in 8 pixel blocks
  */
@@ -199,7 +198,7 @@ static void guess_dc(MpegEncContext *s, int16_t *dc, int w, int h, int stride, i
  */
 static void h_block_filter(MpegEncContext *s, uint8_t *dst, int w, int h, int stride, int is_luma){
     int b_x, b_y;
-    uint8_t *cm = cropTbl + MAX_NEG_CROP;
+    uint8_t *cm = ff_cropTbl + MAX_NEG_CROP;
 
     for(b_y=0; b_y<h; b_y++){
         for(b_x=0; b_x<w-1; b_x++){
@@ -259,7 +258,7 @@ static void h_block_filter(MpegEncContext *s, uint8_t *dst, int w, int h, int st
  */
 static void v_block_filter(MpegEncContext *s, uint8_t *dst, int w, int h, int stride, int is_luma){
     int b_x, b_y;
-    uint8_t *cm = cropTbl + MAX_NEG_CROP;
+    uint8_t *cm = ff_cropTbl + MAX_NEG_CROP;
 
     for(b_y=0; b_y<h-1; b_y++){
         for(b_x=0; b_x<w; b_x++){
@@ -564,6 +563,11 @@ static int is_intra_more_likely(MpegEncContext *s){
 
     if(undamaged_count < 5) return 0; //allmost all MBs damaged -> use temporal prediction
 
+#ifdef HAVE_XVMC
+    //prevent dsp.sad() check, that requires access to the image
+    if(s->avctx->xvmc_acceleration && s->pict_type==I_TYPE) return 1;
+#endif
+
     skip_amount= FFMAX(undamaged_count/50, 1); //check only upto 50 MBs
     is_intra_likely=0;
 
@@ -612,11 +616,16 @@ void ff_er_frame_start(MpegEncContext *s){
  *               error of the same type occured
  */
 void ff_er_add_slice(MpegEncContext *s, int startx, int starty, int endx, int endy, int status){
-    const int start_i= clip(startx + starty * s->mb_width    , 0, s->mb_num-1);
-    const int end_i  = clip(endx   + endy   * s->mb_width    , 0, s->mb_num);
+    const int start_i= av_clip(startx + starty * s->mb_width    , 0, s->mb_num-1);
+    const int end_i  = av_clip(endx   + endy   * s->mb_width    , 0, s->mb_num);
     const int start_xy= s->mb_index2xy[start_i];
     const int end_xy  = s->mb_index2xy[end_i];
     int mask= -1;
+
+    if(start_i > end_i || start_xy > end_xy){
+        av_log(s->avctx, AV_LOG_ERROR, "internal error, slice end before start\n");
+        return;
+    }
 
     if(!s->error_resilience) return;
 

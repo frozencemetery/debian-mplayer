@@ -5,18 +5,14 @@
 
 *********************************************************/
 #include "config.h"
-#include "guids.h"
-#include "interfaces.h"
+#include "dshow/guids.h"
+#include "dshow/interfaces.h"
 #include "registry.h"
 #ifdef WIN32_LOADER
 #include "../ldt_keeper.h"
 #endif
 
-#ifndef NOAVIFILE_HEADERS
-#include "videodecoder.h"
-#else
-#include "libwin32.h"
-#endif
+#include "dshow/libwin32.h"
 #include "DMO_Filter.h"
 
 #include "DMO_VideoDecoder.h"
@@ -39,12 +35,6 @@ struct _DMO_VideoDecoder
 
 #include "../wine/winerror.h"
 
-#ifndef NOAVIFILE_HEADERS
-#define VFW_E_NOT_RUNNING               0x80040226
-#include "fourcc.h"
-#include "except.h"
-#endif
-
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -57,8 +47,6 @@ struct _DMO_VideoDecoder
 
 // strcmp((const char*)info.dll,...)  is used instead of  (... == ...)
 // so Arpi could use char* pointer in his simplified DMO_VideoDecoder class
-
-#define __MODULE__ "DirectShow_VideoDecoder"
 
 #define false 0
 #define true 1
@@ -121,7 +109,7 @@ DMO_VideoDecoder * DMO_VideoDecoder_Open(char* dllname, GUID* guid, BITMAPINFOHE
      
         this->iv.m_bh = malloc(bihs);
         memcpy(this->iv.m_bh, format, bihs);
-	this->iv.m_bh->biSize = bihs;
+        this->iv.m_bh->biSize = bihs;
 
         this->iv.m_State = STOP;
         //this->iv.m_pFrame = 0;
@@ -308,7 +296,6 @@ void DMO_VideoDecoder_StopInternal(DMO_VideoDecoder *this)
 int DMO_VideoDecoder_DecodeInternal(DMO_VideoDecoder *this, const void* src, int size, int is_keyframe, char* imdata)
 {
 //    IMediaSample* sample = 0;
-    char* ptr;
     int result;
     unsigned long status; // to be ignored by M$ specs
     DMO_OUTPUT_DATA_BUFFER db;
@@ -375,7 +362,6 @@ int DMO_VideoDecoder_SetDestFmt(DMO_VideoDecoder *this, int bits, unsigned int c
 {
     HRESULT result;
     int should_test=1;
-    int stoped = 0;   
     
     Debug printf("DMO_VideoDecoder_SetDestFmt (%p, %d, %d)\n",this,bits,(int)csp);
         

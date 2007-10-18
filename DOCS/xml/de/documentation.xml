@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!-- in sync with r20085 -->
-
+<?xml version="1.0" encoding="utf-8"?>
+<!-- in sync with r23579 -->
+<!-- missing cosmetic commit 21537 -->
 <bookinfo id="toc">
   <title><application>MPlayer</application> - Movie Player</title>
   <subtitle>
     <ulink url="http://www.mplayerhq.hu"></ulink>
   </subtitle>
-  <date>24. März 2003</date>
+  <date>24. MÃ¤rz 2003</date>
   <copyright>
     <year>2000</year>
     <year>2001</year>
@@ -15,26 +15,25 @@
     <year>2004</year>
     <year>2005</year>
     <year>2006</year>
+    <year>2007</year>
     <holder>MPlayer-Team</holder>
   </copyright>
-  <!--
       <legalnotice>
         <title>License</title>
-        <para>This program is free software; you can redistribute it and/or modify
+        <para>MPlayer is free software; you can redistribute it and/or modify
           it under the terms of the GNU General Public License as published by the
           Free Software Foundation; either version 2 of the License, or (at your
           option) any later version.</para>
 
-        <para>This program is distributed in the hope that it will be useful, but
+        <para>MPlayer is distributed in the hope that it will be useful, but
           WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
           or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
           for more details.</para>
 
         <para>You should have received a copy of the GNU General Public License
-          along with this program; if not, write to the Free Software Foundation,
+          along with MPlayer; if not, write to the Free Software Foundation,
           Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.</para>
       </legalnotice>
-      -->
     </bookinfo>
 
 
@@ -44,11 +43,11 @@
       <para>
         Wenn du zum ersten Mal installierst: Lies in jedem Fall alles von hier bis zum
         Ende des Installationsabschnitts, und folge den Links, die du findest. Wenn Fragen
-        bleiben, gehe zurück zum <link linkend="toc">Inhaltsverzeichnis</link> und suche nach
+        bleiben, gehe zurÃ¼ck zum <link linkend="toc">Inhaltsverzeichnis</link> und suche nach
         dem Thema, lies die <xref linkend="faq"/> oder versuche, die Dateien zu greppen.
         Die meisten Fragen sollten irgendwo hier beantwortet werden, und nach dem Rest wurde
         vermutlich auf den
-        <ulink url="http://www.mplayerhq.hu/design7/info.html#mailing_lists">Mailing-Listen</ulink> gefragt.
+        <ulink url="http://www.mplayerhq.hu/design7/mailing_lists.html">Mailing-Listen</ulink> gefragt.
         <!-- FIXME: This refers to nonexistent links
              Checke die
              <ulink url="http://lists.mplayerhq.hu/cgi-bin/s-arch.cgi">Archive</ulink>,
@@ -59,40 +58,40 @@
 
 
     <chapter id="intro">
-      <title>Einführung</title>
+      <title>EinfÃ¼hrung</title>
 
       <para>
-        <application>MPlayer</application> ist ein Movie-Player für Linux (der auch auf vielen
-        anderen Unices und <emphasis role="bold">nicht-x86</emphasis>-Architekturen läuft, siehe
+        <application>MPlayer</application> ist ein Movie-Player fÃ¼r Linux (der auch auf vielen
+        anderen Unices und <emphasis role="bold">nicht-x86</emphasis>-Architekturen lÃ¤uft, siehe
         <xref linkend="ports"/>). Er spielt die meisten Dateien in den Formaten MPEG, VOB, AVI,
         OGG/OGM, VIVO,  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA,
-        Matroska-Dateien, unterstützt von vielen eingebauten, XAnim-, RealPlayer und Win32-DLL-Codecs.
-        Es können auch <emphasis role="bold">VideoCDs, SVCDs, DVDs, 3ivx-, RealMedia-, Sorenson-, Theora-</emphasis>
+        Matroska-Dateien, unterstÃ¼tzt von vielen eingebauten, XAnim-, RealPlayer und Win32-DLL-Codecs.
+        Es kÃ¶nnen auch <emphasis role="bold">VideoCDs, SVCDs, DVDs, 3ivx-, RealMedia-, Sorenson-, Theora-</emphasis>
         und <emphasis role="bold">MPEG-4 (DivX)</emphasis> - Filme angeschaut werden.
 
-        Ein weiteres großes Feature von <application>MPlayer</application> ist die Fülle an
-        unterstützten Ausgabetreibern. Er funktioniert mit X11, Xv, DGA, OpenGL, SVGAlib,
+        Ein weiteres groÃŸes Feature von <application>MPlayer</application> ist die FÃ¼lle an
+        unterstÃ¼tzten Ausgabetreibern. Er funktioniert mit X11, Xv, DGA, OpenGL, SVGAlib,
         fb-dev, AAlib, libcaca und DirectFB, du kannst ihn aber auch mit GGI und SDL (und damit
-        allen von SDL unterstützen Treibern), sowie mit einigen kartenspezifischen Low-Level-Treibern
-        (für Matrox, 3Dfx und Radeon, Mach64, Permedia3) benutzen! Die meisten von ihnen unterstützen
+        allen von SDL unterstÃ¼tzen Treibern), sowie mit einigen kartenspezifischen Low-Level-Treibern
+        (fÃ¼r Matrox, 3Dfx und Radeon, Mach64, Permedia3) benutzen! Die meisten von ihnen unterstÃ¼tzen
         Software- oder Hardwareskalierung, so dass die Vollbildwiedergabe kein Problem ist.
-        <application>MPlayer</application> unterstützt die Wiedergabe mittels einiger
+        <application>MPlayer</application> unterstÃ¼tzt die Wiedergabe mittels einiger
         Hardware-MPEG-Decoderkarten wie der DVB, DXR2 und DXR3/Hollywood+ benutzen.
-        Und was ist mit diesen schönen, großen, kantengeglätteten und schattierten Untertiteln
-        (<emphasis role="bold">14 unterstützte Typen</emphasis>) mit Europäischen/ISO 8859-1,2
+        Und was ist mit diesen schÃ¶nen, groÃŸen, kantengeglÃ¤tteten und schattierten Untertiteln
+        (<emphasis role="bold">14 unterstÃ¼tzte Typen</emphasis>) mit EuropÃ¤ischen/ISO 8859-1,2
         (Ungarisch, Englisch, Tschechisch usw.), Kryllisch und Koreanische Schriftarten, und
         On-Screen-Display (OSD)?
       </para>
 
       <para>
-        Der Player ist superstabil bei der Wiedergabe von beschädigten MPEG-Dateien (nützlich
-        für manche VCDs) und spielt schlechte AVI-Dateien ab, die mit dem berühmten
-        Windows Media Player nicht abgespielt werden können. Selbst AVI-Dateien ohne Index-Abschnitt
+        Der Player ist superstabil bei der Wiedergabe von beschÃ¤digten MPEG-Dateien (nÃ¼tzlich
+        fÃ¼r manche VCDs) und spielt schlechte AVI-Dateien ab, die mit dem berÃ¼hmten
+        Windows Media Player nicht abgespielt werden kÃ¶nnen. Selbst AVI-Dateien ohne Index-Abschnitt
         sind abspielbar, und du kannst den Index mit der Option <option>-idx</option>
-        temporär neu generieren, oder permanent mit <application>MEncoder</application>,
-        was Spulen ermöglicht! Wie du siehst, sind Stabilität und Qualität die
+        temporÃ¤r neu generieren, oder permanent mit <application>MEncoder</application>,
+        was Spulen ermÃ¶glicht! Wie du siehst, sind StabilitÃ¤t und QualitÃ¤t die
         wichtigsten Dinge, die Geschwindigkeit ist jedoch auch erstaunlich. Es gibt
-        außerdem ein mächtiges Filtersystem für die Manipulation von Video und Ton.
+        auÃŸerdem ein mÃ¤chtiges Filtersystem fÃ¼r die Manipulation von Video und Ton.
       </para>
 
       <para>
@@ -102,7 +101,7 @@
         (<emphasis role="bold">AVI/ASF/OGG/DVD/VCD/VOB/MPG/MOV/VIV/FLI/RM/NUV/NET/PVA</emphasis>)
         in andere <application>MPlayer</application>-abspielbare Formate (siehe unten)
         zu encodieren. Er kann mit verschiedenen Codecs encodieren, zum Beispiel
-        <emphasis role="bold">MPEG-4 (DivX4)</emphasis> (ein oder zwei Durchläufe),
+        <emphasis role="bold">MPEG-4 (DivX4)</emphasis> (ein oder zwei DurchlÃ¤ufe),
         <systemitem class="library">libavcodec</systemitem>, und
         <emphasis role="bold">PCM/MP3/VBR MP3</emphasis>-Audio.
       </para>
@@ -111,99 +110,99 @@
       <itemizedlist>
         <title><application>MEncoder</application> Features</title>
         <listitem>
-          <simpara>
+          <para>
             Encodierung zu der weitreichenden Menge Dateiformate und Decoder von
             <application>MPlayer</application>
-          </simpara>
+          </para>
         </listitem>
         <listitem>
-          <simpara>
+          <para>
             Encodierung zu allen Codecs von FFmpegs
             <link linkend="ffmpeg"><systemitem class="library">libavcodec</systemitem></link>
-          </simpara>
+          </para>
         </listitem>
         <listitem>
-          <simpara>
-            Videoencodierung von <emphasis role="bold">V4L-kompatiblen TV-Empfängern</emphasis>
-          </simpara>
+          <para>
+            Videoencodierung von <emphasis role="bold">V4L-kompatiblen TV-EmpfÃ¤ngern</emphasis>
+          </para>
         </listitem>
         <listitem>
-          <simpara>
+          <para>
             Encodierung/Multiplexing von interleaved AVI-Dateien mit ordentlichem Index
-          </simpara>
+          </para>
         </listitem>
         <listitem>
-          <simpara>
+          <para>
             Erstellung von Dateien aus externen Audiostreams
-          </simpara>
+          </para>
         </listitem>
         <listitem>
-          <simpara>
-            Encodierung in 1, 2 oder 3 Durchläufen
-          </simpara>
+          <para>
+            Encodierung in 1, 2 oder 3 DurchlÃ¤ufen
+          </para>
         </listitem>
         <listitem>
           <para>
             <emphasis role="bold">VBR</emphasis>-MP3-Audio
-            <important><simpara>
+            <important><para>
                 VBR-MP3-Audio wird von Windows-Playern nicht immer sauber wiedergegeben!
-              </simpara></important>
+              </para></important>
           </para>
         </listitem>
         <listitem>
-          <simpara>
+          <para>
             PCM-Audio
-          </simpara>
+          </para>
         </listitem>
         <listitem>
-          <simpara>
+          <para>
             Streamkopien
-          </simpara>
+          </para>
         </listitem>
         <listitem>
-          <simpara>
+          <para>
             Input-A/V-Synchronisation (PTS-basiert, kann mit der Option
             <option>-mc 0</option> deaktiviert werden)
-          </simpara>
+          </para>
         </listitem>
         <listitem>
-          <simpara>
-            fps-Korrektur mit der Option <option>-ofps</option> (nützlich bei Encodierung von
+          <para>
+            fps-Korrektur mit der Option <option>-ofps</option> (nÃ¼tzlich bei Encodierung von
             30000/1001 fps VOB zu 24000/1001 fps AVI)
-          </simpara>
+          </para>
         </listitem>
         <listitem>
-          <simpara>
-            Benutzung unseres sehr mächtigen Filtersystems (abschneiden, expandieren, spiegeln,
+          <para>
+            Benutzung unseres sehr mÃ¤chtigen Filtersystems (abschneiden, expandieren, spiegeln,
             nachbearbeiten, rotieren, skalieren, rgb/yuv-Konvertierung)
-          </simpara>
+          </para>
         </listitem>
         <listitem>
-          <simpara>
+          <para>
             Kann DVD/VOBsub- <emphasis role="bold">UND</emphasis> Textuntertitel in die
             Ausgabedatei encodieren
-          </simpara>
+          </para>
         </listitem>
         <listitem>
-          <simpara>
+          <para>
             Kann DVD-Untertitel in das VOBsub-Format rippen
-          </simpara>
+          </para>
         </listitem>
       </itemizedlist>
 
       <itemizedlist>
         <title>Geplante Features</title>
         <listitem>
-          <simpara>
-            Noch breiteres Feld an verfügbaren En-/Decodierungsformaten/-codecs
+          <para>
+            Noch breiteres Feld an verfÃ¼gbaren En-/Decodierungsformaten/-codecs
             (erstellen von VOB-Dateien mit DivX4/Indeo5/VIVO-Streams :).
-          </simpara>
+          </para>
         </listitem>
       </itemizedlist>
 
       <!-- FIXME: Lizenz sollte in bookinfo sein -->
       <para>
-        <application>MPlayer</application> und <application>MEncoder</application> können
+        <application>MPlayer</application> und <application>MEncoder</application> kÃ¶nnen
         weitergegeben werden unter den Bedingungen der GNU General Public License Version 2.
       </para>
 

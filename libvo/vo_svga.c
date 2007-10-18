@@ -54,7 +54,6 @@ TODO:
 #define UNUSED(x) ((void)(x)) 
 
 
-static int query_format(uint32_t format);
 static void draw_alpha(int x0, int y0, int w, int h, unsigned char *src,
                        unsigned char *srca, int stride);
 static uint32_t get_image(mp_image_t *mpi);
@@ -109,7 +108,7 @@ LIBVO_EXTERN(svga)
 
 
 //return number of 1'st free page or -1 if no free one
-static inline int page_find_free(){
+static inline int page_find_free(void){
 int i;
   for(i=0;i<max_pages;i++)
     if(PageStore[i].locks == PAGE_EMPTY) return i;
@@ -206,7 +205,7 @@ int i;
     rgbplane=PageStore[0].vbase + (y*mode_stride) + (x*modeinfo->bytesperpixel);
     for(i=0;i<h;i++){
 //i'm afraid that memcpy is better optimized than memset;)
-      memcpy(rgbplane,zerobuf,w*modeinfo->bytesperpixel);
+      fast_memcpy(rgbplane,zerobuf,w*modeinfo->bytesperpixel);
 //    memset(rgbplane,0,w*modeinfo->bytesperpixel);
       rgbplane+=mode_stride;
     }

@@ -21,9 +21,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * Modified for use with MPlayer, see libmpeg-0.4.0.diff for the exact changes.
+ * Modified for use with MPlayer, see libmpeg-0.4.1.diff for the exact changes.
  * detailed changelog at http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: header.c 18786 2006-06-22 13:34:00Z diego $
+ * $Id: header.c 21542 2006-12-09 10:34:27Z henry $
  */
 
 #include "config.h"
@@ -272,9 +272,11 @@ static int sequence_display_ext (mpeg2dec_t * mpeg2dec)
     if (!(buffer[2] & 2))	/* missing marker_bit */
 	return 1;
 
-    sequence->display_width = (buffer[1] << 6) | (buffer[2] >> 2);
-    sequence->display_height =
-	((buffer[2]& 1 ) << 13) | (buffer[3] << 5) | (buffer[4] >> 3);
+    if( (buffer[1] << 6) | (buffer[2] >> 2) )
+	sequence->display_width = (buffer[1] << 6) | (buffer[2] >> 2);
+    if( ((buffer[2]& 1 ) << 13) | (buffer[3] << 5) | (buffer[4] >> 3) )
+	sequence->display_height =
+	    ((buffer[2]& 1 ) << 13) | (buffer[3] << 5) | (buffer[4] >> 3);
 
     return 0;
 }

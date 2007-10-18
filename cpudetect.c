@@ -9,7 +9,7 @@ CpuCaps gCpuCaps;
 #endif
 #include <stdlib.h>
 
-#if defined(ARCH_X86) || defined(ARCH_X86_64)
+#ifdef ARCH_X86
 
 #include <stdio.h>
 #include <string.h>
@@ -37,7 +37,6 @@ CpuCaps gCpuCaps;
 #include <proto/exec.h>
 #endif
 
-//#define X86_FXSR_MAGIC
 /* Thanks to the FreeBSD project for some of this cpuid code, and 
  * help understanding how to use it.  Thanks to the Mesa 
  * team for SSE support detection and more cpu detect code.
@@ -182,7 +181,7 @@ void GetCpuCaps( CpuCaps *caps)
 #endif
 
 		/* FIXME: Does SSE2 need more OS support, too? */
-#if defined(__linux__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__NetBSD__) || defined(__CYGWIN__) || defined(__OpenBSD__) || defined(__DragonFly__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__NetBSD__) || defined(__CYGWIN__) || defined(__OpenBSD__) || defined(__DragonFly__) || defined(__APPLE__) || defined(__MINGW32__)
 		if (caps->hasSSE)
 			check_os_katmai_support();
 		if (!caps->hasSSE)
@@ -286,7 +285,7 @@ char *GetCpuFriendlyName(unsigned int regs[], unsigned int regs2[]){
 #undef CPUID_STEPPING
 
 
-#if defined(__linux__) && defined(_POSIX_SOURCE) && defined(X86_FXSR_MAGIC)
+#if defined(__linux__) && defined(_POSIX_SOURCE) && !defined(ARCH_X86_64)
 static void sigill_handler_sse( int signal, struct sigcontext sc )
 {
    mp_msg(MSGT_CPUDETECT,MSGL_V, "SIGILL, " );
@@ -305,26 +304,7 @@ static void sigill_handler_sse( int signal, struct sigcontext sc )
 
    gCpuCaps.hasSSE=0;
 }
-
-static void sigfpe_handler_sse( int signal, struct sigcontext sc )
-{
-   mp_msg(MSGT_CPUDETECT,MSGL_V, "SIGFPE, " );
-
-   if ( sc.fpstate->magic != 0xffff ) {
-      /* Our signal context has the extended FPU state, so reset the
-       * divide-by-zero exception mask and clear the divide-by-zero
-       * exception bit.
-       */
-      sc.fpstate->mxcsr |= 0x00000200;
-      sc.fpstate->mxcsr &= 0xfffffffb;
-   } else {
-      /* If we ever get here, we're completely hosed.
-       */
-      mp_msg(MSGT_CPUDETECT,MSGL_V, "\n\n" );
-      mp_msg(MSGT_CPUDETECT,MSGL_V, "SSE enabling test failed badly!" );
-   }
-}
-#endif /* __linux__ && _POSIX_SOURCE && X86_FXSR_MAGIC */
+#endif /* __linux__ && _POSIX_SOURCE */
 
 #ifdef WIN32
 LONG CALLBACK win32_sig_handler_sse(EXCEPTION_POINTERS* ep)
@@ -410,17 +390,14 @@ static void check_os_katmai_support( void )
       else mp_msg(MSGT_CPUDETECT,MSGL_V, "no!\n" );
    }
 #elif defined(__linux__)
-#if defined(_POSIX_SOURCE) && defined(X86_FXSR_MAGIC)
+#if defined(_POSIX_SOURCE)
    struct sigaction saved_sigill;
-   struct sigaction saved_sigfpe;
 
    /* Save the original signal handlers.
     */
    sigaction( SIGILL, NULL, &saved_sigill );
-   sigaction( SIGFPE, NULL, &saved_sigfpe );
 
    signal( SIGILL, (void (*)(int))sigill_handler_sse );
-   signal( SIGFPE, (void (*)(int))sigfpe_handler_sse );
 
    /* Emulate test for OSFXSR in CR4.  The OS will set this bit if it
     * supports the extended FPU save and restore required for SSE.  If
@@ -441,35 +418,9 @@ static void check_os_katmai_support( void )
       }
    }
 
-   /* Emulate test for OSXMMEXCPT in CR4.  The OS will set this bit if
-    * it supports unmasked SIMD FPU exceptions.  If we unmask the
-    * exceptions, do a SIMD divide-by-zero and get a SIGILL, the OS
-    * doesn't support unmasked SIMD FPU exceptions.  If we get a SIGFPE
-    * as expected, we're okay but we need to clean up after it.
-    *
-    * Are we being too stringent in our requirement that the OS support
-    * unmasked exceptions?  Certain RedHat 2.2 kernels enable SSE by
-    * setting CR4.OSFXSR but don't support unmasked exceptions.  Win98
-    * doesn't even support them.  We at least know the user-space SSE
-    * support is good in kernels that do support unmasked exceptions,
-    * and therefore to be safe I'm going to leave this test in here.
-    */
-   if ( gCpuCaps.hasSSE ) {
-      mp_msg(MSGT_CPUDETECT,MSGL_V, "Testing OS support for SSE unmasked exceptions... " );
-
-//      test_os_katmai_exception_support();
-
-      if ( gCpuCaps.hasSSE ) {
-	 mp_msg(MSGT_CPUDETECT,MSGL_V, "yes.\n" );
-      } else {
-	 mp_msg(MSGT_CPUDETECT,MSGL_V, "no!\n" );
-      }
-   }
-
    /* Restore the original signal handlers.
     */
    sigaction( SIGILL, &saved_sigill, NULL );
-   sigaction( SIGFPE, &saved_sigfpe, NULL );
 
    /* If we've gotten to here and the XMM CPUID bit is still set, we're
     * safe to go ahead and hook out the SSE code throughout Mesa.
@@ -485,7 +436,7 @@ static void check_os_katmai_support( void )
     */
    mp_msg(MSGT_CPUDETECT,MSGL_WARN, "Cannot test OS support for SSE, disabling to be safe.\n" );
    gCpuCaps.hasSSE=0;
-#endif /* _POSIX_SOURCE && X86_FXSR_MAGIC */
+#endif /* _POSIX_SOURCE */
 #else
    /* Do nothing on other platforms for now.
     */
@@ -493,7 +444,7 @@ static void check_os_katmai_support( void )
    gCpuCaps.hasSSE=0;
 #endif /* __linux__ */
 }
-#else /* ARCH_X86 || ARCH_X86_64 */
+#else /* ARCH_X86 */
 
 #ifdef SYS_DARWIN
 #include <sys/sysctl.h>

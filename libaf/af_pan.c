@@ -13,7 +13,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <unistd.h>
 #include <inttypes.h>
 #include <math.h>
 #include <limits.h>
@@ -23,6 +22,7 @@
 // Data for specific instances of this filter
 typedef struct af_pan_s
 {
+  int nch; // Number of output channels; zero means same as input
   float level[AF_NCH][AF_NCH];	// Gain level for each channel
 }af_pan_t;
 
@@ -39,6 +39,7 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
     af->data->rate   = ((af_data_t*)arg)->rate;
     af->data->format = AF_FORMAT_FLOAT_NE;
     af->data->bps    = 4;
+    af->data->nch    = s->nch ? s->nch: ((af_data_t*)arg)->nch;
     af->mul.n        = af->data->nch;
     af->mul.d	     = ((af_data_t*)arg)->nch;
     af_frac_cancel(&af->mul);
@@ -49,7 +50,7 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
       ((af_data_t*)arg)->bps = af->data->bps;
       return AF_FALSE;
     }
-    return control(af,AF_CONTROL_PAN_NOUT | AF_CONTROL_SET, &af->data->nch);
+    return AF_OK;
   case AF_CONTROL_COMMAND_LINE:{
     int   nch = 0;
     int   n = 0;
@@ -105,10 +106,27 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
 	     " between 1 and %i. Current value is %i\n",AF_NCH,((int*)arg)[0]);
       return AF_ERROR;
     }
-    af->data->nch=((int*)arg)[0];
+    s->nch=((int*)arg)[0];
     return AF_OK;
   case AF_CONTROL_PAN_NOUT | AF_CONTROL_GET:
     *(int*)arg = af->data->nch;
+    return AF_OK;
+  case AF_CONTROL_PAN_BALANCE | AF_CONTROL_SET:{
+    float val = *(float*)arg;
+    if (s->nch)
+      return AF_ERROR;
+    if (af->data->nch >= 2) {
+      s->level[0][0] = min(1.f, 1.f - val);
+      s->level[0][1] = max(0.f, val);
+      s->level[1][0] = max(0.f, -val);
+      s->level[1][1] = min(1.f, 1.f + val);
+    }
+    return AF_OK;
+  }
+  case AF_CONTROL_PAN_BALANCE | AF_CONTROL_GET:
+    if (s->nch)
+      return AF_ERROR;
+    *(float*)arg = s->level[0][1] - s->level[1][0];
     return AF_OK;
   }
   return AF_UNKNOWN;
@@ -117,10 +135,9 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
 // Deallocate memory 
 static void uninit(struct af_instance_s* af)
 {
-  if(af->data->audio)
-    free(af->data->audio);
   if(af->data)
-    free(af->data);
+    free(af->data->audio);
+  free(af->data);
   if(af->setup)
     free(af->setup);
 }
@@ -165,7 +182,7 @@ static af_data_t* play(struct af_instance_s* af, af_data_t* data)
 }
 
 // Allocate memory and set function pointers
-static int open(af_instance_t* af){
+static int af_open(af_instance_t* af){
   af->control=control;
   af->uninit=uninit;
   af->play=play;
@@ -175,7 +192,6 @@ static int open(af_instance_t* af){
   af->setup=calloc(1,sizeof(af_pan_t));
   if(af->data == NULL || af->setup == NULL)
     return AF_ERROR;
-  // Set initial pan to pass-through.
   return AF_OK;
 }
 
@@ -185,6 +201,6 @@ af_info_t af_info_pan = {
     "pan",
     "Anders",
     "",
-    AF_FLAGS_NOT_REENTRANT,
-    open
+    AF_FLAGS_REENTRANT,
+    af_open
 };

@@ -1,0 +1,73 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 00alpha.dpatch by  <mennucc1@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: ./configure  --target=alpha_ev5-linux
+
+@DPATCH@
+diff -urNad mplayer-1.0~rc2~/configure mplayer-1.0~rc2/configure
+--- mplayer-1.0~rc2~/configure	2007-10-07 21:49:33.000000000 +0200
++++ mplayer-1.0~rc2/configure	2007-10-18 19:46:04.000000000 +0200
+@@ -146,7 +146,7 @@
+ 
+ alpha() {
+   case "$host_arch" in
+-    alpha) return 0;;
++    alpha*) return 0;;
+     *) return 1;;
+   esac
+ }
+@@ -1257,7 +1257,7 @@
+         fi
+       ;;
+       macppc|ppc|ppc64) host_arch=ppc ;;
+-      alpha) host_arch=alpha ;;
++      alpha*) host_arch=alpha ;;
+       sparc) host_arch=sparc ;;
+       sparc64) host_arch=sparc64 ;;
+       parisc*|hppa*|9000*) host_arch=hppa ;;
+@@ -2126,14 +2126,20 @@
+ 
+     ;;
+ 
+-  alpha)
++  alpha*)
+     _arch='ALPHA'
+     _target_arch='ARCH_ALPHA = yes'
+     iproc='alpha'
+     _march=''
+     
+     echocheck "CPU type"
+-    cat > $TMPC << EOF
++    if test "$_target" ; then
++      proc=`echo $_target | cut -d '-' -f 1 | cut -d '_' -f 2`
++      _mcpu="$cpuopt=$proc"
++      #it seems that there is a runtime detection for the MVI code
++      cpu_understands_mvi="1";
++    else  
++      cat > $TMPC << EOF
+ int main() {
+     unsigned long ver, mask;
+     asm ("implver %0" : "=r" (ver));
+@@ -2142,9 +2148,8 @@
+     return 0;
+ }
+ EOF
+-    $_cc -o "$TMPEXE" "$TMPC"
+-    case `"$TMPEXE"` in
+-
++     $_cc -o "$TMPEXE" "$TMPC"
++     case `"$TMPEXE"` in
+         0-0)    proc="ev4";   _mvi="0";;
+         1-0)    proc="ev5";   _mvi="0";;
+         1-1)    proc="ev56";  _mvi="0";;
+@@ -2152,7 +2157,8 @@
+         2-303)  proc="ev6";   _mvi="1";;
+         2-307)  proc="ev67";  _mvi="1";;
+         2-1307) proc="ev68";  _mvi="1";;
+-    esac
++     esac
++    fi
+     echores "$proc"
+     
+     echocheck "GCC & CPU optimization abilities"

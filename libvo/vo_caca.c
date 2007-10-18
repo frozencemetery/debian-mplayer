@@ -26,6 +26,7 @@
 
 #include "osdep/keycodes.h"
 #include "mp_msg.h"
+#include "mp_fifo.h"
 
 #include <caca.h>
 #ifdef CACA_API_VERSION_1
@@ -176,12 +177,12 @@ static void flip_page(void)
 	if (time(NULL) >= stoposd)
 	{
 	    showosdmessage = 0;
-	    if (posbar)
+	    if (*posbar)
 		posbar[0] = '\0';
 	} else {
 	    caca_putstr(osdx, osdy, osdmessagetext);
 	    
-	    if (posbar)
+	    if (*posbar)
 		caca_putstr(0, posbary, posbar);
 	}
     }
@@ -284,12 +285,10 @@ static void uninit(void)
 
 static void draw_osd(void)
 {
-#ifdef USE_OSD
     if (vo_osd_progbar_type != -1)
 	osdpercent(MESSAGE_DURATION, 0, 255,
-		  vo_osd_progbar_value, __sub_osd_names[vo_osd_progbar_type],
+		  vo_osd_progbar_value, sub_osd_names[vo_osd_progbar_type],
 		  "");
-#endif
 }
 
 static int preinit(const char *arg)
@@ -318,11 +317,7 @@ static int preinit(const char *arg)
 static int query_format(uint32_t format)
 {
     if (format == IMGFMT_BGR24)
-      return
-#ifdef USE_OSD
-	VFCAP_OSD |
-#endif
-	VFCAP_CSP_SUPPORTED;
+      return VFCAP_OSD | VFCAP_CSP_SUPPORTED;
 
     return 0;
 }

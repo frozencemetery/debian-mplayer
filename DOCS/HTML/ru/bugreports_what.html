@@ -1,128 +1,132 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=KOI8-R"><title>A.6. Что сообщать</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="bugreports.html" title="Приложение A. Как сообщать об ошибках"><link rel="prev" href="bugreports_where.html" title="A.5. Куда сообщать об ошибках"><link rel="next" href="bugreports_advusers.html" title="A.7. Я знаю, что я делаю..."><link rel="preface" href="howtoread.html" title="Как читать эту документацию"><link rel="chapter" href="intro.html" title="Глава 1. Введение"><link rel="chapter" href="install.html" title="Глава 2. Установка"><link rel="chapter" href="usage.html" title="Глава 3. Использование"><link rel="chapter" href="cd-dvd.html" title="Глава 4. Использование CD/DVD"><link rel="chapter" href="faq.html" title="Глава 5. Часто Задаваемые вопросы"><link rel="chapter" href="containers.html" title="Глава 6. Поддерживаемые форматы"><link rel="chapter" href="codecs.html" title="Глава 7. Поддерживаемые кодеки"><link rel="chapter" href="tv.html" title="Глава 8. TV"><link rel="chapter" href="radio.html" title="Глава 9. Радио"><link rel="chapter" href="video.html" title="Глава 10. Устройства вывода видео"><link rel="chapter" href="audio.html" title="Глава 11. Устройства вывода звука"><link rel="chapter" href="ports.html" title="Глава 12. Портинг"><link rel="chapter" href="mencoder.html" title="Глава 13. Основы использования MEncoder"><link rel="chapter" href="encoding-guide.html" title="Глава 14. Encoding with MEncoder"><link rel="appendix" href="bugreports.html" title="Приложение A. Как сообщать об ошибках"><link rel="appendix" href="bugs.html" title="Приложение B. Известные проблемы"><link rel="appendix" href="skin.html" title="Приложение C. Формат скинов MPlayer"><link rel="appendix" href="history.html" title="Приложение D. История"><link rel="subsection" href="bugreports_what.html#bugreports_system" title="A.6.1. Системная информация"><link rel="subsection" href="bugreports_what.html#bugreports_hardware" title="A.6.2. Аппаратура и драйверы"><link rel="subsection" href="bugreports_what.html#bugreports_configure" title="A.6.3. Проблемы конфигурации"><link rel="subsection" href="bugreports_what.html#bugreports_conpilation" title="A.6.4. Проблемы компиляции"><link rel="subsection" href="bugreports_what.html#bugreports_playback" title="A.6.5. Проблемы при воспроизведении"><link rel="subsection" href="bugreports_what.html#bugreports_crash" title="A.6.6. Краши[crash]"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">A.6. Что сообщать</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="bugreports_where.html">Пред.</a> </td><th width="60%" align="center">Приложение A. Как сообщать об ошибках</th><td width="20%" align="right"> <a accesskey="n" href="bugreports_advusers.html">След.</a></td></tr></table><hr></div><div class="sect1" lang="ru"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="bugreports_what"></a>A.6. Что сообщать</h2></div></div></div><p>
-Вам необходимо включить лог, конфигурацию или примеры файлов в сообщение
-об ошибке. Если что-то из этого большое, то лучше загрузить это на наш
-<a href="ftp://upload.mplayerhq.hu/MPlayer/incoming/" target="_top">FTP сервер</a>
-в сжатом виде (предпочтительно gzip или bzip2) и включить в сообщение
-об ошибке только путь и имя файла. На наших рассылках стоит ограничение размера
-сообщения в 80Кб. Если у Вас что-то большее, то сожмите или загрузите это.
-</p><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="bugreports_system"></a>A.6.1. Системная информация</h3></div></div></div><p>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>A.6. п╖я┌п╬ я│п╬п╬п╠я┴п╟я┌я▄</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="bugreports.html" title="п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ A. п п╟п╨ я│п╬п╬п╠я┴п╟я┌я▄ п╬п╠ п╬я┬п╦п╠п╨п╟я┘"><link rel="prev" href="bugreports_where.html" title="A.5. п я┐п╢п╟ я│п╬п╬п╠я┴п╟я┌я▄ п╬п╠ п╬я┬п╦п╠п╨п╟я┘"><link rel="next" href="bugreports_advusers.html" title="A.7. п╞ п╥п╫п╟я▌, я┤я┌п╬ я▐ п╢п╣п╩п╟я▌..."><link rel="preface" href="howtoread.html" title="п п╟п╨ я┤п╦я┌п╟я┌я▄ я█я┌я┐ п╢п╬п╨я┐п╪п╣п╫я┌п╟я├п╦я▌"><link rel="chapter" href="intro.html" title="п⌠п╩п╟п╡п╟ 1. п▓п╡п╣п╢п╣п╫п╦п╣"><link rel="chapter" href="install.html" title="п⌠п╩п╟п╡п╟ 2. пёя│я┌п╟п╫п╬п╡п╨п╟"><link rel="chapter" href="usage.html" title="п⌠п╩п╟п╡п╟ 3. п≤я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣"><link rel="chapter" href="cd-dvd.html" title="п⌠п╩п╟п╡п╟ 4. п≤я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣ CD/DVD"><link rel="chapter" href="faq.html" title="п⌠п╩п╟п╡п╟ 5. п╖п╟я│я┌п╬ п≈п╟п╢п╟п╡п╟п╣п╪я▀п╣ п╡п╬п©я─п╬я│я▀"><link rel="chapter" href="containers.html" title="п⌠п╩п╟п╡п╟ 6. п÷п╬п╢п╢п╣я─п╤п╦п╡п╟п╣п╪я▀п╣ я└п╬я─п╪п╟я┌я▀"><link rel="chapter" href="codecs.html" title="п⌠п╩п╟п╡п╟ 7. п÷п╬п╢п╢п╣я─п╤п╦п╡п╟п╣п╪я▀п╣ п╨п╬п╢п╣п╨п╦"><link rel="chapter" href="tv.html" title="п⌠п╩п╟п╡п╟ 8. TV"><link rel="chapter" href="radio.html" title="п⌠п╩п╟п╡п╟ 9. п═п╟п╢п╦п╬"><link rel="chapter" href="video.html" title="п⌠п╩п╟п╡п╟ 10. пёя│я┌я─п╬п╧я│я┌п╡п╟ п╡я▀п╡п╬п╢п╟ п╡п╦п╢п╣п╬"><link rel="chapter" href="audio.html" title="п⌠п╩п╟п╡п╟ 11. пёя│я┌я─п╬п╧я│я┌п╡п╟ п╡я▀п╡п╬п╢п╟ п╥п╡я┐п╨п╟"><link rel="chapter" href="ports.html" title="п⌠п╩п╟п╡п╟ 12. п÷п╬я─я┌п╦п╫пЁ"><link rel="chapter" href="mencoder.html" title="п⌠п╩п╟п╡п╟ 13. п·я│п╫п╬п╡я▀ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ MEncoder"><link rel="chapter" href="encoding-guide.html" title="п⌠п╩п╟п╡п╟ 14. п п╬п╢п╦я─п╬п╡п╟п╫п╦п╣ я│ MEncoder"><link rel="appendix" href="bugreports.html" title="п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ A. п п╟п╨ я│п╬п╬п╠я┴п╟я┌я▄ п╬п╠ п╬я┬п╦п╠п╨п╟я┘"><link rel="appendix" href="bugs.html" title="п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ B. п≤п╥п╡п╣я│я┌п╫я▀п╣ п©я─п╬п╠п╩п╣п╪я▀"><link rel="appendix" href="skin.html" title="п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ C. п╓п╬я─п╪п╟я┌ я│п╨п╦п╫п╬п╡ MPlayer"><link rel="appendix" href="history.html" title="п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ D. п≤я│я┌п╬я─п╦я▐"><link rel="subsection" href="bugreports_what.html#bugreports_system" title="A.6.1. п║п╦я│я┌п╣п╪п╫п╟я▐ п╦п╫я└п╬я─п╪п╟я├п╦я▐"><link rel="subsection" href="bugreports_what.html#bugreports_hardware" title="A.6.2. п░п©п©п╟я─п╟я┌я┐я─п╟ п╦ п╢я─п╟п╧п╡п╣я─я▀"><link rel="subsection" href="bugreports_what.html#bugreports_configure" title="A.6.3. п÷я─п╬п╠п╩п╣п╪я▀ п╨п╬п╫я└п╦пЁя┐я─п╟я├п╦п╦"><link rel="subsection" href="bugreports_what.html#bugreports_compilation" title="A.6.4. п÷я─п╬п╠п╩п╣п╪я▀ п╨п╬п╪п©п╦п╩я▐я├п╦п╦"><link rel="subsection" href="bugreports_what.html#bugreports_playback" title="A.6.5. п÷я─п╬п╠п╩п╣п╪я▀ п©я─п╦ п╡п╬я│п©я─п╬п╦п╥п╡п╣п╢п╣п╫п╦п╦"><link rel="subsection" href="bugreports_what.html#bugreports_crash" title="A.6.6. п я─п╟я┬п╦[crash]"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">A.6. п╖я┌п╬ я│п╬п╬п╠я┴п╟я┌я▄</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="bugreports_where.html">п÷я─п╣п╢.</a>б═</td><th width="60%" align="center">п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ A. п п╟п╨ я│п╬п╬п╠я┴п╟я┌я▄ п╬п╠ п╬я┬п╦п╠п╨п╟я┘</th><td width="20%" align="right">б═<a accesskey="n" href="bugreports_advusers.html">п║п╩п╣п╢.</a></td></tr></table><hr></div><div class="sect1" lang="ru"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="bugreports_what"></a>A.6. п╖я┌п╬ я│п╬п╬п╠я┴п╟я┌я▄</h2></div></div></div><p>
+п▓п╟п╪ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ п╡п╨п╩я▌я┤п╦я┌я▄ п╩п╬пЁ, п╨п╬п╫я└п╦пЁя┐я─п╟я├п╦я▌ п╦п╩п╦ п©я─п╦п╪п╣я─я▀ я└п╟п╧п╩п╬п╡ п╡ я│п╬п╬п╠я┴п╣п╫п╦п╣
+п╬п╠ п╬я┬п╦п╠п╨п╣. п∙я│п╩п╦ я┤я┌п╬-я┌п╬ п╦п╥ я█я┌п╬пЁп╬ п╠п╬п╩я▄я┬п╬п╣, я┌п╬ п╩я┐я┤я┬п╣ п╥п╟пЁя─я┐п╥п╦я┌я▄ я█я┌п╬ п╫п╟ п╫п╟я┬
+<a href="ftp://upload.mplayerhq.hu/MPlayer/incoming/" target="_top">FTP я│п╣я─п╡п╣я─</a>
+п╡ я│п╤п╟я┌п╬п╪ п╡п╦п╢п╣ (п©я─п╣п╢п©п╬я┤я┌п╦я┌п╣п╩я▄п╫п╬ gzip п╦п╩п╦ bzip2) п╦ п╡п╨п╩я▌я┤п╦я┌я▄ п╡ я│п╬п╬п╠я┴п╣п╫п╦п╣
+п╬п╠ п╬я┬п╦п╠п╨п╣ я┌п╬п╩я▄п╨п╬ п©я┐я┌я▄ п╦ п╦п╪я▐ я└п╟п╧п╩п╟. п²п╟ п╫п╟я┬п╦я┘ я─п╟я│я│я▀п╩п╨п╟я┘ я│я┌п╬п╦я┌ п╬пЁя─п╟п╫п╦я┤п╣п╫п╦п╣ я─п╟п╥п╪п╣я─п╟
+я│п╬п╬п╠я┴п╣п╫п╦я▐ п╡ 80п п╠. п∙я│п╩п╦ я┐ п▓п╟я│ я┤я┌п╬-я┌п╬ п╠п╬п╩я▄я┬п╣п╣, я┌п╬ я│п╬п╤п╪п╦я┌п╣ п╦п╩п╦ п╥п╟пЁя─я┐п╥п╦я┌п╣ я█я┌п╬.
+</p><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="bugreports_system"></a>A.6.1. п║п╦я│я┌п╣п╪п╫п╟я▐ п╦п╫я└п╬я─п╪п╟я├п╦я▐</h3></div></div></div><p>
 </p><div class="itemizedlist"><ul type="disc"><li><p>
-Ваш дистрибутив Linux или операционная система и версия, например:
-  </p><div class="itemizedlist"><ul type="circle"><li><p>Red Hat 7.1</p></li><li><p>Slackware 7.0 + пакеты разработки из 7.1 ...</p></li></ul></div><p>
+  п▓п╟я┬ п╢п╦я│я┌я─п╦п╠я┐я┌п╦п╡ Linux п╦п╩п╦ п╬п©п╣я─п╟я├п╦п╬п╫п╫п╟я▐ я│п╦я│я┌п╣п╪п╟ п╦ п╡п╣я─я│п╦я▐, п╫п╟п©я─п╦п╪п╣я─:
+  </p><div class="itemizedlist"><ul type="circle"><li><p>Red Hat 7.1</p></li><li><p>Slackware 7.0 + п©п╟п╨п╣я┌я▀ я─п╟п╥я─п╟п╠п╬я┌п╨п╦ п╦п╥ 7.1 ...</p></li></ul></div><p>
 </p></li><li><p>
-версию ядра:
-</p><pre class="screen">uname -a</pre><p>
+  п╡п╣я─я│п╦я▌ я▐п╢я─п╟:
+  </p><pre class="screen">uname -a</pre><p>
 </p></li><li><p>
-версию libc:
-</p><pre class="screen">ls -l /lib/libc[.-]*</pre><p>
+  п╡п╣я─я│п╦я▌ libc:
+  </p><pre class="screen">ls -l /lib/libc[.-]*</pre><p>
 </p></li><li><p>
-версии gcc и ld:
-</p><pre class="screen">
+  п╡п╣я─я│п╦п╦ gcc п╦ ld:
+  </p><pre class="screen">
 gcc -v
-ld -v
-</pre><p>
+ld -v</pre><p>
 </p></li><li><p>
-версия binutils:
-</p><pre class="screen">
-as --version
-</pre><p>
+  п╡п╣я─я│п╦я▐ binutils:
+  </p><pre class="screen">as --version</pre><p>
 </p></li><li><p>
-Если у Вас проблемы с полноэкранным режимом:
-  </p><div class="itemizedlist"><ul type="circle"><li><p>Тип оконного менеджера и версия</p></li></ul></div><p>
+  п∙я│п╩п╦ я┐ п▓п╟я│ п©я─п╬п╠п╩п╣п╪я▀ я│ п©п╬п╩п╫п╬я█п╨я─п╟п╫п╫я▀п╪ я─п╣п╤п╦п╪п╬п╪:
+  </p><div class="itemizedlist"><ul type="circle"><li><p>п╒п╦п© п╬п╨п╬п╫п╫п╬пЁп╬ п╪п╣п╫п╣п╢п╤п╣я─п╟ п╦ п╡п╣я─я│п╦я▐</p></li></ul></div><p>
 </p></li><li><p>
-Если у Вас проблема с XVIDIX:
-  </p><div class="itemizedlist"><ul type="circle"><li><p>глубина цвета X'ов:
-</p><pre class="screen">xdpyinfo | grep "depth of root"</pre><p>
-    </p></li></ul></div><p>
+  п∙я│п╩п╦ я┐ п▓п╟я│ п©я─п╬п╠п╩п╣п╪п╟ я│ XVIDIX:
+  </p><div class="itemizedlist"><ul type="circle"><li><p>пЁп╩я┐п╠п╦п╫п╟ я├п╡п╣я┌п╟ X'п╬п╡:
+    </p><pre class="screen">xdpyinfo | grep "depth of root"</pre><p>
+  </p></li></ul></div><p>
 </p></li><li><p>
-Если глючит только GUI:
-  </p><div class="itemizedlist"><ul type="circle"><li><p>версия GTK</p></li><li><p>версия GLIB</p></li><li><p>версия libpng</p></li><li><p>ситуация с GUI, в которых проявляется проблема</p></li></ul></div><p>
+  п∙я│п╩п╦ пЁп╩я▌я┤п╦я┌ я┌п╬п╩я▄п╨п╬ GUI:
+  </p><div class="itemizedlist"><ul type="circle"><li><p>п╡п╣я─я│п╦я▐ GTK</p></li><li><p>п╡п╣я─я│п╦я▐ GLIB</p></li><li><p>я│п╦я┌я┐п╟я├п╦я▐ я│ GUI, п╡ п╨п╬я┌п╬я─я▀я┘ п©я─п╬я▐п╡п╩я▐п╣я┌я│я▐ п©я─п╬п╠п╩п╣п╪п╟</p></li></ul></div><p>
 </p></li></ul></div><p>
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="bugreports_hardware"></a>A.6.2. Аппаратура и драйверы</h3></div></div></div><p>
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="bugreports_hardware"></a>A.6.2. п░п©п©п╟я─п╟я┌я┐я─п╟ п╦ п╢я─п╟п╧п╡п╣я─я▀</h3></div></div></div><p>
 </p><div class="itemizedlist"><ul type="disc"><li><p>
-Информация о CPU (это сработает только под Linux):
-</p><pre class="screen">cat /proc/cpuinfo</pre><p>
+  п≤п╫я└п╬я─п╪п╟я├п╦я▐ п╬ CPU (я█я┌п╬ я│я─п╟п╠п╬я┌п╟п╣я┌ я┌п╬п╩я▄п╨п╬ п©п╬п╢ Linux):
+  </p><pre class="screen">cat /proc/cpuinfo</pre><p>
 </p></li><li><p>
-Производитель и модель видео карты, например:
-  </p><div class="itemizedlist"><ul type="circle"><li><p>ASUS V3800U чип: nVidia TNT2 Ultra pro 32MB SDRAM</p></li><li><p>Matrox G400 DH 32MB SGRAM</p></li></ul></div><p>
+  п÷я─п╬п╦п╥п╡п╬п╢п╦я┌п╣п╩я▄ п╦ п╪п╬п╢п╣п╩я▄ п╡п╦п╢п╣п╬ п╨п╟я─я┌я▀, п╫п╟п©я─п╦п╪п╣я─:
+  </p><div class="itemizedlist"><ul type="circle"><li><p>ASUS V3800U я┤п╦п©: nVidia TNT2 Ultra pro 32MB SDRAM</p></li><li><p>Matrox G400 DH 32MB SGRAM</p></li></ul></div><p>
 </p></li><li><p>
-Тип драйвера и версия, например:
-  </p><div class="itemizedlist"><ul type="circle"><li><p>Встроенный в X'ы</p></li><li><p>nVidia 0.9.623</p></li><li><p>Utah-GLX CVS 2001-02-17</p></li><li><p>DRI из X 4.0.3</p></li></ul></div><p>
+п╒п╦п© п╢я─п╟п╧п╡п╣я─п╟ п╦ п╡п╣я─я│п╦я▐, п╫п╟п©я─п╦п╪п╣я─:
+  </p><div class="itemizedlist"><ul type="circle"><li><p>п▓я│я┌я─п╬п╣п╫п╫я▀п╧ п╡ X'я▀</p></li><li><p>nVidia 0.9.623</p></li><li><p>Utah-GLX CVS 2001-02-17</p></li><li><p>DRI п╦п╥ X 4.0.3</p></li></ul></div><p>
 </p></li><li><p>
-Тип и драйвер звуковой карты, например:
-  </p><div class="itemizedlist"><ul type="circle"><li><p>Creative SBLive! Gold с OSS драйверами от oss.creative.com</p></li><li><p>Creative SB16 с OSS драйверами из ядра</p></li><li><p>GUS PnP с ALSA OSS эмуляцией</p></li></ul></div><p>
+  п╒п╦п© п╦ п╢я─п╟п╧п╡п╣я─ п╥п╡я┐п╨п╬п╡п╬п╧ п╨п╟я─я┌я▀, п╫п╟п©я─п╦п╪п╣я─:
+  </p><div class="itemizedlist"><ul type="circle"><li><p>Creative SBLive! Gold я│ OSS п╢я─п╟п╧п╡п╣я─п╟п╪п╦ п╬я┌ oss.creative.com</p></li><li><p>Creative SB16 я│ OSS п╢я─п╟п╧п╡п╣я─п╟п╪п╦ п╦п╥ я▐п╢я─п╟</p></li><li><p>GUS PnP я│ ALSA OSS я█п╪я┐п╩я▐я├п╦п╣п╧</p></li></ul></div><p>
 </p></li><li><p>
-Если Вы сомневаетесь, на Linux системах включите вывод
+  п∙я│п╩п╦ п▓я▀ я│п╬п╪п╫п╣п╡п╟п╣я┌п╣я│я▄, п╫п╟ Linux я│п╦я│я┌п╣п╪п╟я┘ п╡п╨п╩я▌я┤п╦я┌п╣ п╡я▀п╡п╬п╢
 <span><strong class="command">lspci -vv</strong></span>.
 </p></li></ul></div><p>
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="bugreports_configure"></a>A.6.3. Проблемы конфигурации</h3></div></div></div><p>
-Если Вы получаете ошибку при выполнении <span><strong class="command">./configure</strong></span>, или если
-автоопределение чего-то не срабатывает, прочитайте <tt class="filename">configure.log
-</tt>. Там Вы можете обнаружить ответ, например если у Вас стоят несколько
-версий одной библиотеки, или если Вы забыли установить пакет разработки (тот
-самый, с суффиксом -dev). Если Вы думаете, что это ошибка, включите в сообщение
-файл <tt class="filename">configure.log</tt>.
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="bugreports_conpilation"></a>A.6.4. Проблемы компиляции</h3></div></div></div><p>
-Пожалуйста, включите эти файлы:
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="bugreports_configure"></a>A.6.3. п÷я─п╬п╠п╩п╣п╪я▀ п╨п╬п╫я└п╦пЁя┐я─п╟я├п╦п╦</h3></div></div></div><p>
+п∙я│п╩п╦ п▓я▀ п©п╬п╩я┐я┤п╟п╣я┌п╣ п╬я┬п╦п╠п╨я┐ п©я─п╦ п╡я▀п©п╬п╩п╫п╣п╫п╦п╦ <span><strong class="command">./configure</strong></span>, п╦п╩п╦ п╣я│п╩п╦
+п╟п╡я┌п╬п╬п©я─п╣п╢п╣п╩п╣п╫п╦п╣ я┤п╣пЁп╬-я┌п╬ п╫п╣ я│я─п╟п╠п╟я┌я▀п╡п╟п╣я┌, п©я─п╬я┤п╦я┌п╟п╧я┌п╣ <tt class="filename">configure.log
+</tt>. п╒п╟п╪ п▓я▀ п╪п╬п╤п╣я┌п╣ п╬п╠п╫п╟я─я┐п╤п╦я┌я▄ п╬я┌п╡п╣я┌, п╫п╟п©я─п╦п╪п╣я─ п╣я│п╩п╦ я┐ п▓п╟я│ я│я┌п╬я▐я┌ п╫п╣я│п╨п╬п╩я▄п╨п╬
+п╡п╣я─я│п╦п╧ п╬п╢п╫п╬п╧ п╠п╦п╠п╩п╦п╬я┌п╣п╨п╦, п╦п╩п╦ п╣я│п╩п╦ п▓я▀ п╥п╟п╠я▀п╩п╦ я┐я│я┌п╟п╫п╬п╡п╦я┌я▄ п©п╟п╨п╣я┌ я─п╟п╥я─п╟п╠п╬я┌п╨п╦ (я┌п╬я┌
+я│п╟п╪я▀п╧, я│ я│я┐я└я└п╦п╨я│п╬п╪ -dev). п∙я│п╩п╦ п▓я▀ п╢я┐п╪п╟п╣я┌п╣, я┤я┌п╬ я█я┌п╬ п╬я┬п╦п╠п╨п╟, п╡п╨п╩я▌я┤п╦я┌п╣ п╡ я│п╬п╬п╠я┴п╣п╫п╦п╣
+я└п╟п╧п╩ <tt class="filename">configure.log</tt>.
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="bugreports_compilation"></a>A.6.4. п÷я─п╬п╠п╩п╣п╪я▀ п╨п╬п╪п©п╦п╩я▐я├п╦п╦</h3></div></div></div><p>
+п÷п╬п╤п╟п╩я┐п╧я│я┌п╟, п╡п╨п╩я▌я┤п╦я┌п╣ я█я┌п╦ я└п╟п╧п╩я▀:
 </p><div class="itemizedlist"><ul type="disc"><li><p>config.h</p></li><li><p>config.mak</p></li></ul></div><p>
-Если компиляция ломается в одном из этих каталогов, включите эти файлы:
-</p><div class="itemizedlist"><ul type="disc"><li><p>Gui/config.mak</p></li><li><p>libvo/config.mak</p></li><li><p>libao2/config.mak</p></li></ul></div><p>
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="bugreports_playback"></a>A.6.5. Проблемы при воспроизведении</h3></div></div></div><p>
-Пожалуйста, включите вывод <span class="application">MPlayer</span>'а с уровнем
-"многословности"[verbose] 1, но запомните: <span class="bold"><strong>не
-сокращайте вывод</strong></span>, когда Вы его вставляете в почту. Разработчикам
-понадобятся все сообщения, чтобы правильно диагностировать проблему. Вы можете
-направить вывод в файл, например так:
-</p><pre class="screen">mplayer -v <em class="replaceable"><code>options</code></em> <em class="replaceable"><code>filename</code></em> &gt; mplayer.log 2&gt;&amp;1</pre><p>
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="bugreports_playback"></a>A.6.5. п÷я─п╬п╠п╩п╣п╪я▀ п©я─п╦ п╡п╬я│п©я─п╬п╦п╥п╡п╣п╢п╣п╫п╦п╦</h3></div></div></div><p>
+п÷п╬п╤п╟п╩я┐п╧я│я┌п╟, п╡п╨п╩я▌я┤п╦я┌п╣ п╡я▀п╡п╬п╢ <span class="application">MPlayer</span>'п╟ я│ я┐я─п╬п╡п╫п╣п╪
+"п╪п╫п╬пЁп╬я│п╩п╬п╡п╫п╬я│я┌п╦" [verbose] 1, п╫п╬ п╥п╟п©п╬п╪п╫п╦я┌п╣: <span class="bold"><strong>п╫п╣
+я│п╬п╨я─п╟я┴п╟п╧я┌п╣ п╡я▀п╡п╬п╢</strong></span>, п╨п╬пЁп╢п╟ п▓я▀ п╣пЁп╬ п╡я│я┌п╟п╡п╩я▐п╣я┌п╣ п╡ п©п╬я┤я┌я┐. п═п╟п╥я─п╟п╠п╬я┌я┤п╦п╨п╟п╪
+п©п╬п╫п╟п╢п╬п╠я▐я┌я│я▐ п╡я│п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐, я┤я┌п╬п╠я▀ п©я─п╟п╡п╦п╩я▄п╫п╬ п╢п╦п╟пЁп╫п╬я│я┌п╦я─п╬п╡п╟я┌я▄ п©я─п╬п╠п╩п╣п╪я┐. п▓я▀ п╪п╬п╤п╣я┌п╣
+п╫п╟п©я─п╟п╡п╦я┌я▄ п╡я▀п╡п╬п╢ п╡ я└п╟п╧п╩, п╫п╟п©я─п╦п╪п╣я─ я┌п╟п╨:
+</p><pre class="screen">
+mplayer -v <em class="replaceable"><code>options</code></em> <em class="replaceable"><code>filename</code></em> &gt; mplayer.log 2&gt;&amp;1
+</pre><p>
 </p><p>
-Если проблема специфична для одного или нескольких файлов, пожалуйста, загрузите
-проблемные файлы на:
+п∙я│п╩п╦ п©я─п╬п╠п╩п╣п╪п╟ я│п©п╣я├п╦я└п╦я┤п╫п╟ п╢п╩я▐ п╬п╢п╫п╬пЁп╬ п╦п╩п╦ п╫п╣я│п╨п╬п╩я▄п╨п╦я┘ я└п╟п╧п╩п╬п╡, 
+п©п╬п╤п╟п╩я┐п╧я│я┌п╟, п╥п╟пЁя─я┐п╥п╦я┌п╣ п©я─п╬п╠п╩п╣п╪п╫я▀п╣ я└п╟п╧п╩я▀ п╫п╟:
 <a href="ftp://mplayerhq.hu/MPlayer/incoming/" target="_top">ftp://mplayerhq.hu/MPlayer/incoming/</a>
 </p><p>
-Также загрузите маленький текстовый файл с базовым именем как у Вашего файла и
-расширением <tt class="filename">.txt</tt>. Опишите проблему, возникающую у Вас
-с соответствующим файлом и включите ваш электронный адрес и вывод <span class="application">MPlayer</span>'а
-с уровнем "многословности" 1. Куска файла размером 1-5 Мб обычно
-бывает достаточно, чтобы воспроизвести проблему, но чтобы быть уверенными,
-мы просим вас сделать:
-</p><pre class="screen">dd if=<em class="replaceable"><code>yourfile</code></em> of=<em class="replaceable"><code>smallfile</code></em> bs=1024k count=5</pre><p>
-Это запишет первые 5 Мб файла '<span class="bold"><strong>your-file</strong></span>' и
-запишет в файл '<span class="bold"><strong>small-file</strong></span>'. Теперь снова
-попытайтесь с эти маленьким файлом, и если проблема все ещё проявляется,
-тогда этого примера будет достаточно для нас.  Пожалуйста,
-<span class="bold"><strong>никогда</strong></span> не отсылайте эти файлы по почте!
-Загрузите его и отошлите только путь/имя файла не FTP-сервере. Если файл
-доступен по сети, тогда просто пришлите <span class="bold"><strong>точный</strong></span>
-URL, и этого будет достаточно.
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="bugreports_crash"></a>A.6.6. Краши[crash]</h3></div></div></div><p>
-Вы должны запустить <span class="application">MPlayer</span> внутри <span><strong class="command">gdb</strong></span>
-и прислать нам полный вывод, или , если у Вас есть <tt class="filename">core</tt>
-dump поломки, Вы можете извлечь необходимую полезную информацию из файла
-core. Вот как:
-</p><div class="sect3" lang="ru"><div class="titlepage"><div><div><h4 class="title"><a name="bugreports_debug"></a>A.6.6.1. Как сохранить информацию о воспроизводимом краше</h4></div></div></div><p>
-Перекомпилируйте <span class="application">MPlayer</span> с включённым кодом отладки:
+п╒п╟п╨п╤п╣ п╥п╟пЁя─я┐п╥п╦я┌п╣ п╪п╟п╩п╣п╫я▄п╨п╦п╧ я┌п╣п╨я│я┌п╬п╡я▀п╧ я└п╟п╧п╩ я│ п╠п╟п╥п╬п╡я▀п╪ п╦п╪п╣п╫п╣п╪ п╨п╟п╨ я┐ п▓п╟я┬п╣пЁп╬ я└п╟п╧п╩п╟ п╦
+я─п╟я│я┬п╦я─п╣п╫п╦п╣п╪ <tt class="filename">.txt</tt>. п·п©п╦я┬п╦я┌п╣ п©я─п╬п╠п╩п╣п╪я┐, п╡п╬п╥п╫п╦п╨п╟я▌я┴я┐я▌ я┐ п▓п╟я│
+я│ я│п╬п╬я┌п╡п╣я┌я│я┌п╡я┐я▌я┴п╦п╪ я└п╟п╧п╩п╬п╪ п╦ п╡п╨п╩я▌я┤п╦я┌п╣ п╡п╟я┬ я█п╩п╣п╨я┌я─п╬п╫п╫я▀п╧ п╟п╢я─п╣я│ п╦ п╡я▀п╡п╬п╢ 
+<span class="application">MPlayer</span>'п╟
+я│ я┐я─п╬п╡п╫п╣п╪ "п╪п╫п╬пЁп╬я│п╩п╬п╡п╫п╬я│я┌п╦" 1. п я┐я│п╨п╟ я└п╟п╧п╩п╟ я─п╟п╥п╪п╣я─п╬п╪ 1-5 п°п╠ п╬п╠я▀я┤п╫п╬
+п╠я▀п╡п╟п╣я┌ п╢п╬я│я┌п╟я┌п╬я┤п╫п╬, я┤я┌п╬п╠я▀ п╡п╬я│п©я─п╬п╦п╥п╡п╣я│я┌п╦ п©я─п╬п╠п╩п╣п╪я┐, п╫п╬ я┤я┌п╬п╠я▀ п╠я▀я┌я▄ я┐п╡п╣я─п╣п╫п╫я▀п╪п╦,
+п╪я▀ п©я─п╬я│п╦п╪ п╡п╟я│ я│п╢п╣п╩п╟я┌я▄:
+</p><pre class="screen">
+dd if=<em class="replaceable"><code>yourfile</code></em> of=<em class="replaceable"><code>smallfile</code></em> bs=1024k count=5
+</pre><p>
+п╜я┌п╬ п╥п╟п©п╦я┬п╣я┌ п©п╣я─п╡я▀п╣ 5 п°п╠ я└п╟п╧п╩п╟ '<span class="bold"><strong>your-file</strong></span>' п╦
+п╥п╟п©п╦я┬п╣я┌ п╡ я└п╟п╧п╩ '<span class="bold"><strong>small-file</strong></span>'. п╒п╣п©п╣я─я▄ я│п╫п╬п╡п╟
+п©п╬п©я▀я┌п╟п╧я┌п╣я│я▄ я│ я█я┌п╦ п╪п╟п╩п╣п╫я▄п╨п╦п╪ я└п╟п╧п╩п╬п╪, п╦ п╣я│п╩п╦ п©я─п╬п╠п╩п╣п╪п╟ п╡я│п╣ п╣я┴я▒ п©я─п╬я▐п╡п╩я▐п╣я┌я│я▐,
+я┌п╬пЁп╢п╟ я█я┌п╬пЁп╬ п©я─п╦п╪п╣я─п╟ п╠я┐п╢п╣я┌ п╢п╬я│я┌п╟я┌п╬я┤п╫п╬ п╢п╩я▐ п╫п╟я│.  п÷п╬п╤п╟п╩я┐п╧я│я┌п╟,
+<span class="bold"><strong>п╫п╦п╨п╬пЁп╢п╟</strong></span> п╫п╣ п╬я┌я│я▀п╩п╟п╧я┌п╣ я█я┌п╦ я└п╟п╧п╩я▀ п©п╬ п©п╬я┤я┌п╣!
+п≈п╟пЁя─я┐п╥п╦я┌п╣ п╣пЁп╬ п╦ п╬я┌п╬я┬п╩п╦я┌п╣ я┌п╬п╩я▄п╨п╬ п©я┐я┌я▄/п╦п╪я▐ я└п╟п╧п╩п╟ п╫п╣ FTP-я│п╣я─п╡п╣я─п╣. п∙я│п╩п╦ я└п╟п╧п╩
+п╢п╬я│я┌я┐п©п╣п╫ п©п╬ я│п╣я┌п╦, я┌п╬пЁп╢п╟ п©я─п╬я│я┌п╬ п©я─п╦я┬п╩п╦я┌п╣ <span class="bold"><strong>я┌п╬я┤п╫я▀п╧</strong></span>
+URL, п╦ я█я┌п╬пЁп╬ п╠я┐п╢п╣я┌ п╢п╬я│я┌п╟я┌п╬я┤п╫п╬.
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="bugreports_crash"></a>A.6.6. п я─п╟я┬п╦[crash]</h3></div></div></div><p>
+п▓я▀ п╢п╬п╩п╤п╫я▀ п╥п╟п©я┐я│я┌п╦я┌я▄ <span class="application">MPlayer</span> п╡п╫я┐я┌я─п╦ <span><strong class="command">gdb</strong></span>
+п╦ п©я─п╦я│п╩п╟я┌я▄ п╫п╟п╪ п©п╬п╩п╫я▀п╧ п╡я▀п╡п╬п╢, п╦п╩п╦ , п╣я│п╩п╦ я┐ п▓п╟я│ п╣я│я┌я▄ <tt class="filename">core</tt>
+dump п©п╬п╩п╬п╪п╨п╦, п▓я▀ п╪п╬п╤п╣я┌п╣ п╦п╥п╡п╩п╣я┤я▄ п╫п╣п╬п╠я┘п╬п╢п╦п╪я┐я▌ п©п╬п╩п╣п╥п╫я┐я▌ п╦п╫я└п╬я─п╪п╟я├п╦я▌ п╦п╥ я└п╟п╧п╩п╟
+core. п▓п╬я┌ п╨п╟п╨:
+</p><div class="sect3" lang="ru"><div class="titlepage"><div><div><h4 class="title"><a name="bugreports_debug"></a>A.6.6.1. п п╟п╨ я│п╬я┘я─п╟п╫п╦я┌я▄ п╦п╫я└п╬я─п╪п╟я├п╦я▌ п╬ п╡п╬я│п©я─п╬п╦п╥п╡п╬п╢п╦п╪п╬п╪ п╨я─п╟я┬п╣</h4></div></div></div><p>
+п÷п╣я─п╣п╨п╬п╪п©п╦п╩п╦я─я┐п╧я┌п╣ <span class="application">MPlayer</span> я│ п╡п╨п╩я▌я┤я▒п╫п╫я▀п╪ п╨п╬п╢п╬п╪ п╬я┌п╩п╟п╢п╨п╦:
 </p><pre class="screen">
 ./configure --enable-debug=3
 make
 </pre><p>
-и запустите <span class="application">MPlayer</span> внутри gdb:
+п╦ п╥п╟п©я┐я│я┌п╦я┌п╣ <span class="application">MPlayer</span> п╡п╫я┐я┌я─п╦ gdb:
 </p><pre class="screen">gdb ./mplayer</pre><p>
-Теперь вы в gdb. Наберите:
-</p><pre class="screen">run -v <em class="replaceable"><code>опции-для-mplayer</code></em> <em class="replaceable"><code>имя-файла</code></em></pre><p>
-и воспроизведите краш. Как только Вы это сделаете, gdb вернёт Вас к приглашению
-командной строки, где Вы должны набрать
+п╒п╣п©п╣я─я▄ п╡я▀ п╡ gdb. п²п╟п╠п╣я─п╦я┌п╣:
+</p><pre class="screen">
+run -v <em class="replaceable"><code>п╬п©я├п╦п╦-п╢п╩я▐-mplayer</code></em> <em class="replaceable"><code>п╦п╪я▐-я└п╟п╧п╩п╟</code></em>
+</pre><p>
+п╦ п╡п╬я│п©я─п╬п╦п╥п╡п╣п╢п╦я┌п╣ п╨я─п╟я┬. п п╟п╨ я┌п╬п╩я▄п╨п╬ п▓я▀ я█я┌п╬ я│п╢п╣п╩п╟п╣я┌п╣, gdb п╡п╣я─п╫я▒я┌ п▓п╟я│ п╨ п©я─п╦пЁп╩п╟я┬п╣п╫п╦я▌
+п╨п╬п╪п╟п╫п╢п╫п╬п╧ я│я┌я─п╬п╨п╦, пЁп╢п╣ п▓я▀ п╢п╬п╩п╤п╫я▀ п╫п╟п╠я─п╟я┌я▄
 </p><pre class="screen">
 bt
 disass $pc-32 $pc+32
 info all-registers
 </pre><p>
-</p></div><div class="sect3" lang="ru"><div class="titlepage"><div><div><h4 class="title"><a name="bugreports_core"></a>A.6.6.2. Как извлечь полезную информацию из дампа [core dump]</h4></div></div></div><p>
-Создайте следующий командный файл:
+</p></div><div class="sect3" lang="ru"><div class="titlepage"><div><div><h4 class="title"><a name="bugreports_core"></a>A.6.6.2. п п╟п╨ п╦п╥п╡п╩п╣я┤я▄ п©п╬п╩п╣п╥п╫я┐я▌ п╦п╫я└п╬я─п╪п╟я├п╦я▌ п╦п╥ п╢п╟п╪п©п╟ [core dump]</h4></div></div></div><p>
+п║п╬п╥п╢п╟п╧я┌п╣ я│п╩п╣п╢я┐я▌я┴п╦п╧ п╨п╬п╪п╟п╫п╢п╫я▀п╧ я└п╟п╧п╩:
 </p><pre class="screen">
 bt
 disass $pc-32 $pc+32
 info all-registers
 </pre><p>
-Теперь просто выполните такую команду:
-</p><pre class="screen">gdb mplayer --core=core -batch --command=<em class="replaceable"><code>командный-файл</code></em> &gt; mplayer.bug</pre><p>
-</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="bugreports_where.html">Пред.</a> </td><td width="20%" align="center"><a accesskey="u" href="bugreports.html">Уровень выше</a></td><td width="40%" align="right"> <a accesskey="n" href="bugreports_advusers.html">След.</a></td></tr><tr><td width="40%" align="left" valign="top">A.5. Куда сообщать об ошибках </td><td width="20%" align="center"><a accesskey="h" href="index.html">Начало</a></td><td width="40%" align="right" valign="top"> A.7. Я знаю, что я делаю...</td></tr></table></div></body></html>
+п╒п╣п©п╣я─я▄ п©я─п╬я│я┌п╬ п╡я▀п©п╬п╩п╫п╦я┌п╣ я┌п╟п╨я┐я▌ п╨п╬п╪п╟п╫п╢я┐:
+</p><pre class="screen">
+gdb mplayer --core=core -batch --command=п╨п╬п╪п╟п╫п╢п╫я▀п╧-я└п╟п╧п╩ &gt; mplayer.bug
+</pre><p>
+</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="bugreports_where.html">п÷я─п╣п╢.</a>б═</td><td width="20%" align="center"><a accesskey="u" href="bugreports.html">пёя─п╬п╡п╣п╫я▄ п╡я▀я┬п╣</a></td><td width="40%" align="right">б═<a accesskey="n" href="bugreports_advusers.html">п║п╩п╣п╢.</a></td></tr><tr><td width="40%" align="left" valign="top">A.5. п я┐п╢п╟ я│п╬п╬п╠я┴п╟я┌я▄ п╬п╠ п╬я┬п╦п╠п╨п╟я┘б═</td><td width="20%" align="center"><a accesskey="h" href="index.html">п²п╟я┤п╟п╩п╬</a></td><td width="40%" align="right" valign="top">б═A.7. п╞ п╥п╫п╟я▌, я┤я┌п╬ я▐ п╢п╣п╩п╟я▌...</td></tr></table></div></body></html>

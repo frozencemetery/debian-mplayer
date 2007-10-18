@@ -9,11 +9,11 @@
 /*
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: loader.h 18786 2006-06-22 13:34:00Z diego $
+ * $Id: loader.h 24442 2007-09-13 08:50:21Z diego $
  */
 
-#ifndef _LOADER_H
-#define _LOADER_H
+#ifndef LOADER_H
+#define LOADER_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,5 +37,5 @@ INT WINAPI LoadStringA( HINSTANCE instance, UINT resource_id,
 #ifdef __cplusplus
 }
 #endif
-#endif /* __LOADER_H */
 
+#endif /* LOADER_H */

@@ -8,7 +8,7 @@
 
 #include "ad_internal.h"
 
-#include "bswap.h"
+#include "mpbswap.h"
 
 static ad_info_t info = 
 {
@@ -59,6 +59,8 @@ static int init(sh_audio_t *sh_audio)
     lavc_context = avcodec_alloc_context();
     sh_audio->context=lavc_context;
 
+    lavc_context->sample_rate = sh_audio->samplerate;
+    lavc_context->bit_rate = sh_audio->i_bps * 8;
     if(sh_audio->wf){
 	lavc_context->channels = sh_audio->wf->nChannels;
 	lavc_context->sample_rate = sh_audio->wf->nSamplesPerSec;
@@ -66,6 +68,7 @@ static int init(sh_audio_t *sh_audio)
 	lavc_context->block_align = sh_audio->wf->nBlockAlign;
 	lavc_context->bits_per_sample = sh_audio->wf->wBitsPerSample;
     }
+    lavc_context->request_channels = audio_output_channels;
     lavc_context->codec_tag = sh_audio->format; //FOURCC
     lavc_context->codec_id = lavc_codec->id; // not sure if required, imho not --A'rpi
 
@@ -150,7 +153,7 @@ static int decode_audio(sh_audio_t *sh_audio,unsigned char *buf,int minlen,int m
     unsigned char *start=NULL;
     int y,len=-1;
     while(len<minlen){
-	int len2=0;
+	int len2=maxlen;
 	double pts;
 	int x=ds_get_packet_pts(sh_audio->ds,&start, &pts);
 	if(x<=0) break; // error
@@ -158,7 +161,7 @@ static int decode_audio(sh_audio_t *sh_audio,unsigned char *buf,int minlen,int m
 	    sh_audio->pts = pts;
 	    sh_audio->pts_bytes = 0;
 	}
-	y=avcodec_decode_audio(sh_audio->context,(int16_t*)buf,&len2,start,x);
+	y=avcodec_decode_audio2(sh_audio->context,(int16_t*)buf,&len2,start,x);
 //printf("return:%d samples_out:%d bitstream_in:%d sample_sum:%d\n", y, len2, x, len); fflush(stdout);
 	if(y<0){ mp_msg(MSGT_DECAUDIO,MSGL_V,"lavc_audio: error\n");break; }
 	if(y<x) sh_audio->ds->buffer_pos+=y-x;  // put back data (HACK!)
@@ -166,6 +169,7 @@ static int decode_audio(sh_audio_t *sh_audio,unsigned char *buf,int minlen,int m
 	  //len=len2;break;
 	  if(len<0) len=len2; else len+=len2;
 	  buf+=len2;
+	  maxlen -= len2;
 	  sh_audio->pts_bytes += len2;
 	}
         mp_dbg(MSGT_DECAUDIO,MSGL_DBG2,"Decoded %d -> %d  \n",y,len2);

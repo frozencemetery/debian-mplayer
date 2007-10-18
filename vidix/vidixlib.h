@@ -1,21 +1,37 @@
 /*
- * vidixlib.h
- * VIDIXLib - Library for VIDeo Interface for *niX
- *   This interface is introduced as universal one to MPEG decoder,
- *   BES == Back End Scaler and YUV2RGB hw accelerators.
+ * VIDIX - VIDeo Interface for *niX.
+ * Copyright (C) 2002 Nick Kurshev
+ * Copyright (C) 2007 Benjamin Zores <ben@geexbox.org>
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MPlayer; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ *
+ * This interface is introduced as universal one to MPEG decoder,
+ * Back End Scaler (BES) and YUV2RGB hw accelerators.
+ *
  * In the future it may be expanded up to capturing and audio things.
  * Main goal of this this interface imlpementation is providing DGA
  * everywhere where it's possible (unlike X11 and other).
- * Copyright 2002 Nick Kurshev
- * Licence: GPL
+ *
  * This interface is based on v4l2, fbvid.h, mga_vid.h projects
  * and personally my ideas.
- * NOTE: This interface is introduces as APP interface.
- * Don't use it for driver.
- * It provides multistreaming. This mean that APP can handle
- * several streams simultaneously. (Example: Video capturing and video
- * playback or capturing, video playback, audio encoding and so on).
-*/
+ *
+ * NOTE: This interface is introduces as driver interface.
+ */
+
 #ifndef VIDIXLIB_H
 #define VIDIXLIB_H
 
@@ -25,10 +41,40 @@ extern "C" {
 
 #include "vidix.h"
 
-typedef void * VDL_HANDLE;
+typedef struct VDXDriver {
+  const char *name;
+  struct VDXDriver *next;
+  int (* probe) (int verbose, int force);
+  int (* get_caps) (vidix_capability_t *cap);
+  int (*query_fourcc)(vidix_fourcc_t *);
+  int (*init)(void);
+  void (*destroy)(void);
+  int (*config_playback)(vidix_playback_t *);
+  int (*playback_on)( void );
+  int (*playback_off)( void );
+  /* Functions below can be missed in driver ;) */
+  int (*frame_sel)( unsigned frame_idx );
+  int (*get_eq)( vidix_video_eq_t * );
+  int (*set_eq)( const vidix_video_eq_t * );
+  int (*get_deint)( vidix_deinterlace_t * );
+  int (*set_deint)( const vidix_deinterlace_t * );
+  int (*copy_frame)( const vidix_dma_t * );
+  int (*get_gkey)( vidix_grkey_t * );
+  int (*set_gkey)( const vidix_grkey_t * );
+  int (*get_num_fx)( unsigned * );
+  int (*get_fx)( vidix_oem_fx_t * );
+  int (*set_fx)( const vidix_oem_fx_t * );
+} VDXDriver;
+
+typedef struct VDXContext {
+  VDXDriver *drv;
+  /* might be filled in by much more info later on */
+} VDXContext;
+
+typedef VDXContext * VDL_HANDLE;
 
 			/* returns library version */
-extern unsigned   vdlGetVersion( void );
+unsigned   vdlGetVersion( void );
 
 			/* Opens corresponded video driver and returns handle
 			   of associated stream.
@@ -38,58 +84,58 @@ extern unsigned   vdlGetVersion( void );
 			   verbose - specifies verbose level
 			   returns !0 if ok else NULL.
 			   */
-extern VDL_HANDLE vdlOpen(const char *path,const char *name,unsigned cap,int verbose);
+VDL_HANDLE vdlOpen(const char *path,const char *name,unsigned cap,int verbose);
 			/* Closes stream and corresponded driver. */
-extern void	  vdlClose(VDL_HANDLE stream);
+void	  vdlClose(VDL_HANDLE ctx);
 
 			/* Queries driver capabilities. Return 0 if ok else errno */
-extern int	  vdlGetCapability(VDL_HANDLE, vidix_capability_t *);
+int	  vdlGetCapability(VDL_HANDLE, vidix_capability_t *);
 
 			/* Queries support for given fourcc. Returns 0 if ok else errno */
-extern int	  vdlQueryFourcc(VDL_HANDLE,vidix_fourcc_t *);
+int	  vdlQueryFourcc(VDL_HANDLE,vidix_fourcc_t *);
 
 			/* Returns 0 if ok else errno */
-extern int	  vdlConfigPlayback(VDL_HANDLE, vidix_playback_t *);
+int	  vdlConfigPlayback(VDL_HANDLE, vidix_playback_t *);
 
 			/* Returns 0 if ok else errno */
-extern int 	  vdlPlaybackOn(VDL_HANDLE);
+int 	  vdlPlaybackOn(VDL_HANDLE);
 
 			/* Returns 0 if ok else errno */
-extern int 	  vdlPlaybackOff(VDL_HANDLE);
+int 	  vdlPlaybackOff(VDL_HANDLE);
 
 			/* Returns 0 if ok else errno */
-extern int 	  vdlPlaybackFrameSelect(VDL_HANDLE, unsigned frame_idx );
+int 	  vdlPlaybackFrameSelect(VDL_HANDLE, unsigned frame_idx );
 
 			/* Returns 0 if ok else errno */
-extern int 	  vdlGetGrKeys(VDL_HANDLE, vidix_grkey_t * );
+int 	  vdlGetGrKeys(VDL_HANDLE, vidix_grkey_t * );
 
 			/* Returns 0 if ok else errno */
-extern int 	  vdlSetGrKeys(VDL_HANDLE, const vidix_grkey_t * );
+int 	  vdlSetGrKeys(VDL_HANDLE, const vidix_grkey_t * );
 
 			/* Returns 0 if ok else errno */
-extern int 	  vdlPlaybackGetEq(VDL_HANDLE, vidix_video_eq_t * );
+int 	  vdlPlaybackGetEq(VDL_HANDLE, vidix_video_eq_t * );
 
 			/* Returns 0 if ok else errno */
-extern int 	  vdlPlaybackSetEq(VDL_HANDLE, const vidix_video_eq_t * );
+int 	  vdlPlaybackSetEq(VDL_HANDLE, const vidix_video_eq_t * );
 
 			/* Returns 0 if ok else errno */
-extern int	  vdlPlaybackGetDeint(VDL_HANDLE, vidix_deinterlace_t * );
+int	  vdlPlaybackGetDeint(VDL_HANDLE, vidix_deinterlace_t * );
 
 			/* Returns 0 if ok else errno */
-extern int 	  vdlPlaybackSetDeint(VDL_HANDLE, const vidix_deinterlace_t * );
+int 	  vdlPlaybackSetDeint(VDL_HANDLE, const vidix_deinterlace_t * );
 
 			/* Returns 0 if ok else errno */
-extern int	  vdlQueryNumOemEffects(VDL_HANDLE, unsigned * number );
+int	  vdlQueryNumOemEffects(VDL_HANDLE, unsigned * number );
 
 			/* Returns 0 if ok else errno */
-extern int	  vdlGetOemEffect(VDL_HANDLE, vidix_oem_fx_t * );
+int	  vdlGetOemEffect(VDL_HANDLE, vidix_oem_fx_t * );
 
 			/* Returns 0 if ok else errno */
-extern int	  vdlSetOemEffect(VDL_HANDLE, const vidix_oem_fx_t * );
+int	  vdlSetOemEffect(VDL_HANDLE, const vidix_oem_fx_t * );
 
 
 			/* Returns 0 if ok else errno */
-extern int	  vdlPlaybackCopyFrame(VDL_HANDLE, const vidix_dma_t * );
+int	  vdlPlaybackCopyFrame(VDL_HANDLE, const vidix_dma_t * );
 
 #ifdef __cplusplus
 }

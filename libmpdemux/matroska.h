@@ -4,10 +4,8 @@
  * see http://cvs.corecodec.org/cgi-bin/cvsweb.cgi/~checkout~/matroska/doc/website/specs/codex.html?rev=HEAD&content-type=text/html
  */
 
-#ifndef __MATROSKA_H
-#define __MATROSKA_H
-
-#include "demuxer.h"
+#ifndef MATROSKA_H
+#define MATROSKA_H
 
 #define MKV_A_AAC_2MAIN  "A_AAC/MPEG2/MAIN"
 #define MKV_A_AAC_2LC    "A_AAC/MPEG2/LC"
@@ -52,6 +50,7 @@
 #define MKV_V_MPEG4_ASP  "V_MPEG4/ISO/ASP"
 #define MKV_V_MPEG4_AP   "V_MPEG4/ISO/AP"
 #define MKV_V_MPEG4_AVC  "V_MPEG4/ISO/AVC"
+#define MKV_V_THEORA     "V_THEORA"
 
 #define MKV_S_TEXTASCII  "S_TEXT/ASCII"
 #define MKV_S_TEXTUTF8   "S_TEXT/UTF8"
@@ -61,11 +60,10 @@
 #define MKV_S_SSA        "S_SSA" // Deprecated
 #define MKV_S_ASS        "S_ASS" // Deprecated
 
-int demux_mkv_num_subs(demuxer_t *demuxer);
 int demux_mkv_change_subs(demuxer_t *demuxer, int new_num);
 void demux_mkv_get_audio_lang(demuxer_t *demuxer, int track_num, char *lang,
                             int maxlen);
 void demux_mkv_get_sub_lang(demuxer_t *demuxer, int track_num, char *lang,
                             int maxlen);
 
-#endif /* __MATROSKA_H */
+#endif /* MATROSKA_H */

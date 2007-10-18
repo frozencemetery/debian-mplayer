@@ -20,7 +20,6 @@ LIBAD_EXTERN(pcm)
 static int init(sh_audio_t *sh_audio)
 {
   WAVEFORMATEX *h=sh_audio->wf;
-  if(h==NULL) return 0;
   sh_audio->i_bps=h->nAvgBytesPerSec;
   sh_audio->channels=h->nChannels;
   sh_audio->samplerate=h->nSamplesPerSec;
@@ -52,7 +51,7 @@ static int init(sh_audio_t *sh_audio)
     case 0x736F7774: // 'twos'
        sh_audio->sample_format=AF_FORMAT_S16_BE;
        // intended fall-through
-    case 0x74776F73: // 'swot'
+    case 0x74776F73: // 'sowt'
        if(sh_audio->samplesize==1) sh_audio->sample_format=AF_FORMAT_S8;
        break;
     case 0x32336c66: // 'fl32', bigendian float32

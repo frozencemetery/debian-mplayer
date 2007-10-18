@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include "../dsputil.h"
+#include "dsputil.h"
 #ifdef HAVE_IPP
 #include "ipp.h"
 #endif
@@ -34,6 +34,12 @@ extern void simple_idct_put_armv5te(uint8_t *dest, int line_size,
                                     DCTELEM *data);
 extern void simple_idct_add_armv5te(uint8_t *dest, int line_size,
                                     DCTELEM *data);
+
+extern void ff_simple_idct_armv6(DCTELEM *data);
+extern void ff_simple_idct_put_armv6(uint8_t *dest, int line_size,
+                                     DCTELEM *data);
+extern void ff_simple_idct_add_armv6(uint8_t *dest, int line_size,
+                                     DCTELEM *data);
 
 /* XXX: local hack */
 static void (*ff_put_pixels_clamped)(const DCTELEM *block, uint8_t *pixels, int line_size);
@@ -206,6 +212,8 @@ void dsputil_init_armv4l(DSPContext* c, AVCodecContext *avctx)
     if(idct_algo == FF_IDCT_AUTO){
 #if defined(HAVE_IPP)
         idct_algo = FF_IDCT_IPP;
+#elif defined(HAVE_ARMV6)
+        idct_algo = FF_IDCT_SIMPLEARMV6;
 #elif defined(HAVE_ARMV5TE)
         idct_algo = FF_IDCT_SIMPLEARMV5TE;
 #else
@@ -223,6 +231,13 @@ void dsputil_init_armv4l(DSPContext* c, AVCodecContext *avctx)
         c->idct_add= simple_idct_ARM_add;
         c->idct    = simple_idct_ARM;
         c->idct_permutation_type= FF_NO_IDCT_PERM;
+#ifdef HAVE_ARMV6
+    } else if (idct_algo==FF_IDCT_SIMPLEARMV6){
+        c->idct_put= ff_simple_idct_put_armv6;
+        c->idct_add= ff_simple_idct_add_armv6;
+        c->idct    = ff_simple_idct_armv6;
+        c->idct_permutation_type= FF_LIBMPEG2_IDCT_PERM;
+#endif
 #ifdef HAVE_ARMV5TE
     } else if (idct_algo==FF_IDCT_SIMPLEARMV5TE){
         c->idct_put= simple_idct_put_armv5te;
@@ -239,22 +254,22 @@ void dsputil_init_armv4l(DSPContext* c, AVCodecContext *avctx)
 #endif
     }
 
-/*     c->put_pixels_tab[0][0] = put_pixels16_arm; */ // NG!
+    c->put_pixels_tab[0][0] = put_pixels16_arm;
     c->put_pixels_tab[0][1] = put_pixels16_x2_arm; //OK!
     c->put_pixels_tab[0][2] = put_pixels16_y2_arm; //OK!
-/*     c->put_pixels_tab[0][3] = put_pixels16_xy2_arm; /\* NG *\/ */
-/*     c->put_no_rnd_pixels_tab[0][0] = put_pixels16_arm; */
+    c->put_pixels_tab[0][3] = put_pixels16_xy2_arm;
+    c->put_no_rnd_pixels_tab[0][0] = put_pixels16_arm;
     c->put_no_rnd_pixels_tab[0][1] = put_no_rnd_pixels16_x2_arm; // OK
     c->put_no_rnd_pixels_tab[0][2] = put_no_rnd_pixels16_y2_arm; //OK
-/*     c->put_no_rnd_pixels_tab[0][3] = put_no_rnd_pixels16_xy2_arm; //NG */
+    c->put_no_rnd_pixels_tab[0][3] = put_no_rnd_pixels16_xy2_arm;
     c->put_pixels_tab[1][0] = put_pixels8_arm; //OK
     c->put_pixels_tab[1][1] = put_pixels8_x2_arm; //OK
-/*     c->put_pixels_tab[1][2] = put_pixels8_y2_arm; //NG */
-/*     c->put_pixels_tab[1][3] = put_pixels8_xy2_arm; //NG */
+    c->put_pixels_tab[1][2] = put_pixels8_y2_arm;
+    c->put_pixels_tab[1][3] = put_pixels8_xy2_arm;
     c->put_no_rnd_pixels_tab[1][0] = put_pixels8_arm;//OK
     c->put_no_rnd_pixels_tab[1][1] = put_no_rnd_pixels8_x2_arm; //OK
     c->put_no_rnd_pixels_tab[1][2] = put_no_rnd_pixels8_y2_arm; //OK
-/*     c->put_no_rnd_pixels_tab[1][3] = put_no_rnd_pixels8_xy2_arm;//NG */
+    c->put_no_rnd_pixels_tab[1][3] = put_no_rnd_pixels8_xy2_arm;
 
 #ifdef HAVE_IWMMXT
     dsputil_init_iwmmxt(c, avctx);

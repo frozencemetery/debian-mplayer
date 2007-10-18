@@ -9,13 +9,13 @@
  ***********************************
  *
  * Initially modified for use with MPlayer by Diego Biurrun on 2004-08-22
- * $Id: genres.h 18786 2006-06-22 13:34:00Z diego $
+ * $Id: genres.h 23709 2007-07-02 22:34:45Z diego $
  * detailed changelog at http://svn.mplayerhq.hu/mplayer/trunk/
  */
 
 
-#ifndef _GENRES_H
-#define _GENRES_H
+#ifndef GENRES_H
+#define GENRES_H
 
 
 char *genres[] = {
@@ -278,4 +278,4 @@ char *genres[] = {
 };
 
 
-#endif /* _GENRES_H */
+#endif /* GENRES_H */

@@ -1,0 +1,21 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 01configure-mktemp.diff.dpatch by  <debdev@pingu>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: use mktemp for temp files
+
+@DPATCH@
+diff -urNad mplayer-1.0~rc2~/configure mplayer-1.0~rc2/configure
+--- mplayer-1.0~rc2~/configure
++++ mplayer-1.0~rc2/configure
+@@ -1357,6 +1357,10 @@
+   test "$I" && break
+ done
+ 
++if which mktemp >/dev/null 2>/dev/null; then
++  # BSD/Debian/etc. mktemp avoids symlink attacks etc.
++  I=`mktemp -d "$I"/mplayer.XXXXXX` || exit 1
++fi
+ 
+ TMPLOG="configure.log"
+ TMPC="$I/mplayer-conf-$RANDOM-$$.c"

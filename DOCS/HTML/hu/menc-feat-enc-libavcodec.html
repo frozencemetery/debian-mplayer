@@ -1,207 +1,171 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>14.3. Kódolás a libavcodec
-  codec családdal</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="encoding-guide.html" title="14. fejezet - Kódolás a MEncoderrel"><link rel="prev" href="menc-feat-telecine.html" title="14.2. Mit kezdjünk a telecine-nel és az átlapolással NTSC DVD-ken"><link rel="next" href="menc-feat-xvid.html" title="14.4. Kódolás az XviD
-codec-kal"><link rel="preface" href="howtoread.html" title="Hogyan olvasd ezt a dokumentációt"><link rel="chapter" href="intro.html" title="1. fejezet - Bevezetés"><link rel="chapter" href="install.html" title="2. fejezet - Telepítés"><link rel="chapter" href="usage.html" title="3. fejezet - Használat"><link rel="chapter" href="cd-dvd.html" title="4. fejezet - CD/DVD használat"><link rel="chapter" href="faq.html" title="5. fejezet - Gyakran ismételt kérdések"><link rel="chapter" href="containers.html" title="6. fejezet - Konténerek"><link rel="chapter" href="codecs.html" title="7. fejezet - Codec-ek"><link rel="chapter" href="video.html" title="8. fejezet - Videó kimeneti eszközök"><link rel="chapter" href="audio.html" title="9. fejezet - Audió kimeneti eszközök"><link rel="chapter" href="tv.html" title="10. fejezet - TV"><link rel="chapter" href="radio.html" title="11. fejezet - Rádió"><link rel="chapter" href="ports.html" title="12. fejezet - Portok"><link rel="chapter" href="mencoder.html" title="13. fejezet - A MEncoder használatának alapjai"><link rel="chapter" href="encoding-guide.html" title="14. fejezet - Kódolás a MEncoderrel"><link rel="appendix" href="bugreports.html" title="A. függelék - Hogyan jelentsd a hibákat"><link rel="appendix" href="bugs.html" title="B. függelék - Ismert hibák"><link rel="appendix" href="skin.html" title="C. függelék - MPlayer skin formátum"><link rel="appendix" href="history.html" title="D. függelék - Történelem"><link rel="subsection" href="menc-feat-enc-libavcodec.html#menc-feat-enc-libavcodec-video-codecs" title="14.3.1. A libavcodec videó codec-jei"><link rel="subsection" href="menc-feat-enc-libavcodec.html#menc-feat-enc-libavcodec-audio-codecs" title="14.3.2. A libavcodec audió codec-jei"><link rel="subsection" href="menc-feat-enc-libavcodec.html#menc-feat-dvd-mpeg4-lavc-encoding-options" title="14.3.3. A libavcodec kódolási opciói"><link rel="subsection" href="menc-feat-enc-libavcodec.html#menc-feat-mpeg4-lavc-example-settings" title="14.3.4. Kódolás beállítási példák"><link rel="subsection" href="menc-feat-enc-libavcodec.html#custommatrices" title="14.3.5. Egyedi inter/intra matricák"><link rel="subsection" href="menc-feat-enc-libavcodec.html#menc-feat-dvd-mpeg4-example" title="14.3.6. Példa"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">14.3. Kódolás a <code class="systemitem">libavcodec</code>
-  codec családdal</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="menc-feat-telecine.html">El&#337;z&#337;</a> </td><th width="60%" align="center">14. fejezet - Kódolás a <span class="application">MEncoder</span>rel</th><td width="20%" align="right"> <a accesskey="n" href="menc-feat-xvid.html">Következ&#337;</a></td></tr></table><hr></div><div class="sect1" lang="hu"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-enc-libavcodec"></a>14.3. Kódolás a <code class="systemitem">libavcodec</code>
-  codec családdal</h2></div></div></div><p>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>14.3. KÃ³dolÃ¡s a libavcodec codec csalÃ¡ddal</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="encoding-guide.html" title="14. fejezet - KÃ³dolÃ¡s a MEncoderrel"><link rel="prev" href="menc-feat-telecine.html" title="14.2. Mit kezdjÃ¼nk a telecine-nel Ã©s az Ã¡tlapolÃ¡ssal NTSC DVD-ken"><link rel="next" href="menc-feat-xvid.html" title="14.4. KÃ³dolÃ¡s az Xvid codec-kal"><link rel="preface" href="howtoread.html" title="Hogyan olvasd ezt a dokumentÃ¡ciÃ³t"><link rel="chapter" href="intro.html" title="1. fejezet - BevezetÃ©s"><link rel="chapter" href="install.html" title="2. fejezet - TelepÃ­tÃ©s"><link rel="chapter" href="usage.html" title="3. fejezet - HasznÃ¡lat"><link rel="chapter" href="cd-dvd.html" title="4. fejezet - CD/DVD hasznÃ¡lat"><link rel="chapter" href="faq.html" title="5. fejezet - Gyakran ismÃ©telt kÃ©rdÃ©sek"><link rel="chapter" href="containers.html" title="6. fejezet - KontÃ©nerek"><link rel="chapter" href="codecs.html" title="7. fejezet - Codec-ek"><link rel="chapter" href="video.html" title="8. fejezet - VideÃ³ kimeneti eszkÃ¶zÃ¶k"><link rel="chapter" href="audio.html" title="9. fejezet - AudiÃ³ kimeneti eszkÃ¶zÃ¶k"><link rel="chapter" href="tv.html" title="10. fejezet - TV"><link rel="chapter" href="radio.html" title="11. fejezet - RÃ¡diÃ³"><link rel="chapter" href="ports.html" title="12. fejezet - Portok"><link rel="chapter" href="mencoder.html" title="13. fejezet - A MEncoder hasznÃ¡latÃ¡nak alapjai"><link rel="chapter" href="encoding-guide.html" title="14. fejezet - KÃ³dolÃ¡s a MEncoderrel"><link rel="appendix" href="bugreports.html" title="A. fÃ¼ggelÃ©k - Hogyan jelentsd a hibÃ¡kat"><link rel="appendix" href="bugs.html" title="B. fÃ¼ggelÃ©k - Ismert hibÃ¡k"><link rel="appendix" href="skin.html" title="C. fÃ¼ggelÃ©k - MPlayer skin formÃ¡tum"><link rel="appendix" href="history.html" title="D. fÃ¼ggelÃ©k - TÃ¶rtÃ©nelem"><link rel="subsection" href="menc-feat-enc-libavcodec.html#menc-feat-enc-libavcodec-video-codecs" title="14.3.1. A libavcodec videÃ³ codec-jei"><link rel="subsection" href="menc-feat-enc-libavcodec.html#menc-feat-enc-libavcodec-audio-codecs" title="14.3.2. A libavcodec audiÃ³ codec-jei"><link rel="subsection" href="menc-feat-enc-libavcodec.html#menc-feat-dvd-mpeg4-lavc-encoding-options" title="14.3.3. A libavcodec kÃ³dolÃ¡si opciÃ³i"><link rel="subsection" href="menc-feat-enc-libavcodec.html#menc-feat-mpeg4-lavc-example-settings" title="14.3.4. KÃ³dolÃ¡s beÃ¡llÃ­tÃ¡si pÃ©ldÃ¡k"><link rel="subsection" href="menc-feat-enc-libavcodec.html#custommatrices" title="14.3.5. Egyedi inter/intra matricÃ¡k"><link rel="subsection" href="menc-feat-enc-libavcodec.html#menc-feat-dvd-mpeg4-example" title="14.3.6. PÃ©lda"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">14.3. KÃ³dolÃ¡s a <code class="systemitem">libavcodec</code>
+  codec csalÃ¡ddal</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="menc-feat-telecine.html">ElÅ‘zÅ‘</a>Â </td><th width="60%" align="center">14. fejezet - KÃ³dolÃ¡s a <span class="application">MEncoder</span>rel</th><td width="20%" align="right">Â <a accesskey="n" href="menc-feat-xvid.html">KÃ¶vetkezÅ‘</a></td></tr></table><hr></div><div class="sect1" lang="hu"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-enc-libavcodec"></a>14.3. KÃ³dolÃ¡s a <code class="systemitem">libavcodec</code>
+  codec csalÃ¡ddal</h2></div></div></div><p>
 A <a href="video-codecs.html#ffmpeg" title="7.1.1. FFmpeg/libavcodec"><code class="systemitem">libavcodec</code></a>
-számos érdekes videó és audió formátumba történ&#337; egyszer&#369; kódolást biztosít.
-A következ&#337; codec-ekbe kódolhatsz (többé-kevésbé friss lista):
-</p><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-enc-libavcodec-video-codecs"></a>14.3.1. A <code class="systemitem">libavcodec</code> videó codec-jei</h3></div></div></div><p>
-</p><div class="informaltable"><table border="1"><colgroup><col><col></colgroup><thead><tr><th>Videó codec neve</th><th>Leírás</th></tr></thead><tbody><tr><td>mjpeg</td><td>
-   Motion JPEG
-  </td></tr><tr><td>ljpeg</td><td>
-   veszteségmentes JPEG
-  </td></tr><tr><td>h261</td><td>
-  H.261
-  </td></tr><tr><td>h263</td><td>
-  H.263
-  </td></tr><tr><td>h263p</td><td>
-  H.263+
-  </td></tr><tr><td>mpeg4</td><td>
-  ISO szabvány MPEG-4 (DivX6, XviD kompatibilis)
-  </td></tr><tr><td>msmpeg4</td><td>
-  Szabvány el&#337;tti MPEG-4 variáns az MS-t&#337;l, v3 (AKA DivX3)
-  </td></tr><tr><td>msmpeg4v2</td><td>
-  Szabvány el&#337;tti MPEG-4 az MS-t&#337;l, v2 (régi ASF fájlokban használják)
-  </td></tr><tr><td>wmv1</td><td>
-  Windows Media Video, 1-es verzió (AKA WMV7)
-  </td></tr><tr><td>wmv2</td><td>
-  Windows Media Video, 2-es verzió (AKA WMV8)
-  </td></tr><tr><td>rv10</td><td>
-  RealVideo 1.0
-  </td></tr><tr><td>rv20</td><td>
-  RealVideo 2.0
-  </td></tr><tr><td>mpeg1video</td><td>
-  MPEG-1 videó
-  </td></tr><tr><td>mpeg2video</td><td>
-  MPEG-2 videó
-  </td></tr><tr><td>huffyuv</td><td>
-  veszteségmentes tömörítés
-  </td></tr><tr><td>asv1</td><td>
-  ASUS Video v1
-  </td></tr><tr><td>asv2</td><td>
-  ASUS Video v2
-  </td></tr><tr><td>ffv1</td><td>
-  az FFmpeg veszteségmentes videó codec-je
-  </td></tr><tr><td>svq1</td><td>
-  Sorenson video 1
-  </td></tr><tr><td>flv</td><td>
-  Flash Videókban használt Sorenson H.263
-  </td></tr><tr><td>dvvideo</td><td>
-  Sony Digital Video
-  </td></tr><tr><td>snow</td><td>
-  az FFmpeg kísérleti wavelet-alapú codecja
-  </td></tr></tbody></table></div><p>
+szÃ¡mos Ã©rdekes videÃ³ Ã©s audiÃ³ formÃ¡tumba tÃ¶rtÃ©nÅ‘ egyszerÅ± kÃ³dolÃ¡st biztosÃ­t.
+A kÃ¶vetkezÅ‘ codec-ekbe kÃ³dolhatsz (tÃ¶bbÃ©-kevÃ©sbÃ© friss lista):
+</p><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-enc-libavcodec-video-codecs"></a>14.3.1. A <code class="systemitem">libavcodec</code>
+  videÃ³ codec-jei</h3></div></div></div><p>
+</p><div class="informaltable"><table border="1"><colgroup><col><col></colgroup><thead><tr><th>VideÃ³ codec neve</th><th>LeÃ­rÃ¡s</th></tr></thead><tbody><tr><td>mjpeg</td><td>Motion JPEG</td></tr><tr><td>ljpeg</td><td>vesztesÃ©gmentes JPEG</td></tr><tr><td>jpegls</td><td>JPEG LS</td></tr><tr><td>targa</td><td>Targa kÃ©p</td></tr><tr><td>gif</td><td>GIF kÃ©p</td></tr><tr><td>bmp</td><td>BMP kÃ©p</td></tr><tr><td>png</td><td>PNG kÃ©p</td></tr><tr><td>h261</td><td>H.261</td></tr><tr><td>h263</td><td>H.263</td></tr><tr><td>h263p</td><td>H.263+</td></tr><tr><td>mpeg4</td><td>ISO szabvÃ¡ny MPEG-4 (DivX, Xvid kompatibilis)</td></tr><tr><td>msmpeg4</td><td>szabvÃ¡ny elÅ‘tti MPEG-4 variÃ¡ns az MS-tÅ‘l, v3 (AKA DivX3)</td></tr><tr><td>msmpeg4v2</td><td>szabvÃ¡ny elÅ‘tti MPEG-4 az MS-tÅ‘l, v2 (rÃ©gi ASF fÃ¡jlokban hasznÃ¡ljÃ¡k)</td></tr><tr><td>wmv1</td><td>Windows Media Video, 1-es verziÃ³ (AKA WMV7)</td></tr><tr><td>wmv2</td><td>Windows Media Video, 2-es verziÃ³ (AKA WMV8)</td></tr><tr><td>rv10</td><td>RealVideo 1.0</td></tr><tr><td>rv20</td><td>RealVideo 2.0</td></tr><tr><td>mpeg1video</td><td>MPEG-1 videÃ³</td></tr><tr><td>mpeg2video</td><td>MPEG-2 videÃ³</td></tr><tr><td>huffyuv</td><td>vesztesÃ©gmentes tÃ¶mÃ¶rÃ­tÃ©s</td></tr><tr><td>ffvhuff</td><td>FFmpeg Ã¡ltal mÃ³dosÃ­tott vesztesÃ©gmentes huffyuv</td></tr><tr><td>asv1</td><td>ASUS Video v1</td></tr><tr><td>asv2</td><td>ASUS Video v2</td></tr><tr><td>ffv1</td><td>az FFmpeg vesztesÃ©gmentes videÃ³ codec-je</td></tr><tr><td>svq1</td><td>Sorenson video 1</td></tr><tr><td>flv</td><td>Flash VideÃ³kban hasznÃ¡lt Sorenson H.263</td></tr><tr><td>flashsv</td><td>Flash Screen Video</td></tr><tr><td>dvvideo</td><td>Sony Digital Video</td></tr><tr><td>snow</td><td>az FFmpeg kÃ­sÃ©rleti wavelet-alapÃº codecja</td></tr><tr><td>zbmv</td><td>Zip Blocks Motion Video</td></tr></tbody></table></div><p>
 
-Az els&#337; oszlop a codec neveket tartalmazza, amit a <code class="literal">vcodec</code>
-opció után kell megadni, például: <tt class="option">-lavcopts vcodec=msmpeg4</tt>
+Az elsÅ‘ oszlop a codec neveket tartalmazza, amit a
+<code class="literal">vcodec</code> opciÃ³ utÃ¡n kell megadni, pÃ©ldÃ¡ul:
+<tt class="option">-lavcopts vcodec=msmpeg4</tt>
 </p><div class="informalexample"><p>
-Egy példa MJPEG tömörítéssel:
-</p><pre class="screen">mencoder dvd://2 -o title2.avi -ovc lavc -lavcopts vcodec=mjpeg -oac copy</pre><p>
-</p></div></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-enc-libavcodec-audio-codecs"></a>14.3.2. A <code class="systemitem">libavcodec</code> audió codec-jei</h3></div></div></div><p>
-</p><div class="informaltable"><table border="1"><colgroup><col><col></colgroup><thead><tr><th>Audió codec neve</th><th>Leírás</th></tr></thead><tbody><tr><td>mp2</td><td>MPEG Layer 2</td></tr><tr><td>ac3</td><td>AC3, AKA Dolby Digital</td></tr><tr><td>adpcm_ima_wav</td><td>IMA adaptív PCM (4 bit mintánként, 4:1-es tömörítés)</td></tr><tr><td>sonic</td><td>kísérleti veszteséges/veszteségmentes codec</td></tr></tbody></table></div><p>
+Egy pÃ©lda MJPEG tÃ¶mÃ¶rÃ­tÃ©ssel:
+</p><pre class="screen">
+mencoder dvd://2 -o <em class="replaceable"><code>title2.avi</code></em> -ovc lavc -lavcopts vcodec=mjpeg -oac copy
+</pre><p>
+</p></div></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-enc-libavcodec-audio-codecs"></a>14.3.2. A <code class="systemitem">libavcodec</code>
+  audiÃ³ codec-jei</h3></div></div></div><p>
+</p><div class="informaltable"><table border="1"><colgroup><col><col></colgroup><thead><tr><th>AudiÃ³ codec neve</th><th>LeÃ­rÃ¡s</th></tr></thead><tbody><tr><td>ac3</td><td>Dolby Digital (AC-3)</td></tr><tr><td>adpcm_*</td><td>AdaptÃ­v PCM formÃ¡tumok - lÃ¡sd a mellÃ©kelt tÃ¡blÃ¡zatot</td></tr><tr><td>flac</td><td>Free Lossless Audio Codec (FLAC)</td></tr><tr><td>g726</td><td>G.726 ADPCM</td></tr><tr><td>libamr_nb</td><td>3GPP Adaptive Multi-Rate (AMR) narrow-band</td></tr><tr><td>libamr_wb</td><td>3GPP Adaptive Multi-Rate (AMR) wide-band</td></tr><tr><td>libfaac</td><td>Advanced Audio Coding (AAC) - FAAC hasznÃ¡latÃ¡val</td></tr><tr><td>libgsm</td><td>ETSI GSM 06.10 full rate</td></tr><tr><td>libgsm_ms</td><td>Microsoft GSM</td></tr><tr><td>libmp3lame</td><td>MPEG-1 audio layer 3 (MP3) - LAME hasznÃ¡latÃ¡val</td></tr><tr><td>mp2</td><td>MPEG-1 audio layer 2 (MP2)</td></tr><tr><td>pcm_*</td><td>PCM formats - lÃ¡sd a mellÃ©kelt tÃ¡blÃ¡zatot</td></tr><tr><td>roq_dpcm</td><td>Id Software RoQ DPCM</td></tr><tr><td>sonic</td><td>kÃ­sÃ©rleti FFmpeg vesztesÃ©ges codec</td></tr><tr><td>sonicls</td><td>kÃ­sÃ©rleti FFmpeg vesztesÃ©gmentes codec</td></tr><tr><td>vorbis</td><td>Xiph Ogg Vorbis codec</td></tr><tr><td>wmav1</td><td>Windows Media Audio v1</td></tr><tr><td>wmav2</td><td>Windows Media Audio v2</td></tr></tbody></table></div><p>
 
-Az els&#337; oszlop a codec neveket tartalmazza, amit az <code class="literal">acodec</code>
-opció után kell megadni, például: <tt class="option">-lavcopts acodec=ac3</tt>
+Az elsÅ‘ oszlop a codec neveket tartalmazza, amit az <code class="literal">acodec</code>
+opciÃ³ utÃ¡n kell megadni, pÃ©ldÃ¡ul: <tt class="option">-lavcopts acodec=ac3</tt>
 </p><div class="informalexample"><p>
-Egy példa AC3 tömörítéssel:
-</p><pre class="screen">mencoder dvd://2 -o title2.avi -oac lavc -lavcopts acodec=ac3 -ovc copy</pre><p>
+Egy pÃ©lda AC-3 tÃ¶mÃ¶rÃ­tÃ©ssel:
+</p><pre class="screen">
+mencoder dvd://2 -o <em class="replaceable"><code>title2.avi</code></em> -oac lavc -lavcopts acodec=ac3 -ovc copy
+</pre><p>
 </p></div><p>
-  Ellentétben a <code class="systemitem">libavcodec</code> videó
-  codec-jeivel, az audió codec-jei nem használnak el annyi bit-et, amennyit
-  szánsz nekik, mivel hiányzik bel&#337;lük némi minimális pszichoakusztikus modell
-  (ha van egyáltalán), ami a legtöbb egyéb codec implementációban benne van.
-  Azonban vedd figyelembe, hogy ezek az audió codec-ek nagyon gyorsak és
-  azonnal használhatóak bárhol, ahol a <span class="application">MEncoder</span>t
-  a <code class="systemitem">libavcodec</code>-kel együtt fordították le
-  (ami a legtöbb esetben így van), és nem függ küls&#337; függvénykönyvtáraktól.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-lavc-encoding-options"></a>14.3.3. A libavcodec kódolási opciói</h3></div></div></div><p>
-  Ideális esetben szeretnéd, ha csak azt kellene mondani a kódolónak, hogy
-  váltson "jobb min&#337;ségre" és kész.
-  Ez szép is lenne, de sajnos nehezen megvalósítható, mert a különböz&#337; kódolási
-  opciók különböz&#337; min&#337;séget eredményeznek, mely függ a forrás anyagtól is.
-  Ez azért van, mert a tömörítés függ a szóbanforgó videó vizuális tulajdonságaitól.
-  Például az anime és az él&#337; felvétel két nagyon különböz&#337; anyag és így
-  különböz&#337; opciókat követelnek meg az optimális kódoláshoz.
-  A jó hír, hogy néhány opciót soha sem lehet elhagyni, mint például az
-  <tt class="option">mbd=2</tt>, <tt class="option">trell</tt> és <tt class="option">v4mv</tt>.
-  Olvass tovább a gyakori kódolási opciók leírásához.
-</p><div class="itemizedlist"><p class="title"><b>Állítható opciók:</b></p><ul type="disc"><li><p>
-  <span class="bold"><strong>vmax_b_frames</strong></span>: 1 vagy 2 a jó, a filmt&#337;l
-  függ&#337;en.
-  Figyelj rá, hogy úgy kell kódolnod, hogy DivX5-tel dekódolható legyen az
-  eredmény, aktiválnod kell a zárt GOP támogatást a
+EllentÃ©tben a <code class="systemitem">libavcodec</code> videÃ³
+codec-jeivel, az audiÃ³ codec-jei nem hasznÃ¡lnak el annyi bit-et, amennyit
+szÃ¡nsz nekik, mivel hiÃ¡nyzik belÅ‘lÃ¼k nÃ©mi minimÃ¡lis pszichoakusztikus modell
+(ha van egyÃ¡ltalÃ¡n), ami a legtÃ¶bb egyÃ©b codec implementÃ¡ciÃ³ban benne van.
+Azonban vedd figyelembe, hogy ezek az audiÃ³ codec-ek nagyon gyorsak Ã©s
+azonnal hasznÃ¡lhatÃ³ak bÃ¡rhol, ahol a <span class="application">MEncoder</span>t
+a <code class="systemitem">libavcodec</code>-kel egyÃ¼tt fordÃ­tottÃ¡k
+le (ami a legtÃ¶bb esetben Ã­gy van), Ã©s nem fÃ¼gg kÃ¼lsÅ‘ fÃ¼ggvÃ©nykÃ¶nyvtÃ¡raktÃ³l.
+</p><div class="sect3" lang="hu"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-enc-libavcodec-audio-codecs-pcmadpcm"></a>14.3.2.1. PCM/ADPCM formÃ¡tum kiegÃ©szÃ­tÅ‘ tÃ¡blÃ¡zat</h4></div></div></div><p>
+</p><div class="informaltable"><table border="1"><colgroup><col><col></colgroup><thead><tr><th>PCM/ADPCM codec neve</th><th>LeÃ­rÃ¡s</th></tr></thead><tbody><tr><td>pcm_s32le</td><td>elÅ‘jeles 32-bit-es little-endian</td></tr><tr><td>pcm_s32be</td><td>elÅ‘jeles 32-bit-es big-endian</td></tr><tr><td>pcm_u32le</td><td>elÅ‘jel nÃ©lkÃ¼li 32-bit-es little-endian</td></tr><tr><td>pcm_u32be</td><td>elÅ‘jel nÃ©lkÃ¼li 32-bit-es big-endian</td></tr><tr><td>pcm_s24le</td><td>elÅ‘jeles 24-bit-es little-endian</td></tr><tr><td>pcm_s24be</td><td>elÅ‘jeles 24-bit-es big-endian</td></tr><tr><td>pcm_u24le</td><td>elÅ‘jel nÃ©lkÃ¼li 24-bit-es little-endian</td></tr><tr><td>pcm_u24be</td><td>elÅ‘jel nÃ©lkÃ¼li 24-bit-es big-endian</td></tr><tr><td>pcm_s16le</td><td>elÅ‘jeles 16-bit-es little-endian</td></tr><tr><td>pcm_s16be</td><td>elÅ‘jeles 16-bit-es big-endian</td></tr><tr><td>pcm_u16le</td><td>elÅ‘jel nÃ©lkÃ¼li 16-bit-es little-endian</td></tr><tr><td>pcm_u16be</td><td>elÅ‘jel nÃ©lkÃ¼li 16-bit-es big-endian</td></tr><tr><td>pcm_s8</td><td>elÅ‘jeles 8-bit-es</td></tr><tr><td>pcm_u8</td><td>elÅ‘jel nÃ©lkÃ¼li 8-bit-es</td></tr><tr><td>pcm_alaw</td><td>G.711 A-LAW </td></tr><tr><td>pcm_mulaw</td><td>G.711 Î¼-LAW</td></tr><tr><td>pcm_s24daud</td><td>elÅ‘jeles 24-bit-es D-Cinema Audio formÃ¡tum</td></tr><tr><td>pcm_zork</td><td>Activision Zork Nemesis</td></tr><tr><td>adpcm_ima_qt</td><td>Apple QuickTime</td></tr><tr><td>adpcm_ima_wav</td><td>Microsoft/IBM WAVE</td></tr><tr><td>adpcm_ima_dk3</td><td>Duck DK3</td></tr><tr><td>adpcm_ima_dk4</td><td>Duck DK4</td></tr><tr><td>adpcm_ima_ws</td><td>Westwood Studios</td></tr><tr><td>adpcm_ima_smjpeg</td><td>SDL Motion JPEG</td></tr><tr><td>adpcm_ms</td><td>Microsoft</td></tr><tr><td>adpcm_4xm</td><td>4X Technologies</td></tr><tr><td>adpcm_xa</td><td>Phillips Yellow Book CD-ROM eXtended Architecture</td></tr><tr><td>adpcm_ea</td><td>Electronic Arts</td></tr><tr><td>adpcm_ct</td><td>Creative 16-&gt;4-bit</td></tr><tr><td>adpcm_swf</td><td>Adobe Shockwave Flash</td></tr><tr><td>adpcm_yamaha</td><td>Yamaha</td></tr><tr><td>adpcm_sbpro_4</td><td>Creative VOC SoundBlaster Pro 8-&gt;4-bit</td></tr><tr><td>adpcm_sbpro_3</td><td>Creative VOC SoundBlaster Pro 8-&gt;2.6-bit</td></tr><tr><td>adpcm_sbpro_2</td><td>Creative VOC SoundBlaster Pro 8-&gt;2-bit</td></tr><tr><td>adpcm_thp</td><td>Nintendo GameCube FMV THP</td></tr><tr><td>adpcm_adx</td><td>Sega/CRI ADX</td></tr></tbody></table></div><p>
+</p></div></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-lavc-encoding-options"></a>14.3.3. A libavcodec kÃ³dolÃ¡si opciÃ³i</h3></div></div></div><p>
+IdeÃ¡lis esetben szeretnÃ©d, ha csak azt kellene mondani a kÃ³dolÃ³nak,
+hogy vÃ¡ltson "jobb minÅ‘sÃ©gre" Ã©s kÃ©sz.
+Ez szÃ©p is lenne, de sajnos nehezen megvalÃ³sÃ­thatÃ³, mert a kÃ¼lÃ¶nbÃ¶zÅ‘
+kÃ³dolÃ¡si opciÃ³k kÃ¼lÃ¶nbÃ¶zÅ‘ minÅ‘sÃ©get eredmÃ©nyeznek, mely fÃ¼gg a forrÃ¡s
+anyagtÃ³l is.
+Ez azÃ©rt van, mert a tÃ¶mÃ¶rÃ­tÃ©s fÃ¼gg a szÃ³banforgÃ³ videÃ³ vizuÃ¡lis tulajdonsÃ¡gaitÃ³l.
+PÃ©ldÃ¡ul az anime Ã©s az Ã©lÅ‘ felvÃ©tel kÃ©t nagyon kÃ¼lÃ¶nbÃ¶zÅ‘ anyag Ã©s
+Ã­gy kÃ¼lÃ¶nbÃ¶zÅ‘ opciÃ³kat kÃ¶vetelnek meg az optimÃ¡lis kÃ³dolÃ¡shoz.
+A jÃ³ hÃ­r, hogy nÃ©hÃ¡ny opciÃ³t soha sem lehet elhagyni, mint pÃ©ldÃ¡ul az
+<tt class="option">mbd=2</tt>, <tt class="option">trell</tt> Ã©s <tt class="option">v4mv</tt>.
+Olvass tovÃ¡bb a gyakori kÃ³dolÃ¡si opciÃ³k leÃ­rÃ¡sÃ¡hoz.
+</p><div class="itemizedlist"><p class="title"><b>ÃllÃ­thatÃ³ opciÃ³k:</b></p><ul type="disc"><li><p>
+  <span class="bold"><strong>vmax_b_frames</strong></span>: 1 vagy 2 a jÃ³, a filmtÅ‘l
+  fÃ¼ggÅ‘en.
+  Figyelj rÃ¡, hogy Ãºgy kell kÃ³dolnod, hogy DivX5-tel dekÃ³dolhatÃ³ legyen az
+  eredmÃ©ny, aktivÃ¡lnod kell a zÃ¡rt GOP tÃ¡mogatÃ¡st a
   <code class="systemitem">libavcodec</code> <tt class="option">cgop</tt>
-  opciójával, de ki kell kapcsolnod a jelenet detektálást, ami
-  nem túl jó ötlet, mivel rontja a kódolási hatékonyságot egy kicsit.
+  opciÃ³jÃ¡val, de ki kell kapcsolnod a jelenet detektÃ¡lÃ¡st, ami
+  nem tÃºl jÃ³ Ã¶tlet, mivel rontja a kÃ³dolÃ¡si hatÃ©konysÃ¡got egy kicsit.
 </p></li><li><p>
-  <span class="bold"><strong>vb_strategy=1</strong></span>: segít a gyors mozgású jeleneteknél.
-  Néhány videónál a vmax_b_frames rontja a min&#337;séget, de a vmax_b_frames=2 a
-  vb_strategy=1-gyel együtt segít.
+  <span class="bold"><strong>vb_strategy=1</strong></span>: segÃ­t a gyors mozgÃ¡sÃº jeleneteknÃ©l.
+  NÃ©hÃ¡ny videÃ³nÃ¡l a vmax_b_frames rontja a minÅ‘sÃ©get, de a vmax_b_frames=2 a
+  vb_strategy=1-gyel egyÃ¼tt segÃ­t.
 </p></li><li><p>
-  <span class="bold"><strong>dia</strong></span>: mozgás keres&#337; tartomány. A nagyobb a
-  jobb és a lassabb.
-  Negatív értékek teljesen más skálát adnak.
-  A jó értékek -1 a gyors kódoláshoz vagy 2-4 a lassabbhoz.
+  <span class="bold"><strong>dia</strong></span>: mozgÃ¡s keresÅ‘ tartomÃ¡ny. A nagyobb a
+  jobb Ã©s a lassabb.
+  NegatÃ­v Ã©rtÃ©kek teljesen mÃ¡s skÃ¡lÃ¡t adnak.
+  A jÃ³ Ã©rtÃ©kek -1 a gyors kÃ³dolÃ¡shoz vagy 2-4 a lassabbhoz.
 </p></li><li><p>
-  <span class="bold"><strong>predia</strong></span>: mozgás keres&#337; el&#337;re-lépés.
-  Nem olyan fontos, mint a dia. Jó értékek 1-t&#337;l (alapértelmezett) 4-ig.
-  preme=2 kell hozzá, hogy igazán hasznos legyen.
+  <span class="bold"><strong>predia</strong></span>: mozgÃ¡s keresÅ‘ elÅ‘re-lÃ©pÃ©s.
+  Nem olyan fontos, mint a dia. JÃ³ Ã©rtÃ©kek 1-tÅ‘l (alapÃ©rtelmezett) 4-ig.
+  preme=2 kell hozzÃ¡, hogy igazÃ¡n hasznos legyen.
 </p></li><li><p>
-  <span class="bold"><strong>cmp, subcmp, precmp</strong></span>: Összehasonlító funkciók
-  a mozgás becsléshez.
-  Kísérletezz a 0 (alapértelmezett), 2 (hadamard), 3 (dct) és 6 (ráta
-  torzítás) értékekkel!
-  0 a leggyorsabb és és elegend&#337; a precmp-hez.
-  A cmp-hez és subcmp-hez 2 jó, ha anime és 3 ha él&#337; akció.
-  A 6 vagy jobb vagy nem, de mindenképpen lassabb.
+  <span class="bold"><strong>cmp, subcmp, precmp</strong></span>: Ã–sszehasonlÃ­tÃ³ funkciÃ³k
+  a mozgÃ¡s becslÃ©shez.
+  KÃ­sÃ©rletezz a 0 (alapÃ©rtelmezett), 2 (hadamard), 3 (dct) Ã©s 6 (rÃ¡ta
+  torzÃ­tÃ¡s) Ã©rtÃ©kekkel!
+  0 a leggyorsabb Ã©s Ã©s elegendÅ‘ a precmp-hez.
+  A cmp-hez Ã©s subcmp-hez 2 jÃ³, ha anime Ã©s 3 ha Ã©lÅ‘ akciÃ³.
+  A 6 vagy jobb vagy nem, de mindenkÃ©ppen lassabb.
 </p></li><li><p>
-  <span class="bold"><strong>last_pred</strong></span>: Az el&#337;z&#337; képkockából megjósolandó
-  mozgások száma.
-  1-3 vagy hasonló segít egy kis sebességcsökkenés árán.
-  A magasabb értékek lassúak, de igazi hasznuk nincs.
+  <span class="bold"><strong>last_pred</strong></span>: Az elÅ‘zÅ‘ kÃ©pkockÃ¡bÃ³l megjÃ³solandÃ³
+  mozgÃ¡sok szÃ¡ma.
+  1-3 vagy hasonlÃ³ segÃ­t egy kis sebessÃ©gcsÃ¶kkenÃ©s Ã¡rÃ¡n.
+  A magasabb Ã©rtÃ©kek lassÃºak, de igazi hasznuk nincs.
 </p></li><li><p>
-  <span class="bold"><strong>cbp, mv0</strong></span>: A makroblokkok kiválasztását
-  irányítja. Egy kis sebességcsökkenés egy kis min&#337;ségjavulásért.
+  <span class="bold"><strong>cbp, mv0</strong></span>: A makroblokkok kivÃ¡lasztÃ¡sÃ¡t
+  irÃ¡nyÃ­tja. Egy kis sebessÃ©gcsÃ¶kkenÃ©s egy kis minÅ‘sÃ©gjavulÃ¡sÃ©rt.
 </p></li><li><p>
-  <span class="bold"><strong>qprd</strong></span>: adaptív kvantálás, mely a makroblokk
-  komplexitásán alapul.
-  Vagy segít vagy nem, a videó és egyéb opciók függvényében.
-  Ennek lehetnek mellékhatásai, hacsak nem állítod be a vqmax-ot valami
-  ésszer&#369;en alacsony értékre (a 6 jó, talán minimum 4); a vqmin=1 is segíthet.
+  <span class="bold"><strong>qprd</strong></span>: adaptÃ­v kvantÃ¡lÃ¡s, mely a makroblokk
+  komplexitÃ¡sÃ¡n alapul.
+  Vagy segÃ­t vagy nem, a videÃ³ Ã©s egyÃ©b opciÃ³k fÃ¼ggvÃ©nyÃ©ben.
+  Ennek lehetnek mellÃ©khatÃ¡sai, hacsak nem Ã¡llÃ­tod be a vqmax-ot valami
+  Ã©sszerÅ±en alacsony Ã©rtÃ©kre (a 6 jÃ³, talÃ¡n minimum 4); a vqmin=1 is segÃ­thet.
 </p></li><li><p>
-  <span class="bold"><strong>qns</strong></span>: nagyon lassú, különösen ha a
-  qprd-vel kombinálod.
-  Ezen opció hatására a kódoló minimalizálja a zajt tömörítési mellékhatásokkal,
-  ahelyett, hogy a szigorúan a forráshoz próbálna igazodni.
-  Ne használd ezt, csak ha már minden mást kipróbáltál és az eredmény még
-  mindig nem elég jó.
+  <span class="bold"><strong>qns</strong></span>: nagyon lassÃº, kÃ¼lÃ¶nÃ¶sen ha a
+  qprd-vel kombinÃ¡lod.
+  Ezen opciÃ³ hatÃ¡sÃ¡ra a kÃ³dolÃ³ minimalizÃ¡lja a zajt tÃ¶mÃ¶rÃ­tÃ©si mellÃ©khatÃ¡sokkal,
+  ahelyett, hogy a szigorÃºan a forrÃ¡shoz prÃ³bÃ¡lna igazodni.
+  Ne hasznÃ¡ld ezt, csak ha mÃ¡r minden mÃ¡st kiprÃ³bÃ¡ltÃ¡l Ã©s az eredmÃ©ny mÃ©g
+  mindig nem elÃ©g jÃ³.
 </p></li><li><p>
-  <span class="bold"><strong>vqcomp</strong></span>: Rátaírányítás beállítása.
-  Hogy milyen értékek jók, az a filmt&#337;l függ.
+  <span class="bold"><strong>vqcomp</strong></span>: RÃ¡taÃ­rÃ¡nyÃ­tÃ¡s beÃ¡llÃ­tÃ¡sa.
+  Hogy milyen Ã©rtÃ©kek jÃ³k, az a filmtÅ‘l fÃ¼gg.
   Nyugodtan elhagyhatod ezt, ha akarod.
-  A vqcomp csökkentése több bitet engedélyez az alacsony komplexitású részeknél,
-  a növelése a nagy komplexitású részekre teszi &#337;ket (alapértelmezés: 0.5,
-  tartomány: 0-1, javasolt tartomány: 0.5-0.7).
+  A vqcomp csÃ¶kkentÃ©se tÃ¶bb bitet engedÃ©lyez az alacsony komplexitÃ¡sÃº rÃ©szeknÃ©l,
+  a nÃ¶velÃ©se a nagy komplexitÃ¡sÃº rÃ©szekre teszi Å‘ket (alapÃ©rtelmezÃ©s: 0.5,
+  tartomÃ¡ny: 0-1, javasolt tartomÃ¡ny: 0.5-0.7).
 </p></li><li><p>
-  <span class="bold"><strong>vlelim, vcelim</strong></span>: Beállítja a szimpla együttható
-  eliminációs küszöböt a fényer&#337;sséghez és a chroma plane-khez.
-  Ezt elkülönítve kódolja le minden MPEG-szer&#369; algorítmus.
-  Az ötlet emögött az opció mögött az, hogy egy jó heurisztikát használnak
-  annak megállapítására, hogy a blokkban történt változás kisebb-e, mint az
-  általad megadott küszöb és ebben az esetben egyszer&#369;en "változtatás nélkül"
-  kerül elkódolásra a blokk.
-  Ez biteket ment meg és talán gyorsít is a kódoláson. A vlelim=-4 és
-  vcelim=9 látszólag jók az él&#337; filmekhez, de nem segítenek az anime-nál;
-  ha animációt kódolsz, inkább hagyd &#337;ket változatlanul.
+  <span class="bold"><strong>vlelim, vcelim</strong></span>: BeÃ¡llÃ­tja a szimpla egyÃ¼tthatÃ³
+  eliminÃ¡ciÃ³s kÃ¼szÃ¶bÃ¶t a fÃ©nyerÅ‘ssÃ©ghez Ã©s a chroma plane-khez.
+  Ezt elkÃ¼lÃ¶nÃ­tve kÃ³dolja le minden MPEG-szerÅ± algorÃ­tmus.
+  Az Ã¶tlet emÃ¶gÃ¶tt az opciÃ³ mÃ¶gÃ¶tt az, hogy egy jÃ³ heurisztikÃ¡t hasznÃ¡lnak
+  annak megÃ¡llapÃ­tÃ¡sÃ¡ra, hogy a blokkban tÃ¶rtÃ©nt vÃ¡ltozÃ¡s kisebb-e, mint az
+  Ã¡ltalad megadott kÃ¼szÃ¶b Ã©s ebben az esetben egyszerÅ±en "vÃ¡ltoztatÃ¡s nÃ©lkÃ¼l"
+  kerÃ¼l elkÃ³dolÃ¡sra a blokk.
+  Ez biteket ment meg Ã©s talÃ¡n gyorsÃ­t is a kÃ³dolÃ¡son. A vlelim=-4 Ã©s
+  vcelim=9 lÃ¡tszÃ³lag jÃ³k az Ã©lÅ‘ filmekhez, de nem segÃ­tenek az anime-nÃ¡l;
+  ha animÃ¡ciÃ³t kÃ³dolsz, inkÃ¡bb hagyd Å‘ket vÃ¡ltozatlanul.
 </p></li><li><p>
-  <span class="bold"><strong>qpel</strong></span>: Negyed pixel mozgás becslés.
-  Az MPEG-4 fél pixeles precíziót használ a mozgáskereséshez alapértelmezésként,
-  ezért ez az opció plusz terhelést hoz, mivel több információ tárolódik az
-  elkódolt fájlban. A tömörítési nyereség/veszteség a filmt&#337;l függ, de
-  általában nem hatékony anime-oknál.
-  A qpel mindig jelent&#337;s dekódolási CPU id&#337; igénnyel jár (+25% a gyakorlatban).
+  <span class="bold"><strong>qpel</strong></span>: Negyed pixel mozgÃ¡s becslÃ©s.
+  Az MPEG-4 fÃ©l pixeles precÃ­ziÃ³t hasznÃ¡l a mozgÃ¡skeresÃ©shez alapÃ©rtelmezÃ©skÃ©nt,
+  ezÃ©rt ez az opciÃ³ plusz terhelÃ©st hoz, mivel tÃ¶bb informÃ¡ciÃ³ tÃ¡rolÃ³dik az
+  elkÃ³dolt fÃ¡jlban. A tÃ¶mÃ¶rÃ­tÃ©si nyeresÃ©g/vesztesÃ©g a filmtÅ‘l fÃ¼gg, de
+  Ã¡ltalÃ¡ban nem hatÃ©kony anime-oknÃ¡l.
+  A qpel mindig jelentÅ‘s dekÃ³dolÃ¡si CPU idÅ‘ igÃ©nnyel jÃ¡r (+25% a gyakorlatban).
 </p></li><li><p>
-  <span class="bold"><strong>psnr</strong></span>: nem érinti az aktuális kódolást,
-  de készít egy log fájlt, mely megadja minden képkocka típusát/méretét/min&#337;ségét
-  és a végére odaírja a PSNR-t (Peak Signal to Noise Ratio, Zajarány csúcspontja).
-</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Opciók, melyekkel nem javasolt játszadozni:</b></p><ul type="disc"><li><p>
-  <span class="bold"><strong>vme</strong></span>: Az alapértelmezett a legjobb.
+  <span class="bold"><strong>psnr</strong></span>: nem Ã©rinti az aktuÃ¡lis kÃ³dolÃ¡st,
+  de kÃ©szÃ­t egy log fÃ¡jlt, mely megadja minden kÃ©pkocka tÃ­pusÃ¡t/mÃ©retÃ©t/minÅ‘sÃ©gÃ©t
+  Ã©s a vÃ©gÃ©re odaÃ­rja a PSNR-t (Peak Signal to Noise Ratio, ZajarÃ¡ny csÃºcspontja).
+</p></li></ul></div><div class="itemizedlist"><p class="title"><b>OpciÃ³k, melyekkel nem javasolt jÃ¡tszadozni:</b></p><ul type="disc"><li><p>
+  <span class="bold"><strong>vme</strong></span>: Az alapÃ©rtelmezett a legjobb.
 </p></li><li><p>
-  <span class="bold"><strong>lumi_mask, dark_mask</strong></span>: Pszichovizuális
-  adaptív kvantálás.
-  Ne játszadozz ezekkel az opciókkal, ha számít a min&#337;ség.
-  Az ésszer&#369; értékek jók lehetnek a te esetedben, de vigyázz, ez nagyon
-  szubjektív.
+  <span class="bold"><strong>lumi_mask, dark_mask</strong></span>: PszichovizuÃ¡lis
+  adaptÃ­v kvantÃ¡lÃ¡s.
+  Ne jÃ¡tszadozz ezekkel az opciÃ³kkal, ha szÃ¡mÃ­t a minÅ‘sÃ©g.
+  Az Ã©sszerÅ± Ã©rtÃ©kek jÃ³k lehetnek a te esetedben, de vigyÃ¡zz, ez nagyon
+  szubjektÃ­v.
 </p></li><li><p>
-  <span class="bold"><strong>scplx_mask</strong></span>: Megpróbálja megel&#337;zni a
-  blokkos mellékhatásokat, de az utófeldolgozás jobb.
-</p></li></ul></div></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-mpeg4-lavc-example-settings"></a>14.3.4. Kódolás beállítási példák</h3></div></div></div><p>
-  A következ&#337; beállítások példák különböz&#337; kódolási opciók kombinációjára,
-  amik a sebesség vs min&#337;ség kérdést dönt&#337;en befolyásolják ugyanazon
-  cél bitráta mellett.
+  <span class="bold"><strong>scplx_mask</strong></span>: MegprÃ³bÃ¡lja megelÅ‘zni a
+  blokkos mellÃ©khatÃ¡sokat, de az utÃ³feldolgozÃ¡s jobb.
+</p></li></ul></div></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-mpeg4-lavc-example-settings"></a>14.3.4. KÃ³dolÃ¡s beÃ¡llÃ­tÃ¡si pÃ©ldÃ¡k</h3></div></div></div><p>
+A kÃ¶vetkezÅ‘ beÃ¡llÃ­tÃ¡sok pÃ©ldÃ¡k kÃ¼lÃ¶nbÃ¶zÅ‘ kÃ³dolÃ¡si opciÃ³k
+kombinÃ¡ciÃ³jÃ¡ra, amik a sebessÃ©g vs minÅ‘sÃ©g kÃ©rdÃ©st dÃ¶ntÅ‘en
+befolyÃ¡soljÃ¡k ugyanazon cÃ©l bitrÃ¡ta mellett.
 </p><p>
-  Az összes kódolási beállítást egy 720x448 @30000/1001 fps-es példa videón
-  teszteltük, a cél bitráta 900kbps volt, a gép pedig egy
-  AMD-64 3400+ 2400 MHz-en 64 bites módban.
-  Mindegyik kódolási beállítás tartalmazza a kódolási sebességet (képkocka per
-  másodpercben) és a PSNR veszteséget (dB-ben) a "nagyon jó min&#337;séghez"
-  viszonyítva.
-  Kérlek vedd figyelembe, hogy a forrásanyagodtól, a géped típusától és
-  a fejlesztésekt&#337;l függ&#337;en különböz&#337; eredményeket kaphatsz.
+Az Ã¶sszes kÃ³dolÃ¡si beÃ¡llÃ­tÃ¡st egy 720x448 @30000/1001 fps-es pÃ©lda
+videÃ³n teszteltÃ¼k, a cÃ©l bitrÃ¡ta 900kbps volt, a gÃ©p pedig egy
+AMD-64 3400+ 2400 MHz-en 64 bites mÃ³dban.
+Mindegyik kÃ³dolÃ¡si beÃ¡llÃ­tÃ¡s tartalmazza a kÃ³dolÃ¡si sebessÃ©get
+(kÃ©pkocka per mÃ¡sodpercben) Ã©s a PSNR vesztesÃ©get (dB-ben) a
+"nagyon jÃ³ minÅ‘sÃ©ghez" viszonyÃ­tva.
+KÃ©rlek vedd figyelembe, hogy a forrÃ¡sanyagodtÃ³l, a gÃ©ped tÃ­pusÃ¡tÃ³l
+Ã©s a fejlesztÃ©sektÅ‘l fÃ¼ggÅ‘en kÃ¼lÃ¶nbÃ¶zÅ‘ eredmÃ©nyeket kaphatsz.
 </p><p>
-</p><div class="informaltable"><table border="1"><colgroup><col><col><col><col></colgroup><thead><tr><th>Leírás</th><th>Kódolási opciók</th><th>sebesség (fps-ben)</th><th>Relatív PSNR veszteség (dB-ben)</th></tr></thead><tbody><tr><td>Nagyon jó min&#337;ség</td><td><tt class="option">vcodec=mpeg4:mbd=2:mv0:trell:v4mv:cbp:last_pred=3:predia=2:dia=2:vmax_b_frames=2:vb_strategy=1:precmp=2:cmp=2:subcmp=2:preme=2:qns=2</tt></td><td>6fps</td><td>0dB</td></tr><tr><td>Jó min&#337;ség</td><td><tt class="option">vcodec=mpeg4:mbd=2:trell:v4mv:last_pred=2:dia=-1:vmax_b_frames=2:vb_strategy=1:cmp=3:subcmp=3:precmp=0:vqcomp=0.6:turbo</tt></td><td>15fps</td><td>-0.5dB</td></tr><tr><td>Gyors</td><td><tt class="option">vcodec=mpeg4:mbd=2:trell:v4mv:turbo</tt></td><td>42fps</td><td>-0.74dB</td></tr><tr><td>Valós idej&#369;</td><td><tt class="option">vcodec=mpeg4:mbd=2:turbo</tt></td><td>54fps</td><td>-1.21dB</td></tr></tbody></table></div><p>
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="custommatrices"></a>14.3.5. Egyedi inter/intra matricák</h3></div></div></div><p>
+</p><div class="informaltable"><table border="1"><colgroup><col><col><col><col></colgroup><thead><tr><th>LeÃ­rÃ¡s</th><th>KÃ³dolÃ¡si opciÃ³k</th><th>sebessÃ©g (fps-ben)</th><th>RelatÃ­v PSNR vesztesÃ©g (dB-ben)</th></tr></thead><tbody><tr><td>Nagyon jÃ³ minÅ‘sÃ©g</td><td><tt class="option">vcodec=mpeg4:mbd=2:mv0:trell:v4mv:cbp:last_pred=3:predia=2:dia=2:vmax_b_frames=2:vb_strategy=1:precmp=2:cmp=2:subcmp=2:preme=2:qns=2</tt></td><td>6fps</td><td>0dB</td></tr><tr><td>JÃ³ minÅ‘sÃ©g</td><td><tt class="option">vcodec=mpeg4:mbd=2:trell:v4mv:last_pred=2:dia=-1:vmax_b_frames=2:vb_strategy=1:cmp=3:subcmp=3:precmp=0:vqcomp=0.6:turbo</tt></td><td>15fps</td><td>-0.5dB</td></tr><tr><td>Gyors</td><td><tt class="option">vcodec=mpeg4:mbd=2:trell:v4mv:turbo</tt></td><td>42fps</td><td>-0.74dB</td></tr><tr><td>ValÃ³s idejÅ±</td><td><tt class="option">vcodec=mpeg4:mbd=2:turbo</tt></td><td>54fps</td><td>-1.21dB</td></tr></tbody></table></div><p>
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="custommatrices"></a>14.3.5. Egyedi inter/intra matricÃ¡k</h3></div></div></div><p>
 A <a href="video-codecs.html#ffmpeg" title="7.1.1. FFmpeg/libavcodec"><code class="systemitem">libavcodec</code></a>
-ezen képességével egyedi inter (I-frame/kulcs frame) és intra
-(P-frame/jósolt frame) matricákat állíthatsz be. Több codec támogatja ezt: az
-<code class="systemitem">mpeg1video</code> és <code class="systemitem">mpeg2video</code>
-a jelentések szerint m&#369;ködik.
+ezen kÃ©pessÃ©gÃ©vel egyedi inter (I-frame/kulcs frame) Ã©s intra
+(P-frame/jÃ³solt frame) matricÃ¡kat Ã¡llÃ­thatsz be. TÃ¶bb codec tÃ¡mogatja ezt:
+az <code class="systemitem">mpeg1video</code> Ã©s <code class="systemitem">mpeg2video</code>
+a jelentÃ©sek szerint mÅ±kÃ¶dik.
 </p><p>
-Ennek egy tipikus felhasználása a <a href="http://www.kvcd.net/" target="_top">KVCD</a>
-által javasolt matricák beállítása.
+Ennek egy tipikus felhasznÃ¡lÃ¡sa a <a href="http://www.kvcd.net/" target="_top">KVCD</a>
+Ã¡ltal javasolt matricÃ¡k beÃ¡llÃ­tÃ¡sa.
 </p><p>
-Egy <span class="bold"><strong>KVCD "Notch" Kvantálási Mátrix:</strong></span>
+Egy <span class="bold"><strong>KVCD "Notch" KvantÃ¡lÃ¡si MÃ¡trix:</strong></span>
 </p><p>
 Intra:
 </p><pre class="screen">
@@ -227,128 +191,122 @@ Inter:
 30 32 34 36 38 40 42 44
 </pre><p>
 </p><p>
-Használat:
+HasznÃ¡lat:
 </p><pre class="screen">
-$ mencoder <em class="replaceable"><code>input.avi</code></em> -o <em class="replaceable"><code>output.avi</code></em> -oac copy -ovc lavc -lavcopts inter_matrix=...:intra_matrix=...
+mencoder <em class="replaceable"><code>input.avi</code></em> -o <em class="replaceable"><code>output.avi</code></em> -oac copy -ovc lavc \
+	-lavcopts inter_matrix=...:intra_matrix=...
 </pre><p>
 </p><p>
 </p><pre class="screen">
-$ mencoder <em class="replaceable"><code>input.avi</code></em> -ovc lavc -lavcopts
-vcodec=mpeg2video:intra_matrix=8,9,12,22,26,27,29,34,9,10,14,26,27,29,34,37,
-12,14,18,27,29,34,37,38,22,26,27,31,36,37,38,40,26,27,29,36,39,38,40,48,27,
-29,34,37,38,40,48,58,29,34,37,38,40,48,58,69,34,37,38,40,48,58,69,79
-:inter_matrix=16,18,20,22,24,26,28,30,18,20,22,24,26,28,30,32,20,22,24,26,
-28,30,32,34,22,24,26,30,32,32,34,36,24,26,28,32,34,34,36,38,26,28,30,32,34,
+mencoder <em class="replaceable"><code>input.avi</code></em> -ovc lavc -lavcopts \
+vcodec=mpeg2video:intra_matrix=8,9,12,22,26,27,29,34,9,10,14,26,27,29,34,37,\
+12,14,18,27,29,34,37,38,22,26,27,31,36,37,38,40,26,27,29,36,39,38,40,48,27,\
+29,34,37,38,40,48,58,29,34,37,38,40,48,58,69,34,37,38,40,48,58,69,79\
+:inter_matrix=16,18,20,22,24,26,28,30,18,20,22,24,26,28,30,32,20,22,24,26,\
+28,30,32,34,22,24,26,30,32,32,34,36,24,26,28,32,34,34,36,38,26,28,30,32,34,\
 36,38,40,28,30,32,34,36,38,42,42,30,32,34,36,38,40,42,44 -oac copy -o svcd.mpg
 </pre><p>
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-example"></a>14.3.6. Példa</h3></div></div></div><p>
-  Nos hát, éppen most vetted meg a Harry Potter és a titkok kamrája gyönyör&#369;
-  új példányát (widescreen edition természetesen) és le akarod rip-pelni
-  ezt a DVD-t, hogy hozzáadhasd a PC-s házimozidhoz. Ez egy régió 1-es
-  DVD, így NTSC-s. Az alábbi példa egyszer&#369;en alkalmazható PAL-ra is, a
-  <tt class="option">-ofps 24000/1001</tt> kapcsoló elhagyásával (mert a kimeneti
-  frameráta ugyan annyi, mint a bemeneti) és természetesen a vágás méretei
-  is mások lesznek.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-example"></a>14.3.6. PÃ©lda</h3></div></div></div><p>
+Nos hÃ¡t, Ã©ppen most vetted meg a Harry Potter Ã©s a titkok kamrÃ¡ja gyÃ¶nyÃ¶rÅ±
+Ãºj pÃ©ldÃ¡nyÃ¡t (widescreen edition termÃ©szetesen) Ã©s le akarod rip-pelni
+ezt a DVD-t, hogy hozzÃ¡adhasd a PC-s hÃ¡zimozidhoz. Ez egy rÃ©giÃ³ 1-es
+DVD, Ã­gy NTSC-s. Az alÃ¡bbi pÃ©lda egyszerÅ±en alkalmazhatÃ³ PAL-ra is, a
+<tt class="option">-ofps 24000/1001</tt> kapcsolÃ³ elhagyÃ¡sÃ¡val (mert a kimeneti
+framerÃ¡ta ugyan annyi, mint a bemeneti) Ã©s termÃ©szetesen a vÃ¡gÃ¡s mÃ©retei
+is mÃ¡sok lesznek.
 </p><p>
-  Miután lefuttattad az <tt class="option">mplayer dvd://1</tt> parancsot, kövesd
-  a <a href="menc-feat-telecine.html" title="14.2. Mit kezdjünk a telecine-nel és az átlapolással NTSC DVD-ken">mit kezdjünk a telecine-nel és az
-  átlapolással NTSC DVD-ken</a> részben leírt utasításokat és fedezd
-  fel, hogy ez egy 24000/1001 fps-es progresszív videó, ami azt jelenti,
-  hogy nem kell inverz telecine sz&#369;r&#337;t használnod, mint pl. a
-  <tt class="option">pullup</tt> vagy a <tt class="option">filmdint</tt>.
+MiutÃ¡n lefuttattad az <tt class="option">mplayer dvd://1</tt> parancsot, kÃ¶vesd
+a <a href="menc-feat-telecine.html" title="14.2. Mit kezdjÃ¼nk a telecine-nel Ã©s az Ã¡tlapolÃ¡ssal NTSC DVD-ken">mit kezdjÃ¼nk a telecine-nel Ã©s az
+Ã¡tlapolÃ¡ssal NTSC DVD-ken</a> rÃ©szben leÃ­rt utasÃ­tÃ¡sokat Ã©s fedezd
+fel, hogy ez egy 24000/1001 fps-es progresszÃ­v videÃ³, ami azt jelenti,
+hogy nem kell inverz telecine szÅ±rÅ‘t hasznÃ¡lnod, mint pl. a
+<tt class="option">pullup</tt> vagy a <tt class="option">filmdint</tt>.
+</p><p><a name="menc-feat-dvd-mpeg4-example-crop"></a>
+KÃ¶vetkezÅ‘nek megÃ¡llapÃ­tjuk a megfelelÅ‘ vÃ¡gÃ¡si tÃ©glalapot, Ã­gy hasznÃ¡ljuk a
+cropdetect szÅ±rÅ‘t:
+</p><pre class="screen">mplayer dvd://1 -vf cropdetect</pre><p>
+GyÅ‘zÅ‘dj meg rÃ³la, hogy egy teljesen kitÃ¶ltÃ¶tt kÃ©pkockÃ¡n Ã¡llsz (pl. egy vilÃ¡gos
+jelenet a nyitÃ³ kÃ©pek Ã©s logÃ³k utÃ¡n), ezt fogod lÃ¡tni az
+<span class="application">MPlayer</span> konzol kimenetÃ©n:
+</p><pre class="screen">crop area: X: 0..719  Y: 57..419  (-vf crop=720:362:0:58)</pre><p>
+EzutÃ¡n lejÃ¡tszuk a filmet ezzel a szÅ±rÅ‘vel a szÃ¡mok ellenÃ©rzÃ©sÃ©hez:
+</p><pre class="screen">mplayer dvd://1 -vf crop=720:362:0:58</pre><p>
+Ã‰s azt lÃ¡tjuk, hogy tÃ¶kÃ©letesen megfelel. Majd meggyÅ‘zÅ‘dÃ¼nk, hogy a
+szÃ©lessÃ©g Ã©s a magassÃ¡g oszthatÃ³ 16-tal. A szÃ©lessÃ©g jÃ³, de a magassÃ¡g
+nem. Mivel nem buktunk hetedik osztÃ¡lyban matekbÃ³l, tudjuk, hogy a 16
+legkÃ¶zelebbi tÃ¶bbszÃ¶rÃ¶se, ami kisebb, mint 362, a 352.
 </p><p>
-  Következ&#337;nek megállapítjuk a megfelel&#337; vágási téglalapot, így használjuk a
-  cropdetect sz&#369;r&#337;t:
-
-  </p><pre class="screen">mplayer dvd://1 -vf cropdetect</pre><p>
-
-  Gy&#337;z&#337;dj meg róla, hogy egy teljesen kitöltött képkockán állsz (pl. egy világos
-  jelenet), ezt fogod látni az <span class="application">MPlayer</span> konzol kimenetén:
-
-  </p><pre class="screen">crop area: X: 0..719  Y: 57..419  (-vf crop=720:362:0:58)</pre><p>
-
-  Ezután lejátszuk a filmet ezzel a sz&#369;r&#337;vel a számok ellenérzéséhez:
-
-  </p><pre class="screen">mplayer dvd://1 -vf crop=720:362:0:58</pre><p>
-
-  És azt látjuk, hogy tökéletesen megfelel. Majd meggy&#337;z&#337;dünk, hogy a
-  szélesség és a magasság osztható 16-tal. A szélesség jó, de a magasság
-  nem. Mivel nem buktunk hetedik osztályban matekból, tudjuk, hogy a 16
-  legközelebbi többszöröse, ami kisebb, mint 362, a 352.
+Ãgy egyszerÅ±en hasznÃ¡lhatjuk a <tt class="option">crop=720:352:0:58</tt> opciÃ³t,
+de jÃ³ lenne egy kicsit lecsÃ­pni a telejÃ©bÅ‘l Ã©s az aljÃ¡bÃ³l, hogy kÃ¶zÃ©pen
+maradjunk. Ã–sszehÃºzzuk a magassÃ¡got 10 pixellel, de nem akarjuk nÃ¶velni
+az y-offszetet 5 pixellel, mert az pÃ¡ratlan szÃ¡m Ã©s rontja a minÅ‘sÃ©get.
+Helyette inkÃ¡bb 4 pixellel nÃ¶veljÃ¼k az y-offszetet:
+</p><pre class="screen">mplayer dvd://1 -vf crop=720:352:0:62</pre><p>
+A mÃ¡sik ok, hogy lecsÃ­pjÃ¼nk pixeleket mid fent, mint lent, hogy biztosak
+legyÃ¼nk, hogy a fÃ©l-fekete pixeleket is levÃ¡gtuk, amennyiben vannak.
+Figyelj rÃ¡, hogy ha a videÃ³ telecine-lt, a <tt class="option">pullup</tt> szÅ±rÅ‘
+(vagy bÃ¡rmelyik inverz telecine szÅ±rÅ‘, amit hasznÃ¡lsz) a vÃ¡gÃ¡s elÅ‘tt
+szerepeljen a szÅ±rÅ‘k lÃ¡ncÃ¡ban. Ha Ã¡tlapolt, vÃ©gezz deinterlace-t a vÃ¡gÃ¡s
+elÅ‘tt. (Ha Ãºgy dÃ¶ntesz, hogy megtartod az Ã¡tlapolt videÃ³t, gyÅ‘zÅ‘dj meg
+rÃ³la, hogy a fÃ¼ggÅ‘leges vÃ¡gÃ¡si offszet 4 tÃ¶bbszÃ¶rÃ¶se.)
 </p><p>
-  Így egyszer&#369;en használhatjuk a <tt class="option">crop=720:352:0:58</tt> opciót,
-  de jó lenne egy kicsit lecsípni a telejéb&#337;l és az aljából, hogy középen
-  maradjunk. Összehúzzuk a magasságot 10 pixellel, de nem akarjuk növelni
-  az y-offszetet 5 pixellel, mert az páratlan szám és rontja a min&#337;séget.
-  Helyette inkább 4 pixellel növeljük az y-offszetet:
-
-  </p><pre class="screen">mplayer dvd://1 -vf crop=720:352:0:62</pre><p>
-
-  A másik ok, hogy lecsípjünk pixeleket mid fent, mint lent, hogy biztosak
-  legyünk, hogy a fél-fekete pixeleket is levágtuk, amennyiben vannak.
-  Figyelj rá, hogy ha a videó telecine-lt, a <tt class="option">pullup</tt> sz&#369;r&#337;
-  (vagy bármelyik inverz telecine sz&#369;r&#337;, amit használsz) a vágás el&#337;tt
-  szerepeljen a sz&#369;r&#337;k láncában. Ha átlapolt, végezz deinterlace-t a vágás
-  el&#337;tt. (Ha úgy döntesz, hogy megtartod az átlapolt videót, gy&#337;z&#337;dj meg
-  róla, hogy a függ&#337;leges vágási offszet 4 többszöröse.)
+Ha Ã©rdekel annak a 10 pixelnek az elvesztÃ©se, inkÃ¡bb a mÃ©retek 16
+legkÃ¶zelebbi tÃ¶bbszÃ¶rÃ¶sÃ©re valÃ³ kicsinyÃ­tÃ©se Ã©rdekelhet. A szÅ±rÅ‘ lÃ¡nc
+ez esetben:
+</p><pre class="screen">-vf crop=720:362:0:58,scale=720:352</pre><p>
+A videÃ³ ilyen mÃ³don tÃ¶rtÃ©nÅ‘ lekicsinyÃ­tÃ©se azt jelenti, hogy nÃ©hÃ¡ny
+aprÃ³ rÃ©szlet elveszik, de ez valÃ³szÃ­nÅ±leg nem lesz Ã©szrevehetÅ‘. A
+nagyÃ­tÃ¡s rosszabb minÅ‘sÃ©get eredmÃ©nyez (hacsak nem nÃ¶veled a bitrÃ¡tÃ¡t).
+A vÃ¡gÃ¡s az Ã¶sszes ilyen pixeltÅ‘l megszabadÃ­t. Ez egy Ã¼zlet, amit minden
+esetben meg kell fontolnod. pÃ©ldÃ¡ul ha a DVD videÃ³ televÃ­ziÃ³ra kÃ©szÃ¼lt,
+ajÃ¡nlott elkerÃ¼lni a fÃ¼ggÅ‘leges mÃ©retezÃ©st, mert a sor mintÃ¡zÃ¡s az
+eredeti felvÃ©telhez igazodik.
 </p><p>
-  Ha érdekel annak a 10 pixelnek az elvesztése, inkább a méretek 16
-  legközelebbi többszörösére való kicsinyítése érdekelhet. A sz&#369;r&#337; lánc
-  ez esetben:
-
-  </p><pre class="screen">-vf crop=720:362:0:58,scale=720:352</pre><p>
-
-  A videó ilyen módon történ&#337; lekicsinyítése azt jelenti, hogy néhány
-  apró részlet elveszik, de ez valószín&#369;leg nem lesz észrevehet&#337;. A
-  nagyítás rosszabb min&#337;séget eredményez (hacsak nem növeled a bitrátát).
-  A vágás az összes ilyen pixelt&#337;l megszabadít. Ez egy üzlet, amit minden
-  esetben meg kell fontolnod. például ha a DVD videó televízióra készült,
-  ajánlott elkerülni a függ&#337;leges méretezést, mert a sor mintázás az
-  eredeti felvételhez igazodik.
+MegtekintÃ©s utÃ¡n azt lÃ¡tjuk, hogy a filmÃ¼nk elÃ©ggÃ© esemÃ©nydÃºs Ã©s
+nagyon rÃ©szletes, Ã­gy 2400Kbit-et vÃ¡lasztunk bitrÃ¡tÃ¡nak.
 </p><p>
-  Megtekintés után azt látjuk, hogy a filmünk eléggé eseménydús és
-  nagyon részletes, így 2400Kbit-et választunk bitrátának.
+Most mÃ¡r kÃ©szen vagyunk a kÃ©t lÃ©pÃ©ses kÃ³dolÃ¡shoz. ElsÅ‘ lÃ©pÃ©s:
+</p><pre class="screen">
+mencoder dvd://1 -ofps 24000/1001 -oac copy -o <em class="replaceable"><code>Harry_Potter_2.avi</code></em> -ovc lavc \
+    -lavcopts vcodec=mpeg4:vbitrate=2400:v4mv:mbd=2:trell:cmp=3:subcmp=3:autoaspect:vpass=1 \
+    -vf pullup,softskip,crop=720:352:0:62,hqdn3d=2:1:2
+</pre><p>
+A mÃ¡sodik lÃ©pÃ©s ugyan ez, csak megadjuk a <tt class="option">vpass=2</tt>-t:
+</p><pre class="screen">
+mencoder dvd://1 -ofps 24000/1001 -oac copy -o <em class="replaceable"><code>Harry_Potter_2.avi</code></em> -ovc lavc \
+    -lavcopts vcodec=mpeg4:vbitrate=2400:v4mv:mbd=2:trell:cmp=3:subcmp=3:autoaspect:vpass=2 \
+    -vf pullup,softskip,crop=720:352:0:62,hqdn3d=2:1:2
+</pre><p>
 </p><p>
-  Most már készen vagyunk a két lépéses kódoláshoz. Els&#337; lépés:
-
-  </p><pre class="screen">mencoder dvd://1 -ofps 24000/1001 -oac copy -vf pullup,softskip,crop=720:352:0:62,hqdn3d=2:1:2 -ovc lavc \
--lavcopts vcodec=mpeg4:vbitrate=2400:v4mv:mbd=2:trell:cmp=3:subcmp=3:mbcmp=3:autoaspect:vpass=1 \
--o Harry_Potter_2.avi</pre><p>
-
-  A második lépés ugyan ez, csak megadjuk a <tt class="option">vpass=2</tt>-t:
-
-  </p><pre class="screen">mencoder dvd://1 -ofps 24000/1001 -oac copy -vf pullup,softskip,crop=720:352:0:62,hqdn3d=2:1:2 -ovc lavc \
--lavcopts vcodec=mpeg4:vbitrate=2400:v4mv:mbd=2:trell:cmp=3:subcmp=3:mbcmp=3:autoaspect:vpass=2 \
--o Harry_Potter_2.avi</pre><p>
+A <tt class="option">v4mv:mbd=2:trell</tt> kapcsolÃ³k nagyban javÃ­tjÃ¡k a minÅ‘sÃ©get
+a kÃ³dolÃ¡si idÅ‘ rovÃ¡sÃ¡ra. Nem ajÃ¡nlott ezen opciÃ³k elhagyÃ¡sa, ha a fÅ‘ cÃ©l
+a jÃ³ minÅ‘sÃ©g. A <tt class="option">cmp=3:subcmp=3</tt> opciÃ³k egy
+Ã¶sszehasonlÃ­tÃ³ fÃ¼ggvÃ©nyt vÃ¡lasztanak ki, ami jobb minÅ‘sÃ©get biztosÃ­t,
+mint az alapÃ©rtelmezettek. Ezzel a paramÃ©terrel is kÃ­sÃ©rletezhetsz (lÃ¡sd
+a man oldalt a lehetsÃ©ges Ã©rtÃ©kekÃ©rt), mivel a kÃ¼lÃ¶nbÃ¶zÅ‘ fÃ¼ggvÃ©nyek
+nagyban befolyÃ¡soljÃ¡k a minÅ‘sÃ©get a forrÃ¡s anyagtÃ³l fÃ¼ggÅ‘en. PÃ©ldÃ¡ul ha
+Ãºgy talÃ¡lod, hogy a <code class="systemitem">libavcodec</code>
+tÃºl kockÃ¡s eredmÃ©nyt ad, megprÃ³bÃ¡lhatod a kÃ­sÃ©rleti NSSE Ã¶sszehasonlÃ­tÃ³
+fÃ¼ggvÃ©ny hasznÃ¡latÃ¡t a <tt class="option">*cmp=10</tt> opciÃ³val.
 </p><p>
-  A <tt class="option">v4mv:mbd=2:trell</tt> kapcsolók nagyban javítják a min&#337;séget
-  a kódolási id&#337; rovására. Nem ajánlott ezen opciók elhagyása, ha a f&#337; cél a
-  jó min&#337;ség. A <tt class="option">cmp=3:subcmp=3:mbcmp=3</tt> opciók egy
-  összehasonlító függvényt választanak ki, ami jobb min&#337;séget biztosít, mint
-  az alapértelmezettek. Ezzel a paraméterrel is kísérletezhetsz (lásd a man
-  oldalt a lehetséges értékekért), mivel a különböz&#337; függvények nagyban
-  befolyásolják a min&#337;séget a forrás anyagtól függ&#337;en. Például ha úgy találod,
-  hogy a <code class="systemitem">libavcodec</code> túl
-  kockás eredményt ad, megpróbálhatod a kísérleti NSSE összehasonlító
-  függvény használatát a <tt class="option">*cmp=10</tt> opcióval.
+EnnÃ©l a filmnÃ©l a keletkezÅ‘ AVI 138 perc hosszÃº lesz Ã©s kÃ¶zel 3 GB-os.
+Ã‰s mivel azt mondtuk, hogy a fÃ¡jl mÃ©ret nem szÃ¡mÃ­t, ez egy tÃ¶kÃ©letesen
+megfelelÅ‘ mÃ©ret. De ha kisebbet szeretnÃ©l, prÃ³bÃ¡lj ki egy alacsonyabb
+bitrÃ¡tÃ¡t. A bitrÃ¡tÃ¡k nÃ¶velÃ©se csÃ¶kkenÅ‘ mÃ©rtÃ©kÅ± javulÃ¡st hoz, Ã­gy pl.
+tisztÃ¡n kivehetÅ‘ a kÃ¼lÃ¶nbsÃ©g az 1800Kbit Ã©s a 2000Kbit kÃ¶zÃ¶tt, szinte
+Ã©szrevehetetlen 2000Kbit felett.
+Nyugodtan kÃ­sÃ©rletezz, amÃ­g csak kedved tartja.
 </p><p>
-  Ennél a filmnél a keletkez&#337; AVI 138 perc hosszú lesz és közel 3 GB-os. És
-  mivel azt mondtuk, hogy a fájl méret nem számít, ez egy tökéletesen megfelel&#337;
-  méret. De ha kisebbet szeretnél, próbálj ki egy alacsonyabb bitrátát. A bitráták
-  növelése csökken&#337; mérték&#369; javulást hoz, így pl. tisztán kivehet&#337; a különbség
-  az 1800Kbit és a 2000Kbit között, szinte észrevehetetlen 2000Kbit felett.
-  Nyugodtan kísérletezz, amíg csak kedved tartja.
-</p><p>
-  Mivel a forrás videót áteresztettük a zajeltávolító sz&#369;r&#337;n, talán egy picit
-  vissza akarsz tenni a lejátszás közben. Ez, az <tt class="option">spp</tt>
-  utófeldolgozó sz&#369;r&#337;vel drasztikusan javítja a felfogható min&#337;séget és
-  segít a segít a videó kockásodásának megszüntetésében. Az
-  <span class="application">MPlayer</span> <tt class="option">autoq</tt> opciójával
-  szabályozhatod az spp sz&#369;r&#337; utófeldolgozásának mértékét a CPU-tól függ&#337;en.
-  Emellett valószín&#369;leg gamma és/vagy szín korrekciót is szeretnél csinálni,
-  hogy jobban illeszkedjen a monitorodhoz. Például:
-
-  </p><pre class="screen">mplayer Harry_Potter_2.avi -vf spp,noise=9ah:5ah,eq2=1.2 -autoq 3</pre><p>  
-
-</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="menc-feat-telecine.html">El&#337;z&#337;</a> </td><td width="20%" align="center"><a accesskey="u" href="encoding-guide.html">Fel</a></td><td width="40%" align="right"> <a accesskey="n" href="menc-feat-xvid.html">Következ&#337;</a></td></tr><tr><td width="40%" align="left" valign="top">14.2. Mit kezdjünk a telecine-nel és az átlapolással NTSC DVD-ken </td><td width="20%" align="center"><a accesskey="h" href="index.html">Tartalom</a></td><td width="40%" align="right" valign="top"> 14.4. Kódolás az <code class="systemitem">XviD</code>
-codec-kal</td></tr></table></div></body></html>
+Mivel a forrÃ¡s videÃ³t Ã¡teresztettÃ¼k a zajeltÃ¡volÃ­tÃ³ szÅ±rÅ‘n, talÃ¡n egy picit
+vissza akarsz tenni a lejÃ¡tszÃ¡s kÃ¶zben. Ez, az <tt class="option">spp</tt>
+utÃ³feldolgozÃ³ szÅ±rÅ‘vel drasztikusan javÃ­tja a felfoghatÃ³ minÅ‘sÃ©get Ã©s
+segÃ­t a segÃ­t a videÃ³ kockÃ¡sodÃ¡sÃ¡nak megszÃ¼ntetÃ©sÃ©ben. Az
+<span class="application">MPlayer</span> <tt class="option">autoq</tt> opciÃ³jÃ¡val
+szabÃ¡lyozhatod az spp szÅ±rÅ‘ utÃ³feldolgozÃ¡sÃ¡nak mÃ©rtÃ©kÃ©t a CPU-tÃ³l fÃ¼ggÅ‘en.
+Emellett valÃ³szÃ­nÅ±leg gamma Ã©s/vagy szÃ­n korrekciÃ³t is szeretnÃ©l csinÃ¡lni,
+hogy jobban illeszkedjen a monitorodhoz. PÃ©ldÃ¡ul:
+</p><pre class="screen">
+mplayer <em class="replaceable"><code>Harry_Potter_2.avi</code></em> -vf spp,noise=9ah:5ah,eq2=1.2 -autoq 3
+</pre><p>
+</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="menc-feat-telecine.html">ElÅ‘zÅ‘</a>Â </td><td width="20%" align="center"><a accesskey="u" href="encoding-guide.html">Fel</a></td><td width="40%" align="right">Â <a accesskey="n" href="menc-feat-xvid.html">KÃ¶vetkezÅ‘</a></td></tr><tr><td width="40%" align="left" valign="top">14.2. Mit kezdjÃ¼nk a telecine-nel Ã©s az Ã¡tlapolÃ¡ssal NTSC DVD-kenÂ </td><td width="20%" align="center"><a accesskey="h" href="index.html">Tartalom</a></td><td width="40%" align="right" valign="top">Â 14.4. KÃ³dolÃ¡s az <code class="systemitem">Xvid</code>
+  codec-kal</td></tr></table></div></body></html>

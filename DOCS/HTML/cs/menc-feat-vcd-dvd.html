@@ -1,328 +1,307 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>14.7. Pou&#382;ití MEncoder k vytvá&#345;ení VCD/SVCD/DVD-kompatibilních soubor&#367;.</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - Multimediální p&#345;ehráva&#269;"><link rel="up" href="encoding-guide.html" title="Kapitola 14. Enkódování s MEncoderem"><link rel="prev" href="menc-feat-video-for-windows.html" title="14.6. Enkódování rodinou kodek&#367; Video For Windows"><link rel="next" href="bugreports.html" title="P&#345;íloha A. Jak hlásit chyby"><link rel="preface" href="howtoread.html" title="Jak &#269;íst tuto  dokumentaci"><link rel="chapter" href="intro.html" title="Kapitola 1. P&#345;edstavení"><link rel="chapter" href="install.html" title="Kapitola 2. Instalace"><link rel="chapter" href="usage.html" title="Kapitola 3. Pou&#382;ití"><link rel="chapter" href="cd-dvd.html" title="Kapitola 4. Pou&#382;ití CD/DVD"><link rel="chapter" href="faq.html" title="Kapitola 5. &#268;asto Kladené Dotazy (FAQ)"><link rel="chapter" href="containers.html" title="Kapitola 6. Nosné formáty (Containers)"><link rel="chapter" href="codecs.html" title="Kapitola 7. Kodeky"><link rel="chapter" href="video.html" title="Kapitola 8. Výstupní video za&#345;ízení/rozhraní"><link rel="chapter" href="audio.html" title="Kapitola 9. Výstupní zvuková za&#345;ízení"><link rel="chapter" href="tv.html" title="Kapitola 10. TV"><link rel="chapter" href="radio.html" title="Kapitola 11. Rádio"><link rel="chapter" href="ports.html" title="Kapitola 12. Porty"><link rel="chapter" href="mencoder.html" title="Kapitola 13. Základní pou&#382;ití MEncoderu"><link rel="chapter" href="encoding-guide.html" title="Kapitola 14. Enkódování s MEncoderem"><link rel="appendix" href="bugreports.html" title="P&#345;íloha A. Jak hlásit chyby"><link rel="appendix" href="bugs.html" title="P&#345;íloha B. Známé chyby"><link rel="appendix" href="skin.html" title="P&#345;íloha C. Formát skin&#367; MPlayeru"><link rel="subsection" href="menc-feat-vcd-dvd.html#menc-feat-vcd-dvd-constraints" title="14.7.1. Omezení Formát&#367;"><link rel="subsection" href="menc-feat-vcd-dvd.html#menc-feat-vcd-dvd-output" title="14.7.2. Výstupní volby"><link rel="subsection" href="menc-feat-vcd-dvd.html#menc-feat-vcd-dvd-lavc" title="14.7.3. Pou&#382;ití libavcodec pro enkódování VCD/SVCD/DVD"><link rel="subsection" href="menc-feat-vcd-dvd.html#menc-feat-vcd-dvd-audio" title="14.7.4. Enkódování zvuku"><link rel="subsection" href="menc-feat-vcd-dvd.html#menc-feat-vcd-dvd-all" title="14.7.5. Spojení v&#353;eho dohromady"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">14.7. Pou&#382;ití MEncoder k vytvá&#345;ení VCD/SVCD/DVD-kompatibilních soubor&#367;.</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="menc-feat-video-for-windows.html">P&#345;edcházející</a> </td><th width="60%" align="center">Kapitola 14. Enkódování s <span class="application">MEncoder</span>em</th><td width="20%" align="right"> <a accesskey="n" href="bugreports.html">Dal&#353;í</a></td></tr></table><hr></div><div class="sect1" lang="cs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-vcd-dvd"></a>14.7. Pou&#382;ití MEncoder k vytvá&#345;ení VCD/SVCD/DVD-kompatibilních soubor&#367;.</h2></div></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-vcd-dvd-constraints"></a>14.7.1. Omezení Formát&#367;</h3></div></div></div><p>
-  <span class="application">MEncoder</span> je schopen vytvo&#345;it soubory ve
-  formátu MPEG pro VCD, SCVD a DVD pomocí knihovny
-  <code class="systemitem">libavcodec</code>.
-  Tyto soubory pak mohou být pou&#382;ity ve spojení s programem
-  <a href="http://www.gnu.org/software/vcdimager/vcdimager.html" target="_top">vcdimager</a>
-  nebo
-  <a href="http://dvdauthor.sourceforge.net/" target="_top">dvdauthor</a>
-  pro vytvo&#345;ení disku p&#345;ehratelného na stolním p&#345;ehráva&#269;i.
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>14.8. PouÅ¾itÃ­ MEncoderu k vytvÃ¡Å™enÃ­ VCD/SVCD/DVD-kompatibilnÃ­ch souborÅ¯.</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - MultimediÃ¡lnÃ­ pÅ™ehrÃ¡vaÄ"><link rel="up" href="encoding-guide.html" title="Kapitola 14. EnkÃ³dovÃ¡nÃ­ s MEncoderem"><link rel="prev" href="menc-feat-quicktime-7.html" title="14.7. PouÅ¾itÃ­ MEncoderu pro vytvoÅ™enÃ­ QuickTime-kompatibilnÃ­ch souborÅ¯"><link rel="next" href="bugreports.html" title="PÅ™Ã­loha A. Jak hlÃ¡sit chyby"><link rel="preface" href="howtoread.html" title="Jak ÄÃ­st tuto dokumentaci"><link rel="chapter" href="intro.html" title="Kapitola 1. PÅ™edstavenÃ­"><link rel="chapter" href="install.html" title="Kapitola 2. Instalace"><link rel="chapter" href="usage.html" title="Kapitola 3. PouÅ¾itÃ­"><link rel="chapter" href="cd-dvd.html" title="Kapitola 4. PouÅ¾itÃ­ CD/DVD"><link rel="chapter" href="faq.html" title="Kapitola 5. ÄŒasto KladenÃ© Dotazy (FAQ)"><link rel="chapter" href="containers.html" title="Kapitola 6. NosnÃ© formÃ¡ty (Containers)"><link rel="chapter" href="codecs.html" title="Kapitola 7. Kodeky"><link rel="chapter" href="video.html" title="Kapitola 8. VÃ½stupnÃ­ video zaÅ™Ã­zenÃ­/rozhranÃ­"><link rel="chapter" href="audio.html" title="Kapitola 9. VÃ½stupnÃ­ zvukovÃ¡ zaÅ™Ã­zenÃ­"><link rel="chapter" href="tv.html" title="Kapitola 10. TV"><link rel="chapter" href="radio.html" title="Kapitola 11. RÃ¡dio"><link rel="chapter" href="ports.html" title="Kapitola 12. Porty"><link rel="chapter" href="mencoder.html" title="Kapitola 13. ZÃ¡kladnÃ­ pouÅ¾itÃ­ MEncoderu"><link rel="chapter" href="encoding-guide.html" title="Kapitola 14. EnkÃ³dovÃ¡nÃ­ s MEncoderem"><link rel="appendix" href="bugreports.html" title="PÅ™Ã­loha A. Jak hlÃ¡sit chyby"><link rel="appendix" href="bugs.html" title="PÅ™Ã­loha B. ZnÃ¡mÃ© chyby"><link rel="appendix" href="skin.html" title="PÅ™Ã­loha C. FormÃ¡t skinÅ¯ MPlayeru"><link rel="appendix" href="history.html" title="PÅ™Ã­loha D. Historie"><link rel="subsection" href="menc-feat-vcd-dvd.html#menc-feat-vcd-dvd-constraints" title="14.8.1. OmezenÃ­ FormÃ¡tÅ¯"><link rel="subsection" href="menc-feat-vcd-dvd.html#menc-feat-vcd-dvd-output" title="14.8.2. VÃ½stupnÃ­ volby"><link rel="subsection" href="menc-feat-vcd-dvd.html#menc-feat-vcd-dvd-lavc" title="14.8.3. PouÅ¾itÃ­ libavcodec pro enkÃ³dovÃ¡nÃ­ VCD/SVCD/DVD"><link rel="subsection" href="menc-feat-vcd-dvd.html#menc-feat-vcd-dvd-audio" title="14.8.4. EnkÃ³dovÃ¡nÃ­ zvuku"><link rel="subsection" href="menc-feat-vcd-dvd.html#menc-feat-vcd-dvd-all" title="14.8.5. SpojenÃ­ vÅ¡eho dohromady"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">14.8. PouÅ¾itÃ­ <span class="application">MEncoder</span>u
+  k vytvÃ¡Å™enÃ­ VCD/SVCD/DVD-kompatibilnÃ­ch souborÅ¯.</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="menc-feat-quicktime-7.html">PÅ™edchÃ¡zejÃ­cÃ­</a>Â </td><th width="60%" align="center">Kapitola 14. EnkÃ³dovÃ¡nÃ­ s <span class="application">MEncoder</span>em</th><td width="20%" align="right">Â <a accesskey="n" href="bugreports.html">DalÅ¡Ã­</a></td></tr></table><hr></div><div class="sect1" lang="cs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-vcd-dvd"></a>14.8. PouÅ¾itÃ­ <span class="application">MEncoder</span>u
+  k vytvÃ¡Å™enÃ­ VCD/SVCD/DVD-kompatibilnÃ­ch souborÅ¯.</h2></div></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-vcd-dvd-constraints"></a>14.8.1. OmezenÃ­ FormÃ¡tÅ¯</h3></div></div></div><p>
+<span class="application">MEncoder</span> je schopen vytvoÅ™it soubory ve
+formÃ¡tu MPEG pro VCD, SCVD a DVD pomocÃ­ knihovny
+<code class="systemitem">libavcodec</code>.
+Tyto soubory pak mohou bÃ½t pouÅ¾ity ve spojenÃ­ s programem
+<a href="http://www.gnu.org/software/vcdimager/vcdimager.html" target="_top">vcdimager</a>
+nebo
+<a href="http://dvdauthor.sourceforge.net/" target="_top">dvdauthor</a>
+pro vytvÃ¡Å™enÃ­ diskÅ¯ pÅ™ehratelnÃ½ch na stolnÃ­m pÅ™ehrÃ¡vaÄi.
 </p><p>
-  Formáty DVD, SVCD a VCD mají silná omezení.
-  K dispozici máte pouze malý výb&#283;r vlikostí enkódovaného obrazu a pom&#283;r&#367; stran.
-  Pokud vá&#353; film nespl&#328;uje tyto po&#382;adavky, budete jej muset &#353;kálovat, o&#345;ezat
-  nebo p&#345;idat &#269;erné okraje, aby byl kompatibilní.
-</p><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-constraints-resolution"></a>14.7.1.1. Omezení Formát&#367;</h4></div></div></div><div class="informaltable"><table border="1"><colgroup><col><col><col><col><col><col><col><col><col></colgroup><thead><tr><th>Formát</th><th>Rozli&#353;ení</th><th>V. kodec</th><th>V. dat. tok</th><th>Vzork. kmito&#269;et</th><th>A. kodec</th><th>A. dat. tok</th><th>FPS</th><th>Pom&#283;r stran</th></tr></thead><tbody><tr><td>NTSC DVD</td><td>720x480, 704x480, 352x480, 352x240</td><td>MPEG-2</td><td>9800 kbps</td><td>48000 Hz</td><td>AC3,PCM</td><td>1536 kbps (max)</td><td>30000/1001, 24000/1001</td><td>4:3, 16:9 (pouze pro 720x480)</td></tr><tr><td>NTSC DVD</td><td>352x240<sup>[<a name="fn-rare-resolutions" href="#ftn.fn-rare-resolutions">a</a>]</sup></td><td>MPEG-1</td><td>1856 kbps</td><td>48000 Hz</td><td>AC3,PCM</td><td>1536 kbps (max)</td><td>30000/1001, 24000/1001</td><td>4:3, 16:9</td></tr><tr><td>NTSC SVCD</td><td>480x480</td><td>MPEG-2</td><td>2600 kbps</td><td>44100 Hz</td><td>MP2</td><td>384 kbps (max)</td><td>30000/1001</td><td>4:3</td></tr><tr><td>NTSC VCD</td><td>352x240</td><td>MPEG-1</td><td>1150 kbps</td><td>44100 Hz</td><td>MP2</td><td>224 kbps</td><td>24000/1001, 30000/1001</td><td>4:3</td></tr><tr><td>PAL DVD</td><td>720x576, 704x576, 352x576, 352x288</td><td>MPEG-2</td><td>9800 kbps</td><td>48000 Hz</td><td>MP2,AC3,PCM</td><td>1536 kbps (max)</td><td>25</td><td>4:3, 16:9 (pouze pro 720x576)</td></tr><tr><td>PAL DVD</td><td>352x288<sup>[<a href="#ftn.fn-rare-resolutions">a</a>]</sup></td><td>MPEG-1</td><td>1856 kbps</td><td>48000 Hz</td><td>MP2,AC3,PCM</td><td>1536 kbps (max)</td><td>25</td><td>4:3, 16:9</td></tr><tr><td>PAL SVCD</td><td>480x576</td><td>MPEG-2</td><td>2600 kbps</td><td>44100 Hz</td><td>MP2</td><td>384 kbps (max)</td><td>25</td><td>4:3</td></tr><tr><td>PAL VCD</td><td>352x288</td><td>MPEG-1</td><td>1152 kbps</td><td>44100 Hz</td><td>MP2</td><td>224 kbps</td><td>25</td><td>4:3</td></tr></tbody><tbody class="footnotes"><tr><td colspan="9"><div class="footnote"><p><sup>[<a name="ftn.fn-rare-resolutions" href="#fn-rare-resolutions">a</a>] </sup>
-	  Tato rozli&#353;ení jsou z&#345;ídka pou&#382;ita pro DVD, proto&#382;e
-	  mají docela nízkou kvalitu.</p></div></td></tr></tbody></table></div><p>
-  Pokud má va&#353;e video pom&#283;r stran 2.35:1 (v&#283;t&#353;ina sou&#269;asných ak&#269;ních film&#367;),
-  budete muset p&#345;idat &#269;erné okraje, nebo o&#345;ezat video na 16:9, abyste mohli
-  vytvo&#345;it DVD nebo VCD.
-  Pokud p&#345;idáváte &#269;erné okraje, zkuste je napasovat do 16 pixelových okraj&#367;,
-  abyste minimalizovali vliv na výkon enkódování.
-  Na&#353;t&#283;stí má DVD dostate&#269;n&#283; vysoký datový tok, tak&#382;e se nemusíte p&#345;íli&#353;
-  zabývat efektivitou enkódování, ale u SVCD a VCD je k dispozici jen malý
-  datový tok, tak&#382;e vy&#382;aduje v&#283;t&#353;í snahu pro dosa&#382;ení p&#345;ijatelné kvlaity.
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-constraints-gop"></a>14.7.1.2. Omezení velikosti GOP</h4></div></div></div><p>
-  DVD, VCD a SVCD vás rovn&#283;&#382; omezují na relativn&#283; nízké GOP (skupina obrázk&#367;)
-  velikosti.
-  Pro materiál 30 snímk&#367; za sekundu je nejv&#283;t&#353;í povolená GOP velikost 18.
-  Pro 25 nebo 24 snímk&#367;/s je maximum 15.
-  Velikost GOP je nastavena pomocí volby <tt class="option">keyint</tt>.
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-constraints-bitrate"></a>14.7.1.3. Omezení datového toku</h4></div></div></div><p>
-  VCD video musí být CBR p&#345;i 1152 kbps.
-  Tento velmi omezující po&#382;adavek je zde spolu s velmi malou vbv vyrovnávací
-  pam&#283;tí 327 kilobit&#367;.
-  SVCD umo&#382;&#328;uje prom&#283;nné datové toky a&#382; do 2500 kbps a pon&#283;kud mén&#283;
-  omezující velikost vbv bufferu 917 kilobit&#367;.
-  Datové toky pro DVD mohou být libovolné a&#382; do 9800 kbps (a&#269;koli typické
-  datové toky jsou asi polovi&#269;ní) a velikost vbv buferu je 1835 kilobit&#367;.
-</p></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-vcd-dvd-output"></a>14.7.2. Výstupní volby</h3></div></div></div><p>
-  <span class="application">MEncoder</span> má volby pro ovládání výstupního formátu.
-  Pomocí t&#283;chto voleb jej m&#367;&#382;ete instruovat, aby pou&#382;il správný typ souboru.
+FormÃ¡ty DVD, SVCD a VCD majÃ­ silnÃ¡ omezenÃ­.
+K dispozici mÃ¡te pouze malÃ½ vÃ½bÄ›r velikostÃ­ enkÃ³dovanÃ©ho
+obrazu a pomÄ›rÅ¯ stran.
+Pokud vÃ¡Å¡ film nesplÅˆuje tyto poÅ¾adavky, budete jej muset Å¡kÃ¡lovat, oÅ™ezat
+nebo pÅ™idat ÄernÃ© okraje, aby byl kompatibilnÃ­.
+</p><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-constraints-resolution"></a>14.8.1.1. OmezenÃ­ FormÃ¡tÅ¯</h4></div></div></div><div class="informaltable"><table border="1"><colgroup><col><col><col><col><col><col><col><col><col></colgroup><thead><tr><th>FormÃ¡t</th><th>RozliÅ¡enÃ­</th><th>V. kodec</th><th>V. dat. tok</th><th>Vzork. kmitoÄet</th><th>A. kodec</th><th>A. dat. tok</th><th>FPS</th><th>PomÄ›r stran</th></tr></thead><tbody><tr><td>NTSC DVD</td><td>720x480, 704x480, 352x480, 352x240</td><td>MPEG-2</td><td>9800 kbps</td><td>48000 Hz</td><td>AC3,PCM</td><td>1536 kbps (max)</td><td>30000/1001, 24000/1001</td><td>4:3, 16:9 (pouze pro 720x480)</td></tr><tr><td>NTSC DVD</td><td>352x240<sup>[<a name="fn-rare-resolutions" href="#ftn.fn-rare-resolutions">a</a>]</sup></td><td>MPEG-1</td><td>1856 kbps</td><td>48000 Hz</td><td>AC3,PCM</td><td>1536 kbps (max)</td><td>30000/1001, 24000/1001</td><td>4:3, 16:9</td></tr><tr><td>NTSC SVCD</td><td>480x480</td><td>MPEG-2</td><td>2600 kbps</td><td>44100 Hz</td><td>MP2</td><td>384 kbps (max)</td><td>30000/1001</td><td>4:3</td></tr><tr><td>NTSC VCD</td><td>352x240</td><td>MPEG-1</td><td>1150 kbps</td><td>44100 Hz</td><td>MP2</td><td>224 kbps</td><td>24000/1001, 30000/1001</td><td>4:3</td></tr><tr><td>PAL DVD</td><td>720x576, 704x576, 352x576, 352x288</td><td>MPEG-2</td><td>9800 kbps</td><td>48000 Hz</td><td>MP2,AC3,PCM</td><td>1536 kbps (max)</td><td>25</td><td>4:3, 16:9 (pouze pro 720x576)</td></tr><tr><td>PAL DVD</td><td>352x288<sup>[<a href="#ftn.fn-rare-resolutions">a</a>]</sup></td><td>MPEG-1</td><td>1856 kbps</td><td>48000 Hz</td><td>MP2,AC3,PCM</td><td>1536 kbps (max)</td><td>25</td><td>4:3, 16:9</td></tr><tr><td>PAL SVCD</td><td>480x576</td><td>MPEG-2</td><td>2600 kbps</td><td>44100 Hz</td><td>MP2</td><td>384 kbps (max)</td><td>25</td><td>4:3</td></tr><tr><td>PAL VCD</td><td>352x288</td><td>MPEG-1</td><td>1152 kbps</td><td>44100 Hz</td><td>MP2</td><td>224 kbps</td><td>25</td><td>4:3</td></tr></tbody><tbody class="footnotes"><tr><td colspan="9"><div class="footnote"><p><sup>[<a name="ftn.fn-rare-resolutions" href="#fn-rare-resolutions">a</a>] </sup>
+    Tato rozliÅ¡enÃ­ jsou zÅ™Ã­dka pouÅ¾ita pro DVD, protoÅ¾e
+    majÃ­ docela nÃ­zkou kvalitu.</p></div></td></tr></tbody></table></div><p>
+Pokud mÃ¡ vaÅ¡e video pomÄ›r stran 2.35:1 (vÄ›tÅ¡ina souÄasnÃ½ch akÄnÃ­ch filmÅ¯),
+budete muset pÅ™idat ÄernÃ© okraje, nebo oÅ™ezat video na 16:9, abyste mohli
+vytvoÅ™it DVD nebo VCD.
+Pokud pÅ™idÃ¡vÃ¡te ÄernÃ© okraje, zkuste je napasovat do 16 pixelovÃ½ch okrajÅ¯,
+abyste minimalizovali vliv na vÃ½kon enkÃ³dovÃ¡nÃ­.
+NaÅ¡tÄ›stÃ­ mÃ¡ DVD dostateÄnÄ› vysokÃ½ datovÃ½ tok, takÅ¾e se nemusÃ­te pÅ™Ã­liÅ¡
+zabÃ½vat efektivitou enkÃ³dovÃ¡nÃ­, ale u SVCD a VCD je k dispozici jen malÃ½
+datovÃ½ tok, takÅ¾e vyÅ¾aduje vÄ›tÅ¡Ã­ snahu pro dosaÅ¾enÃ­ pÅ™ijatelnÃ© kvality.
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-constraints-gop"></a>14.8.1.2. OmezenÃ­ velikosti GOP</h4></div></div></div><p>
+DVD, VCD a SVCD vÃ¡s rovnÄ›Å¾ omezujÃ­ na relativnÄ› nÃ­zkÃ© GOP (skupina obrÃ¡zkÅ¯)
+velikosti.
+Pro materiÃ¡l 30 snÃ­mkÅ¯ za sekundu je nejvÄ›tÅ¡Ã­ povolenÃ¡ GOP velikost 18.
+Pro 25 nebo 24 snÃ­mkÅ¯/s je maximum 15.
+Velikost GOP je nastavena pomocÃ­ volby <tt class="option">keyint</tt>.
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-constraints-bitrate"></a>14.8.1.3. OmezenÃ­ datovÃ©ho toku</h4></div></div></div><p>
+VCD video musÃ­ bÃ½t CBR pÅ™i 1152 kbps.
+Tento velmi omezujÃ­cÃ­ poÅ¾adavek je zde spolu s velmi malou vbv vyrovnÃ¡vacÃ­
+pamÄ›tÃ­ 327 kilobitÅ¯.
+SVCD umoÅ¾Åˆuje promÄ›nnÃ© datovÃ© toky aÅ¾ do 2500 kbps a ponÄ›kud mÃ©nÄ›
+omezujÃ­cÃ­ velikost vbv bufferu 917 kilobitÅ¯.
+DatovÃ© toky pro DVD mohou bÃ½t libovolnÃ© aÅ¾ do 9800 kbps (aÄkoli typickÃ©
+datovÃ© toky jsou asi poloviÄnÃ­) a velikost vbv buferu je 1835 kilobitÅ¯.
+</p></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-vcd-dvd-output"></a>14.8.2. VÃ½stupnÃ­ volby</h3></div></div></div><p>
+<span class="application">MEncoder</span> mÃ¡ volby pro ovlÃ¡dÃ¡nÃ­ vÃ½stupnÃ­ho formÃ¡tu.
+PomocÃ­ tÄ›chto voleb jej mÅ¯Å¾ete instruovat, aby pouÅ¾il sprÃ¡vnÃ½ typ souboru.
 </p><p>
-  Volby pro VCD a SVCD se nazývají xvcd a xsvcd, proto&#382;e to jsou roz&#353;í&#345;ené
-  formáty.
-  Nejsou p&#345;esn&#283; kompatibilní hlavn&#283; proto, &#382;e výstup neobsahuje skenovací
-  offsety.
-  Pokud pot&#345;ebujete generovat SVCD obraz, m&#283;li byste protáhnout výstupní soubor
-  programem
-  <a href="http://www.gnu.org/software/vcdimager/vcdimager.html" target="_top">vcdimager</a>.
+Volby pro VCD a SVCD se nazÃ½vajÃ­ xvcd a xsvcd, protoÅ¾e to jsou rozÅ¡Ã­Å™enÃ©
+formÃ¡ty.
+Nejsou pÅ™esnÄ› kompatibilnÃ­ hlavnÄ› proto, Å¾e vÃ½stup neobsahuje skenovacÃ­
+offsety.
+Pokud potÅ™ebujete generovat SVCD obraz, mÄ›li byste protÃ¡hnout vÃ½stupnÃ­ soubor
+programem
+<a href="http://www.gnu.org/software/vcdimager/vcdimager.html" target="_top">vcdimager</a>.
 </p><p>
-  VCD:
-  </p><pre class="screen">
-  -of mpeg -mpegopts format=xvcd
-  </pre><p>
+VCD:
+</p><pre class="screen">-of mpeg -mpegopts format=xvcd</pre><p>
 </p><p>
-  SVCD:
-  </p><pre class="screen">
-  -of mpeg -mpegopts format=xsvcd
-  </pre><p>
+SVCD:
+</p><pre class="screen">-of mpeg -mpegopts format=xsvcd</pre><p>
 </p><p>
-  DVD:
-  </p><pre class="screen">
-  -of mpeg -mpegopts format=dvd
-  </pre><p>
+DVD (s ÄasovÃ½mi znaÄkami v kaÅ¾dÃ©m snÃ­mku, je-li to moÅ¾nÃ©):
+</p><pre class="screen">-of mpeg -mpegopts format=dvd:tsaf</pre><p>
 </p><p>
-  DVD s NTSC Pullup:
-  </p><pre class="screen">
-  -of mpeg -mpegopts format=dvd:telecine -ofps 24000/1001
-  </pre><p>
-  Toto umo&#382;&#328;uje enkódovat 24000/1001 fps progresivní materiál p&#345;i 30000/1001 
-  fps p&#345;i zachování slu&#269;itelnosti s DVD.
-</p><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-output-aspect"></a>14.7.2.1. Pom&#283;r stran</h4></div></div></div><p>
-  Argument aspect z <tt class="option">-lavcopts</tt> se pou&#382;ívá pro zakódování
-  pom&#283;ru stran souboru.
-  B&#283;hem p&#345;ehrávání je pak tato hodnota pou&#382;ita pro obnovení videa na
-  správnou velikost.
+DVD s NTSC Pullup:
+</p><pre class="screen">-of mpeg -mpegopts format=dvd:tsaf:telecine -ofps 24000/1001</pre><p>
+Toto umoÅ¾Åˆuje enkÃ³dovat 24000/1001 fps progresivnÃ­ materiÃ¡l pÅ™i 30000/1001 
+fps pÅ™i zachovÃ¡nÃ­ sluÄitelnosti s DVD.
+</p><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-output-aspect"></a>14.8.2.1. PomÄ›r stran</h4></div></div></div><p>
+Argument aspect z <tt class="option">-lavcopts</tt> se pouÅ¾Ã­vÃ¡ pro zakÃ³dovÃ¡nÃ­
+pomÄ›ru stran souboru.
+BÄ›hem pÅ™ehrÃ¡vÃ¡nÃ­ je pak tato hodnota pouÅ¾ita pro obnovenÃ­ videa na
+sprÃ¡vnou velikost.
 </p><p>
-  16:9 neboli "Widescreen"
-  </p><pre class="screen">
-  -lavcopts aspect=16/9
-  </pre><p>
+16:9 neboli "Widescreen"
+</p><pre class="screen">-lavcopts aspect=16/9</pre><p>
 </p><p>
-  4:3 neboli "Fullscreen"
-  </p><pre class="screen">
-  -lavcopts aspect=4/3
-  </pre><p>
+4:3 neboli "Fullscreen"
+</p><pre class="screen">-lavcopts aspect=4/3</pre><p>
 </p><p>
-  2.35:1 neboli "Cinemascope" NTSC
-  </p><pre class="screen">
-  -vf scale=720:368,expand=720:480 -lavcopts aspect=16/9
-  </pre><p>
-  Pro výpo&#269;et správné velikosti pro &#353;kálování, pou&#382;ijte roz&#353;í&#345;enou NTSC &#353;í&#345;ku
-  854/2.35 = 368
+2.35:1 neboli "Cinemascope" NTSC
+</p><pre class="screen">-vf scale=720:368,expand=720:480 -lavcopts aspect=16/9</pre><p>
+Pro vÃ½poÄet sprÃ¡vnÃ© velikosti pro Å¡kÃ¡lovÃ¡nÃ­, pouÅ¾ijte rozÅ¡Ã­Å™enou NTSC Å¡Ã­Å™ku
+854/2.35 = 368
 </p><p>
-  2.35:1 neboli "Cinemascope" PAL
-  </p><pre class="screen">
-  -vf scale="720:432,expand=720:576 -lavcopts aspect=16/9
-  </pre><p>
-  Pro výpo&#269;et správné velikosti pro &#353;kálování, pou&#382;ijte roz&#353;í&#345;enou PAL &#353;í&#345;ku
-  1024/2.35 = 432
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-a-v-sync"></a>14.7.2.2. Zachování A/V synchronizace</h4></div></div></div><p>
-  Aby byla zachována synchronizace zvuku s videem b&#283;hem enkódování, musí
-  <span class="application">MEncoder</span> zahazovat nebo duplikovat snímky.
-  To funguje celkem dob&#345;e p&#345;i muxování do AVI souboru, ale tém&#283;&#345; s jistotou
-  neudr&#382;í A/V synchronizaci s jinými muxery jako MPEG.
-  To je d&#367;vodem pro nutnost p&#345;idání video fitru <tt class="option">harddup</tt> na
-  konec &#345;et&#283;zu filtr&#367;, aby jsme se tomuto problému vyhli.
-  Více technických informací o <tt class="option">harddup</tt> naleznete v sekci
-  <a href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-muxing-filter-issues" title="14.1.12.1. Zlep&#353;ování spolehlivosti muxování a A/V synchronizace">Zlep&#353;ení muxování a
-  A/V synchronizace</a>, nebo v man tsránce.
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-output-srate"></a>14.7.2.3. P&#345;evod vzorkovacího kmito&#269;tu</h4></div></div></div><p>
-  Pokud není vzorkovací kmito&#269;et zvuku takový, jaký je vy&#382;adován
-  cílovým formátem, je nutný p&#345;evod vzorkovacího kmito&#269;tu.
-  To zaji&#353;&#357;uje pou&#382;ití volby <tt class="option">-srate</tt> spolu se zvukovým filtrem
-  <tt class="option">-af lavcresample</tt>.
-  </p><p>
-  DVD:
-  </p><pre class="screen">
-  -srate 48000 -af lavcresample=48000
-  </pre><p>
+2.35:1 neboli "Cinemascope" PAL
+</p><pre class="screen">-vf scale=720:432,expand=720:576 -lavcopts aspect=16/9</pre><p>
+Pro vÃ½poÄet sprÃ¡vnÃ© velikosti pro Å¡kÃ¡lovÃ¡nÃ­, pouÅ¾ijte rozÅ¡Ã­Å™enou PAL Å¡Ã­Å™ku
+1024/2.35 = 432
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-a-v-sync"></a>14.8.2.2. ZachovÃ¡nÃ­ A/V synchronizace</h4></div></div></div><p>
+Aby byla zachovÃ¡na synchronizace zvuku s videem bÄ›hem enkÃ³dovÃ¡nÃ­, musÃ­
+<span class="application">MEncoder</span> zahazovat nebo duplikovat snÃ­mky.
+To funguje celkem dobÅ™e pÅ™i muxovÃ¡nÃ­ do AVI souboru, ale tÃ©mÄ›Å™ s jistotou
+neudrÅ¾Ã­ A/V synchronizaci s jinÃ½mi muxery jako MPEG.
+To je dÅ¯vodem pro nutnost pÅ™idÃ¡nÃ­ video fitru <tt class="option">harddup</tt> na
+konec Å™etÄ›zu filtrÅ¯, abychom se tomuto problÃ©mu vyhnuli.
+VÃ­ce technickÃ½ch informacÃ­ o <tt class="option">harddup</tt> naleznete v sekci
+<a href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-muxing-filter-issues" title="14.1.12.1. ZlepÅ¡ovÃ¡nÃ­ spolehlivosti muxovÃ¡nÃ­ a A/V synchronizace">ZlepÅ¡enÃ­ muxovÃ¡nÃ­ a
+A/V synchronizace</a>, nebo v man strÃ¡nce.
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-output-srate"></a>14.8.2.3. PÅ™evod vzorkovacÃ­ho kmitoÄtu</h4></div></div></div><p>
+Pokud nenÃ­ vzorkovacÃ­ kmitoÄet zvuku takovÃ½, jakÃ½ je vyÅ¾adovÃ¡n
+cÃ­lovÃ½m formÃ¡tem, je nutnÃ½ pÅ™evod vzorkovacÃ­ho kmitoÄtu.
+To zajiÅ¡Å¥uje pouÅ¾itÃ­ volby <tt class="option">-srate</tt> spolu se zvukovÃ½m filtrem
+<tt class="option">-af lavcresample</tt>.
 </p><p>
-  VCD a SVCD:
-  </p><pre class="screen">
-  -srate 44100 -af lavcresample=44100
-  </pre><p>
-  </p></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-vcd-dvd-lavc"></a>14.7.3. Pou&#382;ití libavcodec pro enkódování VCD/SVCD/DVD</h3></div></div></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-lavc-intro"></a>14.7.3.1. Úvodem</h4></div></div></div><p>
-  <code class="systemitem">libavcodec</code> m&#367;&#382;ete pou&#382;ít pro
-  vytvo&#345;ení videa kompatibilního s VCD/SVCD/DVD pou&#382;itím p&#345;íslu&#353;ných voleb.
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-lavc-options"></a>14.7.3.2. lavcopts</h4></div></div></div><p>
-  Zde máte seznam polí v <tt class="option">-lavcopts</tt>, která je nutné
-  zm&#283;nit, abyste dostali video vhodné pro VCD, SVCD,
-  nebo DVD:
+DVD:
+</p><pre class="screen">-srate 48000 -af lavcresample=48000</pre><p>
+</p><p>
+VCD a SVCD:
+</p><pre class="screen">-srate 44100 -af lavcresample=44100</pre><p>
+</p></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-vcd-dvd-lavc"></a>14.8.3. PouÅ¾itÃ­ libavcodec pro enkÃ³dovÃ¡nÃ­ VCD/SVCD/DVD</h3></div></div></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-lavc-intro"></a>14.8.3.1. Ãšvodem</h4></div></div></div><p>
+<code class="systemitem">libavcodec</code> mÅ¯Å¾ete pouÅ¾Ã­t pro
+vytvoÅ™enÃ­ videa kompatibilnÃ­ho s VCD/SVCD/DVD pouÅ¾itÃ­m pÅ™Ã­sluÅ¡nÃ½ch voleb.
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-lavc-options"></a>14.8.3.2. lavcopts</h4></div></div></div><p>
+Zde mÃ¡te seznam polÃ­ v <tt class="option">-lavcopts</tt>, kterÃ¡ je nutnÃ©
+zmÄ›nit, abyste dostali video vhodnÃ© pro VCD, SVCD,
+nebo DVD:
 </p><div class="itemizedlist"><ul type="disc"><li><p>
   <span class="bold"><strong>acodec</strong></span>:
   <tt class="option">mp2</tt> pro VCD, SVCD nebo PAL DVD;
-  <tt class="option">ac3</tt> je obecn&#283; pou&#382;íván pro DVD.
-  PCM zvuk m&#367;&#382;e být rovn&#283;&#382; pou&#382;itý pro DVD, ale v&#283;t&#353;inou je to velké plýtvání
-  místem.
-  Poznamenejme, &#382;e MP3 není slu&#269;itelné s &#382;ádným z t&#283;chto formát&#367;, ale
-  p&#345;ehráva&#269;e s jeho p&#345;ehrátím obvykle nemají problém.
+  <tt class="option">ac3</tt> je obecnÄ› pouÅ¾Ã­vÃ¡n pro DVD.
+  PCM zvuk mÅ¯Å¾e bÃ½t rovnÄ›Å¾ pouÅ¾itÃ½ pro DVD, ale vÄ›tÅ¡inou je to velkÃ© plÃ½tvÃ¡nÃ­
+  mÃ­stem.
+  Poznamenejme, Å¾e MP3 nenÃ­ sluÄitelnÃ© s Å¾Ã¡dnÃ½m z tÄ›chto formÃ¡tÅ¯, ale
+  pÅ™ehrÃ¡vaÄe s jeho pÅ™ehrÃ¡tÃ­m obvykle nemajÃ­ problÃ©m.
 </p></li><li><p>
   <span class="bold"><strong>abitrate</strong></span>:
   224 pro VCD; do 384 pro SVCD; do 1536 pro  DVD, ale obvykle se hodnoty
-  pohybují od 192 kbps pro stereo do 384 kbps pro 5.1 kanálový zvuk.
+  pohybujÃ­ od 192 kbps pro stereo do 384 kbps pro 5.1 kanÃ¡lovÃ½ zvuk.
 </p></li><li><p>
   <span class="bold"><strong>vcodec</strong></span>:
   <tt class="option">mpeg1video</tt> pro VCD;
   <tt class="option">mpeg2video</tt> pro SVCD;
-  <tt class="option">mpeg2video</tt> je obvykle pou&#382;itý pro DVD, ale m&#367;&#382;ete pou&#382;ít také
-  <tt class="option">mpeg1video</tt> pro CIF rozli&#353;ení.
+  <tt class="option">mpeg2video</tt> je obvykle pouÅ¾itÃ½ pro DVD, ale mÅ¯Å¾ete pouÅ¾Ã­t takÃ©
+  <tt class="option">mpeg1video</tt> pro CIF rozliÅ¡enÃ­.
 </p></li><li><p>
   <span class="bold"><strong>keyint</strong></span>:
-  Pou&#382;itý pro nastavení velikosti GOP.
-  18 pro 30fps materiál, nebo 15 pro 25/24 fps materiál.
-  Zdá se, &#382;e komer&#269;ní producenti preferují interval mezi klí&#269;ovými snímky 12.
-  Je mo&#382;né pou&#382;ít vy&#353;&#353;í hodnotu a stále být kompatibilní s v&#283;t&#353;inou
-  p&#345;ehráva&#269;&#367;.
-  <tt class="option">keyint</tt> na 25 by nem&#283;la nikdy zp&#367;sobit potí&#382;e.
+  PouÅ¾itÃ½ pro nastavenÃ­ velikosti GOP.
+  18 pro 30fps materiÃ¡l, nebo 15 pro 25/24 fps materiÃ¡l.
+  ZdÃ¡ se, Å¾e komerÄnÃ­ producenti preferujÃ­ interval mezi klÃ­ÄovÃ½mi snÃ­mky 12.
+  Je moÅ¾nÃ© pouÅ¾Ã­t vyÅ¡Å¡Ã­ hodnotu a stÃ¡le bÃ½t kompatibilnÃ­ s vÄ›tÅ¡inou
+  pÅ™ehrÃ¡vaÄÅ¯.
+  <tt class="option">keyint</tt> na 25 by nemÄ›la nikdy zpÅ¯sobit potÃ­Å¾e.
 </p></li><li><p>
   <span class="bold"><strong>vrc_buf_size</strong></span>:
   327 pro VCD, 917 pro SVCD a 1835 pro DVD.
 </p></li><li><p>
   <span class="bold"><strong>vrc_minrate</strong></span>:
-  1152, pro VCD. M&#367;&#382;e být vynecháno pro SVCD a DVD.
+  1152, pro VCD. MÅ¯Å¾e bÃ½t vynechÃ¡no pro SVCD a DVD.
 </p></li><li><p>
   <span class="bold"><strong>vrc_maxrate</strong></span>:
   1152 pro VCD; 2500 pro SVCD; 9800 pro DVD.
-  Pro SVCD a DVD, m&#367;&#382;ete pou&#382;ít ni&#382;&#353;í hodnoty v závislosti na va&#353;ich
-  osobních preferencích a pot&#345;ebách.
+  Pro SVCD a DVD, mÅ¯Å¾ete pouÅ¾Ã­t niÅ¾Å¡Ã­ hodnoty v zÃ¡vislosti na vaÅ¡ich
+  osobnÃ­ch preferencÃ­ch a potÅ™ebÃ¡ch.
 </p></li><li><p>
   <span class="bold"><strong>vbitrate</strong></span>:
   1152 pro VCD;
   do 2500 pro SVCD;
   do 9800 pro DVD.
-  Pro dva poslední formáty by m&#283;lo být vbitrate nastaveno podle vlastního
-  uvá&#382;ení.
-  Nap&#345;íklad pokud trváte na umíst&#283;ní asi 20 hodin na DVD, mohli byste pou&#382;ít
+  Pro dva poslednÃ­ formÃ¡ty by mÄ›lo bÃ½t vbitrate nastaveno podle vlastnÃ­ho
+  uvÃ¡Å¾enÃ­.
+  NapÅ™Ã­klad pokud trvÃ¡te na umÃ­stÄ›nÃ­ asi 20 hodin na DVD, mohli byste pouÅ¾Ã­t
   vbitrate=400.
-  Výsledná kvalita bude nejspí&#353; hrozná.
-  Pokud se pokou&#353;íte dosáhnout maximální mo&#382;né kvality na DVD, pou&#382;ijte
-  vbitrate=9800, ale pak se vám nevejde ani celá hodina záznamu na jednovrstvé
+  VÃ½slednÃ¡ kvalita bude nejspÃ­Å¡ hroznÃ¡.
+  Pokud se pokouÅ¡Ã­te dosÃ¡hnout maximÃ¡lnÃ­ moÅ¾nÃ© kvality na DVD, pouÅ¾ijte
+  vbitrate=9800, ale pak se vÃ¡m nevejde ani celÃ¡ hodina zÃ¡znamu na jednovrstvÃ©
   DVD.
-</p></li></ul></div></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-lavc-examples"></a>14.7.3.3. P&#345;íklady</h4></div></div></div><p>
-  Toto je typická minimální sada <tt class="option">-lavcopts</tt> pro
-  enkódování videa:
+</p></li><li><p>
+  <span class="bold"><strong>vstrict</strong></span>:
+  Pro vytvÃ¡Å™enÃ­ DVD by mÄ›lo bÃ½t pouÅ¾ito <tt class="option">vstrict</tt>=0.
+  Bez tÃ©to volby vytvoÅ™Ã­ <span class="application">MEncoder</span> datovÃ½
+  proud, kterÃ½ nÄ›kterÃ© stolnÃ­ pÅ™ehrÃ¡vaÄe neumÃ­ sprÃ¡vnÄ› dekÃ³dovat.
+</p></li></ul></div></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-lavc-examples"></a>14.8.3.3. PÅ™Ã­klady</h4></div></div></div><p>
+Toto je typickÃ¡ minimÃ¡lnÃ­ sada <tt class="option">-lavcopts</tt> pro
+enkÃ³dovÃ¡nÃ­ videa:
 </p><p>
-  VCD:
-  </p><pre class="screen">
-  -lavcopts vcodec=mpeg1video:vrc_buf_size=327:vrc_minrate=1152:\
-  vrc_maxrate=1152:vbitrate=1152:keyint=15:acodec=mp2
-  </pre><p>
+VCD:
+</p><pre class="screen">
+-lavcopts vcodec=mpeg1video:vrc_buf_size=327:vrc_minrate=1152:\
+vrc_maxrate=1152:vbitrate=1152:keyint=15:acodec=mp2
+</pre><p>
 </p><p>
-  SVCD:
-  </p><pre class="screen">
-  -lavcopts vcodec=mpeg2video:vrc_buf_size=917:vrc_maxrate=2500:vbitrate=1800:\
-  keyint=15:acodec=mp2
-  </pre><p>
+SVCD:
+</p><pre class="screen">
+-lavcopts vcodec=mpeg2video:vrc_buf_size=917:vrc_maxrate=2500:vbitrate=1800:\
+keyint=15:acodec=mp2
+</pre><p>
 </p><p>
-  DVD:
-  </p><pre class="screen">
+DVD:
+</p><pre class="screen">
+-lavcopts vcodec=mpeg2video:vrc_buf_size=1835:vrc_maxrate=9800:vbitrate=5000:\
+keyint=15:vstrict=0:acodec=ac3
+</pre><p>
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-lavc-advanced"></a>14.8.3.4. PokroÄilÃ© volby</h4></div></div></div><p>
+Pro vyÅ¡Å¡Ã­ kvalitu enkÃ³dovÃ¡nÃ­ mÅ¯Å¾ete takÃ© pÅ™idat kvalitu zlepÅ¡ujÃ­cÃ­ volby
+do lavcopts, jako je <tt class="option">trell</tt>,
+<tt class="option">mbd=2</tt> a dalÅ¡Ã­.
+Poznamenejme, Å¾e <tt class="option">qpel</tt> a <tt class="option">v4mv</tt>, kterÃ© jsou
+Äasto dobrÃ© pro MPEG-4, nejsou pouÅ¾itelnÃ© s MPEG-1 nebo MPEG-2.
+Pokud se snaÅ¾Ã­te vytvoÅ™it DVD s velmi vasokou kvalitou, mÅ¯Å¾e bÃ½t vhodnÃ©
+pÅ™idat <tt class="option">dc=10</tt> do lavcopts.
+Takto to mÅ¯Å¾ete pomoci omezit obÄ›vovÃ¡nÃ­ blokÅ¯ ve stÃ¡lobarevnÃ½ch plochÃ¡ch.
+PodtrÅ¾eno seÄteno, zde mÃ¡te pÅ™Ã­klad nastavenÃ­ lavcopts pro DVD s vyÅ¡Å¡Ã­
+kvalitou:
+</p><p>
+</p><pre class="screen">
+-lavcopts vcodec=mpeg2video:vrc_buf_size=1835:vrc_maxrate=9800:vbitrate=8000:\
+keyint=15:trell:mbd=2:precmp=2:subcmp=2:cmp=2:dia=-10:predia=-10:cbp:mv0:\
+vqmin=1:lmin=1:dc=10:vstrict=0
+</pre><p>
+</p></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-vcd-dvd-audio"></a>14.8.4. EnkÃ³dovÃ¡nÃ­ zvuku</h3></div></div></div><p>
+VCD a SVCD podporujÃ­ zvuk MPEG-1 layer II. PouÅ¾Ã­t mÅ¯Å¾ete
+<code class="systemitem">toolame</code>,
+<code class="systemitem">twolame</code>,
+nebo MP2 enkodÃ©r z <code class="systemitem">libavcodec</code>u.
+MP2 libavcodecu je dalek toho, aby byl stejnÄ› dobrÃ½ jako druhÃ© dvÄ› knihovny,
+avÅ¡ak mÄ›l by bÃ½t vÅ¾dy po ruce.
+VCD podporuje pouze zvuk s konstantnÃ­m datovÃ½m tokem (CBR), zatÃ­mco SVCD
+podporuje takÃ© promÄ›nnÃ½ datovÃ½ tok (VBR).
+PouÅ¾Ã­vejte VBR opatrnÄ›, jelikoÅ¾ nÄ›kterÃ© mizernÃ© stolnÃ­ pÅ™ehrÃ¡vaÄe jej
+nemusÃ­ dobÅ™e podporovat.
+</p><p>
+Pro DVD zvuk se pouÅ¾Ã­vÃ¡ AC3 kodek z
+<code class="systemitem">libavcodec</code>.
+</p><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-audio-toolame"></a>14.8.4.1. toolame</h4></div></div></div><p>
+Pro VCD a SVCD:
+</p><pre class="screen">-oac toolame -toolameopts br=224</pre><p>
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-audio-twolame"></a>14.8.4.2. twolame</h4></div></div></div><p>
+Pro VCD a SVCD:
+</p><pre class="screen">-oac twolame -twolameopts br=224</pre><p>
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-audio-lavc"></a>14.8.4.3. libavcodec</h4></div></div></div><p>
+Pro DVD s 2 kanÃ¡lovÃ½m zvukem:
+</p><pre class="screen">-oac lavc -lavcopts acodec=ac3:abitrate=192</pre><p>
+</p><p>
+Pro DVD s 5.1 kanÃ¡lovÃ½m zvukem:
+</p><pre class="screen">-channels 6 -oac lavc -lavcopts acodec=ac3:abitrate=384</pre><p>
+</p><p>
+Pro VCD a SVCD:
+</p><pre class="screen">-oac lavc -lavcopts acodec=mp2:abitrate=224</pre><p>
+</p></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-vcd-dvd-all"></a>14.8.5. SpojenÃ­ vÅ¡eho dohromady</h3></div></div></div><p>
+Tato sekce obsahuje kompletnÃ­ pÅ™Ã­kazy pro vytvoÅ™enÃ­ VCD/SVCD/DVD
+kompatibilnÃ­ch videÃ­.
+</p><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-all-pal-dvd"></a>14.8.5.1. PAL DVD</h4></div></div></div><p>
+</p><pre class="screen">
+mencoder -oac lavc -ovc lavc -of mpeg -mpegopts format=dvd:tsaf \
+  -vf scale=720:576,harddup -srate 48000 -af lavcresample=48000 \
   -lavcopts vcodec=mpeg2video:vrc_buf_size=1835:vrc_maxrate=9800:vbitrate=5000:\
-  keyint=15:acodec=ac3
-  </pre><p>
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-lavc-advanced"></a>14.7.3.4. Pokro&#269;ilé volby</h4></div></div></div><p>
-  Pro vy&#353;&#353;í kvalitu enkódování m&#367;&#382;ete také p&#345;idat kvalitu zlep&#353;ující volby
-  do lavcopts, jako je <tt class="option">trell</tt>,
-  <tt class="option">mbd=2</tt> a dal&#353;í.
-  Poznamenejme, &#382;e <tt class="option">qpel</tt> a <tt class="option">v4mv</tt>, které jsou
-  &#269;asto dobré pro MPEG-4, nejsou pou&#382;itelné s MPEG-1 nebo MPEG-2.
-  Pokud se sna&#382;íte vytvo&#345;it DVD s velmi vasokou kvalitou, m&#367;&#382;e být vhodné
-  p&#345;idat <tt class="option">dc=10</tt> do lavcopts.
-  Takto to m&#367;&#382;ete pomoci omezit ob&#283;vování blok&#367; ve stálobarevných plochách.
-  Podtr&#382;eno se&#269;teno, zde máte p&#345;íklad nastavení lavcopts pro DVD s vy&#353;&#353;í
-  kvalitou:
-</p><p>
-  </p><pre class="screen">
-  -lavcopts vcodec=mpeg2video:vrc_buf_size=1835:vrc_maxrate=9800:vbitrate=8000:\
-  keyint=15:trell:mbd=2:precmp=2:subcmp=2:cmp=2:dia=-10:predia=-10:cbp:mv0:\
-  vqmin=1:lmin=1:dc=10
-  </pre><p>
-</p></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-vcd-dvd-audio"></a>14.7.4. Enkódování zvuku</h3></div></div></div><p>
-  VCD a SVCD podporují zvuk MPEG-1 layer II. Pou&#382;ít m&#367;&#382;ete
-  <code class="systemitem">toolame</code>,
-  <code class="systemitem">twolame</code>,
-  nebo MP2 enkodér z <code class="systemitem">libavcodec</code>u.
-  MP2 libavcodecu je dalek toho, aby byl stejn&#283; dobrý jako druhé dv&#283; knihovny,
-  av&#353;ak m&#283;l by být v&#382;dy po ruce.
-  VCD podporuje pouze zvuk s konstantním datovým tokem (CBR), zatímco SVCD
-  podporuje také prom&#283;nný datový tok (VBR).
-  Pou&#382;ívejte VBR opatrn&#283;, jeliko&#382; n&#283;které mizerné stolní p&#345;ehráva&#269;e jej
-  nemusí dob&#345;e podporovat.
-</p><p>
-  Pro DVD zvuk se pou&#382;ívá AC3 kodek z
-  <code class="systemitem">libavcodec</code>.
-</p><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-audio-toolame"></a>14.7.4.1. toolame</h4></div></div></div><p>
-  Pro VCD a SVCD:
-  </p><pre class="screen">
-  -oac toolame -toolameopts br=224
-  </pre><p>
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-audio-twolame"></a>14.7.4.2. twolame</h4></div></div></div><p>
-  Pro VCD a SVCD:
-  </p><pre class="screen">
-  -oac twolame -twolameopts br=224
-  </pre><p>
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-audio-lavc"></a>14.7.4.3. libavcodec</h4></div></div></div><p>
-  Pro DVD s 2 kanálovým zvukem:
-  </p><pre class="screen">
-  -oac lavc -lavcopts acodec=ac3:abitrate=192
-  </pre><p>
-</p><p>
-  Pro DVD s 5.1 kanálovým zvukem:
-  </p><pre class="screen">
-  -channels 6 -oac lavc -lavcopts acodec=ac3:abitrate=384
-  </pre><p>
-</p><p>
-  Pro VCD a SVCD:
-  </p><pre class="screen">
-  -oac lavc -lavcopts acodec=mp2:abitrate=224
-  </pre><p>
-</p></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-vcd-dvd-all"></a>14.7.5. Spojení v&#353;eho dohromady</h3></div></div></div><p>
-  Tato sekce obsahuje kompletní p&#345;íkazy pro vytvo&#345;ení VCD/SVCD/DVD
-  kompatibilních videí.
-</p><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-all-pal-dvd"></a>14.7.5.1. PAL DVD</h4></div></div></div><p>
-  </p><pre class="screen">
-  mencoder -oac lavc -ovc lavc -of mpeg -mpegopts format=dvd -vf scale=720:576,\
-  harddup -srate 48000 -af lavcresample=48000 -lavcopts vcodec=mpeg2video:\
-  vrc_buf_size=1835:vrc_maxrate=9800:vbitrate=5000:keyint=15:acodec=ac3:\
-  abitrate=192:aspect=16/9 -ofps 25 \
+keyint=15:vstrict=0:acodec=ac3:abitrate=192:aspect=16/9 -ofps 25 \
   -o <em class="replaceable"><code>film.mpg</code></em> <em class="replaceable"><code>film.avi</code></em>
-  </pre><p>
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-all-ntsc-dvd"></a>14.7.5.2. NTSC DVD</h4></div></div></div><p>
-  </p><pre class="screen">
-  mencoder -oac lavc -ovc lavc -of mpeg -mpegopts format=dvd -vf scale=720:480,\
-  harddup -srate 48000 -af lavcresample=48000 -lavcopts vcodec=mpeg2video:\
-  vrc_buf_size=1835:vrc_maxrate=9800:vbitrate=5000:keyint=18:acodec=ac3:\
-  abitrate=192:aspect=16/9 -ofps 30000/1001 \
+</pre><p>
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-all-ntsc-dvd"></a>14.8.5.2. NTSC DVD</h4></div></div></div><p>
+</p><pre class="screen">
+mencoder -oac lavc -ovc lavc -of mpeg -mpegopts format=dvd:tsaf \
+  -vf scale=720:480,harddup -srate 48000 -af lavcresample=48000 \
+  -lavcopts vcodec=mpeg2video:vrc_buf_size=1835:vrc_maxrate=9800:vbitrate=5000:\
+keyint=18:vstrict=0:acodec=ac3:abitrate=192:aspect=16/9 -ofps 30000/1001 \
   -o <em class="replaceable"><code>film.mpg</code></em> <em class="replaceable"><code>film.avi</code></em>
-  </pre><p>
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-all-pal-ac3-copy"></a>14.7.5.3. PAL AVI obsahující AC3 zvuk do DVD</h4></div></div></div><p>
-  Pokud ji&#382; má zdroj AC3 zvuk, pou&#382;ijte -oac copy místo reenkódování.
-  </p><pre class="screen">
-  mencoder -oac copy -ovc lavc -of mpeg -mpegopts format=dvd -vf scale=720:576,\
-  harddup -lavcopts vcodec=mpeg2video:vrc_buf_size=1835:vrc_maxrate=9800:\
-  vbitrate=5000:keyint=15:aspect=16/9 -ofps 25 \
-  -o <em class="replaceable"><code>film.mpg</code></em> <em class="replaceable"><code>film.avi</code></em>
-  </pre><p>
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-all-ntsc-ac3-copy"></a>14.7.5.4. NTSC AVI obsahující AC3 zvuk do DVD</h4></div></div></div><p>
-  Pokud ji&#382; má zdroj AC3 zvuk a video je NTSC @ 24000/1001 fps:
-  </p><pre class="screen">
-  mencoder -oac copy -ovc lavc -of mpeg -mpegopts format=dvd:telecine \
+</pre><p>
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-all-pal-ac3-copy"></a>14.8.5.3. PAL AVI obsahujÃ­cÃ­ AC3 zvuk do DVD</h4></div></div></div><p>
+Pokud jiÅ¾ mÃ¡ zdroj AC3 zvuk, pouÅ¾ijte -oac copy mÃ­sto reenkÃ³dovÃ¡nÃ­.
+</p><pre class="screen">
+mencoder -oac copy -ovc lavc -of mpeg -mpegopts format=dvd:tsaf \
+  -vf scale=720:576,harddup -ofps 25 \
+  -lavcopts vcodec=mpeg2video:vrc_buf_size=1835:vrc_maxrate=9800:vbitrate=5000:\
+keyint=15:vstrict=0:aspect=16/9 -o <em class="replaceable"><code>film.mpg</code></em> <em class="replaceable"><code>film.avi</code></em>
+</pre><p>
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-all-ntsc-ac3-copy"></a>14.8.5.4. NTSC AVI obsahujÃ­cÃ­ AC3 zvuk do DVD</h4></div></div></div><p>
+Pokud jiÅ¾ mÃ¡ zdroj AC3 zvuk a video je NTSC @ 24000/1001 fps:
+</p><pre class="screen">
+mencoder -oac copy -ovc lavc -of mpeg -mpegopts format=dvd:tsaf:telecine \
   -vf scale=720:480,harddup -lavcopts vcodec=mpeg2video:vrc_buf_size=1835:\
-  vrc_maxrate=9800:vbitrate=5000:keyint=15:aspect=16/9 -ofps 24000/1001 \
+  vrc_maxrate=9800:vbitrate=5000:keyint=15:vstrict=0:aspect=16/9 -ofps 24000/1001 \
   -o <em class="replaceable"><code>film.mpg</code></em> <em class="replaceable"><code>film.avi</code></em>
-  </pre><p>
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-all-pal-svcd"></a>14.7.5.5. PAL SVCD</h4></div></div></div><p>
-  </p><pre class="screen">
-  mencoder -oac lavc -ovc lavc -of mpeg -mpegopts format=xsvcd -vf \
-  scale=480:576,harddup -srate 44100 -af lavcresample=44100 -lavcopts \
-  vcodec=mpeg2video:mbd=2:keyint=15:vrc_buf_size=917:vrc_minrate=600:\
-  vbitrate=2500:vrc_maxrate=2500:acodec=mp2:abitrate=224 -ofps 25 \
-  -o <em class="replaceable"><code>film.mpg</code></em> <em class="replaceable"><code>film.avi</code></em>
-  </pre><p>
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-all-ntsc-svcd"></a>14.7.5.6. NTSC SVCD</h4></div></div></div><p>
-  </p><pre class="screen">
-  mencoder -oac lavc -ovc lavc -of mpeg -mpegopts format=xsvcd  -vf \
-  scale=480:480,harddup -srate 44100 -af lavcresample=44100 -lavcopts \
-  vcodec=mpeg2video:mbd=2:keyint=18:vrc_buf_size=917:vrc_minrate=600:\
-  vbitrate=2500:vrc_maxrate=2500:acodec=mp2:abitrate=224 -ofps 30000/1001 \
-  -o <em class="replaceable"><code>film.mpg</code></em> <em class="replaceable"><code>film.avi</code></em>
-  </pre><p>
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-all-pal-vcd"></a>14.7.5.7. PAL VCD</h4></div></div></div><p>
-  </p><pre class="screen">
-  mencoder -oac lavc -ovc lavc -of mpeg -mpegopts format=xvcd -vf \
-  scale=352:288,harddup -srate 44100 -af lavcresample=44100 -lavcopts \
-  vcodec=mpeg1video:keyint=15:vrc_buf_size=327:vrc_minrate=1152:vbitrate=1152:\
-  vrc_maxrate=1152:acodec=mp2:abitrate=224 -ofps 25 \
-  -o <em class="replaceable"><code>film.mpg</code></em> <em class="replaceable"><code>film.avi</code></em>
-  </pre><p>
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-all-ntsc-vcd"></a>14.7.5.8. NTSC VCD</h4></div></div></div><p>
-  </p><pre class="screen">
-  mencoder -oac lavc -ovc lavc -of mpeg -mpegopts format=xvcd -vf \
-  scale=352:240,harddup -srate 44100 -af lavcresample=44100 -lavcopts \
-  vcodec=mpeg1video:keyint=18:vrc_buf_size=327:vrc_minrate=1152:vbitrate=1152:\
-  vrc_maxrate=1152:acodec=mp2:abitrate=224 -ofps 30000/1001 \
-  -o <em class="replaceable"><code>film.mpg</code></em> <em class="replaceable"><code>film.avi</code></em>
-  </pre><p>
-</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="menc-feat-video-for-windows.html">P&#345;edcházející</a> </td><td width="20%" align="center"><a accesskey="u" href="encoding-guide.html">Nahoru</a></td><td width="40%" align="right"> <a accesskey="n" href="bugreports.html">Dal&#353;í</a></td></tr><tr><td width="40%" align="left" valign="top">14.6. Enkódování rodinou kodek&#367; <code class="systemitem">Video For Windows</code> </td><td width="20%" align="center"><a accesskey="h" href="index.html">Dom&#367;</a></td><td width="40%" align="right" valign="top"> P&#345;íloha A. Jak hlásit chyby</td></tr></table></div></body></html>
+</pre><p>
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-all-pal-svcd"></a>14.8.5.5. PAL SVCD</h4></div></div></div><p>
+</p><pre class="screen">
+mencoder -oac lavc -ovc lavc -of mpeg -mpegopts format=xsvcd -vf \
+    scale=480:576,harddup -srate 44100 -af lavcresample=44100 -lavcopts \
+    vcodec=mpeg2video:mbd=2:keyint=15:vrc_buf_size=917:vrc_minrate=600:\
+vbitrate=2500:vrc_maxrate=2500:acodec=mp2:abitrate=224 -ofps 25 \
+    -o <em class="replaceable"><code>film.mpg</code></em> <em class="replaceable"><code>film.avi</code></em>
+</pre><p>
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-all-ntsc-svcd"></a>14.8.5.6. NTSC SVCD</h4></div></div></div><p>
+</p><pre class="screen">
+mencoder -oac lavc -ovc lavc -of mpeg -mpegopts format=xsvcd  -vf \
+    scale=480:480,harddup -srate 44100 -af lavcresample=44100 -lavcopts \
+    vcodec=mpeg2video:mbd=2:keyint=18:vrc_buf_size=917:vrc_minrate=600:\
+vbitrate=2500:vrc_maxrate=2500:acodec=mp2:abitrate=224 -ofps 30000/1001 \
+    -o <em class="replaceable"><code>film.mpg</code></em> <em class="replaceable"><code>film.avi</code></em>
+</pre><p>
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-all-pal-vcd"></a>14.8.5.7. PAL VCD</h4></div></div></div><p>
+</p><pre class="screen">
+mencoder -oac lavc -ovc lavc -of mpeg -mpegopts format=xvcd -vf \
+    scale=352:288,harddup -srate 44100 -af lavcresample=44100 -lavcopts \
+    vcodec=mpeg1video:keyint=15:vrc_buf_size=327:vrc_minrate=1152:\
+vbitrate=1152:vrc_maxrate=1152:acodec=mp2:abitrate=224 -ofps 25 \
+    -o <em class="replaceable"><code>film.mpg</code></em> <em class="replaceable"><code>film.avi</code></em>
+</pre><p>
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-all-ntsc-vcd"></a>14.8.5.8. NTSC VCD</h4></div></div></div><p>
+</p><pre class="screen">
+mencoder -oac lavc -ovc lavc -of mpeg -mpegopts format=xvcd -vf \
+    scale=352:240,harddup -srate 44100 -af lavcresample=44100 -lavcopts \
+    vcodec=mpeg1video:keyint=18:vrc_buf_size=327:vrc_minrate=1152:\
+vbitrate=1152:vrc_maxrate=1152:acodec=mp2:abitrate=224 -ofps 30000/1001 \
+    -o <em class="replaceable"><code>film.mpg</code></em> <em class="replaceable"><code>film.avi</code></em>
+</pre><p>
+</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="menc-feat-quicktime-7.html">PÅ™edchÃ¡zejÃ­cÃ­</a>Â </td><td width="20%" align="center"><a accesskey="u" href="encoding-guide.html">Nahoru</a></td><td width="40%" align="right">Â <a accesskey="n" href="bugreports.html">DalÅ¡Ã­</a></td></tr><tr><td width="40%" align="left" valign="top">14.7. PouÅ¾itÃ­ <span class="application">MEncoder</span>u pro vytvoÅ™enÃ­
+<span class="application">QuickTime</span>-kompatibilnÃ­ch souborÅ¯Â </td><td width="20%" align="center"><a accesskey="h" href="index.html">DomÅ¯</a></td><td width="40%" align="right" valign="top">Â PÅ™Ã­loha A. Jak hlÃ¡sit chyby</td></tr></table></div></body></html>

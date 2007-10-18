@@ -136,9 +136,6 @@ get_video_codec
 get_video_resolution
     Print out the video resolution of the current file.
 
-grab_frames
-    Currently unimplemented.
-
 screenshot <value>
     Take a screenshot. Requires the screenshot filter to be loaded.
         0 Take a single screenshot.
@@ -159,6 +156,10 @@ loadlist <file> <append>
     Load the given playlist file, stopping playback of the current file.
     If <append> is nonzero playback continues and the playlist file is
     appended to the current playlist instead.
+
+loop <value> [abs]
+    Adjust/set how many times the movie should be looped. -1 means no loop,
+    and 0 forever.
 
 menu <command>
     Execute an OSD menu command.
@@ -222,6 +223,9 @@ radio_step_channel <-1|1>
     Step forwards (1) or backwards (-1) in channel list. Works only when the
     'channels' radio parameter was set.
 
+radio_step_freq <value>
+    Tune frequency by the <value> (positive - up, negative - down). 
+
 seek <value> [type]
     Seek to some place in the movie.
         0 is a relative seek of +/- <value> seconds (default).
@@ -248,6 +252,11 @@ speed_mult <value>
 
 speed_set <value>
     Set the speed to <value>.
+
+step_property <property> [value] [direction]
+    Change a property by value, or increase by a default if value is
+    not given or zero. The direction is reversed if direction is less
+    than zero.
 
 sub_alignment [value]
     Toggle/set subtitle alignment.
@@ -283,6 +292,10 @@ sub_select [value]
     than -1. Supported subtitle sources are -sub options on the command
     line, VOBsubs, DVD subtitles, and Ogg and Matroska text streams.
 
+sub_scale <value> [abs]
+    Adjust the subtitle size by +/- <value> or set it to <value> when [abs]
+    is nonzero.
+
 vobsub_lang
     This is a stub linked to sub_select for backwards compatibility.
 
@@ -309,6 +322,20 @@ switch_vsync [value]
     Toggle vsync (1 == on, 0 == off). If [value] is not provided,
     vsync status is inverted.
 
+teletext_add_digit <value>
+    Enter/leave teletext page number editing mode and append given digit to
+    previously entered one.
+    0..9 - Append apropriate digit. (Enables editing mode if called from normal
+           mode, and switches to normal mode when third digit is entered.)
+    -    - Delete last digit from page number. (Backspace emulation, works only
+           in page number editing mode.)
+
+teletext_go_link <1-6>
+    Follow given link on current teletext page.
+
+tv_start_scan
+    Start automatic TV channel scanning.
+
 tv_step_channel <channel>
     Select next/previous TV channel.
 
@@ -326,6 +353,9 @@ tv_last_channel
 
 tv_set_freq <frequency in MHz>
     Set the TV tuner frequency.
+
+tv_step_freq <frequency offset in MHz>
+    Set the TV tuner frequency relative to current value.
 
 tv_set_norm <norm>
     Set the TV tuner norm (PAL, SECAM, NTSC, ...).
@@ -376,3 +406,78 @@ hide
 run <value>
     Run <value> as shell command. In OSD menu console mode stdout and stdin
     are through the video output driver.
+
+
+Available properties:
+
+name               type      min     max     get set step comment
+=================================================================
+
+osdlevel           int       0       3       X   X   X    as -osdlevel
+speed              float     0.01    100     X   X   X    as -speed
+loop               int       -1              X   X   X    as -loop
+filename           string                    X            file playing wo path
+path               string                    X            file playing
+demuxer            string                    X            demuxer used
+stream_pos         pos       0               X   X        position in stream
+stream_start       pos       0               X            start pos in stream
+stream_end         pos       0               X            end pos in stream
+stream_length      pos       0               X            (end - start)
+length             time                      X            length of file in seconds
+percent_pos        int       0       100     X   X   X    position in percent
+time_pos           time      0               X   X   X    position in seconds
+metadata           str list                  X            list of metadata key/value
+metadata/*         string                    X            metadata values
+volume             float     0       100     X   X   X    change volume
+balance            float     -1      1       X   X   X    change audio balance
+mute               flag      0       1       X   X   X
+audio_delay        float     -100    100     X   X   X
+audio_format       int                       X
+audio_codec        string                    X
+audio_bitrate      int                       X
+samplerate         int                       X
+channels           int                       X
+switch_audio       int       -2      255     X   X   X    select audio stream
+fullscreen         flag      0       1       X   X   X
+deinterlace        flag      0       1       X   X   X
+ontop              flag      0       1       X   X   X
+rootwin            flag      0       1       X   X   X
+border             flag      0       1       X   X   X
+framedropping      int       0       2       X   X   X    1 = soft, 2 = hard
+gamma              int       -100    100     X   X   X
+brightness         int       -100    100     X   X   X
+contrast           int       -100    100     X   X   X
+saturation         int       -100    100     X   X   X
+hue                int       -100    100     X   X   X
+panscan            float     0       1       X   X   X
+vsync              flag      0       1       X   X   X
+video_format       int                       X
+video_codec        string                    X
+video_bitrate      int                       X
+width              int                       X            "display" width
+height             int                       X            "display" height
+fps                float                     X
+aspect             float                     X
+switch_video       int       -2      255     X   X   X    select video stream
+switch_program     int       -1      65535   X   X   X    (see TAB default keybind)
+sub                int       -1              X   X   X    select subtitle stream
+sub_delay          float                     X   X   X
+sub_pos            int       0       100     X   X   X    subtitle position
+sub_alignment      int       0       2       X   X   X    subtitle alignment
+sub_visibility     flag      0       1       X   X   X    show/hide subtitles
+sub_forced_only    flag      0       1       X   X   X
+sub_scale          float     0       100     X   X   X    subtitles font size
+tv_brightness      int       -100    100     X   X   X
+tv_contrast        int       -100    100     X   X   X
+tv_saturation      int       -100    100     X   X   X
+tv_hue             int       -100    100     X   X   X
+teletext_page      int       0       799     X   X   X
+teletext_subpage   int       0       64      X   X   X
+teletext_mode      flag      0       1       X   X   X    0 - off, 1 - on
+teletext_format    int       0       3       X   X   X    0 - opaque,
+                                                          1 - transparent, 
+                                                          2 - opaque inverted,
+                                                          3 - transp. inv.
+teletext_half_page int       0       2       X   X   X    0 - off, 1 - top half,
+                                                          2- bottom half
+

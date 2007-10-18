@@ -1,7 +1,7 @@
 /*
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: DS_Filter.c 18786 2006-06-22 13:34:00Z diego $
+ * $Id: DS_Filter.c 24425 2007-09-10 18:27:45Z voroshil $
  */
 
 #include "config.h"
@@ -37,24 +37,12 @@ static void DS_Filter_Start(DS_Filter* This)
 {
     HRESULT hr;
 
-    if (This->m_pAll)
-	return;
-
     //Debug printf("DS_Filter_Start(%p)\n", This);
     hr = This->m_pFilter->vt->Run(This->m_pFilter, (REFERENCE_TIME)0);
     if (hr != 0)
     {
 	Debug printf("WARNING: m_Filter->Run() failed, error code %x\n", (int)hr);
     }
-    hr = This->m_pImp->vt->GetAllocator(This->m_pImp, &This->m_pAll);
-
-    if (hr || !This->m_pAll)
-    {
-	Debug printf("WARNING: error getting IMemAllocator interface %x\n", (int)hr);
-	This->m_pImp->vt->Release((IUnknown*)This->m_pImp);
-        return;
-    }
-    This->m_pImp->vt->NotifyAllocator(This->m_pImp, This->m_pAll, 0);
 }
 
 static void DS_Filter_Stop(DS_Filter* This)
@@ -107,13 +95,40 @@ void DS_Filter_Destroy(DS_Filter* This)
 #endif
 }
 
+static HRESULT STDCALL DS_Filter_CopySample(void* pUserData,IMediaSample* pSample){
+    BYTE* pointer;
+    int len;
+    SampleProcUserData* pData=(SampleProcUserData*)pUserData;
+    Debug printf("CopySample called(%p,%p)\n",pSample,pUserData);
+    if (pSample->vt->GetPointer(pSample, (BYTE**) &pointer))
+	return 1;
+    len = pSample->vt->GetActualDataLength(pSample);
+    if (len == 0)
+	len = pSample->vt->GetSize(pSample);//for iv50
+
+    pData->frame_pointer = pointer;
+    pData->frame_size = len;
+/*
+    FILE* file=fopen("./uncompr.bmp", "wb");
+    char head[14]={0x42, 0x4D, 0x36, 0x10, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00, 0x00};
+    *(int*)(&head[2])=len+0x36;
+    fwrite(head, 14, 1, file);
+    fwrite(&((VIDEOINFOHEADER*)me.type.pbFormat)->bmiHeader, sizeof(BITMAPINFOHEADER), 1, file);
+    fwrite(pointer, len, 1, file);
+    fclose(file);
+*/
+    return 0;
+}
+
 DS_Filter* DS_FilterCreate(const char* dllname, const GUID* id,
 			   AM_MEDIA_TYPE* in_fmt,
-			   AM_MEDIA_TYPE* out_fmt)
+			   AM_MEDIA_TYPE* out_fmt,SampleProcUserData* pUserData)
 {
     int init = 0;
 //    char eb[250];
     const char* em = NULL;
+    MemAllocator* tempAll;
+    ALLOCATOR_PROPERTIES props,props1;
     HRESULT result;
     DS_Filter* This = (DS_Filter*) malloc(sizeof(DS_Filter));
     if (!This)
@@ -125,6 +140,13 @@ DS_Filter* DS_FilterCreate(const char* dllname, const GUID* id,
     CoInitialize(0L);
 #endif
 
+    /*
+        tempAll is not used  anywhere. 
+	MemAllocatorCreate() is called to ensure that RegisterComObject for IMemoryAllocator
+	will be	called before possible call 
+	to CoCreateInstance(...,&IID_IMemoryAllocator,...) from binary codec.
+    */
+    tempAll=MemAllocatorCreate();
     This->m_pFilter = NULL;
     This->m_pInputPin = NULL;
     This->m_pOutputPin = NULL;
@@ -160,20 +182,20 @@ DS_Filter* DS_FilterCreate(const char* dllname, const GUID* id,
 	    em = "illegal or corrupt DirectShow DLL";
 	    break;
 	}
-	result = func(id, &IID_IClassFactory, (void**)&factory);
+	result = func(id, &IID_IClassFactory, (void*)&factory);
 	if (result || !factory)
 	{
 	    em = "no such class object";
 	    break;
 	}
-	result = factory->vt->CreateInstance(factory, 0, &IID_IUnknown, (void**)&object);
+	result = factory->vt->CreateInstance(factory, 0, &IID_IUnknown, (void*)&object);
 	factory->vt->Release((IUnknown*)factory);
 	if (result || !object)
 	{
 	    em = "class factory failure";
 	    break;
 	}
-	result = object->vt->QueryInterface(object, &IID_IBaseFilter, (void**)&This->m_pFilter);
+	result = object->vt->QueryInterface(object, &IID_IBaseFilter, (void*)&This->m_pFilter);
 	object->vt->Release((IUnknown*)object);
 	if (result || !This->m_pFilter)
 	{
@@ -194,14 +216,14 @@ DS_Filter* DS_FilterCreate(const char* dllname, const GUID* id,
 
 	for (i = 0; i < fetched; i++)
 	{
-	    int direction = -1;
+	    PIN_DIRECTION direction = -1;
 	    array[i]->vt->QueryDirection(array[i], (PIN_DIRECTION*)&direction);
-	    if (!This->m_pInputPin && direction == 0)
+	    if (!This->m_pInputPin && direction == PINDIR_INPUT)
 	    {
 		This->m_pInputPin = array[i];
 		This->m_pInputPin->vt->AddRef((IUnknown*)This->m_pInputPin);
 	    }
-	    if (!This->m_pOutputPin && direction == 1)
+	    if (!This->m_pOutputPin && direction == PINDIR_OUTPUT)
 	    {
 		This->m_pOutputPin = array[i];
 		This->m_pOutputPin->vt->AddRef((IUnknown*)This->m_pOutputPin);
@@ -220,7 +242,7 @@ DS_Filter* DS_FilterCreate(const char* dllname, const GUID* id,
 	}
 	result = This->m_pInputPin->vt->QueryInterface((IUnknown*)This->m_pInputPin,
 						       &IID_IMemInputPin,
-						       (void**)&This->m_pImp);
+						       (void*)&This->m_pImp);
 	if (result)
 	{
 	    em = "could not get IMemInputPin interface";
@@ -248,8 +270,24 @@ DS_Filter* DS_FilterCreate(const char* dllname, const GUID* id,
 	    em = "could not connect to input pin";
             break;
 	}
+	result = This->m_pImp->vt->GetAllocator(This->m_pImp, &This->m_pAll);
+	if (result || !This->m_pAll)
+	{
+	    em="error getting IMemAllocator interface";
+            break;
+	}
 
-	This->m_pOurOutput = COutputPinCreate(This->m_pDestType);
+        //Seting allocator property according to our media type
+	props.cBuffers=1;
+	props.cbBuffer=This->m_pOurType->lSampleSize;
+	props.cbAlign=1;
+	props.cbPrefix=0;
+	This->m_pAll->vt->SetProperties(This->m_pAll, &props, &props1);
+
+	//Notify remote pin about choosed allocator
+	This->m_pImp->vt->NotifyAllocator(This->m_pImp, This->m_pAll, 0);
+
+	This->m_pOurOutput = COutputPinCreate(This->m_pDestType,DS_Filter_CopySample,pUserData);
 
 	result = This->m_pOutputPin->vt->ReceiveConnection(This->m_pOutputPin,
 							   (IPin*) This->m_pOurOutput,
@@ -263,6 +301,7 @@ DS_Filter* DS_FilterCreate(const char* dllname, const GUID* id,
 	init++;
         break;
     }
+    tempAll->vt->Release(tempAll);
 
     if (!init)
     {

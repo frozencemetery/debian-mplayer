@@ -20,16 +20,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * Modified for use with MPlayer, see libmpeg-0.4.0.diff for the exact changes.
+ * Modified for use with MPlayer, see libmpeg-0.4.1.diff for the exact changes.
  * detailed changelog at http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: mpeg2.h 18786 2006-06-22 13:34:00Z diego $
+ * $Id: mpeg2.h 21542 2006-12-09 10:34:27Z henry $
  */
 
 #ifndef MPEG2_H
 #define MPEG2_H
 
 #define MPEG2_VERSION(a,b,c) (((a)<<16)|((b)<<8)|(c))
-#define MPEG2_RELEASE MPEG2_VERSION (0, 4, 0)	/* 0.4.0 */
+#define MPEG2_RELEASE MPEG2_VERSION (0, 4, 1)	/* 0.4.1 */
 
 #define SEQ_FLAG_MPEG2 1
 #define SEQ_FLAG_CONSTRAINED_PARAMETERS 2

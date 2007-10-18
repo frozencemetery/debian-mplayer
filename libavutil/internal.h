@@ -26,93 +26,138 @@
 #ifndef INTERNAL_H
 #define INTERNAL_H
 
+#if !defined(DEBUG) && !defined(NDEBUG)
+#    define NDEBUG
+#endif
+
+#include <stdint.h>
+#include <stddef.h>
+#include <assert.h>
+
+#ifndef attribute_align_arg
+#if defined(__GNUC__) && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__>1)
+#    define attribute_align_arg __attribute__((force_align_arg_pointer))
+#else
+#    define attribute_align_arg
+#endif
+#endif
+
+#ifndef attribute_used
+#if defined(__GNUC__) && (__GNUC__ > 3 || __GNUC__ == 3 && __GNUC_MINOR__ > 0)
+#    define attribute_used __attribute__((used))
+#else
+#    define attribute_used
+#endif
+#endif
+
+/* Use Apple-specific AltiVec syntax for vector declarations when necessary. */
+#ifdef __APPLE_CC__
+#define AVV(x...) (x)
+#else
+#define AVV(x...) {x}
+#endif
+
+#ifndef M_PI
+#define M_PI    3.14159265358979323846
+#endif
+
+#ifndef INT16_MIN
+#define INT16_MIN       (-0x7fff-1)
+#endif
+
+#ifndef INT16_MAX
+#define INT16_MAX       0x7fff
+#endif
+
+#ifndef INT32_MIN
+#define INT32_MIN       (-0x7fffffff-1)
+#endif
+
+#ifndef INT32_MAX
+#define INT32_MAX       0x7fffffff
+#endif
+
+#ifndef UINT32_MAX
+#define UINT32_MAX      0xffffffff
+#endif
+
+#ifndef INT64_MIN
+#define INT64_MIN       (-0x7fffffffffffffffLL-1)
+#endif
+
+#ifndef INT64_MAX
+#define INT64_MAX INT64_C(9223372036854775807)
+#endif
+
+#ifndef UINT64_MAX
+#define UINT64_MAX UINT64_C(0xFFFFFFFFFFFFFFFF)
+#endif
+
+#ifndef INT_BIT
+#    if INT_MAX != 2147483647
+#        define INT_BIT 64
+#    else
+#        define INT_BIT 32
+#    endif
+#endif
+
 #if ( defined(__PIC__) || defined(__pic__) ) && ! defined(PIC)
 #    define PIC
 #endif
 
-#    ifndef ENODATA
-#        define ENODATA  61
-#    endif
-
+#include "intreadwrite.h"
 #include "bswap.h"
 
-#include <stddef.h>
 #ifndef offsetof
-# define offsetof(T,F) ((unsigned int)((char *)&((T *)0)->F))
+#    define offsetof(T,F) ((unsigned int)((char *)&((T *)0)->F))
 #endif
 
-#ifdef __MINGW32__
-#    ifdef _DEBUG
-#        define DEBUG
-#    endif
-
-#    define snprintf _snprintf
-#    define vsnprintf _vsnprintf
-
-#    ifdef CONFIG_WINCE
-#        define perror(a)
-#    endif
-
-/* __MINGW32__ end */
-#elif defined (CONFIG_OS2)
-/* OS/2 EMX */
-
-#include <float.h>
-
-#endif /* !__MINGW32__ && CONFIG_OS2 */
-
-#    ifdef USE_FASTMEMCPY
-#        include "libvo/fastmemcpy.h"
-#    endif
+#ifdef USE_FASTMEMCPY
+#    include "libvo/fastmemcpy.h"
+#    define memcpy(a,b,c) fast_memcpy(a,b,c)
+#endif
 
 // Use rip-relative addressing if compiling PIC code on x86-64.
-#    if defined(__MINGW32__) || defined(__CYGWIN__) || \
-        defined(__OS2__) || (defined (__OpenBSD__) && !defined(__ELF__))
-#        if defined(ARCH_X86_64) && defined(PIC)
-#            define MANGLE(a) "_" #a"(%%rip)"
-#        else
-#            define MANGLE(a) "_" #a
-#        endif
+#if defined(__MINGW32__) || defined(__CYGWIN__) || \
+    defined(__OS2__) || (defined (__OpenBSD__) && !defined(__ELF__))
+#    if defined(ARCH_X86_64) && defined(PIC)
+#        define MANGLE(a) "_" #a"(%%rip)"
 #    else
-#        if defined(ARCH_X86_64) && defined(PIC)
-#            define MANGLE(a) #a"(%%rip)"
-#        elif defined(CONFIG_DARWIN)
-#            define MANGLE(a) "_" #a
-#        else
-#            define MANGLE(a) #a
-#        endif
+#        define MANGLE(a) "_" #a
 #    endif
+#else
+#    if defined(ARCH_X86_64) && defined(PIC)
+#        define MANGLE(a) #a"(%%rip)"
+#    elif defined(__APPLE__)
+#        define MANGLE(a) "_" #a
+#    else
+#        define MANGLE(a) #a
+#    endif
+#endif
 
 /* debug stuff */
 
-#    if !defined(DEBUG) && !defined(NDEBUG)
-#        define NDEBUG
-#    endif
-#    include <assert.h>
-
 /* dprintf macros */
-#    ifdef DEBUG
-#        define dprintf(fmt,...) av_log(NULL, AV_LOG_DEBUG, fmt, __VA_ARGS__)
-#    else
-#        define dprintf(fmt,...)
-#    endif
+#ifdef DEBUG
+#    define dprintf(pctx, ...) av_log(pctx, AV_LOG_DEBUG, __VA_ARGS__)
+#else
+#    define dprintf(pctx, ...)
+#endif
 
-#    ifdef CONFIG_WINCE
-#            define abort()
-#    endif
+#define av_abort()      do { av_log(NULL, AV_LOG_ERROR, "Abort at %s:%d\n", __FILE__, __LINE__); abort(); } while (0)
 
-#    define av_abort()      do { av_log(NULL, AV_LOG_ERROR, "Abort at %s:%d\n", __FILE__, __LINE__); abort(); } while (0)
+/* math */
 
-extern const uint32_t inverse[256];
+extern const uint32_t ff_inverse[256];
 
-#if defined(ARCH_X86) || defined(ARCH_X86_64)
+#if defined(ARCH_X86)
 #    define FASTDIV(a,b) \
     ({\
         int ret,dmy;\
         asm volatile(\
             "mull %3"\
             :"=d"(ret),"=a"(dmy)\
-            :"1"(a),"g"(inverse[b])\
+            :"1"(a),"g"(ff_inverse[b])\
             );\
         ret;\
     })
@@ -123,38 +168,37 @@ extern const uint32_t inverse[256];
         asm volatile(\
             "umull %1, %0, %2, %3"\
             :"=&r"(ret),"=&r"(dmy)\
-            :"r"(a),"r"(inverse[b])\
+            :"r"(a),"r"(ff_inverse[b])\
             );\
         ret;\
     })
 #elif defined(CONFIG_FASTDIV)
-#    define FASTDIV(a,b)   ((uint32_t)((((uint64_t)a)*inverse[b])>>32))
+#    define FASTDIV(a,b)   ((uint32_t)((((uint64_t)a)*ff_inverse[b])>>32))
 #else
 #    define FASTDIV(a,b)   ((a)/(b))
 #endif
 
-/* math */
-extern FF_IMPORT_ATTR const uint8_t ff_sqrt_tab[128];
+extern const uint8_t ff_sqrt_tab[128];
 
 static inline int ff_sqrt(int a)
 {
     int ret=0;
-    int s;
-    int ret_sq=0;
+    int s, b;
 
     if(a<128) return ff_sqrt_tab[a];
 
-    for(s=15; s>=0; s--){
-        int b= ret_sq + (1<<(s*2)) + (ret<<s)*2;
+    for(s=30; s>=0; s-=2){
+        ret+=ret;
+        b= (1+2*ret)<<s;
         if(b<=a){
-            ret_sq=b;
-            ret+= 1<<s;
+            a-=b;
+            ret++;
         }
     }
     return ret;
 }
 
-#if defined(ARCH_X86) || defined(ARCH_X86_64)
+#if defined(ARCH_X86)
 #define MASK_ABS(mask, level)\
             asm volatile(\
                 "cdq                    \n\t"\
@@ -175,7 +219,7 @@ asm volatile (\
     "cmovl %3, %0       \n\t"\
     "cmovl %4, %1       \n\t"\
     "cmovl %5, %2       \n\t"\
-    : "+r" (x), "+r" (a), "+r" (c)\
+    : "+&r" (x), "+&r" (a), "+r" (c)\
     : "r" (y), "r" (b), "r" (d)\
 );
 #else
@@ -188,16 +232,30 @@ if((y)<(x)){\
 #endif
 
 /* avoid usage of various functions */
+#undef  malloc
 #define malloc please_use_av_malloc
+#undef  free
 #define free please_use_av_free
+#undef  realloc
 #define realloc please_use_av_realloc
+#undef  time
 #define time time_is_forbidden_due_to_security_issues
-#define rand rand_is_forbidden_due_to_state_trashing
-#define srand srand_is_forbidden_due_to_state_trashing
+#undef  rand
+#define rand rand_is_forbidden_due_to_state_trashing_use_av_random
+#undef  srand
+#define srand srand_is_forbidden_due_to_state_trashing_use_av_init_random
+#undef  random
+#define random random_is_forbidden_due_to_state_trashing_use_av_random
+#undef  sprintf
 #define sprintf sprintf_is_forbidden_due_to_security_issues_use_snprintf
-#define strcat strcat_is_forbidden_due_to_security_issues_use_pstrcat
-#if !(defined(LIBAVFORMAT_BUILD) || defined(_FRAMEHOOK_H))
+#undef  strcat
+#define strcat strcat_is_forbidden_due_to_security_issues_use_av_strlcat
+#undef  exit
+#define exit exit_is_forbidden
+#if !(defined(LIBAVFORMAT_BUILD) || defined(FRAMEHOOK_H))
+#undef  printf
 #define printf please_use_av_log
+#undef  fprintf
 #define fprintf please_use_av_log
 #endif
 
@@ -214,23 +272,9 @@ if((y)<(x)){\
 /* XXX: add ISOC specific test to avoid specific BSD testing. */
 /* better than nothing implementation. */
 /* btw, rintf() is existing on fbsd too -- alex */
-static always_inline long int lrintf(float x)
+static av_always_inline long int lrintf(float x)
 {
-#ifdef __MINGW32__
-#  ifdef ARCH_X86
-    int32_t i;
-    asm volatile(
-        "fistpl %0\n\t"
-        : "=m" (i) : "t" (x) : "st"
-    );
-    return i;
-#  else
-    /* XXX: incorrect, but make it compile */
-    return (int)(x + (x < 0 ? -0.5 : 0.5));
-#  endif /* ARCH_X86 */
-#else
     return (int)(rint(x));
-#endif /* __MINGW32__ */
 }
 #endif /* HAVE_LRINTF */
 

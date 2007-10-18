@@ -14,7 +14,6 @@
 #include <unistd.h>
 #include "config.h"
 
-#ifdef HAVE_SYS_MMAN_H
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <sys/types.h>
@@ -22,9 +21,7 @@
 #include <fcntl.h>
 
 #include "af.h"
-
-extern char * get_path( const char * filename );
-
+#include "get_path.h"
 
 #define DEF_SZ 512 // default buffer size (in samples)
 #define SHARED_FILE "mplayer-af_export" /* default file name 
@@ -263,5 +260,3 @@ af_info_t af_info_export = {
     AF_FLAGS_REENTRANT,
     af_open
 };
-
-#endif /*HAVE_SYS_MMAN_H*/

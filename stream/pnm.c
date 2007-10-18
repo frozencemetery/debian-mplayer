@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
- * $Id: pnm.c 19620 2006-09-01 12:11:11Z diego $
+ * $Id: pnm.c 24277 2007-08-28 22:38:45Z diego $
  *
  * pnm protocol implementation 
  * based upon code from joschka
@@ -906,7 +906,7 @@ static int open_s(stream_t *stream,int mode, void* opts, int* file_format) {
 fail:
   streaming_ctrl_free(stream->streaming_ctrl);
   stream->streaming_ctrl = NULL;
-  return STREAM_UNSUPORTED;
+  return STREAM_UNSUPPORTED;
 }
 
 

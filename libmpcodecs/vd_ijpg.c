@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "config.h"
 #include "mp_msg.h"
@@ -11,8 +12,8 @@
 
 #include <setjmp.h>
 
-#include "bswap.h"
-#include "libvo/fastmemcpy.h"
+#include "libavutil/common.h"
+#include "mpbswap.h"
 
 #include "vd_internal.h"
 

@@ -1,5 +1,5 @@
-#ifndef _MPLAYER_SPUDEC_H
-#define _MPLAYER_SPUDEC_H
+#ifndef MPLAYER_SPUDEC_H
+#define MPLAYER_SPUDEC_H
 
 #include "libvo/video_out.h"
 
@@ -18,7 +18,6 @@ void spudec_set_font_factor(void * this, double factor); // sets the equivalent 
 void spudec_set_hw_spu(void *this, vo_functions_t *hw_spu);
 int spudec_changed(void *this);
 void spudec_calc_bbox(void *me, unsigned int dxs, unsigned int dys, unsigned int* bbox);
-void spudec_draw_scaled(void *me, unsigned int dxs, unsigned int dys, void (*draw_alpha)(int x0,int y0, int w,int h, unsigned char* src, unsigned char *srca, int stride));
 void spudec_set_forced_subs_only(void * const this, const unsigned int flag);
 #endif
 

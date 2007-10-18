@@ -11,7 +11,7 @@
 #include "help_mp.h"
 
 #include "vd_internal.h"
-#include "wine/windef.h"
+#include "loader/wine/windef.h"
 
 static vd_info_t info = {
 	"RealVideo decoder",
@@ -46,21 +46,21 @@ typedef struct transform_in_s {
 	uint32_t timestamp;
 } transform_in_t;
 
-static uint32_t (*rvyuv_custom_message)(cmsg_data_t* ,void*);
-static uint32_t (*rvyuv_free)(void*);
-static uint32_t (*rvyuv_hive_message)(uint32_t, void *);
-static uint32_t (*rvyuv_init)(void*, void*); // initdata,context
-static uint32_t (*rvyuv_transform)(char*, char*,transform_in_t*,void *,void*);
+static unsigned long (*rvyuv_custom_message)(cmsg_data_t* ,void*);
+static unsigned long (*rvyuv_free)(void*);
+static unsigned long (*rvyuv_init)(void*, void*); // initdata,context
+static unsigned long (*rvyuv_transform)(char*, char*,transform_in_t*,unsigned int*,void*);
 #ifdef USE_WIN32DLL
 static unsigned long WINAPI (*wrvyuv_custom_message)(cmsg_data_t* ,void*);
 static unsigned long WINAPI (*wrvyuv_free)(void*);
-static unsigned long WINAPI (*wrvyuv_hive_message)(unsigned long,unsigned long);
 static unsigned long WINAPI (*wrvyuv_init)(void*, void*); // initdata,context
 static unsigned long WINAPI (*wrvyuv_transform)(char*, char*,transform_in_t*,unsigned int*,void*);
 #endif
 
 static void *rv_handle=NULL;
 static int inited=0;
+static uint8_t *buffer = NULL;
+static int bufsz = 0;
 #ifdef USE_WIN32DLL
 static int dll_type = 0; /* 0 = unix dlopen, 1 = win32 dll */
 #endif
@@ -111,13 +111,11 @@ static int load_syms_linux(char *path) {
 
 		rvyuv_custom_message = dlsym(handle, "RV20toYUV420CustomMessage");
 		rvyuv_free = dlsym(handle, "RV20toYUV420Free");
-		rvyuv_hive_message = dlsym(handle, "RV20toYUV420HiveMessage");
 		rvyuv_init = dlsym(handle, "RV20toYUV420Init");
 		rvyuv_transform = dlsym(handle, "RV20toYUV420Transform");
 
     if(rvyuv_custom_message &&
        rvyuv_free &&
-       rvyuv_hive_message &&
        rvyuv_init &&
        rvyuv_transform)
     {
@@ -127,13 +125,11 @@ static int load_syms_linux(char *path) {
 	
 		rvyuv_custom_message = dlsym(handle, "RV40toYUV420CustomMessage");
 		rvyuv_free = dlsym(handle, "RV40toYUV420Free");
-		rvyuv_hive_message = dlsym(handle, "RV40toYUV420HiveMessage");
 		rvyuv_init = dlsym(handle, "RV40toYUV420Init");
 		rvyuv_transform = dlsym(handle, "RV40toYUV420Transform");
 
     if(rvyuv_custom_message &&
        rvyuv_free &&
-       rvyuv_hive_message &&
        rvyuv_init &&
        rvyuv_transform)
     {
@@ -156,6 +152,30 @@ void* WINAPI LoadLibraryA(char* name);
 void* WINAPI GetProcAddress(void* handle,char* func);
 int WINAPI FreeLibrary(void *handle);
 
+#ifndef WIN32_LOADER
+void * WINAPI GetModuleHandleA(char *);
+static int patch_dll(uint8_t *patchpos, const uint8_t *oldcode,
+                     const uint8_t *newcode, int codesize) {
+  void *handle = GetModuleHandleA("kernel32");
+  int WINAPI (*VirtProt)(void *, unsigned, int, int *);
+  int res = 0;
+  int prot, tmp;
+  VirtProt = GetProcAddress(handle, "VirtualProtect");
+  // change permissions to PAGE_WRITECOPY
+  if (!VirtProt ||
+      !VirtProt(patchpos, codesize, 0x08, &prot)) {
+    mp_msg(MSGT_DECVIDEO, MSGL_WARN, "VirtualProtect failed at %p\n", patchpos);
+    return 0;
+  }
+  if (memcmp(patchpos, oldcode, codesize) == 0) {
+    memcpy(patchpos, newcode, codesize);
+    res = 1;
+  }
+  VirtProt(patchpos, codesize, prot, &tmp);
+  return res;
+}
+#endif
+
 static int load_syms_windows(char *path) {
     void *handle;
 
@@ -172,18 +192,36 @@ static int load_syms_windows(char *path) {
 
     wrvyuv_custom_message = GetProcAddress(handle, "RV20toYUV420CustomMessage");
     wrvyuv_free = GetProcAddress(handle, "RV20toYUV420Free");
-    wrvyuv_hive_message = GetProcAddress(handle, "RV20toYUV420HiveMessage");
     wrvyuv_init = GetProcAddress(handle, "RV20toYUV420Init");
     wrvyuv_transform = GetProcAddress(handle, "RV20toYUV420Transform");
 
     if(wrvyuv_custom_message &&
        wrvyuv_free &&
-       wrvyuv_hive_message &&
        wrvyuv_init &&
        wrvyuv_transform)
     {
 	dll_type = 1;
 	rv_handle = handle;
+#ifndef WIN32_LOADER
+	{
+	    int patched = 0;
+	    // drv43260.dll
+	    if (wrvyuv_transform == (void *)0x634114d0) {
+		// patch away multithreaded decoding, it causes crashes
+		static const uint8_t oldcode[13] = {
+		    0x83, 0xbb, 0xf8, 0x05, 0x00, 0x00, 0x01,
+		    0x0f, 0x86, 0xd0, 0x00, 0x00, 0x00 };
+		static const uint8_t newcode[13] = {
+		    0x31, 0xc0,
+		    0x89, 0x83, 0xf8, 0x05, 0x00, 0x00,
+		    0xe9, 0xd0, 0x00, 0x00, 0x00 };
+		patched = patch_dll((void *)0x634132fa, oldcode, newcode,
+		                    sizeof(oldcode));
+	    }
+	    if (!patched)
+		mp_msg(MSGT_DECVIDEO, MSGL_WARN, "Could not patch Real codec, this might crash on multi-CPU systems\n");
+	}
+#endif
 	return 1;
     }
     mp_msg(MSGT_DECVIDEO,MSGL_WARN,"Error resolving symbols! (version incompatibility?)\n");
@@ -210,12 +248,17 @@ static int init(sh_video_t *sh){
 	char *path;
 	int result;
 	// we export codec id and sub-id from demuxer in bitmapinfohdr:
-	unsigned int* extrahdr=(unsigned int*)(sh->bih+1);
-	struct rv_init_t init_data={
-		11, sh->disp_w, sh->disp_h,0,0,extrahdr[0],
-		1,extrahdr[1]}; // rv30
+	unsigned char* extrahdr=(unsigned char*)(sh->bih+1);
+	unsigned int extrahdr_size = sh->bih->biSize - sizeof(BITMAPINFOHEADER);
+	struct rv_init_t init_data;
 
-	mp_msg(MSGT_DECVIDEO,MSGL_V,"realvideo codec id: 0x%08X  sub-id: 0x%08X\n",extrahdr[1],extrahdr[0]);
+	if(extrahdr_size < 8) {
+	    mp_msg(MSGT_DECVIDEO,MSGL_ERR,"realvideo: extradata too small (%u)\n", sh->bih->biSize - sizeof(BITMAPINFOHEADER));
+	    return 0;
+	}
+	init_data = (struct rv_init_t){11, sh->disp_w, sh->disp_h, 0, 0, be2me_32(((unsigned int*)extrahdr)[0]), 1, be2me_32(((unsigned int*)extrahdr)[1])}; // rv30
+
+	mp_msg(MSGT_DECVIDEO,MSGL_V,"realvideo codec id: 0x%08X  sub-id: 0x%08X\n",be2me_32(((unsigned int*)extrahdr)[1]),be2me_32(((unsigned int*)extrahdr)[0]));
 
 	path = malloc(strlen(REALCODEC_PATH)+strlen(sh->codec->dll)+2);
 	if (!path) return 0;
@@ -251,13 +294,21 @@ static int init(sh_video_t *sh){
 	    return 0;
 	}
 	// setup rv30 codec (codec sub-type and image dimensions):
-	if((sh->format<=0x30335652) && (extrahdr[1]>=0x20200002)){
-	    // We could read nonsense data while filling this, but input is big enough so no sig11
-	    uint32_t cmsg24[10]={sh->disp_w,sh->disp_h,((unsigned char *)extrahdr)[8]*4,((unsigned char *)extrahdr)[9]*4,
-	                        ((unsigned char *)extrahdr)[10]*4,((unsigned char *)extrahdr)[11]*4,
-	                        ((unsigned char *)extrahdr)[12]*4,((unsigned char *)extrahdr)[13]*4,
-	                        ((unsigned char *)extrahdr)[14]*4,((unsigned char *)extrahdr)[15]*4};
-	    cmsg_data_t cmsg_data={0x24,1+((extrahdr[0]>>16)&7), &cmsg24[0]};
+	if((sh->format<=0x30335652) && (be2me_32(((unsigned int*)extrahdr)[1])>=0x20200002)){
+	    int i, cmsg_cnt;
+	    uint32_t cmsg24[16]={sh->disp_w,sh->disp_h};
+	    cmsg_data_t cmsg_data={0x24,1+(extrahdr[1]&7), &cmsg24[0]};
+
+	    mp_msg(MSGT_DECVIDEO,MSGL_V,"realvideo: using cmsg24 with %u elements.\n",extrahdr[1]&7);
+	    cmsg_cnt = (extrahdr[1]&7)*2;
+	    if (extrahdr_size-8 < cmsg_cnt) {
+	        mp_msg(MSGT_DECVIDEO,MSGL_WARN,"realvideo: not enough extradata (%u) to make %u cmsg24 elements.\n",extrahdr_size-8,extrahdr[1]&7);
+	        cmsg_cnt = extrahdr_size-8;
+	    }
+	    for (i = 0; i < cmsg_cnt; i++)
+	        cmsg24[2+i] = extrahdr[8+i]*4;
+	    if (extrahdr_size-8 > cmsg_cnt)
+	        mp_msg(MSGT_DECVIDEO,MSGL_WARN,"realvideo: %u bytes of unknown extradata remaining.\n",extrahdr_size-8-cmsg_cnt);
 
 #ifdef USE_WIN32DLL
 	    if (dll_type == 1)
@@ -291,6 +342,10 @@ static void uninit(sh_video_t *sh){
 #endif
 	rv_handle=NULL;
 	inited = 0;
+	if (buffer)
+	    free(buffer);
+	buffer = NULL;
+	bufsz = 0;
 }
 
 // copypaste from demux_real.c - it should match to get it working!
@@ -308,7 +363,6 @@ static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags){
 	dp_hdr_t* dp_hdr=(dp_hdr_t*)data;
 	unsigned char* dp_data=((unsigned char*)data)+sizeof(dp_hdr_t);
 	uint32_t* extra=(uint32_t*)(((char*)data)+dp_hdr->chunktab);
-	unsigned char* buffer;
 
 	unsigned int transform_out[5];
 	transform_in_t transform_in={
@@ -322,13 +376,10 @@ static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags){
 
 	if(len<=0 || flags&2) return NULL; // skipped frame || hardframedrop
 
-	if(inited){  // rv30 width/height not yet known
-	mpi=mpcodecs_get_image(sh, MP_IMGTYPE_TEMP, 0 /*MP_IMGFLAG_ACCEPT_STRIDE*/,
-		sh->disp_w, sh->disp_h);
-	if(!mpi) return NULL;
-	    buffer=mpi->planes[0];
-	} else {
-	    buffer=malloc(sh->disp_w*sh->disp_h*3/2);
+	if (bufsz < sh->disp_w*sh->disp_h*3/2) {
+	    if (buffer) free(buffer);
+	    bufsz = sh->disp_w*sh->disp_h*3/2;
+	    buffer=malloc(bufsz);
 	    if (!buffer) return 0;
 	}
 	
@@ -346,13 +397,21 @@ static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags){
 	    sh->disp_w=transform_out[3];
 	    sh->disp_h=transform_out[4];
 	    if (!mpcodecs_config_vo(sh,sh->disp_w,sh->disp_h,IMGFMT_I420)) return 0;
-	    mpi=mpcodecs_get_image(sh, MP_IMGTYPE_TEMP, 0 /*MP_IMGFLAG_ACCEPT_STRIDE*/,
-		    sh->disp_w, sh->disp_h);
-	    if(!mpi) return NULL;
-	    memcpy(mpi->planes[0],buffer,sh->disp_w*sh->disp_h*3/2);
-	    free(buffer);
 	    inited=1;
 	} 
+	    mpi=mpcodecs_get_image(sh, MP_IMGTYPE_EXPORT, 0 /*MP_IMGFLAG_ACCEPT_STRIDE*/,
+		    sh->disp_w, sh->disp_h);
+	    if(!mpi) return NULL;
+	    mpi->planes[0] = buffer;
+	    mpi->stride[0] = sh->disp_w;
+	    mpi->planes[1] = buffer + sh->disp_w*sh->disp_h;
+	    mpi->stride[1] = sh->disp_w / 2;
+	    mpi->planes[2] = buffer + sh->disp_w*sh->disp_h*5/4;
+	    mpi->stride[2] = sh->disp_w / 2;
 
+	if(transform_out[0] &&
+	   (sh->disp_w != transform_out[3] || sh->disp_h != transform_out[4]))
+	    inited = 0;
+	
 	return (result?NULL:mpi);
 }

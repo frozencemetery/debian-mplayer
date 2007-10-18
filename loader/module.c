@@ -5,17 +5,20 @@
  *
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: module.c 18883 2006-07-02 03:59:36Z reynaldo $
+ * $Id: module.c 24402 2007-09-10 11:41:26Z diego $
  *
  */
 
 // define for quicktime calls debugging and/or MacOS-level emulation:
+#ifndef __APPLE__
 #define EMU_QTX_API
+#endif /* __APPLE__ */
 
 // define for quicktime debugging (verbose logging):
 //#define DEBUG_QTX_API
 
 #include "config.h"
+#include "debug.h"
 
 #include <assert.h>
 #include <errno.h>
@@ -211,7 +214,7 @@ static WIN_BOOL MODULE_InitDll( WINE_MODREF *wm, DWORD type, LPVOID lpReserved )
 static WIN_BOOL MODULE_DllProcessAttach( WINE_MODREF *wm, LPVOID lpReserved )
 {
     WIN_BOOL retv = TRUE;
-    int i;
+    //int i;
     assert( wm );
 
     /* prevent infinite recursion in case of cyclical dependencies */
@@ -272,7 +275,7 @@ static WIN_BOOL MODULE_DllProcessAttach( WINE_MODREF *wm, LPVOID lpReserved )
 static void MODULE_DllProcessDetach( WINE_MODREF* wm, WIN_BOOL bForceDetach, LPVOID lpReserved )
 {
     //    WINE_MODREF *wm=local_wm;
-    modref_list* l = local_wm;
+    //modref_list* l = local_wm;
     wm->flags &= ~WINE_MODREF_PROCESS_ATTACHED;
     MODULE_InitDll( wm, DLL_PROCESS_DETACH, lpReserved );
 /*    while (l)
@@ -299,7 +302,6 @@ static WINE_MODREF *MODULE_LoadLibraryExA( LPCSTR libname, HFILE hfile, DWORD fl
 {
 	DWORD err = GetLastError();
 	WINE_MODREF *pwm;
-	int i;
 //	module_loadorder_t *plo;
 
         SetLastError( ERROR_FILE_NOT_FOUND );
@@ -942,7 +944,7 @@ static int report_func(void *stack_base, int stack_size, reg386_t *reg, uint32_t
 
 static int report_func_ret(void *stack_base, int stack_size, reg386_t *reg, uint32_t *flags)
 {
-  int i;
+  //int i;
   short err;
 
   // restore ret addr:

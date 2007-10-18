@@ -19,7 +19,9 @@ Documentation:
 
  * write -lavdopts documentation
 
+ * continue ipod/embedded device encoding guide
 
+ * document channels.conf syntax
 
 Small improvements:
 
@@ -37,7 +39,10 @@ Small improvements:
 
  * real mute support, not just setting volume to 0
 
+ * add help suboption to -lavcopts vcodec=/acodec=, -lavfopts format=,
+   -subcp, and anything else that needs it.
 
+ * ability to set mplayer default/startup volume
 
 Cleanup:
 
@@ -54,23 +59,33 @@ Cleanup:
 
 Filters:
 
+ * get filters to work in more colorspaces
+
  * eq filter should support RGB in addition to YUV
 
+ * pitch audio filter
+ 
+ * move filters into ffmpeg
 
+ * autocrop filter
+
+ * insert af volnorm during playback
+
+ * allow frame insertion & removal in video filters (with timestamps)
+
+ * xinerama video filter that splits movie to 2 screens (like zr)
+
+ * mixing of multiple videos (picture in picture, ...)
+
+ * video watermark/logo filter (apply vf_overlay patch?)
+
+ * fade to black filter
+
+ * crossfade filter (audio and video)
 
 Enhancements:
 
- * adapt colored output from MPlayerXP
-
- * merge VIDIX from MPlayerXP/sourceforge
-
- * port ASF muxing from MPlayerXP
-
- * write nut muxer/demuxer
-
- * SSA style & colors handling
-
- * support for VirtualDub and Winamp plugins
+ * support for VirtualDub and Winamp plugins (apply af_wadspa patch!)
 
  * implement xawtv config file parser (for channels, etc)
 
@@ -84,15 +99,12 @@ Enhancements:
 
  * implement Plextor compatible SCSI VCD reading
 
- * -stop option for MPlayer similar to -endpos for MEncoder
-
- * color subtitles
-
  * DirectX video acceleration -vo for Windows (similar to XvmC)
 
  * hardware MPEG encoding support (Ati cards)
 
- * automatically display subtitles in black bands
+ * make -ass-use-margins work on widescreen video only! (not 4/3 video)
+   (automagically put subtitles in black bars)
 
  * nsc playlist support
 
@@ -105,17 +117,23 @@ Enhancements:
 
  * allow multiple -dump* options at the same time - bug #70
 
+ * scale osd when video window changes size
 
+ * get -ass working in mencoder
+
+ * rotate/position osd
+
+ * support all image formats in mf:// (tiff)
+
+ * make -noborder work with all video outputs
+
+ * add option to use ffmpeg network code (rtsp, http, mms etc)
 
 Difficult stuff:
 
- * RE all closed source codecs (QDMC, WMV9, RV30, RV40, sipr, ...)
+ * RE all closed source codecs (QDMC, WMA9, RV30, RV40, sipr, ...)
 
- * support for Bink/Smacker codecs
-
- * allow frame insertion & removal in video filters (with timestamps)
-
- * mixing of multiple videos (picture in picture, ...)
+ * support for Bink codec
 
  * write something like mptv to replace xawtv
 
@@ -127,8 +145,6 @@ Difficult stuff:
 
  * MEncoder output support for OGM, MKV, NUT
 
- * xinerama video filter that splits movie to 2 screens (like zr)
-
  * top notch DVD navigation like a hardware player
 
  * write mpdump application to handle all -dump* options
@@ -139,7 +155,7 @@ Difficult stuff:
 
  * support for pausing/resuming of encoding in MEncoder
 
- * TV support under Windows
+ * finish TV support under Windows
 
  * DRM support (divx.com, WMV, WMA, iTunes)
 
@@ -151,3 +167,8 @@ Difficult stuff:
  * reverse playback
 
  * more directshow filter/muxer support
+
+ * encode and display video at the same time
+
+ * write mpimage for displaying pictures
+

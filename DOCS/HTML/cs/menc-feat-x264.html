@@ -1,373 +1,398 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>14.5. Enkódování s x264 kodekem</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - Multimediální p&#345;ehráva&#269;"><link rel="up" href="encoding-guide.html" title="Kapitola 14. Enkódování s MEncoderem"><link rel="prev" href="menc-feat-xvid.html" title="14.4. Enkódování pomocí kodeku XviD
-"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enkódování rodinou kodek&#367; Video For Windows"><link rel="preface" href="howtoread.html" title="Jak &#269;íst tuto  dokumentaci"><link rel="chapter" href="intro.html" title="Kapitola 1. P&#345;edstavení"><link rel="chapter" href="install.html" title="Kapitola 2. Instalace"><link rel="chapter" href="usage.html" title="Kapitola 3. Pou&#382;ití"><link rel="chapter" href="cd-dvd.html" title="Kapitola 4. Pou&#382;ití CD/DVD"><link rel="chapter" href="faq.html" title="Kapitola 5. &#268;asto Kladené Dotazy (FAQ)"><link rel="chapter" href="containers.html" title="Kapitola 6. Nosné formáty (Containers)"><link rel="chapter" href="codecs.html" title="Kapitola 7. Kodeky"><link rel="chapter" href="video.html" title="Kapitola 8. Výstupní video za&#345;ízení/rozhraní"><link rel="chapter" href="audio.html" title="Kapitola 9. Výstupní zvuková za&#345;ízení"><link rel="chapter" href="tv.html" title="Kapitola 10. TV"><link rel="chapter" href="radio.html" title="Kapitola 11. Rádio"><link rel="chapter" href="ports.html" title="Kapitola 12. Porty"><link rel="chapter" href="mencoder.html" title="Kapitola 13. Základní pou&#382;ití MEncoderu"><link rel="chapter" href="encoding-guide.html" title="Kapitola 14. Enkódování s MEncoderem"><link rel="appendix" href="bugreports.html" title="P&#345;íloha A. Jak hlásit chyby"><link rel="appendix" href="bugs.html" title="P&#345;íloha B. Známé chyby"><link rel="appendix" href="skin.html" title="P&#345;íloha C. Formát skin&#367; MPlayeru"><link rel="subsection" href="menc-feat-x264.html#menc-feat-x264-encoding-options" title="14.5.1. Enkódovací volby x264"><link rel="subsection" href="menc-feat-x264.html#menc-feat-x264-example-settings" title="14.5.2. P&#345;íklady nastavení enkódování"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">14.5. Enkódování s <code class="systemitem">x264</code> kodekem</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="menc-feat-xvid.html">P&#345;edcházející</a> </td><th width="60%" align="center">Kapitola 14. Enkódování s <span class="application">MEncoder</span>em</th><td width="20%" align="right"> <a accesskey="n" href="menc-feat-video-for-windows.html">Dal&#353;í</a></td></tr></table><hr></div><div class="sect1" lang="cs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-x264"></a>14.5. Enkódování s <code class="systemitem">x264</code> kodekem</h2></div></div></div><p>
-  <code class="systemitem">x264</code> je svobodná knihovna pro
-  enkódování H.264/AVC video proud&#367;.
-  P&#345;e zahájením enkódování budete muset <a href="video-codecs.html#codec-x264-encode" title="7.1.9.4. Jak mohu enkódovat video pomocí MEncoder a x264?">
-  nastavit její podporu v <span class="application">MEncoder</span>u</a>.
-</p><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-x264-encoding-options"></a>14.5.1. Enkódovací volby x264</h3></div></div></div><p>
-  Za&#269;n&#283;te prosím prohlídkou sekce
-  <code class="systemitem">x264</code> man stránky
-  <span class="application">MPlayer</span>u.
-  Tato sekce je zamý&#353;lena jako dopln&#283;k nam stránky.
-  Zde naleznete tipy, které volby budou nejspí&#353;e zajímat v&#283;t&#353;inu lidí.
-  Man stránka je více uhlazená, ale také více vy&#269;erpávající a
-  ob&#269;as nabízí mnohem lep&#353;í technické detaily.
-</p><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-x264-encoding-options-intro"></a>14.5.1.1. Úvodem</h4></div></div></div><p>Tato p&#345;íru&#269;ka pokrývá dv&#283; hlavní kategorie enkódovacích voleb:</p><div class="orderedlist"><ol type="1"><li><p>Volby které m&#283;ní dobu enkódování za kvalitu
-  </p></li><li><p>Volby které mohou být pou&#382;itelné pro napln&#283;ní r&#367;zných
-  osobních preferencí a speciálních po&#382;adavk&#367;</p></li></ol></div><p>
-  Nakonec jen vy m&#367;&#382;ete rozhodnout, které volby jsou nejlep&#353;í pro
-  va&#353;e ú&#269;ely. Rozhodování v první kategorii voleb je nejjednodu&#353;&#353;í:
-  sta&#269;í kdy&#382; zhodnotíte zda zm&#283;ny kvality ospravedlní rychlostní rozdíly.
-  Druhá skupina voleb m&#367;&#382;e být mnohem subjektivn&#283;j&#353;í zále&#382;itostí a
-  v úvahu m&#367;&#382;e p&#345;ijít více faktor&#367;. Poznamenejme, &#382;e n&#283;které volby
-  "osobních preferencí a speciálních po&#382;adavk&#367;" mohou také zna&#269;n&#283;
-  ovlivnit kvalitu nebo rychlost enkódování, ale to není jejich hlavní funkce.
-  N&#283;kolik voleb "osobních preferencí" m&#367;&#382;e dokonce zp&#367;sobit zm&#283;ny,
-  po kterých se n&#283;komu zdá být výsledek lep&#353;í a jinému hor&#353;í.
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>14.5. EnkÃ³dovÃ¡nÃ­ x264 kodekem</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - MultimediÃ¡lnÃ­ pÅ™ehrÃ¡vaÄ"><link rel="up" href="encoding-guide.html" title="Kapitola 14. EnkÃ³dovÃ¡nÃ­ s MEncoderem"><link rel="prev" href="menc-feat-xvid.html" title="14.4. EnkÃ³dovÃ¡nÃ­ pomocÃ­ kodeku Xvid"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. EnkÃ³dovÃ¡nÃ­ rodinou kodekÅ¯ Video For Windows"><link rel="preface" href="howtoread.html" title="Jak ÄÃ­st tuto dokumentaci"><link rel="chapter" href="intro.html" title="Kapitola 1. PÅ™edstavenÃ­"><link rel="chapter" href="install.html" title="Kapitola 2. Instalace"><link rel="chapter" href="usage.html" title="Kapitola 3. PouÅ¾itÃ­"><link rel="chapter" href="cd-dvd.html" title="Kapitola 4. PouÅ¾itÃ­ CD/DVD"><link rel="chapter" href="faq.html" title="Kapitola 5. ÄŒasto KladenÃ© Dotazy (FAQ)"><link rel="chapter" href="containers.html" title="Kapitola 6. NosnÃ© formÃ¡ty (Containers)"><link rel="chapter" href="codecs.html" title="Kapitola 7. Kodeky"><link rel="chapter" href="video.html" title="Kapitola 8. VÃ½stupnÃ­ video zaÅ™Ã­zenÃ­/rozhranÃ­"><link rel="chapter" href="audio.html" title="Kapitola 9. VÃ½stupnÃ­ zvukovÃ¡ zaÅ™Ã­zenÃ­"><link rel="chapter" href="tv.html" title="Kapitola 10. TV"><link rel="chapter" href="radio.html" title="Kapitola 11. RÃ¡dio"><link rel="chapter" href="ports.html" title="Kapitola 12. Porty"><link rel="chapter" href="mencoder.html" title="Kapitola 13. ZÃ¡kladnÃ­ pouÅ¾itÃ­ MEncoderu"><link rel="chapter" href="encoding-guide.html" title="Kapitola 14. EnkÃ³dovÃ¡nÃ­ s MEncoderem"><link rel="appendix" href="bugreports.html" title="PÅ™Ã­loha A. Jak hlÃ¡sit chyby"><link rel="appendix" href="bugs.html" title="PÅ™Ã­loha B. ZnÃ¡mÃ© chyby"><link rel="appendix" href="skin.html" title="PÅ™Ã­loha C. FormÃ¡t skinÅ¯ MPlayeru"><link rel="appendix" href="history.html" title="PÅ™Ã­loha D. Historie"><link rel="subsection" href="menc-feat-x264.html#menc-feat-x264-encoding-options" title="14.5.1. EnkÃ³dovacÃ­ volby x264"><link rel="subsection" href="menc-feat-x264.html#menc-feat-x264-example-settings" title="14.5.2. PÅ™Ã­klady nastavenÃ­ enkÃ³dovÃ¡nÃ­"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">14.5. EnkÃ³dovÃ¡nÃ­
+  <code class="systemitem">x264</code> kodekem</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="menc-feat-xvid.html">PÅ™edchÃ¡zejÃ­cÃ­</a>Â </td><th width="60%" align="center">Kapitola 14. EnkÃ³dovÃ¡nÃ­ s <span class="application">MEncoder</span>em</th><td width="20%" align="right">Â <a accesskey="n" href="menc-feat-video-for-windows.html">DalÅ¡Ã­</a></td></tr></table><hr></div><div class="sect1" lang="cs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-x264"></a>14.5. EnkÃ³dovÃ¡nÃ­
+  <code class="systemitem">x264</code> kodekem</h2></div></div></div><p>
+<code class="systemitem">x264</code> je svobodnÃ¡ knihovna pro
+enkÃ³dovÃ¡nÃ­ H.264/AVC video proudÅ¯.
+PÅ™e zahÃ¡jenÃ­m enkÃ³dovÃ¡nÃ­ budete muset
+<a href="video-codecs.html#codec-x264-encode" title="7.1.3.4. Jak mohu enkÃ³dovat video pomocÃ­ MEncoder a x264?">nastavit jejÃ­ podporu v <span class="application">MEncoder</span>u</a>.
+</p><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-x264-encoding-options"></a>14.5.1. EnkÃ³dovacÃ­ volby x264</h3></div></div></div><p>
+ZaÄnÄ›te prosÃ­m prohlÃ­dkou sekce
+<code class="systemitem">x264</code> man strÃ¡nky
+<span class="application">MPlayer</span>u.
+Tato sekce je zamÃ½Å¡lena jako doplnÄ›k manuÃ¡lovÃ© strÃ¡nky.
+Zde naleznete tipy, kterÃ© volby budou nejspÃ­Å¡e zajÃ­mat vÄ›tÅ¡inu lidÃ­.
+Man strÃ¡nka je vÃ­ce uhlazenÃ¡, ale takÃ© vÃ­ce vyÄerpÃ¡vajÃ­cÃ­ a
+obÄas nabÃ­zÃ­ mnohem lepÅ¡Ã­ technickÃ© detaily.
+</p><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-x264-encoding-options-intro"></a>14.5.1.1. Ãšvodem</h4></div></div></div><p>
+Tato pÅ™Ã­ruÄka pokrÃ½vÃ¡ dvÄ› hlavnÃ­ kategorie enkÃ³dovacÃ­ch voleb:
+</p><div class="orderedlist"><ol type="1"><li><p>
+  Volby kterÃ© mÄ›nÃ­ dobu enkÃ³dovÃ¡nÃ­ za kvalitu
+</p></li><li><p>
+  Volby kterÃ© mohou bÃ½t pouÅ¾itelnÃ© pro naplnÄ›nÃ­ rÅ¯znÃ½ch
+  osobnÃ­ch preferencÃ­ a speciÃ¡lnÃ­ch poÅ¾adavkÅ¯
+</p></li></ol></div><p>
+Nakonec jen vy mÅ¯Å¾ete rozhodnout, kterÃ© volby jsou nejlepÅ¡Ã­ pro
+vaÅ¡e ÃºÄely. RozhodovÃ¡nÃ­ v prvnÃ­ kategorii voleb je nejjednoduÅ¡Å¡Ã­:
+staÄÃ­ kdyÅ¾ zhodnotÃ­te zda zmÄ›ny kvality ospravedlnÃ­ rychlostnÃ­ rozdÃ­ly.
+DruhÃ¡ skupina voleb mÅ¯Å¾e bÃ½t mnohem subjektivnÄ›jÅ¡Ã­ zÃ¡leÅ¾itostÃ­ a
+v Ãºvahu mÅ¯Å¾e pÅ™ijÃ­t vÃ­ce faktorÅ¯. Poznamenejme, Å¾e nÄ›kterÃ© volby
+"osobnÃ­ch preferencÃ­ a speciÃ¡lnÃ­ch poÅ¾adavkÅ¯" mohou takÃ© znaÄnÄ›
+ovlivnit kvalitu nebo rychlost enkÃ³dovÃ¡nÃ­, ale to nenÃ­ jejich hlavnÃ­ funkce.
+NÄ›kolik voleb "osobnÃ­ch preferencÃ­" mÅ¯Å¾e dokonce zpÅ¯sobit zmÄ›ny,
+po kterÃ½ch se nÄ›komu zdÃ¡ bÃ½t vÃ½sledek lepÅ¡Ã­ a jinÃ©mu horÅ¡Ã­.
 </p><p>
-  Ne&#382; budeme pokra&#269;ovat, poznamenejme, &#382;e tento návod pou&#382;ívá jediné m&#283;&#345;ítko
-  kvality: celkový PSNR.
-  Stru&#269;né vysv&#283;tlení co je to PSNR, naleznete
-  <a href="http://en.wikipedia.org/wiki/PSNR" target="_top">ve Wikipedii pod heslem PSNR</a>.
-  Celkové PSNR je poslední hlá&#353;ené PSNR &#269;íslo p&#345;i za&#345;azení volby
-  <tt class="option">psnr</tt> v <tt class="option">x264encopts</tt>.
-  Kdykoli pí&#353;eme o PSNR, je jedním z p&#345;edpoklad&#367; tohoto sd&#283;lení
-  to, &#382;e jsou pou&#382;ity shodné datové toky.
+NeÅ¾ budeme pokraÄovat, poznamenejme, Å¾e tento nÃ¡vod pouÅ¾Ã­vÃ¡ jedinÃ© mÄ›Å™Ã­tko
+kvality: celkovÃ½ PSNR.
+StruÄnÃ© vysvÄ›tlenÃ­ co je to PSNR, naleznete
+<a href="http://en.wikipedia.org/wiki/PSNR" target="_top">ve Wikipedii pod heslem PSNR</a>.
+CelkovÃ© PSNR je poslednÃ­ hlÃ¡Å¡enÃ© PSNR ÄÃ­slo pÅ™i zaÅ™azenÃ­ volby
+<tt class="option">psnr</tt> v <tt class="option">x264encopts</tt>.
+Kdykoli pÃ­Å¡eme o PSNR, je jednÃ­m z pÅ™edpokladÅ¯ tohoto sdÄ›lenÃ­
+to, Å¾e jsou pouÅ¾ity shodnÃ© datovÃ© toky.
 </p><p>
-  Tém&#283;&#345; v&#353;echny komentá&#345;e v tomto návodu p&#345;edpokládají, &#382;e enkódujete
-  dvoupr&#367;chodov&#283;.
-  P&#345;i porovnávání voleb jsou zde dva hlavní d&#367;vody pro pou&#382;ití dvoupr&#367;chodového
-  enkódování.
-  Zaprvé, dvoupr&#367;chodové enkódování vám získá zhruba 1dB PSNR, co&#382; je
-  znatelný rozdíl.
-  Zadruhé, testování voleb pomocí p&#345;ímého porovnání kvality v jednopr&#367;chodových
-  výsledcích je pochybné, jeliko&#382; se datový tok zna&#269;n&#283; li&#353;í s ka&#382;dým
-  enkódováním.
-  Není v&#382;dy snadné ur&#269;it, zda se zm&#283;nila kvalita díky zm&#283;n&#283; voleb, nebo
-  z v&#283;t&#353;í &#269;ásti odpovídají zm&#283;nám datového toku.
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-x264-encoding-options-speedvquality"></a>14.5.1.2. Volby které primárn&#283; ovliv&#328;ují rychlost a kvalitu</h4></div></div></div><div class="itemizedlist"><ul type="disc"><li><p>
+TÃ©mÄ›Å™ vÅ¡echny komentÃ¡Å™e v tomto nÃ¡vodu pÅ™edpoklÃ¡dajÃ­, Å¾e enkÃ³dujete
+dvouprÅ¯chodovÄ›.
+PÅ™i porovnÃ¡vÃ¡nÃ­ voleb jsou zde dva hlavnÃ­ dÅ¯vody pro pouÅ¾itÃ­ dvouprÅ¯chodovÃ©ho
+enkÃ³dovÃ¡nÃ­.
+ZaprvÃ©, dvouprÅ¯chodovÃ© enkÃ³dovÃ¡nÃ­ vÃ¡m zÃ­skÃ¡ zhruba 1dB PSNR, coÅ¾ je
+znatelnÃ½ rozdÃ­l.
+ZadruhÃ©, testovÃ¡nÃ­ voleb pomocÃ­ pÅ™Ã­mÃ©ho porovnÃ¡nÃ­ kvality v jednoprÅ¯chodovÃ½ch
+vÃ½sledcÃ­ch je pochybnÃ©, jelikoÅ¾ se datovÃ½ tok znaÄnÄ› liÅ¡Ã­ s kaÅ¾dÃ½m
+enkÃ³dovÃ¡nÃ­m.
+NenÃ­ vÅ¾dy snadnÃ© urÄit, zda se zmÄ›nila kvalita dÃ­ky zmÄ›nÄ› voleb, nebo
+z vÄ›tÅ¡Ã­ ÄÃ¡sti odpovÃ­dajÃ­ zmÄ›nÃ¡m datovÃ©ho toku.
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-x264-encoding-options-speedvquality"></a>14.5.1.2. Volby kterÃ© primÃ¡rnÄ› ovlivÅˆujÃ­ rychlost a kvalitu</h4></div></div></div><div class="itemizedlist"><ul type="disc"><li><p>
   <span class="bold"><strong>subq</strong></span>:
-  Z voleb, které umo&#382;&#328;ují vym&#283;nit &#269;as za kvalitu, jsou obvykle nejd&#367;le&#382;it&#283;j&#353;í
-  <tt class="option">subq</tt> a <tt class="option">frameref</tt> (viz ní&#382;e).
-  Máte-li zájem ovlivnit jak rychlost, tak kvalitu, jsou to první volby,
-  které byste m&#283;li zvá&#382;it.
+  Z voleb, kterÃ© umoÅ¾ÅˆujÃ­ vymÄ›nit Äas za kvalitu, jsou obvykle nejdÅ¯leÅ¾itÄ›jÅ¡Ã­
+  <tt class="option">subq</tt> a <tt class="option">frameref</tt> (viz nÃ­Å¾e).
+  MÃ¡te-li zÃ¡jem ovlivnit jak rychlost, tak kvalitu, jsou to prvnÃ­ volby,
+  kterÃ© byste mÄ›li zvÃ¡Å¾it.
   Ve smyslu rychlosti se spolu volby <tt class="option">frameref</tt> a
-  <tt class="option">subq</tt> velmi siln&#283; ovliv&#328;ují.
-  Zku&#353;enosti ukazují, &#382;e p&#345;i jednom referen&#269;ním snímku si
-  <tt class="option">subq=5</tt> vezme asi o 35% více &#269;asu ne&#382;
+  <tt class="option">subq</tt> velmi silnÄ› ovlivÅˆujÃ­.
+  ZkuÅ¡enosti ukazujÃ­, Å¾e pÅ™i jednom referenÄnÃ­m snÃ­mku si
+  <tt class="option">subq=5</tt> vezme asi o 35% vÃ­ce Äasu neÅ¾
   <tt class="option">subq=1</tt>.
-  P&#345;i 6 referen&#269;ních snímcích naroste spomalení nad 60%.
-  Vliv <tt class="option">subq</tt> na PSNR se zdá být pom&#283;rn&#283; stálý,
-  bez ohledu na po&#269;et referen&#269;ních snímk&#367;.
-  Typicky <tt class="option">subq=5</tt> získá 0.2-0.5 dB
-  celkového PSNR p&#345;es <tt class="option">subq=1</tt>.
-  To je obvykle ji&#382; viditelné.
-</p><p>
-  Re&#382;im <tt class="option">subq=6</tt> je nejpomalej&#353;í s nejvy&#353;&#353;í kvalitou.
-  Oproti <tt class="option">subq=5</tt> obvykle získává 0.1-0.4 dB
-  celkového PSNR za cenu ztráty rychlosti 25%-100%.
-  Narozdíl od ostatních úrovní <tt class="option">subq</tt> nezávisí chování
+  PÅ™i 6 referenÄnÃ­ch snÃ­mcÃ­ch naroste spomalenÃ­ nad 60%.
+  Vliv <tt class="option">subq</tt> na PSNR se zdÃ¡ bÃ½t pomÄ›rnÄ› stÃ¡lÃ½,
+  bez ohledu na poÄet referenÄnÃ­ch snÃ­mkÅ¯.
+  Typicky <tt class="option">subq=5</tt> zÃ­skÃ¡ 0.2-0.5 dB
+  celkovÃ©ho PSNR pÅ™es <tt class="option">subq=1</tt>.
+  To je obvykle jiÅ¾ viditelnÃ©.
+  </p><p>
+  ReÅ¾im <tt class="option">subq=6</tt> je pomalejÅ¡Ã­ a vede k vyÅ¡Å¡Ã­ kvalitÄ›
+  za rozumnou cenu.
+  Oproti <tt class="option">subq=5</tt> obvykle zÃ­skÃ¡vÃ¡ 0.1-0.4 dB
+  celkovÃ©ho PSNR za cenu ztrÃ¡ty rychlosti 25%-100%.
+  NarozdÃ­l od ostatnÃ­ch ÃºrovnÃ­ <tt class="option">subq</tt> nezÃ¡visÃ­ chovÃ¡nÃ­
   <tt class="option">subq=6</tt> tolik na <tt class="option">frameref</tt>
-  a <tt class="option">me</tt>. Místo toho závisí efektivita <tt class="option">subq=6
-  </tt> hlavn&#283; na po&#269;tu pou&#382;itých B-snímk&#367;. P&#345;i b&#283;&#382;ném pou&#382;ití
-  to znamená, &#382;e <tt class="option">subq=6</tt> má velký vliv jak na rychlost, tak na
-  kvalitu v komplexních, velmi pohyblivých scénách, ale nemusí mít takový vliv
-  ve scénách s malým pohybem. Poznamenejme, &#382;e stále doporu&#269;ujeme nastavit
-  <tt class="option">bframes</tt> na nenulovou hodnotu (viz ní&#382;e).
-</p></li><li><p>
+  a <tt class="option">me</tt>. MÃ­sto toho zÃ¡visÃ­ efektivita <tt class="option">subq=6
+  </tt> hlavnÄ› na poÄtu pouÅ¾itÃ½ch B-snÃ­mkÅ¯. PÅ™i bÄ›Å¾nÃ©m pouÅ¾itÃ­
+  to znamenÃ¡, Å¾e <tt class="option">subq=6</tt> mÃ¡ velkÃ½ vliv jak na rychlost, tak na
+  kvalitu v komplexnÃ­ch, velmi pohyblivÃ½ch scÃ©nÃ¡ch, ale nemusÃ­ mÃ­t takovÃ½ vliv
+  ve scÃ©nÃ¡ch s malÃ½m pohybem. Poznamenejme, Å¾e stÃ¡le doporuÄujeme nastavit
+  <tt class="option">bframes</tt> na nenulovou hodnotu (viz nÃ­Å¾e).
+  </p><p>
+  <tt class="option">subq=7</tt> je nejpomalejÅ¡Ã­, s nejvyÅ¡Å¡Ã­ kvalitou.
+  V porovnÃ¡nÃ­ s <tt class="option">subq=6</tt>, obvykle zÃ­skÃ¡ 0.01â€“0.05 dB
+  globÃ¡lnÃ­ho PSNR za zpomalenÃ­ v rozmezÃ­ 15%â€“33%.
+  JelikoÅ¾ je pomÄ›r zÃ­skanÃ© kvality ku ztrÃ¡tÄ› rychlosti docela malÃ½, mÄ›li byste
+  tuto volbu pouÅ¾Ã­vat pouze pokud chcete uÅ¡etÅ™it kaÅ¾dÃ½ moÅ¾nÃ½ bit a doba
+  enkÃ³dovÃ¡nÃ­ nenÃ­ problÃ©m.
+  </p></li><li><p>
   <span class="bold"><strong>frameref</strong></span>:
-  Výchozí nastavení <tt class="option">frameref</tt> je 1, ale nem&#283;lo by to být bráno
-  tak, &#382;e je rozumné nastavovat jej na 1.
-  Pouhé zvý&#353;ení <tt class="option">frameref</tt> na 2 získá okolo
-  0.15dB PSNR s 5-10% spomalením, co&#382; je z&#345;ejm&#283; dobrý obchod.
-  <tt class="option">frameref=3</tt> získá kolem 0.25dB PSNR navíc k
-  <tt class="option">frameref=1</tt>, co&#382; ji&#382; m&#367;&#382;e být viditelný
-  rozdíl.
-  <tt class="option">frameref=3</tt> je asi o 15% pomalej&#353;í ne&#382;
+  VÃ½chozÃ­ nastavenÃ­ <tt class="option">frameref</tt> je 1, ale nemÄ›lo by to bÃ½t brÃ¡no
+  tak, Å¾e je rozumnÃ© nastavovat jej na 1.
+  PouhÃ© zvÃ½Å¡enÃ­ <tt class="option">frameref</tt> na 2 zÃ­skÃ¡ okolo
+  0.15dB PSNR s 5-10% spomalenÃ­m, coÅ¾ je zÅ™ejmÄ› dobrÃ½ obchod.
+  <tt class="option">frameref=3</tt> zÃ­skÃ¡ kolem 0.25dB PSNR navÃ­c k
+  <tt class="option">frameref=1</tt>, coÅ¾ jiÅ¾ mÅ¯Å¾e bÃ½t viditelnÃ½
+  rozdÃ­l.
+  <tt class="option">frameref=3</tt> je asi o 15% pomalejÅ¡Ã­ neÅ¾
   <tt class="option">frameref=1</tt>.
-  Nane&#353;t&#283;stí se zisk rychle vytrácí.
-  Pr&#345; <tt class="option">frameref=6</tt> m&#367;&#382;ete o&#269;ekávat zisk pouze
-  0.05-0.1 dB nad <tt class="option">frameref=3</tt> p&#345;i dodate&#269;ném
-  15% zpomalení.
-  Nad <tt class="option">frameref=6</tt> je zisk kvality obvykle velmi malý
-  (a&#269;koli byste m&#283;li mít na pam&#283;ti, &#382;e se to m&#367;&#382;e výrazn&#283; li&#353;it v závislosti
-  na zdrojovém materiálu).
-  V pom&#283;rn&#283; typickém p&#345;ípad&#283; zlep&#353;í <tt class="option">frameref=12</tt>
-  celkový PSNR o pouhé 0.02dB nad <tt class="option">frameref=6</tt>,
-  p&#345;i spomalení o 15%-20%.
-  P&#345;i tak vysokých hodnotách <tt class="option">frameref</tt> lze &#345;íct pouze
-  jedinou dobrou v&#283;c, a to &#382;e jejich dal&#353;í zvy&#353;ování tém&#283;&#345; nikdy
-  <span class="bold"><strong>nesní&#382;í</strong></span> PSNR, ale dal&#353;í zisk kvality
-  je st&#283;&#382;í m&#283;&#345;itelný, nato&#382; viditelný.
-</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Poznámka:</h3><p>
-  Zvý&#353;ení <tt class="option">frameref</tt> na nemístn&#283; vysokou hodnotu
-  <span class="bold"><strong>m&#367;&#382;e</strong></span> a
-  <span class="bold"><strong>obvykle taky sní&#382;í</strong></span>
-  efektivitu kódování, pokud vypnete CABAC.
-  Se zapnutým CABAC (výchozí chování) se zdá být mo&#382;nost nastavit
-  <tt class="option">frameref</tt> "p&#345;íli&#353; vysoko" p&#345;íli&#353; vzdálená na to,
-  abyste se tím museli trápit a v budoucnu mohou optimalizace
-  tuto mo&#382;nost zcela vylou&#269;it.
-</p></div><p>
-  Pokud vám zále&#382;í na rychlosti, bývá vhodným kompromisem pou&#382;ít
-  nízké hodnoty <tt class="option">subq</tt> a <tt class="option">frameref</tt>
-  v prvním pr&#367;chodu a zvý&#353;it je ve druhém.
-  Typicky to má zanedbatelný záporný vliv na kone&#269;nou kvalitu:
-  Pravd&#283;podobn&#283; stratíte mén&#283; ne&#382; 0.1dB PSNR, co&#382; by m&#283;l být a&#382; p&#345;íli&#353;
-  malý rozdíl, ne&#382; aby byl vid&#283;t.
-  Odli&#353;né hodnoty <tt class="option">frameref</tt> v&#353;ak mohou místy ovlivnit
-  volbu typu snímku.
-  Nejspí&#353; to budou ojedin&#283;lé p&#345;ípady, ale chcete-li si být zcela jisti,
-  zjist&#283;te, jestli va&#353;e video obsahuje bu&#271; blýskavé vzory p&#345;es celou obrazovku,
-  nebo rozsáhlé krátkodobé zm&#283;ny, které by mohly vynutit I-snímek.
-  Nastavte <tt class="option">frameref</tt> pro první pr&#367;chod tak, aby byl
-  dostate&#269;n&#283; velký pro pokrytí doby bliknutí (nebo zm&#283;ny).
-  Nap&#345;íklad, pokud scéna p&#345;epíná tam a zp&#283;t mezi dv&#283;ma obrázky p&#345;es t&#345;i snímky,
-  nastavte <tt class="option">frameref</tt> pro první pr&#367;chod na 3 a více.
-  Tento p&#345;ípad je nejspí&#353; zcela ojedin&#283;lý v hraných filmech, ale ob&#269;as se
-  vyskytuje v záznamech z videoher.
-</p></li><li><p>
+  NaneÅ¡tÄ›stÃ­ se zisk rychle vytrÃ¡cÃ­.
+  PÅ™i <tt class="option">frameref=6</tt> mÅ¯Å¾ete oÄekÃ¡vat zisk pouze
+  0.05-0.1 dB nad <tt class="option">frameref=3</tt> pÅ™i dodateÄnÃ©m
+  15% zpomalenÃ­.
+  Nad <tt class="option">frameref=6</tt> je zisk kvality obvykle velmi malÃ½
+  (aÄkoli byste mÄ›li mÃ­t na pamÄ›ti, Å¾e se to mÅ¯Å¾e vÃ½raznÄ› liÅ¡it v zÃ¡vislosti
+  na zdrojovÃ©m materiÃ¡lu).
+  V pomÄ›rnÄ› typickÃ©m pÅ™Ã­padÄ› zlepÅ¡Ã­ <tt class="option">frameref=12</tt>
+  celkovÃ½ PSNR o pouhÃ© 0.02dB nad <tt class="option">frameref=6</tt>,
+  pÅ™i spomalenÃ­ o 15%-20%.
+  PÅ™i tak vysokÃ½ch hodnotÃ¡ch <tt class="option">frameref</tt> lze Å™Ã­ct pouze
+  jedinou dobrou vÄ›c, a to Å¾e jejich dalÅ¡Ã­ zvyÅ¡ovÃ¡nÃ­ tÃ©mÄ›Å™ nikdy
+  <span class="bold"><strong>nesnÃ­Å¾Ã­</strong></span> PSNR, ale dalÅ¡Ã­ zisk kvality
+  je stÄ›Å¾Ã­ mÄ›Å™itelnÃ½, natoÅ¾ viditelnÃ½.
+  </p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">PoznÃ¡mka:</h3><p>
+  ZvÃ½Å¡enÃ­ <tt class="option">frameref</tt> na nemÃ­stnÄ› vysokou hodnotu
+  <span class="bold"><strong>mÅ¯Å¾e</strong></span> a
+  <span class="bold"><strong>obvykle taky snÃ­Å¾Ã­</strong></span>
+  efektivitu kÃ³dovÃ¡nÃ­, pokud vypnete CABAC.
+  Se zapnutÃ½m CABAC (vÃ½chozÃ­ chovÃ¡nÃ­) se zdÃ¡ bÃ½t moÅ¾nost nastavit
+  <tt class="option">frameref</tt> "pÅ™Ã­liÅ¡ vysoko" pÅ™Ã­liÅ¡ vzdÃ¡lenÃ¡ na to,
+  abyste se tÃ­m museli trÃ¡pit a v budoucnu mohou optimalizace
+  tuto moÅ¾nost zcela vylouÄit.
+  </p></div><p>
+  Pokud vÃ¡m zÃ¡leÅ¾Ã­ na rychlosti, bÃ½vÃ¡ vhodnÃ½m kompromisem pouÅ¾Ã­t
+  nÃ­zkÃ© hodnoty <tt class="option">subq</tt> a <tt class="option">frameref</tt>
+  v prvnÃ­m prÅ¯chodu a zvÃ½Å¡it je ve druhÃ©m.
+  Typicky to mÃ¡ zanedbatelnÃ½ zÃ¡pornÃ½ vliv na koneÄnou kvalitu:
+  PravdÄ›podobnÄ› stratÃ­te mÃ©nÄ› neÅ¾ 0.1dB PSNR, coÅ¾ by mÄ›l bÃ½t aÅ¾ pÅ™Ã­liÅ¡
+  malÃ½ rozdÃ­l, neÅ¾ aby byl vidÄ›t.
+  OdliÅ¡nÃ© hodnoty <tt class="option">frameref</tt> vÅ¡ak mohou mÃ­sty ovlivnit
+  volbu typu snÃ­mku.
+  NejspÃ­Å¡ to budou ojedinÄ›lÃ© pÅ™Ã­pady, ale chcete-li si bÃ½t zcela jisti,
+  zjistÄ›te, jestli vaÅ¡e video obsahuje buÄ blÃ½skavÃ© vzory pÅ™es celou obrazovku,
+  nebo rozsÃ¡hlÃ© krÃ¡tkodobÃ© zmÄ›ny, kterÃ© by mohly vynutit I-snÃ­mek.
+  Nastavte <tt class="option">frameref</tt> pro prvnÃ­ prÅ¯chod tak, aby byl
+  dostateÄnÄ› velkÃ½ pro pokrytÃ­ doby bliknutÃ­ (nebo zmÄ›ny).
+  NapÅ™Ã­klad, pokud scÃ©na pÅ™epÃ­nÃ¡ tam a zpÄ›t mezi dvÄ›ma obrÃ¡zky pÅ™es tÅ™i snÃ­mky,
+  nastavte <tt class="option">frameref</tt> pro prvnÃ­ prÅ¯chod na 3 a vÃ­ce.
+  Tento pÅ™Ã­pad je nejspÃ­Å¡ zcela ojedinÄ›lÃ½ v hranÃ½ch filmech, ale obÄas se
+  vyskytuje v zÃ¡znamech z videoher.
+  </p></li><li><p>
   <span class="bold"><strong>me</strong></span>:
-  Tato volba je ur&#269;ena pro výb&#283;r metody vyhledávání pohybu.
-  Zm&#283;nou této volby jednodu&#353;e m&#283;níte pom&#283;r kvalita-versus-rychlost.
-  Volba <tt class="option">me=1</tt> je jen o málo procent rychlej&#353;í ne&#382;
-  výchozí vyhledávání za cenu pod 0.1dB globálního PSNR.
-  Výchozí nastavení (<tt class="option">me=2</tt>) je rozumným kompromisem
-  mezi rychlostí a kvalitou. Volba <tt class="option">me=3</tt> získá o tro&#353;ku mén&#283;
-  ne&#382; 0.1dB globální PSNR, p&#345;i spomalení, které se li&#353;í v závislosti na
-  <tt class="option">frameref</tt>.  P&#345;i vysokých hodnotách
-  <tt class="option">frameref</tt> (&#345;ekn&#283;me 12 nebo tak), je <tt class="option">me=3</tt>
-  asi o 40% pomalej&#353;í ne&#382; výchozí <tt class="option"> me=2</tt>. P&#345;i
-  <tt class="option">frameref=3</tt>, klesne zp&#367;sobené spomalení na
+  Tato volba je urÄena pro vÃ½bÄ›r metody vyhledÃ¡vÃ¡nÃ­ pohybu.
+  ZmÄ›nou tÃ©to volby jednoduÅ¡e mÄ›nÃ­te pomÄ›r kvalita-versus-rychlost.
+  Volba <tt class="option">me=dia</tt> je jen o mÃ¡lo procent rychlejÅ¡Ã­ neÅ¾
+  vÃ½chozÃ­ vyhledÃ¡vÃ¡nÃ­ za cenu pod 0.1dB globÃ¡lnÃ­ho PSNR.
+  VÃ½chozÃ­ nastavenÃ­ (<tt class="option">me=hex</tt>) je rozumnÃ½m kompromisem
+  mezi rychlostÃ­ a kvalitou. Volba <tt class="option">me=umh</tt> zÃ­skÃ¡ o troÅ¡ku mÃ©nÄ›
+  neÅ¾ 0.1dB globÃ¡lnÃ­ PSNR, pÅ™i spomalenÃ­, kterÃ© se liÅ¡Ã­ v zÃ¡vislosti na
+  <tt class="option">frameref</tt>.  PÅ™i vysokÃ½ch hodnotÃ¡ch
+  <tt class="option">frameref</tt> (Å™eknÄ›me 12 nebo tak), je <tt class="option">me=umh</tt>
+  asi o 40% pomalejÅ¡Ã­ neÅ¾ vÃ½chozÃ­ <tt class="option"> me=hex</tt>. PÅ™i
+  <tt class="option">frameref=3</tt>, klesne zpÅ¯sobenÃ© spomalenÃ­ na
   25%-30%.
-</p><p>
-  Volba <tt class="option">me=4</tt> pou&#382;ívá tak rozsáhlé vyhledávání, &#382;e je p&#345;íli&#353;
-  pomalá pro praktické vyu&#382;ití.
-</p></li><li><p>
-  <span class="bold"><strong>4x4mv</strong></span>:
-  Tato volba zapíná pou&#382;ití pod&#269;ástí 8x4, 4x8 a 4x4 v predikovaných
-  makroblocích. Její aktivace vede k pom&#283;rn&#283; stálé 
-  10%-15% ztrát&#283; rychlosti. Tato volba je pom&#283;rn&#283; neu&#382;ite&#269;ná ve zdroji
-  obsahujícím pouze pomalý pohyb, naproti tomu u n&#283;kterých zdroj&#367; s rychlým
-  pohybem, p&#345;esn&#283;ji zdroj&#367; s velkým mno&#382;stvím malých pohyblivých objekt&#367;,
-  m&#367;&#382;ete o&#269;ekávat zisk okolo 0.1dB.
+  </p><p>
+  Volba <tt class="option">me=esa</tt> pouÅ¾Ã­vÃ¡ tak rozsÃ¡hlÃ© vyhledÃ¡vÃ¡nÃ­, Å¾e je pÅ™Ã­liÅ¡
+  pomalÃ¡ pro praktickÃ© vyuÅ¾itÃ­.
+  </p></li><li><p>
+  <span class="bold"><strong>partitions=all</strong></span>:
+  Tato volba zapÃ­nÃ¡ pouÅ¾itÃ­ blokÅ¯ 8x4, 4x8 a 4x4 v predikovanÃ½ch
+  makroblocÃ­ch (navÃ­c k vÃ½chozÃ­m blokÅ¯m).
+  JejÃ­ aktivace vede k pomÄ›rnÄ› stÃ¡lÃ© 
+  10%-15% ztrÃ¡tÄ› rychlosti. Tato volba je pomÄ›rnÄ› neuÅ¾iteÄnÃ¡ ve zdroji
+  obsahujÃ­cÃ­m pouze pomalÃ½ pohyb, naproti tomu u nÄ›kterÃ½ch zdrojÅ¯ s rychlÃ½m
+  pohybem, pÅ™esnÄ›ji zdrojÅ¯ s velkÃ½m mnoÅ¾stvÃ­m malÃ½ch pohyblivÃ½ch objektÅ¯,
+  mÅ¯Å¾ete oÄekÃ¡vat zisk okolo 0.1dB.
 </p></li><li><p>
   <span class="bold"><strong>bframes</strong></span>:
-  Pou&#382;itelnost B-snímk&#367; je ve v&#283;t&#353;in&#283; ostatních kodek&#367; diskutabilní.
-  V H.264 se to zm&#283;nilo: jsou zde nové techniky a typy blok&#367; pro pou&#382;ití
-  v B-snímcích.
-  Obvykle i naivní algoritmus pro výb&#283;r B-snímku m&#367;&#382;e zajistit znatelný
+  PouÅ¾itelnost B-snÃ­mkÅ¯ je ve vÄ›tÅ¡inÄ› ostatnÃ­ch kodekÅ¯ diskutabilnÃ­.
+  V H.264 se to zmÄ›nilo: jsou zde novÃ© techniky a typy blokÅ¯ pro pouÅ¾itÃ­
+  v B-snÃ­mcÃ­ch.
+  Obvykle i naivnÃ­ algoritmus pro vÃ½bÄ›r B-snÃ­mku mÅ¯Å¾e zajistit znatelnÃ½
   zisk PSNR.
-  Také je zajímavé, &#382;e pokud vypnete adaptivní rozhodování o B-snímku
-  (<tt class="option">nob_adapt</tt>), zvý&#353;í obvykle enkódování s
-  <tt class="option">bframes</tt> o trochu rychlost enkódování.
-</p><p>
-  S vypnutým adaptivním rozhodováním o B-snímku
+  TakÃ© je zajÃ­mavÃ©, Å¾e pokud vypnete adaptivnÃ­ rozhodovÃ¡nÃ­ o B-snÃ­mku
+  (<tt class="option">nob_adapt</tt>), zvÃ½Å¡Ã­ obvykle enkÃ³dovÃ¡nÃ­ s
+  <tt class="option">bframes</tt> o trochu rychlost enkÃ³dovÃ¡nÃ­.
+  </p><p>
+  S vypnutÃ½m adaptivnÃ­m rozhodovÃ¡nÃ­m o B-snÃ­mku
   (<tt class="option">x264encopts</tt> - volba <tt class="option">nob_adapt</tt>),
-  optimální hodnota tohoto nastavení nebývá obvykle vy&#353;&#353;í ne&#382;
-  <tt class="option">bframes=1</tt>, jinak mouhou utrp&#283;t velmi pohyblivé scény.
-  Se zapnutým adaptivním rozhodováním o B-snímku (výchozí chování),
-  je obvykle bezpe&#269;né pou&#382;ít vy&#353;&#353;í hodnoty; enkodér se pokusí sní&#382;it
-  pou&#382;ití B-snímk&#367; ve scénách, kde by sní&#382;ily kompresi.
-  Enkodér z&#345;ídka pou&#382;ije více ne&#382; 3 nebo 4 B-snímky;
-  nastavení této volby na vy&#353;&#353;í hodnotu bude mít jen nepatrný vliv.
-</p></li><li><p>
+  optimÃ¡lnÃ­ hodnota tohoto nastavenÃ­ nebÃ½vÃ¡ obvykle vyÅ¡Å¡Ã­ neÅ¾
+  <tt class="option">bframes=1</tt>, jinak mouhou utrpÄ›t velmi pohyblivÃ© scÃ©ny.
+  Se zapnutÃ½m adaptivnÃ­m rozhodovÃ¡nÃ­m o B-snÃ­mku (vÃ½chozÃ­ chovÃ¡nÃ­),
+  je obvykle bezpeÄnÃ© pouÅ¾Ã­t vyÅ¡Å¡Ã­ hodnoty; enkodÃ©r se pokusÃ­ snÃ­Å¾it
+  pouÅ¾itÃ­ B-snÃ­mkÅ¯ ve scÃ©nÃ¡ch, kde by snÃ­Å¾ily kompresi.
+  EnkodÃ©r zÅ™Ã­dka pouÅ¾ije vÃ­ce neÅ¾ 3 nebo 4 B-snÃ­mky;
+  nastavenÃ­ tÃ©to volby na vyÅ¡Å¡Ã­ hodnotu bude mÃ­t jen nepatrnÃ½ vliv.
+  </p></li><li><p>
   <span class="bold"><strong>b_adapt</strong></span>:
-  Poznámka: Výchozí je zapnuto.
-</p><p>
-  Je-li tato volba zapnuta, bude enkodér pou&#382;ívat rychlou
-  heuristiku pro sní&#382;ení po&#269;tu B-snímk&#367; ve scénách, kde by jejich
-  pou&#382;itím p&#345;íli&#353; nezískaly.
-  M&#367;&#382;ete pou&#382;ít <tt class="option">b_bias</tt> pro nastavení jak p&#345;átelský
-  bude enkodér k B-snímk&#367;m.
-  Spomalení p&#367;sobené adaptivními B-snímky je nyní spí&#353;e malé, ale
-  stejn&#283; tak potenciální zisk kvality.
-  Obvykle v&#353;ak nijak ne&#353;kodí.
-  Poznamenejme, &#382;e ovliv&#328;uje rychlost a rozhodování o typu snímku pouze
-  v prvním pr&#367;chodu.
-  <tt class="option">b_adapt</tt> a <tt class="option">b_bias</tt> nemají &#382;ádný vliv
-  v následných pr&#367;chodech.
-</p></li><li><p>
+  PoznÃ¡mka: VÃ½chozÃ­ je zapnuto.
+  </p><p>
+  Je-li tato volba zapnuta, bude enkodÃ©r pouÅ¾Ã­vat rychlou
+  heuristiku pro snÃ­Å¾enÃ­ poÄtu B-snÃ­mkÅ¯ ve scÃ©nÃ¡ch, kde by jejich
+  pouÅ¾itÃ­m pÅ™Ã­liÅ¡ nezÃ­skaly.
+  MÅ¯Å¾ete pouÅ¾Ã­t <tt class="option">b_bias</tt> pro nastavenÃ­ jak pÅ™Ã¡telskÃ½
+  bude enkodÃ©r k B-snÃ­mkÅ¯m.
+  SpomalenÃ­ pÅ¯sobenÃ© adaptivnÃ­mi B-snÃ­mky je nynÃ­ spÃ­Å¡e malÃ©, ale
+  stejnÄ› tak potenciÃ¡lnÃ­ zisk kvality.
+  Obvykle vÅ¡ak nijak neÅ¡kodÃ­.
+  Poznamenejme, Å¾e ovlivÅˆuje rychlost a rozhodovÃ¡nÃ­ o typu snÃ­mku pouze
+  v prvnÃ­m prÅ¯chodu.
+  <tt class="option">b_adapt</tt> a <tt class="option">b_bias</tt> nemajÃ­ Å¾Ã¡dnÃ½ vliv
+  v nÃ¡slednÃ½ch prÅ¯chodech.
+  </p></li><li><p>
   <span class="bold"><strong>b_pyramid</strong></span>:
-  Pokud pou&#382;íváte &gt;=2 B-snímky, m&#367;&#382;ete také zapnout tuto volbu; jak
-  &#345;íká man stránka, dostanete malé zvý&#353;ení kvality bez ztráty rychlosti.
-  Poznamenejme, &#382;e tato videa nelze &#269;íst dekodéry zalo&#382;enými na libavcodec
-  star&#353;ími ne&#382; 5. b&#345;ezna 2005.
+  Pokud pouÅ¾Ã­vÃ¡te &gt;=2 B-snÃ­mky, mÅ¯Å¾ete takÃ© zapnout tuto volbu; jak
+  Å™Ã­kÃ¡ man strÃ¡nka, dostanete malÃ© zvÃ½Å¡enÃ­ kvality bez ztrÃ¡ty rychlosti.
+  Poznamenejme, Å¾e tato videa nelze ÄÃ­st dekodÃ©ry zaloÅ¾enÃ½mi na libavcodec
+  starÅ¡Ã­mi neÅ¾ 5. bÅ™ezna 2005.
 </p></li><li><p>
   <span class="bold"><strong>weight_b</strong></span>:
-  V typických p&#345;ípadech tato volba nep&#345;iná&#353;í velký zisk.
-  V prolínacích nebo stmívacích scénách v&#353;ak vá&#382;ená predikce
-  umo&#382;&#328;uje pom&#283;rn&#283; velkou úsporu datového toku.
-  V MPEG-4 ASP bývá stmívání obvykle nejlépe kódováno jako série
-  velkých I-snímk&#367;; pou&#382;ití vá&#382;ené predikce v B-snímcích umo&#382;&#328;uje
-  zm&#283;nit alespo&#328; n&#283;které z nich na rozumn&#283; men&#353;í B-snímky.
-  Spomalení enkódování se zdá být minimální, pokud n&#283;jaké je.
-  Rovn&#283;&#382;, v rozporu s tím, co si n&#283;kte&#345;í lidé mohou myslet,
-  po&#382;adavky dekodéru na CPU nejsou vá&#382;enou predikcí ovlivn&#283;ny,
-  ostatní mo&#382;nosti jsou stejn&#283; náro&#269;né.
-</p><p>
-  Nane&#353;t&#283;stí má aktuáln&#283; algoritmus adaptivního rozhodování o B-snímcích
-  výraznou tendenci vyvarovat se B-snímk&#367; p&#345;i stmívání.
-  Dokud se to nezm&#283;ní, bude dobré p&#345;idat
-  <tt class="option">nob_adapt</tt> do x264encopts, pokud o&#269;ekáváte, &#382;e stmívání
-  bude mít znatelný vliv ve va&#353;em konkrétním klipu.
-</p></li></ul></div></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-x264-encoding-options-misc-preferences"></a>14.5.1.3. Volby nále&#382;ející r&#367;zným preferencím</h4></div></div></div><div class="itemizedlist"><ul type="disc"><li><p>
-  <span class="bold"><strong>Dvoupr&#367;chodové enkodování</strong></span>:
-  Vý&#353;e jsme doporu&#269;ovali v&#382;dy pou&#382;ívat dvoupr&#367;chodové enkódování, ale
-  stále existují d&#367;vody pro&#269; jej nepou&#382;ít. Nap&#345;íklad pokud zachytáváte
-  TV vysílání a enkódujete v reálném &#269;ase, nemáte jinou mo&#382;nost, ne&#382;
-  pou&#382;ít jeden pr&#367;chod. Jeden pr&#367;chod je samoz&#345;ejm&#283; rychlej&#353;í
-  ne&#382; dva; pokud pou&#382;ijete stejné volby v obou pr&#367;chodech, pak je dvoupr&#367;chodové
-  enkódování tém&#283;&#345; dvakrát pomalej&#353;í.
-</p><p>
-  Stále jsou v&#353;ak velmi dobré d&#367;vody pro pou&#382;ití dvoupr&#367;chodového re&#382;imu.
-  Voli&#269; datového toku v jednopr&#367;chodovém re&#382;imu není odu&#353;evn&#283;lý a &#269;asto
-  d&#283;lá nerozumné volby, proto&#382;e nevidí celkový obraz. P&#345;edpokládejme, &#382;e
-  máte nap&#345;íklad dvouminutové video skládající se ze dvou &#269;ástí.
-  První polovina je vysoce pohyblivá scéna dlouhá 60 sekund, která samostatn&#283;
-  vy&#382;aduje kolem 2500kbps, aby vypadala slu&#353;n&#283;.
-  Hned za ní následuje mén&#283; náro&#269;ná 60 sekundová scéna, která vypadá dob&#345;e
-  p&#345;i 300kbps. Vy&#382;ádáte si 1400kbps, co&#382; je teoreticky dostate&#269;né pro pokrytí
-  obou scén. Jednopr&#367;chodový voli&#269; datového toku v tom p&#345;ípad&#283; u&#269;iní
-  n&#283;kolik "chyb". První blok m&#367;&#382;e skon&#269;it t&#283;&#382;ce p&#345;ekvantizovaný, tak&#382;e
-  bude nepou&#382;iteln&#283; a zbyte&#269;n&#283; &#269;tvere&#269;kovaný. Druhá &#269;ást bude velmi
-  podkvantizovaná; to m&#367;&#382;e vypadat dob&#345;e, ale spot&#345;eba bit&#367; na tento
-  vzhled je nerozumn&#283; vysoká. &#268;eho se dá je&#353;t&#283; h&#367;&#345;e vyvarovat je problém
-  p&#345;echodu mezi t&#283;mito scénami. První sekundy málo pohyblivé poloviny
-  budou t&#283;&#382;ce p&#345;ekvantizovány, proto&#382;e voli&#269; toku stále o&#269;ekává nároky na
-  datový tok, se kterými se potýkal v první polovin&#283; videa.
-  Tato "chybová doba" p&#345;ekvantizované málo pohyblivé scény bude vypadat
-  neskute&#269;n&#283; &#353;patn&#283; a skute&#269;n&#283; pou&#382;ije mén&#283; ne&#382; 300kbps, které by pot&#345;ebovala,
-  aby vypadala dob&#345;e. Existují zp&#367;soby pro zmírn&#283;ní nástrah jednopr&#367;chodového
-  enkódování, ale ty mohou tíhnout ke zvy&#353;ování nep&#345;esnosti datového toku.
-</p><p>
-  Vícepr&#367;chodový voli&#269; datového toku nabízí velké výhody oproti jednomu
-  pr&#367;chodu. Díky statistikám generovaným v prvním pr&#367;chodu m&#367;&#382;e enkodér
-  ur&#269;it, s rozumnou p&#345;esností, bitovou náro&#269;nost enkódování ka&#382;dého snímku
-  p&#345;i jakémkoli kvantizéru. To umo&#382;&#328;uje mnohem racionáln&#283;j&#353;í, lépe naplánovanou
-  spot&#345;ebu bit&#367; mezi drahými (hodn&#283; pohyblivými) a levnými (málo pohyblivými)
-  scénami. N&#283;kolik nápad&#367; jak upravit tuto spot&#345;ebu podle svého naleznete ní&#382;e
+  V typickÃ½ch pÅ™Ã­padech tato volba nepÅ™inÃ¡Å¡Ã­ velkÃ½ zisk.
+  V prolÃ­nacÃ­ch nebo stmÃ­vacÃ­ch scÃ©nÃ¡ch vÅ¡ak vÃ¡Å¾enÃ¡ predikce
+  umoÅ¾Åˆuje pomÄ›rnÄ› velkou Ãºsporu datovÃ©ho toku.
+  V MPEG-4 ASP bÃ½vÃ¡ stmÃ­vÃ¡nÃ­ obvykle nejlÃ©pe kÃ³dovÃ¡no jako sÃ©rie
+  velkÃ½ch I-snÃ­mkÅ¯; pouÅ¾itÃ­ vÃ¡Å¾enÃ© predikce v B-snÃ­mcÃ­ch umoÅ¾Åˆuje
+  zmÄ›nit alespoÅˆ nÄ›kterÃ© z nich na rozumnÄ› menÅ¡Ã­ B-snÃ­mky.
+  SpomalenÃ­ enkÃ³dovÃ¡nÃ­ se zdÃ¡ bÃ½t minimÃ¡lnÃ­, pokud nÄ›jakÃ© je.
+  RovnÄ›Å¾, v rozporu s tÃ­m, co si nÄ›kteÅ™Ã­ lidÃ© mohou myslet,
+  poÅ¾adavky dekodÃ©ru na CPU nejsou vÃ¡Å¾enou predikcÃ­ ovlivnÄ›ny,
+  ostatnÃ­ moÅ¾nosti jsou stejnÄ› nÃ¡roÄnÃ©.
+  </p><p>
+  NaneÅ¡tÄ›stÃ­ mÃ¡ aktuÃ¡lnÄ› algoritmus adaptivnÃ­ho rozhodovÃ¡nÃ­ o B-snÃ­mcÃ­ch
+  vÃ½raznou tendenci vyvarovat se B-snÃ­mkÅ¯ pÅ™i stmÃ­vÃ¡nÃ­.
+  Dokud se to nezmÄ›nÃ­, bude dobrÃ© pÅ™idat
+  <tt class="option">nob_adapt</tt> do x264encopts, pokud oÄekÃ¡vÃ¡te, Å¾e stmÃ­vÃ¡nÃ­
+  bude mÃ­t znatelnÃ½ vliv ve vaÅ¡em konkrÃ©tnÃ­m klipu.
+  </p></li><li><p><a name="menc-feat-x264-encoding-options-speedvquality-threads"></a>
+  <span class="bold"><strong>threads</strong></span>:
+  Tato volba umoÅ¾Åˆuje vytvoÅ™it vÃ­ce vlÃ¡ken pro enkÃ³dovÃ¡nÃ­ na vÃ­ce procesorech.
+  Jejich poÄet si mÅ¯Å¾ete nastavit ruÄnÄ›, nebo radÄ›ji nastavte
+  <tt class="option">threads=auto</tt> a ponechte
+  <code class="systemitem">x264</code> detekovat kolik mÃ¡te procesorÅ¯
+  k dispozici a zvolit vhodnÃ½ poÄet vlÃ¡ken.
+  Pokud mÃ¡te vÃ­ceprocesorovÃ½ stroj, mÄ›li byste tuto volbu uvÃ¡Å¾it, jelikoÅ¾ dokÃ¡Å¾e
+  lineÃ¡rnÄ› zvÃ½Å¡it rychlost podle poÄtu procesorovÃ½ch jader
+  (okolo 94% na jÃ¡dro) pÅ™i velmi malÃ©m snÃ­Å¾enÃ­ kvality (asi 0,005dB pro duÃ¡lnÃ­ procesor
+  a okolo 0,01dB pro ÄtyÅ™procesorovÃ½ stroj).
+  </p></li></ul></div></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-x264-encoding-options-misc-preferences"></a>14.5.1.3. Volby nÃ¡leÅ¾ejÃ­cÃ­ rÅ¯znÃ½m preferencÃ­m</h4></div></div></div><div class="itemizedlist"><ul type="disc"><li><p>
+  <span class="bold"><strong>DvouprÅ¯chodovÃ© enkodovÃ¡nÃ­</strong></span>:
+  VÃ½Å¡e jsme doporuÄovali vÅ¾dy pouÅ¾Ã­vat dvouprÅ¯chodovÃ© enkÃ³dovÃ¡nÃ­, ale
+  stÃ¡le existujÃ­ dÅ¯vody proÄ jej nepouÅ¾Ã­t. NapÅ™Ã­klad pokud zachytÃ¡vÃ¡te
+  TV vysÃ­lÃ¡nÃ­ a enkÃ³dujete v reÃ¡lnÃ©m Äase, nemÃ¡te jinou moÅ¾nost, neÅ¾
+  pouÅ¾Ã­t jeden prÅ¯chod. Jeden prÅ¯chod je samozÅ™ejmÄ› rychlejÅ¡Ã­
+  neÅ¾ dva; pokud pouÅ¾ijete stejnÃ© volby v obou prÅ¯chodech, pak je dvouprÅ¯chodovÃ©
+  enkÃ³dovÃ¡nÃ­ tÃ©mÄ›Å™ dvakrÃ¡t pomalejÅ¡Ã­.
+  </p><p>
+  StÃ¡le jsou vÅ¡ak velmi dobrÃ© dÅ¯vody pro pouÅ¾itÃ­ dvouprÅ¯chodovÃ©ho reÅ¾imu.
+  VoliÄ datovÃ©ho toku v jednoprÅ¯chodovÃ©m reÅ¾imu nenÃ­ oduÅ¡evnÄ›lÃ½ a Äasto
+  dÄ›lÃ¡ nerozumnÃ© volby, protoÅ¾e nevidÃ­ celkovÃ½ obraz. PÅ™edpoklÃ¡dejme, Å¾e
+  mÃ¡te napÅ™Ã­klad dvouminutovÃ© video sklÃ¡dajÃ­cÃ­ se ze dvou ÄÃ¡stÃ­.
+  PrvnÃ­ polovina je vysoce pohyblivÃ¡ scÃ©na dlouhÃ¡ 60 sekund, kterÃ¡ samostatnÄ›
+  vyÅ¾aduje kolem 2500kbps, aby vypadala sluÅ¡nÄ›.
+  Hned za nÃ­ nÃ¡sleduje mÃ©nÄ› nÃ¡roÄnÃ¡ 60 sekundovÃ¡ scÃ©na, kterÃ¡ vypadÃ¡ dobÅ™e
+  pÅ™i 300kbps. VyÅ¾Ã¡dÃ¡te si 1400kbps, coÅ¾ je teoreticky dostateÄnÃ© pro pokrytÃ­
+  obou scÃ©n. JednoprÅ¯chodovÃ½ voliÄ datovÃ©ho toku v tom pÅ™Ã­padÄ› uÄinÃ­
+  nÄ›kolik "chyb". PrvnÃ­ blok mÅ¯Å¾e skonÄit tÄ›Å¾ce pÅ™ekvantizovanÃ½, takÅ¾e
+  bude nepouÅ¾itelnÄ› a zbyteÄnÄ› ÄtvereÄkovanÃ½. DruhÃ¡ ÄÃ¡st bude velmi
+  podkvantizovanÃ¡; to mÅ¯Å¾e vypadat dobÅ™e, ale spotÅ™eba bitÅ¯ na tento
+  vzhled je nerozumnÄ› vysokÃ¡. ÄŒeho se dÃ¡ jeÅ¡tÄ› hÅ¯Å™e vyvarovat je problÃ©m
+  pÅ™echodu mezi tÄ›mito scÃ©nami. PrvnÃ­ sekundy mÃ¡lo pohyblivÃ© poloviny
+  budou tÄ›Å¾ce pÅ™ekvantizovÃ¡ny, protoÅ¾e voliÄ toku stÃ¡le oÄekÃ¡vÃ¡ nÃ¡roky na
+  datovÃ½ tok, se kterÃ½mi se potÃ½kal v prvnÃ­ polovinÄ› videa.
+  Tato "chybovÃ¡ doba" pÅ™ekvantizovanÃ© mÃ¡lo pohyblivÃ© scÃ©ny bude vypadat
+  neskuteÄnÄ› Å¡patnÄ› a skuteÄnÄ› pouÅ¾ije mÃ©nÄ› neÅ¾ 300kbps, kterÃ© by potÅ™ebovala,
+  aby vypadala dobÅ™e. ExistujÃ­ zpÅ¯soby pro zmÃ­rnÄ›nÃ­ nÃ¡strah jednoprÅ¯chodovÃ©ho
+  enkÃ³dovÃ¡nÃ­, ale ty mohou tÃ­hnout ke zvyÅ¡ovÃ¡nÃ­ nepÅ™esnosti datovÃ©ho toku.
+  </p><p>
+  VÃ­ceprÅ¯chodovÃ½ voliÄ datovÃ©ho toku nabÃ­zÃ­ velkÃ© vÃ½hody oproti jednomu
+  prÅ¯chodu. DÃ­ky statistikÃ¡m generovanÃ½m v prvnÃ­m prÅ¯chodu mÅ¯Å¾e enkodÃ©r
+  urÄit, s rozumnou pÅ™esnostÃ­, bitovou nÃ¡roÄnost enkÃ³dovÃ¡nÃ­ kaÅ¾dÃ©ho snÃ­mku
+  pÅ™i jakÃ©mkoli kvantizÃ©ru. To umoÅ¾Åˆuje mnohem racionÃ¡lnÄ›jÅ¡Ã­, lÃ©pe naplÃ¡novanou
+  spotÅ™ebu bitÅ¯ mezi drahÃ½mi (hodnÄ› pohyblivÃ½mi) a levnÃ½mi (mÃ¡lo pohyblivÃ½mi)
+  scÃ©nami. NÄ›kolik nÃ¡padÅ¯ jak upravit tuto spotÅ™ebu podle svÃ©ho naleznete nÃ­Å¾e
   viz <tt class="option">qcomp</tt>.
-</p><p>
-  Navíc dva pr&#367;chody nemusí trvat dvakrát tak dlouho jako jeden. M&#367;&#382;ete upravit
-  volby prvního pr&#367;chodu pro nejvy&#353;&#353;í rychlost a ni&#382;&#353;í kvalitu.
-  Pokud si dob&#345;e zvolíte své volby, m&#367;&#382;ete mít velmi rychlý první pr&#367;chod.
-  Výsledná kvalita  ve druhém pr&#367;chodu bude trochu hor&#353;í, proto&#382;e predikce
-  velikosti je mén&#283; p&#345;esná, ale rozdíl v kvalit&#283; je obvykle p&#345;íli&#382; malý, aby
-  byl vid&#283;t. Zkuste nap&#345;. p&#345;idat
+  </p><p>
+  NavÃ­c dva prÅ¯chody nemusÃ­ trvat dvakrÃ¡t tak dlouho jako jeden. MÅ¯Å¾ete upravit
+  volby prvnÃ­ho prÅ¯chodu pro nejvyÅ¡Å¡Ã­ rychlost a niÅ¾Å¡Ã­ kvalitu.
+  Pokud si dobÅ™e zvolÃ­te svÃ© volby, mÅ¯Å¾ete mÃ­t velmi rychlÃ½ prvnÃ­ prÅ¯chod.
+  VÃ½slednÃ¡ kvalita  ve druhÃ©m prÅ¯chodu bude trochu horÅ¡Ã­, protoÅ¾e predikce
+  velikosti je mÃ©nÄ› pÅ™esnÃ¡, ale rozdÃ­l v kvalitÄ› je obvykle pÅ™Ã­liÅ¾ malÃ½, aby
+  byl vidÄ›t. Zkuste napÅ™. pÅ™idat
   <tt class="option">subq=1:frameref=1</tt> do <tt class="option">x264encopts</tt>
-  prvnímu pr&#367;chodu. Pak ve druhém pr&#367;chodu pou&#382;ijte pomalej&#353;í volby pro
-  vy&#353;&#353;í kvalitu:
-  <tt class="option">subq=6:frameref=15:4x4mv:me=3</tt>
-</p></li><li><p>
-  <span class="bold"><strong>T&#345;ípr&#367;chodové enkódování</strong></span>?
-
-  x264 nabízí mo&#382;nost provád&#283;t v&#283;t&#353;í po&#269;et následných pr&#367;chod&#367;.
-  Pokud zadáte <tt class="option">pass=1</tt> v prvním pr&#367;chodu a pak pou&#382;ijete
-  <tt class="option">pass=3</tt> v následujícím pr&#367;chodu, pak tento pr&#367;chod
-  jak na&#269;te statistiky z p&#345;edchozího, tak zapí&#353;e své vlastní. Dal&#353;í pr&#367;chod
-  po n&#283;m pak bude mít velmi dobrou základnu pro vysoce p&#345;esnou predikci
-  velikosti snímk&#367; p&#345;i zvoleném kvantizéru. V praxi se celková kvalita
-  z toho vze&#353;lá blí&#382;í nule a je mo&#382;né, &#382;e t&#345;etí pr&#367;chod bude mít hor&#353;í
-  celkový PSNR ne&#382; jeho p&#345;edchúdce. P&#345;i b&#283;&#382;ném pou&#382;ití t&#345;i pr&#367;chody pom&#367;&#382;ou,
-  pokud dostanete bu&#271; &#353;patnou predikci datového toku, nebo &#353;patn&#283; vypadající
-  p&#345;echody mezi scénami po pou&#382;ití pouze dvou pr&#367;chod&#367;.
-  To se nejspí&#353; m&#367;&#382;e stát v extrémn&#283; krátkých klipech. Je rovn&#283;&#382; n&#283;kolik
-  zvlá&#353;tních p&#345;ípad&#367;, ve kterých jsou t&#345;i a více pr&#367;chod&#367; dobré pro
-  pokro&#269;ilé u&#382;ivatele, ale pro stru&#269;nost se zde t&#283;mito p&#345;ípady zabývat nebudeme.
-
+  prvnÃ­mu prÅ¯chodu. Pak ve druhÃ©m prÅ¯chodu pouÅ¾ijte pomalejÅ¡Ã­ volby pro
+  vyÅ¡Å¡Ã­ kvalitu:
+  <tt class="option">subq=6:frameref=15:partitions=all:me=umh</tt>
+  </p></li><li><p>
+  <span class="bold"><strong>TÅ™Ã­prÅ¯chodovÃ© enkÃ³dovÃ¡nÃ­</strong></span>?
+  x264 nabÃ­zÃ­ moÅ¾nost provÃ¡dÄ›t vÄ›tÅ¡Ã­ poÄet nÃ¡slednÃ½ch prÅ¯chodÅ¯.
+  Pokud zadÃ¡te <tt class="option">pass=1</tt> v prvnÃ­m prÅ¯chodu a pak pouÅ¾ijete
+  <tt class="option">pass=3</tt> v nÃ¡sledujÃ­cÃ­m prÅ¯chodu, pak tento prÅ¯chod
+  jak naÄte statistiky z pÅ™edchozÃ­ho, tak zapÃ­Å¡e svÃ© vlastnÃ­. DalÅ¡Ã­ prÅ¯chod
+  po nÄ›m pak bude mÃ­t velmi dobrou zÃ¡kladnu pro vysoce pÅ™esnou predikci
+  velikosti snÃ­mkÅ¯ pÅ™i zvolenÃ©m kvantizÃ©ru. V praxi se celkovÃ¡ kvalita
+  z toho vzeÅ¡lÃ¡ blÃ­Å¾Ã­ nule a je moÅ¾nÃ©, Å¾e tÅ™etÃ­ prÅ¯chod bude mÃ­t horÅ¡Ã­
+  celkovÃ½ PSNR neÅ¾ jeho pÅ™edchÃºdce. PÅ™i bÄ›Å¾nÃ©m pouÅ¾itÃ­ tÅ™i prÅ¯chody pomÅ¯Å¾ou,
+  pokud dostanete buÄ Å¡patnou predikci datovÃ©ho toku, nebo Å¡patnÄ› vypadajÃ­cÃ­
+  pÅ™echody mezi scÃ©nami po pouÅ¾itÃ­ pouze dvou prÅ¯chodÅ¯.
+  To se nejspÃ­Å¡ mÅ¯Å¾e stÃ¡t v extrÃ©mnÄ› krÃ¡tkÃ½ch klipech. Je rovnÄ›Å¾ nÄ›kolik
+  zvlÃ¡Å¡tnÃ­ch pÅ™Ã­padÅ¯, ve kterÃ½ch jsou tÅ™i a vÃ­ce prÅ¯chodÅ¯ dobrÃ© pro
+  pokroÄilÃ© uÅ¾ivatele, ale pro struÄnost se zde tÄ›mito pÅ™Ã­pady zabÃ½vat nebudeme.
 </p></li><li><p>
   <span class="bold"><strong>qcomp</strong></span>:
-  <tt class="option">qcomp</tt> m&#283;ní pom&#283;r po&#269;tu bit&#367; alokovaných "drahým"
-  velmi pohyblivým snímk&#367;m k "levným" málo pohyblivým snímk&#367;m. V jednom
-  extrému, <tt class="option">qcomp=0</tt> vede k &#269;ist&#283; konstantnímu datovému toku.
-  Co&#382; typicky &#269;iní velmi pohyblivé scény velmi o&#353;klivé, zatímco scény
-  s malým pohybem vypadají perfektn&#283;, ale spot&#345;ebovávají mnohem v&#283;t&#353;í datový
-  tok, ne&#382; by pot&#345;ebovaly k tomu, aby je&#353;t&#283; vypadaly skv&#283;le.
-  Ve druhém extrému, <tt class="option">qcomp=1</tt>, dostanete tém&#283;&#345; konstantní
-  kvantiza&#269;ní parametr (QP). Konstantní QP nevypadá &#353;patn&#283;, ale v&#283;t&#353;ina
-  lidí soudí, &#382;e je rozumn&#283;j&#353;í sní&#382;it trochu datový tok v extrémn&#283;
-  náro&#269;ných scénách (kde sní&#382;ení kvality není tak vid&#283;t) a realokovat je
-  do scén, které je snadn&#283;j&#353;í enkódovat p&#345;i excelentní kvalit&#283;.
-  Výchozí hodnota <tt class="option">qcomp</tt> je 0.6, co&#382; m&#367;&#382;e být, podle
-  n&#283;kterých lidí pon&#283;kud málo (b&#283;&#382;n&#283; se rovn&#283;&#382; pou&#382;ívá 0.7-0.8).
+  <tt class="option">qcomp</tt> mÄ›nÃ­ pomÄ›r poÄtu bitÅ¯ alokovanÃ½ch "drahÃ½m"
+  velmi pohyblivÃ½m snÃ­mkÅ¯m k "levnÃ½m" mÃ¡lo pohyblivÃ½m snÃ­mkÅ¯m. V jednom
+  extrÃ©mu, <tt class="option">qcomp=0</tt> vede k ÄistÄ› konstantnÃ­mu datovÃ©mu toku.
+  CoÅ¾ typicky ÄinÃ­ velmi pohyblivÃ© scÃ©ny velmi oÅ¡klivÃ©, zatÃ­mco scÃ©ny
+  s malÃ½m pohybem vypadajÃ­ perfektnÄ›, ale spotÅ™ebovÃ¡vajÃ­ mnohem vÄ›tÅ¡Ã­ datovÃ½
+  tok, neÅ¾ by potÅ™ebovaly k tomu, aby jeÅ¡tÄ› vypadaly skvÄ›le.
+  Ve druhÃ©m extrÃ©mu, <tt class="option">qcomp=1</tt>, dostanete tÃ©mÄ›Å™ konstantnÃ­
+  kvantizaÄnÃ­ parametr (QP). KonstantnÃ­ QP nevypadÃ¡ Å¡patnÄ›, ale vÄ›tÅ¡ina
+  lidÃ­ soudÃ­, Å¾e je rozumnÄ›jÅ¡Ã­ snÃ­Å¾it trochu datovÃ½ tok v extrÃ©mnÄ›
+  nÃ¡roÄnÃ½ch scÃ©nÃ¡ch (kde snÃ­Å¾enÃ­ kvality nenÃ­ tak vidÄ›t) a realokovat je
+  do scÃ©n, kterÃ© je snadnÄ›jÅ¡Ã­ enkÃ³dovat pÅ™i excelentnÃ­ kvalitÄ›.
+  VÃ½chozÃ­ hodnota <tt class="option">qcomp</tt> je 0.6, coÅ¾ mÅ¯Å¾e bÃ½t, podle
+  nÄ›kterÃ½ch lidÃ­ ponÄ›kud mÃ¡lo (bÄ›Å¾nÄ› se rovnÄ›Å¾ pouÅ¾Ã­vÃ¡ 0.7-0.8).
 </p></li><li><p>
   <span class="bold"><strong>keyint</strong></span>:
-  <tt class="option">keyint</tt> je výhradn&#283; pro vým&#283;nu míry p&#345;evinutelnosti
-  za efektivitu kódování. Výchozí hodnota <tt class="option">keyint</tt> je 250.
-  V materiálu 25 snímk&#367; za sekundu to zaji&#353;&#357;uje schopnost p&#345;evíjení
-  s 10 sekundovou p&#345;esností. Pokud soudíte, &#382;e bude d&#367;le&#382;ité a u&#382;ite&#269;né
-  být schopen p&#345;evíjet s p&#345;esností 5 sekund, nastavte
+  <tt class="option">keyint</tt> je vÃ½hradnÄ› pro vÃ½mÄ›nu mÃ­ry pÅ™evinutelnosti
+  za efektivitu kÃ³dovÃ¡nÃ­. VÃ½chozÃ­ hodnota <tt class="option">keyint</tt> je 250.
+  V materiÃ¡lu 25 snÃ­mkÅ¯ za sekundu to zajiÅ¡Å¥uje schopnost pÅ™evÃ­jenÃ­
+  s 10 sekundovou pÅ™esnostÃ­. Pokud soudÃ­te, Å¾e bude dÅ¯leÅ¾itÃ© a uÅ¾iteÄnÃ©
+  bÃ½t schopen pÅ™evÃ­jet s pÅ™esnostÃ­ 5 sekund, nastavte
   <tt class="option">keyint=125</tt>;
-  to ov&#353;em trochu sní&#382;í kvalitu/datový tok. Pokud vám jde jen o kvalitu, nikoli
-  p&#345;evinutelnost, m&#367;&#382;ete si nastavit mnohem vy&#353;&#353;í hodnoty
-  (rozum&#283;jte &#382;e zisk z toho klesá a m&#367;&#382;e být neznatelný a&#382; &#382;ádný).
-  Video proud bude stále mít p&#345;evíjecí body, pokud jsou zde n&#283;jaké zm&#283;ny scény.
+  to ovÅ¡em trochu snÃ­Å¾Ã­ kvalitu/datovÃ½ tok. Pokud vÃ¡m jde jen o kvalitu, nikoli
+  pÅ™evinutelnost, mÅ¯Å¾ete si nastavit mnohem vyÅ¡Å¡Ã­ hodnoty
+  (rozumÄ›jte Å¾e zisk z toho klesÃ¡ a mÅ¯Å¾e bÃ½t neznatelnÃ½ aÅ¾ Å¾Ã¡dnÃ½).
+  Video proud bude stÃ¡le mÃ­t pÅ™evÃ­jecÃ­ body, pokud jsou zde nÄ›jakÃ© zmÄ›ny scÃ©ny.
 </p></li><li><p>
-  <span class="bold"><strong>deblockalpha, deblockbeta</strong></span>:
-  Tato v&#283;c za&#269;íná být trochu kontroverzní.
-</p><p>
-  H.264 definuje jednoduchou deblokovací proceduru I-blok&#367;, která pou&#382;ívá
-  p&#345;ednastavených sil a prah&#367; závislých na QP daného bloku.
-  Výchozí je, &#382;e bloky s vysokým QP jsou filtrovány siln&#283; a bloky s nízkým QP
-  nejsou deblokovány v&#367;bec.
-  P&#345;ednastavené síly definované standardem jsou dob&#345;e zvoleny a
-  vyvá&#382;eny tak, &#382;e jsou optimální z hlediska PSNR pro libovolné
-  video, které zkou&#353;íte enkódovat.
-  Volby <tt class="option">deblockalpha</tt> a <tt class="option">deblockbeta</tt>
-  umo&#382;&#328;ují nastavit offsety p&#345;ednastaveným deblokovacím prah&#367;m.
-</p><p>
-  Zdá se, &#382;e si mnoho lidí myslí, &#382;e je dobré sní&#382;it sílu deblokovacího filtru
-  o vysokou hodnotu (&#345;ekn&#283;me, -3).
-  To v&#353;ak není tém&#283;&#345; nikdy dobrý nápad a v mnoha p&#345;ípadech lidé,
-  kte&#345;í to d&#283;lají, nerozumí dob&#345;e tomu, jak pracuje výchozí deblokování.
-</p><p>
-  První a nejd&#367;le&#382;it&#283;j&#353;í v&#283;c, kterou byste m&#283;li v&#283;d&#283;t o in-loop
-  deblokovacím filtru, je, &#382;e výchozí prahy jsou tém&#283;&#345; v&#382;dy optimální
+  <span class="bold"><strong>deblock</strong></span>:
+  Tato vÄ›c zaÄÃ­nÃ¡ bÃ½t trochu kontroverznÃ­.
+  </p><p>
+  H.264 definuje jednoduchou deblokovacÃ­ proceduru I-blokÅ¯, kterÃ¡ pouÅ¾Ã­vÃ¡
+  pÅ™ednastavenÃ½ch sil a prahÅ¯ zÃ¡vislÃ½ch na QP danÃ©ho bloku.
+  VÃ½chozÃ­ je, Å¾e bloky s vysokÃ½m QP jsou filtrovÃ¡ny silnÄ› a bloky s nÃ­zkÃ½m QP
+  nejsou deblokovÃ¡ny vÅ¯bec.
+  PÅ™ednastavenÃ© sÃ­ly definovanÃ© standardem jsou dobÅ™e zvoleny a
+  vyvÃ¡Å¾eny tak, Å¾e jsou optimÃ¡lnÃ­ z hlediska PSNR pro libovolnÃ©
+  video, kterÃ© zkouÅ¡Ã­te enkÃ³dovat.
+  Volba <tt class="option">deblock</tt> umoÅ¾Åˆuje nastavit offsety pÅ™ednastavenÃ½m
+  deblokovacÃ­m prahÅ¯m.
+  </p><p>
+  ZdÃ¡ se, Å¾e si mnoho lidÃ­ myslÃ­, Å¾e je dobrÃ© snÃ­Å¾it sÃ­lu deblokovacÃ­ho filtru
+  o vysokou hodnotu (Å™eknÄ›me, -3).
+  To vÅ¡ak nenÃ­ tÃ©mÄ›Å™ nikdy dobrÃ½ nÃ¡pad a v mnoha pÅ™Ã­padech lidÃ©,
+  kteÅ™Ã­ to dÄ›lajÃ­, nerozumÃ­ dobÅ™e tomu, jak pracuje vÃ½chozÃ­ deblokovÃ¡nÃ­.
+  </p><p>
+  PrvnÃ­ a nejdÅ¯leÅ¾itÄ›jÅ¡Ã­ vÄ›c, kterou byste mÄ›li vÄ›dÄ›t o in-loop
+  deblokovacÃ­m filtru, je, Å¾e vÃ½chozÃ­ prahy jsou tÃ©mÄ›Å™ vÅ¾dy optimÃ¡lnÃ­
   z hlediska PSNR.
-  V &#345;ídkých p&#345;ípadech, kdy nejsou, je ideální offset plusmínus 1.
-  Úprava deblokovacích parametr&#367; o v&#283;t&#353;í hodnotu tém&#283;&#345; zaru&#269;en&#283;
-  po&#353;kodí PSNR.
-  Zesílení filtru set&#345;e více detail&#367;; oslabení filtru povede k
-  zvý&#353;ené viditelnosti blokování.
-</p><p>
-  Rozhodn&#283; je hloupost sni&#382;ovat deblokovací prahy pokud má va&#353;e video
-  p&#345;evá&#382;n&#283; nízkou plo&#353;nou komplexnost (&#269;ili málo detail&#367; nebo &#353;umu).
-  In-loop filtr odvádí tém&#283;&#345; výbornou práci v ukrývání
-  artefakt&#367;, které se mohou vyskytnout.
-  Pokud má zdroj vysokou pl&#353;nou komplexnost, pak jsou artefakty mén&#283; viditelné.
-  To proto, &#382;e krou&#382;kování vypadá podobn&#283; jako detail nebo &#353;um.
-  Lidské oko snadno rozpozná, pokud je odstran&#283;n detail, ale ne
-  u&#382; tak snadno pozná, &#382;e je &#353;um reprezentován &#353;patn&#283;.
-  Kdy&#382; p&#345;íjde na subjektivní kvalitu, pak jsou detaily a &#353;um do jisté míry
-  zam&#283;nitelné.
-  Oslabením deblokovacího filtru nejspí&#353;e zvý&#353;íte chybu, p&#345;idáním
-  krou&#382;kových artefakt&#367;, ale oko si toho nev&#353;imne, jeliko&#382; je zam&#283;ní
+  V Å™Ã­dkÃ½ch pÅ™Ã­padech, kdy nejsou, je ideÃ¡lnÃ­ offset plusmÃ­nus 1.
+  Ãšprava deblokovacÃ­ch parametrÅ¯ o vÄ›tÅ¡Ã­ hodnotu tÃ©mÄ›Å™ zaruÄenÄ›
+  poÅ¡kodÃ­ PSNR.
+  ZesÃ­lenÃ­ filtru setÅ™e vÃ­ce detailÅ¯; oslabenÃ­ filtru povede k
+  zvÃ½Å¡enÃ© viditelnosti blokovÃ¡nÃ­.
+  </p><p>
+  RozhodnÄ› je hloupost sniÅ¾ovat deblokovacÃ­ prahy pokud mÃ¡ vaÅ¡e video
+  pÅ™evÃ¡Å¾nÄ› nÃ­zkou ploÅ¡nou komplexnost (Äili mÃ¡lo detailÅ¯ nebo Å¡umu).
+  In-loop filtr odvÃ¡dÃ­ tÃ©mÄ›Å™ vÃ½bornou prÃ¡ci v ukrÃ½vÃ¡nÃ­
+  artefaktÅ¯, kterÃ© se mohou vyskytnout.
+  Pokud mÃ¡ zdroj vysokou plÅ¡nou komplexnost, pak jsou artefakty mÃ©nÄ› viditelnÃ©.
+  To proto, Å¾e krouÅ¾kovÃ¡nÃ­ vypadÃ¡ podobnÄ› jako detail nebo Å¡um.
+  LidskÃ© oko snadno rozpoznÃ¡, pokud je odstranÄ›n detail, ale ne
+  uÅ¾ tak snadno poznÃ¡, Å¾e je Å¡um reprezentovÃ¡n Å¡patnÄ›.
+  KdyÅ¾ pÅ™Ã­jde na subjektivnÃ­ kvalitu, pak jsou detaily a Å¡um do jistÃ© mÃ­ry
+  zamÄ›nitelnÃ©.
+  OslabenÃ­m deblokovacÃ­ho filtru nejspÃ­Å¡e zvÃ½Å¡Ã­te chybu, pÅ™idÃ¡nÃ­m
+  krouÅ¾kovÃ½ch artefaktÅ¯, ale oko si toho nevÅ¡imne, jelikoÅ¾ je zamÄ›nÃ­
   za detaily.
+  </p><p>
+  <span class="bold"><strong>Ani to</strong></span> vÅ¡ak neospravedlÅˆuje
+  oslabenÃ­ deblokovacÃ­ho filtru.
+  ObecnÄ› dostanete kvalitnÄ›jÅ¡Ã­ Å¡um pomocÃ­ postprocesingu.
+  Pokud vaÅ¡e H.264 videa vypadajÃ­ pÅ™Ã­liÅ¡ neostÅ™e nebo rozmazanÄ›, zkuste si
+  pohrÃ¡t s <tt class="option">-vf noise</tt> pÅ™i pÅ™ehrÃ¡vÃ¡nÃ­.
+  Volba <tt class="option">-vf noise=8a:4a</tt> by mÄ›la skrÃ½t vÄ›tÅ¡inu stÅ™ednÄ› silnÃ½ch
+  artefaktÅ¯.
+  TÃ©mÄ›Å™ urÄitÄ› to bude vypadat lÃ©pe, neÅ¾ vÃ½sledky, kterÃ© byste mohli dosÃ¡hnout
+  pohrÃ¡vÃ¡nÃ­m si s deblokovacÃ­m filtrem.
+  </p></li></ul></div></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-x264-example-settings"></a>14.5.2. PÅ™Ã­klady nastavenÃ­ enkÃ³dovÃ¡nÃ­</h3></div></div></div><p>
+NÃ¡sledujÃ­cÃ­ nastavenÃ­ jsou pÅ™Ã­klady nastavenÃ­ rÅ¯znÃ½ch kombinacÃ­ voleb
+enkodÃ©ru, kterÃ© ovlivÅˆujÃ­ pomÄ›r rychlost versus kvalita pÅ™i shodnÃ©m
+cÃ­lovÃ©m datovÃ©m toku.
 </p><p>
-  <span class="bold"><strong>Ani to</strong></span> v&#353;ak neospravedl&#328;uje
-  oslabení deblokovacího filtru.
-  Obecn&#283; dostanete kvalitn&#283;j&#353;í &#353;um pomocí postprocesingu.
-  Pokud va&#353;e H.264 videa vypadají p&#345;íli&#353; neost&#345;e nebo rozmazan&#283;, zkuste si
-  pohrát s <tt class="option">-vf noise</tt> p&#345;i p&#345;ehrávání.
-  Volba <tt class="option">-vf noise=8a:4a</tt> by m&#283;la skrýt v&#283;t&#353;inu st&#345;edn&#283; silných
-  artefakt&#367;.
-  Tém&#283;&#345; ur&#269;it&#283; to bude vypadat lépe, ne&#382; výsledky, které byste mohli dosáhnout
-  pohráváním si s deblokovacím filtrem.
-</p></li></ul></div></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-x264-example-settings"></a>14.5.2. P&#345;íklady nastavení enkódování</h3></div></div></div><p>
-  Následující nastavení jsou p&#345;íklady nastavení r&#367;zných kombinací voleb
-  enkodéru, které ovliv&#328;ují pom&#283;r rychlost versus kvalita p&#345;i shodném
-  cílovém datovém toku.
-</p><p>
-  Ve&#353;kerá nastavení byla testována na video vzorku 720x448 @30000/1001
-  snímk&#367; za sekundu, cílový datový tok byl 900kbps a provád&#283;ly se na
-  AMD-64 3400+ p&#345;i 2400 Mhz v re&#382;imu 64 bit&#367;.
-  Ka&#382;dá kombinace nastavení má uvedenu zm&#283;&#345;enou rychlost enkódování
-  (ve snímcích za sekundu) a ztrátu PSNR (v dB) oproti nastavení
-  "velmi vysoká kvalita".
-  Rozum&#283;jte v&#353;ak &#382;e, v závislosti na va&#353;em zdrojovém materiálu, typu
-  po&#269;íta&#269;e a pokrok&#367;m ve vývoji, m&#367;&#382;ete dosp&#283;t k velmi odli&#353;ným výsledk&#367;m.
-</p><p>
-</p><div class="informaltable"><table border="1"><colgroup><col><col><col><col></colgroup><thead><tr><th>Popis</th><th>Volby</th><th>Rychlost [fps]</th><th>Relativní ztráta PSNR [dB]</th></tr></thead><tbody><tr><td>Velmi vysoká kvalita</td><td><tt class="option">subq=6:4x4mv:8x8dct:me=3:frameref=5:bframes=3:b_pyramid:weight_b</tt></td><td>6</td><td>0</td></tr><tr><td>Vysoká kvalita</td><td><tt class="option">subq=5:4x4mv:8x8dct:frameref=2:bframes=3:b_pyramid:weight_b</tt></td><td>13</td><td>-0.89</td></tr><tr><td>Rychlé enkódování</td><td><tt class="option">subq=4:bframes=2:b_pyramid:weight_b</tt></td><td>17</td><td>-1.48</td></tr></tbody></table></div><p>
-</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="menc-feat-xvid.html">P&#345;edcházející</a> </td><td width="20%" align="center"><a accesskey="u" href="encoding-guide.html">Nahoru</a></td><td width="40%" align="right"> <a accesskey="n" href="menc-feat-video-for-windows.html">Dal&#353;í</a></td></tr><tr><td width="40%" align="left" valign="top">14.4. Enkódování pomocí kodeku <code class="systemitem">XviD</code>
- </td><td width="20%" align="center"><a accesskey="h" href="index.html">Dom&#367;</a></td><td width="40%" align="right" valign="top"> 14.6. Enkódování rodinou kodek&#367; <code class="systemitem">Video For Windows</code></td></tr></table></div></body></html>
+VeÅ¡kerÃ¡ nastavenÃ­ byla testovÃ¡na na video vzorku 720x448 @30000/1001
+snÃ­mkÅ¯ za sekundu, cÃ­lovÃ½ datovÃ½ tok byl 900kbps a provÃ¡dÄ›ly se na
+AMD-64 3400+ pÅ™i 2400 MHz v reÅ¾imu 64 bitÅ¯.
+KaÅ¾dÃ¡ kombinace nastavenÃ­ mÃ¡ uvedenu zmÄ›Å™enou rychlost enkÃ³dovÃ¡nÃ­
+(ve snÃ­mcÃ­ch za sekundu) a ztrÃ¡tu PSNR (v dB) oproti nastavenÃ­
+"velmi vysokÃ¡ kvalita".
+RozumÄ›jte vÅ¡ak Å¾e, v zÃ¡vislosti na vaÅ¡em zdrojovÃ©m materiÃ¡lu, typu
+poÄÃ­taÄe a pokrokÅ¯m ve vÃ½voji, mÅ¯Å¾ete dospÄ›t k velmi odliÅ¡nÃ½m vÃ½sledkÅ¯m.
+</p><div class="informaltable"><table border="1"><colgroup><col><col><col><col></colgroup><thead><tr><th>Popis</th><th>Volby</th><th>Rychlost [fps]</th><th>RelativnÃ­ ztrÃ¡ta PSNR [dB]</th></tr></thead><tbody><tr><td>Velmi vysokÃ¡ kvalita</td><td><tt class="option">subq=6:partitions=all:8x8dct:me=umh:frameref=5:bframes=3:b_pyramid:weight_b</tt></td><td>6</td><td>0</td></tr><tr><td>VysokÃ¡ kvalita</td><td><tt class="option">subq=5:8x8dct:frameref=2:bframes=3:b_pyramid:weight_b</tt></td><td>13</td><td>-0.89</td></tr><tr><td>RychlÃ© enkÃ³dovÃ¡nÃ­</td><td><tt class="option">subq=4:bframes=2:b_pyramid:weight_b</tt></td><td>17</td><td>-1.48</td></tr></tbody></table></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="menc-feat-xvid.html">PÅ™edchÃ¡zejÃ­cÃ­</a>Â </td><td width="20%" align="center"><a accesskey="u" href="encoding-guide.html">Nahoru</a></td><td width="40%" align="right">Â <a accesskey="n" href="menc-feat-video-for-windows.html">DalÅ¡Ã­</a></td></tr><tr><td width="40%" align="left" valign="top">14.4. EnkÃ³dovÃ¡nÃ­ pomocÃ­ kodeku <code class="systemitem">Xvid</code>
+Â </td><td width="20%" align="center"><a accesskey="h" href="index.html">DomÅ¯</a></td><td width="40%" align="right" valign="top">Â 14.6. 
+  EnkÃ³dovÃ¡nÃ­ rodinou kodekÅ¯
+  <code class="systemitem">Video For Windows</code>
+</td></tr></table></div></body></html>

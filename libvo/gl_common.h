@@ -1,5 +1,5 @@
-#ifndef __GL_COMMON_H__
-#define __GL_COMMON_H__
+#ifndef GL_COMMON_H
+#define GL_COMMON_H
 
 #include "mp_msg.h"
 #include "config.h"
@@ -212,7 +212,7 @@ void glCreateClearTex(GLenum target, GLenum fmt, GLint filter,
 int glCreatePPMTex(GLenum target, GLenum fmt, GLint filter,
                    FILE *f, int *width, int *height, int *maxval);
 void glUploadTex(GLenum target, GLenum format, GLenum type,
-                 const void *data, int stride,
+                 const void *dataptr, int stride,
                  int x, int y, int w, int h, int slice);
 void glDrawTex(GLfloat x, GLfloat y, GLfloat w, GLfloat h,
                GLfloat tx, GLfloat ty, GLfloat tw, GLfloat th,
@@ -239,6 +239,10 @@ int loadGPUProgram(GLenum target, char *prog);
 #define YUV_SCALER_BILIN 0
 //! use higher quality bicubic scaling for textures
 #define YUV_SCALER_BICUB 1
+//! use cubic scaling in X and normal linear scaling in Y direction
+#define YUV_SCALER_BICUB_X 2
+//! use cubic scaling without additional lookup texture
+#define YUV_SCALER_BICUB_NOTEX 3
 //! mask for conversion type
 #define YUV_CONVERSION_MASK 0xF
 //! mask for scaler type

@@ -50,10 +50,6 @@ static signed int pre_init_err = -2;
 *	fb.modes support      *
 ******************************/
 
-extern char *monitor_hfreq_str;
-extern char *monitor_vfreq_str;
-extern char *monitor_dotclock_str;
-
 static range_t *monitor_hfreq = NULL;
 static range_t *monitor_vfreq = NULL;
 static range_t *monitor_dotclock = NULL;
@@ -1075,7 +1071,7 @@ static int draw_slice(uint8_t *src[], int stride[], int w, int h, int x,
 
 	s = src[0];
 	while (h) {
-		memcpy(d, s, w * fb_pixel_size);
+		fast_memcpy(d, s, w * fb_pixel_size);
 		d += fb_line_len;
 		s += stride[0];
 		h--;

@@ -6,7 +6,7 @@
  *
  * xmms plugin by Willem Monsuwe
  * adapted for libaudiooss by Jon Trulson
- * further modified by Erik Inge Bolsø
+ * further modified by Erik Inge BolsÃ¸
  * largely rewritten and used for this
  * plugin by Tobias Diedrich
  *
@@ -445,7 +445,7 @@ static int init(int rate,int channels,int format,int flags)
 		return 0;
 	}
 
-	while (channels>1) {
+	while (channels>0) {
 		nas_data->dev = nas_find_device(nas_data->aud, channels);
 		if (nas_data->dev != AuNone &&
 		    ((nas_data->flow = AuCreateFlow(nas_data->aud, NULL)) != 0))

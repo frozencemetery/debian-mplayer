@@ -1,5 +1,5 @@
 /*
- * AIFF/AIFF-C encoder and decoder
+ * AIFF/AIFF-C muxer and demuxer
  * Copyright (c) 2006  Patrick Guimond
  *
  * This file is part of FFmpeg.
@@ -19,11 +19,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 #include "avformat.h"
-#include "allformats.h"
+#include "raw.h"
 #include "riff.h"
 #include "intfloat_readwrite.h"
 
-const CodecTag codec_aiff_tags[] = {
+static const AVCodecTag codec_aiff_tags[] = {
     { CODEC_ID_PCM_S16BE, MKTAG('N','O','N','E') },
     { CODEC_ID_PCM_S8, MKTAG('N','O','N','E') },
     { CODEC_ID_PCM_S24BE, MKTAG('N','O','N','E') },
@@ -36,6 +36,7 @@ const CodecTag codec_aiff_tags[] = {
     { CODEC_ID_MACE6, MKTAG('M','A','C','6') },
     { CODEC_ID_GSM, MKTAG('G','S','M',' ') },
     { CODEC_ID_ADPCM_G726, MKTAG('G','7','2','6') },
+    { CODEC_ID_PCM_S16LE, MKTAG('s','o','w','t') },
     { 0, 0 },
 };
 
@@ -63,7 +64,7 @@ static int get_tag(ByteIOContext *pb, uint32_t * tag)
     int size;
 
     if (url_feof(pb))
-        return AVERROR_IO;
+        return AVERROR(EIO);
 
     *tag = get_le32(pb);
     size = get_be32(pb);
@@ -91,7 +92,7 @@ static void get_meta(ByteIOContext *pb, char * str, int strsize, int size)
     if (size & 1)
         size++;
     size -= res;
-    if (size);
+    if (size)
         url_fskip(pb, size);
 }
 
@@ -163,28 +164,32 @@ static int aiff_write_header(AVFormatContext *s)
     ByteIOContext *pb = &s->pb;
     AVCodecContext *enc = s->streams[0]->codec;
     AVExtFloat sample_rate;
+    int aifc = 0;
 
     /* First verify if format is ok */
-    enc->codec_tag = codec_get_tag(codec_aiff_tags, enc->codec_id);
     if (!enc->codec_tag) {
-        av_free(aiff);
         return -1;
     }
+
+    if (enc->codec_tag != MKTAG('N','O','N','E'))
+        aifc = 1;
 
     /* FORM AIFF header */
     put_tag(pb, "FORM");
     aiff->form = url_ftell(pb);
     put_be32(pb, 0);                    /* file length */
-    put_tag(pb, "AIFC");
+    put_tag(pb, aifc ? "AIFC" : "AIFF");
 
-    /* Version chunk */
-    put_tag(pb, "FVER");
-    put_be32(pb, 4);
-    put_be32(pb, 0xA2805140);
+    if (aifc) {
+        /* Version chunk */
+        put_tag(pb, "FVER");
+        put_be32(pb, 4);
+        put_be32(pb, 0xA2805140);
+    }
 
     /* Common chunk */
     put_tag(pb, "COMM");
-    put_be32(pb, 24); /* size */
+    put_be32(pb, aifc ? 24 : 18); /* size */
     put_be16(pb, enc->channels);        /* Number of channels */
 
     aiff->frames = url_ftell(pb);
@@ -204,8 +209,10 @@ static int aiff_write_header(AVFormatContext *s)
     sample_rate = av_dbl2ext((double)enc->sample_rate);
     put_buffer(pb, (uint8_t*)&sample_rate, sizeof(sample_rate));
 
-    put_le32(pb, enc->codec_tag);
-    put_be16(pb, 0);
+    if (aifc) {
+        put_le32(pb, enc->codec_tag);
+        put_be16(pb, 0);
+    }
 
     /* Sound data chunk */
     put_tag(pb, "SSND");
@@ -269,8 +276,6 @@ static int aiff_write_trailer(AVFormatContext *s)
 static int aiff_probe(AVProbeData *p)
 {
     /* check file header */
-    if (p->buf_size < 16)
-        return 0;
     if (p->buf[0] == 'F' && p->buf[1] == 'O' &&
         p->buf[2] == 'R' && p->buf[3] == 'M' &&
         p->buf[8] == 'A' && p->buf[9] == 'I' &&
@@ -284,7 +289,8 @@ static int aiff_probe(AVProbeData *p)
 static int aiff_read_header(AVFormatContext *s,
                             AVFormatParameters *ap)
 {
-    int size, filesize, offset;
+    int size, filesize;
+    offset_t offset = 0;
     uint32_t tag;
     unsigned version = AIFF_C_VERSION1;
     ByteIOContext *pb = &s->pb;
@@ -306,7 +312,7 @@ static int aiff_read_header(AVFormatContext *s,
 
     st = av_new_stream(s, 0);
     if (!st)
-        return AVERROR_NOMEM;
+        return AVERROR(ENOMEM);
 
     while (filesize > 0) {
         /* parse different chunks */
@@ -322,6 +328,8 @@ static int aiff_read_header(AVFormatContext *s,
                 st->nb_frames = get_aiff_header (pb, st->codec, size, version);
                 if (st->nb_frames < 0)
                         return st->nb_frames;
+                if (offset > 0) // COMM is after SSND
+                    goto got_sound;
                 break;
 
             case MKTAG('F', 'V', 'E', 'R'):     /* Version chunk */
@@ -345,9 +353,17 @@ static int aiff_read_header(AVFormatContext *s,
                 break;
 
             case MKTAG('S', 'S', 'N', 'D'):     /* Sampled sound chunk */
-                get_be32(pb);               /* Block align... don't care */
                 offset = get_be32(pb);      /* Offset of sound data */
-                goto got_sound;
+                get_be32(pb);               /* BlockSize... don't care */
+                offset += url_ftell(pb);    /* Compute absolute data offset */
+                if (st->codec->codec_id)    /* Assume COMM already parsed */
+                    goto got_sound;
+                if (url_is_streamed(pb)) {
+                    av_log(s, AV_LOG_ERROR, "file is not seekable\n");
+                    return -1;
+                }
+                url_fskip(pb, size - 8);
+                break;
 
             default: /* Jump */
                 if (size & 1)   /* Always even aligned */
@@ -369,7 +385,7 @@ got_sound:
     st->duration = st->nb_frames;
 
     /* Position the stream at the first block */
-    url_fskip(pb, offset);
+    url_fseek(pb, offset, SEEK_SET);
 
     return 0;
 }
@@ -384,7 +400,7 @@ static int aiff_read_packet(AVFormatContext *s,
 
     /* End of stream may be reached */
     if (url_feof(&s->pb))
-        return AVERROR_IO;
+        return AVERROR(EIO);
 
     /* Now for that packet */
     res = av_get_packet(&s->pb, pkt, (MAX_SIZE / st->codec->block_align) * st->codec->block_align);
@@ -417,6 +433,7 @@ AVInputFormat aiff_demuxer = {
     aiff_read_packet,
     aiff_read_close,
     aiff_read_seek,
+    .codec_tag= (const AVCodecTag*[]){codec_aiff_tags, 0},
 };
 #endif
 
@@ -432,5 +449,6 @@ AVOutputFormat aiff_muxer = {
     aiff_write_header,
     aiff_write_packet,
     aiff_write_trailer,
+    .codec_tag= (const AVCodecTag*[]){codec_aiff_tags, 0},
 };
 #endif

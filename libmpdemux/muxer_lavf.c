@@ -9,12 +9,11 @@
 #include "mp_msg.h"
 #include "help_mp.h"
 
-#include "bswap.h"
 #include "aviheader.h"
 #include "ms_hdr.h"
 
+#include "stream/stream.h"
 #include "muxer.h"
-#include "stream.h"
 #include "demuxer.h"
 #include "stheader.h"
 #include "m_option.h"
@@ -23,10 +22,12 @@
 #else
 #include "avformat.h"
 #endif
+#include "libavutil/avstring.h"
 
-extern unsigned int codec_get_wav_tag(int id);
-extern enum CodecID codec_get_bmp_id(unsigned int tag);
-extern enum CodecID codec_get_wav_id(unsigned int tag);
+enum PixelFormat imgfmt2pixfmt(int fmt);
+
+extern const struct AVCodecTag *mp_wav_taglists[];
+extern const struct AVCodecTag *mp_bmp_taglists[];
 
 extern char *info_name;
 extern char *info_artist;
@@ -35,8 +36,6 @@ extern char *info_subject;
 extern char *info_copyright;
 extern char *info_sourceform;
 extern char *info_comment;
-
-void pstrcpy(char *buf, int buf_size, const char *str);
 
 typedef struct {
 	//AVInputFormat *avif;
@@ -53,7 +52,6 @@ typedef struct {
 } muxer_stream_priv_t;
 
 static char *conf_format = NULL;
-static int conf_allow_lavf = 0;
 static int mux_rate= 0;
 static int mux_packet_size= 0;
 static float mux_preload= 0.5;
@@ -61,7 +59,6 @@ static float mux_max_delay= 0.7;
 
 m_option_t lavfopts_conf[] = {
 	{"format", &(conf_format), CONF_TYPE_STRING, 0, 0, 0, NULL},
-	{"i_certify_that_my_video_stream_does_not_use_b_frames", &conf_allow_lavf, CONF_TYPE_FLAG, 0, 0, 1, NULL},
 	{"muxrate", &mux_rate, CONF_TYPE_INT, CONF_RANGE, 0, INT_MAX, NULL},
 	{"packetsize", &mux_packet_size, CONF_TYPE_INT, CONF_RANGE, 0, INT_MAX, NULL},
 	{"preload", &mux_preload, CONF_TYPE_FLOAT, CONF_RANGE, 0, INT_MAX, NULL},
@@ -83,21 +80,37 @@ static int mp_close(URLContext *h)
 
 static int mp_read(URLContext *h, unsigned char *buf, int size)
 {
-	fprintf(stderr, "READ %d\n", size);
+	mp_msg(MSGT_MUXER, MSGL_WARN, "READ %d\n", size);
 	return -1;
 }
 
 static int mp_write(URLContext *h, unsigned char *buf, int size)
 {
 	muxer_t *muxer = (muxer_t*)h->priv_data;
-	return fwrite(buf, 1, size, muxer->file);
+	return stream_write_buffer(muxer->stream, buf, size);
 }
 
 static offset_t mp_seek(URLContext *h, offset_t pos, int whence)
 {
 	muxer_t *muxer = (muxer_t*)h->priv_data;
-	fprintf(stderr, "SEEK %"PRIu64"\n", (int64_t)pos);
-	return fseeko(muxer->file, pos, whence);
+	if(whence == SEEK_CUR)
+	{
+		off_t cur = stream_tell(muxer->stream);
+		if(cur == -1)
+			return -1;
+		pos += cur;
+	}
+	else if(whence == SEEK_END)
+	{
+		off_t size=0;
+		if(stream_control(muxer->stream, STREAM_CTRL_GET_SIZE, &size) == STREAM_UNSUPPORTED || size < pos)
+			return -1;
+		pos = size - pos;
+	}
+	mp_msg(MSGT_MUXER, MSGL_DBG2, "SEEK %"PRIu64"\n", (int64_t)pos);
+	if(!stream_seek(muxer->stream, pos))
+		return -1;
+	return 0;
 }
 
 
@@ -193,7 +206,7 @@ static void fix_parameters(muxer_stream_t *stream)
 
 	if(stream->type == MUXER_TYPE_AUDIO)
 	{
-		ctx->codec_id = codec_get_wav_id(stream->wf->wFormatTag); 
+		ctx->codec_id = av_codec_get_id(mp_wav_taglists, stream->wf->wFormatTag); 
 #if 0 //breaks aac in mov at least
 		ctx->codec_tag = codec_get_wav_tag(ctx->codec_id);
 #endif
@@ -222,10 +235,12 @@ static void fix_parameters(muxer_stream_t *stream)
 	}
 	else if(stream->type == MUXER_TYPE_VIDEO)
 	{
-		ctx->codec_id = codec_get_bmp_id(stream->bih->biCompression);
-                if(ctx->codec_id <= 0)
+		ctx->codec_id = av_codec_get_id(mp_bmp_taglists, stream->bih->biCompression);
+                if(ctx->codec_id <= 0 || force_fourcc)
                     ctx->codec_tag= stream->bih->biCompression;
 		mp_msg(MSGT_MUXER, MSGL_INFO, "VIDEO CODEC ID: %d\n", ctx->codec_id);
+		if (stream->imgfmt)
+		    ctx->pix_fmt = imgfmt2pixfmt(stream->imgfmt);
 		ctx->width = stream->bih->biWidth;
 		ctx->height = stream->bih->biHeight;
 		ctx->bit_rate = 800000;
@@ -233,15 +248,16 @@ static void fix_parameters(muxer_stream_t *stream)
 		ctx->time_base.num = stream->h.dwScale;
 		if(stream->bih+1 && (stream->bih->biSize > sizeof(BITMAPINFOHEADER)))
 		{
-			ctx->extradata = av_malloc(stream->bih->biSize - sizeof(BITMAPINFOHEADER));
+			ctx->extradata_size = stream->bih->biSize - sizeof(BITMAPINFOHEADER);
+			ctx->extradata = av_malloc(ctx->extradata_size);
 			if(ctx->extradata != NULL)
-			{
-				ctx->extradata_size = stream->bih->biSize - sizeof(BITMAPINFOHEADER);
 				memcpy(ctx->extradata, stream->bih+1, ctx->extradata_size);
-			}
 			else
+			{
 				mp_msg(MSGT_MUXER, MSGL_ERR, "MUXER_LAVF(video stream) error! couldn't allocate %d bytes for extradata\n",
-					stream->bih->biSize - sizeof(BITMAPINFOHEADER));
+					ctx->extradata_size);
+				ctx->extradata_size = 0;
+			}
 		}
 	}
 }
@@ -264,10 +280,9 @@ static void write_chunk(muxer_stream_t *stream, size_t len, unsigned int flags, 
 		pkt.flags |= PKT_FLAG_KEY;
 	else
 		pkt.flags = 0;
-	
-	
-	//pkt.pts = AV_NOPTS_VALUE; 
-	pkt.pts = (stream->timer / av_q2d(priv->oc->streams[pkt.stream_index]->time_base) + 0.5);
+
+	pkt.dts = (dts / av_q2d(priv->oc->streams[pkt.stream_index]->time_base) + 0.5);
+	pkt.pts = (pts / av_q2d(priv->oc->streams[pkt.stream_index]->time_base) + 0.5);
 //fprintf(stderr, "%Ld %Ld id:%d tb:%f %f\n", pkt.dts, pkt.pts, pkt.stream_index, av_q2d(priv->oc->streams[pkt.stream_index]->time_base), stream->timer);
 	
 	if(av_interleaved_write_frame(priv->oc, &pkt) != 0) //av_write_frame(priv->oc, &pkt)
@@ -307,6 +322,13 @@ static void write_trailer(muxer_t *muxer)
 	av_free(priv->oc);
 }
 
+static void list_formats(void) {
+	AVOutputFormat *fmt;
+	mp_msg(MSGT_DEMUX, MSGL_INFO, "Available lavf output formats:\n");
+	for (fmt = first_oformat; fmt; fmt = fmt->next)
+		mp_msg(MSGT_DEMUX, MSGL_INFO, "%15s : %s\n", fmt->name, fmt->long_name);
+}
+
 extern char *out_filename;
 int muxer_init_muxer_lavf(muxer_t *muxer)
 {
@@ -314,30 +336,24 @@ int muxer_init_muxer_lavf(muxer_t *muxer)
 	AVOutputFormat *fmt = NULL;
 	char mp_filename[256] = "menc://stream.dummy";
 
-	mp_msg(MSGT_MUXER, MSGL_WARN, "** MUXER_LAVF *****************************************************************\n");
-	if (!conf_allow_lavf) {
-		mp_msg(MSGT_MUXER, MSGL_FATAL,
-"If you wish to use libavformat muxing, you must ensure that your video stream\n"
-"does not contain B frames (out of order decoding) and specify:\n"
-"    -lavfopts i_certify_that_my_video_stream_does_not_use_b_frames\n"
-"on the command line.\n");
-	} else {
-		mp_msg(MSGT_MUXER, MSGL_WARN,
-"You have certified that your video stream does not contain B frames.\n");
+	av_register_all();
+
+	if (conf_format && strcmp(conf_format, "help") == 0) {
+		list_formats();
+		return 0;
 	}
+
+	mp_msg(MSGT_MUXER, MSGL_WARN, "** MUXER_LAVF *****************************************************************\n");
 	mp_msg(MSGT_MUXER, MSGL_WARN,
-"REMEMBER: MEncoder's libavformat muxing is presently broken and will generate\n"
+"REMEMBER: MEncoder's libavformat muxing is presently broken and can generate\n"
 "INCORRECT files in the presence of B frames. Moreover, due to bugs MPlayer\n"
 "will play these INCORRECT files as if nothing were wrong!\n"
 "*******************************************************************************\n");
-	if (!conf_allow_lavf) return 0;
 	
 	priv = (muxer_priv_t *) calloc(1, sizeof(muxer_priv_t));
 	if(priv == NULL)
 		return 0;
 
-	av_register_all();
-	
 	priv->oc = av_alloc_format_context();
 	if(!priv->oc) 
 	{
@@ -367,15 +383,15 @@ int muxer_init_muxer_lavf(muxer_t *muxer)
         priv->oc->preload= (int)(mux_preload*AV_TIME_BASE);
         priv->oc->max_delay= (int)(mux_max_delay*AV_TIME_BASE);
         if (info_name)
-            pstrcpy(priv->oc->title    , sizeof(priv->oc->title    ), info_name     );
+            av_strlcpy(priv->oc->title    , info_name,      sizeof(priv->oc->title    ));
         if (info_artist)
-            pstrcpy(priv->oc->author   , sizeof(priv->oc->author   ), info_artist   );
+            av_strlcpy(priv->oc->author   , info_artist,    sizeof(priv->oc->author   ));
         if (info_genre)
-            pstrcpy(priv->oc->genre    , sizeof(priv->oc->genre    ), info_genre    );
+            av_strlcpy(priv->oc->genre    , info_genre,     sizeof(priv->oc->genre    ));
         if (info_copyright)
-            pstrcpy(priv->oc->copyright, sizeof(priv->oc->copyright), info_copyright);
+            av_strlcpy(priv->oc->copyright, info_copyright, sizeof(priv->oc->copyright));
         if (info_comment)
-            pstrcpy(priv->oc->comment  , sizeof(priv->oc->comment  ), info_comment  );
+            av_strlcpy(priv->oc->comment  , info_comment,   sizeof(priv->oc->comment  ));
 	register_protocol(&mp_protocol);
 
 	if(url_fopen(&priv->oc->pb, mp_filename, URL_WRONLY))

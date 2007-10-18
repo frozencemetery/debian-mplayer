@@ -39,7 +39,8 @@
 
 #include "fastmemcpy.h"
 #include "sub.h"
-#include "bswap.h"
+#include "libavutil/common.h"
+#include "mpbswap.h"
 #include "aspect.h"
 #include "vesa_lvo.h"
 #ifdef CONFIG_VIDIX
@@ -225,7 +226,7 @@ static void __vbeSetPixel(int x, int y, int r, int g, int b)
 */
 static void __vbeCopyBlockFast(unsigned long offset,uint8_t *image,unsigned long size)
 {
-  memcpy(&win.ptr[offset],image,size);
+  fast_memcpy(&win.ptr[offset],image,size);
 }
 
 static void __vbeCopyBlock(unsigned long offset,uint8_t *image,unsigned long size)
@@ -235,7 +236,7 @@ static void __vbeCopyBlock(unsigned long offset,uint8_t *image,unsigned long siz
    {
 	if(!VALID_WIN_FRAME(offset)) __vbeSwitchBank(offset);
 	delta = min(size,win.high - offset);
-	memcpy(VIDEO_PTR(offset),&image[src_idx],delta);
+	fast_memcpy(VIDEO_PTR(offset),&image[src_idx],delta);
 	src_idx += delta;
 	offset += delta;
 	size -= delta;
@@ -458,7 +459,7 @@ static uint32_t parseSubDevice(const char *sd)
    else
    if(memcmp(sd,"vidix",5) == 0) vidix_name = &sd[5]; /* vidix_name will be valid within init() */
 #endif
-   else { mp_msg(MSGT_VO,MSGL_WARN, MSGTR_LIBVO_VESA_UnkownSubdevice, sd); return 0xFFFFFFFFUL; }
+   else { mp_msg(MSGT_VO,MSGL_WARN, MSGTR_LIBVO_VESA_UnknownSubdevice, sd); return 0xFFFFFFFFUL; }
    return flags;
 }
 
@@ -619,7 +620,8 @@ static int set_refresh(unsigned x, unsigned y, unsigned mode,struct VesaCRTCInfo
 static int
 config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uint32_t flags, char *title, uint32_t format)
 {
-  struct VbeInfoBlock vib;  
+  static struct VbeInfoBlock vib;
+  static int vib_set;
   struct VesaModeInfoBlock vmib;
   struct VesaCRTCInfoBlock crtc_pass;
   size_t i,num_modes;
@@ -648,12 +650,13 @@ config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uin
 	} 
 	if((err=vbeInit()) != VBE_OK) { PRINT_VBE_ERR("vbeInit",err); return -1; }
 	memcpy(vib.VESASignature,"VBE2",4);
-	if((err=vbeGetControllerInfo(&vib)) != VBE_OK)
+	if(!vib_set && (err=vbeGetControllerInfo(&vib)) != VBE_OK)
 	{
 	  PRINT_VBE_ERR("vbeGetControllerInfo",err);
 	  mp_msg(MSGT_VO,MSGL_ERR, MSGTR_LIBVO_VESA_PossibleReasonNoVbe2BiosFound);
 	  return -1;
 	}
+	vib_set = 1;
 	/* Print general info here */
 	mp_msg(MSGT_VO,MSGL_INFO, MSGTR_LIBVO_VESA_FoundVesaVbeBiosVersion,
 		(int)(vib.VESAVersion >> 8) & 0xff,
@@ -923,7 +926,6 @@ config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uin
 		if((err=vbeSaveState(&init_state)) != VBE_OK)
 		{
 			PRINT_VBE_ERR("vbeSaveState",err);
-			return -1;
 		}
 		
 		/* TODO: 

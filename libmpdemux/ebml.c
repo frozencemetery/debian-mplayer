@@ -9,9 +9,11 @@
 
 #include <stdlib.h>
 
-#include "stream.h"
+#include "stream/stream.h"
 #include "ebml.h"
-#include "bswap.h"
+#include "libavutil/common.h"
+#include "mpbswap.h"
+#include "libavutil/intfloat_readwrite.h"
 
 
 #ifndef SIZE_MAX
@@ -178,29 +180,12 @@ ebml_read_float (stream_t *s, uint64_t *length)
   switch (len)
     {
     case 4:
-      {
-        union {uint32_t i; float f;} u;
-        u.i = stream_read_dword (s);
-        value = u.f;
+        value = av_int2flt(stream_read_dword(s));
         break;
-      }
 
     case 8:
-      {
-        union {uint64_t i; double d;} u;
-        u.i = stream_read_qword (s);
-        value = u.d;
+        value = av_int2dbl(stream_read_qword(s));
         break;
-      }
-
-    case 10:
-      {
-        union {uint8_t data[10]; long double ld;} u;
-        if (stream_read (s, u.data, 10) != 10)
-          return EBML_FLOAT_INVALID;
-        value = be2me_ldbl(u.ld);
-        break;
-      }
 
     default:
       return EBML_FLOAT_INVALID;

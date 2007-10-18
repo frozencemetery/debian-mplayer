@@ -4,7 +4,7 @@
  *
  * Common OpenGL routines.
  * Copyleft (C) Reimar Döffinger <Reimar.Doeffinger@stud.uni-karlsruhe.de>, 2005
- * Licensend under the GNU GPL v2.
+ * Licensend under the GNU GPL v2 or later.
  * Special thanks go to the xine team and Matthias Hopf, whose video_out_opengl.c
  * gave me lots of good ideas.
  */
@@ -277,12 +277,12 @@ static const extfunc_desc_t extfuncs[] = {
   {(void **)&ActiveTexture, NULL, {"glActiveTexture", "glActiveTextureARB", NULL}},
   {(void **)&BindTexture, NULL, {"glBindTexture", "glBindTextureARB", "glBindTextureEXT", NULL}},
   {(void **)&MultiTexCoord2f, NULL, {"glMultiTexCoord2f", "glMultiTexCoord2fARB", NULL}},
-  {(void **)&GenPrograms, "_program", {"glGenPrograms", "glGenProgramsARB", "glGenProgramsNV", NULL}},
-  {(void **)&DeletePrograms, "_program", {"glDeletePrograms", "glDeleteProgramsARB", "glDeleteProgramsNV", NULL}},
-  {(void **)&BindProgram, "_program", {"glBindProgram", "glBindProgramARB", "glBindProgramNV", NULL}},
-  {(void **)&ProgramString, "_program", {"glProgramString", "glProgramStringARB", "glProgramStringNV", NULL}},
-  {(void **)&GetProgramiv, "_program", {"glGetProgramiv", "glGetProgramivARB", "glGetProgramivNV", NULL}},
-  {(void **)&ProgramEnvParameter4f, "_program", {"glProgramEnvParameter4f", "glProgramEnvParameter4fARB", "glProgramEnvParameter4fNV", NULL}},
+  {(void **)&GenPrograms, "_program", {"glGenProgramsARB", NULL}},
+  {(void **)&DeletePrograms, "_program", {"glDeleteProgramsARB", NULL}},
+  {(void **)&BindProgram, "_program", {"glBindProgramARB", NULL}},
+  {(void **)&ProgramString, "_program", {"glProgramStringARB", NULL}},
+  {(void **)&GetProgramiv, "_program", {"glGetProgramivARB", NULL}},
+  {(void **)&ProgramEnvParameter4f, "_program", {"glProgramEnvParameter4fARB", NULL}},
   {(void **)&SwapInterval, "_swap_control", {"glXSwapInterval", "glXSwapIntervalEXT", "glXSwapIntervalSGI", "wglSwapInterval", "wglSwapIntervalEXT", "wglSwapIntervalSGI", NULL}},
   {(void **)&TexImage3D, NULL, {"glTexImage3D", NULL}},
   {NULL}
@@ -473,7 +473,7 @@ int glFmt2bpp(GLenum format, GLenum type) {
  * \param target texture target, usually GL_TEXTURE_2D
  * \param format OpenGL format of data
  * \param type OpenGL type of data
- * \param data data to upload
+ * \param dataptr data to upload
  * \param stride data stride
  * \param x x offset in texture
  * \param y y offset in texture
@@ -483,8 +483,9 @@ int glFmt2bpp(GLenum format, GLenum type) {
  * \ingroup gltexture
  */
 void glUploadTex(GLenum target, GLenum format, GLenum type,
-                 const void *data, int stride,
+                 const void *dataptr, int stride,
                  int x, int y, int w, int h, int slice) {
+  const uint8_t *data = dataptr;
   int y_max = y + h;
   if (w <= 0 || h <= 0) return;
   if (slice <= 0)
@@ -707,6 +708,54 @@ static const char *bicub_filt_template_RECT =
   "MUL cdelta.yw, parmy.rrgg, {0, -1, 0, 1};"
   BICUB_FILT_MAIN("RECT");
 
+#define CALCWEIGHTS(t, s) \
+  "MAD "t", {-0.5, 0.1666, 0.3333, -0.3333}, "s", {1, 0, -0.5, 0.5};" \
+  "MAD "t", "t", "s", {0, 0, -0.5, 0.5};" \
+  "MAD "t", "t", "s", {-0.6666, 0, 0.8333, 0.1666};" \
+  "RCP a.x, "t".z;" \
+  "RCP a.y, "t".w;" \
+  "MAD "t".xy, "t".xyxy, a.xyxy, {1, 1, 0, 0};" \
+  "ADD "t".x, "t".xxxx, "s";" \
+  "SUB "t".y, "t".yyyy, "s";"
+
+static const char *bicub_notex_filt_template_2D =
+  "MAD coord.xy, fragment.texcoord[%c], {%f, %f}, {0.5, 0.5};"
+  "FRC coord.xy, coord.xyxy;"
+  CALCWEIGHTS("parmx", "coord.xxxx")
+  "MUL cdelta.xz, parmx.rrgg, {-%f, 0, %f, 0};"
+  CALCWEIGHTS("parmy", "coord.yyyy")
+  "MUL cdelta.yw, parmy.rrgg, {0, -%f, 0, %f};"
+  BICUB_FILT_MAIN("2D");
+
+static const char *bicub_notex_filt_template_RECT =
+  "ADD coord, fragment.texcoord[%c], {0.5, 0.5};"
+  "FRC coord.xy, coord.xyxy;"
+  CALCWEIGHTS("parmx", "coord.xxxx")
+  "MUL cdelta.xz, parmx.rrgg, {-1, 0, 1, 0};"
+  CALCWEIGHTS("parmy", "coord.yyyy")
+  "MUL cdelta.yw, parmy.rrgg, {0, -1, 0, 1};"
+  BICUB_FILT_MAIN("RECT");
+
+#define BICUB_X_FILT_MAIN(textype) \
+  "ADD coord, fragment.texcoord[%c].xyxy, cdelta.xyxw;" \
+  "ADD coord2, fragment.texcoord[%c].xyxy, cdelta.zyzw;" \
+  "TEX a.r, coord, texture[%c], "textype";" \
+  "TEX b.r, coord2, texture[%c], "textype";" \
+  /* x-interpolation */ \
+  "LRP yuv.%c, parmx.b, a.rrrr, b.rrrr;"
+
+static const char *bicub_x_filt_template_2D =
+  "MAD coord.x, fragment.texcoord[%c], {%f, %f}, {0.5, 0.5};"
+  "TEX parmx, coord, texture[%c], 1D;"
+  "MUL cdelta.xz, parmx.rrgg, {-%f, 0, %f, 0};"
+  BICUB_X_FILT_MAIN("2D");
+
+static const char *bicub_x_filt_template_RECT =
+  "ADD coord.x, fragment.texcoord[%c], {0.5, 0.5};"
+  "TEX parmx, coord, texture[%c], 1D;"
+  "MUL cdelta.xz, parmx.rrgg, {-1, 0, 1, 0};"
+  BICUB_X_FILT_MAIN("RECT");
+
 static const char *yuv_prog_template =
   "PARAM ycoef = {%.4f, %.4f, %.4f};"
   "PARAM ucoef = {%.4f, %.4f, %.4f};"
@@ -764,6 +813,7 @@ static void create_scaler_textures(int scaler, int *texu, char *texs) {
     case YUV_SCALER_BILIN:
       break;
     case YUV_SCALER_BICUB:
+    case YUV_SCALER_BICUB_X:
       texs[0] = (*texu)++;
       gen_spline_lookup_tex(GL_TEXTURE0 + texs[0]);
       texs[0] += '0';
@@ -957,6 +1007,29 @@ static void add_scaler(int scaler, char **prog_pos, int *remain, char *texs,
                  in_tex, (float)texw, (float)texh,
                  texs[0], (float)1.0 / texw, (float)1.0 / texw,
                  texs[0], (float)1.0 / texh, (float)1.0 / texh,
+                 in_tex, in_tex, in_tex, in_tex, in_tex, in_tex, out_comp);
+      break;
+    case YUV_SCALER_BICUB_X:
+      if (rect)
+        snprintf(*prog_pos, *remain, bicub_x_filt_template_RECT,
+                 in_tex, texs[0],
+                 in_tex, in_tex, in_tex, in_tex, out_comp);
+      else
+        snprintf(*prog_pos, *remain, bicub_x_filt_template_2D,
+                 in_tex, (float)texw, (float)texh,
+                 texs[0], (float)1.0 / texw, (float)1.0 / texw,
+                 in_tex, in_tex, in_tex, in_tex, out_comp);
+      break;
+    case YUV_SCALER_BICUB_NOTEX:
+      if (rect)
+        snprintf(*prog_pos, *remain, bicub_notex_filt_template_RECT,
+                 in_tex,
+                 in_tex, in_tex, in_tex, in_tex, in_tex, in_tex, out_comp);
+      else
+        snprintf(*prog_pos, *remain, bicub_notex_filt_template_2D,
+                 in_tex, (float)texw, (float)texh,
+                 (float)1.0 / texw, (float)1.0 / texw,
+                 (float)1.0 / texh, (float)1.0 / texh,
                  in_tex, in_tex, in_tex, in_tex, in_tex, in_tex, out_comp);
       break;
   }
@@ -1308,6 +1381,7 @@ int setGlWindow(int *vinfo, HGLRC *context, HWND win)
   HDC windc = GetDC(win);
   HGLRC new_context = 0;
   int keep_context = 0;
+  int res = SET_WINDOW_FAILED;
 
   // should only be needed when keeping context, but not doing glFinish
   // can cause flickering even when we do not keep it.
@@ -1323,7 +1397,7 @@ int setGlWindow(int *vinfo, HGLRC *context, HWND win)
     new_context = wglCreateContext(windc);
     if (!new_context) {
       mp_msg(MSGT_VO, MSGL_FATAL, "[gl] Could not create GL context!\n");
-      return SET_WINDOW_FAILED;
+      goto out;
     }
   }
 
@@ -1333,12 +1407,11 @@ int setGlWindow(int *vinfo, HGLRC *context, HWND win)
     if (!keep_context) {
       wglDeleteContext(new_context);
     }
-    return SET_WINDOW_FAILED;
+    goto out;
   }
 
   // set new values
-  vo_window = win;
-  vo_hdc = windc;
+  vo_w32_window = win;
   {
     RECT rect;
     GetClientRect(win, &rect);
@@ -1353,9 +1426,13 @@ int setGlWindow(int *vinfo, HGLRC *context, HWND win)
     getFunctions(w32gpa, NULL);
 
     // and inform that reinit is neccessary
-    return SET_WINDOW_REINIT;
-  }
-  return SET_WINDOW_OK;
+    res = SET_WINDOW_REINIT;
+  } else
+    res = SET_WINDOW_OK;
+
+out:
+  ReleaseDC(win, windc);
+  return res;
 }
 
 void releaseGlContext(int *vinfo, HGLRC *context) {
@@ -1368,7 +1445,9 @@ void releaseGlContext(int *vinfo, HGLRC *context) {
 }
 
 void swapGlBuffers() {
+  HDC vo_hdc = GetDC(vo_w32_window);
   SwapBuffers(vo_hdc);
+  ReleaseDC(vo_w32_window, vo_hdc);
 }
 #else
 #ifdef HAVE_LIBDL

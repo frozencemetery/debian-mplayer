@@ -24,19 +24,18 @@
 #else
 	{"cache", "MPlayer was compiled without cache2 support.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
 #endif
-	{"vcd", "-vcd N is deprecated, use vcd://N instead.\n", CONF_TYPE_PRINT, CONF_NOCFG ,0,0, NULL},
-	{"cuefile", "-cuefile is deprecated, use cue://filename:N where N is the track number.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
+	{"vcd", "-vcd N has been removed, use vcd://N instead.\n", CONF_TYPE_PRINT, CONF_NOCFG ,0,0, NULL},
+	{"cuefile", "-cuefile has been removed, use cue://filename:N where N is the track number.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
 	{"cdrom-device", &cdrom_device, CONF_TYPE_STRING, 0, 0, 0, NULL},
-#if defined(USE_DVDREAD) || defined(USE_DVDNAV)
-	{"dvd-device", &dvd_device,  CONF_TYPE_STRING, 0, 0, 0, NULL}, 
-#else
-	{"dvd-device", "MPlayer was compiled without libdvdread support.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
-#endif
 #ifdef USE_DVDREAD
-	{"dvd", "-dvd N is deprecated, use dvd://N instead.\n" , CONF_TYPE_PRINT, 0, 0, 0, NULL},
+	{"dvd-device", &dvd_device,  CONF_TYPE_STRING, 0, 0, 0, NULL}, 
+	{"dvd-speed", &dvd_speed, CONF_TYPE_INT, 0, 0, 0, NULL},
+	{"dvd", "-dvd N has been removed, use dvd://N instead.\n" , CONF_TYPE_PRINT, 0, 0, 0, NULL},
 	{"dvdangle", &dvd_angle, CONF_TYPE_INT, CONF_RANGE, 1, 99, NULL},
 	{"chapter", dvd_parse_chapter_range, CONF_TYPE_FUNC_PARAM, 0, 0, 0, NULL},
 #else
+	{"dvd-device", "MPlayer was compiled without libdvdread support.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
+	{"dvd-speed", "MPlayer was compiled without libdvdread support.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
 	{"dvd", "MPlayer was compiled without libdvdread support.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
 #endif
 	{"alang", &audio_lang, CONF_TYPE_STRING, 0, 0, 0, NULL},
@@ -56,25 +55,30 @@
 	{"cookies-file", &cookies_file, CONF_TYPE_STRING, 0, 0, 0, NULL},
 	{"prefer-ipv4", &network_prefer_ipv4, CONF_TYPE_FLAG, 0, 0, 1, NULL},	
 	{"ipv4-only-proxy", &network_ipv4_only_proxy, CONF_TYPE_FLAG, 0, 0, 1, NULL},	
+	{"reuse-socket", &reuse_socket, CONF_TYPE_FLAG, CONF_GLOBAL, 0, 1, NULL},
+	{"noreuse-socket", &reuse_socket, CONF_TYPE_FLAG, CONF_GLOBAL, 1, 0, NULL},
 #ifdef HAVE_AF_INET6
 	{"prefer-ipv6", &network_prefer_ipv4, CONF_TYPE_FLAG, 0, 1, 0, NULL},
 #else
 	{"prefer-ipv6", "MPlayer was compiled without IPv6 support.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
-#endif
+#endif /* HAVE_AF_INET6 */
 
 #else
 	{"user", "MPlayer was compiled without streaming (network) support.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
 	{"passwd", "MPlayer was compiled without streaming (network) support.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
 	{"bandwidth", "MPlayer was compiled without streaming (network) support.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
 	{"user-agent", "MPlayer was compiled without streaming (network) support.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
-#endif
+#endif /* MPLAYER_NETWORK */
 
 #ifdef STREAMING_LIVE555
-        {"sdp", "-sdp is obsolete, use sdp://file instead.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
+        {"sdp", "-sdp has been removed, use sdp://file instead.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
 	// -rtsp-stream-over-tcp option, specifying TCP streaming of RTP/RTCP
         {"rtsp-stream-over-tcp", &rtspStreamOverTCP, CONF_TYPE_FLAG, 0, 0, 1, NULL},
+#elif defined (LIBNEMESI)
+        {"rtsp-stream-over-tcp", &rtsp_transport_tcp, CONF_TYPE_FLAG, 0, 0, 1, NULL},
+        {"rtsp-stream-over-sctp", &rtsp_transport_sctp, CONF_TYPE_FLAG, 0, 0, 1, NULL},
 #else
-	{"rtsp-stream-over-tcp", "RTSP support requires the \"LIVE555 Streaming Media\" libraries.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
+	{"rtsp-stream-over-tcp", "-rtsp-stream-over-tcp requires the \"LIVE555 Streaming Media\" libraries.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
 #endif
 #ifdef MPLAYER_NETWORK
         {"rtsp-port", &rtsp_port, CONF_TYPE_INT, CONF_RANGE, -1, 65535, NULL},	
@@ -91,7 +95,7 @@
 
 	// seek to byte/seconds position
 	{"sb", &seek_to_byte, CONF_TYPE_POSITION, CONF_MIN, 0, 0, NULL},
-	{"ss", &seek_to_sec, CONF_TYPE_STRING, CONF_MIN, 0, 0, NULL},
+	{"ss", &seek_to_sec, CONF_TYPE_TIME, 0, 0, 0, NULL},
 
 	// stop at given position
 	{"endpos", &end_at, CONF_TYPE_TIME_SIZE, 0, 0, 0, NULL},
@@ -197,7 +201,7 @@
 	{"af-adv", audio_filter_conf, CONF_TYPE_SUBCONFIG, 0, 0, 0, NULL},
 	{"af", &af_cfg.list, CONF_TYPE_STRING_LIST, 0, 0, 0, NULL},
 
-	{"vop*", &vo_plugin_args, CONF_TYPE_OBJ_SETTINGS_LIST, 0, 0, 0,&vf_obj_list },
+	{"vop", "-vop has been removed, use -vf instead.\n", CONF_TYPE_PRINT, CONF_NOCFG ,0,0, NULL},
 	{"vf*", &vf_settings, CONF_TYPE_OBJ_SETTINGS_LIST, 0, 0, 0, &vf_obj_list},
 	// select audio/video codec (by name) or codec family (by number):
 //	{"afm", &audio_family, CONF_TYPE_INT, CONF_MIN, 0, 22, NULL}, // keep ranges in sync
@@ -233,11 +237,13 @@
 	{"tsprog", &ts_prog, CONF_TYPE_INT, CONF_RANGE, 0, 65534, NULL},
 #define TS_MAX_PROBE_SIZE 2000000 /* don't forget to change this in libmpdemux/demux_ts.c too */
 	{"tsprobe", &ts_probe, CONF_TYPE_POSITION, 0, 0, TS_MAX_PROBE_SIZE, NULL},
+	{"psprobe", &ps_probe, CONF_TYPE_POSITION, 0, 0, TS_MAX_PROBE_SIZE, NULL},
 	{"tskeepbroken", &ts_keep_broken, CONF_TYPE_FLAG, 0, 0, 1, NULL},
 
 	// draw by slices or whole frame (useful with libmpeg2/libavcodec)
 	{"slices", &vd_use_slices, CONF_TYPE_FLAG, 0, 0, 1, NULL},
 	{"noslices", &vd_use_slices, CONF_TYPE_FLAG, 0, 1, 0, NULL},
+	{"field-dominance", &field_dominance, CONF_TYPE_INT, CONF_RANGE, -1, 1, NULL},
 
 #ifdef USE_LIBAVCODEC
 	{"lavdopts", lavc_decode_opts_conf, CONF_TYPE_SUBCONFIG, 0, 0, 0, NULL},
@@ -251,7 +257,6 @@
 	{"codecs-file", &codecs_file, CONF_TYPE_STRING, 0, 0, 0, NULL},
 // ------------------------- subtitles options --------------------
 
-#ifdef USE_SUB
 	{"sub", &sub_name, CONF_TYPE_STRING_LIST, 0, 0, 0, NULL},
 #ifdef USE_FRIBIDI
 	{"fribidi-charset", &fribidi_charset, CONF_TYPE_STRING, 0, 0, 0, NULL},
@@ -289,9 +294,8 @@
 	{"sub-bg-alpha", &sub_bg_alpha, CONF_TYPE_INT, CONF_RANGE, 0, 255, NULL},
 	{"sub-no-text-pp", &sub_no_text_pp, CONF_TYPE_FLAG, 0, 0, 1, NULL},
 	{"sub-fuzziness", &sub_match_fuzziness, CONF_TYPE_INT, CONF_RANGE, 0, 2, NULL},
-#endif
-#ifdef USE_OSD
 	{"font", &font_name, CONF_TYPE_STRING, 0, 0, 0, NULL},
+	{"subfont", &sub_font_name, CONF_TYPE_STRING, 0, 0, 0, NULL},
 	{"ffactor", &font_factor, CONF_TYPE_FLOAT, CONF_RANGE, 0.0, 10.0, NULL},
  	{"subpos", &sub_pos, CONF_TYPE_INT, CONF_RANGE, 0, 100, NULL},
 	{"subalign", &sub_alignment, CONF_TYPE_INT, CONF_RANGE, 0, 2, NULL},
@@ -322,6 +326,7 @@
 	{"ass-color", &ass_color, CONF_TYPE_STRING, 0, 0, 0, NULL},
 	{"ass-border-color", &ass_border_color, CONF_TYPE_STRING, 0, 0, 0, NULL},
 	{"ass-styles", &ass_styles_file, CONF_TYPE_STRING, 0, 0, 0, NULL},
+	{"ass-hinting", &ass_hinting, CONF_TYPE_INT, CONF_RANGE, 0, 7, NULL},
 #endif
 #ifdef HAVE_FONTCONFIG
 	{"fontconfig", &font_fontconfig, CONF_TYPE_FLAG, 0, 0, 1, NULL},
@@ -330,14 +335,11 @@
 	{"fontconfig", "MPlayer was compiled without fontconfig support.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
 	{"nofontconfig", "MPlayer was compiled without fontconfig support.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
 #endif
-#endif
 
 #else
 
 #include "config.h"
 
-extern int quiet;
-extern int verbose;
 extern char *mp_msg_charset;
 
 // codec/filter opts: (defined at libmpcodecs/vd.c)
@@ -345,11 +347,12 @@ extern float screen_size_xy;
 extern float movie_aspect;
 extern int softzoom;
 extern int flip;
-extern int vd_use_slices;
-extern int divx_quality;
 
 /* defined in codec-cfg.c */
 extern char * codecs_file;
+
+/* defined in dec_video.c */
+extern int field_dominance;
 
 /* from dec_audio, currently used for ac3surround decoder only */
 extern int audio_output_channels;
@@ -365,7 +368,12 @@ extern char *cookies_file;
 
 extern int network_prefer_ipv4;
 extern int network_ipv4_only_proxy;
+extern int reuse_socket;
 
+#endif
+
+#ifdef USE_DVDREAD
+extern int dvd_speed; /* stream/stream_dvd.c */
 #endif
 
 extern float a52_drc_level;
@@ -376,79 +384,89 @@ extern m_option_t demux_rawaudio_opts[];
 extern m_option_t demux_rawvideo_opts[];
 extern m_option_t cdda_opts[];
 
-extern char* audio_stream;
 extern char* sub_stream;
 extern int demuxer_type, audio_demuxer_type, sub_demuxer_type;
 extern int ts_prog;
 extern int ts_keep_broken;
 extern off_t ts_probe;
+extern off_t ps_probe;
 
 #include "stream/tv.h"
 #include "stream/stream_radio.h"
 
-extern char* edl_filename;
-extern char* edl_output_filename;
 
 
 #ifdef USE_RADIO
 m_option_t radioopts_conf[]={
-    {"device", &radio_param_device, CONF_TYPE_STRING, 0, 0 ,0, NULL},
-    {"driver", &radio_param_driver, CONF_TYPE_STRING, 0, 0 ,0, NULL},
-    {"channels", &radio_param_channels, CONF_TYPE_STRING_LIST, 0, 0 ,0, NULL},
-    {"volume", &radio_param_volume, CONF_TYPE_INT, CONF_RANGE, 0 ,100, NULL},
-    {"adevice", &radio_param_adevice, CONF_TYPE_STRING, 0, 0 ,0, NULL},
-    {"arate", &radio_param_arate, CONF_TYPE_INT, CONF_MIN, 0 ,0, NULL},
-    {"achannels", &radio_param_achannels, CONF_TYPE_INT, CONF_MIN, 0 ,0, NULL},
+    {"device", &stream_radio_defaults.device, CONF_TYPE_STRING, 0, 0 ,0, NULL},
+    {"driver", &stream_radio_defaults.driver, CONF_TYPE_STRING, 0, 0 ,0, NULL},
+#ifdef RADIO_BSDBT848_HDR
+    {"freq_min", &stream_radio_defaults.freq_min, CONF_TYPE_FLOAT, 0, 0 ,0, NULL},
+    {"freq_max", &stream_radio_defaults.freq_max, CONF_TYPE_FLOAT, 0, 0 ,0, NULL},
+#endif
+    {"channels", &stream_radio_defaults.channels, CONF_TYPE_STRING_LIST, 0, 0 ,0, NULL},
+    {"volume", &stream_radio_defaults.volume, CONF_TYPE_INT, CONF_RANGE, 0 ,100, NULL},
+    {"adevice", &stream_radio_defaults.adevice, CONF_TYPE_STRING, 0, 0 ,0, NULL},
+    {"arate", &stream_radio_defaults.arate, CONF_TYPE_INT, CONF_MIN, 0 ,0, NULL},
+    {"achannels", &stream_radio_defaults.achannels, CONF_TYPE_INT, CONF_MIN, 0 ,0, NULL},
     {NULL, NULL, 0, 0, 0, 0, NULL}
 };
-#endif
+#endif /* USE_RADIO */
 
 #ifdef USE_TV
 m_option_t tvopts_conf[]={
-	{"on", "-tv on is deprecated, use tv:// instead.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
-	{"immediatemode", &tv_param_immediate, CONF_TYPE_INT, CONF_RANGE, 0, 1, NULL},
-	{"noaudio", &tv_param_noaudio, CONF_TYPE_FLAG, 0, 0, 1, NULL},
-	{"audiorate", &tv_param_audiorate, CONF_TYPE_INT, 0, 0, 0, NULL},
-	{"driver", &tv_param_driver, CONF_TYPE_STRING, 0, 0, 0, NULL},
-	{"device", &tv_param_device, CONF_TYPE_STRING, 0, 0, 0, NULL},
-	{"freq", &tv_param_freq, CONF_TYPE_STRING, 0, 0, 0, NULL},
-	{"channel", &tv_param_channel, CONF_TYPE_STRING, 0, 0, 0, NULL},
-	{"chanlist", &tv_param_chanlist, CONF_TYPE_STRING, 0, 0, 0, NULL},
-	{"norm", &tv_param_norm, CONF_TYPE_STRING, 0, 0, 0, NULL},
+	{"on", "-tv on has been removed, use tv:// instead.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
+	{"immediatemode", &stream_tv_defaults.immediate, CONF_TYPE_INT, CONF_RANGE, 0, 1, NULL},
+	{"noaudio", &stream_tv_defaults.noaudio, CONF_TYPE_FLAG, 0, 0, 1, NULL},
+	{"audiorate", &stream_tv_defaults.audiorate, CONF_TYPE_INT, 0, 0, 0, NULL},
+	{"driver", &stream_tv_defaults.driver, CONF_TYPE_STRING, 0, 0, 0, NULL},
+	{"device", &stream_tv_defaults.device, CONF_TYPE_STRING, 0, 0, 0, NULL},
+	{"freq", &stream_tv_defaults.freq, CONF_TYPE_STRING, 0, 0, 0, NULL},
+	{"channel", &stream_tv_defaults.channel, CONF_TYPE_STRING, 0, 0, 0, NULL},
+	{"chanlist", &stream_tv_defaults.chanlist, CONF_TYPE_STRING, 0, 0, 0, NULL},
+	{"norm", &stream_tv_defaults.norm, CONF_TYPE_STRING, 0, 0, 0, NULL},
+	{"automute", &stream_tv_defaults.automute, CONF_TYPE_INT, CONF_RANGE, 0, 255, NULL},
 #ifdef HAVE_TV_V4L2
-	{"normid", &tv_param_normid, CONF_TYPE_INT, 0, 0, 0, NULL},
+	{"normid", &stream_tv_defaults.normid, CONF_TYPE_INT, 0, 0, 0, NULL},
 #endif
-	{"width", &tv_param_width, CONF_TYPE_INT, 0, 0, 4096, NULL},
-	{"height", &tv_param_height, CONF_TYPE_INT, 0, 0, 4096, NULL},
-	{"input", &tv_param_input, CONF_TYPE_INT, 0, 0, 20, NULL},
-	{"outfmt", &tv_param_outfmt, CONF_TYPE_IMGFMT, 0, 0, 0, NULL},
-	{"fps", &tv_param_fps, CONF_TYPE_FLOAT, 0, 0, 100.0, NULL},
-	{"channels", &tv_param_channels, CONF_TYPE_STRING_LIST, 0, 0, 0, NULL},
-	{"brightness", &tv_param_brightness, CONF_TYPE_INT, CONF_RANGE, -100, 100, NULL},
-	{"contrast", &tv_param_contrast, CONF_TYPE_INT, CONF_RANGE, -100, 100, NULL},
-	{"hue", &tv_param_hue, CONF_TYPE_INT, CONF_RANGE, -100, 100, NULL},
-	{"saturation", &tv_param_saturation, CONF_TYPE_INT, CONF_RANGE, -100, 100, NULL},
+	{"width", &stream_tv_defaults.width, CONF_TYPE_INT, 0, 0, 4096, NULL},
+	{"height", &stream_tv_defaults.height, CONF_TYPE_INT, 0, 0, 4096, NULL},
+	{"input", &stream_tv_defaults.input, CONF_TYPE_INT, 0, 0, 20, NULL},
+	{"outfmt", &stream_tv_defaults.outfmt, CONF_TYPE_IMGFMT, 0, 0, 0, NULL},
+	{"fps", &stream_tv_defaults.fps, CONF_TYPE_FLOAT, 0, 0, 100.0, NULL},
+	{"channels", &stream_tv_defaults.channels, CONF_TYPE_STRING_LIST, 0, 0, 0, NULL},
+	{"brightness", &stream_tv_defaults.brightness, CONF_TYPE_INT, CONF_RANGE, -100, 100, NULL},
+	{"contrast", &stream_tv_defaults.contrast, CONF_TYPE_INT, CONF_RANGE, -100, 100, NULL},
+	{"hue", &stream_tv_defaults.hue, CONF_TYPE_INT, CONF_RANGE, -100, 100, NULL},
+	{"saturation", &stream_tv_defaults.saturation, CONF_TYPE_INT, CONF_RANGE, -100, 100, NULL},
+	{"gain", &stream_tv_defaults.gain, CONF_TYPE_INT, CONF_RANGE, -1, 100, NULL},
 #if defined(HAVE_TV_V4L) || defined(HAVE_TV_V4L2)
-	{"amode", &tv_param_amode, CONF_TYPE_INT, CONF_RANGE, 0, 3, NULL},
-	{"volume", &tv_param_volume, CONF_TYPE_INT, CONF_RANGE, 0, 65535, NULL},
-	{"bass", &tv_param_bass, CONF_TYPE_INT, CONF_RANGE, 0, 65535, NULL},
-	{"treble", &tv_param_treble, CONF_TYPE_INT, CONF_RANGE, 0, 65535, NULL},
-	{"balance", &tv_param_balance, CONF_TYPE_INT, CONF_RANGE, 0, 65535, NULL},
-	{"forcechan", &tv_param_forcechan, CONF_TYPE_INT, CONF_RANGE, 1, 2, NULL},
-	{"forceaudio", &tv_param_force_audio, CONF_TYPE_FLAG, 0, 0, 1, NULL},
-	{"buffersize", &tv_param_buffer_size, CONF_TYPE_INT, CONF_RANGE, 16, 1024, NULL},
-	{"mjpeg", &tv_param_mjpeg, CONF_TYPE_FLAG, 0, 0, 1, NULL},
-	{"decimation", &tv_param_decimation, CONF_TYPE_INT, CONF_RANGE, 1, 4, NULL},
-	{"quality", &tv_param_quality, CONF_TYPE_INT, CONF_RANGE, 0, 100, NULL},
+	{"amode", &stream_tv_defaults.amode, CONF_TYPE_INT, CONF_RANGE, 0, 3, NULL},
+	{"volume", &stream_tv_defaults.volume, CONF_TYPE_INT, CONF_RANGE, 0, 65535, NULL},
+	{"bass", &stream_tv_defaults.bass, CONF_TYPE_INT, CONF_RANGE, 0, 65535, NULL},
+	{"treble", &stream_tv_defaults.treble, CONF_TYPE_INT, CONF_RANGE, 0, 65535, NULL},
+	{"balance", &stream_tv_defaults.balance, CONF_TYPE_INT, CONF_RANGE, 0, 65535, NULL},
+	{"forcechan", &stream_tv_defaults.forcechan, CONF_TYPE_INT, CONF_RANGE, 1, 2, NULL},
+	{"forceaudio", &stream_tv_defaults.force_audio, CONF_TYPE_FLAG, 0, 0, 1, NULL},
+	{"buffersize", &stream_tv_defaults.buffer_size, CONF_TYPE_INT, CONF_RANGE, 16, 1024, NULL},
+	{"mjpeg", &stream_tv_defaults.mjpeg, CONF_TYPE_FLAG, 0, 0, 1, NULL},
+	{"decimation", &stream_tv_defaults.decimation, CONF_TYPE_INT, CONF_RANGE, 1, 4, NULL},
+	{"quality", &stream_tv_defaults.quality, CONF_TYPE_INT, CONF_RANGE, 0, 100, NULL},
 #if defined(HAVE_ALSA9) || defined(HAVE_ALSA1X)
-	{"alsa", &tv_param_alsa, CONF_TYPE_FLAG, 0, 0, 1, NULL},
-#endif
-	{"adevice", &tv_param_adevice, CONF_TYPE_STRING, 0, 0, 0, NULL},
-#endif
-	{"audioid", &tv_param_audio_id, CONF_TYPE_INT, CONF_RANGE, 0, 9, NULL},
+	{"alsa", &stream_tv_defaults.alsa, CONF_TYPE_FLAG, 0, 0, 1, NULL},
+#endif /* defined(HAVE_ALSA9) || defined(HAVE_ALSA1X) */
+#endif /* defined(HAVE_TV_V4L) || defined(HAVE_TV_V4L2) */
+	{"adevice", &stream_tv_defaults.adevice, CONF_TYPE_STRING, 0, 0, 0, NULL},
+#ifdef HAVE_TV_TELETEXT
+	{"tdevice", &stream_tv_defaults.tdevice, CONF_TYPE_STRING, 0, 0, 0, NULL},
+	{"tpage", &stream_tv_defaults.tpage, CONF_TYPE_INT, CONF_RANGE, 100, 899, NULL},
+	{"tformat", &stream_tv_defaults.tformat, CONF_TYPE_INT, CONF_RANGE, 0, 3, NULL},
+	{"tlang", &stream_tv_defaults.tlang, CONF_TYPE_INT, CONF_RANGE, -1, 0x7f, NULL},
+#endif /* HAVE_TV_TELETEXT */
+	{"audioid", &stream_tv_defaults.audio_id, CONF_TYPE_INT, CONF_RANGE, 0, 9, NULL},
 	{NULL, NULL, 0, 0, 0, 0, NULL}
 };
-#endif
+#endif /* USE_TV */
 
 #ifdef HAVE_PVR
 extern int pvr_param_aspect_ratio;
@@ -484,13 +502,12 @@ extern m_config_t dvbin_opts_conf[];
 extern m_option_t lavfdopts_conf[];
 #endif
 
-#ifdef  USE_FRIBIDI
-extern char *fribidi_charset;
-extern int flip_hebrew;
-#endif
-
 #ifdef STREAMING_LIVE555
 extern int rtspStreamOverTCP;
+#endif
+#ifdef LIBNEMESI
+extern int rtsp_transport_tcp;
+extern int rtsp_transport_sctp;
 #endif
 extern int rtsp_port;
 extern char *rtsp_destination;
@@ -548,15 +565,13 @@ extern m_obj_settings_t* vf_settings;
 extern m_obj_list_t vf_obj_list;
 
 m_option_t mfopts_conf[]={
-        {"on", "-mf on is deprecated, use mf:// instead.\n", CONF_TYPE_PRINT, 0, 0, 1, NULL},
+        {"on", "-mf on has been removed, use mf:// instead.\n", CONF_TYPE_PRINT, 0, 0, 1, NULL},
         {"w", &mf_w, CONF_TYPE_INT, 0, 0, 0, NULL},
         {"h", &mf_h, CONF_TYPE_INT, 0, 0, 0, NULL},
         {"fps", &mf_fps, CONF_TYPE_FLOAT, 0, 0, 0, NULL},
         {"type", &mf_type, CONF_TYPE_STRING, 0, 0, 0, NULL},
         {NULL, NULL, 0, 0, 0, 0, NULL}
 };
-						
-extern m_obj_settings_t* vo_plugin_args;
 
 #include "libaf/af.h"
 extern af_cfg_t af_cfg; // Audio filter configuration, defined in libmpcodecs/dec_audio.c
@@ -612,6 +627,8 @@ m_option_t msgl_config[]={
 	{ "muxer", &mp_msg_levels[MSGT_MUXER], CONF_TYPE_INT, CONF_RANGE, -1, 9, NULL },
 	{ "osd-menu", &mp_msg_levels[MSGT_OSD_MENU], CONF_TYPE_INT, CONF_RANGE, -1, 9, NULL },
 	{ "identify", &mp_msg_levels[MSGT_IDENTIFY], CONF_TYPE_INT, CONF_RANGE, -1, 9, NULL },
+	{ "ass", &mp_msg_levels[MSGT_ASS], CONF_TYPE_INT, CONF_RANGE, -1, 9, NULL },
+	{ "statusline", &mp_msg_levels[MSGT_STATUSLINE], CONF_TYPE_INT, CONF_RANGE, -1, 9, NULL },
         {"help", "Available msg modules:\n"
         "   global     - common player errors/information\n"
         "   cplayer    - console player (mplayer.c)\n"
@@ -638,9 +655,9 @@ m_option_t msgl_config[]={
         "   mencoder\n"
         "   xacodec    - XAnim codecs\n"
         "   tv         - TV input subsystem\n"
-        "   osdep      - OS Dependant parts (linux/ for now)\n"
+        "   osdep      - OS-dependent parts\n"
         "   spudec     - spudec.c\n"
-        "   playtree   - Playtree handeling (playtree.c, playtreeparser.c)\n"
+        "   playtree   - Playtree handling (playtree.c, playtreeparser.c)\n"
         "   input\n"
         "   vfilter\n"
         "   osd\n"
@@ -655,6 +672,8 @@ m_option_t msgl_config[]={
         "   netst      - Netstream\n"
         "   muxer      - muxer layer\n"
         "   identify   - identify output\n"
+        "   ass        - libass messages\n"
+        "   statusline - playback/encoding status line\n"
         "\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
       	{NULL, NULL, 0, 0, 0, 0, NULL}
 
@@ -692,4 +711,4 @@ extern m_option_t xvid_dec_opts[];
 
 int dvd_parse_chapter_range(m_option_t*, const char*);
 
-#endif
+#endif /* MAIN_CONF */

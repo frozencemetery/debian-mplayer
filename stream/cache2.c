@@ -28,14 +28,11 @@ static DWORD WINAPI ThreadProc(void* s);
 #include "help_mp.h"
 
 #include "stream.h"
-#ifdef HAVE_NEW_GUI
+#include "input/input.h"
 extern int use_gui;
-#endif
 
 int stream_fill_buffer(stream_t *s);
 int stream_seek_long(stream_t *s,off_t pos);
-
-extern int mp_input_check_interrupt(int time);
 
 typedef struct {
   // constats:

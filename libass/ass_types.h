@@ -18,8 +18,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef __ASS_TYPES_H__
-#define __ASS_TYPES_H__
+#ifndef ASS_TYPES_H
+#define ASS_TYPES_H
 
 #define VALIGN_SUB 0
 #define VALIGN_CENTER 8
@@ -32,7 +32,7 @@
 typedef struct ass_style_s {
 	char* Name;
 	char* FontName;
-	int FontSize;
+	double FontSize;
 	uint32_t PrimaryColour;
 	uint32_t SecondaryColour;
 	uint32_t OutlineColour;
@@ -43,7 +43,7 @@ typedef struct ass_style_s {
 	int StrikeOut;
 	double ScaleX;
 	double ScaleY;
-	int Spacing;
+	double Spacing;
 	int Angle;
 	int BorderStyle;
 	double Outline;
@@ -79,6 +79,8 @@ typedef struct ass_event_s {
 
 typedef struct parser_priv_s parser_priv_t;
 
+typedef struct ass_library_s ass_library_t;
+
 /// ass track represent either an external script or a matroska subtitle stream (no real difference between them)
 /// it can be used in rendering after the headers are parsed (i.e. events format line read)
 typedef struct ass_track_s {
@@ -104,6 +106,7 @@ typedef struct ass_track_s {
 	int default_style; // index of default style
 	char* name; // file name in case of external subs, 0 for streams
 
+	ass_library_t* library;
 	parser_priv_t* parser_priv;
 } ass_track_t;
 

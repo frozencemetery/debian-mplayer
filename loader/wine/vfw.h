@@ -1,16 +1,15 @@
 /*
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: vfw.h 18786 2006-06-22 13:34:00Z diego $
+ * $Id: vfw.h 24442 2007-09-13 08:50:21Z diego $
  */
 
-#ifndef __WINE_VFW_H
-#define __WINE_VFW_H
+#ifndef WINE_VFW_H
+#define WINE_VFW_H
 //#include "pshpack1.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
-#ifndef __WINE_WINGDI_H
 
 typedef struct __attribute__((__packed__))
 {
@@ -43,10 +42,9 @@ typedef struct {
 } BITMAPINFO, *LPBITMAPINFO;
 #endif
 
-#endif
 #define VFWAPI	
 #define VFWAPIV	
-#ifndef __WINE_WINDEF_H
+#ifndef WINE_WINDEF_H
 typedef long (__stdcall__ *DRIVERPROC)(long,HDRVR,unsigned int,long,long);
 #endif
 
@@ -671,4 +669,4 @@ typedef struct {
 #ifdef __cplusplus
 }
 #endif
-#endif /* __WINE_VFW_H */
+#endif /* WINE_VFW_H */

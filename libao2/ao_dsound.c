@@ -352,8 +352,8 @@ static int write_buffer(unsigned char *data, int len)
   	    if(write_offset>=buffer_size)write_offset=dwBytes2;
   	} else {
   	    // Write to pointers without reordering. 
-	memcpy(lpvPtr1,data,dwBytes1);
-    if (NULL != lpvPtr2 )memcpy(lpvPtr2,data+dwBytes1,dwBytes2);
+	fast_memcpy(lpvPtr1,data,dwBytes1);
+    if (NULL != lpvPtr2 )fast_memcpy(lpvPtr2,data+dwBytes1,dwBytes2);
 	write_offset+=dwBytes1+dwBytes2;
     if(write_offset>=buffer_size)write_offset=dwBytes2;
   	}

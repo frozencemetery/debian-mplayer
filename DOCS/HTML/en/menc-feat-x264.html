@@ -1,54 +1,59 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>14.5. Encoding with the x264 codec</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="encoding-guide.html" title="Chapter 14. Encoding with MEncoder"><link rel="prev" href="menc-feat-xvid.html" title="14.4. Encoding with the XviD
-codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Encoding with the Video For Windows codec family"><link rel="preface" href="howtoread.html" title="How to read this documentation"><link rel="chapter" href="intro.html" title="Chapter 1. Introduction"><link rel="chapter" href="install.html" title="Chapter 2. Installation"><link rel="chapter" href="usage.html" title="Chapter 3. Usage"><link rel="chapter" href="cd-dvd.html" title="Chapter 4. CD/DVD usage"><link rel="chapter" href="faq.html" title="Chapter 5. Frequently Asked Questions"><link rel="chapter" href="containers.html" title="Chapter 6. Containers"><link rel="chapter" href="codecs.html" title="Chapter 7. Codecs"><link rel="chapter" href="video.html" title="Chapter 8. Video output devices"><link rel="chapter" href="audio.html" title="Chapter 9. Audio output devices"><link rel="chapter" href="tv.html" title="Chapter 10. TV"><link rel="chapter" href="radio.html" title="Chapter 11. Radio"><link rel="chapter" href="ports.html" title="Chapter 12. Ports"><link rel="chapter" href="mencoder.html" title="Chapter 13. Basic usage of MEncoder"><link rel="chapter" href="encoding-guide.html" title="Chapter 14. Encoding with MEncoder"><link rel="appendix" href="bugreports.html" title="Appendix A. How to report bugs"><link rel="appendix" href="bugs.html" title="Appendix B. Known bugs"><link rel="appendix" href="skin.html" title="Appendix C. MPlayer skin format"><link rel="appendix" href="history.html" title="Appendix D. History"><link rel="subsection" href="menc-feat-x264.html#menc-feat-x264-encoding-options" title="14.5.1. Encoding options of x264"><link rel="subsection" href="menc-feat-x264.html#menc-feat-x264-example-settings" title="14.5.2. Encoding setting examples"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">14.5. Encoding with the <code class="systemitem">x264</code> codec</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="menc-feat-xvid.html">Prev</a> </td><th width="60%" align="center">Chapter 14. Encoding with <span class="application">MEncoder</span></th><td width="20%" align="right"> <a accesskey="n" href="menc-feat-video-for-windows.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-x264"></a>14.5. Encoding with the <code class="systemitem">x264</code> codec</h2></div></div></div><p>
-  <code class="systemitem">x264</code> is a free library for
-  encoding H.264/AVC video streams.
-  Before starting to encode, you need to <a href="video-codecs.html#codec-x264-encode" title="7.1.3.4. How can I encode videos using MEncoder and x264?">
-  set up <span class="application">MEncoder</span> to support it</a>.
-</p><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-x264-encoding-options"></a>14.5.1. Encoding options of x264</h3></div></div></div><p>
-  Please begin by reviewing the
-  <code class="systemitem">x264</code> section of
-  <span class="application">MPlayer</span>'s man page.
-  This section is intended to be a supplement to the man page.
-  Here you will find quick hints about which options are most
-  likely to interest most people. The man page is more terse,
-  but also more exhaustive, and it sometimes offers much better
-  technical detail.
-</p><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-x264-encoding-options-intro"></a>14.5.1.1. Introduction</h4></div></div></div><p>This guide considers two major categories of encoding options:</p><div class="orderedlist"><ol type="1"><li><p>Options which mainly trade off encoding time vs. quality
-  </p></li><li><p>Options which may be useful for fulfilling various personal
-  preferences and special requirements</p></li></ol></div><p>
-  Ultimately, only you can decide which options are best for your
-  purposes. The decision for the first class of options is the simplest:
-  you only have to decide whether you think the quality differences
-  justify the speed differences. For the second class of options,
-  preferences may be far more subjective, and more factors may be
-  involved. Note that some of the "personal preferences and special
-  requirements" options can still have large impacts on speed or quality,
-  but that is not what they are primarily useful for. A couple of the
-  "personal preference" options may even cause changes that look better
-  to some people, but look worse to others.
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>14.5.Â Encoding with the x264 codec</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="encoding-guide.html" title="ChapterÂ 14.Â Encoding with MEncoder"><link rel="prev" href="menc-feat-xvid.html" title="14.4.Â Encoding with the Xvid codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6.Â  Encoding with the Video For Windows codec family"><link rel="preface" href="howtoread.html" title="How to read this documentation"><link rel="chapter" href="intro.html" title="ChapterÂ 1.Â Introduction"><link rel="chapter" href="install.html" title="ChapterÂ 2.Â Installation"><link rel="chapter" href="usage.html" title="ChapterÂ 3.Â Usage"><link rel="chapter" href="cd-dvd.html" title="ChapterÂ 4.Â CD/DVD usage"><link rel="chapter" href="faq.html" title="ChapterÂ 5.Â Frequently Asked Questions"><link rel="chapter" href="containers.html" title="ChapterÂ 6.Â Containers"><link rel="chapter" href="codecs.html" title="ChapterÂ 7.Â Codecs"><link rel="chapter" href="video.html" title="ChapterÂ 8.Â Video output devices"><link rel="chapter" href="audio.html" title="ChapterÂ 9.Â Audio output devices"><link rel="chapter" href="tv.html" title="ChapterÂ 10.Â TV"><link rel="chapter" href="radio.html" title="ChapterÂ 11.Â Radio"><link rel="chapter" href="ports.html" title="ChapterÂ 12.Â Ports"><link rel="chapter" href="mencoder.html" title="ChapterÂ 13.Â Basic usage of MEncoder"><link rel="chapter" href="encoding-guide.html" title="ChapterÂ 14.Â Encoding with MEncoder"><link rel="appendix" href="bugreports.html" title="AppendixÂ A.Â How to report bugs"><link rel="appendix" href="bugs.html" title="AppendixÂ B.Â Known bugs"><link rel="appendix" href="skin.html" title="AppendixÂ C.Â MPlayer skin format"><link rel="appendix" href="history.html" title="AppendixÂ D.Â History"><link rel="subsection" href="menc-feat-x264.html#menc-feat-x264-encoding-options" title="14.5.1.Â Encoding options of x264"><link rel="subsection" href="menc-feat-x264.html#menc-feat-x264-example-settings" title="14.5.2.Â Encoding setting examples"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">14.5.Â Encoding with the
+  <code class="systemitem">x264</code> codec</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="menc-feat-xvid.html">Prev</a>Â </td><th width="60%" align="center">ChapterÂ 14.Â Encoding with <span class="application">MEncoder</span></th><td width="20%" align="right">Â <a accesskey="n" href="menc-feat-video-for-windows.html">Next</a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-x264"></a>14.5.Â Encoding with the
+  <code class="systemitem">x264</code> codec</h2></div></div></div><p>
+<code class="systemitem">x264</code> is a free library for
+encoding H.264/AVC video streams.
+Before starting to encode, you need to
+<a href="video-codecs.html#codec-x264-encode" title="7.1.3.4.Â How can I encode videos using MEncoder and x264?">set up <span class="application">MEncoder</span> to support it</a>.
+</p><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-x264-encoding-options"></a>14.5.1.Â Encoding options of x264</h3></div></div></div><p>
+Please begin by reviewing the
+<code class="systemitem">x264</code> section of
+<span class="application">MPlayer</span>'s man page.
+This section is intended to be a supplement to the man page.
+Here you will find quick hints about which options are most
+likely to interest most people. The man page is more terse,
+but also more exhaustive, and it sometimes offers much better
+technical detail.
+</p><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-x264-encoding-options-intro"></a>14.5.1.1.Â Introduction</h4></div></div></div><p>
+This guide considers two major categories of encoding options:
+</p><div class="orderedlist"><ol type="1"><li><p>
+  Options which mainly trade off encoding time vs. quality
+</p></li><li><p>
+  Options which may be useful for fulfilling various personal
+  preferences and special requirements
+</p></li></ol></div><p>
+Ultimately, only you can decide which options are best for your
+purposes. The decision for the first class of options is the simplest:
+you only have to decide whether you think the quality differences
+justify the speed differences. For the second class of options,
+preferences may be far more subjective, and more factors may be
+involved. Note that some of the "personal preferences and special
+requirements" options can still have large impacts on speed or quality,
+but that is not what they are primarily useful for. A couple of the
+"personal preference" options may even cause changes that look better
+to some people, but look worse to others.
 </p><p>
-  Before continuing, you need to understand that this guide uses only one
-  quality metric: global PSNR.
-  For a brief explanation of what PSNR is, see
-  <a href="http://en.wikipedia.org/wiki/PSNR" target="_top">the Wikipedia article on PSNR</a>.
-  Global PSNR is the last PSNR number reported when you include
-  the <tt class="option">psnr</tt> option in <tt class="option">x264encopts</tt>.
-  Any time you read a claim about PSNR, one of the assumptions
-  behind the claim is that equal bitrates are used.
+Before continuing, you need to understand that this guide uses only one
+quality metric: global PSNR.
+For a brief explanation of what PSNR is, see
+<a href="http://en.wikipedia.org/wiki/PSNR" target="_top">the Wikipedia article on PSNR</a>.
+Global PSNR is the last PSNR number reported when you include
+the <tt class="option">psnr</tt> option in <tt class="option">x264encopts</tt>.
+Any time you read a claim about PSNR, one of the assumptions
+behind the claim is that equal bitrates are used.
 </p><p>
-  Nearly all of this guide's comments assume you are using
-  two pass.
-  When comparing options, there are two major reasons for using
-  two pass encoding.
-  First, using two pass often gains around 1dB PSNR, which is a
-  very big difference.
-  Secondly, testing options by doing direct quality comparisons
-  with one pass encodes introduces a major confounding
-  factor: bitrate often varies significantly with each encode.
-  It is not always easy to tell whether quality changes are due
-  mainly to changed options, or if they mostly reflect essentially
-  random differences in the achieved bitrate.
-</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-x264-encoding-options-speedvquality"></a>14.5.1.2. Options which primarily affect speed and quality</h4></div></div></div><div class="itemizedlist"><ul type="disc"><li><p>
+Nearly all of this guide's comments assume you are using two pass.
+When comparing options, there are two major reasons for using
+two pass encoding.
+First, using two pass often gains around 1dB PSNR, which is a
+very big difference.
+Secondly, testing options by doing direct quality comparisons
+with one pass encodes introduces a major confounding
+factor: bitrate often varies significantly with each encode.
+It is not always easy to tell whether quality changes are due
+mainly to changed options, or if they mostly reflect essentially
+random differences in the achieved bitrate.
+</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-x264-encoding-options-speedvquality"></a>14.5.1.2.Â Options which primarily affect speed and quality</h4></div></div></div><div class="itemizedlist"><ul type="disc"><li><p>
   <span class="bold"><strong>subq</strong></span>:
   Of the options which allow you to trade off speed for quality,
   <tt class="option">subq</tt> and <tt class="option">frameref</tt> (see below) are usually
@@ -67,8 +72,9 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   Typically, <tt class="option">subq=5</tt> achieves 0.2-0.5 dB higher global
   PSNR in comparison <tt class="option">subq=1</tt>.
   This is usually enough to be visible.
-</p><p>
-  <tt class="option">subq=6</tt> is the slowest, highest quality mode.
+  </p><p>
+  <tt class="option">subq=6</tt> is slower and yields better quality at a reasonable
+  cost.
   In comparison to <tt class="option">subq=5</tt>, it usually gains 0.1-0.4 dB
   global PSNR with speed costs varying from 25%-100%.
   Unlike other levels of <tt class="option">subq</tt>, the behavior of
@@ -79,17 +85,21 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   and quality in complex, high motion scenes, but it may not have much effect
   in low-motion scenes. Note that it is still recommended to always set
   <tt class="option">bframes</tt> to something other than zero (see below).
-</p></li><li><p>
+  </p><p>
+  <tt class="option">subq=7</tt> is the slowest, highest quality mode.
+  In comparison to <tt class="option">subq=6</tt>, it usually gains 0.01-0.05 dB
+  global PSNR with speed costs varying from 15%-33%.
+  Since the tradeoff encoding time vs. quality is quite low, you should
+  only use it if you are after every bit saving and if encoding time is
+  not an issue.
+  </p></li><li><p>
   <span class="bold"><strong>frameref</strong></span>:
   <tt class="option">frameref</tt> is set to 1 by default, but this
-  should not be taken to imply that it is reasonable to set it
-  to 1.
+  should not be taken to imply that it is reasonable to set it to 1.
   Merely raising <tt class="option">frameref</tt> to 2 gains around
-  0.15dB PSNR with a 5-10% speed penalty; this seems like a
-  good tradeoff.
+  0.15dB PSNR with a 5-10% speed penalty; this seems like a good tradeoff.
   <tt class="option">frameref=3</tt> gains around 0.25dB PSNR over
-  <tt class="option">frameref=1</tt>, which should be a visible
-  difference.
+  <tt class="option">frameref=1</tt>, which should be a visible difference.
   <tt class="option">frameref=3</tt> is around 15% slower than
   <tt class="option">frameref=1</tt>.
   Unfortunately, diminishing returns set in rapidly.
@@ -98,8 +108,7 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   15% speed penalty.
   Above <tt class="option">frameref=6</tt>, the quality gains are
   usually very small (although you should keep in mind throughout
-  this whole discussion that it can vary quite a lot depending on
-  your source).
+  this whole discussion that it can vary quite a lot depending on your source).
   In a fairly typical case, <tt class="option">frameref=12</tt>
   will improve global PSNR by a tiny 0.02dB over
   <tt class="option">frameref=6</tt>, at a speed cost of 15%-20%.
@@ -108,7 +117,7 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   almost certainly never <span class="bold"><strong>harm</strong></span>
   PSNR, but the additional quality benefits are barely even
   measurable, let alone perceptible.
-</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note:</h3><p>
+  </p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note:</h3><p>
   Raising <tt class="option">frameref</tt> to unnecessarily high values
   <span class="bold"><strong>can</strong></span> and
   <span class="bold"><strong>usually does</strong></span>
@@ -117,7 +126,7 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   <tt class="option">frameref</tt> "too high" currently seems too remote
   to even worry about, and in the future, optimizations may remove
   the possibility altogether.
-</p></div><p>
+  </p></div><p>
   If you care about speed, a reasonable compromise is to use low
   <tt class="option">subq</tt> and <tt class="option">frameref</tt> values on
   the first pass, and then raise them on the second pass.
@@ -137,7 +146,7 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   <tt class="option">frameref</tt> to 3 or higher.
   This issue is probably extremely rare in live action video material,
   but it does sometimes come up in video game captures.
-</p></li><li><p>
+  </p></li><li><p>
   <span class="bold"><strong>me</strong></span>:
   This option is for choosing the motion estimation search method.
   Altering this option provides a straightforward quality-vs-speed
@@ -151,10 +160,10 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   is about 40% slower than the default <tt class="option"> me=hex</tt>. With
   <tt class="option">frameref=3</tt>, the speed penalty incurred drops to
   25%-30%.
-</p><p>
+  </p><p>
   <tt class="option">me=esa</tt> uses an exhaustive search that is too slow for
   practical use.
-</p></li><li><p>
+  </p></li><li><p>
   <span class="bold"><strong>partitions=all</strong></span>:
   This option enables the use of 8x4, 4x8 and 4x4 subpartitions in
   predicted macroblocks (in addition to the default partitions).
@@ -174,7 +183,7 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   It is interesting to note that using B-frames usually speeds up
   the second pass somewhat, and may also speed up a single
   pass encode if adaptive B-frame decision is turned off.
-</p><p>
+  </p><p>
   With adaptive B-frame decision turned off
   (<tt class="option">x264encopts</tt>'s <tt class="option">nob_adapt</tt>),
   the optimal value for this setting is usually no more than
@@ -184,10 +193,10 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   B-frames in scenes where they would hurt compression.
   The encoder rarely chooses to use more than 3 or 4 B-frames;
   setting this option any higher will have little effect.
-</p></li><li><p>
+  </p></li><li><p>
   <span class="bold"><strong>b_adapt</strong></span>:
   Note: This is on by default.
-</p><p>
+  </p><p>
   With this option enabled, the encoder will use a reasonably fast
   decision process to reduce the number of B-frames used in scenes that
   might not benefit from them as much.
@@ -200,7 +209,7 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   first pass.
   <tt class="option">b_adapt</tt> and <tt class="option">b_bias</tt> have no
   effect on subsequent passes.
-</p></li><li><p>
+  </p></li><li><p>
   <span class="bold"><strong>b_pyramid</strong></span>:
   You might as well enable this option if you are using &gt;=2 B-frames;
   as the man page says, you get a little quality improvement at no
@@ -220,14 +229,25 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   Also, contrary to what some people seem to guess, the decoder
   CPU requirements are not much affected by weighted prediction,
   all else being equal.
-</p><p>
+  </p><p>
   Unfortunately, the current adaptive B-frame decision algorithm
   has a strong tendency to avoid B-frames during fades.
   Until this changes, it may be a good idea to add
   <tt class="option">nob_adapt</tt> to your x264encopts, if you expect
   fades to have a large effect in your particular video
   clip.
-</p></li></ul></div></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-x264-encoding-options-misc-preferences"></a>14.5.1.3. Options pertaining to miscellaneous preferences</h4></div></div></div><div class="itemizedlist"><ul type="disc"><li><p>
+  </p></li><li><p><a name="menc-feat-x264-encoding-options-speedvquality-threads"></a>
+  <span class="bold"><strong>threads</strong></span>:
+  This option allows to spawn threads to encode in parallel on multiple CPUs.
+  You can manually select the number of threads to be created or, better, set
+  <tt class="option">threads=auto</tt> and let
+  <code class="systemitem">x264</code> detect how many CPUs are
+  available and pick an appropriate number of threads.
+  If you have a multi-processor machine, you should really consider using it
+  as it can to increase encoding speed linearly with the number of CPU cores
+  (about 94% per CPU core), with very little quality reduction (about 0.005dB
+  for dual processor, about 0.01dB for a quad processor machine).
+  </p></li></ul></div></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-x264-encoding-options-misc-preferences"></a>14.5.1.3.Â Options pertaining to miscellaneous preferences</h4></div></div></div><div class="itemizedlist"><ul type="disc"><li><p>
   <span class="bold"><strong>Two pass encoding</strong></span>:
   Above, it was suggested to always use two pass encoding, but there
   are still reasons for not using it. For instance, if you are capturing
@@ -235,7 +255,7 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   Also, one pass is obviously faster than two passes; if you use the
   exact same set of options on both passes, two pass encoding is almost
   twice as slow.
-</p><p>
+  </p><p>
   Still, there are very good reasons for using two pass encoding. For
   one thing, single pass ratecontrol is not psychic, and it often makes
   unreasonable choices because it cannot see the big picture. For example,
@@ -259,7 +279,7 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   it would have taken to make it look decent. There are ways to
   mitigate the pitfalls of single-pass encoding, but they may tend to
   increase bitrate misprediction.
-</p><p>
+  </p><p>
   Multipass ratecontrol can offer huge advantages over a single pass.
   Using the statistics gathered from the first pass encode, the encoder
   can estimate, with reasonable accuracy, the "cost" (in bits) of
@@ -268,7 +288,7 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   expensive (high-motion) and cheap (low-motion) scenes. See
   <tt class="option">qcomp</tt> below for some ideas on how to tweak this
   allocation to your liking.
-</p><p>
+  </p><p>
   Moreover, two passes need not take twice as long as one pass. You can
   tweak the options in the first pass for higher speed and lower quality.
   If you choose your options well, you can get a very fast first pass.
@@ -279,9 +299,8 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   <tt class="option">x264encopts</tt>. Then, on the second pass, use slower,
   higher-quality options:
   <tt class="option">subq=6:frameref=15:partitions=all:me=umh</tt>
-</p></li><li><p>
+  </p></li><li><p>
   <span class="bold"><strong>Three pass encoding</strong></span>?
-
   x264 offers the ability to make an arbitrary number of consecutive
   passes. If you specify <tt class="option">pass=1</tt> on the first pass,
   then use <tt class="option">pass=3</tt> on a subsequent pass, the subsequent
@@ -297,7 +316,6 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   also a few special cases in which three (or more) passes are handy
   for advanced users, but for brevity, this guide omits discussing those
   special cases.
-
 </p></li><li><p>
   <span class="bold"><strong>qcomp</strong></span>:
   <tt class="option">qcomp</tt> trades off the number of bits allocated
@@ -329,7 +347,7 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
 </p></li><li><p>
   <span class="bold"><strong>deblock</strong></span>:
   This topic is going to be a bit controversial.
-</p><p>
+  </p><p>
   H.264 defines a simple deblocking procedure on I-blocks that uses
   pre-set strengths and thresholds depending on the QP of the block
   in question.
@@ -338,15 +356,15 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   The pre-set strengths defined by the standard are well-chosen and
   the odds are very good that they are PSNR-optimal for whatever
   video you are trying to encode.
-  The <tt class="option">deblock</tt> allow you to specify offsets to the preset deblocking
-  thresholds.
-</p><p>
+  The <tt class="option">deblock</tt> allow you to specify offsets to the preset
+  deblocking thresholds.
+  </p><p>
   Many people seem to think it is a good idea to lower the deblocking
   filter strength by large amounts (say, -3).
   This is however almost never a good idea, and in most cases,
   people who are doing this do not understand very well how
   deblocking works by default.
-</p><p>
+  </p><p>
   The first and most important thing to know about the in-loop
   deblocking filter is that the default thresholds are almost always
   PSNR-optimal.
@@ -356,7 +374,7 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   guaranteed to hurt PSNR.
   Strengthening the filter will smear more details; weakening the
   filter will increase the appearance of blockiness.
-</p><p>
+  </p><p>
   It is definitely a bad idea to lower the deblocking thresholds if
   your source is mainly low in spacial complexity (i.e., not a lot
   of detail or noise).
@@ -373,7 +391,7 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   By lowering the deblocking filter strength, you are most likely
   increasing error by adding ringing artifacts, but the eye does
   not notice because it confuses the artifacts with detail.
-</p><p>
+  </p><p>
   This <span class="bold"><strong>still</strong></span> does not justify
   lowering the deblocking filter strength, however.
   You can generally get better quality noise from postprocessing.
@@ -383,20 +401,21 @@ codec"><link rel="next" href="menc-feat-video-for-windows.html" title="14.6. Enc
   artifacting.
   It will almost certainly look better than the results you
   would have gotten just by fiddling with the deblocking filter.
-</p></li></ul></div></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-x264-example-settings"></a>14.5.2. Encoding setting examples</h3></div></div></div><p>
-  The following settings are examples of different encoding
-  option combinations that affect the speed vs quality tradeoff
-  at the same target bitrate.
+  </p></li></ul></div></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-x264-example-settings"></a>14.5.2.Â Encoding setting examples</h3></div></div></div><p>
+The following settings are examples of different encoding
+option combinations that affect the speed vs quality tradeoff
+at the same target bitrate.
 </p><p>
-  All the encoding settings were tested on a 720x448 @30000/1001 fps
-  video sample, the target bitrate was 900kbps, and the machine was an
-  AMD-64 3400+ at 2400 MHz in 64 bits mode.
-  Each encoding setting features the measured encoding speed (in
-  frames per second) and the PSNR loss (in dB) compared to the "very
-  high quality" setting.
-  Please understand that depending on your source, your machine type
-  and development advancements, you may get very different results.
-</p><p>
-</p><div class="informaltable"><table border="1"><colgroup><col><col><col><col></colgroup><thead><tr><th>Description</th><th>Encoding options</th><th>speed (in fps)</th><th>Relative PSNR loss (in dB)</th></tr></thead><tbody><tr><td>Very high quality</td><td><tt class="option">subq=6:partitions=all:8x8dct:me=umh:frameref=5:bframes=3:b_pyramid:weight_b</tt></td><td>6fps</td><td>0dB</td></tr><tr><td>High quality</td><td><tt class="option">subq=5:8x8dct:frameref=2:bframes=3:b_pyramid:weight_b</tt></td><td>13fps</td><td>-0.89dB</td></tr><tr><td>Fast</td><td><tt class="option">subq=4:bframes=2:b_pyramid:weight_b</tt></td><td>17fps</td><td>-1.48dB</td></tr></tbody></table></div><p>
-</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="menc-feat-xvid.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="encoding-guide.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="menc-feat-video-for-windows.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">14.4. Encoding with the <code class="systemitem">XviD</code>
-codec </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> 14.6. Encoding with the <code class="systemitem">Video For Windows</code> codec family</td></tr></table></div></body></html>
+All the encoding settings were tested on a 720x448 @30000/1001 fps
+video sample, the target bitrate was 900kbps, and the machine was an
+AMD-64 3400+ at 2400 MHz in 64 bits mode.
+Each encoding setting features the measured encoding speed (in
+frames per second) and the PSNR loss (in dB) compared to the "very
+high quality" setting.
+Please understand that depending on your source, your machine type
+and development advancements, you may get very different results.
+</p><div class="informaltable"><table border="1"><colgroup><col><col><col><col></colgroup><thead><tr><th>Description</th><th>Encoding options</th><th>speed (in fps)</th><th>Relative PSNR loss (in dB)</th></tr></thead><tbody><tr><td>Very high quality</td><td><tt class="option">subq=6:partitions=all:8x8dct:me=umh:frameref=5:bframes=3:b_pyramid:weight_b</tt></td><td>6fps</td><td>0dB</td></tr><tr><td>High quality</td><td><tt class="option">subq=5:8x8dct:frameref=2:bframes=3:b_pyramid:weight_b</tt></td><td>13fps</td><td>-0.89dB</td></tr><tr><td>Fast</td><td><tt class="option">subq=4:bframes=2:b_pyramid:weight_b</tt></td><td>17fps</td><td>-1.48dB</td></tr></tbody></table></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="menc-feat-xvid.html">Prev</a>Â </td><td width="20%" align="center"><a accesskey="u" href="encoding-guide.html">Up</a></td><td width="40%" align="right">Â <a accesskey="n" href="menc-feat-video-for-windows.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">14.4.Â Encoding with the <code class="systemitem">Xvid</code>
+  codecÂ </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">Â 14.6.Â 
+  Encoding with the <code class="systemitem">Video For Windows</code>
+  codec family
+</td></tr></table></div></body></html>

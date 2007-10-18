@@ -1,48 +1,47 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>8.1. Nastavení MTRR</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - Multimediální p&#345;ehráva&#269;"><link rel="up" href="video.html" title="Kapitola 8. Výstupní video za&#345;ízení/rozhraní"><link rel="prev" href="video.html" title="Kapitola 8. Výstupní video za&#345;ízení/rozhraní"><link rel="next" href="output-trad.html" title="8.2. Video výstupy pro tradi&#269;ní video karty"><link rel="preface" href="howtoread.html" title="Jak &#269;íst tuto  dokumentaci"><link rel="chapter" href="intro.html" title="Kapitola 1. P&#345;edstavení"><link rel="chapter" href="install.html" title="Kapitola 2. Instalace"><link rel="chapter" href="usage.html" title="Kapitola 3. Pou&#382;ití"><link rel="chapter" href="cd-dvd.html" title="Kapitola 4. Pou&#382;ití CD/DVD"><link rel="chapter" href="faq.html" title="Kapitola 5. &#268;asto Kladené Dotazy (FAQ)"><link rel="chapter" href="containers.html" title="Kapitola 6. Nosné formáty (Containers)"><link rel="chapter" href="codecs.html" title="Kapitola 7. Kodeky"><link rel="chapter" href="video.html" title="Kapitola 8. Výstupní video za&#345;ízení/rozhraní"><link rel="chapter" href="audio.html" title="Kapitola 9. Výstupní zvuková za&#345;ízení"><link rel="chapter" href="tv.html" title="Kapitola 10. TV"><link rel="chapter" href="radio.html" title="Kapitola 11. Rádio"><link rel="chapter" href="ports.html" title="Kapitola 12. Porty"><link rel="chapter" href="mencoder.html" title="Kapitola 13. Základní pou&#382;ití MEncoderu"><link rel="chapter" href="encoding-guide.html" title="Kapitola 14. Enkódování s MEncoderem"><link rel="appendix" href="bugreports.html" title="P&#345;íloha A. Jak hlásit chyby"><link rel="appendix" href="bugs.html" title="P&#345;íloha B. Známé chyby"><link rel="appendix" href="skin.html" title="P&#345;íloha C. Formát skin&#367; MPlayeru"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">8.1. Nastavení MTRR</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="video.html">P&#345;edcházející</a> </td><th width="60%" align="center">Kapitola 8. Výstupní video za&#345;ízení/rozhraní</th><td width="20%" align="right"> <a accesskey="n" href="output-trad.html">Dal&#353;í</a></td></tr></table><hr></div><div class="sect1" lang="cs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="mtrr"></a>8.1. Nastavení MTRR</h2></div></div></div><p>
-VELMI doporu&#269;ujeme skontrolovat, zda jsou MTRR registry
-správn&#283; nastaveny, jeliko&#382; mohou velice zvý&#353;it výkon.
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>8.1. NastavenÃ­ MTRR</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - MultimediÃ¡lnÃ­ pÅ™ehrÃ¡vaÄ"><link rel="up" href="video.html" title="Kapitola 8. VÃ½stupnÃ­ video zaÅ™Ã­zenÃ­/rozhranÃ­"><link rel="prev" href="video.html" title="Kapitola 8. VÃ½stupnÃ­ video zaÅ™Ã­zenÃ­/rozhranÃ­"><link rel="next" href="output-trad.html" title="8.2. Video vÃ½stupy pro tradiÄnÃ­ video karty"><link rel="preface" href="howtoread.html" title="Jak ÄÃ­st tuto dokumentaci"><link rel="chapter" href="intro.html" title="Kapitola 1. PÅ™edstavenÃ­"><link rel="chapter" href="install.html" title="Kapitola 2. Instalace"><link rel="chapter" href="usage.html" title="Kapitola 3. PouÅ¾itÃ­"><link rel="chapter" href="cd-dvd.html" title="Kapitola 4. PouÅ¾itÃ­ CD/DVD"><link rel="chapter" href="faq.html" title="Kapitola 5. ÄŒasto KladenÃ© Dotazy (FAQ)"><link rel="chapter" href="containers.html" title="Kapitola 6. NosnÃ© formÃ¡ty (Containers)"><link rel="chapter" href="codecs.html" title="Kapitola 7. Kodeky"><link rel="chapter" href="video.html" title="Kapitola 8. VÃ½stupnÃ­ video zaÅ™Ã­zenÃ­/rozhranÃ­"><link rel="chapter" href="audio.html" title="Kapitola 9. VÃ½stupnÃ­ zvukovÃ¡ zaÅ™Ã­zenÃ­"><link rel="chapter" href="tv.html" title="Kapitola 10. TV"><link rel="chapter" href="radio.html" title="Kapitola 11. RÃ¡dio"><link rel="chapter" href="ports.html" title="Kapitola 12. Porty"><link rel="chapter" href="mencoder.html" title="Kapitola 13. ZÃ¡kladnÃ­ pouÅ¾itÃ­ MEncoderu"><link rel="chapter" href="encoding-guide.html" title="Kapitola 14. EnkÃ³dovÃ¡nÃ­ s MEncoderem"><link rel="appendix" href="bugreports.html" title="PÅ™Ã­loha A. Jak hlÃ¡sit chyby"><link rel="appendix" href="bugs.html" title="PÅ™Ã­loha B. ZnÃ¡mÃ© chyby"><link rel="appendix" href="skin.html" title="PÅ™Ã­loha C. FormÃ¡t skinÅ¯ MPlayeru"><link rel="appendix" href="history.html" title="PÅ™Ã­loha D. Historie"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">8.1. NastavenÃ­ MTRR</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="video.html">PÅ™edchÃ¡zejÃ­cÃ­</a>Â </td><th width="60%" align="center">Kapitola 8. VÃ½stupnÃ­ video zaÅ™Ã­zenÃ­/rozhranÃ­</th><td width="20%" align="right">Â <a accesskey="n" href="output-trad.html">DalÅ¡Ã­</a></td></tr></table><hr></div><div class="sect1" lang="cs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="mtrr"></a>8.1. NastavenÃ­ MTRR</h2></div></div></div><p>
+VELMI doporuÄujeme skontrolovat, zda jsou MTRR registry
+sprÃ¡vnÄ› nastaveny, jelikoÅ¾ mohou velice zvÃ½Å¡it vÃ½kon.
 </p><p>
-Prove&#271;te <span><strong class="command">cat /proc/mtrr</strong></span>:
+ProveÄte <span><strong class="command">cat /proc/mtrr</strong></span>:
 </p><pre class="screen">
 <code class="prompt">--($:~)--</code> cat /proc/mtrr
 reg00: base=0xe4000000 (3648MB), size=  16MB: write-combining, count=9
 reg01: base=0xd8000000 (3456MB), size= 128MB: write-combining, count=1</pre><p>
 </p><p>
-Takto to správn&#283; ukazuje má Matrox G400 se 16MB pam&#283;ti. Provedl jsem to z
-XFree 4.x.x, které nastavuje MTRR registry automaticky.
+Takto to sprÃ¡vnÄ› ukazuje mÃ¡ Matrox G400 se 16MB pamÄ›ti. Provedl jsem to z
+XFree 4.x.x, kterÃ© nastavuje MTRR registry automaticky.
 </p><p>
-Pokud nic nefunguje, budete to muset ud&#283;lat ru&#269;n&#283;. Nejprve musíte najít
-bázovou adresu. Máte t&#345;i mo&#382;nosti, jak ji zjistit:
+Pokud nic nefunguje, budete to muset udÄ›lat ruÄnÄ›. Nejprve musÃ­te najÃ­t
+bÃ¡zovou adresu. MÃ¡te tÅ™i moÅ¾nosti, jak ji zjistit:
 
 </p><div class="orderedlist"><ol type="1"><li><p>
-  ze startovacích informací X11, nap&#345;íklad:
+  ze startovacÃ­ch informacÃ­ X11, napÅ™Ã­klad:
   </p><pre class="screen">
 (--) SVGA: PCI: Matrox MGA G400 AGP rev 4, Memory @ 0xd8000000, 0xd4000000
 (--) SVGA: Linear framebuffer at 0xD8000000</pre><p>
-  </p></li><li><p>
-  z <tt class="filename">/proc/pci</tt> (pou&#382;ijte p&#345;íkaz <span><strong class="command">lspci -v</strong></span>
+</p></li><li><p>
+  z <tt class="filename">/proc/pci</tt> (pouÅ¾ijte pÅ™Ã­kaz <span><strong class="command">lspci -v</strong></span>
   ):
   </p><pre class="screen">
 01:00.0 VGA compatible controller: Matrox Graphics, Inc.: Unknown device 0525
-Memory at d8000000 (32-bit, prefetchable)
-  </pre><p>
-  </p></li><li><p>
-  ze zpráv jaderného modulu mga_vid (pou&#382;ijte <span><strong class="command">dmesg</strong></span>):
+Memory at d8000000 (32-bit, prefetchable)</pre><p>
+</p></li><li><p>
+  ze zprÃ¡v jadernÃ©ho modulu mga_vid (pouÅ¾ijte <span><strong class="command">dmesg</strong></span>):
   </p><pre class="screen">mga_mem_base = d8000000</pre><p>
-  </p></li></ol></div><p>
+</p></li></ol></div><p>
 </p><p>
-Pak zjist&#283;te velikost pam&#283;ti. Je to velmi snadné, sta&#269;í p&#345;evést velikost
-video RAM do hexadecimální soustavy, nebo pou&#382;ijte následující tabulku:
+Pak zjistÄ›te velikost pamÄ›ti. Je to velmi snadnÃ©, staÄÃ­ pÅ™evÃ©st velikost
+video RAM do hexadecimÃ¡lnÃ­ soustavy, nebo pouÅ¾ijte nÃ¡sledujÃ­cÃ­ tabulku:
 </p><div class="informaltable"><table border="0"><colgroup><col><col></colgroup><tbody><tr><td>1 MB</td><td>0x100000</td></tr><tr><td>2 MB</td><td>0x200000</td></tr><tr><td>4 MB</td><td>0x400000</td></tr><tr><td>8 MB</td><td>0x800000</td></tr><tr><td>16 MB</td><td>0x1000000</td></tr><tr><td>32 MB</td><td>0x2000000</td></tr></tbody></table></div><p>
 </p><p>
-Pokud znáte bázovou adresu a velikost pam&#283;ti, za&#269;n&#283;me nastavovat MTRR registry!
-Nap&#345;íklad pro vý&#353;e uvedenou kartu Matrox (<code class="literal">base=0xd8000000</code>)
-s 32MB RAM (<code class="literal">size=0x2000000</code>) sta&#269;í spustit:
+Pokud znÃ¡te bÃ¡zovou adresu a velikost pamÄ›ti, zaÄnÄ›me nastavovat MTRR registry!
+NapÅ™Ã­klad pro vÃ½Å¡e uvedenou kartu Matrox (<code class="literal">base=0xd8000000</code>)
+s 32MB RAM (<code class="literal">size=0x2000000</code>) staÄÃ­ spustit:
 </p><pre class="screen">
-echo "base=0xd8000000 size=0x2000000 type=write-combining" &gt;| /proc/mtrr
+echo "base=0xd8000000 size=0x2000000 type=write-combining" &gt; /proc/mtrr
 </pre><p>
 </p><p>
-Ne v&#353;echny procesory mají MTRR. Nap&#345;íklad star&#353;í CPU K6-2 (okolo 266MHz,
-stepping 0) nemají MTRR, ale stepping 12 je mají
-(pro ov&#283;&#345;ení spus&#357;te <span><strong class="command">cat /proc/cpuinfo</strong></span>).
-</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="video.html">P&#345;edcházející</a> </td><td width="20%" align="center"><a accesskey="u" href="video.html">Nahoru</a></td><td width="40%" align="right"> <a accesskey="n" href="output-trad.html">Dal&#353;í</a></td></tr><tr><td width="40%" align="left" valign="top">Kapitola 8. Výstupní video za&#345;ízení/rozhraní </td><td width="20%" align="center"><a accesskey="h" href="index.html">Dom&#367;</a></td><td width="40%" align="right" valign="top"> 8.2. Video výstupy pro tradi&#269;ní video karty</td></tr></table></div></body></html>
+Ne vÅ¡echny procesory majÃ­ MTRR. NapÅ™Ã­klad starÅ¡Ã­ CPU K6-2 (okolo 266MHz,
+stepping 0) nemajÃ­ MTRR, ale stepping 12 je majÃ­
+(pro ovÄ›Å™enÃ­ spusÅ¥te <span><strong class="command">cat /proc/cpuinfo</strong></span>).
+</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="video.html">PÅ™edchÃ¡zejÃ­cÃ­</a>Â </td><td width="20%" align="center"><a accesskey="u" href="video.html">Nahoru</a></td><td width="40%" align="right">Â <a accesskey="n" href="output-trad.html">DalÅ¡Ã­</a></td></tr><tr><td width="40%" align="left" valign="top">Kapitola 8. VÃ½stupnÃ­ video zaÅ™Ã­zenÃ­/rozhranÃ­Â </td><td width="20%" align="center"><a accesskey="h" href="index.html">DomÅ¯</a></td><td width="40%" align="right" valign="top">Â 8.2. Video vÃ½stupy pro tradiÄnÃ­ video karty</td></tr></table></div></body></html>

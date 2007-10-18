@@ -1,8 +1,6 @@
 /* setenv implementation for systems lacking it. */
 
-#include "../config.h"
-
-#ifndef HAVE_SETENV
+#include "config.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -26,4 +24,3 @@ int setenv(const char *name, const char *val, int overwrite)
 
   return 0;
 }
-#endif

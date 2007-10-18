@@ -21,9 +21,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * Modified for use with MPlayer, see libmpeg-0.4.0.diff for the exact changes.
+ * Modified for use with MPlayer, see libmpeg-0.4.1.diff for the exact changes.
  * detailed changelog at http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: slice.c 18786 2006-06-22 13:34:00Z diego $
+ * $Id: slice.c 21941 2007-01-16 09:49:28Z henry $
  */
 
 #include "config.h"
@@ -1252,7 +1252,7 @@ static inline void slice_non_intra_DCT (mpeg2_decoder_t * const decoder,
 	      ref[0] + offset, decoder->stride, 16);			      \
     table[4] (decoder->dest[1] + decoder->offset,			      \
 	      ref[1] + offset, decoder->stride, 16);			      \
-    table[4] (decoder->dest[2] + (decoder->offset >> 1),		      \
+    table[4] (decoder->dest[2] + decoder->offset,			      \
 	      ref[2] + offset, decoder->stride, 16)
 
 #define bit_buf (decoder->bitstream_buf)
@@ -1282,11 +1282,7 @@ static void motion_mp1 (mpeg2_decoder_t * const decoder,
 				    motion->f_code[0] + motion->f_code[1]);
     motion->pmv[0][1] = motion_y;
 
-    /* if the stream is damaged, and there was no I frame, 
-       then this pointer will be zero*/
-    if (motion->ref[0][0]) {
-       MOTION_420 (table, motion->ref[0], motion_x, motion_y, 16, 0);
-    }
+    MOTION_420 (table, motion->ref[0], motion_x, motion_y, 16, 0);
 }
 
 #define MOTION_FUNCTIONS(FORMAT,MOTION,MOTION_FIELD,MOTION_DMV,MOTION_ZERO)   \
@@ -1561,25 +1557,30 @@ static void motion_fi_conceal (mpeg2_decoder_t * const decoder)
 #undef bits
 #undef bit_ptr
 
-/* if the stream is damaged, and there was no I frame, 
-   then those pointers may be zero */
 #define MOTION_CALL(routine,direction)				\
-{								\
-  if ((decoder)->f_motion.ref[0][0] &&				\
-      ((direction) & MACROBLOCK_MOTION_FORWARD))		\
+do {								\
+    if ((direction) & MACROBLOCK_MOTION_FORWARD)		\
 	routine (decoder, &(decoder->f_motion), mpeg2_mc.put);	\
-  if ((decoder)->b_motion.ref[0][0] &&				\
-	  ((direction) & MACROBLOCK_MOTION_BACKWARD))		\
+    if ((direction) & MACROBLOCK_MOTION_BACKWARD)		\
 	routine (decoder, &(decoder->b_motion),			\
 		 ((direction) & MACROBLOCK_MOTION_FORWARD ?	\
 		  mpeg2_mc.avg : mpeg2_mc.put));		\
-};
+} while (0)
 
 #define NEXT_MACROBLOCK							\
 do {									\
-    if(decoder->quant_store)                                            \
+    if(decoder->quant_store) {                                          \
+       if (decoder->picture_structure == TOP_FIELD)                     \
+        decoder->quant_store[2*decoder->quant_stride*(decoder->v_offset>>4) \
+                    +(decoder->offset>>4)] = decoder->quantizer_scale;  \
+       else if (decoder->picture_structure == BOTTOM_FIELD)             \
+        decoder->quant_store[2*decoder->quant_stride*(decoder->v_offset>>4) \
+	            + decoder->quant_stride                             \
+                    +(decoder->offset>>4)] = decoder->quantizer_scale;  \
+       else                                                             \
         decoder->quant_store[decoder->quant_stride*(decoder->v_offset>>4) \
                     +(decoder->offset>>4)] = decoder->quantizer_scale;  \
+    }                                                                   \
     decoder->offset += 16;						\
     if (decoder->offset == decoder->width) {				\
 	do { /* just so we can use the break statement */		\
@@ -1602,6 +1603,12 @@ do {									\
 	decoder->offset = 0;						\
     }									\
 } while (0)
+
+static void motion_dummy (mpeg2_decoder_t * const decoder,
+                          motion_t * const motion,
+                          mpeg2_mc_fct * const * const table)
+{
+}
 
 void mpeg2_init_fbuf (mpeg2_decoder_t * decoder, uint8_t * current_fbuf[3],
 		      uint8_t * forward_fbuf[3], uint8_t * backward_fbuf[3])
@@ -1660,7 +1667,9 @@ void mpeg2_init_fbuf (mpeg2_decoder_t * decoder, uint8_t * current_fbuf[3],
 
     if (decoder->mpeg1) {
 	decoder->motion_parser[0] = motion_zero_420;
+        decoder->motion_parser[MC_FIELD] = motion_dummy;
 	decoder->motion_parser[MC_FRAME] = motion_mp1;
+        decoder->motion_parser[MC_DMV] = motion_dummy;
 	decoder->motion_parser[4] = motion_reuse_420;
     } else if (decoder->picture_structure == FRAME_PICTURE) {
 	if (decoder->chroma_format == 0) {
@@ -1887,7 +1896,7 @@ void mpeg2_slice (mpeg2_decoder_t * const decoder, const int code,
 
 	    parser =
 		decoder->motion_parser[macroblock_modes >> MOTION_TYPE_SHIFT];
-	    MOTION_CALL (parser, macroblock_modes);	    
+	    MOTION_CALL (parser, macroblock_modes);
 
 	    if (macroblock_modes & MACROBLOCK_PATTERN) {
 		int coded_block_pattern;

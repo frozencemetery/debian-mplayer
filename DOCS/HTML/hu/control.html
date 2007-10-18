@@ -1,25 +1,25 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>3.3. Vezérlés</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="usage.html" title="3. fejezet - Használat"><link rel="prev" href="subosd.html" title="3.2. Feliratok és OSD"><link rel="next" href="streaming.html" title="3.4. Hálózati és pipe-os stream-elés"><link rel="preface" href="howtoread.html" title="Hogyan olvasd ezt a dokumentációt"><link rel="chapter" href="intro.html" title="1. fejezet - Bevezetés"><link rel="chapter" href="install.html" title="2. fejezet - Telepítés"><link rel="chapter" href="usage.html" title="3. fejezet - Használat"><link rel="chapter" href="cd-dvd.html" title="4. fejezet - CD/DVD használat"><link rel="chapter" href="faq.html" title="5. fejezet - Gyakran ismételt kérdések"><link rel="chapter" href="containers.html" title="6. fejezet - Konténerek"><link rel="chapter" href="codecs.html" title="7. fejezet - Codec-ek"><link rel="chapter" href="video.html" title="8. fejezet - Videó kimeneti eszközök"><link rel="chapter" href="audio.html" title="9. fejezet - Audió kimeneti eszközök"><link rel="chapter" href="tv.html" title="10. fejezet - TV"><link rel="chapter" href="radio.html" title="11. fejezet - Rádió"><link rel="chapter" href="ports.html" title="12. fejezet - Portok"><link rel="chapter" href="mencoder.html" title="13. fejezet - A MEncoder használatának alapjai"><link rel="chapter" href="encoding-guide.html" title="14. fejezet - Kódolás a MEncoderrel"><link rel="appendix" href="bugreports.html" title="A. függelék - Hogyan jelentsd a hibákat"><link rel="appendix" href="bugs.html" title="B. függelék - Ismert hibák"><link rel="appendix" href="skin.html" title="C. függelék - MPlayer skin formátum"><link rel="appendix" href="history.html" title="D. függelék - Történelem"><link rel="subsection" href="control.html#ctrl-cfg" title="3.3.1. Vezérlés beállítása"><link rel="subsection" href="control.html#lirc" title="3.3.2. Irányítás LIRC-b&#337;l"><link rel="subsection" href="control.html#slave-mode" title="3.3.3. Szolga mód"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">3.3. Vezérlés</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="subosd.html">El&#337;z&#337;</a> </td><th width="60%" align="center">3. fejezet - Használat</th><td width="20%" align="right"> <a accesskey="n" href="streaming.html">Következ&#337;</a></td></tr></table><hr></div><div class="sect1" lang="hu"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="control"></a>3.3. Vezérlés</h2></div></div></div><p>
-Az <span class="application">MPlayer</span> teljesen konfigurálható, parancsvezérelt,
-az irányítási rétegének a segítségével az <span class="application">MPlayer</span>t
-vezérelheted billenty&#369;zettel, egérrel, joystickkal vagy távirányítóval
-(LIRC használatával). Olvasd el a man oldalon a használható billenty&#369;k listáját.
-</p><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="ctrl-cfg"></a>3.3.1. Vezérlés beállítása</h3></div></div></div><p>
-Az <span class="application">MPlayer</span> engedélyezi bármely billenty&#369;höz/gombhoz
-bármilyen <span class="application">MPlayer</span> parancs hozzárendelését egy egyszer&#369;
-konfigurációs fájl segítségével. A szintaxis egy egyszer&#369; billenty&#369; névb&#337;l
-és az azt követ&#337; parancsból áll. A konfigurációs fájl alapértelmezett helye
-a <tt class="filename">$HOME/.mplayer/input.conf</tt> de ez megváltoztatható
-a <tt class="option">-input <em class="replaceable"><code>conf</code></em></tt> kapcsoló
-segítségével (a relatív elérési útvonalak a <tt class="filename">$HOME/.mplayer</tt>-hez
-képest relatívak).
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>3.3. VezÃ©rlÃ©s</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="usage.html" title="3. fejezet - HasznÃ¡lat"><link rel="prev" href="subosd.html" title="3.2. Feliratok Ã©s OSD"><link rel="next" href="streaming.html" title="3.4. HÃ¡lÃ³zati Ã©s pipe-os stream-elÃ©s"><link rel="preface" href="howtoread.html" title="Hogyan olvasd ezt a dokumentÃ¡ciÃ³t"><link rel="chapter" href="intro.html" title="1. fejezet - BevezetÃ©s"><link rel="chapter" href="install.html" title="2. fejezet - TelepÃ­tÃ©s"><link rel="chapter" href="usage.html" title="3. fejezet - HasznÃ¡lat"><link rel="chapter" href="cd-dvd.html" title="4. fejezet - CD/DVD hasznÃ¡lat"><link rel="chapter" href="faq.html" title="5. fejezet - Gyakran ismÃ©telt kÃ©rdÃ©sek"><link rel="chapter" href="containers.html" title="6. fejezet - KontÃ©nerek"><link rel="chapter" href="codecs.html" title="7. fejezet - Codec-ek"><link rel="chapter" href="video.html" title="8. fejezet - VideÃ³ kimeneti eszkÃ¶zÃ¶k"><link rel="chapter" href="audio.html" title="9. fejezet - AudiÃ³ kimeneti eszkÃ¶zÃ¶k"><link rel="chapter" href="tv.html" title="10. fejezet - TV"><link rel="chapter" href="radio.html" title="11. fejezet - RÃ¡diÃ³"><link rel="chapter" href="ports.html" title="12. fejezet - Portok"><link rel="chapter" href="mencoder.html" title="13. fejezet - A MEncoder hasznÃ¡latÃ¡nak alapjai"><link rel="chapter" href="encoding-guide.html" title="14. fejezet - KÃ³dolÃ¡s a MEncoderrel"><link rel="appendix" href="bugreports.html" title="A. fÃ¼ggelÃ©k - Hogyan jelentsd a hibÃ¡kat"><link rel="appendix" href="bugs.html" title="B. fÃ¼ggelÃ©k - Ismert hibÃ¡k"><link rel="appendix" href="skin.html" title="C. fÃ¼ggelÃ©k - MPlayer skin formÃ¡tum"><link rel="appendix" href="history.html" title="D. fÃ¼ggelÃ©k - TÃ¶rtÃ©nelem"><link rel="subsection" href="control.html#ctrl-cfg" title="3.3.1. VezÃ©rlÃ©s beÃ¡llÃ­tÃ¡sa"><link rel="subsection" href="control.html#lirc" title="3.3.2. IrÃ¡nyÃ­tÃ¡s LIRC-bÅ‘l"><link rel="subsection" href="control.html#slave-mode" title="3.3.3. Szolga mÃ³d"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">3.3. VezÃ©rlÃ©s</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="subosd.html">ElÅ‘zÅ‘</a>Â </td><th width="60%" align="center">3. fejezet - HasznÃ¡lat</th><td width="20%" align="right">Â <a accesskey="n" href="streaming.html">KÃ¶vetkezÅ‘</a></td></tr></table><hr></div><div class="sect1" lang="hu"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="control"></a>3.3. VezÃ©rlÃ©s</h2></div></div></div><p>
+Az <span class="application">MPlayer</span> teljesen konfigurÃ¡lhatÃ³, parancsvezÃ©relt,
+az irÃ¡nyÃ­tÃ¡si rÃ©tegÃ©nek a segÃ­tsÃ©gÃ©vel az <span class="application">MPlayer</span>t
+vezÃ©relheted billentyÅ±zettel, egÃ©rrel, joystickkal vagy tÃ¡virÃ¡nyÃ­tÃ³val
+(LIRC hasznÃ¡latÃ¡val). Olvasd el a man oldalon a hasznÃ¡lhatÃ³ billentyÅ±k listÃ¡jÃ¡t.
+</p><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="ctrl-cfg"></a>3.3.1. VezÃ©rlÃ©s beÃ¡llÃ­tÃ¡sa</h3></div></div></div><p>
+Az <span class="application">MPlayer</span> engedÃ©lyezi bÃ¡rmely billentyÅ±hÃ¶z/gombhoz
+bÃ¡rmilyen <span class="application">MPlayer</span> parancs hozzÃ¡rendelÃ©sÃ©t egy egyszerÅ±
+konfigurÃ¡ciÃ³s fÃ¡jl segÃ­tsÃ©gÃ©vel. A szintaxis egy egyszerÅ± billentyÅ± nÃ©vbÅ‘l
+Ã©s az azt kÃ¶vetÅ‘ parancsbÃ³l Ã¡ll. A konfigurÃ¡ciÃ³s fÃ¡jl alapÃ©rtelmezett helye
+a <tt class="filename">$HOME/.mplayer/input.conf</tt> de ez megvÃ¡ltoztathatÃ³
+a <tt class="option">-input <em class="replaceable"><code>conf</code></em></tt> kapcsolÃ³
+segÃ­tsÃ©gÃ©vel (a relatÃ­v elÃ©rÃ©si Ãºtvonalak a <tt class="filename">$HOME/.mplayer</tt>-hez
+kÃ©pest relatÃ­vak).
 </p><p>
-Az összes támogatott billenty&#369; nevének listáját az
+Az Ã¶sszes tÃ¡mogatott billentyÅ± nevÃ©nek listÃ¡jÃ¡t az
 <span><strong class="command">mplayer -input keylist</strong></span>
-parancs írja ki, az elérhet&#337; parancsok listáját pedig az
+parancs Ã­rja ki, az elÃ©rhetÅ‘ parancsok listÃ¡jÃ¡t pedig az
 <span><strong class="command">mplayer -input cmdlist</strong></span> paranccsal kapod meg.
-</p><div class="example"><a name="input_control_file"></a><p class="title"><b>3.1. példa - Egy példa bemeneti vezérl&#337; fájl</b></p><pre class="programlisting">
+</p><div class="example"><a name="input_control_file"></a><p class="title"><b>3.1. pÃ©lda - Egy pÃ©lda bemeneti vezÃ©rlÅ‘ fÃ¡jl</b></p><div class="example-contents"><pre class="programlisting">
 ##
-## MPlayer input vezérl&#337; fájl
+## MPlayer input vezÃ©rlÅ‘ fÃ¡jl
 ##
 
 RIGHT seek +10
@@ -29,26 +29,26 @@ LEFT seek -10
 q quit
 &gt; pt_step 1
 &lt; pt_step -1
-ENTER pt_step 1 1</pre></div></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="lirc"></a>3.3.2. Irányítás LIRC-b&#337;l</h3></div></div></div><p>
-Linux Infrared Remote Control (Linux Infravörös Távoli Irányítás) - végy
-egy egyszer&#369;en összerakható, otthon barkácsolt IR-vev&#337;t, egy (majdnem)
-tetszés szerinti távirányítót és irányítsd a Linux-os gépedet vele!
-B&#337;vebben a <a href="http://www.lirc.org" target="_top">LIRC weboldalon</a>
-olvashatsz err&#337;l.
+ENTER pt_step 1 1</pre></div></div><br class="example-break"></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="lirc"></a>3.3.2. IrÃ¡nyÃ­tÃ¡s LIRC-bÅ‘l</h3></div></div></div><p>
+Linux Infrared Remote Control (Linux InfravÃ¶rÃ¶s TÃ¡voli IrÃ¡nyÃ­tÃ¡s) - vÃ©gy
+egy egyszerÅ±en Ã¶sszerakhatÃ³, otthon barkÃ¡csolt IR-vevÅ‘t, egy (majdnem)
+tetszÃ©s szerinti tÃ¡virÃ¡nyÃ­tÃ³t Ã©s irÃ¡nyÃ­tsd a Linux-os gÃ©pedet vele!
+BÅ‘vebben a <a href="http://www.lirc.org" target="_top">LIRC weboldalon</a>
+olvashatsz errÅ‘l.
 </p><p>
-Ha feltelepítetted a LIRC csomagot, a <tt class="filename">configure</tt> automatikusan
-megtalálja. Ha minden jól megy, az <span class="application">MPlayer</span> egy ilyen
-üzenetet ír ki indításkor: "<code class="computeroutput">Setting up lirc support...</code>".
-Ha valami hiba történt, tájékoztat róla. Ha semmit sem mond a LIRC-r&#337;l,
-akkor a támogatása nincs beforgatva. Ennyi :-)
+Ha feltelepÃ­tetted a LIRC csomagot, a <tt class="filename">configure</tt> automatikusan
+megtalÃ¡lja. Ha minden jÃ³l megy, az <span class="application">MPlayer</span> egy ilyen
+Ã¼zenetet Ã­r ki indÃ­tÃ¡skor: "<code class="computeroutput">Setting up lirc support...</code>".
+Ha valami hiba tÃ¶rtÃ©nt, tÃ¡jÃ©koztat rÃ³la. Ha semmit sem mond a LIRC-rÅ‘l,
+akkor a tÃ¡mogatÃ¡sa nincs beforgatva. Ennyi :-)
 </p><p>
-Az <span class="application">MPlayer</span> alkalmazás neve - min&#337; meglep&#337; -
-<tt class="filename">mplayer</tt>. Bármelyik mplayer parancsot használhatod
-és egyszerre több parancsot is megadhatsz egy lépésben, ha <code class="literal">\n</code>
-karakterrel választod el &#337;ket. Ne felejtsd el engedélyezni az ismétlés jelz&#337;t
-(repeat flag) a <tt class="filename">.lircrc</tt> fájlban, ha van értelme
-(keresés, hanger&#337;, stb.). Itt egy kivonat egy <tt class="filename">.lircrc</tt>
-fájlból:
+Az <span class="application">MPlayer</span> alkalmazÃ¡s neve - minÅ‘ meglepÅ‘ -
+<tt class="filename">mplayer</tt>. BÃ¡rmelyik mplayer parancsot hasznÃ¡lhatod
+Ã©s egyszerre tÃ¶bb parancsot is megadhatsz egy lÃ©pÃ©sben, ha <code class="literal">\n</code>
+karakterrel vÃ¡lasztod el Å‘ket. Ne felejtsd el engedÃ©lyezni az ismÃ©tlÃ©s jelzÅ‘t
+(repeat flag) a <tt class="filename">.lircrc</tt> fÃ¡jlban, ha van Ã©rtelme
+(keresÃ©s, hangerÅ‘, stb.). Itt egy kivonat egy <tt class="filename">.lircrc</tt>
+fÃ¡jlbÃ³l:
 </p><pre class="programlisting">
 begin
      button = VOLUME_PLUS
@@ -75,16 +75,16 @@ begin
     prog = mplayer
     config = seek 0 1\npause
 end</pre><p>
-Ha nem tetszik a lirc-config fájl alapértelmezett elérési útvonala
-(<tt class="filename">~/.lircrc</tt>), használd a <tt class="option">-lircconf
-<em class="replaceable"><code>fájlnév</code></em></tt> kapcsolót egy másik fájl
-megadásához.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="slave-mode"></a>3.3.3. Szolga mód</h3></div></div></div><p>
-A szolga mód segítségével egyszer&#369; frontend-eket készíthetsz az
-<span class="application">MPlayer</span>hez. Ha a
-<tt class="option">-slave</tt> kapcsolóval futtatod az <span class="application">MPlayer</span>t,
-beolvassa az új sor karakterrel (\n) elválasztott parancsokat
-a standard bemenetr&#337;l (stdin).
-A parancsok a <a href="../../tech/slave.txt" target="_top">slave.txt</a> fájlban
-vannak leírva.
-</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="subosd.html">El&#337;z&#337;</a> </td><td width="20%" align="center"><a accesskey="u" href="usage.html">Fel</a></td><td width="40%" align="right"> <a accesskey="n" href="streaming.html">Következ&#337;</a></td></tr><tr><td width="40%" align="left" valign="top">3.2. Feliratok és OSD </td><td width="20%" align="center"><a accesskey="h" href="index.html">Tartalom</a></td><td width="40%" align="right" valign="top"> 3.4. Hálózati és pipe-os stream-elés</td></tr></table></div></body></html>
+Ha nem tetszik a lirc-config fÃ¡jl alapÃ©rtelmezett elÃ©rÃ©si Ãºtvonala
+(<tt class="filename">~/.lircrc</tt>), hasznÃ¡ld a <tt class="option">-lircconf
+<em class="replaceable"><code>fÃ¡jlnÃ©v</code></em></tt> kapcsolÃ³t egy mÃ¡sik fÃ¡jl
+megadÃ¡sÃ¡hoz.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="slave-mode"></a>3.3.3. Szolga mÃ³d</h3></div></div></div><p>
+A szolga mÃ³d segÃ­tsÃ©gÃ©vel egyszerÅ± frontend-eket kÃ©szÃ­thetsz az
+<span class="application">MPlayer</span>hez. Ha a <tt class="option">-slave</tt>
+kapcsolÃ³val futtatod az <span class="application">MPlayer</span>t,
+beolvassa az Ãºj sor karakterrel (\n) elvÃ¡lasztott parancsokat
+a standard bemenetrÅ‘l (stdin).
+A parancsok a <a href="../../tech/slave.txt" target="_top">slave.txt</a> fÃ¡jlban
+vannak leÃ­rva.
+</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="subosd.html">ElÅ‘zÅ‘</a>Â </td><td width="20%" align="center"><a accesskey="u" href="usage.html">Fel</a></td><td width="40%" align="right">Â <a accesskey="n" href="streaming.html">KÃ¶vetkezÅ‘</a></td></tr><tr><td width="40%" align="left" valign="top">3.2. Feliratok Ã©s OSDÂ </td><td width="20%" align="center"><a accesskey="h" href="index.html">Tartalom</a></td><td width="40%" align="right" valign="top">Â 3.4. HÃ¡lÃ³zati Ã©s pipe-os stream-elÃ©s</td></tr></table></div></body></html>

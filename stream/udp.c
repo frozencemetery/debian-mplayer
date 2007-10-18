@@ -43,6 +43,8 @@
 #include "url.h"
 #include "udp.h"
 
+int reuse_socket=0;
+
 /* Start listening on a UDP port. If multicast, join the group. */
 int
 udp_open_socket (URL_t *url)
@@ -55,6 +57,7 @@ udp_open_socket (URL_t *url)
   struct ip_mreq mcast;
   struct timeval tv;
   struct hostent *hp;
+  int reuse=reuse_socket;
 
   mp_msg (MSGT_NETWORK, MSGL_V,
           "Listening for traffic on %s:%d ...\n", url->hostname, url->port);
@@ -98,6 +101,9 @@ udp_open_socket (URL_t *url)
   server_address.sin_family = AF_INET;
   server_address.sin_port = htons (url->port);
 
+  if(reuse_socket && setsockopt(socket_server_fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)))
+      mp_msg(MSGT_NETWORK, MSGL_ERR, "SO_REUSEADDR failed! ignore.\n");
+
   if (bind (socket_server_fd, (struct sockaddr *) &server_address,
             sizeof (server_address)) == -1)
   {
@@ -120,7 +126,7 @@ udp_open_socket (URL_t *url)
     if (!hp)
     {
       mp_msg (MSGT_NETWORK, MSGL_ERR,
-              "Counldn't resolve name: %s\n", url->hostname);
+              "Could not resolve name: %s\n", url->hostname);
       closesocket (socket_server_fd);
       return -1;
     }
@@ -157,8 +163,8 @@ udp_open_socket (URL_t *url)
     }
   }
 
-  tv.tv_sec = 0;
-  tv.tv_usec = (1 * 1000000);	/* 1 second timeout */
+  tv.tv_sec = 1; /* 1 second timeout */
+  tv.tv_usec = 0;
 
   FD_ZERO (&set);
   FD_SET (socket_server_fd, &set);

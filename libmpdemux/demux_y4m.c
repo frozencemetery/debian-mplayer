@@ -12,10 +12,9 @@
 #include "help_mp.h"
 #include "yuv4mpeg.h"
 
-//#include "stream.h"
+//#include "stream/stream.h"
 #include "demuxer.h"
 #include "stheader.h"
-#include "bswap.h"
 
 typedef struct {
     int framenum; 

@@ -5,7 +5,7 @@ Maintainer:  A Mennucc1 <mennucc1@debian.org>
 Uploaders: Dariush Pietrzak <eyck@kuszelas.com>
 Standards-Version: 3.7.2.0
 Build-Depends-Indep: 
-Build-Depends: debhelper (>= 4), make (>= 3.80), pkg-config, po-debconf,
+Build-Depends: debhelper (>= 4), dpatch, make (>= 3.80), pkg-config, po-debconf,
  libsdl1.2-dev | libsdl1.1-dev, svgalibg1-dev [i386], libdts-dev, ladspa-sdk,
  libpng-dev, libncurses5-dev, zlib1g-dev, libspeex-dev, libsmbclient-dev,
  libtheora-dev (>= 0.0.0.alpha3-1), libesd0-dev, liblzo-dev, libgl1-mesa-dev,

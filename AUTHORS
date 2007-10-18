@@ -33,9 +33,10 @@ Anholt, Eric <eanholt@gladstone.uoregon.edu>
 Ashberg, Folke <folke@ashberg.de>
     * native AAlib driver (-vo aa)
 
-Balatoni, Dénes <pnis@coder.hu>
+Balatoni, Dénes <dbalatoni@gmail.com>
     * XMMS inputplugin support
-    * minor features & fixes mostly to make MPlayer work better on a PDA
+    * minor features & fixes
+    * Sun XVR-100 VO driver port from xine
 
 Barat, Zsolt (joyping) <joy@streamminister.de>
     * ao_alsa9 fixes, AC3 passthrough support
@@ -131,6 +132,7 @@ Biurrun, Diego (DonDiego) <diego@biurrun.de>
     * ultrafina skin
     * skin review part I
     * patch review
+    * build system overhaul
 
 Blomenkamp, Marcus <Marcus.Blomenkamp@epost.de>
     * VIDIX patches (Rage128, Radeon 7000)
@@ -173,11 +175,6 @@ Clagg, Jeff (snacky) <snacky@ikaruga.co.uk>
     * minor updates and fixes for x264 support
     * x264's encoding guide
     * superficial clarity fixes for mpcf.txt
-
-Compn <patriotact@gmail.com>
-    * #mplayer user wrangler (2003+)
-    * minor samples/bugs/win32 finder/tester
-    * small docs patches
 
 Comstedt, Marcus <marcus@idonex.se>
     * initial Solaris 8 x86 support
@@ -318,6 +315,7 @@ Giaquinta, Emanuele (exg) <emanuele.giaquinta@gmail.com>
 
 Goethel, Sven <sgoethel@jausoft.com>
     * vo_gl2 video output driver
+    * PVR Channel Navigation
 
 Gomez Garcia, German <german@piraos.com>
     * SPDIF AC3 output for SBLive!
@@ -363,11 +361,18 @@ Hoffmann, Jens <hoffmajs@gmx.de>
     * additional YUV formats support
     * found the big BITMAPINFOHEADER problem -> solved ASV2 pixelization
 
+Hoffman, Marc <mmh@pleasantst.com>
+    * AltiVec, color space converter
+    * Blackfin, DSP optimizations
+
 Holm, David (dholm, mswitch) <dholm@telia.com>
     * DXR3 support
 
 Horst, Bohdan (Nexus) <nexus@irc.pl>
     * FreeBSD support
+
+Hoyos, Carl Eugen (cehoyos) <cehoyos@ag.or.at>
+    * improvements to LIVE555 demuxer
 
 Huehner, Stefan (huehner) <stefan@huehner.org>
     * Major code cleanup patches
@@ -520,6 +525,11 @@ Liljeblad, Oskar <oskar@osk.mine.nu>
 Lin, Sam <itrs@softwell.com.tw>
     * -wid (plugger) patch
 
+Littler, Ben (compn) <patriotact@gmail.com>
+    * #mplayer user wrangler (2003+)
+    * minor samples/bugs/win32 finder/tester
+    * small docs patches
+
 Lombard, Pierre (pl) <p_l@gmx.fr>
     * new configure script
     * general code maintaining, fixes, patch committing
@@ -528,7 +538,7 @@ Madick, Puk <pingy@swirvemail.com>
     * KDE/GNOME2 fullscreen fix
     * configparser fixes
 
-Makovička, Jindřich (henry, x0rph) <makovick@KMLinux.fjfi.cvut.cz>
+Makovička, Jindřich (henry, x0rph) <makovick@gmail.com>
     * various bug fixes
     * rewrote v4l video capturing, implemented audio capturing layer
     * FreeType 2 font rendering support
@@ -606,7 +616,8 @@ Ohm, Christian <chr.ohm@gmx.net>
     * various small bug fixes
 
 Ötvös, Attila <oattila@chello.hu>
-	* A huge pile of printf to mp_msg patches
+    * A huge pile of printf to mp_msg patches
+    * Various patches for Teletext
 
 Parrish, Joey <joey@nicewarrior.org>
     * various fixes
@@ -620,7 +631,7 @@ Pietrzak, Dariusz (Eyck) <eyck@ghost.anime.pl>
     * support for vplayer subtitle format
     * preliminary support for .RT subtitle format
 
-Plourde, Nicolas <nicolas.plourde@sympatico.ca>
+Plourde, Nicolas <nicolas.plourde@gmail.com>
     * quartz video output driver for Mac OS X
     * macosx CoreVideo output driver for Mac OS X
     * Darwin VCD/SVCD support
@@ -705,7 +716,7 @@ Shimon, Oded (ods15) <ods15@ods15.dyndns.org>
 Simon, Peter <simon.peter@linuxuser.hu>
     * TOOLS/wma2ogg.pl author
 
-Snel, Rik <rsnel@cube.dyndns.org>
+Snel, Rik (rik) <rsnel@cube.dyndns.org>
     * zr video output driver
     * zr2 video output driver
     * zrmjpeg video filter
@@ -757,7 +768,7 @@ Tlalka, Adam (atlka) <atlka@pg.gda.pl>
     * OSD/subtitle review, fixes, optimization, UTF-8 support
     * various fixes
 
-Tiesi, Gianluigi <sherpya@netfarm.it>
+Tiesi, Gianluigi (Sherpya) <sherpya@netfarm.it>
     * AC3 passthrough support for ao_win32
     * avisynth demuxer
 
@@ -770,6 +781,11 @@ Togni, Roberto (rxt) <r_togni@tiscali.it>
     * Realaudio (ra) demuxer, 14_4 and 28_8 codec support
     * Misc bug fixes and enhancements
     * documentation
+
+Tresoldi, Paolo "PaulTT" (ptt) <paultt@hackerjournal.it>
+    * mplayer -endpos option
+    * Italian man page and console messages translations
+    * Italian documentation translation
 
 Tropea, Salvador Eduardo <salvador@inti.gov.ar>
     * subtitle parsing/displaying related patches
@@ -791,6 +807,8 @@ Verdejo Pinochet, Reynaldo H. (reynaldo) <reynaldo@opendot.cl>
 
 Voroshilov, Vladimir <voroshil@gmail.com>
     * Radio support
+    * Russian documentation translation
+    * Russian man page translation
 
 Wigren, Per <wigren@home.se>
     * bmovl - Bitmap Overlay video filter
@@ -820,6 +838,7 @@ Zores, Benjamin (ben) <ben@geexbox.org>
     * PVR input layer for IVTV based cards.
     * IVTV h/w MPEG decoder ao/vo driver.
     * split of stream layer from libmpdemux to stream.
+    * VIDIX core and drivers.
 
 ________________
 The codecs, libs
@@ -908,7 +927,7 @@ López, Juan Martin (nauj27) <nauj27@teleline.es>
     * Spanish documentation translation
 
 Mizda, Gábor (Gabrov) <gabrov@freemail.hu>
-	* Hungarian translation
+    * Hungarian translation
 
 MPlayerPL - Polish MPlayer Translation Team (http://mplayerpl.emdej.com)
     * Wacław Schiller (Torinthiel) <torinthiel@wp.pl>
@@ -916,9 +935,12 @@ MPlayerPL - Polish MPlayer Translation Team (http://mplayerpl.emdej.com)
     * Łukasz Proszek (Frogu) <frogoo@o2.pl>
     * Maciek Paszta (paszczi) <paszczi@go2.pl>
     * Piotr Michniewski (Cobra) <cobra_666@poczta.onet.pl>
-    * Marcin Biernat (Boski Cinek) <boski_cinek@o2.pl>
+    * Marcin Biernat (boskicinek) <boski_cinek@o2.pl>
     * Marek Jarycki (Emdej) <emdej@emdej.com>
     * Leszek Kaplita (Flex) <flex@tenbit.pl>
+
+Savchenko, Andrew <bircoph@list.ru>
+    * Russian documentation translation
 
 Zubimendi, Andoni <andoni@lpsat.net>.
     * Spanish documentation translation
@@ -1030,6 +1052,9 @@ siTe <ties@waterplant.nl>
 Sudrien
     * softgrip
 
+Sulmicki, Adam <adam@cfar.umd.edu>
+   * profiling and menu fixes
+
 Szumiela, Marcin <marcin@szumiela.pl>
     * divxplayer
 
@@ -1038,10 +1063,6 @@ Tisi, Massimo <massimotisi@yahoo.it>
 
 Týř, Jiří jun. <jirka@dts.cz>
     * DVDPlayer
-
-Tresoldi, Paolo "PaulTT" (ptt) <paultt@hackerjournal.it>
-    * mplayer -endpos option
-    * Italian man page and console messages translations
 
 Vasilev, Ognian <ogi28@mail.bg>
     * Orange
@@ -1055,7 +1076,7 @@ Vesko, Radic <rvesko@EUnet.yu>
 Vigvary, Balasz (Toky)
     * avifile
 
-Weber, Andrew (Webby) <webbypssht@gmail.com>
+Weber, Andrew (Webby) <andrewtweber@yahoo.com>
     * webby, smoothwebby
 
 Whitmore, Gary Jr.

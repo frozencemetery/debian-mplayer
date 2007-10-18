@@ -26,10 +26,16 @@
 #ifndef BITSTREAM_H
 #define BITSTREAM_H
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <assert.h>
+#include "common.h"
+#include "bswap.h"
+#include "intreadwrite.h"
 #include "log.h"
 
 #if defined(ALT_BITSTREAM_READER_LE) && !defined(ALT_BITSTREAM_READER)
-#define ALT_BITSTREAM_READER
+#   define ALT_BITSTREAM_READER
 #endif
 
 //#define ALT_BITSTREAM_WRITER
@@ -38,7 +44,7 @@
 #   ifdef ARCH_ARMV4L
 #       define A32_BITSTREAM_READER
 #   else
-#define ALT_BITSTREAM_READER
+#       define ALT_BITSTREAM_READER
 //#define LIBMPEG2_BITSTREAM_READER
 //#define A32_BITSTREAM_READER
 #   endif
@@ -47,7 +53,7 @@
 
 extern const uint8_t ff_reverse[256];
 
-#if defined(ARCH_X86) || defined(ARCH_X86_64)
+#if defined(ARCH_X86)
 // avoid +32 for shift optimization (gcc should do that ...)
 static inline  int32_t NEG_SSR32( int32_t a, int8_t s){
     asm ("sarl %1, %0\n\t"
@@ -132,6 +138,7 @@ static inline void flush_put_bits(PutBitContext *s)
 
 void align_put_bits(PutBitContext *s);
 void ff_put_string(PutBitContext * pbc, char *s, int put_zero);
+void ff_copy_bits(PutBitContext *pb, uint8_t *src, int length);
 
 /* bit input */
 /* buffer, buffer_end and size_in_bits must be present and used by every reader */
@@ -166,12 +173,12 @@ typedef struct RL_VLC_ELEM {
     uint8_t run;
 } RL_VLC_ELEM;
 
-#if defined(ARCH_SPARC) || defined(ARCH_ARMV4L) || defined(ARCH_MIPS)
+#if defined(ARCH_SPARC) || defined(ARCH_ARMV4L) || defined(ARCH_MIPS) || defined(ARCH_BFIN)
 #define UNALIGNED_STORES_ARE_BAD
 #endif
 
-/* used to avoid missaligned exceptions on some archs (alpha, ...) */
-#if defined(ARCH_X86) || defined(ARCH_X86_64)
+/* used to avoid misaligned exceptions on some archs (alpha, ...) */
+#if defined(ARCH_X86)
 #    define unaligned16(a) (*(const uint16_t*)(a))
 #    define unaligned32(a) (*(const uint32_t*)(a))
 #    define unaligned64(a) (*(const uint64_t*)(a))
@@ -187,12 +194,12 @@ static inline uint##x##_t unaligned##x(const void *v) { \
 }
 #    elif defined(__DECC)
 #    define unaligned(x)                                        \
-static inline uint##x##_t unaligned##x##(const void *v) {       \
+static inline uint##x##_t unaligned##x(const void *v) {         \
     return *(const __unaligned uint##x##_t *) v;                \
 }
 #    else
 #    define unaligned(x)                                        \
-static inline uint##x##_t unaligned##x##(const void *v) {       \
+static inline uint##x##_t unaligned##x(const void *v) {         \
     return *(const uint##x##_t *) v;                            \
 }
 #    endif
@@ -200,7 +207,7 @@ unaligned(16)
 unaligned(32)
 unaligned(64)
 #undef unaligned
-#endif /* defined(ARCH_X86) || defined(ARCH_X86_64) */
+#endif /* defined(ARCH_X86) */
 
 #ifndef ALT_BITSTREAM_WRITER
 static inline void put_bits(PutBitContext *s, int n, unsigned int value)
@@ -247,7 +254,7 @@ static inline void put_bits(PutBitContext *s, int n, unsigned int value)
 static inline void put_bits(PutBitContext *s, int n, unsigned int value)
 {
 #    ifdef ALIGNED_BITSTREAM_WRITER
-#        if defined(ARCH_X86) || defined(ARCH_X86_64)
+#        if defined(ARCH_X86)
     asm volatile(
         "movl %0, %%ecx                 \n\t"
         "xorl %%eax, %%eax              \n\t"
@@ -278,7 +285,7 @@ static inline void put_bits(PutBitContext *s, int n, unsigned int value)
     s->index= index;
 #        endif
 #    else //ALIGNED_BITSTREAM_WRITER
-#        if defined(ARCH_X86) || defined(ARCH_X86_64)
+#        if defined(ARCH_X86)
     asm volatile(
         "movl $7, %%ecx                 \n\t"
         "andl %0, %%ecx                 \n\t"
@@ -335,8 +342,8 @@ static inline void skip_put_bytes(PutBitContext *s, int n){
 }
 
 /**
- * skips the given number of bits.
- * must only be used if the actual values in the bitstream dont matter
+ * Skips the given number of bits.
+ * Must only be used if the actual values in the bitstream do not matter.
  */
 static inline void skip_put_bits(PutBitContext *s, int n){
 #ifdef ALT_BITSTREAM_WRITER
@@ -400,26 +407,6 @@ LAST_SKIP_BITS(name, gb, num)
 for examples see get_bits, show_bits, skip_bits, get_vlc
 */
 
-static inline int unaligned32_be(const void *v)
-{
-#ifdef CONFIG_ALIGN
-        const uint8_t *p=v;
-        return (((p[0]<<8) | p[1])<<16) | (p[2]<<8) | (p[3]);
-#else
-        return be2me_32( unaligned32(v)); //original
-#endif
-}
-
-static inline int unaligned32_le(const void *v)
-{
-#ifdef CONFIG_ALIGN
-       const uint8_t *p=v;
-       return (((p[3]<<8) | p[2])<<16) | (p[1]<<8) | (p[0]);
-#else
-       return le2me_32( unaligned32(v)); //original
-#endif
-}
-
 #ifdef ALT_BITSTREAM_READER
 #   define MIN_CACHE_BITS 25
 
@@ -432,13 +419,13 @@ static inline int unaligned32_le(const void *v)
 
 # ifdef ALT_BITSTREAM_READER_LE
 #   define UPDATE_CACHE(name, gb)\
-        name##_cache= unaligned32_le( ((const uint8_t *)(gb)->buffer)+(name##_index>>3) ) >> (name##_index&0x07);\
+        name##_cache= AV_RL32( ((const uint8_t *)(gb)->buffer)+(name##_index>>3) ) >> (name##_index&0x07);\
 
 #   define SKIP_CACHE(name, gb, num)\
         name##_cache >>= (num);
 # else
 #   define UPDATE_CACHE(name, gb)\
-        name##_cache= unaligned32_be( ((const uint8_t *)(gb)->buffer)+(name##_index>>3) ) << (name##_index&0x07);\
+        name##_cache= AV_RB32( ((const uint8_t *)(gb)->buffer)+(name##_index>>3) ) << (name##_index&0x07);\
 
 #   define SKIP_CACHE(name, gb, num)\
         name##_cache <<= (num);
@@ -580,7 +567,7 @@ static inline void skip_bits_long(GetBitContext *s, int n){
         name##_bit_count-= 32;\
     }\
 
-#if defined(ARCH_X86) || defined(ARCH_X86_64)
+#if defined(ARCH_X86)
 #   define SKIP_CACHE(name, gb, num)\
         asm(\
             "shldl %2, %1, %0          \n\t"\
@@ -662,7 +649,7 @@ static inline int get_sbits(GetBitContext *s, int n){
 }
 
 /**
- * reads 0-17 bits.
+ * reads 1-17 bits.
  * Note, the alt bitstream reader can read up to 25 bits, but the libmpeg2 reader can't
  */
 static inline unsigned int get_bits(GetBitContext *s, int n){
@@ -676,7 +663,7 @@ static inline unsigned int get_bits(GetBitContext *s, int n){
 }
 
 /**
- * shows 0-17 bits.
+ * shows 1-17 bits.
  * Note, the alt bitstream reader can read up to 25 bits, but the libmpeg2 reader can't
  */
 static inline unsigned int show_bits(GetBitContext *s, int n){
@@ -799,9 +786,19 @@ static inline void align_get_bits(GetBitContext *s)
     if(n) skip_bits(s, n);
 }
 
-int init_vlc(VLC *vlc, int nb_bits, int nb_codes,
+#define init_vlc(vlc, nb_bits, nb_codes,\
+                 bits, bits_wrap, bits_size,\
+                 codes, codes_wrap, codes_size,\
+                 flags)\
+        init_vlc_sparse(vlc, nb_bits, nb_codes,\
+                 bits, bits_wrap, bits_size,\
+                 codes, codes_wrap, codes_size,\
+                 NULL, 0, 0, flags)
+
+int init_vlc_sparse(VLC *vlc, int nb_bits, int nb_codes,
              const void *bits, int bits_wrap, int bits_size,
              const void *codes, int codes_wrap, int codes_size,
+             const void *symbols, int symbols_wrap, int symbols_size,
              int flags);
 #define INIT_VLC_USE_STATIC 1
 #define INIT_VLC_LE         2
@@ -873,11 +870,11 @@ void free_vlc(VLC *vlc);
  * parses a vlc code, faster then get_vlc()
  * @param bits is the number of bits which will be read at once, must be
  *             identical to nb_bits in init_vlc()
- * @param max_depth is the number of times bits bits must be readed to completly
+ * @param max_depth is the number of times bits bits must be read to completely
  *                  read the longest vlc code
  *                  = (max_vlc_length + bits - 1) / bits
  */
-static always_inline int get_vlc2(GetBitContext *s, VLC_TYPE (*table)[2],
+static av_always_inline int get_vlc2(GetBitContext *s, VLC_TYPE (*table)[2],
                                   int bits, int max_depth)
 {
     int code;
@@ -938,10 +935,10 @@ static inline int get_xbits_trace(GetBitContext *s, int n, char *file, const cha
 #define get_vlc(s, vlc)            get_vlc_trace(s, (vlc)->table, (vlc)->bits, 3, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 #define get_vlc2(s, tab, bits, max) get_vlc_trace(s, tab, bits, max, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 
-#define tprintf(...) av_log(NULL, AV_LOG_DEBUG, __VA_ARGS__)
+#define tprintf(p, ...) av_log(p, AV_LOG_DEBUG, __VA_ARGS__)
 
 #else //TRACE
-#define tprintf(...) {}
+#define tprintf(p, ...) {}
 #endif
 
 static inline int decode012(GetBitContext *gb){

@@ -1,10 +1,11 @@
 /*
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: registry.c 18894 2006-07-03 23:27:37Z reynaldo $
+ * $Id: registry.c 24407 2007-09-10 13:08:46Z diego $
  */
 
 #include "config.h"
+#include "debug.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -262,7 +263,6 @@ static char* build_keyname(long key, const char* subkey)
 }
 static struct reg_value* insert_reg_value(int handle, const char* name, int type, const void* value, int len)
 {
-	reg_handle_t* t;
 	struct reg_value* v;
 	char* fullname;
 	if((fullname=build_keyname(handle, name))==NULL)
@@ -305,31 +305,8 @@ static void init_registry(void)
 	// can't be free-ed - it's static and probably thread
 	// unsafe structure which is stored in glibc
 
-#ifdef MPLAYER
 	regpathname = get_path("registry");
 	localregpathname = regpathname;
-#else
-	// regpathname is an external pointer
-        //
-	// registry.c is holding it's own internal pointer
-	// localregpathname  - which is being allocate/deallocated
-
-	if (localregpathname == 0)
-	{
-            const char* pthn = regpathname;
-	    if (!regpathname)
-	    {
-		// avifile - for now reading data from user's home
-		struct passwd* pwent;
-		pwent = getpwuid(geteuid());
-                pthn = pwent->pw_dir;
-	    }
-
-	    localregpathname = malloc(strlen(pthn)+20);
-	    strcpy(localregpathname, pthn);
-	    strcat(localregpathname, "/.registry");
-	}
-#endif
 
 	open_registry();
 	insert_handle(HKEY_LOCAL_MACHINE, "HKLM");
@@ -510,7 +487,6 @@ long __stdcall RegEnumValueA(HKEY hkey, DWORD index, LPSTR value, LPDWORD val_co
 
 long __stdcall RegSetValueExA(long key, const char* name, long v1, long v2, const void* data, long size)
 {
-    struct reg_value* t;
     char* c;
     TRACE("Request to set value %s %d\n", name, *(const int*)data);
     if(!regs)

@@ -1,3 +1,11 @@
+mplayer (1.0~rc2-1) unstable; urgency=low
+
+  * New upstream version.
+  * Remove RTC debconf question and /etc/init.d/mplayer (Closes: #421363)
+  * Use dpatch.
+  
+ -- A Mennucc1 <mennucc1@debian.org>  Wed, 18 Oct 2007 19:27:16 +0200
+
 mplayer (1.0~rc1-16.1) unstable; urgency=high
 
   * Non-maintainer upload by testing security team.

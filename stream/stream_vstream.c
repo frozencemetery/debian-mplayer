@@ -16,10 +16,8 @@
  *  GNU General Public License for more details.
  *   
  *  You should have received a copy of the GNU General Public License
- *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
- *
- *
+ *  along with MPlayer; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 /*
@@ -100,7 +98,7 @@ static int seek(stream_t *s,off_t newpos) {
 }
 
 static int control(struct stream_st *s,int cmd,void* arg) {
-  return STREAM_UNSUPORTED;
+  return STREAM_UNSUPPORTED;
 }
 
 static void close_s(struct stream_st *s) {
@@ -111,7 +109,7 @@ static int open_s(stream_t *stream, int mode, void* opts, int* file_format) {
   struct stream_priv_s* p = (struct stream_priv_s*)opts;
 
   if(mode != STREAM_READ)
-    return STREAM_UNSUPORTED;
+    return STREAM_UNSUPPORTED;
 
   if(!p->host) {
     mp_msg(MSGT_OPEN, MSGL_ERR, "We need a host name (ex: tivo://hostname/fsid)\n");

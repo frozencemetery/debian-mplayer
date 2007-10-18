@@ -23,7 +23,7 @@
 ** For more info contact Ahead Software through Mpeg4AAClicense@nero.com.
 **
 ** Initially modified for use with MPlayer by Arpad Gereöffy on 2003/08/30
-** $Id: common.h 18786 2006-06-22 13:34:00Z diego $
+** $Id: common.h 24043 2007-08-09 11:35:41Z diego $
 ** detailed changelog at http://svn.mplayerhq.hu/mplayer/trunk/
 ** local_changes.diff contains the exact changes to this file.
 **/
@@ -35,12 +35,14 @@
 extern "C" {
 #endif
 
+#ifdef HAVE_CONFIG_H
+#  include "../config.h"
+#endif
+
 /* Allow build on Cygwin*/
 #if defined(__CYGWIN__)
 #define __STRICT_ANSI__
 #endif
-
-#include "../config.h"
 
 #define INLINE __inline
 #if 0 //defined(_WIN32) && !defined(_WIN32_WCE)
@@ -177,22 +179,6 @@ typedef float float32_t;
 
 
 #else
-
-/* #undef HAVE_FLOAT32_T */
-/* Define if you have the <inttypes.h> header file. */
-#define HAVE_INTTYPES_H 1
-
-/* Define if you have the `memcpy' function. */
-#define HAVE_MEMCPY 1
-
-/* Define if you have the <stdint.h> header file. */
-#define HAVE_STDINT_H 1
-
-/* Define if you have the `strchr' function. */
-#define HAVE_STRCHR 1
-
-/* Define if you have the ANSI C header files. */
-#define STDC_HEADERS 1
 
 #include <stdio.h>
 #if HAVE_SYS_TYPES_H

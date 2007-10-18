@@ -1,6 +1,6 @@
 
-#ifndef __MPLAYER_SUB_H
-#define __MPLAYER_SUB_H
+#ifndef MPLAYER_SUB_H
+#define MPLAYER_SUB_H
 
 typedef struct mp_osd_bbox_s {
     int x1,y1,x2,y2;
@@ -10,6 +10,8 @@ typedef struct mp_osd_bbox_s {
 #define OSDTYPE_SUBTITLE 2
 #define OSDTYPE_PROGBAR 3
 #define OSDTYPE_SPU 4
+#define OSDTYPE_DVDNAV 5
+#define OSDTYPE_TELETEXT 6
 
 #define OSDFLAG_VISIBLE 1
 #define OSDFLAG_CHANGED 2
@@ -58,12 +60,20 @@ static inline void vo_draw_text_osd(int dxs,int dys,void (*draw_alpha)(int x0,in
 
 #include "subreader.h"
 
+extern sub_data* subdata; //currently used subtitles
+extern subtitle* vo_sub;
+
 extern unsigned char* vo_osd_text;
+
+#ifdef HAVE_TV_TELETEXT
+extern void* vo_osd_teletext_page;
+extern int vo_osd_teletext_half;
+extern int vo_osd_teletext_mode;
+extern int vo_osd_teletext_format;
+#endif
 
 extern int vo_osd_progbar_type;
 extern int vo_osd_progbar_value;   // 0..255
-
-extern subtitle* vo_sub;
 
 extern void* vo_spudec;
 extern void* vo_vobsub;
@@ -79,6 +89,7 @@ extern void* vo_vobsub;
 #define OSD_VOLUME 0x09
 #define OSD_BRIGHTNESS 0x0A
 #define OSD_HUE 0x0B
+#define OSD_BALANCE 0x0C
 #define OSD_PANSCAN 0x50
 
 #define OSD_PB_START 0x10
@@ -87,8 +98,8 @@ extern void* vo_vobsub;
 #define OSD_PB_1 0x13
 
 /* now in textform */
-extern char * __sub_osd_names[];
-extern char * __sub_osd_names_short[];
+extern char * sub_osd_names[];
+extern char * sub_osd_names_short[];
 
 extern int sub_unicode;
 extern int sub_utf8;
@@ -100,7 +111,6 @@ extern int sub_pos;
 extern int sub_width_p;
 extern int sub_alignment;
 extern int sub_visibility;
-extern int suboverlap_enabled;
 extern int sub_bg_color; /* subtitles background color */
 extern int sub_bg_alpha;
 extern int spu_alignment;
@@ -121,7 +131,12 @@ void free_osd_list(void);
 
 extern int vo_osd_changed_flag;
 
-unsigned utf8_get_char(char **str);
+unsigned utf8_get_char(const char **str);
+
+#ifdef USE_DVDNAV
+#include <inttypes.h>
+void osd_set_nav_box (uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey);
+#endif
 
 #endif
 #endif

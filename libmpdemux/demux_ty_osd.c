@@ -17,7 +17,7 @@
 #include "mp_msg.h"
 #include "help_mp.h"
 
-//#include "stream.h"
+//#include "stream/stream.h"
 //#include "demuxer.h"
 //#include "parse_es.h"
 //#include "stheader.h"
@@ -363,7 +363,9 @@ static int ty_CCdecode( char b1, char b2 )
                      break;
                   }
               
-                  case 0x25 ... 0x27:       // 2-4 row captions
+                  case 0x25:       // 2-4 row captions
+                  case 0x26:
+                  case 0x27:
                   {
                      if ( TY_CC_stat == TY_CCPOPUP ) ty_ClearOSD( 1 );
                      TY_CC_stat = b2 - 0x23;
@@ -754,7 +756,14 @@ static int ty_XDSdecode( char b1, char b2 )
                break;
             }
 
-            case 0x0110 ... 0x0117:         // program description
+            case 0x0110:         // program description
+            case 0x0111:
+            case 0x0112:
+            case 0x0113:
+            case 0x0114:
+            case 0x0115:
+            case 0x0116:
+            case 0x0117:
             {
                ty_AddXDSToDisplay( "DESCRIP: %s", TY_XDS_ptr ); 
                break;
@@ -848,9 +857,6 @@ static int ty_XDSdecode( char b1, char b2 )
    return 0;
 }
 
-
-// 42 x 10
-static char *testline = "0123456789012345678901234567890123456789012";
 
 // ===========================================================================
 // Callback from Video Display Processing to put up the OSD

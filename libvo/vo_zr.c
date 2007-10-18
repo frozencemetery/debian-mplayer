@@ -3,7 +3,7 @@
  * Copyright (C) Rik Snel 2001,2002, License GNU GPL v2
  */
 
-/* $Id: vo_zr.c 16172 2005-08-05 01:24:37Z ivo $ */
+/* $Id: vo_zr.c 23893 2007-07-28 14:28:38Z diego $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -186,12 +186,12 @@ int init_zoran(zr_info_t *zr, int stretchx, int stretchy) {
 	/* center the image, and stretch it as far as possible (try to keep
 	 * aspect) and check if it fits */
 	if (zr->image_width > zr->vc.maxwidth) {
-		mp_msg(MSGT_VO, MSGL_ERR, "zr: movie to be played is too wide, max width currenty %d\n", zr->vc.maxwidth);
+		mp_msg(MSGT_VO, MSGL_ERR, "zr: movie to be played is too wide, max width currently %d\n", zr->vc.maxwidth);
 		return 1;
 	}
 
 	if (zr->image_height > zr->vc.maxheight) {
-		mp_msg(MSGT_VO, MSGL_ERR, "zr: movie to be played is too high, max height currenty %d\n", zr->vc.maxheight);
+		mp_msg(MSGT_VO, MSGL_ERR, "zr: movie to be played is too high, max height currently %d\n", zr->vc.maxheight);
 		return 1;
 	}
 
@@ -546,7 +546,7 @@ static int draw_frame(uint8_t * src[]) {
 		source = src[0] + 2*g->yoff*zr->vdec*zr->stride + 2*g->xoff;
 		dest = zr->image + 2*zr->off_y;
 		for (i = 0; i < g->height/zr->vdec; i++) {
-			memcpy(dest, source, zr->image_width*2);
+			fast_memcpy(dest, source, zr->image_width*2);
 			dest += 2*zr->image_width;
 			source += zr->vdec*zr->stride;
 		}
@@ -619,7 +619,7 @@ static int draw_slice(uint8_t *srcimg[], int stride[],
 		// copy Y:
 		for (i = 0; i < h; i++) {
 			if ((i + x)%zr->vdec == 0) {
-				memcpy(dst,src,w);
+				fast_memcpy(dst,src,w);
 				dst+=zr->image_width;
 			}
 			src+=stride[0];
@@ -633,8 +633,8 @@ static int draw_slice(uint8_t *srcimg[], int stride[],
 					zr->image_width/2+(x/2);
 			for (i = 0; i< h/2; i++) {
 				if ((i+x/2)%zr->vdec == 0) {
-					memcpy(dst1,src1,w/2);
-					memcpy(dst2,src2,w/2);
+					fast_memcpy(dst1,src1,w/2);
+					fast_memcpy(dst2,src2,w/2);
 					dst1+=zr->image_width/2;
 					dst2+=zr->image_width/2;
 				}

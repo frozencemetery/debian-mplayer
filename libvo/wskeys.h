@@ -1,6 +1,6 @@
 
-#ifndef _MY_WSKEY
-#define _MY_WSKEY
+#ifndef WSKEYS_H
+#define WSKEYS_H
 
 #define wsosbrackets '['
 #define wscsbrackets ']'

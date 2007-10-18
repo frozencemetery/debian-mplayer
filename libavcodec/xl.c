@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
  */
 
 /**
@@ -33,7 +32,7 @@ typedef struct VideoXLContext{
     AVFrame pic;
 } VideoXLContext;
 
-const int xl_table[32] = {
+static const int xl_table[32] = {
    0,   1,   2,   3,   4,   5,   6,   7,
    8,   9,  12,  15,  20,  25,  34,  46,
   64,  82,  94, 103, 108, 113, 116, 119,
@@ -73,7 +72,7 @@ static int decode_frame(AVCodecContext *avctx,
 
         for (j = 0; j < avctx->width; j += 4) {
             /* value is stored in LE dword with word swapped */
-            val = LE_32(buf);
+            val = AV_RL32(buf);
             buf -= 4;
             val = ((val >> 16) & 0xFFFF) | ((val & 0xFFFF) << 16);
 

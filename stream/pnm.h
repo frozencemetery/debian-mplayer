@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
- * $Id: pnm.h 19620 2006-09-01 12:11:11Z diego $
+ * $Id: pnm.h 23712 2007-07-03 08:28:44Z diego $
  *
  * pnm util functions header by joschka
  */
@@ -25,9 +25,7 @@
 #ifndef HAVE_PNM_H
 #define HAVE_PNM_H
 
-#ifndef __CYGWIN__
 #include <inttypes.h>
-#endif
 /*#include "xine_internal.h" */
 
 typedef struct pnm_s pnm_t;

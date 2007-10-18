@@ -3,7 +3,8 @@
  * by Szabolcs Berecz <szabi@inf.elte.hu>
  * (C) 2001
  *
- * to compile tester app: gcc -Iloader/ -DTESTING -o codec-cfg codec-cfg.c
+ * to compile test application:
+ *  cc -I. -DTESTING -o codec-cfg-test codec-cfg.c mp_msg.o osdep/getch2.o -ltermcap
  * to compile CODECS2HTML:
  *   gcc -DCODECS2HTML -o codecs2html codec-cfg.c mp_msg.o
  *
@@ -30,7 +31,7 @@
 #ifdef __GNUC__
 #define mp_msg(t, l, m, args...) fprintf(stderr, m, ##args)
 #else
-#define mp_msg(t, l, m, ...) fprintf(stderr, m, __VA_ARGS__)
+#define mp_msg(t, l, ...) fprintf(stderr, __VA_ARGS__)
 #endif
 #endif
 
@@ -377,7 +378,7 @@ static int add_comment(char *s, char **d)
 		pos = strlen(*d);
 		(*d)[pos++] = '\n';
 	}
-	if (!(*d = (char *) realloc(*d, pos + strlen(s) + 1))) {
+	if (!(*d = realloc(*d, pos + strlen(s) + 1))) {
 		mp_msg(MSGT_CODECCFG,MSGL_FATAL,MSGTR_CantAllocateComment);
 		return 0;
 	}
@@ -518,7 +519,7 @@ int parse_codec_cfg(const char *cfgfile)
 		return 0;
 	}
 
-	if ((line = (char *) malloc(MAX_LINE_LEN + 1)) == NULL) {
+	if ((line = malloc(MAX_LINE_LEN + 1)) == NULL) {
 		mp_msg(MSGT_CODECCFG,MSGL_FATAL,MSGTR_CantGetMemoryForLine, strerror(errno));
 		return 0;
 	}
@@ -575,7 +576,7 @@ int parse_codec_cfg(const char *cfgfile)
 				goto err_out;
 #endif
 			}
-		        if (!(*codecsp = (codecs_t *) realloc(*codecsp,
+		        if (!(*codecsp = realloc(*codecsp,
 				sizeof(codecs_t) * (*nr_codecsp + 2)))) {
 			    mp_msg(MSGT_CODECCFG,MSGL_FATAL,MSGTR_CantReallocCodecsp, strerror(errno));
 			    goto err_out;

@@ -7,7 +7,8 @@
 #include "config.h"
 #include "mp_msg.h"
 #include "cpudetect.h"
-#include "bswap.h"
+#include "libavutil/common.h"
+#include "mpbswap.h"
 
 #include "img_format.h"
 #include "mp_image.h"
@@ -169,6 +170,11 @@ static int deghost_plane(unsigned char *d, unsigned char *s,
    return 0;
    }
 
+static int copyop(unsigned char *d, unsigned char *s, int bpl, int h, int dstride, int sstride, int dummy) {
+  memcpy_pic(d, s, bpl, h, dstride, sstride);
+  return 0;
+}
+
 static int imgop(int(*planeop)(unsigned char *, unsigned char *,
 			       int, int, int, int, int),
 		 mp_image_t *dst, mp_image_t *src, int arg)
@@ -196,8 +202,6 @@ static int imgop(int(*planeop)(unsigned char *, unsigned char *,
  * If phase1 and phase2 are not negative, only the two specified
  * phases are tested.
  */
-
-static int cmp(int *a, int *b) { return *b-*a; }
 
 static int match(struct vf_priv_s *p, int *diffs,
 		 int phase1, int phase2, double *strength)
@@ -335,7 +339,7 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts)
    switch((p->frameno++-p->phase+10)%5)
       {
       case 0:
-	 imgop((void *)memcpy_pic, dmpi, mpi, 0);
+	 imgop(copyop, dmpi, mpi, 0);
 	 return 0;
 
       case 4:
@@ -347,14 +351,14 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts)
 			      mpi->width, mpi->height);
 	    vf_clone_mpi_attributes(tmpi, mpi);
 
-	    imgop((void *)memcpy_pic, tmpi, mpi, 0);
+	    imgop(copyop, tmpi, mpi, 0);
 	    imgop(deghost_plane, tmpi, dmpi, p->deghost);
-	    imgop((void *)memcpy_pic, dmpi, mpi, 0);
+	    imgop(copyop, dmpi, mpi, 0);
 	    return vf_next_put_image(vf, tmpi, MP_NOPTS_VALUE);
 	    }
       }
 
-   imgop((void *)memcpy_pic, dmpi, mpi, 0);
+   imgop(copyop, dmpi, mpi, 0);
    return vf_next_put_image(vf, dmpi, MP_NOPTS_VALUE);
    }
 

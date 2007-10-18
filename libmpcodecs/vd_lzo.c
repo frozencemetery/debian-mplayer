@@ -6,12 +6,10 @@
 
 #include "vd_internal.h"
 
-#ifdef USE_LIBLZO
-#include <lzo1x.h>
+#ifdef USE_LIBAVUTIL_SO
+#include <ffmpeg/lzo.h>
 #else
-#include "native/minilzo.h"
-#define lzo_malloc malloc
-#define lzo_free free
+#include "libavutil/lzo.h"
 #endif
 
 #define MOD_NAME "DecLZO"
@@ -27,7 +25,8 @@ static vd_info_t info = {
 LIBVD_EXTERN(lzo)
 
 typedef struct {
-    lzo_byte *wrkmem;
+    uint8_t *buffer;
+    int bufsz;
     int codec;
 } lzo_context_t;
 
@@ -35,12 +34,9 @@ typedef struct {
 static int control (sh_video_t *sh, int cmd, void* arg, ...)
 {
     lzo_context_t *priv = sh->context;
-    //printf("[%s] Query!! (%s)\n", MOD_NAME, (codec==IMGFMT_BGR24)?"BGR":"none");
-    //printf("[%s] Query!! (%s)\n", MOD_NAME, (codec==IMGFMT_YV12)?"YV12":"none");
     switch(cmd){
     case VDCTRL_QUERY_FORMAT:
-	if( (*((int*)arg)) == IMGFMT_BGR24 && priv->codec == IMGFMT_BGR24) return CONTROL_TRUE;
-	if( (*((int*)arg)) == IMGFMT_YV12 && priv->codec == IMGFMT_YV12) return CONTROL_TRUE;
+	if (*(int *)arg == priv->codec) return CONTROL_TRUE;
 	return CONTROL_FALSE;
     }
     return CONTROL_UNKNOWN;
@@ -52,8 +48,8 @@ static int init(sh_video_t *sh)
 {
     lzo_context_t *priv;
 
-    if (lzo_init() != LZO_E_OK) {
-	mp_msg (MSGT_DECVIDEO, MSGL_ERR, "[%s] lzo_init() failed\n", MOD_NAME);
+    if (sh->bih->biSizeImage <= 0) {
+	mp_msg (MSGT_DECVIDEO, MSGL_ERR, "[%s] Invalid frame size\n", MOD_NAME);
 	return 0; 
     }
 
@@ -63,15 +59,10 @@ static int init(sh_video_t *sh)
 	mp_msg (MSGT_DECVIDEO, MSGL_ERR, "[%s] memory allocation failed\n", MOD_NAME);
 	return 0;
     }
+    priv->bufsz = sh->bih->biSizeImage;
+    priv->buffer = malloc(priv->bufsz + LZO_OUTPUT_PADDING);
     priv->codec = -1;
     sh->context = priv;
-
-    priv->wrkmem = (lzo_bytep) lzo_malloc(LZO1X_1_MEM_COMPRESS);
-
-    if (priv->wrkmem == NULL) {
-	mp_msg (MSGT_DECVIDEO, MSGL_ERR, "[%s] Cannot alloc work memory\n", MOD_NAME);
-	return 0;
-    }
 
     return 1;
 }
@@ -83,54 +74,40 @@ static void uninit(sh_video_t *sh)
     
     if (priv)
     {
-	if (priv->wrkmem)
-	    lzo_free(priv->wrkmem);
+	free(priv->buffer);
 	free(priv);
     }
 
     sh->context = NULL;
 }
 
-//mp_image_t* mpcodecs_get_image(sh_video_t *sh, int mp_imgtype, int mp_imgflag, int w, int h);
-
 // decode a frame
 static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags)
 {
-    static int init_done = 0;
     int r;
     mp_image_t* mpi;
-    int w;
     lzo_context_t *priv = sh->context;
+    int w = priv->bufsz;
 
     if (len <= 0) {
 	    return NULL; // skipped frame
     }
     
+    r = lzo1x_decode(priv->buffer, &w, data, &len);
+    if (r) {
+	/* this should NEVER happen */
+	mp_msg (MSGT_DECVIDEO, MSGL_ERR, 
+		"[%s] internal error - decompression failed: %d\n", MOD_NAME, r);
+      return NULL;
+    }
 
-    if (!init_done) {
-	lzo_byte *tmp=NULL;
-	
-	// decompress one frame to see if its
-	// either YV12 or RGB24
-	if (!tmp) tmp = lzo_malloc(sh->bih->biSizeImage);
-
+    if (priv->codec == -1) {
+	// detect RGB24 vs. YV12 via decoded size
 	mp_msg (MSGT_DECVIDEO, MSGL_V, "[%s] 2 depth %d, format %d data %p len (%d) (%d)\n",
 	    MOD_NAME, sh->bih->biBitCount, sh->format, data, len, sh->bih->biSizeImage
 	    );
 
-	/* decompress the frame */
-	w = sh->bih->biSizeImage;
-	r = lzo1x_decompress_safe (data, len, tmp, &w, priv->wrkmem);
-	free(tmp);
-
-	if (r != LZO_E_OK) {
-	    /* this should NEVER happen */
-	    mp_msg (MSGT_DECVIDEO, MSGL_ERR, 
-		    "[%s] internal error - decompression failed: %d\n", MOD_NAME, r);
-	    return NULL;
-	}
-
-	if        (w == (sh->bih->biSizeImage))   {
+	if (w == 0) {
 	    priv->codec = IMGFMT_BGR24;
 	    mp_msg (MSGT_DECVIDEO, MSGL_V, "[%s] codec choosen is BGR24\n", MOD_NAME);
 	} else if (w == (sh->bih->biSizeImage)/2) {
@@ -142,11 +119,13 @@ static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags)
 	    return NULL;
 	}
 
-	if(!mpcodecs_config_vo(sh,sh->disp_w,sh->disp_h,priv->codec)) return NULL;
-	init_done++;
+	if(!mpcodecs_config_vo(sh,sh->disp_w,sh->disp_h,priv->codec)) {
+	    priv->codec = -1;
+	    return NULL;
+	}
     }
 
-    mpi = mpcodecs_get_image(sh, MP_IMGTYPE_TEMP, 0,
+    mpi = mpcodecs_get_image(sh, MP_IMGTYPE_EXPORT, 0,
 	sh->disp_w, sh->disp_h);
 
 
@@ -155,13 +134,15 @@ static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags)
 	    return NULL;
     }
 
-    w = mpi->w * mpi->h;
-    r = lzo1x_decompress_safe (data, len, mpi->planes[0], &w, priv->wrkmem);
-    if (r != LZO_E_OK) {
-	/* this should NEVER happen */
-	mp_msg (MSGT_DECVIDEO, MSGL_ERR, 
-		"[%s] internal error - decompression failed: %d\n", MOD_NAME, r);
-      return NULL;
+    mpi->planes[0] = priv->buffer;
+    if (priv->codec == IMGFMT_BGR24)
+        mpi->stride[0] = 3 * sh->disp_w;
+    else {
+        mpi->stride[0] = sh->disp_w;
+        mpi->planes[2] = priv->buffer + sh->disp_w*sh->disp_h;
+        mpi->stride[2] = sh->disp_w / 2;
+        mpi->planes[1] = priv->buffer + sh->disp_w*sh->disp_h*5/4;
+        mpi->stride[1] = sh->disp_w / 2;
     }
 
     mp_msg (MSGT_DECVIDEO, MSGL_DBG2, 

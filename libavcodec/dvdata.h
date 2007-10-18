@@ -24,6 +24,12 @@
  * Constants for DV codec.
  */
 
+#ifndef AVCODEC_DVDATA_H
+#define AVCODEC_DVDATA_H
+
+#include "avcodec.h"
+#include "rational.h"
+
 /*
  * DVprofile is used to express the differences between various
  * DV flavors. For now it's primarily used for differentiating
@@ -49,7 +55,7 @@ typedef struct DVprofile {
                                           /* for 48Khz, 44.1Khz and 32Khz */
     int              audio_samples_dist[5];/* how many samples are supposed to be */
                                          /* in each frame in a 5 frames window */
-    const uint16_t (*audio_shuffle)[9];  /* PCM shuffling table */
+    const uint8_t  (*audio_shuffle)[9];  /* PCM shuffling table */
 } DVprofile;
 
 #define NB_DV_VLC 409
@@ -2504,7 +2510,7 @@ static const int dv_iweight_248[64] = {
  22017, 25191, 24457, 27962, 22733, 24600, 25971, 29642,
 };
 
-static const uint16_t dv_audio_shuffle525[10][9] = {
+static const uint8_t dv_audio_shuffle525[10][9] = {
   {  0, 30, 60, 20, 50, 80, 10, 40, 70 }, /* 1st channel */
   {  6, 36, 66, 26, 56, 86, 16, 46, 76 },
   { 12, 42, 72,  2, 32, 62, 22, 52, 82 },
@@ -2518,7 +2524,7 @@ static const uint16_t dv_audio_shuffle525[10][9] = {
   { 25, 55, 85, 15, 45, 75,  5, 35, 65 },
 };
 
-static const uint16_t dv_audio_shuffle625[12][9] = {
+static const uint8_t dv_audio_shuffle625[12][9] = {
   {   0,  36,  72,  26,  62,  98,  16,  52,  88}, /* 1st channel */
   {   6,  42,  78,  32,  68, 104,  22,  58,  94},
   {  12,  48,  84,   2,  38,  74,  28,  64, 100},
@@ -2534,7 +2540,7 @@ static const uint16_t dv_audio_shuffle625[12][9] = {
   {  31,  67, 103,  21,  57,  93,  11,  47,  83},
 };
 
-static const __attribute__((unused)) int dv_audio_frequency[3] = {
+static const av_unused int dv_audio_frequency[3] = {
     48000, 44100, 32000,
 };
 
@@ -2659,14 +2665,14 @@ static inline const DVprofile* dv_frame_profile(uint8_t* frame)
 {
     if ((frame[3] & 0x80) == 0) {      /* DSF flag */
         /* it's an NTSC format */
-        if ((frame[80*5 + 48 + 3] & 0x4)) { /* 4:2:2 sampling */
+        if ((frame[80*5 + 48 + 3] & 0x4) && (frame[80*5 + 48] == dv_video_source)) { /* 4:2:2 sampling */
             return &dv_profiles[3]; /* NTSC 50Mbps */
         } else { /* 4:1:1 sampling */
             return &dv_profiles[0]; /* NTSC 25Mbps */
         }
     } else {
         /* it's a PAL format */
-        if ((frame[80*5 + 48 + 3] & 0x4)) { /* 4:2:2 sampling */
+        if ((frame[80*5 + 48 + 3] & 0x4) && (frame[80*5 + 48] == dv_video_source)) { /* 4:2:2 sampling */
             return &dv_profiles[4]; /* PAL 50Mbps */
         } else if ((frame[5] & 0x07) == 0) { /* APT flag */
             return &dv_profiles[1]; /* PAL 25Mbps 4:2:0 */
@@ -2722,3 +2728,5 @@ static inline int dv_write_ssyb_id(uint8_t syb_num, uint8_t fr, uint8_t* buf)
     buf[2] = 0xff;             /* reserved -- always 1 */
     return 3;
 }
+
+#endif // AVCODEC_DVDATA_H

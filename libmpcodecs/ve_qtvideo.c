@@ -10,21 +10,23 @@
 
 #include "config.h"
 #include "mp_msg.h"
-#include "bswap.h"
+#include "libavutil/common.h"
+#include "mpbswap.h"
 
 #ifdef WIN32_LOADER 
-#include "ldt_keeper.h" 
+#include "loader/ldt_keeper.h"
 #endif 
 
 #include "loader/qtx/qtxsdk/components.h"
-#include "wine/windef.h"
+#include "loader/wine/windef.h"
 
 #include "codec-cfg.h"
-#include "stream.h"
-#include "demuxer.h"
-#include "stheader.h"
+#include "stream/stream.h"
+#include "libmpdemux/demuxer.h"
+#include "libmpdemux/stheader.h"
 
-#include "muxer.h"
+#include "stream/stream.h"
+#include "libmpdemux/muxer.h"
 
 #include "img_format.h"
 #include "mp_image.h"
@@ -104,7 +106,6 @@ static GWorldPtr frame_GWorld_prev = NULL;
 static Rect FrameRect;
 
 static CompressorComponent compressor;
-static DecompressorComponent decompressor;
 static ImageDescriptionHandle desc;
 static ImageSequence seq;
 
@@ -124,7 +125,7 @@ struct vf_priv_s {
 static int config(struct vf_instance_s* vf,
         int width, int height, int d_width, int d_height,
 	unsigned int flags, unsigned int outfmt){
-    OSErr cres;
+//    OSErr cres;
     ComponentDescription cdesc;
     mux_v->bih->biWidth=width;
     mux_v->bih->biHeight=height;

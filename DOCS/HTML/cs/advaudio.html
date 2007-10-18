@@ -1,401 +1,378 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>3.7. Pokro&#269;ilé audio</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - Multimediální p&#345;ehráva&#269;"><link rel="up" href="usage.html" title="Kapitola 3. Pou&#382;ití"><link rel="prev" href="edl.html" title="3.6. Seznamy edita&#269;ních zásah&#367; (EDL)"><link rel="next" href="cd-dvd.html" title="Kapitola 4. Pou&#382;ití CD/DVD"><link rel="preface" href="howtoread.html" title="Jak &#269;íst tuto  dokumentaci"><link rel="chapter" href="intro.html" title="Kapitola 1. P&#345;edstavení"><link rel="chapter" href="install.html" title="Kapitola 2. Instalace"><link rel="chapter" href="usage.html" title="Kapitola 3. Pou&#382;ití"><link rel="chapter" href="cd-dvd.html" title="Kapitola 4. Pou&#382;ití CD/DVD"><link rel="chapter" href="faq.html" title="Kapitola 5. &#268;asto Kladené Dotazy (FAQ)"><link rel="chapter" href="containers.html" title="Kapitola 6. Nosné formáty (Containers)"><link rel="chapter" href="codecs.html" title="Kapitola 7. Kodeky"><link rel="chapter" href="video.html" title="Kapitola 8. Výstupní video za&#345;ízení/rozhraní"><link rel="chapter" href="audio.html" title="Kapitola 9. Výstupní zvuková za&#345;ízení"><link rel="chapter" href="tv.html" title="Kapitola 10. TV"><link rel="chapter" href="radio.html" title="Kapitola 11. Rádio"><link rel="chapter" href="ports.html" title="Kapitola 12. Porty"><link rel="chapter" href="mencoder.html" title="Kapitola 13. Základní pou&#382;ití MEncoderu"><link rel="chapter" href="encoding-guide.html" title="Kapitola 14. Enkódování s MEncoderem"><link rel="appendix" href="bugreports.html" title="P&#345;íloha A. Jak hlásit chyby"><link rel="appendix" href="bugs.html" title="P&#345;íloha B. Známé chyby"><link rel="appendix" href="skin.html" title="P&#345;íloha C. Formát skin&#367; MPlayeru"><link rel="subsection" href="advaudio.html#advaudio-surround" title="3.7.1. Surround/Vícekanálové p&#345;ehrávání"><link rel="subsection" href="advaudio.html#advaudio-channels" title="3.7.2. Manipulace s kanály"><link rel="subsection" href="advaudio.html#advaudio-volume" title="3.7.3. Softwarové nastavení hlasitosti"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">3.7. Pokro&#269;ilé audio</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="edl.html">P&#345;edcházející</a> </td><th width="60%" align="center">Kapitola 3. Pou&#382;ití</th><td width="20%" align="right"> <a accesskey="n" href="cd-dvd.html">Dal&#353;í</a></td></tr></table><hr></div><div class="sect1" lang="cs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="advaudio"></a>3.7. Pokro&#269;ilé audio</h2></div></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="advaudio-surround"></a>3.7.1. Surround/Vícekanálové p&#345;ehrávání</h3></div></div></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="advaudio-surround-DVD"></a>3.7.1.1. DVD</h4></div></div></div><p>
-V&#283;t&#353;ina DVD a mnoho jiných soubor&#367; obsahuje surround zvuk.
-<span class="application">MPlayer</span> podporuje p&#345;ehrávání p&#345;ehrávání surround,
-ale ve výchozím nastavení jej nezapíná, jeliko&#382; stereo vybavení je mnohem
-&#269;ast&#283;j&#353;í. Pro p&#345;ehrávání souboru, který má více ne&#382; dvoukanálový zvuk pou&#382;ijte
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>3.7. PokroÄilÃ© audio</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - MultimediÃ¡lnÃ­ pÅ™ehrÃ¡vaÄ"><link rel="up" href="usage.html" title="Kapitola 3. PouÅ¾itÃ­"><link rel="prev" href="edl.html" title="3.6. Seznamy editaÄnÃ­ch zÃ¡sahÅ¯ (EDL)"><link rel="next" href="cd-dvd.html" title="Kapitola 4. PouÅ¾itÃ­ CD/DVD"><link rel="preface" href="howtoread.html" title="Jak ÄÃ­st tuto dokumentaci"><link rel="chapter" href="intro.html" title="Kapitola 1. PÅ™edstavenÃ­"><link rel="chapter" href="install.html" title="Kapitola 2. Instalace"><link rel="chapter" href="usage.html" title="Kapitola 3. PouÅ¾itÃ­"><link rel="chapter" href="cd-dvd.html" title="Kapitola 4. PouÅ¾itÃ­ CD/DVD"><link rel="chapter" href="faq.html" title="Kapitola 5. ÄŒasto KladenÃ© Dotazy (FAQ)"><link rel="chapter" href="containers.html" title="Kapitola 6. NosnÃ© formÃ¡ty (Containers)"><link rel="chapter" href="codecs.html" title="Kapitola 7. Kodeky"><link rel="chapter" href="video.html" title="Kapitola 8. VÃ½stupnÃ­ video zaÅ™Ã­zenÃ­/rozhranÃ­"><link rel="chapter" href="audio.html" title="Kapitola 9. VÃ½stupnÃ­ zvukovÃ¡ zaÅ™Ã­zenÃ­"><link rel="chapter" href="tv.html" title="Kapitola 10. TV"><link rel="chapter" href="radio.html" title="Kapitola 11. RÃ¡dio"><link rel="chapter" href="ports.html" title="Kapitola 12. Porty"><link rel="chapter" href="mencoder.html" title="Kapitola 13. ZÃ¡kladnÃ­ pouÅ¾itÃ­ MEncoderu"><link rel="chapter" href="encoding-guide.html" title="Kapitola 14. EnkÃ³dovÃ¡nÃ­ s MEncoderem"><link rel="appendix" href="bugreports.html" title="PÅ™Ã­loha A. Jak hlÃ¡sit chyby"><link rel="appendix" href="bugs.html" title="PÅ™Ã­loha B. ZnÃ¡mÃ© chyby"><link rel="appendix" href="skin.html" title="PÅ™Ã­loha C. FormÃ¡t skinÅ¯ MPlayeru"><link rel="appendix" href="history.html" title="PÅ™Ã­loha D. Historie"><link rel="subsection" href="advaudio.html#advaudio-surround" title="3.7.1. Surround/VÃ­cekanÃ¡lovÃ© pÅ™ehrÃ¡vÃ¡nÃ­"><link rel="subsection" href="advaudio.html#advaudio-channels" title="3.7.2. Manipulace s kanÃ¡ly"><link rel="subsection" href="advaudio.html#advaudio-volume" title="3.7.3. SoftwarovÃ© nastavenÃ­ hlasitosti"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">3.7. PokroÄilÃ© audio</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="edl.html">PÅ™edchÃ¡zejÃ­cÃ­</a>Â </td><th width="60%" align="center">Kapitola 3. PouÅ¾itÃ­</th><td width="20%" align="right">Â <a accesskey="n" href="cd-dvd.html">DalÅ¡Ã­</a></td></tr></table><hr></div><div class="sect1" lang="cs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="advaudio"></a>3.7. PokroÄilÃ© audio</h2></div></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="advaudio-surround"></a>3.7.1. Surround/VÃ­cekanÃ¡lovÃ© pÅ™ehrÃ¡vÃ¡nÃ­</h3></div></div></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="advaudio-surround-DVD"></a>3.7.1.1. DVD</h4></div></div></div><p>
+VÄ›tÅ¡ina DVD a mnoho jinÃ½ch souborÅ¯ obsahuje surround zvuk.
+<span class="application">MPlayer</span> podporuje pÅ™ehrÃ¡vÃ¡nÃ­ pÅ™ehrÃ¡vÃ¡nÃ­ surround,
+ale ve vÃ½chozÃ­m nastavenÃ­ jej nezapÃ­nÃ¡, jelikoÅ¾ stereo vybavenÃ­ je mnohem
+ÄastÄ›jÅ¡Ã­. Pro pÅ™ehrÃ¡vÃ¡nÃ­ souboru, kterÃ½ mÃ¡ vÃ­ce neÅ¾ dvoukanÃ¡lovÃ½ zvuk pouÅ¾ijte
 volbu <tt class="option">-channels</tt>.
-Nap&#345;íklad pro p&#345;ehrání DVD s 5.1 zvukem:
-
+NapÅ™Ã­klad pro pÅ™ehrÃ¡nÃ­ DVD s 5.1 zvukem:
 </p><pre class="screen">mplayer dvd://1 -channels 6</pre><p>
-
-Poznamenejme, &#382;e a&#269;koli se jmenuje "5.1", ve skute&#269;nosti má &#353;est kanál&#367;.
-Pokud máte surround zvukové vybavení, m&#367;&#382;ete si p&#345;idat volbu
-<tt class="option">channels</tt> do svého konfigura&#269;ního souboru
+Poznamenejme, Å¾e aÄkoli se jmenuje "5.1", ve skuteÄnosti mÃ¡ Å¡est kanÃ¡lÅ¯.
+Pokud mÃ¡te surround zvukovÃ© vybavenÃ­, mÅ¯Å¾ete si pÅ™idat volbu
+<tt class="option">channels</tt> do svÃ©ho konfiguraÄnÃ­ho souboru
 <span class="application">MPlayer</span>u <tt class="filename">~/.mplayer/config</tt>.
-Nap&#345;íklad pro pou&#382;ití &#269;ty&#345;kanálového p&#345;ehrávání zvuku jako výchozí, p&#345;idejte
-následující &#345;ádek:
-
+NapÅ™Ã­klad pro pouÅ¾itÃ­ ÄtyÅ™kanÃ¡lovÃ©ho pÅ™ehrÃ¡vÃ¡nÃ­ zvuku jako vÃ½chozÃ­, pÅ™idejte
+nÃ¡sledujÃ­cÃ­ Å™Ã¡dek:
 </p><pre class="programlisting">channels=4</pre><p>
-
-<span class="application">MPlayer</span> pak poskytuje zvuk ve &#269;ty&#345;ech kanálech,
-pokud jsou v&#353;echny &#269;ty&#345;i kanály k dispozici.
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="advaudio-surround-stereoinfour"></a>3.7.1.2. P&#345;ehrávání stereo soubor&#367; do &#269;ty&#345;ech reproduktor&#367;</h4></div></div></div><p>
-<span class="application">MPlayer</span> ve výchozím nastavení neduplikuje &#382;ádné
-kanály a ned&#283;lá to ani v&#283;t&#353;ina audio ovlada&#269;&#367;. Pokud to chcete ud&#283;lat
-ru&#269;n&#283;:
-
+<span class="application">MPlayer</span> pak poskytuje zvuk ve ÄtyÅ™ech kanÃ¡lech,
+pokud jsou vÅ¡echny ÄtyÅ™i kanÃ¡ly k dispozici.
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="advaudio-surround-stereoinfour"></a>3.7.1.2. PÅ™ehrÃ¡vÃ¡nÃ­ stereo souborÅ¯ do ÄtyÅ™ech reproduktorÅ¯</h4></div></div></div><p>
+<span class="application">MPlayer</span> ve vÃ½chozÃ­m nastavenÃ­ neduplikuje Å¾Ã¡dnÃ©
+kanÃ¡ly a nedÄ›lÃ¡ to ani vÄ›tÅ¡ina audio ovladaÄÅ¯. Pokud to chcete udÄ›lat
+ruÄnÄ›:
 </p><pre class="screen">mplayer <em class="replaceable"><code>soubor</code></em> -af channels=2:2:0:1:0:0</pre><p>
-
-Vysv&#283;tlení naleznete v sekci
-<a href="advaudio.html#advaudio-channels-copying" title="3.7.2.3. Kopírování/p&#345;esun kanál&#367;">kopírování kanál&#367;</a>.
+VysvÄ›tlenÃ­ naleznete v sekci
+<a href="advaudio.html#advaudio-channels-copying" title="3.7.2.3. KopÃ­rovÃ¡nÃ­/pÅ™esun kanÃ¡lÅ¯">kopÃ­rovÃ¡nÃ­ kanÃ¡lÅ¯</a>.
 </p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="advaudio-surround-passthrough"></a>3.7.1.3. AC3/DTS Passthrough</h4></div></div></div><p>
-DVD mají obvykle surround zvuk enkódovaný ve formátu AC3 (Dolby Digital) nebo
-DTS (Digital Theater System). N&#283;která moderní za&#345;ízení jsou schopna dekódovat
-tyto formáty intern&#283;. <span class="application">MPlayer</span> lze nakonfigurovat
-tak, aby p&#345;enesl zvuková data bez dekódování. To bude fungovat pouze pokud máte
-S/PDIF (Sony/Philips Digital Interface) jack ve zvukové kart&#283;.
+DVD majÃ­ obvykle surround zvuk enkÃ³dovanÃ½ ve formÃ¡tu AC3 (Dolby Digital) nebo
+DTS (Digital Theater System). NÄ›kterÃ¡ modernÃ­ zaÅ™Ã­zenÃ­ jsou schopna dekÃ³dovat
+tyto formÃ¡ty internÄ›. <span class="application">MPlayer</span> lze nakonfigurovat
+tak, aby pÅ™enesl zvukovÃ¡ data bez dekÃ³dovÃ¡nÃ­. To bude fungovat pouze pokud mÃ¡te
+S/PDIF (Sony/Philips Digital Interface) jack ve zvukovÃ© kartÄ›.
 </p><p>
-Pokud va&#353;e za&#345;ízení umí dekódovat jak AC3, tak DTS, m&#367;&#382;ete bezpe&#269;n&#283; zapnout
-passthrough pro oba formáty. Jinak zapn&#283;te passthrough pouze pro formát, který
-va&#353;e za&#345;ízení podporuje.
-</p><div class="itemizedlist"><p class="title"><b>Zapnutí passthrough z p&#345;íkazového &#345;ádku:</b></p><ul type="disc"><li><p>
-Jen pro AC3 pou&#382;ijte <tt class="option">-ac hwac3</tt>
+Pokud vaÅ¡e zaÅ™Ã­zenÃ­ umÃ­ dekÃ³dovat jak AC3, tak DTS, mÅ¯Å¾ete bezpeÄnÄ› zapnout
+passthrough pro oba formÃ¡ty. Jinak zapnÄ›te passthrough pouze pro formÃ¡t, kterÃ½
+vaÅ¡e zaÅ™Ã­zenÃ­ podporuje.
+</p><div class="itemizedlist"><p class="title"><b>ZapnutÃ­ passthrough z pÅ™Ã­kazovÃ©ho Å™Ã¡dku:</b></p><ul type="disc"><li><p>
+  Jen pro AC3 pouÅ¾ijte <tt class="option">-ac hwac3</tt>
 </p></li><li><p>
-Jen pro DTS pou&#382;ijte <tt class="option">-ac hwdts</tt>
+  Jen pro DTS pouÅ¾ijte <tt class="option">-ac hwdts</tt>
 </p></li><li><p>
-Pro oba (AC3 i DTS) pou&#382;ijte <tt class="option">-afm hwac3</tt>
-</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Zapnutí passthrough v konfigura&#269;ním souboru
-<span class="application">MPlayer</span>u: </b></p><ul type="disc"><li><p>
-Jen pro AC3 pou&#382;ijte <tt class="option">ac=hwac3,</tt>
+  Pro oba (AC3 i DTS) pouÅ¾ijte <tt class="option">-afm hwac3</tt>
+</p></li></ul></div><div class="itemizedlist"><p class="title"><b>ZapnutÃ­ passthrough v konfiguraÄnÃ­m souboru
+  <span class="application">MPlayer</span>u: </b></p><ul type="disc"><li><p>
+  Jen pro AC3 pouÅ¾ijte <tt class="option">ac=hwac3,</tt>
 </p></li><li><p>
-Jen pro DTS pou&#382;ijte <tt class="option">ac=hwdts,</tt>
+  Jen pro DTS pouÅ¾ijte <tt class="option">ac=hwdts,</tt>
 </p></li><li><p>
-Pro oba (AC3 i DTS) pou&#382;ijte <tt class="option">afm=hwac3</tt>
+  Pro oba (AC3 i DTS) pouÅ¾ijte <tt class="option">afm=hwac3</tt>
 </p></li></ul></div><p>
-Pov&#353;imn&#283;te si &#269;árky (",") na konci
-<tt class="option">ac=hwac3,</tt> a <tt class="option">ac=hwdts,</tt>. To umo&#382;ní
-<span class="application">MPlayer</span>u pou&#382;ít normální kodek, kdy&#382; p&#345;ehrávaný
-soubor nemá AC3 nebo DTS zvuk. Volba <tt class="option">afm=hwac3</tt> nevy&#382;aduje
-&#269;árku; <span class="application">MPlayer</span> se za&#345;ídí podle pot&#345;eby automaticky,
-pokud je zvolena rodina audio kodek&#367;.
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="advaudio-surround-matrix"></a>3.7.1.4. Maticov&#283; enkódovaný zvuk</h4></div></div></div><p>
+PovÅ¡imnÄ›te si ÄÃ¡rky (",") na konci
+<tt class="option">ac=hwac3,</tt> a <tt class="option">ac=hwdts,</tt>. To umoÅ¾nÃ­
+<span class="application">MPlayer</span>u pouÅ¾Ã­t normÃ¡lnÃ­ kodek, kdyÅ¾ pÅ™ehrÃ¡vanÃ½
+soubor nemÃ¡ AC3 nebo DTS zvuk. Volba <tt class="option">afm=hwac3</tt> nevyÅ¾aduje
+ÄÃ¡rku; <span class="application">MPlayer</span> se zaÅ™Ã­dÃ­ podle potÅ™eby automaticky,
+pokud je zvolena rodina audio kodekÅ¯.
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="advaudio-surround-matrix"></a>3.7.1.4. MaticovÄ› enkÃ³dovanÃ½ zvuk</h4></div></div></div><p>
 <span class="emphasis"><em>***TODO***</em></span>
 </p><p>
-Tato sekce musí být teprve napsaná a nem&#367;&#382;e být dokon&#269;ena dokud nám n&#283;kdo
-nepo&#353;le vzorkové soubory pro testování. Pokud máte n&#283;jaké maticov&#283; enkódované
-zvukové soubory, víte, kde je lze najít, nebo máte jakoukoli informaci, která
-by mohla pomoci, po&#353;lete prosím zprávu do konference
+Tato sekce musÃ­ bÃ½t teprve napsanÃ¡ a nemÅ¯Å¾e bÃ½t dokonÄena dokud nÃ¡m nÄ›kdo
+nepoÅ¡le vzorkovÃ© soubory pro testovÃ¡nÃ­. Pokud mÃ¡te nÄ›jakÃ© maticovÄ› enkÃ³dovanÃ©
+zvukovÃ© soubory, vÃ­te, kde je lze najÃ­t, nebo mÃ¡te jakoukoli informaci, kterÃ¡
+by mohla pomoci, poÅ¡lete prosÃ­m zprÃ¡vu do konference
 <a href="http://lists.mplayerhq.hu/mailman/listinfo/mplayer-docs" target="_top">MPlayer-DOCS</a>.
-Do p&#345;edm&#283;tu vlo&#382;te "[matrix-encoded audio]".
+Do pÅ™edmÄ›tu vloÅ¾te "[matrix-encoded audio]".
 </p><p>
-Pokud nep&#345;ijdou &#382;ádné soubory nebo informace, tato sekce bude odstran&#283;na.
+Pokud nepÅ™ijdou Å¾Ã¡dnÃ© soubory nebo informace, tato sekce bude odstranÄ›na.
 </p><p>
-Dobré odkazy:
+DobrÃ© odkazy:
 </p><div class="itemizedlist"><ul type="disc"><li><p>
-<a href="http://electronics.howstuffworks.com/surround-sound5.htm" target="_top">http://electronics.howstuffworks.com/surround-sound5.htm</a>
+  <a href="http://electronics.howstuffworks.com/surround-sound5.htm" target="_top">http://electronics.howstuffworks.com/surround-sound5.htm</a>
 </p></li><li><p>
-<a href="http://www.extremetech.com/article2/0,1697,1016875,00.asp" target="_top">http://www.extremetech.com/article2/0,1697,1016875,00.asp</a>
+  <a href="http://www.extremetech.com/article2/0,1697,1016875,00.asp" target="_top">http://www.extremetech.com/article2/0,1697,1016875,00.asp</a>
 </p></li></ul></div><p>
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="advaudio-surround-hrtf"></a>3.7.1.5. Surround emulace ve sluchátkách</h4></div></div></div><p>
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="advaudio-surround-hrtf"></a>3.7.1.5. Surround emulace ve sluchÃ¡tkÃ¡ch</h4></div></div></div><p>
 <span class="application">MPlayer</span> obsahuje HRTF (Head Related Transfer
-Function) filtr zalo&#382;ený na
+Function) filtr zaloÅ¾enÃ½ na
 <a href="http://sound.media.mit.edu/KEMAR.html" target="_top">projektu MIT</a>,
-kde jsou m&#283;&#345;ení vzata z mikrofon&#367; na um&#283;lé lidské hlav&#283;.
+kde jsou mÄ›Å™enÃ­ vzata z mikrofonÅ¯ na umÄ›lÃ© lidskÃ© hlavÄ›.
 </p><p>
-A&#269;koli není mo&#382;né p&#345;esn&#283; imitovat surround systém,
-<span class="application">MPlayer</span>&#367;v HRTF filtr produkuje prostorov&#283; mnohem
-prokreslen&#283;j&#353;í zvuk ve 2-kanálových sluchátkách. Obvyklé míchání jednodu&#353;e
-kombinuje v&#353;echny kanály do dvou; krom kombinace kanál&#367;, <tt class="option">hrtf</tt>
-generuje slabá echa, pon&#283;kud zv&#283;t&#353;uje odd&#283;lení stereo kanál&#367; a m&#283;ní hlasitost
-n&#283;kterých kmito&#269;t&#367;. Jestli HRTF zní lépe m&#367;&#382;e záviset na zdrojovém zvuku a
-osobním vkusu, ale ur&#269;it&#283; stojí za zkou&#353;ku.
+AÄkoli nenÃ­ moÅ¾nÃ© pÅ™esnÄ› imitovat surround systÃ©m,
+<span class="application">MPlayer</span>Å¯v HRTF filtr produkuje prostorovÄ› mnohem
+prokreslenÄ›jÅ¡Ã­ zvuk ve 2-kanÃ¡lovÃ½ch sluchÃ¡tkÃ¡ch. ObvyklÃ© mÃ­chÃ¡nÃ­ jednoduÅ¡e
+kombinuje vÅ¡echny kanÃ¡ly do dvou; krom kombinace kanÃ¡lÅ¯, <tt class="option">hrtf</tt>
+generuje slabÃ¡ echa, ponÄ›kud zvÄ›tÅ¡uje oddÄ›lenÃ­ stereo kanÃ¡lÅ¯ a mÄ›nÃ­ hlasitost
+nÄ›kterÃ½ch kmitoÄtÅ¯. Jestli HRTF znÃ­ lÃ©pe mÅ¯Å¾e zÃ¡viset na zdrojovÃ©m zvuku a
+osobnÃ­m vkusu, ale urÄitÄ› stojÃ­ za zkouÅ¡ku.
 </p><p>
-Pro p&#345;ehrání DVD s HRTF:
-
+Pro pÅ™ehrÃ¡nÃ­ DVD s HRTF:
 </p><pre class="screen">mplayer dvd://1 -channels 6 -af hrtf</pre><p>
-
 </p><p>
-<tt class="option">hrtf</tt> pracuje dob&#345;e pouze s 5 nebo 6 kanály.
-<tt class="option">hrtf</tt> také vy&#382;aduje zvuk 48 kHz. DVD audio ji&#382; je 48 kHz, ale
-pokud máte soubor s odli&#353;ným vzorkovacím kmito&#269;tem, který chcete p&#345;ehrávat
-pomocí <tt class="option">hrtf</tt>, musíte jej p&#345;evzorkovat:
+<tt class="option">hrtf</tt> pracuje dobÅ™e pouze s 5 nebo 6 kanÃ¡ly.
+<tt class="option">hrtf</tt> takÃ© vyÅ¾aduje zvuk 48 kHz. DVD audio jiÅ¾ je 48 kHz, ale
+pokud mÃ¡te soubor s odliÅ¡nÃ½m vzorkovacÃ­m kmitoÄtem, kterÃ½ chcete pÅ™ehrÃ¡vat
+pomocÃ­ <tt class="option">hrtf</tt>, musÃ­te jej pÅ™evzorkovat:
+</p><pre class="screen">
+mplayer <em class="replaceable"><code>soubor</code></em> -channels 6 -af resample=48000,hrtf
+</pre><p>
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="advaudio-surround-troubleshooting"></a>3.7.1.6. PotÃ­Å¾e</h4></div></div></div><p>
+Pokud neslyÅ¡Ã­te ze surround kanÃ¡lÅ¯ Å¾Ã¡dnÃ½ zvuk, ovÄ›Å™te si nastavenÃ­ smÄ›Å¡ovaÄe
+pomocÃ­ programu jako je <span class="application">alsamixer</span>;
+audio vÃ½stupy jsou Äasto vypnuty a nastaveny na nulovou hlasitost jako vÃ½chozÃ­.
+</p></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="advaudio-channels"></a>3.7.2. Manipulace s kanÃ¡ly</h3></div></div></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="advaudio-channels-general"></a>3.7.2.1. ObecnÃ© informace</h4></div></div></div><p>
+NaneÅ¡tÄ›stÃ­ neexistuje standard pro Å™azenÃ­ kanÃ¡lÅ¯. NÃ¡sledujÃ­cÃ­ Å™azenÃ­ jsou
+pouÅ¾Ã­vanÃ¡ v AC3 a jsou pomÄ›rnÄ› typickÃ¡; zkuste je a uvidÃ­te, zda tomu vÃ¡Å¡ zdroj
+odpovÃ­dÃ¡. KanÃ¡ly jsou ÄÃ­slovÃ¡ny od 0.
 
-</p><pre class="screen">mplayer <em class="replaceable"><code>soubor</code></em> -channels 6 -af resample=48000,hrtf</pre><p>
+</p><div class="orderedlist"><p class="title"><b>mono</b></p><ol type="1" compact><li value="0"><p>stÅ™ed</p></li></ol></div><p>
 
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="advaudio-surround-troubleshooting"></a>3.7.1.6. Potí&#382;e</h4></div></div></div><p>
-Pokud nesly&#353;íte ze surround kanál&#367; &#382;ádný zvuk, ov&#283;&#345;te si nastavení sm&#283;&#353;ova&#269;e
-pomocí programu jako je <span class="application">alsamixer</span>;
-audio výstupy jsou &#269;asto vypnuty a nastaveny na nulovou hlasitost jako výchozí.
-</p></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="advaudio-channels"></a>3.7.2. Manipulace s kanály</h3></div></div></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="advaudio-channels-general"></a>3.7.2.1. Obecné informace</h4></div></div></div><p>
-Nane&#353;t&#283;stí neexistuje standard pro &#345;azení kanál&#367;. Následující &#345;azení jsou
-pou&#382;ívaná v AC3 a jsou pom&#283;rn&#283; typická; zkuste je a uvidíte, zda tomu vá&#353; zdroj
-odpovídá. Kanály jsou &#269;íslovány od 0.
+</p><div class="orderedlist"><p class="title"><b>stereo</b></p><ol type="1" compact><li value="0"><p>levÃ½</p></li><li><p>pravÃ½</p></li></ol></div><p>
 
-</p><div class="orderedlist"><p class="title"><b>mono</b></p><ol type="1" compact><li value="0">st&#345;ed</li></ol></div><p>
+</p><div class="orderedlist"><p class="title"><b>kvadrofonnÃ­</b></p><ol type="1" compact><li value="0"><p>levÃ½ ÄelnÃ­</p></li><li><p>pravÃ½ ÄelnÃ­</p></li><li><p>levÃ½ zadnÃ­</p></li><li><p>pravÃ½ zadnÃ­</p></li></ol></div><p>
 
-</p><div class="orderedlist"><p class="title"><b>stereo</b></p><ol type="1" compact><li value="0">levý</li><li>pravý</li></ol></div><p>
+</p><div class="orderedlist"><p class="title"><b>surround 4.0</b></p><ol type="1" compact><li value="0"><p>levÃ½ ÄelnÃ­</p></li><li><p>pravÃ½ ÄelnÃ­</p></li><li><p>stÅ™edovÃ½ zadnÃ­</p></li><li><p>stÅ™edovÃ½ ÄelnÃ­</p></li></ol></div><p>
 
-</p><div class="orderedlist"><p class="title"><b>kvadrofonní</b></p><ol type="1" compact><li value="0">levý &#269;elní</li><li>pravý &#269;elní</li><li>levý zadní</li><li>pravý zadní</li></ol></div><p>
+</p><div class="orderedlist"><p class="title"><b>surround 5.0</b></p><ol type="1" compact><li value="0"><p>levÃ½ ÄelnÃ­</p></li><li><p>pravÃ½ ÄelnÃ­</p></li><li><p>levÃ½ zadnÃ­</p></li><li><p>pravÃ½ zadnÃ­</p></li><li><p>stÅ™edovÃ½ ÄelnÃ­</p></li></ol></div><p>
 
-</p><div class="orderedlist"><p class="title"><b>surround 4.0</b></p><ol type="1" compact><li value="0">levý &#269;elní</li><li>pravý &#269;elní</li><li>st&#345;edový zadní</li><li>st&#345;edový &#269;elní</li></ol></div><p>
-
-</p><div class="orderedlist"><p class="title"><b>surround 5.0</b></p><ol type="1" compact><li value="0">levý &#269;elní</li><li>pravý &#269;elní</li><li>levý zadní</li><li>pravý zadní</li><li>st&#345;edový &#269;elní</li></ol></div><p>
-
-</p><div class="orderedlist"><p class="title"><b>surround 5.1</b></p><ol type="1" compact><li value="0">levý &#269;elní</li><li>pravý &#269;elní</li><li>levý zadní</li><li>pravý zadní</li><li>st&#345;edový &#269;elní</li><li>subwoofer</li></ol></div><p>
-
+</p><div class="orderedlist"><p class="title"><b>surround 5.1</b></p><ol type="1" compact><li value="0"><p>levÃ½ ÄelnÃ­</p></li><li><p>pravÃ½ ÄelnÃ­</p></li><li><p>levÃ½ zadnÃ­</p></li><li><p>pravÃ½ zadnÃ­</p></li><li><p>stÅ™edovÃ½ ÄelnÃ­</p></li><li><p>subwoofer</p></li></ol></div><p>
 </p><p>
-Volba <tt class="option">-channels</tt> se pou&#382;ívá pro po&#382;adavek na po&#269;et kanál&#367; z
-dekodéru zvuku. N&#283;které audio kodeky pou&#382;ívají po&#269;et zadaných kanál&#367; pro
-rozhodování, zda je nutné podmixovat zdroj. Poznamenejme, &#382;e to ne v&#382;dy
-ovlivní po&#269;et výstupních kanál&#367;. Nap&#345;íklad pou&#382;ití
-<tt class="option">-channels 4</tt> pro p&#345;ehrání stereo MP3 souboru povede ke
-2-kanálovému výstupu, jeliko&#382; MP3 kodek neprodukuje extra kanály.
+Volba <tt class="option">-channels</tt> se pouÅ¾Ã­vÃ¡ pro poÅ¾adavek na poÄet kanÃ¡lÅ¯ z
+dekodÃ©ru zvuku. NÄ›kterÃ© audio kodeky pouÅ¾Ã­vajÃ­ poÄet zadanÃ½ch kanÃ¡lÅ¯ pro
+rozhodovÃ¡nÃ­, zda je nutnÃ© podmixovat zdroj. Poznamenejme, Å¾e to ne vÅ¾dy
+ovlivnÃ­ poÄet vÃ½stupnÃ­ch kanÃ¡lÅ¯. NapÅ™Ã­klad pouÅ¾itÃ­
+<tt class="option">-channels 4</tt> pro pÅ™ehrÃ¡nÃ­ stereo MP3 souboru povede ke
+2-kanÃ¡lovÃ©mu vÃ½stupu, jelikoÅ¾ MP3 kodek neprodukuje extra kanÃ¡ly.
 </p><p>
-Pro vytvo&#345;ení nebo odstran&#283;ní kanál&#367; slou&#382;í zvukový filtr
-<tt class="option">channels</tt>, který je rovn&#283;&#382; vhodný k ovládání po&#269;tu zvukových
-kanál&#367; posílaných do zvukové karty. Viz následující sekce pro více informací
-o manipulacích s kanály.
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="advaudio-channels-mono"></a>3.7.2.2. P&#345;ehrávání mono na dvou reproduktorech</h4></div></div></div><p>
-Mono zní mnohem lépe, kdy&#382; je p&#345;ehráván dv&#283;ma reproduktory &#8211; zvlá&#353;&#357; p&#345;i
-pou&#382;ití sluchátek. Audio soubory, které ve skute&#269;nosti mají jeden kanál,
-jsou automaticky p&#345;ehrávány dv&#283;ma reproduktory; nane&#353;t&#283;stí je v&#283;t&#353;ina
-mono soubor&#367; ve skute&#269;nosti enkódována jako stereo s jedním kanálem utlumeným.
-Nejjednodu&#353;&#353;í a nejblbuvzdorn&#283;j&#353;í zp&#367;sob, jak p&#345;inutit oba reproduktory
-poskytovat stejný zvuk je filtr <tt class="option">extrastereo</tt>:
-
+Pro vytvoÅ™enÃ­ nebo odstranÄ›nÃ­ kanÃ¡lÅ¯ slouÅ¾Ã­ zvukovÃ½ filtr
+<tt class="option">channels</tt>, kterÃ½ je rovnÄ›Å¾ vhodnÃ½ k ovlÃ¡dÃ¡nÃ­ poÄtu zvukovÃ½ch
+kanÃ¡lÅ¯ posÃ­lanÃ½ch do zvukovÃ© karty. Viz nÃ¡sledujÃ­cÃ­ sekce pro vÃ­ce informacÃ­
+o manipulacÃ­ch s kanÃ¡ly.
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="advaudio-channels-mono"></a>3.7.2.2. PÅ™ehrÃ¡vÃ¡nÃ­ mono na dvou reproduktorech</h4></div></div></div><p>
+Mono znÃ­ mnohem lÃ©pe, kdyÅ¾ je pÅ™ehrÃ¡vÃ¡n dvÄ›ma reproduktory â€“ zvlÃ¡Å¡Å¥ pÅ™i
+pouÅ¾itÃ­ sluchÃ¡tek. Audio soubory, kterÃ© ve skuteÄnosti majÃ­ jeden kanÃ¡l,
+jsou automaticky pÅ™ehrÃ¡vÃ¡ny dvÄ›ma reproduktory; naneÅ¡tÄ›stÃ­ je vÄ›tÅ¡ina
+mono souborÅ¯ ve skuteÄnosti enkÃ³dovÃ¡na jako stereo s jednÃ­m kanÃ¡lem utlumenÃ½m.
+NejjednoduÅ¡Å¡Ã­ a nejblbuvzdornÄ›jÅ¡Ã­ zpÅ¯sob, jak pÅ™inutit oba reproduktory
+poskytovat stejnÃ½ zvuk je filtr <tt class="option">extrastereo</tt>:
 </p><pre class="screen">mplayer <em class="replaceable"><code>soubor</code></em> -af extrastereo=0</pre><p>
-
 </p><p>
-To zpr&#367;m&#283;ruje oba kanály, tak&#382;e budou mít polovi&#269;ní hlasitost originálu.
-Dal&#353;í sekce p&#345;iná&#353;ejí p&#345;íklady dal&#353;ích mo&#382;ností, jak to ud&#283;lat bez sní&#382;ení
-hlasitosti, ale ty jsou mnohem komplexn&#283;j&#353;í a vy&#382;adují odli&#353;né volby
-v závislosti na tom, který kanál ponecháte. Pokud pot&#345;ebujete jen upravit
-hlasitost, m&#367;&#382;e být leh&#269;í experimentovat s filtrem <tt class="option">volume</tt>
-a najít vhodnou hodnotu. Nap&#345;íklad:
-
-</p><pre class="screen">mplayer <em class="replaceable"><code>soubor</code></em> -af extrastereo=0,volume=5</pre><p>
-
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="advaudio-channels-copying"></a>3.7.2.3. Kopírování/p&#345;esun kanál&#367;</h4></div></div></div><p>
-Filtr <tt class="option">channels</tt> umí p&#345;esunout jakýkoli nebo v&#353;echny kanály.
-Nastavení v&#353;ech parametr&#367; filtru <tt class="option">channels</tt> m&#367;&#382;e být
-komplikované a vy&#382;aduje pozornost.
+To zprÅ¯mÄ›ruje oba kanÃ¡ly, takÅ¾e budou mÃ­t poloviÄnÃ­ hlasitost originÃ¡lu.
+DalÅ¡Ã­ sekce pÅ™inÃ¡Å¡ejÃ­ pÅ™Ã­klady dalÅ¡Ã­ch moÅ¾nostÃ­, jak to udÄ›lat bez snÃ­Å¾enÃ­
+hlasitosti, ale ty jsou mnohem komplexnÄ›jÅ¡Ã­ a vyÅ¾adujÃ­ odliÅ¡nÃ© volby
+v zÃ¡vislosti na tom, kterÃ½ kanÃ¡l ponechÃ¡te. Pokud potÅ™ebujete jen upravit
+hlasitost, mÅ¯Å¾e bÃ½t lehÄÃ­ experimentovat s filtrem <tt class="option">volume</tt>
+a najÃ­t vhodnou hodnotu. NapÅ™Ã­klad:
+</p><pre class="screen">
+mplayer <em class="replaceable"><code>soubor</code></em> -af extrastereo=0,volume=5
+</pre><p>
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="advaudio-channels-copying"></a>3.7.2.3. KopÃ­rovÃ¡nÃ­/pÅ™esun kanÃ¡lÅ¯</h4></div></div></div><p>
+Filtr <tt class="option">channels</tt> umÃ­ pÅ™esunout jakÃ½koli nebo vÅ¡echny kanÃ¡ly.
+NastavenÃ­ vÅ¡ech parametrÅ¯ filtru <tt class="option">channels</tt> mÅ¯Å¾e bÃ½t
+komplikovanÃ© a vyÅ¾aduje pozornost.
 
 </p><div class="orderedlist"><ol type="1" compact><li><p>
-Rozhodn&#283;te, kolik výstupních kanál&#367; pot&#345;ebujete. To je první parametr.
+  RozhodnÄ›te, kolik vÃ½stupnÃ­ch kanÃ¡lÅ¯ potÅ™ebujete. To je prvnÃ­ parametr.
 </p></li><li><p>
-Spo&#269;ítejte, kolik p&#345;esun&#367; kanál&#367; budete d&#283;lat. To je druhý parametr. Ka&#382;dý
-kanál m&#367;&#382;e být p&#345;esunut naráz do n&#283;kolika r&#367;zných kanál&#367;, ale pamatujte, &#382;e
-pokud je kanál p&#345;esunut (dokonce i jen do jednoho cíle), bude zdrojový kanál
-prázdný dokud do n&#283;j nep&#345;esunete jiný kanál. Chcete-li kanál zkopírovat,
-aby zdroj z&#367;stal stejný, jednodu&#353;e p&#345;esu&#328;te kanál do obou, cíle i zdroje.
-Nap&#345;íklad:
+  SpoÄÃ­tejte, kolik pÅ™esunÅ¯ kanÃ¡lÅ¯ budete dÄ›lat. To je druhÃ½ parametr. KaÅ¾dÃ½
+  kanÃ¡l mÅ¯Å¾e bÃ½t pÅ™esunut narÃ¡z do nÄ›kolika rÅ¯znÃ½ch kanÃ¡lÅ¯, ale pamatujte, Å¾e
+  pokud je kanÃ¡l pÅ™esunut (dokonce i jen do jednoho cÃ­le), bude zdrojovÃ½ kanÃ¡l
+  prÃ¡zdnÃ½ dokud do nÄ›j nepÅ™esunete jinÃ½ kanÃ¡l. Chcete-li kanÃ¡l zkopÃ­rovat,
+  aby zdroj zÅ¯stal stejnÃ½, jednoduÅ¡e pÅ™esuÅˆte kanÃ¡l do obou, cÃ­le i zdroje.
+  NapÅ™Ã­klad:
 </p><pre class="programlisting">
 channel 2 --&gt; channel 3
-channel 2 --&gt; channel 2
-</pre><p>
+channel 2 --&gt; channel 2</pre><p>
 </p></li><li><p>
-Zapi&#353;te kopie kanál&#367; jako dvojici parametr&#367;. Pamatujte, &#382;e první kanál je 0,
-druhý 1 atd. Na po&#345;adí parametr&#367; nezále&#382;í, pokud jsou správn&#283; sdru&#382;eny do
-pár&#367; <em class="replaceable"><code>zdroj:cíl</code></em>.
+  ZapiÅ¡te kopie kanÃ¡lÅ¯ jako dvojici parametrÅ¯. Pamatujte, Å¾e prvnÃ­ kanÃ¡l je 0,
+  druhÃ½ 1 atd. Na poÅ™adÃ­ parametrÅ¯ nezÃ¡leÅ¾Ã­, pokud jsou sprÃ¡vnÄ› sdruÅ¾eny do
+  pÃ¡rÅ¯ <em class="replaceable"><code>zdroj:cÃ­l</code></em>.
 </p></li></ol></div><p>
-
-</p><h5><a name="id2540551"></a>P&#345;íklad: jeden kanál ve dvou reproduktorech</h5><p>
-Zde máte p&#345;íklad jiného zp&#367;sobu, jak hrát jeden kanál v obou reproduktorech.
-Pro ná&#353; ú&#269;el p&#345;edpokládejme, &#382;e by m&#283;l být p&#345;ehráván levý kanál a zahozen pravý.
-Následujeme vý&#353;e uvedený postup:
+</p><h5><a name="id2548610"></a>PÅ™Ã­klad: jeden kanÃ¡l ve dvou reproduktorech</h5><p>
+Zde mÃ¡te pÅ™Ã­klad jinÃ©ho zpÅ¯sobu, jak hrÃ¡t jeden kanÃ¡l v obou reproduktorech.
+Pro nÃ¡Å¡ ÃºÄel pÅ™edpoklÃ¡dejme, Å¾e by mÄ›l bÃ½t pÅ™ehrÃ¡vÃ¡n levÃ½ kanÃ¡l a zahozen pravÃ½.
+NÃ¡sledujeme vÃ½Å¡e uvedenÃ½ postup:
 </p><div class="orderedlist"><ol type="1"><li><p>
-Abychom m&#283;li výstupní kanál pro ka&#382;dý z obou reproduktor&#367;, musí být první
-parametr "2".
+  Abychom mÄ›li vÃ½stupnÃ­ kanÃ¡l pro kaÅ¾dÃ½ z obou reproduktorÅ¯, musÃ­ bÃ½t prvnÃ­
+  parametr "2".
 </p></li><li><p>
-Levý kanál musí být p&#345;esunut do pravého a také sám do sebe, aby nez&#367;stal
-prázdný. To jsou celkem dva p&#345;esuny, tak&#382;e druhý parametr bude také "2".
+  LevÃ½ kanÃ¡l musÃ­ bÃ½t pÅ™esunut do pravÃ©ho a takÃ© sÃ¡m do sebe, aby nezÅ¯stal
+  prÃ¡zdnÃ½. To jsou celkem dva pÅ™esuny, takÅ¾e druhÃ½ parametr bude takÃ© "2".
 </p></li><li><p>
-Pro p&#345;esun levého kanálu (channel 0) do pravého kanálu (channel 1) bude dvojice
-parametr&#367; "0:1" a "0:0" p&#345;esune levý kanál na sebe.
+  Pro pÅ™esun levÃ©ho kanÃ¡lu (channel 0) do pravÃ©ho kanÃ¡lu (channel 1) bude dvojice
+  parametrÅ¯ "0:1" a "0:0" pÅ™esune levÃ½ kanÃ¡l na sebe.
 </p></li></ol></div><p>
-V&#353;e dohromady pak dá:
-
-</p><pre class="screen">mplayer <em class="replaceable"><code>soubor</code></em> -af channels=2:2:0:1:0:0</pre><p>
+VÅ¡e dohromady pak dÃ¡:
+</p><pre class="screen">
+mplayer <em class="replaceable"><code>soubor</code></em> -af channels=2:2:0:1:0:0
+</pre><p>
 </p><p>
-Výhoda tohoto postupu p&#345;ed <tt class="option">extrastereo</tt> je v tom, &#382;e
-je hlasitost ka&#382;dého výstupního kanálu stejná jako hlasitost zdrojového
-kanálu. Nevýhodou je to, &#382;e parametry musí být zm&#283;n&#283;ny na "2:2:1:0:1:1",
-pokud je po&#382;adovaný zvuk v pravém kanálu. Také je t&#283;&#382;&#353;í si je pamatovat
+VÃ½hoda tohoto postupu pÅ™ed <tt class="option">extrastereo</tt> je v tom, Å¾e
+je hlasitost kaÅ¾dÃ©ho vÃ½stupnÃ­ho kanÃ¡lu stejnÃ¡ jako hlasitost zdrojovÃ©ho
+kanÃ¡lu. NevÃ½hodou je to, Å¾e parametry musÃ­ bÃ½t zmÄ›nÄ›ny na "2:2:1:0:1:1",
+pokud je poÅ¾adovanÃ½ zvuk v pravÃ©m kanÃ¡lu. TakÃ© je tÄ›Å¾Å¡Ã­ si je pamatovat
 a napsat.
-</p><h5><a name="id2540628"></a>P&#345;íklad: levý kanál v obou reproduktorech &#8211; zkratka</h5><p>
-Ve skute&#269;nosti je mnohem jednodu&#353;&#353;í zp&#367;sob pou&#382;ití filtru
-<tt class="option">channels</tt> pro p&#345;ehrávání levého kanálu v obou reproduktorech:
-
+</p><h5><a name="id2548688"></a>PÅ™Ã­klad: levÃ½ kanÃ¡l v obou reproduktorech â€“ zkratka</h5><p>
+Ve skuteÄnosti je mnohem jednoduÅ¡Å¡Ã­ zpÅ¯sob pouÅ¾itÃ­ filtru
+<tt class="option">channels</tt> pro pÅ™ehrÃ¡vÃ¡nÃ­ levÃ©ho kanÃ¡lu v obou reproduktorech:
 </p><pre class="screen">mplayer <em class="replaceable"><code>soubor</code></em> -af channels=1</pre><p>
-
-Druhý kanál je zahozen a bez dal&#353;ích parametr&#367; je ponechán jediný zbývající
-kanál. Ovlada&#269;e zvukových karet hrají jednokanálový zvuk automaticky v obou
-reproduktorech. To pracuje pouze pokud je po&#382;adovaný levý kanál.
-</p><h5><a name="id2540662"></a>P&#345;íklad: kopírování &#269;elních kanál&#367; do zadních</h5><p>
-Dal&#353;ím b&#283;&#382;ným úkonem je duplikace &#269;elních kanál&#367; a jejich p&#345;ehrávání v zadních
-reproduktorech kvadrofonní sestavy.
+DruhÃ½ kanÃ¡l je zahozen a bez dalÅ¡Ã­ch parametrÅ¯ je ponechÃ¡n jedinÃ½ zbÃ½vajÃ­cÃ­
+kanÃ¡l. OvladaÄe zvukovÃ½ch karet hrajÃ­ jednokanÃ¡lovÃ½ zvuk automaticky v obou
+reproduktorech. To pracuje pouze pokud je poÅ¾adovanÃ½ levÃ½ kanÃ¡l.
+</p><h5><a name="id2548722"></a>PÅ™Ã­klad: kopÃ­rovÃ¡nÃ­ ÄelnÃ­ch kanÃ¡lÅ¯ do zadnÃ­ch</h5><p>
+DalÅ¡Ã­m bÄ›Å¾nÃ½m Ãºkonem je duplikace ÄelnÃ­ch kanÃ¡lÅ¯ a jejich pÅ™ehrÃ¡vÃ¡nÃ­ v zadnÃ­ch
+reproduktorech kvadrofonnÃ­ sestavy.
 </p><div class="orderedlist"><ol type="1"><li><p>
-Zde by mely být &#269;ty&#345;i výstupní kanály. První parametr je "4".
+  Zde by mely bÃ½t ÄtyÅ™i vÃ½stupnÃ­ kanÃ¡ly. PrvnÃ­ parametr je "4".
 </p></li><li><p>
-Oba p&#345;ední kanály musí být p&#345;esunuty do odpovídajících zadních kanál&#367; a
-také na sebe. To jsou &#269;ty&#345;i p&#345;esuny, tak&#382;e druhý parametr bude "4".
+  Oba pÅ™ednÃ­ kanÃ¡ly musÃ­ bÃ½t pÅ™esunuty do odpovÃ­dajÃ­cÃ­ch zadnÃ­ch kanÃ¡lÅ¯ a
+  takÃ© na sebe. To jsou ÄtyÅ™i pÅ™esuny, takÅ¾e druhÃ½ parametr bude "4".
 </p></li><li><p>
-Levý &#269;elní (channel 0) p&#345;esuneme do levého zadního (channel 2): "0:2".
-Levý &#269;elní musíme rovn&#283;&#382; p&#345;esunout do sama sebe: "0:0". Pravý p&#345;ední (channel
-1) je p&#345;esunut do pravého zadního (channel 3): "1:3" a také do sebe: "1:1".
+  LevÃ½ ÄelnÃ­ (channel 0) pÅ™esuneme do levÃ©ho zadnÃ­ho (channel 2): "0:2".
+  LevÃ½ ÄelnÃ­ musÃ­me rovnÄ›Å¾ pÅ™esunout do sama sebe: "0:0". PravÃ½ pÅ™ednÃ­ (channel
+  1) je pÅ™esunut do pravÃ©ho zadnÃ­ho (channel 3): "1:3" a takÃ© do sebe: "1:1".
 </p></li></ol></div><p>
-Po zkombinování v&#353;ech nastavení dostaneme:
-
-</p><pre class="screen">mplayer <em class="replaceable"><code>soubor</code></em> -af channels=4:4:0:2:0:0:1:3:1:1</pre><p>
-
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="advaudio-channels-mixing"></a>3.7.2.4. Mixování kanál&#367;</h4></div></div></div><p>
-Filtr <tt class="option">pan</tt> umí mixovat kanály podle po&#382;adavk&#367; u&#382;ivatele.
-Umo&#382;&#328;uje v&#353;e co filtr <tt class="option">channels</tt> a je&#353;t&#283; víc. Nane&#353;t&#283;stí jsou
-jeho parametry je&#353;t&#283; komplikovan&#283;j&#353;í.
-</p><div class="orderedlist"><ol type="1"><li><p>
-Rozhodn&#283;te, s kolika kanály budeme pracovat. To m&#367;&#382;ete nastavit pomocí volby
-<tt class="option">-channels</tt> a/nebo <tt class="option">-af channels</tt>. Pozd&#283;ji se
-v p&#345;íkladech dozvíte, kdy pou&#382;ít kterou.
-</p></li><li><p>
-Rozhodn&#283;te, kolik kanál&#367; propustíme do <tt class="option">pan</tt> (ostatní dekódované
-kanály jsou zahozeny). To je první parametr a také ovládá, kolik kanál&#367; bude mít
-výstup.
-</p></li><li><p>
-Zbývající parametry nastavují, kolik z daného kanálu bude namixováno do ka&#382;dého
-dal&#353;ího kanálu. Toto je ta komplikovaná &#269;ást. Pro usnadn&#283;ní si rozd&#283;lte
-parametry do n&#283;kolika skupin, jednu pro ka&#382;dý výstupní kanál. Ka&#382;dý parametr
-uvnit&#345; skupiny odpovídá vstupnímu kanálu. &#268;íslo, které nastavíte bude procento
-vstupního kanálu, které bude namixováno do výstupního kanálu.
-</p><p>
-<tt class="option">pan</tt> akceptuje hodnoty od 0 do 512, co&#382; odpovídá 0% a&#382; 51200%
-p&#367;vodní hlasitosti. Bu&#271;te opatrní, pokud pou&#382;íváte hodnoty v&#283;t&#353;í ne&#382; 1. Nejen,
-&#382;e vám to dá velmi vysokou hlasitost, ale pokud p&#345;ekro&#269;íte dynamický rozsah
-své zvukové karty, m&#367;&#382;ete usly&#353;et rány a praskání. Pokud chcete, m&#367;&#382;ete
-za <tt class="option">pan</tt> p&#345;idat <tt class="option">,volume</tt> pro zapnutí omezení,
-ale i tak je nejlep&#353;í udr&#382;et hodnoty <tt class="option">pan</tt> dostate&#269;n&#283; nízko,
-aby omezování nebylo pot&#345;eba.
-</p></li></ol></div><p>
-</p><h5><a name="id2540836"></a>P&#345;íklad: jeden kanál do dvou reproduktor&#367;</h5><p>
-Zde máte dal&#353;í p&#345;íklad pro p&#345;ehrávání levého kanálu ve dvou reproduktorech.
-Následujme vý&#353;e uvedené kroky:
-</p><div class="orderedlist"><ol type="1"><li><p>
-Na výstupu <tt class="option">pan</tt> by m&#283;ly být dva kanály, tak&#382;e první parametr
-je "2".
-</p></li><li><p>
-Jeliko&#382; máme dva vstupní kanály, budeme mít dv&#283; sady parametr&#367;.
-Jeliko&#382; máme rovn&#283;&#382; dva výstupní kanály, budeme mít dva parametry v ka&#382;dé
-sad&#283;. Levý kanál ze souboru by m&#283;l jít s plnou hlasitostí do nového levého
-i pravého kanálu.
-Tak&#382;e první sada parametr&#367; je "1:1".
-Pravý kanál by m&#283;l být zahozen, tak&#382;e druhá sada bude "0:0".
-Hodnoty 0 na konci je mo&#382;né vynechat, ale pro snadn&#283;j&#353;í pochopení
-je zde necháváme.
-</p></li></ol></div><p>
-Dáme-li v&#353;e dohromady, dostaneme:
-
-</p><pre class="screen">mplayer <em class="replaceable"><code>soubor</code></em> -af pan=2:1:1:0:0</pre><p>
-
-Pokud chceme místo levého kanálu pravý, budou parametry
-<tt class="option">pan</tt> tyto: "2:0:0:1:1".
-</p><h5><a name="id2540897"></a>P&#345;íklad: levý kanál ve dvou reproduktorech zkrácen&#283;</h5><p>
-Stejn&#283; jako s <tt class="option">channels</tt> m&#367;&#382;eme pou&#382;ít zkrácený zápis, který
-funguje pouze pro levý kanál:
-
-</p><pre class="screen">mplayer <em class="replaceable"><code>soubor</code></em> -af pan=1:1</pre><p>
-
-Jeliko&#382; má <tt class="option">pan</tt> pouze jeden vstupní kanál (druhý je zahozen),
-máme pouze jednu sadu s jedním parametrem, tak&#382;e tento jediný kanál dává
-100% sám ze sebe.
-</p><h5><a name="id2540931"></a>P&#345;íklad: podmixování 6-kanálového PCM</h5><p>
-<span class="application">MPlayer</span>&#367;v dekodér 6-kanálového PCM neumí podmixování.
-Máme v&#353;ak mo&#382;nost k tomu pou&#382;ít <tt class="option">pan</tt>:
-</p><div class="orderedlist"><ol type="1"><li><p>
-Po&#269;et výstupních kanál&#367; je 2, tak&#382;e první parametr je "2".
-</p></li><li><p>
-P&#345;i &#353;esti vstupních kanálech budeme mít &#353;est sad parametr&#367;. Jeliko&#382; nás
-v&#353;ak zajímá pouze výstup z prvních dvou kanál&#367;, vysta&#269;íme s pouhými dv&#283;ma
-sadami; zbývající &#269;ty&#345;i sady m&#367;&#382;eme vynechat. Pozor na to, &#382;e ne v&#353;echny
-vícekanálové zvukové soubory mají stejné &#345;azení kanál&#367;! Tento p&#345;íklad
-demonstruje podmixování souboru se stejným &#345;azením kanál&#367; jako má AC3 5.1:
-</p><pre class="programlisting">
-0 - levý p&#345;ední
-1 - pravý p&#345;ední
-2 - levý zadní
-3 - pravý zadní
-4 - st&#345;edový p&#345;ední
-5 - subwoofer
+Po zkombinovÃ¡nÃ­ vÅ¡ech nastavenÃ­ dostaneme:
+</p><pre class="screen">
+mplayer <em class="replaceable"><code>soubor</code></em> -af channels=4:4:0:2:0:0:1:3:1:1
 </pre><p>
-První sada parametr&#367; je vý&#269;tem procentních hodnot hlasitostí v daném po&#345;adí,
-kterou by m&#283;l dostat ka&#382;dý výstupní kanál z levého p&#345;edního kanálu: "1:0".
-Pravý p&#345;ední kanál by m&#283;l jít do pravého výstupu: "0:1".
-Stejn&#283; tak zadní kanály: "1:0" a "0:1".
-St&#345;edový kanál jde do obou výstupních kanál&#367; s polovi&#269;ní hlasitostí:
-"0.5:0.5" a subwoofer jde do obou s plnou hlasitostí: "1:1".
-</p></li></ol></div><p>
-Dáme-li v&#353;e dohromady, dostaneme:
-
-</p><pre class="screen">mplayer <em class="replaceable"><code>6-kanálové.wav</code></em> -af pan=2:1:0:0:1:1:0:0:1:0.5:0.5:1:1</pre><p>
-
-Uvedené procentní hodnoty jsou pouhým p&#345;íkladem. Upravte si je podle vlastního
-uvá&#382;ení.
-</p><h5><a name="id2541013"></a>P&#345;íklad: P&#345;ehrávání 5.1 zvuku na velkých reprobednách bez subwooferu</h5><p>
-Pokud máte robustní &#269;elní reprobedny, nemusíte utrácet za nákup subwooferu
-pro kompletní 5.1 zvukový systém. Pou&#382;ijete-li volbu
-<tt class="option">-channels 5</tt> pro po&#382;adavek, aby liba52 dekódovala 5.1 zvuk
-do 5.0, bude zkrátka kanál pro subwoofer zahozen. Pokud jeho obsah chcete
-roznést do ostatních kanál&#367;, musíte jej podmixovat ru&#269;n&#283; pomocí
-<tt class="option">pan</tt>:
-
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="advaudio-channels-mixing"></a>3.7.2.4. MixovÃ¡nÃ­ kanÃ¡lÅ¯</h4></div></div></div><p>
+Filtr <tt class="option">pan</tt> umÃ­ mixovat kanÃ¡ly podle poÅ¾adavkÅ¯ uÅ¾ivatele.
+UmoÅ¾Åˆuje vÅ¡e co filtr <tt class="option">channels</tt> a jeÅ¡tÄ› vÃ­c. NaneÅ¡tÄ›stÃ­ jsou
+jeho parametry jeÅ¡tÄ› komplikovanÄ›jÅ¡Ã­.
 </p><div class="orderedlist"><ol type="1"><li><p>
-Jeliko&#382; se <tt class="option">pan</tt> pot&#345;ebuje dostat ke v&#353;em &#353;esti kanál&#367;m, nastavte
-<tt class="option">-channels 6</tt>, tak&#382;e je liba52 dekóduje v&#353;echny.
+  RozhodnÄ›te, s kolika kanÃ¡ly budeme pracovat. To mÅ¯Å¾ete nastavit pomocÃ­ volby
+  <tt class="option">-channels</tt> a/nebo <tt class="option">-af channels</tt>. PozdÄ›ji se
+  v pÅ™Ã­kladech dozvÃ­te, kdy pouÅ¾Ã­t kterou.
 </p></li><li><p>
-Filtr <tt class="option">pan</tt> produkuje pouze p&#283;t kanál&#367;, tak&#382;e první parametr je 5.
+  RozhodnÄ›te, kolik kanÃ¡lÅ¯ propustÃ­me do <tt class="option">pan</tt> (ostatnÃ­ dekÃ³dovanÃ©
+  kanÃ¡ly jsou zahozeny). To je prvnÃ­ parametr a takÃ© ovlÃ¡dÃ¡, kolik kanÃ¡lÅ¯ bude mÃ­t
+  vÃ½stup.
 </p></li><li><p>
-&#352;est vstupních a p&#283;t výstupních kanál&#367; znamená &#353;est sad po p&#283;ti parametrech.
-  </p><div class="itemizedlist"><ul type="disc" compact><li>
-  Levý p&#345;ední kanál p&#367;jde jen sám do sebe:
-  "1:0:0:0:0"
-  </li><li>
-  Stejn&#283; tak pravý p&#345;ední kanál:
-  "0:1:0:0:0"
-  </li><li>
-  Takté&#382; levý zadní kanál:
-  "0:0:1:0:0"
-  </li><li>
-  Rovn&#283;&#382; pravý zadní kanál:
-  "0:0:0:1:0"
-  </li><li>
-  St&#345;edový kanál jakbysmet:
-  "0:0:0:0:1"
-  </li><li>
-  A nyní se musíme rozhodnout, co ud&#283;láme se subwooferem,
-  nap&#345;íklad p&#367;lku do p&#345;edního levého a p&#367;lku do p&#345;edního pravého:
-  "0.5:0.5:0:0:0"
-  </li></ul></div><p>
+  ZbÃ½vajÃ­cÃ­ parametry nastavujÃ­, kolik z danÃ©ho kanÃ¡lu bude namixovÃ¡no do kaÅ¾dÃ©ho
+  dalÅ¡Ã­ho kanÃ¡lu. Toto je ta komplikovanÃ¡ ÄÃ¡st. Pro usnadnÄ›nÃ­ si rozdÄ›lte
+  parametry do nÄ›kolika skupin, jednu pro kaÅ¾dÃ½ vÃ½stupnÃ­ kanÃ¡l. KaÅ¾dÃ½ parametr
+  uvnitÅ™ skupiny odpovÃ­dÃ¡ vstupnÃ­mu kanÃ¡lu. ÄŒÃ­slo, kterÃ© nastavÃ­te bude procento
+  vstupnÃ­ho kanÃ¡lu, kterÃ© bude namixovÃ¡no do vÃ½stupnÃ­ho kanÃ¡lu.
+  </p><p>
+  <tt class="option">pan</tt> akceptuje hodnoty od 0 do 512, coÅ¾ odpovÃ­dÃ¡ 0% aÅ¾ 51200%
+  pÅ¯vodnÃ­ hlasitosti. BuÄte opatrnÃ­, pokud pouÅ¾Ã­vÃ¡te hodnoty vÄ›tÅ¡Ã­ neÅ¾ 1. Nejen,
+  Å¾e vÃ¡m to dÃ¡ velmi vysokou hlasitost, ale pokud pÅ™ekroÄÃ­te dynamickÃ½ rozsah
+  svÃ© zvukovÃ© karty, mÅ¯Å¾ete uslyÅ¡et rÃ¡ny a praskÃ¡nÃ­. Pokud chcete, mÅ¯Å¾ete
+  za <tt class="option">pan</tt> pÅ™idat <tt class="option">,volume</tt> pro zapnutÃ­ omezenÃ­,
+  ale i tak je nejlepÅ¡Ã­ udrÅ¾et hodnoty <tt class="option">pan</tt> dostateÄnÄ› nÃ­zko,
+  aby omezovÃ¡nÃ­ nebylo potÅ™eba.
+  </p></li></ol></div><p>
+</p><h5><a name="id2548899"></a>PÅ™Ã­klad: jeden kanÃ¡l do dvou reproduktorÅ¯</h5><p>
+Zde mÃ¡te dalÅ¡Ã­ pÅ™Ã­klad pro pÅ™ehrÃ¡vÃ¡nÃ­ levÃ©ho kanÃ¡lu ve dvou reproduktorech.
+NÃ¡sledujme vÃ½Å¡e uvedenÃ© kroky:
+</p><div class="orderedlist"><ol type="1"><li><p>
+  Na vÃ½stupu <tt class="option">pan</tt> by mÄ›ly bÃ½t dva kanÃ¡ly, takÅ¾e prvnÃ­
+  parametr je "2".
+</p></li><li><p>
+  JelikoÅ¾ mÃ¡me dva vstupnÃ­ kanÃ¡ly, budeme mÃ­t dvÄ› sady parametrÅ¯.
+  JelikoÅ¾ mÃ¡me rovnÄ›Å¾ dva vÃ½stupnÃ­ kanÃ¡ly, budeme mÃ­t dva parametry v kaÅ¾dÃ©
+  sadÄ›. LevÃ½ kanÃ¡l ze souboru by mÄ›l jÃ­t s plnou hlasitostÃ­ do novÃ©ho levÃ©ho
+  i pravÃ©ho kanÃ¡lu.
+  TakÅ¾e prvnÃ­ sada parametrÅ¯ je "1:1".
+  PravÃ½ kanÃ¡l by mÄ›l bÃ½t zahozen, takÅ¾e druhÃ¡ sada bude "0:0".
+  Hodnoty 0 na konci je moÅ¾nÃ© vynechat, ale pro snadnÄ›jÅ¡Ã­ pochopenÃ­
+  je zde nechÃ¡vÃ¡me.
+</p></li></ol></div><p>
+DÃ¡me-li vÅ¡e dohromady, dostaneme:
+</p><pre class="screen">mplayer <em class="replaceable"><code>soubor</code></em> -af pan=2:1:1:0:0</pre><p>
+Pokud chceme mÃ­sto levÃ©ho kanÃ¡lu pravÃ½, budou parametry
+<tt class="option">pan</tt> tyto: "2:0:0:1:1".
+</p><h5><a name="id2548960"></a>PÅ™Ã­klad: levÃ½ kanÃ¡l ve dvou reproduktorech zkrÃ¡cenÄ›</h5><p>
+StejnÄ› jako s <tt class="option">channels</tt> mÅ¯Å¾eme pouÅ¾Ã­t zkrÃ¡cenÃ½ zÃ¡pis, kterÃ½
+funguje pouze pro levÃ½ kanÃ¡l:
+</p><pre class="screen">mplayer <em class="replaceable"><code>soubor</code></em> -af pan=1:1</pre><p>
+JelikoÅ¾ mÃ¡ <tt class="option">pan</tt> pouze jeden vstupnÃ­ kanÃ¡l (druhÃ½ je zahozen),
+mÃ¡me pouze jednu sadu s jednÃ­m parametrem, takÅ¾e tento jedinÃ½ kanÃ¡l dÃ¡vÃ¡
+100% sÃ¡m ze sebe.
+</p><h5><a name="id2548994"></a>PÅ™Ã­klad: podmixovÃ¡nÃ­ 6-kanÃ¡lovÃ©ho PCM</h5><p>
+<span class="application">MPlayer</span>Å¯v dekodÃ©r 6-kanÃ¡lovÃ©ho PCM neumÃ­ podmixovÃ¡nÃ­.
+MÃ¡me vÅ¡ak moÅ¾nost k tomu pouÅ¾Ã­t <tt class="option">pan</tt>:
+</p><div class="orderedlist"><ol type="1"><li><p>
+  PoÄet vÃ½stupnÃ­ch kanÃ¡lÅ¯ je 2, takÅ¾e prvnÃ­ parametr je "2".
+</p></li><li><p>
+  PÅ™i Å¡esti vstupnÃ­ch kanÃ¡lech budeme mÃ­t Å¡est sad parametrÅ¯. JelikoÅ¾ nÃ¡s
+  vÅ¡ak zajÃ­mÃ¡ pouze vÃ½stup z prvnÃ­ch dvou kanÃ¡lÅ¯, vystaÄÃ­me s pouhÃ½mi dvÄ›ma
+  sadami; zbÃ½vajÃ­cÃ­ ÄtyÅ™i sady mÅ¯Å¾eme vynechat. Pozor na to, Å¾e ne vÅ¡echny
+  vÃ­cekanÃ¡lovÃ© zvukovÃ© soubory majÃ­ stejnÃ© Å™azenÃ­ kanÃ¡lÅ¯! Tento pÅ™Ã­klad
+  demonstruje podmixovÃ¡nÃ­ souboru se stejnÃ½m Å™azenÃ­m kanÃ¡lÅ¯ jako mÃ¡ AC3 5.1:
+  </p><pre class="programlisting">
+0 - levÃ½ pÅ™ednÃ­
+1 - pravÃ½ pÅ™ednÃ­
+2 - levÃ½ zadnÃ­
+3 - pravÃ½ zadnÃ­
+4 - stÅ™edovÃ½ pÅ™ednÃ­
+5 - subwoofer</pre><p>
+  PrvnÃ­ sada parametrÅ¯ je vÃ½Ätem procentnÃ­ch hodnot hlasitostÃ­ v danÃ©m poÅ™adÃ­,
+  kterou by mÄ›l dostat kaÅ¾dÃ½ vÃ½stupnÃ­ kanÃ¡l z levÃ©ho pÅ™ednÃ­ho kanÃ¡lu: "1:0".
+  PravÃ½ pÅ™ednÃ­ kanÃ¡l by mÄ›l jÃ­t do pravÃ©ho vÃ½stupu: "0:1".
+  StejnÄ› tak zadnÃ­ kanÃ¡ly: "1:0" a "0:1".
+  StÅ™edovÃ½ kanÃ¡l jde do obou vÃ½stupnÃ­ch kanÃ¡lÅ¯ s poloviÄnÃ­ hlasitostÃ­:
+  "0.5:0.5" a subwoofer jde do obou s plnou hlasitostÃ­: "1:1".
+</p></li></ol></div><p>
+DÃ¡me-li vÅ¡e dohromady, dostaneme:
+</p><pre class="screen">
+mplayer <em class="replaceable"><code>6-kanÃ¡lovÃ©.wav</code></em> -af pan=2:1:0:0:1:1:0:0:1:0.5:0.5:1:1
+</pre><p>
+UvedenÃ© procentnÃ­ hodnoty jsou pouhÃ½m pÅ™Ã­kladem. Upravte si je podle vlastnÃ­ho
+uvÃ¡Å¾enÃ­.
+</p><h5><a name="id2549078"></a>PÅ™Ã­klad: PÅ™ehrÃ¡vÃ¡nÃ­ 5.1 zvuku na velkÃ½ch reprobednÃ¡ch bez subwooferu</h5><p>
+Pokud mÃ¡te robustnÃ­ ÄelnÃ­ reprobedny, nemusÃ­te utrÃ¡cet za nÃ¡kup subwooferu
+pro kompletnÃ­ 5.1 zvukovÃ½ systÃ©m. PouÅ¾ijete-li volbu
+<tt class="option">-channels 5</tt> pro poÅ¾adavek, aby liba52 dekÃ³dovala 5.1 zvuk
+do 5.0, bude zkrÃ¡tka kanÃ¡l pro subwoofer zahozen. Pokud jeho obsah chcete
+roznÃ©st do ostatnÃ­ch kanÃ¡lÅ¯, musÃ­te jej podmixovat ruÄnÄ› pomocÃ­
+<tt class="option">pan</tt>:
+</p><div class="orderedlist"><ol type="1"><li><p>
+  JelikoÅ¾ se <tt class="option">pan</tt> potÅ™ebuje dostat ke vÅ¡em Å¡esti kanÃ¡lÅ¯m, nastavte
+  <tt class="option">-channels 6</tt>, takÅ¾e je liba52 dekÃ³duje vÅ¡echny.
+</p></li><li><p>
+  Filtr <tt class="option">pan</tt> produkuje pouze pÄ›t kanÃ¡lÅ¯, takÅ¾e prvnÃ­ parametr je 5.
+</p></li><li><p>
+  Å est vstupnÃ­ch a pÄ›t vÃ½stupnÃ­ch kanÃ¡lÅ¯ znamenÃ¡ Å¡est sad po pÄ›ti parametrech.
+  </p><div class="itemizedlist"><ul type="disc" compact><li><p>
+    LevÃ½ pÅ™ednÃ­ kanÃ¡l pÅ¯jde jen sÃ¡m do sebe:
+    "1:0:0:0:0"
+  </p></li><li><p>
+    StejnÄ› tak pravÃ½ pÅ™ednÃ­ kanÃ¡l:
+    "0:1:0:0:0"
+  </p></li><li><p>
+    TaktÃ©Å¾ levÃ½ zadnÃ­ kanÃ¡l:
+    "0:0:1:0:0"
+  </p></li><li><p>
+    RovnÄ›Å¾ pravÃ½ zadnÃ­ kanÃ¡l:
+    "0:0:0:1:0"
+  </p></li><li><p>
+    StÅ™edovÃ½ kanÃ¡l jakbysmet:
+    "0:0:0:0:1"
+  </p></li><li><p>
+    A nynÃ­ se musÃ­me rozhodnout, co udÄ›lÃ¡me se subwooferem,
+    napÅ™Ã­klad pÅ¯lku do pÅ™ednÃ­ho levÃ©ho a pÅ¯lku do pÅ™ednÃ­ho pravÃ©ho:
+    "0.5:0.5:0:0:0"
+  </p></li></ul></div><p>
 </p></li></ol></div><p>
 Zkombinujeme-li to dohromady, dostaneme:
-
-</p><pre class="screen">mplayer <em class="replaceable"><code>dvd://1</code></em> -channels 6 -af pan=5:1:0:0:0:0:0:1:0:0:0:0:0:1:0:0:0:0:0:1:0:0:0:0:0:1:0.5:0.5:0:0:0</pre><p>
-
-</p></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="advaudio-volume"></a>3.7.3. Softwarové nastavení hlasitosti</h3></div></div></div><p>
-N&#283;které zvukové stopy jsou p&#345;íli&#353; tiché na to, aby mohly být pohodln&#283;
-poslouchány bez zesílení. To je problém, pokud vá&#353; zvukový systém neumo&#382;&#328;uje
-pot&#345;ebné zesílení. Volba <tt class="option">-softvol</tt> poru&#269;í
-<span class="application">MPlayer</span>u pou&#382;ití vestav&#283;ného sm&#283;&#353;ova&#269;e. Pak m&#367;&#382;ete
-pou&#382;ít klávesy pro nastavení hlasitosti (výchozí <span class="keycap"><b>9</b></span> a
-<span class="keycap"><b>0</b></span>) pro dosa&#382;ení mnohem vy&#353;&#353;ích úrovní hlasitosti.
-Takto neobejdete sm&#283;&#353;ova&#269; va&#353;í zvukové karty; <span class="application">MPlayer</span>
-pouze zesílí signál p&#345;ed jeho odesláním do zvukové karty.
-
-Následující p&#345;íklad je dobrým startem:
-
-</p><pre class="screen">mplayer <em class="replaceable"><code>tichý-soubor</code></em> -softvol -softvol-max 300</pre><p>
-
-Volba <tt class="option">-softvol-max</tt> nastavuje maximální povolenou výstupní
-hlasitost v procentech p&#367;vodní hlasitosti. Nap&#345;íklad,
-<tt class="option">-softvol-max 200</tt> umo&#382;ní nastavit hlasitost a&#382; na dvojnásobek
-p&#367;vodní úrovn&#283;.
-Je bezpe&#269;né nastavit vysoké hodnoty volbou
-<tt class="option">-softvol-max</tt>; vy&#353;&#353;í hlasitost se nepou&#382;ije, dokud nepou&#382;ijete
-tla&#269;ítka nastavení hlasitosti. Jedinou nevýhodou velkých hodnot je to, &#382;e
-jeliko&#382; <span class="application">MPlayer</span> nastavuje hlasitost o podíl
-z maximální hlasitosti, nebudete mít tak jemný krok nastavení pomocí tla&#269;ítek.
-Pokud pot&#345;ebujete p&#345;esn&#283;j&#353;í nastavování, pou&#382;ijte ni&#382;&#353;í hodnotu pro
+</p><pre class="screen">
+mplayer <em class="replaceable"><code>dvd://1</code></em> -channels 6 -af pan=5:1:0:0:0:0:0:1:0:0:0:0:0:1:0:0:0:0:0:1:0:0:0:0:0:1:0.5:0.5:0:0:0
+</pre><p>
+</p></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="advaudio-volume"></a>3.7.3. SoftwarovÃ© nastavenÃ­ hlasitosti</h3></div></div></div><p>
+NÄ›kterÃ© zvukovÃ© stopy jsou pÅ™Ã­liÅ¡ tichÃ© na to, aby mohly bÃ½t pohodlnÄ›
+poslouchÃ¡ny bez zesÃ­lenÃ­. To je problÃ©m, pokud vÃ¡Å¡ zvukovÃ½ systÃ©m neumoÅ¾Åˆuje
+potÅ™ebnÃ© zesÃ­lenÃ­. Volba <tt class="option">-softvol</tt> poruÄÃ­
+<span class="application">MPlayer</span>u pouÅ¾itÃ­ vestavÄ›nÃ©ho smÄ›Å¡ovaÄe. Pak mÅ¯Å¾ete
+pouÅ¾Ã­t klÃ¡vesy pro nastavenÃ­ hlasitosti (vÃ½chozÃ­ <span class="keycap"><b>9</b></span> a
+<span class="keycap"><b>0</b></span>) pro dosaÅ¾enÃ­ mnohem vyÅ¡Å¡Ã­ch ÃºrovnÃ­ hlasitosti.
+Takto neobejdete smÄ›Å¡ovaÄ vaÅ¡Ã­ zvukovÃ© karty; <span class="application">MPlayer</span>
+pouze zesÃ­lÃ­ signÃ¡l pÅ™ed jeho odeslÃ¡nÃ­m do zvukovÃ© karty.
+NÃ¡sledujÃ­cÃ­ pÅ™Ã­klad je dobrÃ½m startem:
+</p><pre class="screen">
+mplayer <em class="replaceable"><code>tichÃ½-soubor</code></em> -softvol -softvol-max 300
+</pre><p>
+Volba <tt class="option">-softvol-max</tt> nastavuje maximÃ¡lnÃ­ povolenou vÃ½stupnÃ­
+hlasitost v procentech pÅ¯vodnÃ­ hlasitosti. NapÅ™Ã­klad,
+<tt class="option">-softvol-max 200</tt> umoÅ¾nÃ­ nastavit hlasitost aÅ¾ na dvojnÃ¡sobek
+pÅ¯vodnÃ­ ÃºrovnÄ›.
+Je bezpeÄnÃ© nastavit vysokÃ© hodnoty volbou
+<tt class="option">-softvol-max</tt>; vyÅ¡Å¡Ã­ hlasitost se nepouÅ¾ije, dokud nepouÅ¾ijete
+tlaÄÃ­tka nastavenÃ­ hlasitosti. Jedinou nevÃ½hodou velkÃ½ch hodnot je to, Å¾e
+jelikoÅ¾ <span class="application">MPlayer</span> nastavuje hlasitost o podÃ­l
+z maximÃ¡lnÃ­ hlasitosti, nebudete mÃ­t tak jemnÃ½ krok nastavenÃ­ pomocÃ­ tlaÄÃ­tek.
+Pokud potÅ™ebujete pÅ™esnÄ›jÅ¡Ã­ nastavovÃ¡nÃ­, pouÅ¾ijte niÅ¾Å¡Ã­ hodnotu pro
 <tt class="option">-softvol-max</tt> a/nebo nastavte
 <tt class="option">-volstep 1</tt>.
 </p><p>
-Volba <tt class="option">-softvol</tt> pracuje tak, &#382;e ovládá zvukový filtr
-<tt class="option">volume</tt>. Chcete-li p&#345;ehrávat soubor od za&#269;átku p&#345;i ur&#269;ité
-hlasitosti, m&#367;&#382;ete nastavit <tt class="option">volume</tt> ru&#269;n&#283;:
-
-</p><pre class="screen">mplayer <em class="replaceable"><code>tichý-soubor</code></em> -af volume=10</pre><p>
-
-Takto p&#345;ehrajete soubor se ziskem 10 decibel&#367;. P&#345;i pou&#382;ití filtru
-<tt class="option">volume</tt> bu&#271;te velmi opatrní. Pokud pou&#382;ijete p&#345;íli&#353; vysokou
-hodnotu, m&#367;&#382;ete si po&#353;kodit sluch. Za&#269;n&#283;te s nízkou hodnotou a postupn&#283;
-zvy&#353;ujte, a&#382; docílíte po&#382;adované hlasitosti. P&#345;i nastavení p&#345;íli&#353; vysokých
-hodnot také hrozí, &#382;e <tt class="option">volume</tt> bude nucen o&#345;ezat signál, aby
-p&#345;ede&#353;el odeslání dat mimo dovolený rozsah do zvukové karty; to povede ke
-zkreslení signálu.
-</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="edl.html">P&#345;edcházející</a> </td><td width="20%" align="center"><a accesskey="u" href="usage.html">Nahoru</a></td><td width="40%" align="right"> <a accesskey="n" href="cd-dvd.html">Dal&#353;í</a></td></tr><tr><td width="40%" align="left" valign="top">3.6. Seznamy edita&#269;ních zásah&#367; (EDL) </td><td width="20%" align="center"><a accesskey="h" href="index.html">Dom&#367;</a></td><td width="40%" align="right" valign="top"> Kapitola 4. Pou&#382;ití CD/DVD</td></tr></table></div></body></html>
+Volba <tt class="option">-softvol</tt> pracuje tak, Å¾e ovlÃ¡dÃ¡ zvukovÃ½ filtr
+<tt class="option">volume</tt>. Chcete-li pÅ™ehrÃ¡vat soubor od zaÄÃ¡tku pÅ™i urÄitÃ©
+hlasitosti, mÅ¯Å¾ete nastavit <tt class="option">volume</tt> ruÄnÄ›:
+</p><pre class="screen">mplayer <em class="replaceable"><code>tichÃ½-soubor</code></em> -af volume=10</pre><p>
+Takto pÅ™ehrajete soubor se ziskem 10 decibelÅ¯. PÅ™i pouÅ¾itÃ­ filtru
+<tt class="option">volume</tt> buÄte velmi opatrnÃ­. Pokud pouÅ¾ijete pÅ™Ã­liÅ¡ vysokou
+hodnotu, mÅ¯Å¾ete si poÅ¡kodit sluch. ZaÄnÄ›te s nÃ­zkou hodnotou a postupnÄ›
+zvyÅ¡ujte, aÅ¾ docÃ­lÃ­te poÅ¾adovanÃ© hlasitosti. PÅ™i nastavenÃ­ pÅ™Ã­liÅ¡ vysokÃ½ch
+hodnot takÃ© hrozÃ­, Å¾e <tt class="option">volume</tt> bude nucen oÅ™ezat signÃ¡l, aby
+pÅ™edeÅ¡el odeslÃ¡nÃ­ dat mimo dovolenÃ½ rozsah do zvukovÃ© karty; to povede ke
+zkreslenÃ­ signÃ¡lu.
+</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="edl.html">PÅ™edchÃ¡zejÃ­cÃ­</a>Â </td><td width="20%" align="center"><a accesskey="u" href="usage.html">Nahoru</a></td><td width="40%" align="right">Â <a accesskey="n" href="cd-dvd.html">DalÅ¡Ã­</a></td></tr><tr><td width="40%" align="left" valign="top">3.6. Seznamy editaÄnÃ­ch zÃ¡sahÅ¯ (EDL)Â </td><td width="20%" align="center"><a accesskey="h" href="index.html">DomÅ¯</a></td><td width="40%" align="right" valign="top">Â Kapitola 4. PouÅ¾itÃ­ CD/DVD</td></tr></table></div></body></html>

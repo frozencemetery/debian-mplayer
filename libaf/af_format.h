@@ -8,7 +8,7 @@
 #error af_format.h needs config.h
 #endif
 
-// Endianess
+// Endianness
 #define AF_FORMAT_BE		(0<<0) // Big Endian
 #define AF_FORMAT_LE		(1<<0) // Little Endian
 #define AF_FORMAT_END_MASK	(1<<0)
@@ -83,6 +83,8 @@
 #define AF_FORMAT_S32_NE AF_FORMAT_S32_LE
 #define AF_FORMAT_FLOAT_NE AF_FORMAT_FLOAT_LE
 #endif
+
+#define AF_FORMAT_UNKNOWN (-1)
 
 extern int af_str2fmt(const char *str);
 extern int af_str2fmt_short(const char *str);

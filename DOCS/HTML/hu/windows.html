@@ -1,104 +1,129 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>12.4. Windows</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="ports.html" title="12. fejezet - Portok"><link rel="prev" href="unix.html" title="12.3. Kereskedelmi Unix"><link rel="next" href="macos.html" title="12.5. Mac OS"><link rel="preface" href="howtoread.html" title="Hogyan olvasd ezt a dokumentációt"><link rel="chapter" href="intro.html" title="1. fejezet - Bevezetés"><link rel="chapter" href="install.html" title="2. fejezet - Telepítés"><link rel="chapter" href="usage.html" title="3. fejezet - Használat"><link rel="chapter" href="cd-dvd.html" title="4. fejezet - CD/DVD használat"><link rel="chapter" href="faq.html" title="5. fejezet - Gyakran ismételt kérdések"><link rel="chapter" href="containers.html" title="6. fejezet - Konténerek"><link rel="chapter" href="codecs.html" title="7. fejezet - Codec-ek"><link rel="chapter" href="video.html" title="8. fejezet - Videó kimeneti eszközök"><link rel="chapter" href="audio.html" title="9. fejezet - Audió kimeneti eszközök"><link rel="chapter" href="tv.html" title="10. fejezet - TV"><link rel="chapter" href="radio.html" title="11. fejezet - Rádió"><link rel="chapter" href="ports.html" title="12. fejezet - Portok"><link rel="chapter" href="mencoder.html" title="13. fejezet - A MEncoder használatának alapjai"><link rel="chapter" href="encoding-guide.html" title="14. fejezet - Kódolás a MEncoderrel"><link rel="appendix" href="bugreports.html" title="A. függelék - Hogyan jelentsd a hibákat"><link rel="appendix" href="bugs.html" title="B. függelék - Ismert hibák"><link rel="appendix" href="skin.html" title="C. függelék - MPlayer skin formátum"><link rel="appendix" href="history.html" title="D. függelék - Történelem"><link rel="subsection" href="windows.html#cygwin" title="12.4.1. Cygwin"><link rel="subsection" href="windows.html#mingw" title="12.4.2. MinGW"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">12.4. Windows</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="unix.html">El&#337;z&#337;</a> </td><th width="60%" align="center">12. fejezet - Portok</th><td width="20%" align="right"> <a accesskey="n" href="macos.html">Következ&#337;</a></td></tr></table><hr></div><div class="sect1" lang="hu"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="windows"></a>12.4. Windows</h2></div></div></div><p>Igen, az <span class="application">MPlayer</span> fut Windows-on
-  <a href="http://www.cygwin.com/" target="_top"><span class="application">Cygwin</span></a> és
-  <a href="http://www.mingw.org/" target="_top"><span class="application">MinGW</span></a> alatt.
-  Még nincs hivatalos GUI-ja, de a parancssoros verzió
-  teljes mértékben használható. Ajánlott megnézni az
-  <a href="http://lists.mplayerhq.hu/mailman/listinfo/mplayer-cygwin/" target="_top">MPlayer-cygwin</a>
-  levelezési listát is segítéségért és a legfrissebb információkért.
-  A hivatalos Windows-os binárisok megtalálhatóak a
-  <a href="http://www.mplayerhq.hu/design7/dload.html" target="_top">letöltési oldalon</a>.
-  A küls&#337; forrásból származó telepít&#337; csomagokat és egyszer&#369; GUI frontend-eket
-  összegy&#369;jtöttük a 
-  <a href="http://www.mplayerhq.hu/design7/projects.html#windows" target="_top">kapcsolódó projektek oldal</a>
-  Windows-os részében.
-</p><p>Ha el akarod kerülni a parancssor használatát, van egy egyszer&#369; trükk.
-  Tegyél egy parancsikont az asztalodra, ami valami hasonló parancssort
-  tartalmaz:
-  </p><pre class="screen"><em class="replaceable"><code>c:\eleresi\ut\</code></em>mplayer.exe %1</pre><p>
-  Ezután az <span class="application">MPlayer</span> le fog játszani bármilyen
-  videót, amit erre a parancsikonra ejtesz. Írd hozzá a <tt class="option">-fs</tt>
-  kapcsolót a teljes képerny&#337;s módhoz.
-</p><p>A legjobb eredmény a natív DirectX videó kimeneti vezérl&#337;vel
-  (<tt class="option">-vo directx</tt>). Alternatívaként van OpenGL és SDL, de
-  az OpenGL teljesítménye nagyban változik a rendszerek között, az SDL pedig
-  torzítja a képet vagy összeomlik néhány rendszeren. Ha torz a kép,
-  próbáld meg kikapcsolni a hardveres gyorsítást a
-  <tt class="option">-vo directx:noaccel</tt> kapcsolóval. Töltsd le a
-  <a href="http://www.mplayerhq.hu/MPlayer/releases/win32/contrib/dx7headers.tgz" target="_top">DirectX 7 fejléc fájlokat</a>
-  a DirectX videó kimeneti vezérl&#337; beforgatásához.</p><p>A <a href="output-trad.html#vidix" title="8.2.13. VIDIX">VIDIX</a> is m&#369;ködik már Windows alatt
-  a <tt class="option">-vo winvidix</tt> kapcsolóval, bár még kisérleti fázisban
-  van és egy kis kézi állítgatás kell hozzá. Töltsd le a
-  <a href="http://www.mplayerhq.hu/MPlayer/releases/win32/dhahelperwin/dhahelper.sys" target="_top">dhahelper.sys</a>
-  vagy <a href="http://www.mplayerhq.hu/MPlayer/releases/win32/dhahelperwin/withmtrr/dhahelper.sys" target="_top">dhahelper.sys (MTRR támogatással)</a>
-  fájlt és másold be a <tt class="filename">libdha/dhahelperwin</tt> könyvtárba
-  az <span class="application">MPlayer</span> forrás fádban. Nyisd meg a konzolt és
-  válts át erre a könyvtárra, majd írd be
-
-  </p><pre class="screen">gcc -o dhasetup.exe dhasetup.c</pre><p>
-
-  és futtasd
-
-  </p><pre class="screen">dhasetup.exe install</pre><p>
-
-  mint Adminisztrátor. Ezután újra kell indítanod a gépet. Ha készen vagy
-  másold a <code class="systemitem">.so</code> fájlokat a
-  <tt class="filename">vidix/drivers</tt> könyvtárból az
-  <tt class="filename">mplayer/vidix</tt> könyvtárba,
-  az <tt class="filename">mplayer.exe</tt>-hez relatíven.</p><p>A legjobb eredményhez az <span class="application">MPlayer</span>nek egy olyan
-  színteret kell használnia, amit a videó kártyád támogat. Sajnos sok Windows-os
-  grafikus vezérl&#337; hibásan támogatottnak jelent pár színteret. Hogy megtudd,
-  melyiket, próbáld ki az
-
-  </p><pre class="screen">mplayer -benchmark -nosound -frames 100 -vf format=<em class="replaceable"><code>szinter</code></em> <em class="replaceable"><code>film</code></em></pre><p>
-
-  parancsot, ahol a <em class="replaceable"><code>szinter</code></em> bármelyik színtér lehet,
-  amit a <tt class="option">-vf format=fmt=help</tt> kapcsoló kiír. Ha találsz
-  olyan színteret, amit a kártyád részben hibásan kezel,
-  <tt class="option">-vf noformat=<em class="replaceable"><code>szinter</code></em></tt>
-  kapcsolóval megakadályozhatod a használatát. Írd be ezt a konfigurációs fájlodba,
-  hogy véglegesen kimaradjon a használatból.</p><p>Vannak speciálisan Windowsra készített codec csomagok a
-  <a href="http://www.mplayerhq.hu/design7/dload.html" target="_top">letöltési oldalunkon</a>,
-  melyek segítségével azokat a formátumokat is lejátszhatod, amikhez még
-  nincs natív támogatás.
-  Tedd be a codec-eket valahova az elérési útvonaladba vagy add meg a
-  <tt class="option">--with-codecsdir=<em class="replaceable"><code>c:/ut/a/codecjeidhez</code></em></tt>
-  (alternatívaként
-  <tt class="option">--with-codecsdir=<em class="replaceable"><code>/ut/a/codecjeidhez</code></em></tt>
-  csak <span class="application">Cygwin</span> alatt) kapcsolóval a <tt class="filename">configure</tt>-nak.
-  Kaptunk olyan visszajelzéseket, hogy a Real DLL-eknek írhatóaknak kell lenniük az
-  <span class="application">MPlayer</span>t futtató felhasználó által, de csak bizonyos
-  rendszereken (NT4). Próbáld meg írhatóvá tenni &#337;ket, ha problémáid vannak.</p><p>VCD-ket is lejátszhatsz a <tt class="filename">.DAT</tt> vagy <tt class="filename">.MPG</tt> fájlok
-  lejátszásával, amit a Windows meglát a VCD-n. Így nagyszer&#369;en m&#369;ködik (javítsd ki a CD-ROM-od
-  bet&#369;jelét):</p><pre class="screen">mplayer <em class="replaceable"><code>d:/mpegav/avseq01.dat</code></em></pre><p>A DVD-k is m&#369;ködnek, add meg a <tt class="option">-dvd-device</tt> kapcsolócal a DVD-ROM-od
-  bet&#369;jelét:</p><pre class="screen">mplayer dvd://<em class="replaceable"><code>&lt;title&gt;</code></em> -dvd-device <em class="replaceable"><code>d</code></em>:</pre><p>A <span class="application">Cygwin</span>/<span class="application">MinGW</span>
-  konzol meglehet&#337;sen lassú. Kimenet átirányítással vagy a
-  <tt class="option">-quiet</tt> kapcsolóval a jelentések szerint javítható a
-  teljesítmény néhány rendszeren. A Direct renderelés (<tt class="option">-dr</tt>)
-  is segíthet. Ha a lejátszás szaggatott, próbáld meg a
-  <tt class="option">-autosync 100</tt> opciót. Ha ezek közül bármelyik segít, írd
-  be a konfigurációs fájlodba.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Megjegyzés</h3><p>Windows-on a futásidej&#369; CPU-detektálás letiltja az SSE támogatást
-  visszatér&#337; és nehezen követhet&#337; SSE-vel kapcsolatos fagyások miatt. Ha
-  szeretnél SSE támogatást, futás idej&#369; CPU-detektálás nélkül kell
-  fordítanod.
-</p><p>Ha Pentium 4-ed van és fagyásokat tapasztalsz a RealPlayer codec-ekkel,
-  le kell tiltanod a hyperthread támogatást.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="cygwin"></a>12.4.1. <span class="application">Cygwin</span></h3></div></div></div><p>A <span class="application">Cygwin</span> 1.5.0 vagy kés&#337;bbi
-  verziójára lesz szükséged az <span class="application">MPlayer</span>
-  lefordításához.</p><p>A DirectX fejléc fájlokat a <tt class="filename">/usr/include/</tt> vagy
-  <tt class="filename">/usr/local/include/</tt> könyvtárba
-  kell kicsomagolni.</p><p>Az SDL el&#337;állításával és <span class="application">Cygwin</span>
-  alatti használatával kapcsolatos utasításokat és fájlokat a
-  <a href="http://www.libsdl.org/extras/win32/cygwin/" target="_top">libsdl oldalon</a>
-  találod meg.</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="mingw"></a>12.4.2. <span class="application">MinGW</span></h3></div></div></div><p>A <span class="application">MinGW</span> egy olyan verziójának telepítése,
-  ami le tudja fordítani az <span class="application">MPlayer</span>t, régebben eléggé
-  trükkös volt, de most már simán megy. Csak telepítsd a <span class="application">MinGW</span>
-  3.1.0 vagy kés&#337;bbi és az MSYS 1.0.9 vagy kés&#337;bbi verzóját és az MSYS telepítés utáni
-  beállító programjának mondd meg, hogy telepítve van a <span class="application">MinGW</span>.
-</p><p>A DirectX fejléc fájlokat a <tt class="filename">/mingw/include/</tt>
-  könyvtárba kell kicsomagolni.</p><p>A tömörített MOV fejlécek támogatásához
-  <a href="http://www.gzip.org/zlib/" target="_top">zlib</a> kell, ami
-  alaphelyzetben nincs benne a <span class="application">MinGW</span>-ben.
-  Állítsd be a <tt class="option">--prefix=/mingw</tt> kapcsolóval és
-  telepítsd, miel&#337;tt az <span class="application">MPlayer</span>t fordítanád.</p><p>Az <span class="application">MPlayer</span> és a szükséges függvénykönyvtárak
-  elkészítésének módját elolvashatod az
-  <a href="http://mplayerhq.hu/MPlayer/releases/win32/contrib/MPlayer-MinGW-Howto.txt" target="_top">MPlayer MinGW HOGYAN</a>-ban.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="unix.html">El&#337;z&#337;</a> </td><td width="20%" align="center"><a accesskey="u" href="ports.html">Fel</a></td><td width="40%" align="right"> <a accesskey="n" href="macos.html">Következ&#337;</a></td></tr><tr><td width="40%" align="left" valign="top">12.3. Kereskedelmi Unix </td><td width="20%" align="center"><a accesskey="h" href="index.html">Tartalom</a></td><td width="40%" align="right" valign="top"> 12.5. Mac OS</td></tr></table></div></body></html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>12.4. Windows</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="ports.html" title="12. fejezet - Portok"><link rel="prev" href="unix.html" title="12.3. Kereskedelmi Unix"><link rel="next" href="macos.html" title="12.5. Mac OS"><link rel="preface" href="howtoread.html" title="Hogyan olvasd ezt a dokumentÃ¡ciÃ³t"><link rel="chapter" href="intro.html" title="1. fejezet - BevezetÃ©s"><link rel="chapter" href="install.html" title="2. fejezet - TelepÃ­tÃ©s"><link rel="chapter" href="usage.html" title="3. fejezet - HasznÃ¡lat"><link rel="chapter" href="cd-dvd.html" title="4. fejezet - CD/DVD hasznÃ¡lat"><link rel="chapter" href="faq.html" title="5. fejezet - Gyakran ismÃ©telt kÃ©rdÃ©sek"><link rel="chapter" href="containers.html" title="6. fejezet - KontÃ©nerek"><link rel="chapter" href="codecs.html" title="7. fejezet - Codec-ek"><link rel="chapter" href="video.html" title="8. fejezet - VideÃ³ kimeneti eszkÃ¶zÃ¶k"><link rel="chapter" href="audio.html" title="9. fejezet - AudiÃ³ kimeneti eszkÃ¶zÃ¶k"><link rel="chapter" href="tv.html" title="10. fejezet - TV"><link rel="chapter" href="radio.html" title="11. fejezet - RÃ¡diÃ³"><link rel="chapter" href="ports.html" title="12. fejezet - Portok"><link rel="chapter" href="mencoder.html" title="13. fejezet - A MEncoder hasznÃ¡latÃ¡nak alapjai"><link rel="chapter" href="encoding-guide.html" title="14. fejezet - KÃ³dolÃ¡s a MEncoderrel"><link rel="appendix" href="bugreports.html" title="A. fÃ¼ggelÃ©k - Hogyan jelentsd a hibÃ¡kat"><link rel="appendix" href="bugs.html" title="B. fÃ¼ggelÃ©k - Ismert hibÃ¡k"><link rel="appendix" href="skin.html" title="C. fÃ¼ggelÃ©k - MPlayer skin formÃ¡tum"><link rel="appendix" href="history.html" title="D. fÃ¼ggelÃ©k - TÃ¶rtÃ©nelem"><link rel="subsection" href="windows.html#cygwin" title="12.4.1. Cygwin"><link rel="subsection" href="windows.html#mingw" title="12.4.2. MinGW"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">12.4. Windows</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="unix.html">ElÅ‘zÅ‘</a>Â </td><th width="60%" align="center">12. fejezet - Portok</th><td width="20%" align="right">Â <a accesskey="n" href="macos.html">KÃ¶vetkezÅ‘</a></td></tr></table><hr></div><div class="sect1" lang="hu"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="windows"></a>12.4. Windows</h2></div></div></div><p>
+Igen, az <span class="application">MPlayer</span> fut Windows-on
+<a href="http://www.cygwin.com/" target="_top"><span class="application">Cygwin</span></a> Ã©s
+<a href="http://www.mingw.org/" target="_top"><span class="application">MinGW</span></a> alatt.
+MÃ©g nincs hivatalos GUI-ja, de a parancssoros verziÃ³
+teljes mÃ©rtÃ©kben hasznÃ¡lhatÃ³. AjÃ¡nlott megnÃ©zni az
+<a href="http://lists.mplayerhq.hu/mailman/listinfo/mplayer-cygwin/" target="_top">MPlayer-cygwin</a>
+levelezÃ©si listÃ¡t is segÃ­tÃ©sÃ©gÃ©rt Ã©s a legfrissebb informÃ¡ciÃ³kÃ©rt.
+A hivatalos Windows-os binÃ¡risok megtalÃ¡lhatÃ³ak a
+<a href="http://www.mplayerhq.hu/design7/dload.html" target="_top">letÃ¶ltÃ©si oldalon</a>.
+A kÃ¼lsÅ‘ forrÃ¡sbÃ³l szÃ¡rmazÃ³ telepÃ­tÅ‘ csomagokat Ã©s egyszerÅ± GUI frontend-eket
+Ã¶sszegyÅ±jtÃ¶ttÃ¼k a 
+<a href="http://www.mplayerhq.hu/design7/projects.html#windows" target="_top">kapcsolÃ³dÃ³ projektek oldal</a>
+Windows-os rÃ©szÃ©ben.
+</p><p>
+Ha el akarod kerÃ¼lni a parancssor hasznÃ¡latÃ¡t, van egy egyszerÅ± trÃ¼kk.
+TegyÃ©l egy parancsikont az asztalodra, ami valami hasonlÃ³ parancssort
+tartalmaz:
+</p><pre class="screen"><em class="replaceable"><code>c:\eleresi\ut\</code></em>mplayer.exe %1</pre><p>
+EzutÃ¡n az <span class="application">MPlayer</span> le fog jÃ¡tszani bÃ¡rmilyen
+videÃ³t, amit erre a parancsikonra ejtesz. Ãrd hozzÃ¡ a <tt class="option">-fs</tt>
+kapcsolÃ³t a teljes kÃ©pernyÅ‘s mÃ³dhoz.
+</p><p>
+A legjobb eredmÃ©ny a natÃ­v DirectX videÃ³ kimeneti vezÃ©rlÅ‘vel
+(<tt class="option">-vo directx</tt>). AlternatÃ­vakÃ©nt van OpenGL Ã©s SDL, de
+az OpenGL teljesÃ­tmÃ©nye nagyban vÃ¡ltozik a rendszerek kÃ¶zÃ¶tt, az SDL pedig
+torzÃ­tja a kÃ©pet vagy Ã¶sszeomlik nÃ©hÃ¡ny rendszeren. Ha torz a kÃ©p,
+prÃ³bÃ¡ld meg kikapcsolni a hardveres gyorsÃ­tÃ¡st a
+<tt class="option">-vo directx:noaccel</tt> kapcsolÃ³val. TÃ¶ltsd le a
+<a href="http://www.mplayerhq.hu/MPlayer/releases/win32/contrib/dx7headers.tgz" target="_top">DirectX 7 fejlÃ©c fÃ¡jlokat</a>
+a DirectX videÃ³ kimeneti vezÃ©rlÅ‘ beforgatÃ¡sÃ¡hoz.
+</p><p>
+A <a href="vidix.html" title="8.15. VIDIX">VIDIX</a> is mÅ±kÃ¶dik mÃ¡r Windows alatt
+a <tt class="option">-vo winvidix</tt> kapcsolÃ³val, bÃ¡r mÃ©g kisÃ©rleti fÃ¡zisban
+van Ã©s egy kis kÃ©zi Ã¡llÃ­tgatÃ¡s kell hozzÃ¡. TÃ¶ltsd le a
+<a href="http://www.mplayerhq.hu/MPlayer/releases/win32/dhahelperwin/dhahelper.sys" target="_top">dhahelper.sys</a> vagy
+<a href="http://www.mplayerhq.hu/MPlayer/releases/win32/dhahelperwin/withmtrr/dhahelper.sys" target="_top">dhahelper.sys (MTRR tÃ¡mogatÃ¡ssal)</a>
+fÃ¡jlt Ã©s mÃ¡sold be a <tt class="filename">vidix/dhahelperwin</tt> kÃ¶nyvtÃ¡rba
+az <span class="application">MPlayer</span> forrÃ¡s fÃ¡dban. Nyisd meg a konzolt
+Ã©s vÃ¡lts Ã¡t erre a kÃ¶nyvtÃ¡rra, majd Ã­rd be
+</p><pre class="screen">gcc -o dhasetup.exe dhasetup.c</pre><p>
+Ã©s futtasd
+</p><pre class="screen">dhasetup.exe install</pre><p>
+mint AdminisztrÃ¡tor. EzutÃ¡n Ãºjra kell indÃ­tanod a gÃ©pet. Ha kÃ©szen vagy
+mÃ¡sold a <code class="systemitem">.so</code> fÃ¡jlokat a
+<tt class="filename">vidix/drivers</tt> kÃ¶nyvtÃ¡rbÃ³l az
+<tt class="filename">mplayer/vidix</tt> kÃ¶nyvtÃ¡rba,
+az <tt class="filename">mplayer.exe</tt>-hez relatÃ­ven.
+</p><p>
+A legjobb eredmÃ©nyhez az <span class="application">MPlayer</span>nek egy olyan
+szÃ­nteret kell hasznÃ¡lnia, amit a videÃ³ kÃ¡rtyÃ¡d tÃ¡mogat. Sajnos sok Windows-os
+grafikus vezÃ©rlÅ‘ hibÃ¡san tÃ¡mogatottnak jelent pÃ¡r szÃ­nteret. Hogy megtudd,
+melyiket, prÃ³bÃ¡ld ki az
+</p><pre class="screen">
+mplayer -benchmark -nosound -frames 100 -vf format=<em class="replaceable"><code>szinter</code></em> <em class="replaceable"><code>film</code></em>
+</pre><p>
+parancsot, ahol a <em class="replaceable"><code>szinter</code></em> bÃ¡rmelyik szÃ­ntÃ©r lehet,
+amit a <tt class="option">-vf format=fmt=help</tt> kapcsolÃ³ kiÃ­r. Ha talÃ¡lsz
+olyan szÃ­nteret, amit a kÃ¡rtyÃ¡d rÃ©szben hibÃ¡san kezel,
+<tt class="option">-vf noformat=<em class="replaceable"><code>szinter</code></em></tt>
+kapcsolÃ³val megakadÃ¡lyozhatod a hasznÃ¡latÃ¡t. Ãrd be ezt a konfigurÃ¡ciÃ³s fÃ¡jlodba,
+hogy vÃ©glegesen kimaradjon a hasznÃ¡latbÃ³l.
+</p><p>Vannak speciÃ¡lisan Windowsra kÃ©szÃ­tett codec csomagok a
+  <a href="http://www.mplayerhq.hu/design7/dload.html" target="_top">letÃ¶ltÃ©si oldalunkon</a>,
+  melyek segÃ­tsÃ©gÃ©vel azokat a formÃ¡tumokat is lejÃ¡tszhatod, amikhez mÃ©g
+  nincs natÃ­v tÃ¡mogatÃ¡s.
+  Tedd be a codec-eket valahova az elÃ©rÃ©si Ãºtvonaladba vagy add meg a
+  <tt class="option">--codecsdir=<em class="replaceable"><code>c:/ut/a/codecjeidhez</code></em></tt>
+  (alternatÃ­vakÃ©nt
+  <tt class="option">--codecsdir=<em class="replaceable"><code>/ut/a/codecjeidhez</code></em></tt>
+  csak <span class="application">Cygwin</span> alatt) kapcsolÃ³val a <tt class="filename">configure</tt>-nak.
+  Kaptunk olyan visszajelzÃ©seket, hogy a Real DLL-eknek Ã­rhatÃ³aknak kell lenniÃ¼k az
+  <span class="application">MPlayer</span>t futtatÃ³ felhasznÃ¡lÃ³ Ã¡ltal, de csak bizonyos
+  rendszereken (NT4). PrÃ³bÃ¡ld meg Ã­rhatÃ³vÃ¡ tenni Å‘ket, ha problÃ©mÃ¡id vannak.</p><p>
+VCD-ket is lejÃ¡tszhatsz a <tt class="filename">.DAT</tt> vagy
+<tt class="filename">.MPG</tt> fÃ¡jlok lejÃ¡tszÃ¡sÃ¡val, amit a Windows meglÃ¡t a VCD-n.
+Ãgy nagyszerÅ±en mÅ±kÃ¶dik (javÃ­tsd ki a CD-ROM-od betÅ±jelÃ©t):
+</p><pre class="screen">mplayer <em class="replaceable"><code>d:/mpegav/avseq01.dat</code></em></pre><p>
+A DVD-k is mÅ±kÃ¶dnek, add meg a <tt class="option">-dvd-device</tt> kapcsolÃ³val
+a DVD-ROM-od betÅ±jelÃ©t:
+</p><pre class="screen">
+mplayer dvd://<em class="replaceable"><code>&lt;title&gt;</code></em> -dvd-device <em class="replaceable"><code>d</code></em>:
+</pre><p>
+A <span class="application">Cygwin</span>/<span class="application">MinGW</span>
+konzol meglehetÅ‘sen lassÃº. Kimenet Ã¡tirÃ¡nyÃ­tÃ¡ssal vagy a
+<tt class="option">-quiet</tt> kapcsolÃ³val a jelentÃ©sek szerint javÃ­thatÃ³ a
+teljesÃ­tmÃ©ny nÃ©hÃ¡ny rendszeren. A Direct renderelÃ©s (<tt class="option">-dr</tt>)
+is segÃ­thet. Ha a lejÃ¡tszÃ¡s szaggatott, prÃ³bÃ¡ld meg a
+<tt class="option">-autosync 100</tt> opciÃ³t. Ha ezek kÃ¶zÃ¼l bÃ¡rmelyik segÃ­t, Ã­rd
+be a konfigurÃ¡ciÃ³s fÃ¡jlodba.
+</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">MegjegyzÃ©s</h3><p>
+Windows-on a futÃ¡sidejÅ± CPU-detektÃ¡lÃ¡s letiltja az SSE tÃ¡mogatÃ¡st
+visszatÃ©rÅ‘ Ã©s nehezen kÃ¶vethetÅ‘ SSE-vel kapcsolatos fagyÃ¡sok miatt. Ha
+szeretnÃ©l SSE tÃ¡mogatÃ¡st, futÃ¡s idejÅ± CPU-detektÃ¡lÃ¡s nÃ©lkÃ¼l kell
+fordÃ­tanod.
+</p><p>
+Ha Pentium 4-ed van Ã©s fagyÃ¡sokat tapasztalsz a RealPlayer
+codec-ekkel, le kell tiltanod a hyperthread tÃ¡mogatÃ¡st.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="cygwin"></a>12.4.1. <span class="application">Cygwin</span></h3></div></div></div><p>
+A <span class="application">Cygwin</span> 1.5.0 vagy kÃ©sÅ‘bbi verziÃ³jÃ¡ra
+lesz szÃ¼ksÃ©ged az <span class="application">MPlayer</span> lefordÃ­tÃ¡sÃ¡hoz.
+</p><p>
+A DirectX fejlÃ©c fÃ¡jlokat ki kell csomagolni a
+<tt class="filename">/usr/include/</tt> vagy
+<tt class="filename">/usr/local/include/</tt> kÃ¶nyvtÃ¡rba.
+</p><p>
+Az SDL elÅ‘Ã¡llÃ­tÃ¡sÃ¡val Ã©s <span class="application">Cygwin</span> alatti
+hasznÃ¡latÃ¡val kapcsolatos utasÃ­tÃ¡sok Ã©s fÃ¡jlok megtalÃ¡lhatÃ³ak a
+<a href="http://www.libsdl.org/extras/win32/cygwin/" target="_top">libsdl oldalon</a>.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="mingw"></a>12.4.2. <span class="application">MinGW</span></h3></div></div></div><p>
+A <span class="application">MinGW</span> egy olyan verziÃ³jÃ¡nak telepÃ­tÃ©se,
+ami le tudja fordÃ­tani az <span class="application">MPlayer</span>t, rÃ©gebben elÃ©ggÃ©
+trÃ¼kkÃ¶s volt, de most mÃ¡r simÃ¡n megy. Csak telepÃ­tsd a <span class="application">MinGW</span>
+3.1.0 vagy kÃ©sÅ‘bbi Ã©s az MSYS 1.0.9 vagy kÃ©sÅ‘bbi verzÃ³jÃ¡t Ã©s az MSYS telepÃ­tÃ©s utÃ¡ni
+beÃ¡llÃ­tÃ³ programjÃ¡nak mondd meg, hogy telepÃ­tve van a <span class="application">MinGW</span>.
+</p><p>
+Csomagold ki a DirectX fejlÃ©c fÃ¡jlokat a
+<tt class="filename">/mingw/include/</tt> kÃ¶nyvtÃ¡rba.
+</p><p>
+A tÃ¶mÃ¶rÃ­tett MOV fejlÃ©cek tÃ¡mogatÃ¡sÃ¡hoz
+<a href="http://www.gzip.org/zlib/" target="_top">zlib</a> kell, ami
+alaphelyzetben nincs benne a <span class="application">MinGW</span>-ben.
+ÃllÃ­tsd be a <tt class="option">--prefix=/mingw</tt> kapcsolÃ³val Ã©s
+telepÃ­tsd, mielÅ‘tt az <span class="application">MPlayer</span>t fordÃ­tanÃ¡d.
+</p><p>
+Az <span class="application">MPlayer</span> Ã©s a szÃ¼ksÃ©ges fÃ¼ggvÃ©nykÃ¶nyvtÃ¡rak
+elkÃ©szÃ­tÃ©sÃ©nek mÃ³djÃ¡t elolvashatod az
+<a href="http://www.mplayerhq.hu/MPlayer/releases/win32/contrib/MPlayer-MinGW-Howto.txt" target="_top">MPlayer MinGW HOGYAN</a>-ban.
+</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="unix.html">ElÅ‘zÅ‘</a>Â </td><td width="20%" align="center"><a accesskey="u" href="ports.html">Fel</a></td><td width="40%" align="right">Â <a accesskey="n" href="macos.html">KÃ¶vetkezÅ‘</a></td></tr><tr><td width="40%" align="left" valign="top">12.3. Kereskedelmi UnixÂ </td><td width="20%" align="center"><a accesskey="h" href="index.html">Tartalom</a></td><td width="40%" align="right" valign="top">Â 12.5. Mac OS</td></tr></table></div></body></html>

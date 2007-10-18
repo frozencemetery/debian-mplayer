@@ -60,12 +60,6 @@ create_conf () {
      echo "fontconfig=1" >> $t 
      echo "font='${RET}'" >> $t
  fi
-
- db_get 'mplayer/rtc'
- if test "$RET" -a "$RET" = true ; then
-     echo "#enable RTC (Real Time Clock) access" >> $t 
-     echo "rtc=1" >> $t
- fi
  
  echo "$end" >> $t 
  if test -r $CONF ; then

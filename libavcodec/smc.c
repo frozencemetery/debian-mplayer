@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
  */
 
 /**
@@ -34,7 +33,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "common.h"
 #include "avcodec.h"
 #include "dsputil.h"
 
@@ -120,7 +118,7 @@ static void smc_decode_stream(SmcContext *s)
         s->avctx->palctrl->palette_changed = 0;
     }
 
-    chunk_size = BE_32(&s->buf[stream_ptr]) & 0x00FFFFFF;
+    chunk_size = AV_RB32(&s->buf[stream_ptr]) & 0x00FFFFFF;
     stream_ptr += 4;
     if (chunk_size != s->size)
         av_log(s->avctx, AV_LOG_INFO, "warning: MOV chunk size != encoded chunk size (%d != %d); using MOV chunk size\n",
@@ -278,7 +276,7 @@ static void smc_decode_stream(SmcContext *s)
                 color_table_index = CPAIR * s->buf[stream_ptr++];
 
             while (n_blocks--) {
-                color_flags = BE_16(&s->buf[stream_ptr]);
+                color_flags = AV_RB16(&s->buf[stream_ptr]);
                 stream_ptr += 2;
                 flag_mask = 0x8000;
                 block_ptr = row_ptr + pixel_ptr;
@@ -321,7 +319,7 @@ static void smc_decode_stream(SmcContext *s)
                 color_table_index = CQUAD * s->buf[stream_ptr++];
 
             while (n_blocks--) {
-                color_flags = BE_32(&s->buf[stream_ptr]);
+                color_flags = AV_RB32(&s->buf[stream_ptr]);
                 stream_ptr += 4;
                 /* flag mask actually acts as a bit shift count here */
                 flag_mask = 30;
@@ -432,11 +430,10 @@ static void smc_decode_stream(SmcContext *s)
 
 static int smc_decode_init(AVCodecContext *avctx)
 {
-    SmcContext *s = (SmcContext *)avctx->priv_data;
+    SmcContext *s = avctx->priv_data;
 
     s->avctx = avctx;
     avctx->pix_fmt = PIX_FMT_PAL8;
-    avctx->has_b_frames = 0;
     dsputil_init(&s->dsp, avctx);
 
     s->frame.data[0] = NULL;
@@ -448,7 +445,7 @@ static int smc_decode_frame(AVCodecContext *avctx,
                              void *data, int *data_size,
                              uint8_t *buf, int buf_size)
 {
-    SmcContext *s = (SmcContext *)avctx->priv_data;
+    SmcContext *s = avctx->priv_data;
 
     s->buf = buf;
     s->size = buf_size;
@@ -472,7 +469,7 @@ static int smc_decode_frame(AVCodecContext *avctx,
 
 static int smc_decode_end(AVCodecContext *avctx)
 {
-    SmcContext *s = (SmcContext *)avctx->priv_data;
+    SmcContext *s = avctx->priv_data;
 
     if (s->frame.data[0])
         avctx->release_buffer(avctx, &s->frame);

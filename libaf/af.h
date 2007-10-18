@@ -1,5 +1,5 @@
-#ifndef __aop_h__
-#define __aop_h__
+#ifndef __af_h__
+#define __af_h__
 
 #include <stdio.h>
 
@@ -9,6 +9,11 @@
 #include "af_format.h"
 
 struct af_instance_s;
+
+// Number of channels
+#ifndef AF_NCH
+#define AF_NCH 6
+#endif
 
 // Audio data chunk
 typedef struct af_data_s
@@ -388,4 +393,4 @@ extern af_msg_cfg_t af_msg_cfg; // Message
 #endif
 //! \}
 
-#endif /* __aop_h__ */
+#endif /* __af_h__ */

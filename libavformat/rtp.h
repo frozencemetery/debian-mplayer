@@ -21,38 +21,45 @@
 #ifndef RTP_H
 #define RTP_H
 
+#include "avcodec.h"
+#include "avformat.h"
+
 #define RTP_MIN_PACKET_LENGTH 12
 #define RTP_MAX_PACKET_LENGTH 1500 /* XXX: suppress this define */
 
 int rtp_init(void);
 int rtp_get_codec_info(AVCodecContext *codec, int payload_type);
+
+/** return < 0 if unknown payload type */
 int rtp_get_payload_type(AVCodecContext *codec);
 
 typedef struct RTPDemuxContext RTPDemuxContext;
 typedef struct rtp_payload_data_s rtp_payload_data_s;
-RTPDemuxContext *rtp_parse_open(AVFormatContext *s1, AVStream *st, int payload_type, rtp_payload_data_s *rtp_payload_data);
+RTPDemuxContext *rtp_parse_open(AVFormatContext *s1, AVStream *st, URLContext *rtpc, int payload_type, rtp_payload_data_s *rtp_payload_data);
 int rtp_parse_packet(RTPDemuxContext *s, AVPacket *pkt,
                      const uint8_t *buf, int len);
 void rtp_parse_close(RTPDemuxContext *s);
-
-extern AVOutputFormat rtp_muxer;
-extern AVInputFormat rtp_demuxer;
 
 int rtp_get_local_port(URLContext *h);
 int rtp_set_remote_url(URLContext *h, const char *uri);
 void rtp_get_file_handles(URLContext *h, int *prtp_fd, int *prtcp_fd);
 
-extern URLProtocol rtp_protocol;
+/**
+ * some rtp servers assume client is dead if they don't hear from them...
+ * so we send a Receiver Report to the provided ByteIO context
+ * (we don't have access to the rtcp handle from here)
+ */
+int rtp_check_and_send_back_rr(RTPDemuxContext *s, int count);
 
 #define RTP_PT_PRIVATE 96
 #define RTP_VERSION 2
-#define RTP_MAX_SDES 256   /* maximum text length for SDES */
+#define RTP_MAX_SDES 256   /**< maximum text length for SDES */
 
 /* RTCP paquets use 0.5 % of the bandwidth */
 #define RTCP_TX_RATIO_NUM 5
 #define RTCP_TX_RATIO_DEN 1000
 
-/* Structure listing usefull vars to parse RTP packet payload*/
+/** Structure listing useful vars to parse RTP packet payload*/
 typedef struct rtp_payload_data_s
 {
     int sizelength;
@@ -63,7 +70,7 @@ typedef struct rtp_payload_data_s
     int objecttype;
     char *mode;
 
-    /* mpeg 4 AU headers */
+    /** mpeg 4 AU headers */
     struct AUHeaders {
         int size;
         int index;
@@ -88,13 +95,6 @@ typedef struct AVRtpPayloadType_s
     int clock_rate;
     int audio_channels;
 } AVRtpPayloadType_t;
-
-typedef struct AVRtpDynamicPayloadType_s /* payload type >= 96 */
-{
-    const char enc_name[50]; /* XXX: still why 50 ? ;-) */
-    enum CodecType codec_type;
-    enum CodecID codec_id;
-} AVRtpDynamicPayloadType_t;
 
 #if 0
 typedef enum {
@@ -122,6 +122,4 @@ typedef enum {
 #endif
 
 extern AVRtpPayloadType_t AVRtpPayloadTypes[];
-extern AVRtpDynamicPayloadType_t AVRtpDynamicPayloadTypes[];
-
 #endif /* RTP_H */

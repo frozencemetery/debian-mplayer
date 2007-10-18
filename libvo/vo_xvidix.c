@@ -34,7 +34,7 @@
 #include "vidix/vidixlib.h"
 
 #ifdef HAVE_NEW_GUI
-#include "Gui/interface.h"
+#include "gui/interface.h"
 #endif
 
 
@@ -71,9 +71,6 @@ static uint32_t drwX, drwY, drwWidth, drwHeight, drwBorderWidth,
 
 extern void set_video_eq(int cap);
 
-#ifdef HAVE_XINERAMA
-extern int xinerama_screen;
-#endif
 
 static void set_window(int force_update)
 {
@@ -240,23 +237,11 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
 
     title = "MPlayer VIDIX X11 Overlay";
 
-    panscan_init();
-
     image_height = height;
     image_width = width;
     image_format = format;
     vo_mouse_autohide = 1;
 
-    aspect_save_orig(width, height);
-    aspect_save_prescale(d_width, d_height);
-    aspect_save_screenres(vo_screenwidth, vo_screenheight);
-
-    vo_dx = 0;
-    vo_dy = 0;
-    vo_dx = (vo_screenwidth - d_width) / 2;
-    vo_dy = (vo_screenheight - d_height) / 2;
-    geometry(&vo_dx, &vo_dy, &d_width, &d_height, vo_screenwidth,
-             vo_screenheight);
     window_width = d_width;
     window_height = d_height;
 
@@ -287,11 +272,6 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
                    vo_depthonscreen);
     }
     mp_msg(MSGT_VO, MSGL_V, "Using colorkey: %x\n", colorkey);
-
-    aspect(&d_width, &d_height, A_NOZOOM);
-
-    vo_dwidth = d_width;
-    vo_dheight = d_height;
 
 #ifdef HAVE_NEW_GUI
     if (use_gui)
@@ -352,28 +332,10 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
                 XSelectInput(mDisplay, vo_window, ExposureMask);
         } else
         {
-            if (vo_window == None)
-            {
-                vo_window =
-                    XCreateWindow(mDisplay, RootWindow(mDisplay, mScreen),
-                                  vo_dx, vo_dy, window_width,
-                                  window_height, xswa.border_pixel,
-                                  vinfo.depth, InputOutput, vinfo.visual,
-                                  xswamask, &xswa);
-
-                vo_x11_classhint(mDisplay, vo_window, "xvidix");
-                vo_hidecursor(mDisplay, vo_window);
-                vo_x11_sizehint(vo_dx, vo_dy, vo_dwidth, vo_dheight, 0);
-
-                XStoreName(mDisplay, vo_window, title);
-                XMapWindow(mDisplay, vo_window);
-                vo_x11_nofs_sizepos(vo_dx, vo_dy, vo_dwidth, vo_dheight);
-
-                if (flags & VOFLAG_FULLSCREEN)
-                    vo_x11_fullscreen();
-
-            } else
-                vo_x11_nofs_sizepos(vo_dx, vo_dy, vo_dwidth, vo_dheight);
+            vo_x11_create_vo_window(&vinfo, vo_dx, vo_dy,
+                    window_width, window_height, flags,
+                    CopyFromParent, "xvidix", title);
+            XChangeWindowAttributes(mDisplay, vo_window, xswamask, &xswa);
         }
 
         if (vo_gc != None)
@@ -556,6 +518,10 @@ static int control(uint32_t request, void *data, ...)
 
                 return vidix_control(request, data, value);
             }
+        case VOCTRL_UPDATE_SCREENINFO:
+            aspect_save_screenres(vo_screenwidth, vo_screenheight);
+            return VO_TRUE;
+
     }
     return vidix_control(request, data);
 //  return VO_NOTIMPL;

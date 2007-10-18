@@ -60,11 +60,6 @@ static int amr_write_packet(AVFormatContext *s, AVPacket *pkt)
     put_flush_packet(&s->pb);
     return 0;
 }
-
-static int amr_write_trailer(AVFormatContext *s)
-{
-    return 0;
-}
 #endif /* CONFIG_MUXERS */
 
 static int amr_probe(AVProbeData *p)
@@ -73,8 +68,6 @@ static int amr_probe(AVProbeData *p)
     //This will also trigger multichannel files: "#!AMR_MC1.0\n" and
     //"#!AMR-WB_MC1.0\n" (not supported)
 
-    if (p->buf_size < 5)
-        return 0;
     if(memcmp(p->buf,AMR_header,5)==0)
         return AVPROBE_SCORE_MAX;
     else
@@ -94,7 +87,7 @@ static int amr_read_header(AVFormatContext *s,
     st = av_new_stream(s, 0);
     if (!st)
     {
-        return AVERROR_NOMEM;
+        return AVERROR(ENOMEM);
     }
     if(memcmp(header,AMR_header,6)!=0)
     {
@@ -125,11 +118,11 @@ static int amr_read_packet(AVFormatContext *s,
                           AVPacket *pkt)
 {
     AVCodecContext *enc = s->streams[0]->codec;
-    int read, size, toc, mode;
+    int read, size = 0, toc, mode;
 
     if (url_feof(&s->pb))
     {
-        return AVERROR_IO;
+        return AVERROR(EIO);
     }
 
 //FIXME this is wrong, this should rather be in a AVParset
@@ -155,7 +148,7 @@ static int amr_read_packet(AVFormatContext *s,
 
     if ( (size==0) || av_new_packet(pkt, size))
     {
-        return AVERROR_IO;
+        return AVERROR(EIO);
     }
 
     pkt->stream_index = 0;
@@ -167,7 +160,7 @@ static int amr_read_packet(AVFormatContext *s,
     if (read != size-1)
     {
         av_free_packet(pkt);
-        return AVERROR_IO;
+        return AVERROR(EIO);
     }
 
     return 0;
@@ -196,6 +189,5 @@ AVOutputFormat amr_muxer = {
     CODEC_ID_NONE,
     amr_write_header,
     amr_write_packet,
-    amr_write_trailer,
 };
 #endif
