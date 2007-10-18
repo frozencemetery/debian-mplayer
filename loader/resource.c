@@ -6,10 +6,11 @@
  *
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: resource.c 18786 2006-06-22 13:34:00Z diego $
+ * $Id: resource.c 24406 2007-09-10 13:06:54Z diego $
  *
  */
 #include "config.h"
+#include "debug.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -107,7 +108,7 @@ static HRSRC RES_FindResource( HMODULE hModule, LPCSTR type,
 static DWORD RES_SizeofResource( HMODULE hModule, HRSRC hRsrc)
 {
     DWORD size = 0;
-    HRSRC hRsrc32;
+//    HRSRC hRsrc32;
 
 //    HMODULE16 hMod16   = MapHModuleLS( hModule );
 //    NE_MODULE *pModule = NE_GetPtr( hMod16 );
@@ -153,7 +154,7 @@ static HFILE RES_AccessResource( HMODULE hModule, HRSRC hRsrc )
 static HGLOBAL RES_LoadResource( HMODULE hModule, HRSRC hRsrc)
 {
     HGLOBAL hMem = 0;
-    HRSRC hRsrc32;
+//    HRSRC hRsrc32;
     WINE_MODREF *wm = MODULE32_LookupHMODULE( hModule );
 
 

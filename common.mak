@@ -2,12 +2,18 @@
 # common bits used by all libraries
 #
 
-SRC_DIR = $(SRC_PATH)/lib$(NAME)
-VPATH = $(SRC_DIR)
+VPATH = $(SRC_PATH_BARE)/lib$(NAME)
+SRC_DIR = "$(VPATH)"
+
+CFLAGS   += $(CFLAGS-yes)
+OBJS     += $(OBJS-yes)
+ASM_OBJS += $(ASM_OBJS-yes)
+CPP_OBJS += $(CPP_OBJS-yes)
 
 CFLAGS += -DHAVE_AV_CONFIG_H -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE \
           -D_ISOC9X_SOURCE -I$(BUILD_ROOT) -I$(SRC_PATH) \
           -I$(SRC_PATH)/libavutil $(OPTFLAGS)
+
 SRCS := $(OBJS:.o=.c) $(ASM_OBJS:.o=.S) $(CPPOBJS:.o=.cpp)
 OBJS := $(OBJS) $(ASM_OBJS) $(CPPOBJS)
 STATIC_OBJS := $(OBJS) $(STATIC_OBJS)
@@ -33,10 +39,6 @@ $(SLIBNAME_WITH_MAJOR): $(SHARED_OBJS)
 %.o: %.S
 	$(CC) $(CFLAGS) $(LIBOBJFLAGS) -c -o $@ $<
 
-# BeOS: remove -Wall to get rid of all the "multibyte constant" warnings
-%.o: %.cpp
-	g++ $(subst -Wall,,$(CFLAGS)) -c -o $@ $<
-
 %: %.o $(LIB)
 	$(CC) $(LDFLAGS) -o $@ $^ $(EXTRALIBS)
 
@@ -44,8 +46,8 @@ depend dep: $(SRCS)
 	$(CC) -MM $(CFLAGS) $^ 1>.depend
 
 clean::
-	rm -f *.o *.d *~ *.a *.lib *.so *.so.* *.dylib *.dll \
-	      *.lib *.def *.dll.a *.exp
+	rm -f *.o *~ *.a *.lib *.so *.so.* *.dylib *.dll \
+	      *.def *.dll.a *.exp
 
 distclean: clean
 	rm -f .depend
@@ -63,12 +65,13 @@ install-libs: $(INSTLIBTARGETS)
 
 install-lib-shared: $(SLIBNAME)
 	install -d "$(shlibdir)"
-	install $(INSTALLSTRIP) -m 755 $(SLIBNAME) \
-		"$(shlibdir)/$(SLIBNAME_WITH_VERSION)"
+	install -m 755 $(SLIBNAME) "$(shlibdir)/$(SLIBNAME_WITH_VERSION)"
+	$(STRIP) "$(shlibdir)/$(SLIBNAME_WITH_VERSION)"
 	cd "$(shlibdir)" && \
 		ln -sf $(SLIBNAME_WITH_VERSION) $(SLIBNAME_WITH_MAJOR)
 	cd "$(shlibdir)" && \
 		ln -sf $(SLIBNAME_WITH_VERSION) $(SLIBNAME)
+	$(SLIB_INSTALL_EXTRA_CMD)
 
 install-lib-static: $(LIB)
 	install -d "$(libdir)"
@@ -78,7 +81,7 @@ install-lib-static: $(LIB)
 install-headers:
 	install -d "$(incdir)"
 	install -d "$(libdir)/pkgconfig"
-	install -m 644 $(addprefix "$(SRC_DIR)"/,$(HEADERS)) "$(incdir)"
+	install -m 644 $(addprefix $(SRC_DIR)/,$(HEADERS)) "$(incdir)"
 	install -m 644 $(BUILD_ROOT)/lib$(NAME).pc "$(libdir)/pkgconfig"
 
 uninstall: uninstall-libs uninstall-headers
@@ -89,15 +92,10 @@ uninstall-libs:
 	       "$(shlibdir)/$(SLIBNAME_WITH_VERSION)"
 	-rm -f "$(libdir)/$(LIB)"
 
-uninstall-headers:
+uninstall-headers::
 	rm -f $(addprefix "$(incdir)/",$(HEADERS))
 	rm -f "$(libdir)/pkgconfig/lib$(NAME).pc"
 
 .PHONY: all depend dep clean distclean install* uninstall*
 
-#
-# include dependency files if they exist
-#
-ifneq ($(wildcard .depend),)
-include .depend
-endif
+-include .depend

@@ -1,5 +1,5 @@
-#ifndef __ST_HEADER_H
-#define __ST_HEADER_H 1
+#ifndef STHEADER_H
+#define STHEADER_H
 
 #include "aviheader.h"
 #include "ms_hdr.h"
@@ -12,7 +12,6 @@ typedef struct {
   struct codecs_st *codec;
   unsigned int format;
   int inited;
-  double delay;	   // relative (to sh_video->timer) time in audio stream
   float stream_delay; // number of seconds stream should be delayed (according to dwStart or similar)
   // output format:
   int sample_format;
@@ -66,12 +65,15 @@ typedef struct {
   // timing (mostly for mpeg):
   double pts;     // predicted/interpolated PTS of the current frame
   double i_pts;   // PTS for the _next_ I/P frame
+  float next_frame_time;
+  double last_pts;
   double buffered_pts[20];
   int num_buffered_pts;
   // output format: (set by demuxer)
   float fps;              // frames per second (set only if constant fps)
   float frametime;        // 1/fps
   float aspect;           // aspect ratio stored in the file (for prescaling)
+  float stream_aspect;  // aspect ratio stored in the media headers (e.g. in DVD IFO files)
   int i_bps;              // == bitrate  (compressed bytes/sec)
   int disp_w,disp_h;      // display size (filled by fileformat parser)
   // output driver/filters: (set by libmpcodecs core)
@@ -90,11 +92,27 @@ typedef struct {
   void* context;   // codec-specific stuff (usually HANDLE or struct pointer)
 } sh_video_t;
 
+typedef struct {
+  int sid;
+  char type;                    // t = text, v = VobSub, a = SSA/ASS
+  int has_palette;              // If we have a valid palette
+  unsigned int palette[16];     // for VobSubs
+  int width, height;            // for VobSubs
+  int custom_colors;
+  unsigned int colors[4];
+  int forced_subs_only;
+#ifdef USE_ASS
+  ass_track_t* ass_track;  // for SSA/ASS streams (type == 'a')
+#endif
+} sh_sub_t;
+
 // demuxer.c:
 #define new_sh_audio(d, i) new_sh_audio_aid(d, i, i)
 sh_audio_t* new_sh_audio_aid(demuxer_t *demuxer,int id,int aid);
 #define new_sh_video(d, i) new_sh_video_vid(d, i, i)
 sh_video_t* new_sh_video_vid(demuxer_t *demuxer,int id,int vid);
+#define new_sh_sub(d, i) new_sh_sub_sid(d, i, i)
+sh_sub_t *new_sh_sub_sid(demuxer_t *demuxer, int id, int sid);
 void free_sh_audio(demuxer_t *demuxer, int id);
 void free_sh_video(sh_video_t *sh);
 

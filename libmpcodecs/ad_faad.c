@@ -64,7 +64,6 @@ static int aac_probe(unsigned char *buffer, int len)
   return pos;
 }
 	
-extern int audio_output_channels;
 static int init(sh_audio_t *sh)
 {
   unsigned long faac_samplerate;
@@ -207,7 +206,8 @@ static int control(sh_audio_t *sh,int cmd,void* arg, ...)
 #define MAX_FAAD_ERRORS 10
 static int decode_audio(sh_audio_t *sh,unsigned char *buf,int minlen,int maxlen)
 {
-  int j = 0, len = 0, last_dec_len = 1, errors = 0;	      
+  int len = 0, last_dec_len = 1, errors = 0;
+  //  int j = 0;
   void *faac_sample_buffer;
 
   while(len < minlen && last_dec_len > 0 && errors < MAX_FAAD_ERRORS) {

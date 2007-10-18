@@ -19,8 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include "../dsputil.h"
-#include "../mpegvideo.h"
+#include "dsputil.h"
+#include "mpegvideo.h"
 
 #include <mlib_types.h>
 #include <mlib_status.h>
@@ -384,7 +384,7 @@ static void bswap_buf_mlib(uint32_t *dst, uint32_t *src, int w)
 static void ff_idct_put_mlib(uint8_t *dest, int line_size, DCTELEM *data)
 {
     int i;
-    uint8_t *cm = cropTbl + MAX_NEG_CROP;
+    uint8_t *cm = ff_cropTbl + MAX_NEG_CROP;
 
     mlib_VideoIDCT8x8_S16_S16 (data, data);
 

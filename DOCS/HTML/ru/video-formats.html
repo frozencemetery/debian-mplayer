@@ -1,219 +1,222 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=KOI8-R"><title>6.1. Видео форматы</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="containers.html" title="Глава 6. Поддерживаемые форматы"><link rel="prev" href="containers.html" title="Глава 6. Поддерживаемые форматы"><link rel="next" href="audio-formats.html" title="6.2. Аудио форматы"><link rel="preface" href="howtoread.html" title="Как читать эту документацию"><link rel="chapter" href="intro.html" title="Глава 1. Введение"><link rel="chapter" href="install.html" title="Глава 2. Установка"><link rel="chapter" href="usage.html" title="Глава 3. Использование"><link rel="chapter" href="cd-dvd.html" title="Глава 4. Использование CD/DVD"><link rel="chapter" href="faq.html" title="Глава 5. Часто Задаваемые вопросы"><link rel="chapter" href="containers.html" title="Глава 6. Поддерживаемые форматы"><link rel="chapter" href="codecs.html" title="Глава 7. Поддерживаемые кодеки"><link rel="chapter" href="tv.html" title="Глава 8. TV"><link rel="chapter" href="radio.html" title="Глава 9. Радио"><link rel="chapter" href="video.html" title="Глава 10. Устройства вывода видео"><link rel="chapter" href="audio.html" title="Глава 11. Устройства вывода звука"><link rel="chapter" href="ports.html" title="Глава 12. Портинг"><link rel="chapter" href="mencoder.html" title="Глава 13. Основы использования MEncoder"><link rel="chapter" href="encoding-guide.html" title="Глава 14. Encoding with MEncoder"><link rel="appendix" href="bugreports.html" title="Приложение A. Как сообщать об ошибках"><link rel="appendix" href="bugs.html" title="Приложение B. Известные проблемы"><link rel="appendix" href="skin.html" title="Приложение C. Формат скинов MPlayer"><link rel="appendix" href="history.html" title="Приложение D. История"><link rel="subsection" href="video-formats.html#mpg-vob-dat" title="6.1.1. MPEG файлы"><link rel="subsection" href="video-formats.html#avi" title="6.1.2. AVI файлы"><link rel="subsection" href="video-formats.html#asf-wmv" title="6.1.3. ASF/WMV файлы"><link rel="subsection" href="video-formats.html#qt-mov" title="6.1.4. QuickTime/MOV файлы"><link rel="subsection" href="video-formats.html#vivo" title="6.1.5. VIVO файлы"><link rel="subsection" href="video-formats.html#fli" title="6.1.6. FLI файлы"><link rel="subsection" href="video-formats.html#realmedia" title="6.1.7. RealMedia (RM) файлы"><link rel="subsection" href="video-formats.html#nuppelvideo" title="6.1.8. NuppelVideo файлы"><link rel="subsection" href="video-formats.html#yuv4mpeg" title="6.1.9. yuv4mpeg файлы"><link rel="subsection" href="video-formats.html#film" title="6.1.10. FILM фильмы"><link rel="subsection" href="video-formats.html#roq" title="6.1.11. RoQ файлы"><link rel="subsection" href="video-formats.html#ogg" title="6.1.12. OGG/OGM файлы"><link rel="subsection" href="video-formats.html#sdp" title="6.1.13. SDP файлы"><link rel="subsection" href="video-formats.html#pva" title="6.1.14. PVA файлы"><link rel="subsection" href="video-formats.html#nsv" title="6.1.15. NSV files"><link rel="subsection" href="video-formats.html#matroska" title="6.1.16. Файлы Matroska"><link rel="subsection" href="video-formats.html#nut" title="6.1.17. NUT файлы"><link rel="subsection" href="video-formats.html#gif" title="6.1.18. GIF файлы"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">6.1. Видео форматы</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="containers.html">Пред.</a> </td><th width="60%" align="center">Глава 6. Поддерживаемые форматы</th><td width="20%" align="right"> <a accesskey="n" href="audio-formats.html">След.</a></td></tr></table><hr></div><div class="sect1" lang="ru"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="video-formats"></a>6.1. Видео форматы</h2></div></div></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="mpg-vob-dat"></a>6.1.1. MPEG файлы</h3></div></div></div><p>
-MPEG файлы бывают различных разновидностей:
-</p><div class="itemizedlist"><ul type="disc"><li>
-  MPG: Это наиболее <span class="bold"><strong>основная</strong></span> форма файлов
-  формата MPEG. Она содержит MPEG1 видео, и MP2 (MPEG-1 layer 2) или реже
-  MP1 аудио.
-  </li><li>
-  DAT: Это почти такой же формат, как MPG, только с другим расширением. Он
-  используется на <span class="bold"><strong>Video CD</strong></span>. Из-за метода,
-  которым создаются VCD и дизайна Linux'а, DAT файлы не могут проигрываться и
-  копироваться с VCD, как обычные файлы. Для проигрывания Video CD Вы должны
-  использовать <tt class="option">vcd://</tt>.
-  </li><li>
-  VOB: Это формат MPEG файлов на <span class="bold"><strong>DVD'шниках</strong></span>.
-  Это такой же формат, как и MPG, плюс возможность содержать субтитры и
-  не-MPEG (AC3) аудио. Он содержит кодированное MPEG2 видео и обычно AC3
-  аудио, но DTS, MP2 и не запакованный LPCM тоже возможны. <span class="bold"><strong>
-  Читайте секцию <a href="dvd.html" title="4.2. Воспроизведение DVD">DVD</a></strong></span>!
-  </li><li>
-  TY: Это TiVo MPEG поток. Он содержит как MPEG PES данные аудио и видео потоков,
-  так и дополнительную информацию вроде субтитров. Формат файла - 
-  это не программный поток MPEG (MPEG program stream), а некий закрытый формат,
-  созданный TiVo. Более побдробно о формате TiVo можно прочитать 
-  на <a href="http://dvd-create.sourceforge.net/tystudio/tystream.shtml" target="_top">
-  странице TyStudio</a>.
-  </li></ul></div><p>
-Серии кадров независимо группируются в MPEG файлах. Это значит, что Вы можете
-разрезать/соединять MPEG фалы стандартными файловыми средствами (такими, как
-<span><strong class="command">dd</strong></span>, <span><strong class="command">cut</strong></span>), и он остаётся полностью функциональным.
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>6.1. п▓п╦п╢п╣п╬ я└п╬я─п╪п╟я┌я▀</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="containers.html" title="п⌠п╩п╟п╡п╟ 6. п÷п╬п╢п╢п╣я─п╤п╦п╡п╟п╣п╪я▀п╣ я└п╬я─п╪п╟я┌я▀"><link rel="prev" href="containers.html" title="п⌠п╩п╟п╡п╟ 6. п÷п╬п╢п╢п╣я─п╤п╦п╡п╟п╣п╪я▀п╣ я└п╬я─п╪п╟я┌я▀"><link rel="next" href="audio-formats.html" title="6.2. п░я┐п╢п╦п╬ я└п╬я─п╪п╟я┌я▀"><link rel="preface" href="howtoread.html" title="п п╟п╨ я┤п╦я┌п╟я┌я▄ я█я┌я┐ п╢п╬п╨я┐п╪п╣п╫я┌п╟я├п╦я▌"><link rel="chapter" href="intro.html" title="п⌠п╩п╟п╡п╟ 1. п▓п╡п╣п╢п╣п╫п╦п╣"><link rel="chapter" href="install.html" title="п⌠п╩п╟п╡п╟ 2. пёя│я┌п╟п╫п╬п╡п╨п╟"><link rel="chapter" href="usage.html" title="п⌠п╩п╟п╡п╟ 3. п≤я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣"><link rel="chapter" href="cd-dvd.html" title="п⌠п╩п╟п╡п╟ 4. п≤я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣ CD/DVD"><link rel="chapter" href="faq.html" title="п⌠п╩п╟п╡п╟ 5. п╖п╟я│я┌п╬ п≈п╟п╢п╟п╡п╟п╣п╪я▀п╣ п╡п╬п©я─п╬я│я▀"><link rel="chapter" href="containers.html" title="п⌠п╩п╟п╡п╟ 6. п÷п╬п╢п╢п╣я─п╤п╦п╡п╟п╣п╪я▀п╣ я└п╬я─п╪п╟я┌я▀"><link rel="chapter" href="codecs.html" title="п⌠п╩п╟п╡п╟ 7. п÷п╬п╢п╢п╣я─п╤п╦п╡п╟п╣п╪я▀п╣ п╨п╬п╢п╣п╨п╦"><link rel="chapter" href="tv.html" title="п⌠п╩п╟п╡п╟ 8. TV"><link rel="chapter" href="radio.html" title="п⌠п╩п╟п╡п╟ 9. п═п╟п╢п╦п╬"><link rel="chapter" href="video.html" title="п⌠п╩п╟п╡п╟ 10. пёя│я┌я─п╬п╧я│я┌п╡п╟ п╡я▀п╡п╬п╢п╟ п╡п╦п╢п╣п╬"><link rel="chapter" href="audio.html" title="п⌠п╩п╟п╡п╟ 11. пёя│я┌я─п╬п╧я│я┌п╡п╟ п╡я▀п╡п╬п╢п╟ п╥п╡я┐п╨п╟"><link rel="chapter" href="ports.html" title="п⌠п╩п╟п╡п╟ 12. п÷п╬я─я┌п╦п╫пЁ"><link rel="chapter" href="mencoder.html" title="п⌠п╩п╟п╡п╟ 13. п·я│п╫п╬п╡я▀ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ MEncoder"><link rel="chapter" href="encoding-guide.html" title="п⌠п╩п╟п╡п╟ 14. п п╬п╢п╦я─п╬п╡п╟п╫п╦п╣ я│ MEncoder"><link rel="appendix" href="bugreports.html" title="п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ A. п п╟п╨ я│п╬п╬п╠я┴п╟я┌я▄ п╬п╠ п╬я┬п╦п╠п╨п╟я┘"><link rel="appendix" href="bugs.html" title="п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ B. п≤п╥п╡п╣я│я┌п╫я▀п╣ п©я─п╬п╠п╩п╣п╪я▀"><link rel="appendix" href="skin.html" title="п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ C. п╓п╬я─п╪п╟я┌ я│п╨п╦п╫п╬п╡ MPlayer"><link rel="appendix" href="history.html" title="п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ D. п≤я│я┌п╬я─п╦я▐"><link rel="subsection" href="video-formats.html#mpg-vob-dat" title="6.1.1. MPEG я└п╟п╧п╩я▀"><link rel="subsection" href="video-formats.html#avi" title="6.1.2. AVI я└п╟п╧п╩я▀"><link rel="subsection" href="video-formats.html#asf-wmv" title="6.1.3. ASF/WMV я└п╟п╧п╩я▀"><link rel="subsection" href="video-formats.html#qt-mov" title="6.1.4. QuickTime/MOV я└п╟п╧п╩я▀"><link rel="subsection" href="video-formats.html#vivo" title="6.1.5. VIVO я└п╟п╧п╩я▀"><link rel="subsection" href="video-formats.html#fli" title="6.1.6. FLI я└п╟п╧п╩я▀"><link rel="subsection" href="video-formats.html#realmedia" title="6.1.7. RealMedia (RM) я└п╟п╧п╩я▀"><link rel="subsection" href="video-formats.html#nuppelvideo" title="6.1.8. NuppelVideo я└п╟п╧п╩я▀"><link rel="subsection" href="video-formats.html#yuv4mpeg" title="6.1.9. yuv4mpeg я└п╟п╧п╩я▀"><link rel="subsection" href="video-formats.html#film" title="6.1.10. FILM я└п╦п╩я▄п╪я▀"><link rel="subsection" href="video-formats.html#roq" title="6.1.11. RoQ я└п╟п╧п╩я▀"><link rel="subsection" href="video-formats.html#ogg" title="6.1.12. OGG/OGM я└п╟п╧п╩я▀"><link rel="subsection" href="video-formats.html#sdp" title="6.1.13. SDP я└п╟п╧п╩я▀"><link rel="subsection" href="video-formats.html#pva" title="6.1.14. PVA я└п╟п╧п╩я▀"><link rel="subsection" href="video-formats.html#nsv" title="6.1.15. NSV files"><link rel="subsection" href="video-formats.html#matroska" title="6.1.16. п╓п╟п╧п╩я▀ Matroska"><link rel="subsection" href="video-formats.html#nut" title="6.1.17. NUT я└п╟п╧п╩я▀"><link rel="subsection" href="video-formats.html#gif" title="6.1.18. GIF я└п╟п╧п╩я▀"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">6.1. п▓п╦п╢п╣п╬ я└п╬я─п╪п╟я┌я▀</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="containers.html">п÷я─п╣п╢.</a>б═</td><th width="60%" align="center">п⌠п╩п╟п╡п╟ 6. п÷п╬п╢п╢п╣я─п╤п╦п╡п╟п╣п╪я▀п╣ я└п╬я─п╪п╟я┌я▀</th><td width="20%" align="right">б═<a accesskey="n" href="audio-formats.html">п║п╩п╣п╢.</a></td></tr></table><hr></div><div class="sect1" lang="ru"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="video-formats"></a>6.1. п▓п╦п╢п╣п╬ я└п╬я─п╪п╟я┌я▀</h2></div></div></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="mpg-vob-dat"></a>6.1.1. MPEG я└п╟п╧п╩я▀</h3></div></div></div><p>
+MPEG я└п╟п╧п╩я▀ п╠я▀п╡п╟я▌я┌ я─п╟п╥п╩п╦я┤п╫я▀я┘ я─п╟п╥п╫п╬п╡п╦п╢п╫п╬я│я┌п╣п╧:
+</p><div class="itemizedlist"><ul type="disc"><li><p>
+  MPG: п╜я┌п╬ п╫п╟п╦п╠п╬п╩п╣п╣ <span class="bold"><strong>п╬я│п╫п╬п╡п╫п╟я▐</strong></span> я└п╬я─п╪п╟ я└п╟п╧п╩п╬п╡
+  я└п╬я─п╪п╟я┌п╟ MPEG. п·п╫п╟ я│п╬п╢п╣я─п╤п╦я┌ MPEG1 п╡п╦п╢п╣п╬, п╦ MP2 (MPEG-1 layer 2) п╦п╩п╦ я─п╣п╤п╣
+  MP1 п╟я┐п╢п╦п╬.
+</p></li><li><p>
+  DAT: п╜я┌п╬ п©п╬я┤я┌п╦ я┌п╟п╨п╬п╧ п╤п╣ я└п╬я─п╪п╟я┌, п╨п╟п╨ MPG, я┌п╬п╩я▄п╨п╬ я│ п╢я─я┐пЁп╦п╪ я─п╟я│я┬п╦я─п╣п╫п╦п╣п╪. п·п╫
+  п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ п╫п╟ <span class="bold"><strong>Video CD</strong></span>. п≤п╥-п╥п╟ п╪п╣я┌п╬п╢п╟,
+  п╨п╬я┌п╬я─я▀п╪ я│п╬п╥п╢п╟я▌я┌я│я▐ VCD п╦ п╢п╦п╥п╟п╧п╫п╟ Linux'п╟, DAT я└п╟п╧п╩я▀ п╫п╣ п╪п╬пЁя┐я┌ п©я─п╬п╦пЁя─я▀п╡п╟я┌я▄я│я▐ п╦
+  п╨п╬п©п╦я─п╬п╡п╟я┌я▄я│я▐ я│ VCD, п╨п╟п╨ п╬п╠я▀я┤п╫я▀п╣ я└п╟п╧п╩я▀. п■п╩я▐ п©я─п╬п╦пЁя─я▀п╡п╟п╫п╦я▐ Video CD п▓я▀ п╢п╬п╩п╤п╫я▀
+  п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ <tt class="option">vcd://</tt>.
+</p></li><li><p>
+  VOB: п╜я┌п╬ я└п╬я─п╪п╟я┌ MPEG я└п╟п╧п╩п╬п╡ п╫п╟ <span class="bold"><strong>DVD'я┬п╫п╦п╨п╟я┘</strong></span>.
+  п╜я┌п╬ я┌п╟п╨п╬п╧ п╤п╣ я└п╬я─п╪п╟я┌, п╨п╟п╨ п╦ MPG, п©п╩я▌я│ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌я▄ я│п╬п╢п╣я─п╤п╟я┌я▄ я│я┐п╠я┌п╦я┌я─я▀ п╦
+  п╫п╣-MPEG (AC-3) п╟я┐п╢п╦п╬. п·п╫ я│п╬п╢п╣я─п╤п╦я┌ п╨п╬п╢п╦я─п╬п╡п╟п╫п╫п╬п╣ MPEG2 п╡п╦п╢п╣п╬ п╦ п╬п╠я▀я┤п╫п╬ AC-3
+  п╟я┐п╢п╦п╬, п╫п╬ DTS, MP2 п╦ п╫п╣ п╥п╟п©п╟п╨п╬п╡п╟п╫п╫я▀п╧ LPCM я┌п╬п╤п╣ п╡п╬п╥п╪п╬п╤п╫я▀. <span class="bold"><strong>
+  п╖п╦я┌п╟п╧я┌п╣ я│п╣п╨я├п╦я▌ <a href="dvd.html" title="4.2. п▓п╬я│п©я─п╬п╦п╥п╡п╣п╢п╣п╫п╦п╣ DVD">DVD</a></strong></span>!
+</p></li><li><p>
+  TY: п╜я┌п╬ TiVo MPEG п©п╬я┌п╬п╨. п·п╫ я│п╬п╢п╣я─п╤п╦я┌ п╨п╟п╨ MPEG PES п╢п╟п╫п╫я▀п╣ п╟я┐п╢п╦п╬ п╦ п╡п╦п╢п╣п╬ п©п╬я┌п╬п╨п╬п╡,
+  я┌п╟п╨ п╦ п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я┐я▌ п╦п╫я└п╬я─п╪п╟я├п╦я▌ п╡я─п╬п╢п╣ я│я┐п╠я┌п╦я┌я─п╬п╡. п╓п╬я─п╪п╟я┌ я└п╟п╧п╩п╟ - 
+  я█я┌п╬ п╫п╣ п©я─п╬пЁя─п╟п╪п╪п╫я▀п╧ п©п╬я┌п╬п╨ MPEG (MPEG program stream), п╟ п╫п╣п╨п╦п╧ п╥п╟п╨я─я▀я┌я▀п╧ я└п╬я─п╪п╟я┌,
+  я│п╬п╥п╢п╟п╫п╫я▀п╧ TiVo. п▒п╬п╩п╣п╣ п©п╬п╠п╢я─п╬п╠п╫п╬ п╬ я└п╬я─п╪п╟я┌п╣ TiVo п╪п╬п╤п╫п╬ п©я─п╬я┤п╦я┌п╟я┌я▄ 
+  п╫п╟ <a href="http://dvd-create.sourceforge.net/tystudio/tystream.shtml" target="_top">
+  я│я┌я─п╟п╫п╦я├п╣ TyStudio</a>.
+</p></li></ul></div><p>
+п║п╣я─п╦п╦ п╨п╟п╢я─п╬п╡ п╫п╣п╥п╟п╡п╦я│п╦п╪п╬ пЁя─я┐п©п©п╦я─я┐я▌я┌я│я▐ п╡ MPEG я└п╟п╧п╩п╟я┘. п╜я┌п╬ п╥п╫п╟я┤п╦я┌, я┤я┌п╬ п▓я▀ п╪п╬п╤п╣я┌п╣
+я─п╟п╥я─п╣п╥п╟я┌я▄/я│п╬п╣п╢п╦п╫я▐я┌я▄ MPEG я└п╟п╩я▀ я│я┌п╟п╫п╢п╟я─я┌п╫я▀п╪п╦ я└п╟п╧п╩п╬п╡я▀п╪п╦ я│я─п╣п╢я│я┌п╡п╟п╪п╦ (я┌п╟п╨п╦п╪п╦, п╨п╟п╨
+<span><strong class="command">dd</strong></span>, <span><strong class="command">cut</strong></span>), п╦ п╬п╫ п╬я│я┌п╟я▒я┌я│я▐ п©п╬п╩п╫п╬я│я┌я▄я▌ я└я┐п╫п╨я├п╦п╬п╫п╟п╩я▄п╫я▀п╪.
 </p><p>
-Одно из основных преимуществ MPG'ов это то, что в них есть поле,
-описывающее соотношение сторон видео потока. Например, на SVCD содержится
-видео разрешением 480x480, и заголовок установил его(поле) в 4:3, поэтому это
-будет проигрываться на 640x480. В AVI файлах такого поля нет, поэтому они должны
-быть масштабированы при кодировании или проигрываться с опцией
+п·п╢п╫п╬ п╦п╥ п╬я│п╫п╬п╡п╫я▀я┘ п©я─п╣п╦п╪я┐я┴п╣я│я┌п╡ MPG'п╬п╡ я█я┌п╬ я┌п╬, я┤я┌п╬ п╡ п╫п╦я┘ п╣я│я┌я▄ п©п╬п╩п╣,
+п╬п©п╦я│я▀п╡п╟я▌я┴п╣п╣ я│п╬п╬я┌п╫п╬я┬п╣п╫п╦п╣ я│я┌п╬я─п╬п╫ п╡п╦п╢п╣п╬ п©п╬я┌п╬п╨п╟. п²п╟п©я─п╦п╪п╣я─, п╫п╟ SVCD я│п╬п╢п╣я─п╤п╦я┌я│я▐
+п╡п╦п╢п╣п╬ я─п╟п╥я─п╣я┬п╣п╫п╦п╣п╪ 480x480, п╦ п╥п╟пЁп╬п╩п╬п╡п╬п╨ я┐я│я┌п╟п╫п╬п╡п╦п╩ п╣пЁп╬(п©п╬п╩п╣) п╡ 4:3, п©п╬я█я┌п╬п╪я┐ я█я┌п╬
+п╠я┐п╢п╣я┌ п©я─п╬п╦пЁя─я▀п╡п╟я┌я▄я│я▐ п╫п╟ 640x480. п▓ AVI я└п╟п╧п╩п╟я┘ я┌п╟п╨п╬пЁп╬ п©п╬п╩я▐ п╫п╣я┌, п©п╬я█я┌п╬п╪я┐ п╬п╫п╦ п╢п╬п╩п╤п╫я▀
+п╠я▀я┌я▄ п╪п╟я│я┬я┌п╟п╠п╦я─п╬п╡п╟п╫я▀ п©я─п╦ п╨п╬п╢п╦я─п╬п╡п╟п╫п╦п╦ п╦п╩п╦ п©я─п╬п╦пЁя─я▀п╡п╟я┌я▄я│я▐ я│ п╬п©я├п╦п╣п╧
 <tt class="option">-aspect</tt>.
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="avi"></a>6.1.2. AVI файлы</h3></div></div></div><p>
-Разработанный Microsoft'ом <span class="bold"><strong>AVI (Audio Video Interleaved
-[Аудио Видео 'Слоёные'])</strong></span> - это широко распространённый многоцелевой
-формат, в настоящий момент чаще всего применяемый для MPEG4 (DivX и DivX4) видео.
-У него много известных недостатков и недочётов (например в потоках). Он
-поддерживает 1 видео поток и от 0 до 99 аудио потоков и может быть не более
-2 Гб, хотя существует расширение<span class="bold"><strong>OpenDML</strong></span>,
-допускающее большие файлы. В настоящий момент Microsoft сильно отговаривает от
-его применения и советует использовать ASF/WMV. Никого это не волнует.
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="avi"></a>6.1.2. AVI я└п╟п╧п╩я▀</h3></div></div></div><p>
+п═п╟п╥я─п╟п╠п╬я┌п╟п╫п╫я▀п╧ Microsoft'п╬п╪ 
+<span class="bold"><strong>AVI (Audio Video Interleaved [п░я┐п╢п╦п╬ п▓п╦п╢п╣п╬ 'п║п╩п╬я▒п╫я▀п╣'])</strong></span> - 
+я█я┌п╬ я┬п╦я─п╬п╨п╬ я─п╟я│п©я─п╬я│я┌я─п╟п╫я▒п╫п╫я▀п╧ п╪п╫п╬пЁп╬я├п╣п╩п╣п╡п╬п╧ я└п╬я─п╪п╟я┌, п╡ п╫п╟я│я┌п╬я▐я┴п╦п╧ п╪п╬п╪п╣п╫я┌ я┤п╟я┴п╣ п╡я│п╣пЁп╬ 
+п©я─п╦п╪п╣п╫я▐п╣п╪я▀п╧ п╢п╩я▐ MPEG4 (DivX п╦ DivX4) п╡п╦п╢п╣п╬.
+пё п╫п╣пЁп╬ п╪п╫п╬пЁп╬ п╦п╥п╡п╣я│я┌п╫я▀я┘ п╫п╣п╢п╬я│я┌п╟я┌п╨п╬п╡ п╦ п╫п╣п╢п╬я┤я▒я┌п╬п╡ (п╫п╟п©я─п╦п╪п╣я─ п╡ п©п╬я┌п╬п╨п╟я┘). п·п╫
+п©п╬п╢п╢п╣я─п╤п╦п╡п╟п╣я┌ 1 п╡п╦п╢п╣п╬ п©п╬я┌п╬п╨ п╦ п╬я┌ 0 п╢п╬ 99 п╟я┐п╢п╦п╬ п©п╬я┌п╬п╨п╬п╡ п╦ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п╫п╣ 
+п╠п╬п╩п╣п╣ 2 п⌠п╠, я┘п╬я┌я▐ я│я┐я┴п╣я│я┌п╡я┐п╣я┌ я─п╟я│я┬п╦я─п╣п╫п╦п╣<span class="bold"><strong>OpenDML</strong></span>,
+п╢п╬п©я┐я│п╨п╟я▌я┴п╣п╣ п╠п╬п╩я▄я┬п╦п╣ я└п╟п╧п╩я▀. п▓ п╫п╟я│я┌п╬я▐я┴п╦п╧ п╪п╬п╪п╣п╫я┌ Microsoft я│п╦п╩я▄п╫п╬ п╬я┌пЁп╬п╡п╟я─п╦п╡п╟п╣я┌ п╬я┌
+п╣пЁп╬ п©я─п╦п╪п╣п╫п╣п╫п╦я▐ п╦ я│п╬п╡п╣я┌я┐п╣я┌ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ ASF/WMV. п²п╦п╨п╬пЁп╬ я█я┌п╬ п╫п╣ п╡п╬п╩п╫я┐п╣я┌.
 </p><p>
-Существует хак[hack], позволяющий AVI файлам содержать Ogg Vorbis аудио
-потоки, но делает их несовместимыми со стандартными AVI.
-<span class="application">MPlayer</span> поддерживает воспроизведение таких файлов.
-Перемещение также осуществлено, но затруднено плохо закодированными файлами
-с запутанными заголовками. К сожалению, эта проблема проявляется у
-единственного кодировщика, способного создавать такие файлы -
+п║я┐я┴п╣я│я┌п╡я┐п╣я┌ я┘п╟п╨[hack], п©п╬п╥п╡п╬п╩я▐я▌я┴п╦п╧ AVI я└п╟п╧п╩п╟п╪ я│п╬п╢п╣я─п╤п╟я┌я▄ Ogg Vorbis п╟я┐п╢п╦п╬
+п©п╬я┌п╬п╨п╦, п╫п╬ п╢п╣п╩п╟п╣я┌ п╦я┘ п╫п╣я│п╬п╡п╪п╣я│я┌п╦п╪я▀п╪п╦ я│п╬ я│я┌п╟п╫п╢п╟я─я┌п╫я▀п╪п╦ AVI.
+<span class="application">MPlayer</span> п©п╬п╢п╢п╣я─п╤п╦п╡п╟п╣я┌ п╡п╬я│п©я─п╬п╦п╥п╡п╣п╢п╣п╫п╦п╣ я┌п╟п╨п╦я┘ я└п╟п╧п╩п╬п╡.
+п÷п╣я─п╣п╪п╣я┴п╣п╫п╦п╣ я┌п╟п╨п╤п╣ п╬я│я┐я┴п╣я│я┌п╡п╩п╣п╫п╬, п╫п╬ п╥п╟я┌я─я┐п╢п╫п╣п╫п╬ п©п╩п╬я┘п╬ п╥п╟п╨п╬п╢п╦я─п╬п╡п╟п╫п╫я▀п╪п╦ я└п╟п╧п╩п╟п╪п╦
+я│ п╥п╟п©я┐я┌п╟п╫п╫я▀п╪п╦ п╥п╟пЁп╬п╩п╬п╡п╨п╟п╪п╦. п  я│п╬п╤п╟п╩п╣п╫п╦я▌, я█я┌п╟ п©я─п╬п╠п╩п╣п╪п╟ п©я─п╬я▐п╡п╩я▐п╣я┌я│я▐ я┐
+п╣п╢п╦п╫я│я┌п╡п╣п╫п╫п╬пЁп╬ п╨п╬п╢п╦я─п╬п╡я┴п╦п╨п╟, я│п©п╬я│п╬п╠п╫п╬пЁп╬ я│п╬п╥п╢п╟п╡п╟я┌я▄ я┌п╟п╨п╦п╣ я└п╟п╧п╩я▀ -
 <span class="application">NanDub</span>.
-</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Замечание</h3><p>
-DV камеры создают сырые DV потоки, которые средства DV захвата превращают
-в AVI файлы двух типов. AVI'шники либо будут содержать разделённые аудио и видео
-потоки, которые <span class="application">MPlayer</span> может воспроизводить, или
-сырой DV поток, поддержка которого находится в стадии разработки.
+</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">п≈п╟п╪п╣я┤п╟п╫п╦п╣</h3><p>
+DV п╨п╟п╪п╣я─я▀ я│п╬п╥п╢п╟я▌я┌ я│я▀я─я▀п╣ DV п©п╬я┌п╬п╨п╦, п╨п╬я┌п╬я─я▀п╣ я│я─п╣п╢я│я┌п╡п╟ DV п╥п╟я┘п╡п╟я┌п╟ п©я─п╣п╡я─п╟я┴п╟я▌я┌
+п╡ AVI я└п╟п╧п╩я▀ п╢п╡я┐я┘ я┌п╦п©п╬п╡. AVI'я┬п╫п╦п╨п╦ п╩п╦п╠п╬ п╠я┐п╢я┐я┌ я│п╬п╢п╣я─п╤п╟я┌я▄ я─п╟п╥п╢п╣п╩я▒п╫п╫я▀п╣ п╟я┐п╢п╦п╬ п╦ п╡п╦п╢п╣п╬
+п©п╬я┌п╬п╨п╦, п╨п╬я┌п╬я─я▀п╣ <span class="application">MPlayer</span> п╪п╬п╤п╣я┌ п╡п╬я│п©я─п╬п╦п╥п╡п╬п╢п╦я┌я▄, п╦п╩п╦
+я│я▀я─п╬п╧ DV п©п╬я┌п╬п╨, п©п╬п╢п╢п╣я─п╤п╨п╟ п╨п╬я┌п╬я─п╬пЁп╬ п╫п╟я┘п╬п╢п╦я┌я│я▐ п╡ я│я┌п╟п╢п╦п╦ я─п╟п╥я─п╟п╠п╬я┌п╨п╦.
 </p></div><p>
-Существует два класса AVI файлов:
-</p><div class="itemizedlist"><ul type="disc"><li>
-  <span class="bold"><strong>'Слоёные'[Interleaved]:</strong></span> Аудио и видео
-  содержимое 'переплетается'. Это стандартное применение. Рекомендовано и
-  используется чаще всего. Некоторые программы создают слоёные AVI'шники
-  с плохой синхронизацией. <span class="application">MPlayer</span>
-  определяет это как слоёный файл, и затем теряет A/V синхронизацию,
-  вероятно при перемещении по файлу. Такие файлы должны проигрываться как
-  не слоёные (с опцией <tt class="option">-ni</tt>).
-  </li><li>
-  <span class="bold"><strong>Не слоёные:</strong></span> Сначала идёт весь видео поток,
-  затем весь аудио поток. Это требует огромного количества перемещений по файлу,
-  что делает проигрывание таких файлов по сети или с CD-ROM затруднительным.
-  </li></ul></div><p>
+п║я┐я┴п╣я│я┌п╡я┐п╣я┌ п╢п╡п╟ п╨п╩п╟я│я│п╟ AVI я└п╟п╧п╩п╬п╡:
+</p><div class="itemizedlist"><ul type="disc"><li><p>
+  <span class="bold"><strong>'п║п╩п╬я▒п╫я▀п╣'[Interleaved]:</strong></span> п░я┐п╢п╦п╬ п╦ п╡п╦п╢п╣п╬
+  я│п╬п╢п╣я─п╤п╦п╪п╬п╣ 'п©п╣я─п╣п©п╩п╣я┌п╟п╣я┌я│я▐'. п╜я┌п╬ я│я┌п╟п╫п╢п╟я─я┌п╫п╬п╣ п©я─п╦п╪п╣п╫п╣п╫п╦п╣. п═п╣п╨п╬п╪п╣п╫п╢п╬п╡п╟п╫п╬ п╦
+  п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ я┤п╟я┴п╣ п╡я│п╣пЁп╬. п²п╣п╨п╬я┌п╬я─я▀п╣ п©я─п╬пЁя─п╟п╪п╪я▀ я│п╬п╥п╢п╟я▌я┌ я│п╩п╬я▒п╫я▀п╣ AVI'я┬п╫п╦п╨п╦
+  я│ п©п╩п╬я┘п╬п╧ я│п╦п╫я┘я─п╬п╫п╦п╥п╟я├п╦п╣п╧. <span class="application">MPlayer</span>
+  п╬п©я─п╣п╢п╣п╩я▐п╣я┌ я█я┌п╬ п╨п╟п╨ я│п╩п╬я▒п╫я▀п╧ я└п╟п╧п╩, п╦ п╥п╟я┌п╣п╪ я┌п╣я─я▐п╣я┌ A/V я│п╦п╫я┘я─п╬п╫п╦п╥п╟я├п╦я▌,
+  п╡п╣я─п╬я▐я┌п╫п╬ п©я─п╦ п©п╣я─п╣п╪п╣я┴п╣п╫п╦п╦ п©п╬ я└п╟п╧п╩я┐. п╒п╟п╨п╦п╣ я└п╟п╧п╩я▀ п╢п╬п╩п╤п╫я▀ п©я─п╬п╦пЁя─я▀п╡п╟я┌я▄я│я▐ п╨п╟п╨
+  п╫п╣ я│п╩п╬я▒п╫я▀п╣ (я│ п╬п©я├п╦п╣п╧ <tt class="option">-ni</tt>).
+</p></li><li><p>
+  <span class="bold"><strong>п²п╣ я│п╩п╬я▒п╫я▀п╣:</strong></span> п║п╫п╟я┤п╟п╩п╟ п╦п╢я▒я┌ п╡п╣я│я▄ п╡п╦п╢п╣п╬ п©п╬я┌п╬п╨,
+  п╥п╟я┌п╣п╪ п╡п╣я│я▄ п╟я┐п╢п╦п╬ п©п╬я┌п╬п╨. п╜я┌п╬ я┌я─п╣п╠я┐п╣я┌ п╬пЁя─п╬п╪п╫п╬пЁп╬ п╨п╬п╩п╦я┤п╣я│я┌п╡п╟ п©п╣я─п╣п╪п╣я┴п╣п╫п╦п╧ п©п╬ я└п╟п╧п╩я┐,
+  я┤я┌п╬ п╢п╣п╩п╟п╣я┌ п©я─п╬п╦пЁя─я▀п╡п╟п╫п╦п╣ я┌п╟п╨п╦я┘ я└п╟п╧п╩п╬п╡ п©п╬ я│п╣я┌п╦ п╦п╩п╦ я│ CD-ROM п╥п╟я┌я─я┐п╢п╫п╦я┌п╣п╩я▄п╫я▀п╪.
+</p></li></ul></div><p>
 </p><p>
-<span class="application">MPlayer</span> поддерживает два типа синхронизации для
-AVI файлов:
-</p><div class="itemizedlist"><ul type="disc"><li>
-  <span class="bold"><strong>основанный на bps[битпотоке]:</strong></span> Он основан на
-  битпотоке/потоке сэмплов для видео/аудио потоков. Этот метод применяется
-  большинством плееров, включая
-  <a href="http://avifile.sourceforge.net" target="_top">avifile</a> и
-  <span class="application">Windows Media Player</span>. Файлы с испорченными
-  заголовками и файлы созданные с VBR аудио в не VBR-совместимом кодировщике
-  приведут к A/V десинхронизации при использовании этого метода (по большей
-  части при перемещении по фильму).
-  </li><li>
-  <span class="bold"><strong>основанный на слоёности:</strong></span> Он не использует
-  значение битпотока из заголовка, вместо этого используется относительная
-  позиция слоёных кусков аудио и видео, что делает воспроизводимыми 
-  плохо закодированные с VBR аудио.
-  </li></ul></div><p>
+<span class="application">MPlayer</span> п©п╬п╢п╢п╣я─п╤п╦п╡п╟п╣я┌ п╢п╡п╟ я┌п╦п©п╟ я│п╦п╫я┘я─п╬п╫п╦п╥п╟я├п╦п╦ п╢п╩я▐
+AVI я└п╟п╧п╩п╬п╡:
+</p><div class="itemizedlist"><ul type="disc"><li><p>
+  <span class="bold"><strong>п╬я│п╫п╬п╡п╟п╫п╫я▀п╧ п╫п╟ bps[п╠п╦я┌п©п╬я┌п╬п╨п╣]:</strong></span> п·п╫ п╬я│п╫п╬п╡п╟п╫ п╫п╟
+  п╠п╦я┌п©п╬я┌п╬п╨п╣/п©п╬я┌п╬п╨п╣ я│я█п╪п©п╩п╬п╡ п╢п╩я▐ п╡п╦п╢п╣п╬/п╟я┐п╢п╦п╬ п©п╬я┌п╬п╨п╬п╡. п╜я┌п╬я┌ п╪п╣я┌п╬п╢ п©я─п╦п╪п╣п╫я▐п╣я┌я│я▐
+  п╠п╬п╩я▄я┬п╦п╫я│я┌п╡п╬п╪ п©п╩п╣п╣я─п╬п╡, п╡п╨п╩я▌я┤п╟я▐
+  <a href="http://avifile.sourceforge.net" target="_top">avifile</a> п╦
+  <span class="application">Windows Media Player</span>. п╓п╟п╧п╩я▀ я│ п╦я│п©п╬я─я┤п╣п╫п╫я▀п╪п╦
+  п╥п╟пЁп╬п╩п╬п╡п╨п╟п╪п╦ п╦ я└п╟п╧п╩я▀ я│п╬п╥п╢п╟п╫п╫я▀п╣ я│ VBR п╟я┐п╢п╦п╬ п╡ п╫п╣ VBR-я│п╬п╡п╪п╣я│я┌п╦п╪п╬п╪ п╨п╬п╢п╦я─п╬п╡я┴п╦п╨п╣
+  п©я─п╦п╡п╣п╢я┐я┌ п╨ A/V я─п╟я│я│п╦п╫я┘я─п╬п╫п╦п╥п╟я├п╦п╦ п©я─п╦ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╦ я█я┌п╬пЁп╬ п╪п╣я┌п╬п╢п╟ (п©п╬ п╠п╬п╩я▄я┬п╣п╧
+  я┤п╟я│я┌п╦ п©я─п╦ п©п╣я─п╣п╪п╣я┴п╣п╫п╦п╦ п©п╬ я└п╦п╩я▄п╪я┐).
+</p></li><li><p>
+  <span class="bold"><strong>п╬я│п╫п╬п╡п╟п╫п╫я▀п╧ п╫п╟ я│п╩п╬я▒п╫п╬я│я┌п╦:</strong></span> п·п╫ п╫п╣ п╦я│п©п╬п╩я▄п╥я┐п╣я┌
+  п╥п╫п╟я┤п╣п╫п╦п╣ п╠п╦я┌п©п╬я┌п╬п╨п╟ п╦п╥ п╥п╟пЁп╬п╩п╬п╡п╨п╟, п╡п╪п╣я│я┌п╬ я█я┌п╬пЁп╬ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ п╬я┌п╫п╬я│п╦я┌п╣п╩я▄п╫п╟я▐
+  п©п╬п╥п╦я├п╦я▐ я│п╩п╬я▒п╫я▀я┘ п╨я┐я│п╨п╬п╡ п╟я┐п╢п╦п╬ п╦ п╡п╦п╢п╣п╬, я┤я┌п╬ п╢п╣п╩п╟п╣я┌ п╡п╬я│п©я─п╬п╦п╥п╡п╬п╢п╦п╪я▀п╪п╦ 
+  п©п╩п╬я┘п╬ п╥п╟п╨п╬п╢п╦я─п╬п╡п╟п╫п╫я▀п╣ я│ VBR п╟я┐п╢п╦п╬.
+</p></li></ul></div><p>
 </p><p>
-Допустимы любые аудио и видео кодеки, но заметьте, что VBR аудио не очень
-хорошо поддерживается большинством плееров. Формат файла делает возможным
-использование VBR аудио, но многие плееры ожидают CBR, поэтому они
-выходят из строя с VBR. VBR редко встречается и Microsoft'овские AVI
-спецификации описывают только CBR аудио. Я также заметил, что большинство
-кодировщиков создают плохие файлы при использовании VBR аудио. Известно
-только два исключения: <span class="application">NanDub</span> и
-<a href="mencoder.html" title="Глава 13. Основы использования MEncoder"><span class="application">MEncoder</span></a>.
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="asf-wmv"></a>6.1.3. ASF/WMV файлы</h3></div></div></div><p>
-ASF (Active Streaming Format) исходит от Microsoft. Они разработали два варианта
-ASF, v1.0 и v2.0. v1.0 используется их медиа средствами (<span class="application">Windows
-Media Player</span> и <span class="application">Windows Media Encoder</span>)
-и сильно засекречены. v2.0 опубликована и запатентована :). Конечно они
-различаются, совсем нет никакой совместимости (это просто другая правовая игра).
-<span class="application">MPlayer</span> поддерживает только v1.0, поскольку никто
-никогда не видел v2.0 файлов :). Заметьте, что ASF файлы теперь появляются
-с расширениями <tt class="filename">.WMA</tt> или <tt class="filename">.WMV</tt>.
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="qt-mov"></a>6.1.4. QuickTime/MOV файлы</h3></div></div></div><p>
-Эти форматы файлов были разработаны в Apple и могут содержать любой кодек,
-CBR или VBR. Обычно у них расширение <tt class="filename">.QT</tt> или
-<tt class="filename">.MOV</tt>. Заметьте, что поскольку MPEG4 Group выбрала
-QuickTime в качестве рекомендованного формата для MPEG4, их MOV файлы
-идут с расширением <tt class="filename">.MPG</tt> или <tt class="filename">.MP4</tt>
-(Интересно, что видео и аудио потоки в этих файлах - настоящие
-MPG и AAC файлы. Вы даже можете извлечь их, используя опции
-<tt class="option">-dumpvideo</tt> и <tt class="option">-dumpaudio</tt>.).
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="vivo"></a>6.1.5. VIVO файлы</h3></div></div></div><p>
-<span class="application">MPlayer</span> успешно демультиплексирует VIVO форматы
-файлов. Огромный недостаток этого формата заключается в том, что в нем нет
-ни индексных блоков, ни фиксированного размера пакетов или байтов синхронизации
-и в большинстве файлов нет даже ключевых кадров[keyframes], так что забудьте
-о перемещении по файлу!
+п■п╬п©я┐я│я┌п╦п╪я▀ п╩я▌п╠я▀п╣ п╟я┐п╢п╦п╬ п╦ п╡п╦п╢п╣п╬ п╨п╬п╢п╣п╨п╦, п╫п╬ п╥п╟п╪п╣я┌я▄я┌п╣, я┤я┌п╬ VBR п╟я┐п╢п╦п╬ п╫п╣ п╬я┤п╣п╫я▄
+я┘п╬я─п╬я┬п╬ п©п╬п╢п╢п╣я─п╤п╦п╡п╟п╣я┌я│я▐ п╠п╬п╩я▄я┬п╦п╫я│я┌п╡п╬п╪ п©п╩п╣п╣я─п╬п╡. п╓п╬я─п╪п╟я┌ я└п╟п╧п╩п╟ п╢п╣п╩п╟п╣я┌ п╡п╬п╥п╪п╬п╤п╫я▀п╪
+п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣ VBR п╟я┐п╢п╦п╬, п╫п╬ п╪п╫п╬пЁп╦п╣ п©п╩п╣п╣я─я▀ п╬п╤п╦п╢п╟я▌я┌ CBR, п©п╬я█я┌п╬п╪я┐ п╬п╫п╦
+п╡я▀я┘п╬п╢я▐я┌ п╦п╥ я│я┌я─п╬я▐ я│ VBR. VBR я─п╣п╢п╨п╬ п╡я│я┌я─п╣я┤п╟п╣я┌я│я▐ п╦ Microsoft'п╬п╡я│п╨п╦п╣ AVI
+я│п©п╣я├п╦я└п╦п╨п╟я├п╦п╦ п╬п©п╦я│я▀п╡п╟я▌я┌ я┌п╬п╩я▄п╨п╬ CBR п╟я┐п╢п╦п╬. п╞ я┌п╟п╨п╤п╣ п╥п╟п╪п╣я┌п╦п╩, я┤я┌п╬ п╠п╬п╩я▄я┬п╦п╫я│я┌п╡п╬
+п╨п╬п╢п╦я─п╬п╡я┴п╦п╨п╬п╡ я│п╬п╥п╢п╟я▌я┌ п©п╩п╬я┘п╦п╣ я└п╟п╧п╩я▀ п©я─п╦ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╦ VBR п╟я┐п╢п╦п╬. п≤п╥п╡п╣я│я┌п╫п╬
+я┌п╬п╩я▄п╨п╬ п╢п╡п╟ п╦я│п╨п╩я▌я┤п╣п╫п╦я▐: <span class="application">NanDub</span> п╦
+<a href="mencoder.html" title="п⌠п╩п╟п╡п╟ 13. п·я│п╫п╬п╡я▀ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ MEncoder"><span class="application">MEncoder</span></a>.
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="asf-wmv"></a>6.1.3. ASF/WMV я└п╟п╧п╩я▀</h3></div></div></div><p>
+ASF (Active Streaming Format) п╦я│я┘п╬п╢п╦я┌ п╬я┌ Microsoft. п·п╫п╦ я─п╟п╥я─п╟п╠п╬я┌п╟п╩п╦ п╢п╡п╟ п╡п╟я─п╦п╟п╫я┌п╟
+ASF, v1.0 п╦ v2.0. v1.0 п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ п╦я┘ п╪п╣п╢п╦п╟ я│я─п╣п╢я│я┌п╡п╟п╪п╦ 
+(<span class="application">Windows Media Player</span> п╦ 
+<span class="application">Windows Media Encoder</span>)
+п╦ я│п╦п╩я▄п╫п╬ п╥п╟я│п╣п╨я─п╣я┤п╣п╫я▀. v2.0 п╬п©я┐п╠п╩п╦п╨п╬п╡п╟п╫п╟ п╦ п╥п╟п©п╟я┌п╣п╫я┌п╬п╡п╟п╫п╟ :). п п╬п╫п╣я┤п╫п╬ п╬п╫п╦
+я─п╟п╥п╩п╦я┤п╟я▌я┌я│я▐, я│п╬п╡я│п╣п╪ п╫п╣я┌ п╫п╦п╨п╟п╨п╬п╧ я│п╬п╡п╪п╣я│я┌п╦п╪п╬я│я┌п╦ (я█я┌п╬ п©я─п╬я│я┌п╬ п╢я─я┐пЁп╟я▐ п©я─п╟п╡п╬п╡п╟я▐ п╦пЁя─п╟).
+<span class="application">MPlayer</span> п©п╬п╢п╢п╣я─п╤п╦п╡п╟п╣я┌ я┌п╬п╩я▄п╨п╬ v1.0, п©п╬я│п╨п╬п╩я▄п╨я┐ п╫п╦п╨я┌п╬
+п╫п╦п╨п╬пЁп╢п╟ п╫п╣ п╡п╦п╢п╣п╩ v2.0 я└п╟п╧п╩п╬п╡ :). п≈п╟п╪п╣я┌я▄я┌п╣, я┤я┌п╬ ASF я└п╟п╧п╩я▀ я┌п╣п©п╣я─я▄ п©п╬я▐п╡п╩я▐я▌я┌я│я▐
+я│ я─п╟я│я┬п╦я─п╣п╫п╦я▐п╪п╦ <tt class="filename">.WMA</tt> п╦п╩п╦ <tt class="filename">.WMV</tt>.
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="qt-mov"></a>6.1.4. QuickTime/MOV я└п╟п╧п╩я▀</h3></div></div></div><p>
+п╜я┌п╦ я└п╬я─п╪п╟я┌я▀ я└п╟п╧п╩п╬п╡ п╠я▀п╩п╦ я─п╟п╥я─п╟п╠п╬я┌п╟п╫я▀ п╡ Apple п╦ п╪п╬пЁя┐я┌ я│п╬п╢п╣я─п╤п╟я┌я▄ п╩я▌п╠п╬п╧ п╨п╬п╢п╣п╨,
+CBR п╦п╩п╦ VBR. п·п╠я▀я┤п╫п╬ я┐ п╫п╦я┘ я─п╟я│я┬п╦я─п╣п╫п╦п╣ <tt class="filename">.QT</tt> п╦п╩п╦
+<tt class="filename">.MOV</tt>. п≈п╟п╪п╣я┌я▄я┌п╣, я┤я┌п╬ п©п╬я│п╨п╬п╩я▄п╨я┐ MPEG4 Group п╡я▀п╠я─п╟п╩п╟
+QuickTime п╡ п╨п╟я┤п╣я│я┌п╡п╣ я─п╣п╨п╬п╪п╣п╫п╢п╬п╡п╟п╫п╫п╬пЁп╬ я└п╬я─п╪п╟я┌п╟ п╢п╩я▐ MPEG4, п╦я┘ MOV я└п╟п╧п╩я▀
+п╦п╢я┐я┌ я│ я─п╟я│я┬п╦я─п╣п╫п╦п╣п╪ <tt class="filename">.MPG</tt> п╦п╩п╦ <tt class="filename">.MP4</tt>
+(п≤п╫я┌п╣я─п╣я│п╫п╬, я┤я┌п╬ п╡п╦п╢п╣п╬ п╦ п╟я┐п╢п╦п╬ п©п╬я┌п╬п╨п╦ п╡ я█я┌п╦я┘ я└п╟п╧п╩п╟я┘ - п╫п╟я│я┌п╬я▐я┴п╦п╣
+MPG п╦ AAC я└п╟п╧п╩я▀. п▓я▀ п╢п╟п╤п╣ п╪п╬п╤п╣я┌п╣ п╦п╥п╡п╩п╣я┤я▄ п╦я┘, п╦я│п©п╬п╩я▄п╥я┐я▐ п╬п©я├п╦п╦
+<tt class="option">-dumpvideo</tt> п╦ <tt class="option">-dumpaudio</tt>.).
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="vivo"></a>6.1.5. VIVO я└п╟п╧п╩я▀</h3></div></div></div><p>
+<span class="application">MPlayer</span> я┐я│п©п╣я┬п╫п╬ п╢п╣п╪я┐п╩я▄я┌п╦п©п╩п╣п╨я│п╦я─я┐п╣я┌ VIVO я└п╬я─п╪п╟я┌я▀
+я└п╟п╧п╩п╬п╡. п·пЁя─п╬п╪п╫я▀п╧ п╫п╣п╢п╬я│я┌п╟я┌п╬п╨ я█я┌п╬пЁп╬ я└п╬я─п╪п╟я┌п╟ п╥п╟п╨п╩я▌я┤п╟п╣я┌я│я▐ п╡ я┌п╬п╪, я┤я┌п╬ п╡ п╫п╣п╪ п╫п╣я┌
+п╫п╦ п╦п╫п╢п╣п╨я│п╫я▀я┘ п╠п╩п╬п╨п╬п╡, п╫п╦ я└п╦п╨я│п╦я─п╬п╡п╟п╫п╫п╬пЁп╬ я─п╟п╥п╪п╣я─п╟ п©п╟п╨п╣я┌п╬п╡ п╦п╩п╦ п╠п╟п╧я┌п╬п╡ я│п╦п╫я┘я─п╬п╫п╦п╥п╟я├п╦п╦
+п╦ п╡ п╠п╬п╩я▄я┬п╦п╫я│я┌п╡п╣ я└п╟п╧п╩п╬п╡ п╫п╣я┌ п╢п╟п╤п╣ п╨п╩я▌я┤п╣п╡я▀я┘ п╨п╟п╢я─п╬п╡[keyframes], я┌п╟п╨ я┤я┌п╬ п╥п╟п╠я┐п╢я▄я┌п╣
+п╬ п©п╣я─п╣п╪п╣я┴п╣п╫п╦п╦ п©п╬ я└п╟п╧п╩я┐!
 </p><p>
-Видео кодек в VIVO/1.0 файлах - это стандартный <span class="bold"><strong>h.263</strong></span>.
-Видео кодек в VIVO/2.0 файлах - это модифицированный, нестандартный
-<span class="bold"><strong>h.263v2</strong></span>. Аудио в обоих форматах одинаковое, это может быть
-<span class="bold"><strong>g.723 (стандарт)</strong></span>, или
+п▓п╦п╢п╣п╬ п╨п╬п╢п╣п╨ п╡ VIVO/1.0 я└п╟п╧п╩п╟я┘ - я█я┌п╬ я│я┌п╟п╫п╢п╟я─я┌п╫я▀п╧ <span class="bold"><strong>h.263</strong></span>.
+п▓п╦п╢п╣п╬ п╨п╬п╢п╣п╨ п╡ VIVO/2.0 я└п╟п╧п╩п╟я┘ - я█я┌п╬ п╪п╬п╢п╦я└п╦я├п╦я─п╬п╡п╟п╫п╫я▀п╧, п╫п╣я│я┌п╟п╫п╢п╟я─я┌п╫я▀п╧
+<span class="bold"><strong>h.263v2</strong></span>. п░я┐п╢п╦п╬ п╡ п╬п╠п╬п╦я┘ я└п╬я─п╪п╟я┌п╟я┘ п╬п╢п╦п╫п╟п╨п╬п╡п╬п╣, я█я┌п╬ п╪п╬п╤п╣я┌ п╠я▀я┌я▄
+<span class="bold"><strong>g.723 (я│я┌п╟п╫п╢п╟я─я┌)</strong></span>, п╦п╩п╦
 <span class="bold"><strong>Vivo Siren</strong></span>.
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="fli"></a>6.1.6. FLI файлы</h3></div></div></div><p>
-<span class="bold"><strong>FLI</strong></span> это очень старый формат, используемый
-Autodesk Animator, но это типичный формат для коротких анимационных роликов в сети.
-<span class="application">MPlayer</span> демультиплексирует и декодирует FLI фильмы
-и даже способен перемещаться в этих файлах (полезно при цикличном проигрывании
-с опцией <tt class="option">-loop</tt>). Во FLI файлах нет ключевых кадров[keyframes],
-поэтому некоторое время после перемещения картинка будет "грязной".
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="realmedia"></a>6.1.7. RealMedia (RM) файлы</h3></div></div></div><p>
-Да, <span class="application">MPlayer</span> может читать (демультиплексировать)
-RealMedia (<tt class="filename">.rm</tt>) файлы. 
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="nuppelvideo"></a>6.1.8. NuppelVideo файлы</h3></div></div></div><p>
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="fli"></a>6.1.6. FLI я└п╟п╧п╩я▀</h3></div></div></div><p>
+<span class="bold"><strong>FLI</strong></span> я█я┌п╬ п╬я┤п╣п╫я▄ я│я┌п╟я─я▀п╧ я└п╬я─п╪п╟я┌, п╦я│п©п╬п╩я▄п╥я┐п╣п╪я▀п╧
+Autodesk Animator, п╫п╬ я█я┌п╬ я┌п╦п©п╦я┤п╫я▀п╧ я└п╬я─п╪п╟я┌ п╢п╩я▐ п╨п╬я─п╬я┌п╨п╦я┘ п╟п╫п╦п╪п╟я├п╦п╬п╫п╫я▀я┘ я─п╬п╩п╦п╨п╬п╡ п╡ я│п╣я┌п╦.
+<span class="application">MPlayer</span> п╢п╣п╪я┐п╩я▄я┌п╦п©п╩п╣п╨я│п╦я─я┐п╣я┌ п╦ п╢п╣п╨п╬п╢п╦я─я┐п╣я┌ FLI я└п╦п╩я▄п╪я▀
+п╦ п╢п╟п╤п╣ я│п©п╬я│п╬п╠п╣п╫ п©п╣я─п╣п╪п╣я┴п╟я┌я▄я│я▐ п╡ я█я┌п╦я┘ я└п╟п╧п╩п╟я┘ (п©п╬п╩п╣п╥п╫п╬ п©я─п╦ я├п╦п╨п╩п╦я┤п╫п╬п╪ п©я─п╬п╦пЁя─я▀п╡п╟п╫п╦п╦
+я│ п╬п©я├п╦п╣п╧ <tt class="option">-loop</tt>). п▓п╬ FLI я└п╟п╧п╩п╟я┘ п╫п╣я┌ п╨п╩я▌я┤п╣п╡я▀я┘ п╨п╟п╢я─п╬п╡[keyframes],
+п©п╬я█я┌п╬п╪я┐ п╫п╣п╨п╬я┌п╬я─п╬п╣ п╡я─п╣п╪я▐ п©п╬я│п╩п╣ п©п╣я─п╣п╪п╣я┴п╣п╫п╦я▐ п╨п╟я─я┌п╦п╫п╨п╟ п╠я┐п╢п╣я┌ "пЁя─я▐п╥п╫п╬п╧".
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="realmedia"></a>6.1.7. RealMedia (RM) я└п╟п╧п╩я▀</h3></div></div></div><p>
+п■п╟, <span class="application">MPlayer</span> п╪п╬п╤п╣я┌ я┤п╦я┌п╟я┌я▄ (п╢п╣п╪я┐п╩я▄я┌п╦п©п╩п╣п╨я│п╦я─п╬п╡п╟я┌я▄)
+RealMedia (<tt class="filename">.rm</tt>) я└п╟п╧п╩я▀. 
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="nuppelvideo"></a>6.1.8. NuppelVideo я└п╟п╧п╩я▀</h3></div></div></div><p>
 NuppelVideo -
-это средство захвата с ТВ (AFAIK:). <span class="application">MPlayer</span> может
-читать его <tt class="filename">.NUV</tt> файлы (только NuppelVideo 5.0). Эти файлы
-могут содержать несжатые YV12, YV12+сжатые RTJpeg, YV12 сжатые RTJpeg+lzo и
-YV12 + сжатые lzo кадры. <span class="application">MPlayer</span> декодирует (и также
-<span class="bold"><strong>кодирует</strong></span> <span class="application">MEncoder
-</span>'ом в MPEG4 (DivX) и т. д.!) все это. Перемещение работает.
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="yuv4mpeg"></a>6.1.9. yuv4mpeg файлы</h3></div></div></div><p>
+я█я┌п╬ я│я─п╣п╢я│я┌п╡п╬ п╥п╟я┘п╡п╟я┌п╟ я│ п╒п▓ (AFAIK:). <span class="application">MPlayer</span> п╪п╬п╤п╣я┌
+я┤п╦я┌п╟я┌я▄ п╣пЁп╬ <tt class="filename">.NUV</tt> я└п╟п╧п╩я▀ (я┌п╬п╩я▄п╨п╬ NuppelVideo 5.0). п╜я┌п╦ я└п╟п╧п╩я▀
+п╪п╬пЁя┐я┌ я│п╬п╢п╣я─п╤п╟я┌я▄ п╫п╣я│п╤п╟я┌я▀п╣ YV12, YV12+я│п╤п╟я┌я▀п╣ RTJpeg, YV12 я│п╤п╟я┌я▀п╣ RTJpeg+lzo п╦
+YV12 + я│п╤п╟я┌я▀п╣ lzo п╨п╟п╢я─я▀. <span class="application">MPlayer</span> п╢п╣п╨п╬п╢п╦я─я┐п╣я┌ (п╦ я┌п╟п╨п╤п╣
+<span class="bold"><strong>п╨п╬п╢п╦я─я┐п╣я┌</strong></span> <span class="application">MEncoder
+</span>'п╬п╪ п╡ MPEG4 (DivX) п╦ я┌. п╢.!) п╡я│п╣ я█я┌п╬. п÷п╣я─п╣п╪п╣я┴п╣п╫п╦п╣ я─п╟п╠п╬я┌п╟п╣я┌.
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="yuv4mpeg"></a>6.1.9. yuv4mpeg я└п╟п╧п╩я▀</h3></div></div></div><p>
 <a href="http://mjpeg.sourceforge.net" target="_top">yuv4mpeg / yuv4mpeg2</a>
-это формат файлов, используемых в 
-<a href="http://mjpeg.sf.net" target="_top">программах mjpegtools</a>.
-Вы можете захватывать, изготовлять, отфильтровывать или кодировать видео в этот
-формат, используя эти средства. В действительности формат файла -
-последовательность несжатых YUV 4:2:0 кадров.
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="film"></a>6.1.10. FILM фильмы</h3></div></div></div><p>
-Этот формат используется в старых Sega Saturn CD-ROM играх.
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="roq"></a>6.1.11. RoQ файлы</h3></div></div></div><p>
-RoQ файлы - это мультимедийные файлы используемые в некоторых ID играх,
-например Quake III и Return to Castle Wolfenstein.
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="ogg"></a>6.1.12. OGG/OGM файлы</h3></div></div></div><p>
-Это новый формат файлов от <a href="http://www.xiph.org" target="_top">Xiphophorus</a>.
-Он может содержать любой видео или аудио кодек, CBR или VBR. Вам понадобятся,
-чтобы <code class="systemitem">libogg</code> и
-<code class="systemitem">libvorbis</code> были установлены до компиляции 
-<span class="application">MPlayer</span>'а, чтобы  иметь возможность проигрывать эти файлы.
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="sdp"></a>6.1.13. SDP файлы</h3></div></div></div><p>
-<a href="ftp://ftp.rfc-editor.org/in-notes/rfc2327.txt" target="_top">SDP</a> - это
-IETF стандартный формат для описания видео и аудио RTP потоков.
-(требуется "<a href="http://www.live555.com/mplayer/" target="_top">LIVE555 Streaming Media</a>".)
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="pva"></a>6.1.14. PVA файлы</h3></div></div></div><p>
-PVA - это похожий на MPEG формат, используемый в программах DVB TV карт (например:
-<span class="application">MultiDec</span>, <span class="application">WinTV</span> под Windows.
+я█я┌п╬ я└п╬я─п╪п╟я┌ я└п╟п╧п╩п╬п╡, п╦я│п©п╬п╩я▄п╥я┐п╣п╪я▀я┘ п╡ 
+<a href="http://mjpeg.sf.net" target="_top">п©я─п╬пЁя─п╟п╪п╪п╟я┘ mjpegtools</a>.
+п▓я▀ п╪п╬п╤п╣я┌п╣ п╥п╟я┘п╡п╟я┌я▀п╡п╟я┌я▄, п╦п╥пЁп╬я┌п╬п╡п╩я▐я┌я▄, п╬я┌я└п╦п╩я▄я┌я─п╬п╡я▀п╡п╟я┌я▄ п╦п╩п╦ п╨п╬п╢п╦я─п╬п╡п╟я┌я▄ п╡п╦п╢п╣п╬ п╡ я█я┌п╬я┌
+я└п╬я─п╪п╟я┌, п╦я│п©п╬п╩я▄п╥я┐я▐ я█я┌п╦ я│я─п╣п╢я│я┌п╡п╟. п▓ п╢п╣п╧я│я┌п╡п╦я┌п╣п╩я▄п╫п╬я│я┌п╦ я└п╬я─п╪п╟я┌ я└п╟п╧п╩п╟ -
+п©п╬я│п╩п╣п╢п╬п╡п╟я┌п╣п╩я▄п╫п╬я│я┌я▄ п╫п╣я│п╤п╟я┌я▀я┘ YUV 4:2:0 п╨п╟п╢я─п╬п╡.
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="film"></a>6.1.10. FILM я└п╦п╩я▄п╪я▀</h3></div></div></div><p>
+п╜я┌п╬я┌ я└п╬я─п╪п╟я┌ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ п╡ я│я┌п╟я─я▀я┘ Sega Saturn CD-ROM п╦пЁя─п╟я┘.
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="roq"></a>6.1.11. RoQ я└п╟п╧п╩я▀</h3></div></div></div><p>
+RoQ я└п╟п╧п╩я▀ - я█я┌п╬ п╪я┐п╩я▄я┌п╦п╪п╣п╢п╦п╧п╫я▀п╣ я└п╟п╧п╩я▀ п╦я│п©п╬п╩я▄п╥я┐п╣п╪я▀п╣ п╡ п╫п╣п╨п╬я┌п╬я─я▀я┘ ID п╦пЁя─п╟я┘,
+п╫п╟п©я─п╦п╪п╣я─ Quake III п╦ Return to Castle Wolfenstein.
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="ogg"></a>6.1.12. OGG/OGM я└п╟п╧п╩я▀</h3></div></div></div><p>
+п╜я┌п╬ п╫п╬п╡я▀п╧ я└п╬я─п╪п╟я┌ я└п╟п╧п╩п╬п╡ п╬я┌ <a href="http://www.xiph.org" target="_top">Xiphophorus</a>.
+п·п╫ п╪п╬п╤п╣я┌ я│п╬п╢п╣я─п╤п╟я┌я▄ п╩я▌п╠п╬п╧ п╡п╦п╢п╣п╬ п╦п╩п╦ п╟я┐п╢п╦п╬ п╨п╬п╢п╣п╨, CBR п╦п╩п╦ VBR. п▓п╟п╪ п©п╬п╫п╟п╢п╬п╠я▐я┌я│я▐,
+я┤я┌п╬п╠я▀ <code class="systemitem">libogg</code> п╦
+<code class="systemitem">libvorbis</code> п╠я▀п╩п╦ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫я▀ п╢п╬ п╨п╬п╪п©п╦п╩я▐я├п╦п╦ 
+<span class="application">MPlayer</span>'п╟, я┤я┌п╬п╠я▀  п╦п╪п╣я┌я▄ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌я▄ п©я─п╬п╦пЁя─я▀п╡п╟я┌я▄ я█я┌п╦ я└п╟п╧п╩я▀.
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="sdp"></a>6.1.13. SDP я└п╟п╧п╩я▀</h3></div></div></div><p>
+<a href="ftp://ftp.rfc-editor.org/in-notes/rfc2327.txt" target="_top">SDP</a> - я█я┌п╬
+IETF я│я┌п╟п╫п╢п╟я─я┌п╫я▀п╧ я└п╬я─п╪п╟я┌ п╢п╩я▐ п╬п©п╦я│п╟п╫п╦я▐ п╡п╦п╢п╣п╬ п╦ п╟я┐п╢п╦п╬ RTP п©п╬я┌п╬п╨п╬п╡.
+(я┌я─п╣п╠я┐п╣я┌я│я▐ "<a href="http://www.live555.com/mplayer/" target="_top">LIVE555 Streaming Media</a>".)
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="pva"></a>6.1.14. PVA я└п╟п╧п╩я▀</h3></div></div></div><p>
+PVA - я█я┌п╬ п©п╬я┘п╬п╤п╦п╧ п╫п╟ MPEG я└п╬я─п╪п╟я┌, п╦я│п©п╬п╩я▄п╥я┐п╣п╪я▀п╧ п╡ п©я─п╬пЁя─п╟п╪п╪п╟я┘ DVB TV п╨п╟я─я┌ (п╫п╟п©я─п╦п╪п╣я─:
+<span class="application">MultiDec</span>, <span class="application">WinTV</span> п©п╬п╢ Windows.
 </p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="nsv"></a>6.1.15. NSV files</h3></div></div></div><p>
-NSV (NullSoft Video) &#8212; это формат файла, используемый
-<span class="application">Winamp</span>'ом для потокового фудио и видео.
-Видео бывает VP3, VP5 или VP6, а аудио &#8212; MP3, AAC или VLB.
-Версии NSV, в которых только аудио, имеют расширение <tt class="filename">.nsa</tt>.
-<span class="application">MPlayer</span> воспроизводит как NSV потоки,
-так и файлы. Пожалуйста, заметьте, что большая часть файлов с
-<a href="http://www.winamp.com" target="_top">сайта Winamp</a> использует VLB аудио,
-которое ещё не может декодироваться. Более того, для потоков с этого сайта
-необходим ещё один уровень депакетизации, который ещё нужно написать (эти
-файлы всё равно невозможно проиграть, поскольку они используют VLB аудио).
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="matroska"></a>6.1.16. Файлы Matroska</h3></div></div></div><p>
-Matroska это открытый формат файла.
-подробнее читайте на <a href="http://www.matroska.org/" target="_top">официальном сайте</a>.
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="nut"></a>6.1.17. NUT файлы</h3></div></div></div><p>
-NUT это формат файла, разработанный ребятами из <span class="application">MPlayer</span> и 
-<span class="application">FFmpeg</span>. Оба проекта поддерживают его.
-Подробности читайте на <a href="http://www.nut.hu/" target="_top">официальном сайте</a>.
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="gif"></a>6.1.18. GIF файлы</h3></div></div></div><p>
-<span class="bold"><strong>GIF</strong></span> формат - это типичный формат для веб
-графики. Существуют 2 версии спецификаций GIF, GIF87a и GIF89a. Основная
-разница заключается в том, что GIF89a допускает анимацию. <span class="application">MPlayer</span> поддерживает
-оба формата, используя <code class="systemitem">libungif</code> или
-другую libgif-совместимую библиотеку. Не анимированные GIF'ы будут показываться
-как однокадровое видео. (Используйте опции <tt class="option">-loop</tt> и
-<tt class="option">-fixed-vo</tt>, чтобы показать их подольше.)
+NSV (NullSoft Video) Б─■ я█я┌п╬ я└п╬я─п╪п╟я┌ я└п╟п╧п╩п╟, п╦я│п©п╬п╩я▄п╥я┐п╣п╪я▀п╧
+<span class="application">Winamp</span>'п╬п╪ п╢п╩я▐ п©п╬я┌п╬п╨п╬п╡п╬пЁп╬ п╟я┐п╢п╦п╬ п╦ п╡п╦п╢п╣п╬.
+п▓п╦п╢п╣п╬ п╠я▀п╡п╟п╣я┌ VP3, VP5 п╦п╩п╦ VP6, п╟ п╟я┐п╢п╦п╬ Б─■ MP3, AAC п╦п╩п╦ VLB.
+п▓п╣я─я│п╦п╦ NSV, п╡ п╨п╬я┌п╬я─я▀я┘ я┌п╬п╩я▄п╨п╬ п╟я┐п╢п╦п╬, п╦п╪п╣я▌я┌ я─п╟я│я┬п╦я─п╣п╫п╦п╣ <tt class="filename">.nsa</tt>.
+<span class="application">MPlayer</span> п╡п╬я│п©я─п╬п╦п╥п╡п╬п╢п╦я┌ п╨п╟п╨ NSV п©п╬я┌п╬п╨п╦,
+я┌п╟п╨ п╦ я└п╟п╧п╩я▀. п÷п╬п╤п╟п╩я┐п╧я│я┌п╟, п╥п╟п╪п╣я┌я▄я┌п╣, я┤я┌п╬ п╠п╬п╩я▄я┬п╟я▐ я┤п╟я│я┌я▄ я└п╟п╧п╩п╬п╡ я│
+<a href="http://www.winamp.com" target="_top">я│п╟п╧я┌п╟ Winamp</a> п╦я│п©п╬п╩я▄п╥я┐п╣я┌ VLB п╟я┐п╢п╦п╬,
+п╨п╬я┌п╬я─п╬п╣ п╣я┴я▒ п╫п╣ п╪п╬п╤п╣я┌ п╢п╣п╨п╬п╢п╦я─п╬п╡п╟я┌я▄я│я▐. п▒п╬п╩п╣п╣ я┌п╬пЁп╬, п╢п╩я▐ п©п╬я┌п╬п╨п╬п╡ я│ я█я┌п╬пЁп╬ я│п╟п╧я┌п╟
+п╫п╣п╬п╠я┘п╬п╢п╦п╪ п╣я┴я▒ п╬п╢п╦п╫ я┐я─п╬п╡п╣п╫я▄ п╢п╣п©п╟п╨п╣я┌п╦п╥п╟я├п╦п╦, п╨п╬я┌п╬я─я▀п╧ п╣я┴я▒ п╫я┐п╤п╫п╬ п╫п╟п©п╦я│п╟я┌я▄ (я█я┌п╦
+я└п╟п╧п╩я▀ п╡я│я▒ я─п╟п╡п╫п╬ п╫п╣п╡п╬п╥п╪п╬п╤п╫п╬ п©я─п╬п╦пЁя─п╟я┌я▄, п©п╬я│п╨п╬п╩я▄п╨я┐ п╬п╫п╦ п╦я│п©п╬п╩я▄п╥я┐я▌я┌ VLB п╟я┐п╢п╦п╬).
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="matroska"></a>6.1.16. п╓п╟п╧п╩я▀ Matroska</h3></div></div></div><p>
+Matroska я█я┌п╬ п╬я┌п╨я─я▀я┌я▀п╧ я└п╬я─п╪п╟я┌ я└п╟п╧п╩п╟.
+п©п╬п╢я─п╬п╠п╫п╣п╣ я┤п╦я┌п╟п╧я┌п╣ п╫п╟ <a href="http://www.matroska.org/" target="_top">п╬я└п╦я├п╦п╟п╩я▄п╫п╬п╪ я│п╟п╧я┌п╣</a>.
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="nut"></a>6.1.17. NUT я└п╟п╧п╩я▀</h3></div></div></div><p>
+NUT я█я┌п╬ я└п╬я─п╪п╟я┌ я└п╟п╧п╩п╟, я─п╟п╥я─п╟п╠п╬я┌п╟п╫п╫я▀п╧ я─п╣п╠я▐я┌п╟п╪п╦ п╦п╥ <span class="application">MPlayer</span> п╦ 
+<span class="application">FFmpeg</span>. п·п╠п╟ п©я─п╬п╣п╨я┌п╟ п©п╬п╢п╢п╣я─п╤п╦п╡п╟я▌я┌ п╣пЁп╬.
+п÷п╬п╢я─п╬п╠п╫п╬я│я┌п╦ я┤п╦я┌п╟п╧я┌п╣ п╫п╟ <a href="http://www.nut.hu/" target="_top">п╬я└п╦я├п╦п╟п╩я▄п╫п╬п╪ я│п╟п╧я┌п╣</a>.
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="gif"></a>6.1.18. GIF я└п╟п╧п╩я▀</h3></div></div></div><p>
+<span class="bold"><strong>GIF</strong></span> я└п╬я─п╪п╟я┌ - я█я┌п╬ я┌п╦п©п╦я┤п╫я▀п╧ я└п╬я─п╪п╟я┌ п╢п╩я▐ п╡п╣п╠
+пЁя─п╟я└п╦п╨п╦. п║я┐я┴п╣я│я┌п╡я┐я▌я┌ 2 п╡п╣я─я│п╦п╦ я│п©п╣я├п╦я└п╦п╨п╟я├п╦п╧ GIF, GIF87a п╦ GIF89a. п·я│п╫п╬п╡п╫п╟я▐
+я─п╟п╥п╫п╦я├п╟ п╥п╟п╨п╩я▌я┤п╟п╣я┌я│я▐ п╡ я┌п╬п╪, я┤я┌п╬ GIF89a п╢п╬п©я┐я│п╨п╟п╣я┌ п╟п╫п╦п╪п╟я├п╦я▌. 
+<span class="application">MPlayer</span> п©п╬п╢п╢п╣я─п╤п╦п╡п╟п╣я┌
+п╬п╠п╟ я└п╬я─п╪п╟я┌п╟, п╦я│п©п╬п╩я▄п╥я┐я▐ <code class="systemitem">libungif</code> п╦п╩п╦
+п╢я─я┐пЁя┐я▌ libgif-я│п╬п╡п╪п╣я│я┌п╦п╪я┐я▌ п╠п╦п╠п╩п╦п╬я┌п╣п╨я┐. п²п╣ п╟п╫п╦п╪п╦я─п╬п╡п╟п╫п╫я▀п╣ GIF'я▀ п╠я┐п╢я┐я┌ п©п╬п╨п╟п╥я▀п╡п╟я┌я▄я│я▐
+п╨п╟п╨ п╬п╢п╫п╬п╨п╟п╢я─п╬п╡п╬п╣ п╡п╦п╢п╣п╬. (п≤я│п©п╬п╩я▄п╥я┐п╧я┌п╣ п╬п©я├п╦п╦ <tt class="option">-loop</tt> п╦
+<tt class="option">-fixed-vo</tt>, я┤я┌п╬п╠я▀ п©п╬п╨п╟п╥п╟я┌я▄ п╦я┘ п©п╬п╢п╬п╩я▄я┬п╣.)
 </p><p>
-В настоящий момент <span class="application">MPlayer</span> не поддерживает
-перемещение внутри GIF файлов. У GIF файлов не обязательно фиксированный размер
-кадра или фиксированная частота кадров. Наоборот, у каждого кадра свой
-собственный размер и должен выводиться в некотором поле фиксированного размера.
-Частота кадров контролируется дополнительным блоком перед каждым кадром,
-который определяет задержку перед следующим кадром в сотых долях секунды.
+п▓ п╫п╟я│я┌п╬я▐я┴п╦п╧ п╪п╬п╪п╣п╫я┌ <span class="application">MPlayer</span> п╫п╣ п©п╬п╢п╢п╣я─п╤п╦п╡п╟п╣я┌
+п©п╣я─п╣п╪п╣я┴п╣п╫п╦п╣ п╡п╫я┐я┌я─п╦ GIF я└п╟п╧п╩п╬п╡. пё GIF я└п╟п╧п╩п╬п╡ п╫п╣ п╬п╠я▐п╥п╟я┌п╣п╩я▄п╫п╬ я└п╦п╨я│п╦я─п╬п╡п╟п╫п╫я▀п╧ я─п╟п╥п╪п╣я─
+п╨п╟п╢я─п╟ п╦п╩п╦ я└п╦п╨я│п╦я─п╬п╡п╟п╫п╫п╟я▐ я┤п╟я│я┌п╬я┌п╟ п╨п╟п╢я─п╬п╡. п²п╟п╬п╠п╬я─п╬я┌, я┐ п╨п╟п╤п╢п╬пЁп╬ п╨п╟п╢я─п╟ я│п╡п╬п╧
+я│п╬п╠я│я┌п╡п╣п╫п╫я▀п╧ я─п╟п╥п╪п╣я─ п╦ п╢п╬п╩п╤п╣п╫ п╡я▀п╡п╬п╢п╦я┌я▄я│я▐ п╡ п╫п╣п╨п╬я┌п╬я─п╬п╪ п©п╬п╩п╣ я└п╦п╨я│п╦я─п╬п╡п╟п╫п╫п╬пЁп╬ я─п╟п╥п╪п╣я─п╟.
+п╖п╟я│я┌п╬я┌п╟ п╨п╟п╢я─п╬п╡ п╨п╬п╫я┌я─п╬п╩п╦я─я┐п╣я┌я│я▐ п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╪ п╠п╩п╬п╨п╬п╪ п©п╣я─п╣п╢ п╨п╟п╤п╢я▀п╪ п╨п╟п╢я─п╬п╪,
+п╨п╬я┌п╬я─я▀п╧ п╬п©я─п╣п╢п╣п╩я▐п╣я┌ п╥п╟п╢п╣я─п╤п╨я┐ п©п╣я─п╣п╢ я│п╩п╣п╢я┐я▌я┴п╦п╪ п╨п╟п╢я─п╬п╪ п╡ я│п╬я┌я▀я┘ п╢п╬п╩я▐я┘ я│п╣п╨я┐п╫п╢я▀.
 </p><p>
-Стандартные GIF файлы содержат 24-битные RGB кадры с не более чем 8-битовой
-индексированной палитрой. Кадры обычно сжаты по LZW алгоритму, хотя некоторые
-GIF кодировщики создают несжатые кадры, чтобы избежать проблем с патентом на
-LZW сжатие.
+п║я┌п╟п╫п╢п╟я─я┌п╫я▀п╣ GIF я└п╟п╧п╩я▀ я│п╬п╢п╣я─п╤п╟я┌ 24-п╠п╦я┌п╫я▀п╣ RGB п╨п╟п╢я─я▀ я│ п╫п╣ п╠п╬п╩п╣п╣ я┤п╣п╪ 8-п╠п╦я┌п╬п╡п╬п╧
+п╦п╫п╢п╣п╨я│п╦я─п╬п╡п╟п╫п╫п╬п╧ п©п╟п╩п╦я┌я─п╬п╧. п п╟п╢я─я▀ п╬п╠я▀я┤п╫п╬ я│п╤п╟я┌я▀ п©п╬ LZW п╟п╩пЁп╬я─п╦я┌п╪я┐, я┘п╬я┌я▐ п╫п╣п╨п╬я┌п╬я─я▀п╣
+GIF п╨п╬п╢п╦я─п╬п╡я┴п╦п╨п╦ я│п╬п╥п╢п╟я▌я┌ п╫п╣я│п╤п╟я┌я▀п╣ п╨п╟п╢я─я▀, я┤я┌п╬п╠я▀ п╦п╥п╠п╣п╤п╟я┌я▄ п©я─п╬п╠п╩п╣п╪ я│ п©п╟я┌п╣п╫я┌п╬п╪ п╫п╟
+LZW я│п╤п╟я┌п╦п╣.
 </p><p>
-Если в Вашем дистрибутиве нет <code class="systemitem">libungif</code>,
-скачайте копию на
+п∙я│п╩п╦ п╡ п▓п╟я┬п╣п╪ п╢п╦я│я┌я─п╦п╠я┐я┌п╦п╡п╣ п╫п╣я┌ <code class="systemitem">libungif</code>,
+я│п╨п╟я┤п╟п╧я┌п╣ п╨п╬п©п╦я▌ п╫п╟
 <a href="http://prtr-13.ucsc.edu/~badger/software/libungif/index.shtml" target="_top">
-домашней странице libungif</a>. Технические подробности см. в 
+п╢п╬п╪п╟я┬п╫п╣п╧ я│я┌я─п╟п╫п╦я├п╣ libungif</a>. п╒п╣я┘п╫п╦я┤п╣я│п╨п╦п╣ п©п╬п╢я─п╬п╠п╫п╬я│я┌п╦ я│п╪. п╡ 
 <a href="http://www.w3.org/Graphics/GIF/spec-gif89a.txt" target="_top">GIF89a
-спецификациях</a>.
-</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="containers.html">Пред.</a> </td><td width="20%" align="center"><a accesskey="u" href="containers.html">Уровень выше</a></td><td width="40%" align="right"> <a accesskey="n" href="audio-formats.html">След.</a></td></tr><tr><td width="40%" align="left" valign="top">Глава 6. Поддерживаемые форматы </td><td width="20%" align="center"><a accesskey="h" href="index.html">Начало</a></td><td width="40%" align="right" valign="top"> 6.2. Аудио форматы</td></tr></table></div></body></html>
+я│п©п╣я├п╦я└п╦п╨п╟я├п╦я▐я┘</a>.
+</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="containers.html">п÷я─п╣п╢.</a>б═</td><td width="20%" align="center"><a accesskey="u" href="containers.html">пёя─п╬п╡п╣п╫я▄ п╡я▀я┬п╣</a></td><td width="40%" align="right">б═<a accesskey="n" href="audio-formats.html">п║п╩п╣п╢.</a></td></tr><tr><td width="40%" align="left" valign="top">п⌠п╩п╟п╡п╟ 6. п÷п╬п╢п╢п╣я─п╤п╦п╡п╟п╣п╪я▀п╣ я└п╬я─п╪п╟я┌я▀б═</td><td width="20%" align="center"><a accesskey="h" href="index.html">п²п╟я┤п╟п╩п╬</a></td><td width="40%" align="right" valign="top">б═6.2. п░я┐п╢п╦п╬ я└п╬я─п╪п╟я┌я▀</td></tr></table></div></body></html>

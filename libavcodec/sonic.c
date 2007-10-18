@@ -601,7 +601,7 @@ static int sonic_encode_init(AVCodecContext *avctx)
 
     avctx->coded_frame = avcodec_alloc_frame();
     if (!avctx->coded_frame)
-        return -ENOMEM;
+        return AVERROR(ENOMEM);
     avctx->coded_frame->key_frame = 1;
     avctx->frame_size = s->block_align*s->downsampling;
 
@@ -926,14 +926,7 @@ static int sonic_decode_frame(AVCodecContext *avctx,
 
     // internal -> short
     for (i = 0; i < s->frame_size; i++)
-    {
-        if (s->int_samples[i] > 32767)
-            samples[i] = 32767;
-        else if (s->int_samples[i] < -32768)
-            samples[i] = -32768;
-        else
-            samples[i] = s->int_samples[i];
-    }
+        samples[i] = av_clip_int16(s->int_samples[i]);
 
     align_get_bits(&gb);
 

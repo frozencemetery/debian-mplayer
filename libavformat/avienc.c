@@ -1,5 +1,5 @@
 /*
- * AVI encoder.
+ * AVI muxer
  * Copyright (c) 2000 Fabrice Bellard.
  *
  * This file is part of FFmpeg.
@@ -163,7 +163,7 @@ static int avi_write_header(AVFormatContext *s)
     nb_frames = 0;
 
     if(video_enc){
-        put_le32(pb, (uint32_t)(int64_t_C(1000000) * video_enc->time_base.num / video_enc->time_base.den));
+        put_le32(pb, (uint32_t)(INT64_C(1000000) * video_enc->time_base.num / video_enc->time_base.den));
     } else {
         put_le32(pb, 0);
     }
@@ -196,11 +196,6 @@ static int avi_write_header(AVFormatContext *s)
         put_tag(pb, "strl");
 
         stream = s->streams[i]->codec;
-
-        /* FourCC should really be set by the codec itself */
-        if (! stream->codec_tag) {
-            stream->codec_tag = codec_get_bmp_tag(stream->codec_id);
-        }
 
         /* stream generic header */
         strh = start_tag(pb, "strh");
@@ -447,7 +442,7 @@ static int avi_write_packet(AVFormatContext *s, AVPacket *pkt)
     AVCodecContext *enc= s->streams[stream_index]->codec;
     int size= pkt->size;
 
-//    av_log(s, AV_LOG_DEBUG, "%lld %d %d\n", pkt->dts, avi->packet_count[stream_index], stream_index);
+//    av_log(s, AV_LOG_DEBUG, "%"PRId64" %d %d\n", pkt->dts, avi->packet_count[stream_index], stream_index);
     while(enc->block_align==0 && pkt->dts != AV_NOPTS_VALUE && pkt->dts > avi->packet_count[stream_index]){
         AVPacket empty_packet;
 
@@ -456,7 +451,7 @@ static int avi_write_packet(AVFormatContext *s, AVPacket *pkt)
         empty_packet.data= NULL;
         empty_packet.stream_index= stream_index;
         avi_write_packet(s, &empty_packet);
-//        av_log(s, AV_LOG_DEBUG, "dup %lld %d\n", pkt->dts, avi->packet_count[stream_index]);
+//        av_log(s, AV_LOG_DEBUG, "dup %"PRId64" %d\n", pkt->dts, avi->packet_count[stream_index]);
     }
     avi->packet_count[stream_index]++;
 
@@ -519,38 +514,37 @@ static int avi_write_trailer(AVFormatContext *s)
     int i, j, n, nb_frames;
     offset_t file_size;
 
-    if (!url_is_streamed(pb))
-    {
-    if (avi->riff_id == 1) {
-        end_tag(pb, avi->movi_list);
-        res = avi_write_idx1(s);
-        end_tag(pb, avi->riff_start);
-    } else {
-        avi_write_ix(s);
-        end_tag(pb, avi->movi_list);
-        end_tag(pb, avi->riff_start);
+    if (!url_is_streamed(pb)){
+        if (avi->riff_id == 1) {
+            end_tag(pb, avi->movi_list);
+            res = avi_write_idx1(s);
+            end_tag(pb, avi->riff_start);
+        } else {
+            avi_write_ix(s);
+            end_tag(pb, avi->movi_list);
+            end_tag(pb, avi->riff_start);
 
-        file_size = url_ftell(pb);
-        url_fseek(pb, avi->odml_list - 8, SEEK_SET);
-        put_tag(pb, "LIST"); /* Making this AVI OpenDML one */
-        url_fskip(pb, 16);
+            file_size = url_ftell(pb);
+            url_fseek(pb, avi->odml_list - 8, SEEK_SET);
+            put_tag(pb, "LIST"); /* Making this AVI OpenDML one */
+            url_fskip(pb, 16);
 
-        for (n=nb_frames=0;n<s->nb_streams;n++) {
-             AVCodecContext *stream = s->streams[n]->codec;
-             if (stream->codec_type == CODEC_TYPE_VIDEO) {
-                 if (nb_frames < avi->packet_count[n])
-                     nb_frames = avi->packet_count[n];
-             } else {
-                 if (stream->codec_id == CODEC_ID_MP2 || stream->codec_id == CODEC_ID_MP3) {
-                     nb_frames += avi->packet_count[n];
+            for (n=nb_frames=0;n<s->nb_streams;n++) {
+                AVCodecContext *stream = s->streams[n]->codec;
+                if (stream->codec_type == CODEC_TYPE_VIDEO) {
+                    if (nb_frames < avi->packet_count[n])
+                        nb_frames = avi->packet_count[n];
+                } else {
+                    if (stream->codec_id == CODEC_ID_MP2 || stream->codec_id == CODEC_ID_MP3) {
+                        nb_frames += avi->packet_count[n];
+                    }
                 }
             }
-        }
-        put_le32(pb, nb_frames);
-        url_fseek(pb, file_size, SEEK_SET);
+            put_le32(pb, nb_frames);
+            url_fseek(pb, file_size, SEEK_SET);
 
-        avi_write_counters(s, avi->riff_id);
-    }
+            avi_write_counters(s, avi->riff_id);
+        }
     }
     put_flush_packet(pb);
 
@@ -576,5 +570,6 @@ AVOutputFormat avi_muxer = {
     avi_write_header,
     avi_write_packet,
     avi_write_trailer,
+    .codec_tag= (const AVCodecTag*[]){codec_bmp_tags, codec_wav_tags, 0},
 };
 #endif //CONFIG_AVI_MUXER

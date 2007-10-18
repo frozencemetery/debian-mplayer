@@ -58,7 +58,6 @@ static agp_memory *agp_mem = NULL;
 static __initdata int tdfx_map_io = 1;
 static __initdata unsigned long map_start = 0; //0x7300000;
 static __initdata unsigned long map_max = (10*1024*1024);
-static unsigned long map_base = 0;
 
 MODULE_PARM(tdfx_map_io,"i");
 MODULE_PARM_DESC(tdfx_map_io, "Set to 0 to use the page fault handler (you need to patch agpgart_be.c to allow the mapping in user space)\n");
@@ -682,8 +681,8 @@ static int tdfx_vid_set_overlay(unsigned long arg) {
 static int tdfx_vid_overlay_on(void) {
   uint32_t vidcfg = tdfx_inl(VIDPROCCFG);
   //return 0;
-  if(vidcfg & (1<<8)) { // Overlay is alredy on
-    //printk(KERN_DEBUG "tdfx_vid: Overlay is alredy on\n");
+  if(vidcfg & (1<<8)) { // Overlay is already on
+    //printk(KERN_DEBUG "tdfx_vid: Overlay is already on.\n");
     return (-EFAULT); 
   }
   vidcfg |= (1<<8);
@@ -700,7 +699,7 @@ static int tdfx_vid_overlay_off(void) {
     return 0;
   }
 
-  printk(KERN_DEBUG "tdfx_vid: Overlay is alredy off\n");
+  printk(KERN_DEBUG "tdfx_vid: Overlay is already off.\n");
   return (-EFAULT); 
 }
 

@@ -17,14 +17,10 @@
 #include "rational.h"
 #endif
 
-#define CHANS 6
-
-int64_t ff_gcd(int64_t a, int64_t b);
-
 // Data for specific instances of this filter
 typedef struct af_resample_s{
     struct AVResampleContext *avrctx;
-    int16_t *in[CHANS];
+    int16_t *in[AF_NCH];
     int in_alloc;
     int index;
     
@@ -48,7 +44,7 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
         return AF_DETACH;
 
     af->data->nch    = data->nch;
-    if (af->data->nch > CHANS) af->data->nch = CHANS;
+    if (af->data->nch > AF_NCH) af->data->nch = AF_NCH;
     af->data->format = AF_FORMAT_S16_NE;
     af->data->bps    = 2;
     af->mul.n = af->data->rate;
@@ -66,8 +62,9 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
     af->data->rate = out_rate;
     return test_output_res;
   case AF_CONTROL_COMMAND_LINE:{
+    s->cutoff= 0.0;
     sscanf((char*)arg,"%d:%d:%d:%d:%lf", &af->data->rate, &s->filter_length, &s->linear, &s->phase_shift, &s->cutoff);
-    if(s->cutoff <= 0.0) s->cutoff= max(1.0 - 1.0/s->filter_length, 0.80);
+    if(s->cutoff <= 0.0) s->cutoff= max(1.0 - 6.5/(s->filter_length+8), 0.80);
     return AF_OK;
   }
   case AF_CONTROL_RESAMPLE_RATE | AF_CONTROL_SET:
@@ -81,10 +78,14 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
 static void uninit(struct af_instance_s* af)
 {
     if(af->data)
-        free(af->data);
+        free(af->data->audio);
+    free(af->data);
     if(af->setup){
+        int i;
         af_resample_t *s = af->setup;
         if(s->avrctx) av_resample_close(s->avrctx);
+        for (i=0; i < AF_NCH; i++)
+            free(s->in[i]);
         free(s);
     }
 }
@@ -99,7 +100,7 @@ static af_data_t* play(struct af_instance_s* af, af_data_t* data)
   int chans   = data->nch;
   int in_len  = data->len/(2*chans);
   int out_len = (in_len*af->mul.n) / af->mul.d + 10;
-  int16_t tmp[CHANS][out_len];
+  int16_t tmp[AF_NCH][out_len];
     
   if(AF_OK != RESIZE_LOCAL_BUFFER(af,data))
       return NULL;
@@ -111,7 +112,7 @@ static af_data_t* play(struct af_instance_s* af, af_data_t* data)
   if(s->in_alloc < in_len + s->index){
       s->in_alloc= in_len + s->index;
       for(i=0; i<chans; i++){
-          s->in[i]= realloc(s->in[i], s->in_alloc*sizeof(int16_t)); //FIXME free this maybe ;)
+          s->in[i]= realloc(s->in[i], s->in_alloc*sizeof(int16_t));
       }
   }
 
@@ -162,7 +163,7 @@ static af_data_t* play(struct af_instance_s* af, af_data_t* data)
   return data;
 }
 
-static int open(af_instance_t* af){
+static int af_open(af_instance_t* af){
   af_resample_t *s = calloc(1,sizeof(af_resample_t));
   af->control=control;
   af->uninit=uninit;
@@ -171,7 +172,7 @@ static int open(af_instance_t* af){
   af->mul.d=1;
   af->data=calloc(1,sizeof(af_data_t));
   s->filter_length= 16;
-  s->cutoff= max(1.0 - 1.0/s->filter_length, 0.80);
+  s->cutoff= max(1.0 - 6.5/(s->filter_length+8), 0.80);
   s->phase_shift= 10;
 //  s->setup = RSMP_INT | FREQ_SLOPPY;
   af->setup=s;
@@ -184,5 +185,5 @@ af_info_t af_info_lavcresample = {
   "Michael Niedermayer",
   "",
   AF_FLAGS_REENTRANT,
-  open
+  af_open
 };

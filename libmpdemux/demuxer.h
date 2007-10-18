@@ -1,5 +1,5 @@
-#ifndef __DEMUXER_H
-#define __DEMUXER_H 1
+#ifndef DEMUXER_H
+#define DEMUXER_H
 
 #ifdef USE_ASS
 #include "libass/ass_types.h"
@@ -55,11 +55,12 @@
 #define DEMUXER_TYPE_MPEG_PES 41
 #define DEMUXER_TYPE_MPEG_GXF 42
 #define DEMUXER_TYPE_NUT 43
+#define DEMUXER_TYPE_LAVF_PREFERRED 44
 
 // This should always match the higest demuxer type number.
 // Unless you want to disallow users to force the demuxer to some types
 #define DEMUXER_TYPE_MIN 0
-#define DEMUXER_TYPE_MAX 43
+#define DEMUXER_TYPE_MAX 44
 
 #define DEMUXER_TYPE_DEMUXERS (1<<16)
 // A virtual demuxer type for the network code
@@ -77,11 +78,16 @@
 #define DEMUXER_CTRL_GET_TIME_LENGTH 10
 #define DEMUXER_CTRL_GET_PERCENT_POS 11
 #define DEMUXER_CTRL_SWITCH_AUDIO 12
+#define DEMUXER_CTRL_RESYNC 13
+#define DEMUXER_CTRL_SWITCH_VIDEO 14
+#define DEMUXER_CTRL_IDENTIFY_PROGRAM 15
 
 // Holds one packet/frame/whatever
 typedef struct demux_packet_st {
   int len;
   double pts;
+  double endpts;
+  double stream_pts;
   off_t pos;  // position in index (AVI) or file (MPG)
   unsigned char* buffer;
   int flags; // keyframe, etc
@@ -126,21 +132,9 @@ typedef struct demuxer_info_st {
   char *copyright;
 } demuxer_info_t;
 
-typedef struct {
-  char type;                    // t = text, v = VobSub, a = SSA/ASS
-  int has_palette;              // If we have a valid palette
-  unsigned int palette[16];     // for VobSubs
-  int width, height;            // for VobSubs
-  int custom_colors;
-  unsigned int colors[4];
-  int forced_subs_only;
-#ifdef USE_ASS
-  ass_track_t* ass_track;  // for SSA/ASS streams (type == 'a')
-#endif
-} sh_sub_t;
-
 #define MAX_A_STREAMS 256
 #define MAX_V_STREAMS 256
+#define MAX_S_STREAMS 32
 
 struct demuxer_st;
 
@@ -185,6 +179,7 @@ typedef struct demuxer_st {
   off_t movi_start;
   off_t movi_end;
   stream_t *stream;
+  double stream_pts;       // current stream pts, if applicable (e.g. dvd)
   char *filename; ///< Needed by avs_check_file
   int synced;  // stream synced (used by mpeg)
   int type;    // demuxer type: mpeg PS, mpeg ES, avi, avi-ni, avi-nini, asf
@@ -198,7 +193,7 @@ typedef struct demuxer_st {
   // stream headers:
   void* a_streams[MAX_A_STREAMS]; // audio streams (sh_audio_t)
   void* v_streams[MAX_V_STREAMS]; // video sterams (sh_video_t)
-  char s_streams[32];   // dvd subtitles (flag)
+  void *s_streams[MAX_S_STREAMS];   // dvd subtitles (flag)
 
   demux_chapter_t* chapters;
   int num_chapters;
@@ -207,13 +202,20 @@ typedef struct demuxer_st {
   char** info;
 } demuxer_t;
 
-inline static demux_packet_t* new_demux_packet(int len){
+typedef struct {
+  int progid;        //program id
+  int aid, vid, sid; //audio, video and subtitle id
+} demux_program_t;
+
+static inline demux_packet_t* new_demux_packet(int len){
   demux_packet_t* dp=(demux_packet_t*)malloc(sizeof(demux_packet_t));
   dp->len=len;
   dp->next=NULL;
   // still using 0 by default in case there is some code that uses 0 for both
   // unknown and a valid pts value
   dp->pts=correct_pts ? MP_NOPTS_VALUE : 0;
+  dp->endpts=MP_NOPTS_VALUE;
+  dp->stream_pts = MP_NOPTS_VALUE;
   dp->pos=0;
   dp->flags=0;
   dp->refcount=1;
@@ -226,7 +228,7 @@ inline static demux_packet_t* new_demux_packet(int len){
   return dp;
 }
 
-inline static void resize_demux_packet(demux_packet_t* dp, int len)
+static inline void resize_demux_packet(demux_packet_t* dp, int len)
 {
   if(len > 0)
   {
@@ -244,7 +246,7 @@ inline static void resize_demux_packet(demux_packet_t* dp, int len)
      dp->len = 0;
 }
 
-inline static demux_packet_t* clone_demux_packet(demux_packet_t* pack){
+static inline demux_packet_t* clone_demux_packet(demux_packet_t* pack){
   demux_packet_t* dp=(demux_packet_t*)malloc(sizeof(demux_packet_t));
   while(pack->master) pack=pack->master; // find the master
   memcpy(dp,pack,sizeof(demux_packet_t));
@@ -255,7 +257,7 @@ inline static demux_packet_t* clone_demux_packet(demux_packet_t* pack){
   return dp;
 }
 
-inline static void free_demux_packet(demux_packet_t* dp){
+static inline void free_demux_packet(demux_packet_t* dp){
   if (dp->master==NULL){  //dp is a master packet
     dp->refcount--;
     if (dp->refcount==0){
@@ -273,7 +275,7 @@ inline static void free_demux_packet(demux_packet_t* dp){
 #define SIZE_MAX ((size_t)-1)
 #endif
 
-static void *realloc_struct(void *ptr, size_t nmemb, size_t size) {
+static inline void *realloc_struct(void *ptr, size_t nmemb, size_t size) {
   if (nmemb > SIZE_MAX / size) {
     free(ptr);
     return NULL;
@@ -292,11 +294,11 @@ void ds_read_packet(demux_stream_t *ds, stream_t *stream, int len, double pts, o
 int demux_fill_buffer(demuxer_t *demux,demux_stream_t *ds);
 int ds_fill_buffer(demux_stream_t *ds);
 
-inline static off_t ds_tell(demux_stream_t *ds){
+static inline off_t ds_tell(demux_stream_t *ds){
   return (ds->dpos-ds->buffer_size)+ds->buffer_pos;
 }
 
-inline static int ds_tell_pts(demux_stream_t *ds){
+static inline int ds_tell_pts(demux_stream_t *ds){
   return (ds->pts_bytes-ds->buffer_size)+ds->buffer_pos;
 }
 
@@ -313,7 +315,7 @@ int demux_pattern_3(demux_stream_t *ds, unsigned char *mem, int maxlen,
      (likely(ds->buffer_pos<ds->buffer_size)) ? ds->buffer[ds->buffer_pos++] \
      :((unlikely(!ds_fill_buffer(ds)))? (-1) : ds->buffer[ds->buffer_pos++] ) )
 #else
-inline static int demux_getc(demux_stream_t *ds){
+static inline int demux_getc(demux_stream_t *ds){
   if(ds->buffer_pos>=ds->buffer_size){
     if(!ds_fill_buffer(ds)){
 //      printf("DEMUX_GETC: EOF reached!\n");
@@ -359,7 +361,7 @@ extern int pts_from_bps;
 extern int extension_parsing;
 
 int demux_info_add(demuxer_t *demuxer, const char *opt, const char *param);
-char* demux_info_get(demuxer_t *demuxer, char *opt);
+char* demux_info_get(demuxer_t *demuxer, const char *opt);
 int demux_info_print(demuxer_t *demuxer);
 int demux_control(demuxer_t *demuxer, int cmd, void *arg);
 
@@ -370,11 +372,11 @@ int demux_ogg_sub_id(demuxer_t *demuxer, int index);
 char *demux_ogg_sub_lang(demuxer_t *demuxer, int index);
 #endif
 
-#endif
-
+extern int demuxer_get_current_time(demuxer_t *demuxer);
 extern double demuxer_get_time_length(demuxer_t *demuxer);
 extern int demuxer_get_percent_pos(demuxer_t *demuxer);
 extern int demuxer_switch_audio(demuxer_t *demuxer, int index);
+extern int demuxer_switch_video(demuxer_t *demuxer, int index);
 
 extern int demuxer_type_by_filename(char* filename);
 
@@ -384,3 +386,5 @@ extern int get_demuxer_type_from_name(char *demuxer_name, int *force);
 int demuxer_add_chapter(demuxer_t* demuxer, const char* name, uint64_t start, uint64_t end);
 int demuxer_seek_chapter(demuxer_t *demuxer, int chapter, int mode, float *seek_pts, int *num_chapters, char **chapter_name);
 
+
+#endif /* DEMUXER_H */

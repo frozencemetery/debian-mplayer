@@ -15,10 +15,9 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *   
- *  You should have received a copy of the GNU General Public License
- *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
- *
+ *  You should have received a copy of the GNU General Public License along
+ *  with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <stdio.h>
@@ -150,7 +149,7 @@ flip_page(void)
   printf("Flip\n");
 #endif
   if(use_overlay) {
-    // TDFX_VID_OVERLAY_ON does nothing if the overlay is alredy on
+    // TDFX_VID_OVERLAY_ON does nothing if the overlay is already on
     if(!ioctl(tdfx_fd,TDFX_VID_OVERLAY_ON)) { // X11 killed the overlay :(
       if(ioctl(tdfx_fd,TDFX_VID_SET_OVERLAY,&tdfx_ov))
 	mp_msg(MSGT_VO, MSGL_ERR, "tdfx_vid: set_overlay failed\n");
@@ -495,7 +494,6 @@ static uint32_t draw_image(mp_image_t *mpi){
   tdfx_vid_yuv_t yuv;
   int p;
   uint8_t* planes[3];
-  int stride[3];
 
 #ifdef VERBOSE
   printf("Draw image %d\n",buf);

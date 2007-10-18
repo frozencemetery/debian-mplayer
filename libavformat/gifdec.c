@@ -1,5 +1,5 @@
 /*
- * GIF decoder
+ * GIF demuxer
  * Copyright (c) 2003 Fabrice Bellard.
  *
  * This file is part of FFmpeg.
@@ -19,8 +19,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 #include "avformat.h"
-
-int gif_write(ByteIOContext *pb, AVImageInfo *info);
 
 //#define DEBUG
 
@@ -143,17 +141,6 @@ static int gif_video_probe(AVProbeData * pd)
     }
     return 0;
 }
-
-static int gif_image_probe(AVProbeData * pd)
-{
-    if (pd->buf_size >= 24 &&
-        (memcmp(pd->buf, gif87a_sig, 6) == 0 ||
-         memcmp(pd->buf, gif89a_sig, 6) == 0))
-        return AVPROBE_SCORE_MAX - 1;
-    else
-        return 0;
-}
-
 
 static void GLZWDecodeInit(GifState * s, int csize)
 {
@@ -318,13 +305,13 @@ static int gif_read_image(GifState *s)
     /* verify that all the image is inside the screen dimensions */
     if (left + width > s->screen_width ||
         top + height > s->screen_height)
-        return -EINVAL;
+        return AVERROR(EINVAL);
 
     /* build the palette */
     if (s->pix_fmt == PIX_FMT_RGB24) {
         line = av_malloc(width);
         if (!line)
-            return -ENOMEM;
+            return AVERROR(ENOMEM);
     } else {
         n = (1 << bits_per_pixel);
         spal = palette;
@@ -513,21 +500,21 @@ static int gif_parse_next_image(GifState *s)
         switch (code) {
         case ',':
             if (gif_read_image(s) < 0)
-                return AVERROR_IO;
+                return AVERROR(EIO);
             ret = 0;
             goto the_end;
         case ';':
             /* end of image */
-            ret = AVERROR_IO;
+            ret = AVERROR(EIO);
             goto the_end;
         case '!':
             if (gif_read_extension(s) < 0)
-                return AVERROR_IO;
+                return AVERROR(EIO);
             break;
         case EOF:
         default:
             /* error or errneous EOF */
-            ret = AVERROR_IO;
+            ret = AVERROR(EIO);
             goto the_end;
         }
     }
@@ -550,7 +537,7 @@ static int gif_read_header(AVFormatContext * s1,
     s->image_linesize = s->screen_width * 3;
     s->image_buf = av_malloc(s->screen_height * s->image_linesize);
     if (!s->image_buf)
-        return -ENOMEM;
+        return AVERROR(ENOMEM);
     s->pix_fmt = PIX_FMT_RGB24;
     /* now we are ready: build format streams */
     st = av_new_stream(s1, 0);
@@ -580,7 +567,7 @@ static int gif_read_packet(AVFormatContext * s1,
 
     /* XXX: avoid copying */
     if (av_new_packet(pkt, s->screen_width * s->screen_height * 3)) {
-        return AVERROR_IO;
+        return AVERROR(EIO);
     }
     pkt->stream_index = 0;
     memcpy(pkt->data, s->image_buf, s->screen_width * s->screen_height * 3);
@@ -594,33 +581,6 @@ static int gif_read_close(AVFormatContext *s1)
     return 0;
 }
 
-/* read gif as image */
-static int gif_read(ByteIOContext *f,
-                    int (*alloc_cb)(void *opaque, AVImageInfo *info), void *opaque)
-{
-    GifState s1, *s = &s1;
-    AVImageInfo info1, *info = &info1;
-    int ret;
-
-    memset(s, 0, sizeof(GifState));
-    s->f = f;
-    if (gif_read_header1(s) < 0)
-        return -1;
-    info->width = s->screen_width;
-    info->height = s->screen_height;
-    info->pix_fmt = PIX_FMT_PAL8;
-    ret = alloc_cb(opaque, info);
-    if (ret)
-        return ret;
-    s->image_buf = info->pict.data[0];
-    s->image_linesize = info->pict.linesize[0];
-    s->image_palette = (uint32_t *)info->pict.data[1];
-
-    if (gif_parse_next_image(s) < 0)
-        return -1;
-    return 0;
-}
-
 AVInputFormat gif_demuxer =
 {
     "gif",
@@ -630,15 +590,4 @@ AVInputFormat gif_demuxer =
     gif_read_header,
     gif_read_packet,
     gif_read_close,
-};
-
-AVImageFormat gif_image_format = {
-    "gif",
-    "gif",
-    gif_image_probe,
-    gif_read,
-    (1 << PIX_FMT_PAL8),
-#ifdef CONFIG_GIF_MUXER
-    gif_write,
-#endif
 };

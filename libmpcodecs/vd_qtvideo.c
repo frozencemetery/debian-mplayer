@@ -1,15 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 #include "config.h"
 
-#include "wine/windef.h"
+#ifdef MACOSX
+#include <QuickTime/ImageCodec.h>
+#define dump_ImageDescription(x)
+#endif
+
+#include "loader/wine/windef.h"
 
 #include "mp_msg.h"
 #include "vd_internal.h"
 
 #ifdef WIN32_LOADER
-#include "ldt_keeper.h"
+#include "loader/ldt_keeper.h"
 #endif
 
 static vd_info_t info = {
@@ -24,12 +30,9 @@ LIBVD_EXTERN(qtvideo)
 
 #include "bswap.h"
 
-#ifdef MACOSX
-#include <QuickTime/ImageCodec.h>
-#define dump_ImageDescription(x)
-#else
-#include "qtx/qtxsdk/components.h"
-//#include "wine/windef.h"
+#ifndef MACOSX
+#include "loader/qtx/qtxsdk/components.h"
+
 HMODULE   WINAPI LoadLibraryA(LPCSTR);
 FARPROC   WINAPI GetProcAddress(HMODULE,LPCSTR);
 int       WINAPI FreeLibrary(HMODULE);

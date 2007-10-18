@@ -23,15 +23,15 @@ Video codecs: (supported by RealPlayer8 for Linux)
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <inttypes.h>
 
 #include "config.h"
 #include "mp_msg.h"
 #include "help_mp.h"
 
-#include "stream.h"
+#include "stream/stream.h"
 #include "demuxer.h"
 #include "stheader.h"
-#include "bswap.h"
 
 #ifdef USE_LIBAVCODEC_SO
 #include <ffmpeg/avcodec.h>
@@ -112,6 +112,7 @@ typedef struct {
    /**
     * Used to reorder audio data
     */
+    unsigned int intl_id[MAX_STREAMS]; ///< interleaver id, per stream
     int sub_packet_size[MAX_STREAMS]; ///< sub packet size, per stream
     int sub_packet_h[MAX_STREAMS]; ///< number of coded frames per block
     int coded_framesize[MAX_STREAMS]; ///< coded frame size, per stream
@@ -519,7 +520,7 @@ static double real_fix_timestamp(real_priv_t* priv, unsigned char* s, unsigned i
     if(pict_type<=1){
       // I frame, sync timestamps:
       priv->kf_base=(int64_t)timestamp-kf;
-      mp_msg(MSGT_DEMUX, MSGL_DBG2,"\nTS: base=%08X\n",priv->kf_base);
+      mp_msg(MSGT_DEMUX, MSGL_DBG2,"\nTS: base=%08"PRIX64"\n",priv->kf_base);
       kf=timestamp;
     } else {
       // P/B frame, merge timestamps:
@@ -570,6 +571,10 @@ static int demux_real_fill_buffer(demuxer_t *demuxer, demux_stream_t *dsds)
     demux_packet_t *dp;
     int x, sps, cfs, sph, spc, w;
     int audioreorder_getnextpk = 0;
+
+  // Don't demux video if video codec init failed
+  if (demuxer->video->id >= 0 && !demuxer->video->sh)
+    demuxer->video->id = -2;
 
   while(!stream_eof(demuxer->stream)){
 
@@ -685,7 +690,8 @@ got_audio:
 		for (i = 0; i < sub_packets; i++) {
 		    demux_packet_t *dp = new_demux_packet(sub_packet_lengths[i]);
 		    stream_read(demuxer->stream, dp->buffer, sub_packet_lengths[i]);
-		    dp->pts = (priv->a_pts == timestamp) ? 0 : (timestamp / 1000.0f);
+		    if (priv->a_pts != timestamp)
+			dp->pts = timestamp / 1000.0;
 		    priv->a_pts = timestamp;
 		    dp->pos = demuxer->filepos;
 		    ds_add_packet(ds, dp);
@@ -693,22 +699,20 @@ got_audio:
 		free(sub_packet_lengths);
 		return 1;
 	    }
-        if ((((sh_audio_t*)ds->sh)->format == mmioFOURCC('2', '8', '_', '8')) ||
-            (((sh_audio_t*)ds->sh)->format == mmioFOURCC('c', 'o', 'o', 'k')) ||
-            (((sh_audio_t*)ds->sh)->format == mmioFOURCC('a', 't', 'r', 'c')) ||
-            (((sh_audio_t*)ds->sh)->format == mmioFOURCC('s', 'i', 'p', 'r'))) {
+        if ((priv->intl_id[stream_id] == mmioFOURCC('I', 'n', 't', '4')) ||
+            (priv->intl_id[stream_id] == mmioFOURCC('g', 'e', 'n', 'r')) ||
+            (priv->intl_id[stream_id] == mmioFOURCC('s', 'i', 'p', 'r'))) {
             sps = priv->sub_packet_size[stream_id];
             sph = priv->sub_packet_h[stream_id];
             cfs = priv->coded_framesize[stream_id];
             w = priv->audiopk_size[stream_id];
             spc = priv->sub_packet_cnt;
-            switch (((sh_audio_t*)ds->sh)->format) {
-                case mmioFOURCC('2', '8', '_', '8'):
+            switch (priv->intl_id[stream_id]) {
+                case mmioFOURCC('I', 'n', 't', '4'):
                     for (x = 0; x < sph / 2; x++)
                         stream_read(demuxer->stream, priv->audio_buf + x * 2 * w + spc * cfs, cfs);
                     break;
-                case mmioFOURCC('c', 'o', 'o', 'k'):
-                case mmioFOURCC('a', 't', 'r', 'c'):
+                case mmioFOURCC('g', 'e', 'n', 'r'):
                     for (x = 0; x < w / sps; x++)
                         stream_read(demuxer->stream, priv->audio_buf + sps * (sph * x + ((sph + 1) / 2) * (spc & 1) +
                                     (spc >> 1)), sps);
@@ -742,7 +746,7 @@ got_audio:
                     break;
             }
             priv->audio_need_keyframe = 0;
-            priv->audio_timestamp[priv->sub_packet_cnt] = (priv->a_pts==timestamp) ? 0 : (timestamp/1000.0f);
+            priv->audio_timestamp[priv->sub_packet_cnt] = (priv->a_pts==timestamp) ? (correct_pts ? MP_NOPTS_VALUE : 0) : (timestamp/1000.0);
             priv->a_pts = timestamp;
             if (priv->sub_packet_cnt == 0)
                 priv->audio_filepos = demuxer->filepos;
@@ -757,13 +761,14 @@ got_audio:
                     dp = new_demux_packet(apk_usize);
                     memcpy(dp->buffer, priv->audio_buf + x * apk_usize, apk_usize);
                     /* Put timestamp only on packets that correspond to original audio packets in file */
-                    dp->pts = (x * apk_usize % w) ? 0 : priv->audio_timestamp[x * apk_usize / w];
+		    if (x * apk_usize % w == 0)
+			dp->pts = priv->audio_timestamp[x * apk_usize / w];
                     dp->pos = priv->audio_filepos; // all equal
                     dp->flags = x ? 0 : 0x10; // Mark first packet as keyframe
                     ds_add_packet(ds, dp);
                 }
             }
-        } else { // Not a codec that require reordering
+        } else { // No interleaving
             dp = new_demux_packet(len);
             stream_read(demuxer->stream, dp->buffer, len);
 
@@ -799,10 +804,9 @@ got_audio:
 	    }
 #endif
 	    if (priv->audio_need_keyframe == 1) {
-	    	dp->pts = 0;
 		priv->audio_need_keyframe = 0;
-	    }else 
-	        dp->pts = (priv->a_pts==timestamp) ? 0 : (timestamp/1000.0f);
+	    } else if(priv->a_pts != timestamp)
+	        dp->pts = timestamp/1000.0;
 	    priv->a_pts=timestamp;
 	    dp->pos = demuxer->filepos;
 	    dp->flags = (flags & 0x2) ? 0x10 : 0;
@@ -923,12 +927,13 @@ got_video:
 			// this fragment is for new packet, close the old one
 			mp_msg(MSGT_DEMUX,MSGL_DBG2, "closing probably incomplete packet, len: %d  \n",dp->len);
 			if(priv->video_after_seek){
-			    dp->pts=timestamp;
 				priv->kf_base = 0;
 				priv->kf_pts = dp_hdr->timestamp;
+				dp->pts=
+				real_fix_timestamp(priv,dp_data,dp_hdr->timestamp,sh_video->frametime,sh_video->format);
 				priv->video_after_seek = 0;
-			} else 
-			dp->pts=(dp_hdr->len<3)?0:
+			} else if (dp_hdr->len >= 3)
+			    dp->pts =
 			    real_fix_timestamp(priv,dp_data,dp_hdr->timestamp,sh_video->frametime,sh_video->format);
 			ds_add_packet(ds,dp);
 			ds->asf_packet=NULL;
@@ -960,12 +965,13 @@ got_video:
  			    mp_dbg(MSGT_DEMUX,MSGL_DBG2, "fragment (%d bytes) appended, %d bytes left\n",vpkg_offset,len);
 			    // we know that this is the last fragment -> we can close the packet!
 			    if(priv->video_after_seek){
-			        dp->pts=timestamp;
 				    priv->kf_base = 0;
 				    priv->kf_pts = dp_hdr->timestamp;
+				    dp->pts=
+				    real_fix_timestamp(priv,dp_data,dp_hdr->timestamp,sh_video->frametime,sh_video->format);
 				    priv->video_after_seek = 0;
-			    } else 
-			    dp->pts=(dp_hdr->len<3)?0:
+			    } else if (dp_hdr->len >= 3)
+				dp->pts =
 				real_fix_timestamp(priv,dp_data,dp_hdr->timestamp,sh_video->frametime,sh_video->format);
 			    ds_add_packet(ds,dp);
 			    ds->asf_packet=NULL;
@@ -985,7 +991,6 @@ got_video:
 		// create new packet!
 		dp = new_demux_packet(sizeof(dp_hdr_t)+vpkg_length+8*(1+2*(vpkg_header&0x3F)));
 	    	// the timestamp seems to be in milliseconds
-		dp->pts = 0; // timestamp/1000.0f; //timestamp=0;
                 dp->pos = demuxer->filepos;
                 dp->flags = (flags & 0x2) ? 0x10 : 0;
 		ds->asf_seq = vpkg_seqnum;
@@ -1002,6 +1007,13 @@ got_video:
 		    stream_read(demuxer->stream, dp_data, len);
 		    ds->asf_packet=dp;
 		    len=0;
+		    if(priv->video_after_seek){
+		        priv->kf_base = 0;
+		        priv->kf_pts = dp_hdr->timestamp;
+		        dp->pts=
+		        real_fix_timestamp(priv,dp_data,dp_hdr->timestamp,sh_video->frametime,sh_video->format);
+		        priv->video_after_seek = 0;
+		    }
 		    break;
 		}
 		// whole packet (not fragmented):
@@ -1017,12 +1029,13 @@ got_video:
 		dp_hdr->len=vpkg_length; len-=vpkg_length;
 		stream_read(demuxer->stream, dp_data, vpkg_length);
 		if(priv->video_after_seek){
-		    dp->pts=timestamp;
 			priv->kf_base = 0;
 			priv->kf_pts = dp_hdr->timestamp;
+			dp->pts=
+			real_fix_timestamp(priv,dp_data,dp_hdr->timestamp,sh_video->frametime,sh_video->format);
 			priv->video_after_seek = 0;
-		} else 
-		dp->pts=(dp_hdr->len<3)?0:
+		} else if (dp_hdr->len >= 3)
+		    dp->pts =
 		    real_fix_timestamp(priv,dp_data,dp_hdr->timestamp,sh_video->frametime,sh_video->format);
 		ds_add_packet(ds,dp);
 
@@ -1270,7 +1283,7 @@ static demuxer_t* demux_open_real(demuxer_t* demuxer)
 		    int i;
 		    char *buft;
 		    int hdr_size;
-		    
+		    mp_msg(MSGT_DEMUX, MSGL_INFO, MSGTR_AudioID, "real", stream_id);
 		    mp_msg(MSGT_DEMUX,MSGL_V,"Found audio stream!\n");
 		    version = stream_read_word(demuxer->stream);
 		    mp_msg(MSGT_DEMUX,MSGL_V,"version: %d\n", version);
@@ -1352,15 +1365,17 @@ static demuxer_t* demux_open_real(demuxer_t* demuxer)
 
 		    if (version == 5)
 		    {
-			stream_skip(demuxer->stream, 4);  // "genr"
+			stream_read(demuxer->stream, buf, 4);  // interleaver id
+			priv->intl_id[stream_id] = MKTAG(buf[0], buf[1], buf[2], buf[3]);
 			stream_read(demuxer->stream, buf, 4); // fourcc
 			buf[4] = 0;
 		    }
 		    else
 		    {		
-			/* Desc #1 */
-			skip_str(1, demuxer);
-			/* Desc #2 */
+			/* Interleaver id */
+			get_str(1, demuxer, buf, sizeof(buf));
+			priv->intl_id[stream_id] = MKTAG(buf[0], buf[1], buf[2], buf[3]);
+			/* Codec FourCC */
 			get_str(1, demuxer, buf, sizeof(buf));
 		    }
                    }
@@ -1388,10 +1403,6 @@ static demuxer_t* demux_open_real(demuxer_t* demuxer)
 
 			case MKTAG('2', '8', '_', '8'):
 			    sh->wf->nBlockAlign = coded_frame_size;
-			    priv->sub_packet_size[stream_id] = sub_packet_size;
-			    priv->sub_packet_h[stream_id] = sub_packet_h;
-			    priv->coded_framesize[stream_id] = coded_frame_size;
-			    priv->audiopk_size[stream_id] = frame_size;
 			    break;
 
 			case MKTAG('s', 'i', 'p', 'r'):
@@ -1410,16 +1421,11 @@ static demuxer_t* demux_open_real(demuxer_t* demuxer)
 			    sh->wf->cbSize = codecdata_length;
 			    sh->wf = realloc(sh->wf, sizeof(WAVEFORMATEX)+sh->wf->cbSize);
 			    stream_read(demuxer->stream, ((char*)(sh->wf+1)), codecdata_length); // extras
-                if ((sh->format == MKTAG('a', 't', 'r', 'c')) ||
-                    (sh->format == MKTAG('c', 'o', 'o', 'k')))
+                if (priv->intl_id[stream_id] == MKTAG('g', 'e', 'n', 'r'))
     			    sh->wf->nBlockAlign = sub_packet_size;
     			else
     			    sh->wf->nBlockAlign = coded_frame_size;
 
-			    priv->sub_packet_size[stream_id] = sub_packet_size;
-			    priv->sub_packet_h[stream_id] = sub_packet_h;
-			    priv->coded_framesize[stream_id] = coded_frame_size;
-			    priv->audiopk_size[stream_id] = frame_size;
 			    break;
 
 			case MKTAG('r', 'a', 'a', 'c'):
@@ -1442,6 +1448,12 @@ static demuxer_t* demux_open_real(demuxer_t* demuxer)
 			default:
 			    mp_msg(MSGT_DEMUX,MSGL_V,"Audio: Unknown (%s)\n", buf);
 		    }
+
+		    // Interleaver setup
+		    priv->sub_packet_size[stream_id] = sub_packet_size;
+		    priv->sub_packet_h[stream_id] = sub_packet_h;
+		    priv->coded_framesize[stream_id] = coded_frame_size;
+		    priv->audiopk_size[stream_id] = frame_size;
 
 		    sh->wf->wFormatTag = sh->format;
 		    
@@ -1472,6 +1484,7 @@ static demuxer_t* demux_open_real(demuxer_t* demuxer)
 		}
 	  } else if (strstr(mimet,"X-MP3-draft-00")) {
 		    sh_audio_t *sh = new_sh_audio(demuxer, stream_id);
+    		    mp_msg(MSGT_DEMUX, MSGL_INFO, MSGTR_AudioID, "real", stream_id);
 
 		    /* Emulate WAVEFORMATEX struct: */
 		    sh->wf = malloc(sizeof(WAVEFORMATEX));
@@ -1505,14 +1518,15 @@ static demuxer_t* demux_open_real(demuxer_t* demuxer)
 		} else {
 		    /* video header */
 		    sh_video_t *sh = new_sh_video(demuxer, stream_id);
+		    mp_msg(MSGT_DEMUX, MSGL_INFO, MSGTR_VideoID, "real", stream_id);
 
 		    sh->format = stream_read_dword_le(demuxer->stream); /* fourcc */
 		    mp_msg(MSGT_DEMUX,MSGL_V,"video fourcc: %.4s (%x)\n", (char *)&sh->format, sh->format);
 
 		    /* emulate BITMAPINFOHEADER */
-		    sh->bih = malloc(sizeof(BITMAPINFOHEADER)+16);
-		    memset(sh->bih, 0, sizeof(BITMAPINFOHEADER)+16);
-	    	    sh->bih->biSize = 48;
+		    sh->bih = malloc(sizeof(BITMAPINFOHEADER));
+		    memset(sh->bih, 0, sizeof(BITMAPINFOHEADER));
+	    	    sh->bih->biSize = sizeof(BITMAPINFOHEADER);
 		    sh->disp_w = sh->bih->biWidth = stream_read_word(demuxer->stream);
 		    sh->disp_h = sh->bih->biHeight = stream_read_word(demuxer->stream);
 		    sh->bih->biPlanes = 1;
@@ -1544,57 +1558,19 @@ static demuxer_t* demux_open_real(demuxer_t* demuxer)
 		    }
 		    stream_skip(demuxer->stream, 2);
 		    
-		    // read codec sub-format (to make difference between low and high rate codec)
-		    ((unsigned int*)(sh->bih+1))[0]=stream_read_dword(demuxer->stream);
-
-		    /* h263 hack */
-		    tmp = stream_read_dword(demuxer->stream);
-		    ((unsigned int*)(sh->bih+1))[1]=tmp;
-		    mp_msg(MSGT_DEMUX,MSGL_V,"H.263 ID: %x\n", tmp);
-		    switch (tmp)
 		    {
-			case 0x10000000:
-			    /* sub id: 0 */
-			    /* codec id: rv10 */
-			    break;
-			case 0x10003000:
-			case 0x10003001:
-			    /* sub id: 3 */
-			    /* codec id: rv10 */
-			    sh->bih->biCompression = sh->format = mmioFOURCC('R', 'V', '1', '3');
-			    break;
-			case 0x20001000:
-			case 0x20100001:
-			case 0x20200002:
-			    /* codec id: rv20 */
-			    break;
-			case 0x30202002:
-			    /* codec id: rv30 */
-			    break;
-			case 0x40000000:
-			    /* codec id: rv40 */
-			    break;
-			default:
-			    /* codec id: none */
-			    mp_msg(MSGT_DEMUX,MSGL_V,"unknown id: %x\n", tmp);
-		    }
-
-		    if((sh->format<=0x30335652) && (tmp>=0x20200002)){
-			    // read data for the cmsg24[] (see vd_realvid.c)
+			    // read and store codec extradata
 			    unsigned int cnt = codec_data_size - (stream_tell(demuxer->stream) - codec_pos);
-			    if (cnt < 2) {
-			        mp_msg(MSGT_DEMUX, MSGL_ERR,"realvid: cmsg24 data too short (size %u)\n", cnt);
+			    if (cnt > 0x7fffffff - sizeof(BITMAPINFOHEADER)) {
+			        mp_msg(MSGT_DEMUX, MSGL_ERR,"Extradata too big (%u)\n", cnt);
 			    } else  {
-			        int ii;
-			        if (cnt > 8) {
-			            mp_msg(MSGT_DEMUX, MSGL_WARN,"realvid: cmsg24 data too big, please report (size %u)\n", cnt);
-			            cnt = 8;
-			        }
-			        for (ii = 0; ii < cnt; ii++)
-			            ((unsigned char*)(sh->bih+1))[8+ii]=(unsigned short)stream_read_char(demuxer->stream);
+				sh->bih = realloc(sh->bih, sizeof(BITMAPINFOHEADER) + cnt);
 			        sh->bih->biSize += cnt;
+				stream_read(demuxer->stream, ((unsigned char*)(sh->bih+1)), cnt);
 			    }
 		    } 
+		    if(sh->format == 0x30315652 && ((unsigned char*)(sh->bih+1))[6] == 0x30)
+			    sh->bih->biCompression = sh->format = mmioFOURCC('R', 'V', '1', '3');
 		    
 		    /* Select video stream with highest bitrate if multirate file*/
 		    if (priv->is_multirate && ((demuxer->video->id == -1) ||
@@ -1841,6 +1817,8 @@ static void demux_seek_real(demuxer_t *demuxer, float rel_seek_secs, float audio
     if (flags & 1)
 	/* seek absolute */
 	priv->current_apacket = priv->current_vpacket = 0;
+    if (flags & 2) // percent seek
+        rel_seek_secs *= priv->duration;
 
     if ((streams & 1) && priv->current_vpacket >= priv->index_table_size[vid])
 	priv->current_vpacket = priv->index_table_size[vid] - 1;

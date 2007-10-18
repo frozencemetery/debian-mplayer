@@ -26,9 +26,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#ifndef M_PI
-#define M_PI    3.14159265358979323846
-#endif
+#include <inttypes.h>
 
 #ifdef HAVE_AV_CONFIG_H
 /* only include the following when compiling package */
@@ -39,42 +37,29 @@
 #    include <string.h>
 #    include <ctype.h>
 #    include <limits.h>
-#    ifndef __BEOS__
-#        include <errno.h>
-#    else
-#        include "berrno.h"
-#    endif
+#    include <errno.h>
 #    include <math.h>
 #endif /* HAVE_AV_CONFIG_H */
 
-/* Suppress restrict if it was not defined in config.h.  */
-#ifndef restrict
-#    define restrict
-#endif
-
-#ifndef always_inline
+#ifndef av_always_inline
 #if defined(__GNUC__) && (__GNUC__ > 3 || __GNUC__ == 3 && __GNUC_MINOR__ > 0)
-#    define always_inline __attribute__((always_inline)) inline
+#    define av_always_inline __attribute__((always_inline)) inline
 #else
-#    define always_inline inline
+#    define av_always_inline inline
 #endif
 #endif
 
-#ifndef attribute_used
+#ifndef av_noinline
 #if defined(__GNUC__) && (__GNUC__ > 3 || __GNUC__ == 3 && __GNUC_MINOR__ > 0)
-#    define attribute_used __attribute__((used))
+#    define av_noinline __attribute__((noinline))
 #else
-#    define attribute_used
+#    define av_noinline
 #endif
 #endif
 
-#ifndef attribute_unused
-#if defined(__GNUC__) && (__GNUC__ > 3 || __GNUC__ == 3 && __GNUC_MINOR__ > 0)
-#    define attribute_unused __attribute__((unused))
-#else
-#    define attribute_unused
-#endif
-#endif
+#ifdef HAVE_AV_CONFIG_H
+#    include "internal.h"
+#endif /* HAVE_AV_CONFIG_H */
 
 #ifndef attribute_deprecated
 #if defined(__GNUC__) && (__GNUC__ > 3 || __GNUC__ == 3 && __GNUC_MINOR__ > 0)
@@ -84,109 +69,15 @@
 #endif
 #endif
 
-#ifndef EMULATE_INTTYPES
-#   include <inttypes.h>
+#ifndef av_unused
+#if defined(__GNUC__)
+#    define av_unused __attribute__((unused))
 #else
-    typedef signed char  int8_t;
-    typedef signed short int16_t;
-    typedef signed int   int32_t;
-    typedef unsigned char  uint8_t;
-    typedef unsigned short uint16_t;
-    typedef unsigned int   uint32_t;
-    typedef signed long long   int64_t;
-    typedef unsigned long long uint64_t;
-#endif /* EMULATE_INTTYPES */
-
-#ifndef PRId64
-#define PRId64 "lld"
+#    define av_unused
+#endif
 #endif
 
-#ifndef PRIu64
-#define PRIu64 "llu"
-#endif
-
-#ifndef PRIx64
-#define PRIx64 "llx"
-#endif
-
-#ifndef PRId32
-#define PRId32 "d"
-#endif
-
-#ifndef PRIdFAST16
-#define PRIdFAST16 PRId32
-#endif
-
-#ifndef PRIdFAST32
-#define PRIdFAST32 PRId32
-#endif
-
-#ifndef INT16_MIN
-#define INT16_MIN       (-0x7fff-1)
-#endif
-
-#ifndef INT16_MAX
-#define INT16_MAX       0x7fff
-#endif
-
-#ifndef INT32_MIN
-#define INT32_MIN       (-0x7fffffff-1)
-#endif
-
-#ifndef INT32_MAX
-#define INT32_MAX       0x7fffffff
-#endif
-
-#ifndef UINT32_MAX
-#define UINT32_MAX      0xffffffff
-#endif
-
-#ifndef INT64_MIN
-#define INT64_MIN       (-0x7fffffffffffffffLL-1)
-#endif
-
-#ifndef INT64_MAX
-#define INT64_MAX int64_t_C(9223372036854775807)
-#endif
-
-#ifndef UINT64_MAX
-#define UINT64_MAX uint64_t_C(0xFFFFFFFFFFFFFFFF)
-#endif
-
-#ifdef EMULATE_FAST_INT
-typedef signed char int_fast8_t;
-typedef signed int  int_fast16_t;
-typedef signed int  int_fast32_t;
-typedef unsigned char uint_fast8_t;
-typedef unsigned int  uint_fast16_t;
-typedef unsigned int  uint_fast32_t;
-typedef uint64_t      uint_fast64_t;
-#endif
-
-#ifndef INT_BIT
-#    if INT_MAX != 2147483647
-#        define INT_BIT 64
-#    else
-#        define INT_BIT 32
-#    endif
-#endif
-
-#ifndef int64_t_C
-#define int64_t_C(c)     (c ## LL)
-#define uint64_t_C(c)    (c ## ULL)
-#endif
-
-#if defined(__MINGW32__) && !defined(BUILD_AVUTIL) && defined(BUILD_SHARED_AV)
-#  define FF_IMPORT_ATTR __declspec(dllimport)
-#else
-#  define FF_IMPORT_ATTR
-#endif
-
-
-#ifdef HAVE_AV_CONFIG_H
-/* only include the following when compiling package */
-#    include "internal.h"
-#endif
+#include "mem.h"
 
 //rounded divison & shift
 #define RSHIFT(a,b) ((a) > 0 ? ((a) + ((1<<(b))>>1))>>(b) : ((a) + ((1<<(b))>>1)-1)>>(b))
@@ -198,10 +89,10 @@ typedef uint64_t      uint_fast64_t;
 #define FFMAX(a,b) ((a) > (b) ? (a) : (b))
 #define FFMIN(a,b) ((a) > (b) ? (b) : (a))
 
-#define SWAP(type,a,b) do{type SWAP_tmp= b; b= a; a= SWAP_tmp;}while(0)
+#define FFSWAP(type,a,b) do{type SWAP_tmp= b; b= a; a= SWAP_tmp;}while(0)
 
 /* misc math functions */
-extern FF_IMPORT_ATTR const uint8_t ff_log2_tab[256];
+extern const uint8_t ff_log2_tab[256];
 
 static inline int av_log2(unsigned int v)
 {
@@ -238,7 +129,7 @@ static inline int av_log2_16bit(unsigned int v)
 /* median of 3 */
 static inline int mid_pred(int a, int b, int c)
 {
-#if HAVE_CMOV
+#ifdef HAVE_CMOV
     int i=b;
     asm volatile(
         "cmp    %2, %1 \n\t"
@@ -281,9 +172,9 @@ static inline int mid_pred(int a, int b, int c)
  * @param a value to clip
  * @param amin minimum value of the clip range
  * @param amax maximum value of the clip range
- * @return cliped value
+ * @return clipped value
  */
-static inline int clip(int a, int amin, int amax)
+static inline int av_clip(int a, int amin, int amax)
 {
     if (a < amin)      return amin;
     else if (a > amax) return amax;
@@ -293,12 +184,23 @@ static inline int clip(int a, int amin, int amax)
 /**
  * clip a signed integer value into the 0-255 range
  * @param a value to clip
- * @return cliped value
+ * @return clipped value
  */
-static inline uint8_t clip_uint8(int a)
+static inline uint8_t av_clip_uint8(int a)
 {
     if (a&(~255)) return (-a)>>31;
     else          return a;
+}
+
+/**
+ * clip a signed integer value into the -32768,32767 range
+ * @param a value to clip
+ * @return clipped value
+ */
+static inline int16_t av_clip_int16(int a)
+{
+    if ((a+32768) & ~65535) return (a>>31) ^ 32767;
+    else                    return a;
 }
 
 /* math */
@@ -318,7 +220,19 @@ static inline int ff_get_fourcc(const char *s){
 #define MKTAG(a,b,c,d) (a | (b << 8) | (c << 16) | (d << 24))
 #define MKBETAG(a,b,c,d) (d | (c << 8) | (b << 16) | (a << 24))
 
-
+/*!
+ * \def GET_UTF8(val, GET_BYTE, ERROR)
+ * converts a UTF-8 character (up to 4 bytes long) to its 32-bit UCS-4 encoded form
+ * \param val is the output and should be of type uint32_t. It holds the converted
+ * UCS-4 character and should be a left value.
+ * \param GET_BYTE gets UTF-8 encoded bytes from any proper source. It can be
+ * a function or a statement whose return value or evaluated value is of type
+ * uint8_t. It will be executed up to 4 times for values in the valid UTF-8 range,
+ * and up to 7 times in the general case.
+ * \param ERROR action that should be taken when an invalid UTF-8 byte is returned
+ * from GET_BYTE. It should be a statement that jumps out of the macro,
+ * like exit(), goto, return, break, or continue.
+ */
 #define GET_UTF8(val, GET_BYTE, ERROR)\
     val= GET_BYTE;\
     {\
@@ -334,7 +248,44 @@ static inline int ff_get_fourcc(const char *s){
         }\
     }
 
-#if defined(ARCH_X86) || defined(ARCH_X86_64) || defined(ARCH_POWERPC)
+/*!
+ * \def PUT_UTF8(val, tmp, PUT_BYTE)
+ * converts a 32-bit unicode character to its UTF-8 encoded form (up to 4 bytes long).
+ * \param val is an input only argument and should be of type uint32_t. It holds
+ * a ucs4 encoded unicode character that is to be converted to UTF-8. If
+ * val is given as a function it's executed only once.
+ * \param tmp is a temporary variable and should be of type uint8_t. It
+ * represents an intermediate value during conversion that is to be
+ * outputted by PUT_BYTE.
+ * \param PUT_BYTE writes the converted UTF-8 bytes to any proper destination.
+ * It could be a function or a statement, and uses tmp as the input byte.
+ * For example, PUT_BYTE could be "*output++ = tmp;" PUT_BYTE will be
+ * executed up to 4 times for values in the valid UTF-8 range and up to
+ * 7 times in the general case, depending on the length of the converted
+ * unicode character.
+ */
+#define PUT_UTF8(val, tmp, PUT_BYTE)\
+    {\
+        int bytes, shift;\
+        uint32_t in = val;\
+        if (in < 0x80) {\
+            tmp = in;\
+            PUT_BYTE\
+        } else {\
+            bytes = (av_log2(in) + 4) / 5;\
+            shift = (bytes - 1) * 6;\
+            tmp = (256 - (256 >> bytes)) | (in >> shift);\
+            PUT_BYTE\
+            while (shift >= 6) {\
+                shift -= 6;\
+                tmp = 0x80 | ((in >> shift) & 0x3f);\
+                PUT_BYTE\
+            }\
+        }\
+    }
+
+#if defined(ARCH_X86) || defined(ARCH_POWERPC) || defined(ARCH_BFIN)
+#define AV_READ_TIME read_time
 #if defined(ARCH_X86_64)
 static inline uint64_t read_time(void)
 {
@@ -344,7 +295,7 @@ static inline uint64_t read_time(void)
         );
         return (d << 32) | (a & 0xffffffff);
 }
-#elif defined(ARCH_X86)
+#elif defined(ARCH_X86_32)
 static inline long long read_time(void)
 {
         long long l;
@@ -352,6 +303,19 @@ static inline long long read_time(void)
                 : "=A" (l)
         );
         return l;
+}
+#elif ARCH_BFIN
+static inline uint64_t read_time(void)
+{
+    union {
+        struct {
+            unsigned lo;
+            unsigned hi;
+        } p;
+        unsigned long long c;
+    } t;
+    asm volatile ("%0=cycles; %1=cycles2;" : "=d" (t.p.lo), "=d" (t.p.hi));
+    return t.c;
 }
 #else //FIXME check ppc64
 static inline uint64_t read_time(void)
@@ -373,18 +337,22 @@ static inline uint64_t read_time(void)
      return (((uint64_t)tbu)<<32) | (uint64_t)tbl;
 }
 #endif
+#elif defined(HAVE_GETHRTIME)
+#define AV_READ_TIME gethrtime
+#endif
 
+#ifdef AV_READ_TIME
 #define START_TIMER \
 uint64_t tend;\
-uint64_t tstart= read_time();\
+uint64_t tstart= AV_READ_TIME();\
 
 #define STOP_TIMER(id) \
-tend= read_time();\
+tend= AV_READ_TIME();\
 {\
   static uint64_t tsum=0;\
   static int tcount=0;\
   static int tskip_count=0;\
-  if(tcount<2 || tend - tstart < 8*tsum/tcount){\
+  if(tcount<2 || tend - tstart < FFMAX(8*tsum/tcount, 2000)){\
       tsum+= tend - tstart;\
       tcount++;\
   }else\
@@ -397,22 +365,5 @@ tend= read_time();\
 #define START_TIMER
 #define STOP_TIMER(id) {}
 #endif
-
-/* memory */
-
-#ifdef __GNUC__
-  #define DECLARE_ALIGNED(n,t,v)       t v __attribute__ ((aligned (n)))
-#else
-  #define DECLARE_ALIGNED(n,t,v)      __declspec(align(n)) t v
-#endif
-
-/* memory */
-void *av_malloc(unsigned int size);
-void *av_realloc(void *ptr, unsigned int size);
-void av_free(void *ptr);
-
-void *av_mallocz(unsigned int size);
-char *av_strdup(const char *s);
-void av_freep(void *ptr);
 
 #endif /* COMMON_H */

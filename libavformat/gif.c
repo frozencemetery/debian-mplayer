@@ -1,5 +1,5 @@
 /*
- * Animated GIF encoder
+ * Animated GIF muxer
  * Copyright (c) 2000 Fabrice Bellard.
  *
  * This file is part of FFmpeg.
@@ -343,7 +343,7 @@ static int gif_write_header(AVFormatContext *s)
 
     if (video_enc->pix_fmt != PIX_FMT_RGB24) {
         av_log(s, AV_LOG_ERROR, "ERROR: gif only handles the rgb24 pixel format. Use -pix_fmt rgb24.\n");
-        return AVERROR_IO;
+        return AVERROR(EIO);
     }
 
     gif_image_write_header(pb, width, height, loop_count, NULL);
@@ -402,19 +402,6 @@ static int gif_write_trailer(AVFormatContext *s)
 
     put_byte(pb, 0x3b);
     put_flush_packet(&s->pb);
-    return 0;
-}
-
-/* better than nothing gif image writer */
-int gif_write(ByteIOContext *pb, AVImageInfo *info)
-{
-    gif_image_write_header(pb, info->width, info->height, AVFMT_NOOUTPUTLOOP,
-                           (uint32_t *)info->pict.data[1]);
-    gif_image_write_image(pb, 0, 0, info->width, info->height,
-                          info->pict.data[0], info->pict.linesize[0],
-                          PIX_FMT_PAL8);
-    put_byte(pb, 0x3b);
-    put_flush_packet(pb);
     return 0;
 }
 

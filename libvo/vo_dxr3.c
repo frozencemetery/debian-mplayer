@@ -19,7 +19,7 @@
  * 2003-01-02:
  *  Added patch from Jens Axboe that makes vo_dxr3 return to previous TV norm
  *   after quiting.
- *  Added patch from Thomas Jarosch that fixed alot of textual ouput
+ *  Added patch from Thomas Jarosch that fixed a lot of textual ouput
  *   errors.
  *
  * 2002-12-24: (Hohoho)
@@ -143,11 +143,12 @@
 #include "spuenc.h"
 #include "sub.h"
 #ifdef HAVE_NEW_GUI
-#include "Gui/interface.h"
+#include "gui/interface.h"
 #endif
 #ifdef HAVE_X11
 #include "x11_common.h"
 #endif
+#include "libavutil/avstring.h"
 
 #define SPU_SUPPORT
 
@@ -616,22 +617,13 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_
 				depth = 24;
 			}
 			XMatchVisualInfo(mDisplay, mScreen, depth, TrueColor, &vinfo);
+			vo_x11_create_vo_window(&vinfo, vo_dx, vo_dy,
+				d_width, d_height, flags,
+				CopyFromParent, "Viewing Window", title);
 			xswa.background_pixel = KEY_COLOR;
 			xswa.border_pixel = 0;
 			xswamask = CWBackPixel | CWBorderPixel;
-			hint.y = vo_dy;
-			hint.x = vo_dx;
-			hint.base_width = hint.width = vo_dwidth;
-			hint.base_height = hint.height = vo_dheight;
-			hint.flags = PPosition | PSize;
-			vo_window = XCreateWindow(mDisplay, mRootWin, hint.x, hint.y, hint.width, hint.height, 0, depth, CopyFromParent, vinfo.visual, xswamask, &xswa);
-			vo_x11_classhint(mDisplay, vo_window, "Viewing Window");
-			vo_hidecursor(mDisplay, vo_window);
-			vo_x11_selectinput_witherr(mDisplay, vo_window, StructureNotifyMask | KeyPressMask | PropertyChangeMask);
-			XSetStandardProperties(mDisplay, vo_window, "DXR3 Overlay", "DXR3 Overlay", None, NULL, 0, &hint);
-			XSetWMNormalHints(mDisplay, vo_window, &hint);
-			XMapWindow(mDisplay, vo_window);
-			XSync(mDisplay, False);
+			XChangeWindowAttributes(mDisplay, vo_window, xswamask, &xswa);
 		}
 		
 		/* Start setting up overlay */
@@ -727,7 +719,7 @@ static void draw_osd(void)
 		    if ( !cleared )
 		     {
 		      spued->count=spubuf->count;
-		      memcpy( spued->data,spubuf->data,DATASIZE );
+		      fast_memcpy( spued->data,spubuf->data,DATASIZE );
 		      cleared=1;
 		     }
 		   }
@@ -1134,13 +1126,13 @@ static int overlay_read_state(overlay_t *o, char *p)
     int j;
 	
     if(!p) {
-	strlcpy(fname, getenv("HOME"), sizeof( fname ));
-	strlcat(fname,"/.overlay", sizeof( fname ));	    
+	av_strlcpy(fname, getenv("HOME"), sizeof( fname ));
+	av_strlcat(fname,"/.overlay", sizeof( fname ));	    
     } else
-	strlcpy(fname, p, sizeof( fname ));
+	av_strlcpy(fname, p, sizeof( fname ));
     
     sprintf(tmp,"/res_%dx%dx%d",o->xres,o->yres,o->depth);
-    strlcat(fname, tmp, sizeof( fname ));
+    av_strlcat(fname, tmp, sizeof( fname ));
 
     if(!(fp=fopen(fname,"r")))
 	return -1;
@@ -1197,10 +1189,10 @@ static int overlay_write_state(overlay_t *o, char *p)
     int i,j;
 	
     if(!p) {
-	strlcpy(fname, getenv("HOME"), sizeof( fname ));
-	strlcat(fname,"/.overlay", sizeof( fname ));	    
+	av_strlcpy(fname, getenv("HOME"), sizeof( fname ));
+	av_strlcat(fname,"/.overlay", sizeof( fname ));	    
     } else
-	strlcpy(fname, p, sizeof( fname ));
+	av_strlcpy(fname, p, sizeof( fname ));
 
     if(access(fname, W_OK|X_OK|R_OK)) {
 	if(mkdir(fname,0766))
@@ -1208,7 +1200,7 @@ static int overlay_write_state(overlay_t *o, char *p)
     }	
     
     sprintf(tmp,"/res_%dx%dx%d",o->xres,o->yres,o->depth);
-    strlcat(fname, tmp, sizeof( fname ));
+    av_strlcat(fname, tmp, sizeof( fname ));
     
     if(!(fp=fopen(fname,"w")))
 	return -1;

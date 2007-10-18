@@ -1,7 +1,7 @@
 /*
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: dmo.c 18786 2006-06-22 13:34:00Z diego $
+ * $Id: dmo.c 24425 2007-09-10 18:27:45Z voroshil $
  */
 
 #include "config.h"
@@ -70,27 +70,27 @@ DMO_Filter* DMO_FilterCreate(const char* dllname, const GUID* id,
 	    break;
 	}
 //trapbug();
-	hr = func(id, &IID_IClassFactory, (void**)&factory);
+	hr = func(id, &IID_IClassFactory, (void*)&factory);
 	if (hr || !factory)
 	{
 	    em = "no such class object";
 	    break;
 	}
-	hr = factory->vt->CreateInstance(factory, 0, &IID_IUnknown, (void**)&object);
+	hr = factory->vt->CreateInstance(factory, 0, &IID_IUnknown, (void*)&object);
 	factory->vt->Release((IUnknown*)factory);
 	if (hr || !object)
 	{
 	    em = "class factory failure";
 	    break;
 	}
-	hr = object->vt->QueryInterface(object, &IID_IMediaObject, (void**)&This->m_pMedia);
+	hr = object->vt->QueryInterface(object, &IID_IMediaObject, (void*)&This->m_pMedia);
 	if (hr == 0)
 	{
             /* query for some extra available interface */
-	    HRESULT r = object->vt->QueryInterface(object, &IID_IMediaObjectInPlace, (void**)&This->m_pInPlace);
+	    HRESULT r = object->vt->QueryInterface(object, &IID_IMediaObjectInPlace, (void*)&This->m_pInPlace);
             if (r == 0 && This->m_pInPlace)
 		printf("DMO dll supports InPlace - PLEASE REPORT to developer\n");
-	    r = object->vt->QueryInterface(object, &IID_IDMOVideoOutputOptimizations, (void**)&This->m_pOptim);
+	    r = object->vt->QueryInterface(object, &IID_IDMOVideoOutputOptimizations, (void*)&This->m_pOptim);
 	    if (r == 0 && This->m_pOptim)
 	    {
                 unsigned long flags;
@@ -115,7 +115,7 @@ DMO_Filter* DMO_FilterCreate(const char* dllname, const GUID* id,
 
 	if (0) {
 	    DMO_MEDIA_TYPE dmo;
-            VIDEOINFOHEADER* vi;
+            //VIDEOINFOHEADER* vi;
 	    memset(&dmo, 0, sizeof(dmo));
 	    i = This->m_pMedia->vt->GetOutputType(This->m_pMedia, 0, 2, &dmo);
 	    printf("GetOutputType %x \n", i);

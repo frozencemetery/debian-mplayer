@@ -11,11 +11,11 @@
 #include "mp_msg.h"
 #include "help_mp.h"
 
-#include "stream.h"
+#include "stream/stream.h"
 #include "demuxer.h"
 #include "stheader.h"
 
-typedef struct _fli_frames_t {
+typedef struct {
   int num_frames;
   int current_frame;
   off_t *filepos;
@@ -80,7 +80,7 @@ static demuxer_t* demux_open_fli(demuxer_t* demuxer){
   stream_reset(demuxer->stream);
   stream_seek(demuxer->stream, 0);
 
-  header = malloc(sizeof(BITMAPINFOHEADER) + 128);
+  header = calloc(1, sizeof(BITMAPINFOHEADER) + 128);
   stream_read(demuxer->stream, header + sizeof(BITMAPINFOHEADER), 128);
   stream_seek(demuxer->stream, 0);
 
@@ -128,6 +128,8 @@ static demuxer_t* demux_open_fli(demuxer_t* demuxer){
   // pass extradata to codec
   sh_video->bih = (BITMAPINFOHEADER*)header;
   sh_video->bih->biSize = sizeof(BITMAPINFOHEADER) + 128;
+  sh_video->bih->biWidth = sh_video->disp_w;
+  sh_video->bih->biHeight = sh_video->disp_h;
     
   // skip the video depth and flags
   stream_skip(demuxer->stream, 4);

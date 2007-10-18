@@ -54,9 +54,6 @@ typedef struct MTVDemuxContext {
 
 static int mtv_probe(AVProbeData *p)
 {
-    if(p->buf_size < 3)
-        return 0;
-
     /* Magic is 'AMV' */
 
     if(*(p->buf) != 'A' || *(p->buf+1) != 'M' || *(p->buf+2) != 'V')
@@ -89,7 +86,7 @@ static int mtv_read_header(AVFormatContext *s, AVFormatParameters *ap)
 
     /* FIXME Add sanity check here */
 
-    /* first packet is allways audio*/
+    /* first packet is always audio*/
 
     mtv->audio_packet_count = 1;
 
@@ -99,11 +96,12 @@ static int mtv_read_header(AVFormatContext *s, AVFormatParameters *ap)
 
     st = av_new_stream(s, VIDEO_SID);
     if(!st)
-        return AVERROR_NOMEM;
+        return AVERROR(ENOMEM);
 
     av_set_pts_info(st, 64, 1, mtv->video_fps);
     st->codec->codec_type      = CODEC_TYPE_VIDEO;
     st->codec->codec_id        = CODEC_ID_RAWVIDEO;
+    st->codec->codec_tag       = MKTAG('R', 'G', 'B', mtv->img_bpp);
     st->codec->width           = mtv->img_width;
     st->codec->height          = mtv->img_height;
     st->codec->bits_per_sample = mtv->img_bpp;
@@ -113,18 +111,18 @@ static int mtv_read_header(AVFormatContext *s, AVFormatParameters *ap)
 
     st = av_new_stream(s, AUDIO_SID);
     if(!st)
-        return AVERROR_NOMEM;
+        return AVERROR(ENOMEM);
 
     av_set_pts_info(st, 64, 1, AUDIO_SAMPLING_RATE);
     st->codec->codec_type      = CODEC_TYPE_AUDIO;
     st->codec->codec_id        = CODEC_ID_MP3;
     st->codec->bit_rate        = mtv->audio_br;
-    st->need_parsing=1;
+    st->need_parsing           = AVSTREAM_PARSE_FULL;
 
     /* Jump over header */
 
     if(url_fseek(pb, MTV_HEADER_SIZE, SEEK_SET) != MTV_HEADER_SIZE)
-        return AVERROR_IO;
+        return AVERROR(EIO);
 
     return(0);
 
@@ -147,7 +145,7 @@ static int mtv_read_packet(AVFormatContext *s, AVPacket *pkt)
 
         ret = av_get_packet(pb, pkt, MTV_ASUBCHUNK_DATA_SIZE);
         if(ret != MTV_ASUBCHUNK_DATA_SIZE)
-            return AVERROR_IO;
+            return AVERROR(EIO);
 
         mtv->audio_packet_count++;
         pkt->stream_index = AUDIO_SID;
@@ -156,7 +154,7 @@ static int mtv_read_packet(AVFormatContext *s, AVPacket *pkt)
     {
         ret = av_get_packet(pb, pkt, mtv->img_segment_size);
         if(ret != mtv->img_segment_size)
-            return AVERROR_IO;
+            return AVERROR(EIO);
 
 #ifndef WORDS_BIGENDIAN
 

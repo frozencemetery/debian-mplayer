@@ -4,6 +4,7 @@
 #include <IOKit/storage/IOCDTypes.h>
 #include <IOKit/storage/IOCDMedia.h>
 #include <IOKit/storage/IOCDMediaBSDClient.h>
+#include "mpbswap.h"
 
 //=================== VideoCD ==========================
 #define	CDROM_LEADOUT	0xAA
@@ -27,25 +28,16 @@ typedef struct mp_vcd_priv_st
 
 static inline void vcd_set_msf(mp_vcd_priv_t* vcd, unsigned int sect)
 {
-  vcd->msf.frame=sect%75;
-  sect=sect/75;
-  vcd->msf.second=sect%60;
-  sect=sect/60;
-  vcd->msf.minute=sect;
+  vcd->msf = CDConvertLBAToMSF(sect);
 }
 
 static inline unsigned int vcd_get_msf(mp_vcd_priv_t* vcd)
 {
-  return vcd->msf.frame +
-        (vcd->msf.second+
-         vcd->msf.minute*60)*75;
-
-return 0;
+  return CDConvertMSFToLBA(vcd->msf);
 }
 
 int vcd_seek_to_track(mp_vcd_priv_t* vcd, int track)
 {
-	dk_cd_read_track_info_t tocentry;
 	struct CDTrackInfo entry;
 
 	memset( &vcd->entry, 0, sizeof(vcd->entry));
@@ -59,9 +51,8 @@ int vcd_seek_to_track(mp_vcd_priv_t* vcd, int track)
 		mp_msg(MSGT_STREAM,MSGL_ERR,"ioctl dif1: %s\n",strerror(errno));
 		return -1;
 	}
+	vcd->msf = CDConvertLBAToMSF(be2me_32(entry.trackStartAddress));
 	return VCD_SECTOR_DATA*vcd_get_msf(vcd);
-  
-return -1;
 }
 
 int vcd_get_track_end(mp_vcd_priv_t* vcd, int track)
@@ -69,7 +60,6 @@ int vcd_get_track_end(mp_vcd_priv_t* vcd, int track)
 	dk_cd_read_disc_info_t tochdr;
 	struct CDDiscInfo hdr;
 	
-	dk_cd_read_track_info_t tocentry;
 	struct CDTrackInfo entry;
 	
 	//read toc header
@@ -80,13 +70,13 @@ int vcd_get_track_end(mp_vcd_priv_t* vcd, int track)
     if (ioctl(vcd->fd, DKIOCCDREADDISCINFO, &tochdr) < 0)
 	{
 		mp_msg(MSGT_OPEN,MSGL_ERR,"read CDROM toc header: %s\n",strerror(errno));
-		return NULL;
+		return -1;
     }
 	
 	//read track info
 	memset( &vcd->entry, 0, sizeof(vcd->entry));
 	vcd->entry.addressType = kCDTrackInfoAddressTypeTrackNumber;
-	vcd->entry.address = track<(hdr.lastTrackNumberInLastSessionLSB+1)?(track):CDROM_LEADOUT;
+	vcd->entry.address = track<hdr.lastTrackNumberInLastSessionLSB?track+1:CDROM_LEADOUT;
 	vcd->entry.bufferLength = sizeof(entry);
 	vcd->entry.buffer = &entry;
   
@@ -95,9 +85,8 @@ int vcd_get_track_end(mp_vcd_priv_t* vcd, int track)
 		mp_msg(MSGT_STREAM,MSGL_ERR,"ioctl dif2: %s\n",strerror(errno));
 		return -1;
 	}
+	vcd->msf = CDConvertLBAToMSF(be2me_32(entry.trackStartAddress));
 	return VCD_SECTOR_DATA*vcd_get_msf(vcd);
-
-return -1;
 }
 
 mp_vcd_priv_t* vcd_read_toc(int fd)
@@ -140,7 +129,7 @@ mp_vcd_priv_t* vcd_read_toc(int fd)
 			return NULL;
 		}
 		
-		trackMSF = CDConvertLBAToMSF(entry.trackStartAddress);
+		trackMSF = CDConvertLBAToMSF(be2me_32(entry.trackStartAddress));
         
 		//mp_msg(MSGT_OPEN,MSGL_INFO,"track %02d:  adr=%d  ctrl=%d  format=%d  %02d:%02d:%02d\n",
 		if (i<=hdr.lastTrackNumberInLastSessionLSB)
@@ -183,8 +172,6 @@ mp_vcd_priv_t* vcd_read_toc(int fd)
 	vcd->fd = fd;
 	vcd->msf = trackMSF;
 	return vcd;
-
-	return NULL;
 }
 
 static int vcd_read(mp_vcd_priv_t* vcd,char *mem)
@@ -207,6 +194,5 @@ static int vcd_read(mp_vcd_priv_t* vcd,char *mem)
 	  
       memcpy(mem,vcd->buf.data,VCD_SECTOR_DATA);
       return VCD_SECTOR_DATA;
-return 0;
 }
 

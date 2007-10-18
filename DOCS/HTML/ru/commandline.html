@@ -1,62 +1,60 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=KOI8-R"><title>3.1. Командная строка</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="usage.html" title="Глава 3. Использование"><link rel="prev" href="usage.html" title="Глава 3. Использование"><link rel="next" href="subosd.html" title="3.2. Субтитры и OSD"><link rel="preface" href="howtoread.html" title="Как читать эту документацию"><link rel="chapter" href="intro.html" title="Глава 1. Введение"><link rel="chapter" href="install.html" title="Глава 2. Установка"><link rel="chapter" href="usage.html" title="Глава 3. Использование"><link rel="chapter" href="cd-dvd.html" title="Глава 4. Использование CD/DVD"><link rel="chapter" href="faq.html" title="Глава 5. Часто Задаваемые вопросы"><link rel="chapter" href="containers.html" title="Глава 6. Поддерживаемые форматы"><link rel="chapter" href="codecs.html" title="Глава 7. Поддерживаемые кодеки"><link rel="chapter" href="tv.html" title="Глава 8. TV"><link rel="chapter" href="radio.html" title="Глава 9. Радио"><link rel="chapter" href="video.html" title="Глава 10. Устройства вывода видео"><link rel="chapter" href="audio.html" title="Глава 11. Устройства вывода звука"><link rel="chapter" href="ports.html" title="Глава 12. Портинг"><link rel="chapter" href="mencoder.html" title="Глава 13. Основы использования MEncoder"><link rel="chapter" href="encoding-guide.html" title="Глава 14. Encoding with MEncoder"><link rel="appendix" href="bugreports.html" title="Приложение A. Как сообщать об ошибках"><link rel="appendix" href="bugs.html" title="Приложение B. Известные проблемы"><link rel="appendix" href="skin.html" title="Приложение C. Формат скинов MPlayer"><link rel="appendix" href="history.html" title="Приложение D. История"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">3.1. Командная строка</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="usage.html">Пред.</a> </td><th width="60%" align="center">Глава 3. Использование</th><td width="20%" align="right"> <a accesskey="n" href="subosd.html">След.</a></td></tr></table><hr></div><div class="sect1" lang="ru"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="commandline"></a>3.1. Командная строка</h2></div></div></div><p>
-<span class="application">MPlayer</span> использует составное дерево проигрывания.
-Оно состоит из глобальных опций, идущих первыми, например
-
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>3.1. п п╬п╪п╟п╫п╢п╫п╟я▐ я│я┌я─п╬п╨п╟</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="usage.html" title="п⌠п╩п╟п╡п╟ 3. п≤я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣"><link rel="prev" href="usage.html" title="п⌠п╩п╟п╡п╟ 3. п≤я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣"><link rel="next" href="subosd.html" title="3.2. п║я┐п╠я┌п╦я┌я─я▀ п╦ OSD"><link rel="preface" href="howtoread.html" title="п п╟п╨ я┤п╦я┌п╟я┌я▄ я█я┌я┐ п╢п╬п╨я┐п╪п╣п╫я┌п╟я├п╦я▌"><link rel="chapter" href="intro.html" title="п⌠п╩п╟п╡п╟ 1. п▓п╡п╣п╢п╣п╫п╦п╣"><link rel="chapter" href="install.html" title="п⌠п╩п╟п╡п╟ 2. пёя│я┌п╟п╫п╬п╡п╨п╟"><link rel="chapter" href="usage.html" title="п⌠п╩п╟п╡п╟ 3. п≤я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣"><link rel="chapter" href="cd-dvd.html" title="п⌠п╩п╟п╡п╟ 4. п≤я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣ CD/DVD"><link rel="chapter" href="faq.html" title="п⌠п╩п╟п╡п╟ 5. п╖п╟я│я┌п╬ п≈п╟п╢п╟п╡п╟п╣п╪я▀п╣ п╡п╬п©я─п╬я│я▀"><link rel="chapter" href="containers.html" title="п⌠п╩п╟п╡п╟ 6. п÷п╬п╢п╢п╣я─п╤п╦п╡п╟п╣п╪я▀п╣ я└п╬я─п╪п╟я┌я▀"><link rel="chapter" href="codecs.html" title="п⌠п╩п╟п╡п╟ 7. п÷п╬п╢п╢п╣я─п╤п╦п╡п╟п╣п╪я▀п╣ п╨п╬п╢п╣п╨п╦"><link rel="chapter" href="tv.html" title="п⌠п╩п╟п╡п╟ 8. TV"><link rel="chapter" href="radio.html" title="п⌠п╩п╟п╡п╟ 9. п═п╟п╢п╦п╬"><link rel="chapter" href="video.html" title="п⌠п╩п╟п╡п╟ 10. пёя│я┌я─п╬п╧я│я┌п╡п╟ п╡я▀п╡п╬п╢п╟ п╡п╦п╢п╣п╬"><link rel="chapter" href="audio.html" title="п⌠п╩п╟п╡п╟ 11. пёя│я┌я─п╬п╧я│я┌п╡п╟ п╡я▀п╡п╬п╢п╟ п╥п╡я┐п╨п╟"><link rel="chapter" href="ports.html" title="п⌠п╩п╟п╡п╟ 12. п÷п╬я─я┌п╦п╫пЁ"><link rel="chapter" href="mencoder.html" title="п⌠п╩п╟п╡п╟ 13. п·я│п╫п╬п╡я▀ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ MEncoder"><link rel="chapter" href="encoding-guide.html" title="п⌠п╩п╟п╡п╟ 14. п п╬п╢п╦я─п╬п╡п╟п╫п╦п╣ я│ MEncoder"><link rel="appendix" href="bugreports.html" title="п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ A. п п╟п╨ я│п╬п╬п╠я┴п╟я┌я▄ п╬п╠ п╬я┬п╦п╠п╨п╟я┘"><link rel="appendix" href="bugs.html" title="п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ B. п≤п╥п╡п╣я│я┌п╫я▀п╣ п©я─п╬п╠п╩п╣п╪я▀"><link rel="appendix" href="skin.html" title="п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ C. п╓п╬я─п╪п╟я┌ я│п╨п╦п╫п╬п╡ MPlayer"><link rel="appendix" href="history.html" title="п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ D. п≤я│я┌п╬я─п╦я▐"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">3.1. п п╬п╪п╟п╫п╢п╫п╟я▐ я│я┌я─п╬п╨п╟</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="usage.html">п÷я─п╣п╢.</a>б═</td><th width="60%" align="center">п⌠п╩п╟п╡п╟ 3. п≤я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣</th><td width="20%" align="right">б═<a accesskey="n" href="subosd.html">п║п╩п╣п╢.</a></td></tr></table><hr></div><div class="sect1" lang="ru"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="commandline"></a>3.1. п п╬п╪п╟п╫п╢п╫п╟я▐ я│я┌я─п╬п╨п╟</h2></div></div></div><p>
+<span class="application">MPlayer</span> п╦я│п©п╬п╩я▄п╥я┐п╣я┌ я│п╬я│я┌п╟п╡п╫п╬п╣ п╢п╣я─п╣п╡п╬ п©я─п╬п╦пЁя─я▀п╡п╟п╫п╦я▐.
+п·п╫п╬ я│п╬я│я┌п╬п╦я┌ п╦п╥ пЁп╩п╬п╠п╟п╩я▄п╫я▀я┘ п╬п©я├п╦п╧, п╦п╢я┐я┴п╦я┘ п©п╣я─п╡я▀п╪п╦, п╫п╟п©я─п╦п╪п╣я─
 </p><pre class="screen">mplayer -vfm 5</pre><p>,
+п╦ п╬п©я├п╦п╧, п╦п╢я┐я┴п╦я┘ п©п╬я│п╩п╣ п╦п╪п╣п╫п╦ я└п╟п╧п╩п╟, п╨п╬я┌п╬я─я▀п╣ п©я─п╦п╪п╣п╫я▐я▌я┌я│я▐ я┌п╬п╩я▄п╨п╬ п╨ п╢п╟п╫п╫п╬п╪я┐
+я└п╟п╧п╩я┐/URL/п╦ я┌.п©., п╫п╟п©я─п╦п╪п╣я─:
 
-и опций, идущих после имени файла, которые применяются только к данному
-файлу/URL/и т.п., например:
-
-</p><pre class="screen">mplayer -vfm 5 <em class="replaceable"><code>movie1.avi</code></em> <em class="replaceable"><code>movie2.avi</code></em> -vfm 4</pre><p>
+</p><pre class="screen">
+mplayer -vfm 5 <em class="replaceable"><code>movie1.avi</code></em> <em class="replaceable"><code>movie2.avi</code></em> -vfm 4
+</pre><p>
 </p><p>
-Вы можете группировать файлы/URL'ы вместе, используя <code class="literal">{</code> и
-<code class="literal">}</code>. Это полезно, например, с опцией <tt class="option">-loop</tt>:
-
+п▓я▀ п╪п╬п╤п╣я┌п╣ пЁя─я┐п©п©п╦я─п╬п╡п╟я┌я▄ я└п╟п╧п╩я▀/URL'я▀ п╡п╪п╣я│я┌п╣, п╦я│п©п╬п╩я▄п╥я┐я▐ <code class="literal">{</code> п╦
+<code class="literal">}</code>. п╜я┌п╬ п©п╬п╩п╣п╥п╫п╬, п╫п╟п©я─п╦п╪п╣я─, я│ п╬п©я├п╦п╣п╧ <tt class="option">-loop</tt>:
 </p><pre class="screen">mplayer { 1.avi -loop 2 2.avi } -loop 3</pre><p>
-
-Эта команда проиграет файлы в таком порядке: 1, 1, 2, 1, 1, 2, 1, 1, 2.
+п╜я┌п╟ п╨п╬п╪п╟п╫п╢п╟ п©я─п╬п╦пЁя─п╟п╣я┌ я└п╟п╧п╩я▀ п╡ я┌п╟п╨п╬п╪ п©п╬я─я▐п╢п╨п╣: 1, 1, 2, 1, 1, 2, 1, 1, 2.
 </p><p>
-Воспроизведение файла:
+п▓п╬я│п©я─п╬п╦п╥п╡п╣п╢п╣п╫п╦п╣ я└п╟п╧п╩п╟:
 </p><pre class="synopsis">
-<span><strong class="command">mplayer</strong></span> [<em class="replaceable"><code>опции</code></em>] [<em class="replaceable"><code>путь</code></em>/]<em class="replaceable"><code>имя_файла</code></em>
+<span><strong class="command">mplayer</strong></span> [<em class="replaceable"><code>п╬п©я├п╦п╦</code></em>] [<em class="replaceable"><code>п©я┐я┌я▄</code></em>/]<em class="replaceable"><code>п╦п╪я▐_я└п╟п╧п╩п╟</code></em>
 </pre><p>
 </p><p>
-Другой способ:
+п■я─я┐пЁп╬п╧ я│п©п╬я│п╬п╠:
 </p><pre class="synopsis">
-<span><strong class="command">mplayer</strong></span> [<em class="replaceable"><code>опции</code></em>] <em class="replaceable"><code>file:///uri-escaped-path</code></em>
+<span><strong class="command">mplayer</strong></span> [<em class="replaceable"><code>п╬п©я├п╦п╦</code></em>] <em class="replaceable"><code>file:///uri-escaped-path</code></em>
 </pre><p>
 </p><p>
-Воспроизведение множества файлов:
+п▓п╬я│п©я─п╬п╦п╥п╡п╣п╢п╣п╫п╦п╣ п╪п╫п╬п╤п╣я│я┌п╡п╟ я└п╟п╧п╩п╬п╡:
 </p><pre class="synopsis">
-<span><strong class="command">mplayer</strong></span> [<em class="replaceable"><code>общие опции</code></em>] [<em class="replaceable"><code>путь</code></em>/]<em class="replaceable"><code>имя_файла1</code></em> [<em class="replaceable"><code>опции для имя_файла1</code></em>] <em class="replaceable"><code>имя_файла2</code></em> [<em class="replaceable"><code>опции для имя_файла2</code></em>] ...
+<span><strong class="command">mplayer</strong></span> [<em class="replaceable"><code>п╬п╠я┴п╦п╣ п╬п©я├п╦п╦</code></em>] [<em class="replaceable"><code>п©я┐я┌я▄</code></em>/]<em class="replaceable"><code>п╦п╪я▐_я└п╟п╧п╩п╟1</code></em> [<em class="replaceable"><code>п╬п©я├п╦п╦ п╢п╩я▐ п╦п╪я▐_я└п╟п╧п╩п╟1</code></em>] <em class="replaceable"><code>п╦п╪я▐_я└п╟п╧п╩п╟2</code></em> [<em class="replaceable"><code>п╬п©я├п╦п╦ п╢п╩я▐ п╦п╪я▐_я└п╟п╧п╩п╟2</code></em>] ...
 </pre><p>
 </p><p>
-Воспроизведение VCD:
+п▓п╬я│п©я─п╬п╦п╥п╡п╣п╢п╣п╫п╦п╣ VCD:
 </p><pre class="synopsis">
-<span><strong class="command">mplayer</strong></span> [<em class="replaceable"><code>опции</code></em>] vcd://<em class="replaceable"><code>номер_дорожки</code></em> [-cdrom-device <em class="replaceable"><code>/dev/cdrom</code></em>]
+<span><strong class="command">mplayer</strong></span> [<em class="replaceable"><code>п╬п©я├п╦п╦</code></em>] vcd://<em class="replaceable"><code>п╫п╬п╪п╣я─_п╢п╬я─п╬п╤п╨п╦</code></em> [-cdrom-device <em class="replaceable"><code>/dev/cdrom</code></em>]
 </pre><p>
 </p><p>
-Воспроизведение DVD:
+п▓п╬я│п©я─п╬п╦п╥п╡п╣п╢п╣п╫п╦п╣ DVD:
 </p><pre class="synopsis">
-<span><strong class="command">mplayer</strong></span> [<em class="replaceable"><code>опции</code></em>] dvd://<em class="replaceable"><code>номер_ролика</code></em> [-dvd-device <em class="replaceable"><code>/dev/dvd</code></em>]
+<span><strong class="command">mplayer</strong></span> [<em class="replaceable"><code>п╬п©я├п╦п╦</code></em>] dvd://<em class="replaceable"><code>п╫п╬п╪п╣я─_я─п╬п╩п╦п╨п╟</code></em> [-dvd-device <em class="replaceable"><code>/dev/dvd</code></em>]
 </pre><p>
 </p><p>
-Воспроизведение из WWW:
+п▓п╬я│п©я─п╬п╦п╥п╡п╣п╢п╣п╫п╦п╣ п╦п╥ WWW:
 </p><pre class="synopsis">
-<span><strong class="command">mplayer</strong></span> [<em class="replaceable"><code>опции</code></em>] http://<em class="replaceable"><code>site.com/file.asf</code></em>
+<span><strong class="command">mplayer</strong></span> [<em class="replaceable"><code>п╬п©я├п╦п╦</code></em>] http://<em class="replaceable"><code>site.com/file.asf</code></em>
 </pre><p>
-(так же можно использовать и списки проигрывания (плейлист[playlist]) )
+(я┌п╟п╨ п╤п╣ п╪п╬п╤п╫п╬ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ п╦ я│п©п╦я│п╨п╦ п©я─п╬п╦пЁя─я▀п╡п╟п╫п╦я▐ (п©п╩п╣п╧п╩п╦я│я┌[playlist]) )
 </p><p>
-Воспроизведение по RTSP:
+п▓п╬я│п©я─п╬п╦п╥п╡п╣п╢п╣п╫п╦п╣ п©п╬ RTSP:
 </p><pre class="synopsis">
-<span><strong class="command">mplayer</strong></span> [<em class="replaceable"><code>опции</code></em>] rtsp://<em class="replaceable"><code>server.example.com/streamName</code></em>
+<span><strong class="command">mplayer</strong></span> [<em class="replaceable"><code>п╬п©я├п╦п╦</code></em>] rtsp://<em class="replaceable"><code>server.example.com/streamName</code></em>
 </pre><p>
 </p><p>
-Примеры:
+п÷я─п╦п╪п╣я─я▀:
 </p><pre class="screen">
 mplayer -vo x11 <em class="replaceable"><code>/mnt/Films/Contact/contact2.mpg</code></em>
 mplayer vcd://<em class="replaceable"><code>2</code></em> -cdrom-device <em class="replaceable"><code>/dev/hdc</code></em>
 mplayer -afm 3 <em class="replaceable"><code>/mnt/DVDtrailers/alien4.vob</code></em>
 mplayer dvd://<em class="replaceable"><code>1</code></em> -dvd-device <em class="replaceable"><code>/dev/hdc</code></em>
 mplayer -abs 65536 -delay -0.4 -nobps <em class="replaceable"><code>~/movies/test.avi</code></em></pre><p>
-</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="usage.html">Пред.</a> </td><td width="20%" align="center"><a accesskey="u" href="usage.html">Уровень выше</a></td><td width="40%" align="right"> <a accesskey="n" href="subosd.html">След.</a></td></tr><tr><td width="40%" align="left" valign="top">Глава 3. Использование </td><td width="20%" align="center"><a accesskey="h" href="index.html">Начало</a></td><td width="40%" align="right" valign="top"> 3.2. Субтитры и OSD</td></tr></table></div></body></html>
+</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="usage.html">п÷я─п╣п╢.</a>б═</td><td width="20%" align="center"><a accesskey="u" href="usage.html">пёя─п╬п╡п╣п╫я▄ п╡я▀я┬п╣</a></td><td width="40%" align="right">б═<a accesskey="n" href="subosd.html">п║п╩п╣п╢.</a></td></tr><tr><td width="40%" align="left" valign="top">п⌠п╩п╟п╡п╟ 3. п≤я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣б═</td><td width="20%" align="center"><a accesskey="h" href="index.html">п²п╟я┤п╟п╩п╬</a></td><td width="40%" align="right" valign="top">б═3.2. п║я┐п╠я┌п╦я┌я─я▀ п╦ OSD</td></tr></table></div></body></html>

@@ -1,7 +1,7 @@
 /*
  * Modified for use with MPlayer, for details see the changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: layer3.c 18786 2006-06-22 13:34:00Z diego $
+ * $Id: layer3.c 23485 2007-06-06 05:16:08Z zuxy $
  */
 
 /* 
@@ -324,7 +324,7 @@ static void init_layer3(int down_sample_sblimit)
  * read additional side information (for MPEG 1 and MPEG 2)
  */
 static int III_get_side_info(struct III_sideinfo *si,int stereo,
- int ms_stereo,long sfreq,int single,int lsf)
+ int ms_stereo,int sfreq,int single,int lsf)
 {
    int ch, gr;
    int powdiff = (single == 3) ? 4 : 0;
@@ -1260,11 +1260,11 @@ static int do_layer3(struct frame *fr,int single){
 
   granules = (fr->lsf) ? 1 : 2;
   for (gr=0;gr<granules;gr++){
-    static real hybridIn[2][SBLIMIT][SSLIMIT];
-    static real hybridOut[2][SSLIMIT][SBLIMIT];
+    DECLARE_ALIGNED(16, real, hybridIn[2][SBLIMIT][SSLIMIT]);
+    DECLARE_ALIGNED(16, real, hybridOut[2][SSLIMIT][SBLIMIT]);
 
     { struct gr_info_s *gr_info = &(sideinfo.ch[0].gr[gr]);
-      long part2bits;
+      int part2bits;
       if(fr->lsf)
         part2bits = III_get_scale_factors_2(scalefacs[0],gr_info,0);
       else
@@ -1276,7 +1276,7 @@ static int do_layer3(struct frame *fr,int single){
     if(stereo == 2) {
       struct gr_info_s *gr_info = &(sideinfo.ch[1].gr[gr]);
       
-      long part2bits;
+      int part2bits;
       if(fr->lsf) 
         part2bits = III_get_scale_factors_2(scalefacs[1],gr_info,i_stereo);
       else

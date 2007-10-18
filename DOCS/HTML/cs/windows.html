@@ -1,101 +1,130 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>12.4. Windows</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - Multimediální p&#345;ehráva&#269;"><link rel="up" href="ports.html" title="Kapitola 12. Porty"><link rel="prev" href="unix.html" title="12.3. Komer&#269;ní Unix"><link rel="next" href="macos.html" title="12.5. Mac OS"><link rel="preface" href="howtoread.html" title="Jak &#269;íst tuto  dokumentaci"><link rel="chapter" href="intro.html" title="Kapitola 1. P&#345;edstavení"><link rel="chapter" href="install.html" title="Kapitola 2. Instalace"><link rel="chapter" href="usage.html" title="Kapitola 3. Pou&#382;ití"><link rel="chapter" href="cd-dvd.html" title="Kapitola 4. Pou&#382;ití CD/DVD"><link rel="chapter" href="faq.html" title="Kapitola 5. &#268;asto Kladené Dotazy (FAQ)"><link rel="chapter" href="containers.html" title="Kapitola 6. Nosné formáty (Containers)"><link rel="chapter" href="codecs.html" title="Kapitola 7. Kodeky"><link rel="chapter" href="video.html" title="Kapitola 8. Výstupní video za&#345;ízení/rozhraní"><link rel="chapter" href="audio.html" title="Kapitola 9. Výstupní zvuková za&#345;ízení"><link rel="chapter" href="tv.html" title="Kapitola 10. TV"><link rel="chapter" href="radio.html" title="Kapitola 11. Rádio"><link rel="chapter" href="ports.html" title="Kapitola 12. Porty"><link rel="chapter" href="mencoder.html" title="Kapitola 13. Základní pou&#382;ití MEncoderu"><link rel="chapter" href="encoding-guide.html" title="Kapitola 14. Enkódování s MEncoderem"><link rel="appendix" href="bugreports.html" title="P&#345;íloha A. Jak hlásit chyby"><link rel="appendix" href="bugs.html" title="P&#345;íloha B. Známé chyby"><link rel="appendix" href="skin.html" title="P&#345;íloha C. Formát skin&#367; MPlayeru"><link rel="subsection" href="windows.html#cygwin" title="12.4.1. Cygwin"><link rel="subsection" href="windows.html#mingw" title="12.4.2. MinGW"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">12.4. Windows</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="unix.html">P&#345;edcházející</a> </td><th width="60%" align="center">Kapitola 12. Porty</th><td width="20%" align="right"> <a accesskey="n" href="macos.html">Dal&#353;í</a></td></tr></table><hr></div><div class="sect1" lang="cs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="windows"></a>12.4. Windows</h2></div></div></div><p>Ano, <span class="application">MPlayer</span> b&#283;&#382;í na Windows pod
-  <a href="http://www.cygwin.com/" target="_top"><span class="application">Cygwin</span></a> a
-  <a href="http://www.mingw.org/" target="_top"><span class="application">MinGW</span></a>.
-  Nemá zatím oficiální GUI, ale verze pro p&#345;íkazový &#345;ádek je pln&#283; funk&#269;ní.
-  M&#283;li byste nav&#353;tívit konferenci
-  <a href="http://lists.mplayerhq.hu/mailman/listinfo/mplayer-cygwin/" target="_top">MPlayer-cygwin</a>
-  pro pomoc a poslední informace.
-  Oficiální Windows binárky naleznete na
-  <a href="http://www.mplayerhq.hu/design7/dload.html" target="_top">download stránce</a>.
-  Instalátor a jednoduché GUI frontendy jsou dostupné z externích zdroj&#367;.
-  Odkazy na n&#283; jsme umístili v sekci Windows na na&#353;í
-  <a href="http://www.mplayerhq.hu/design7/projects.html#windows" target="_top">stránce s
-  projekty</a>.
-</p><p>Pokud se chcete vyhnout pou&#382;ití p&#345;íkazové &#345;ádky, m&#367;&#382;ete pou&#382;ít malý trik
-  s umíst&#283;ním zástupce na pracovní plochu, který bude obsahovat v sekci
-  spu&#353;t&#283;ní n&#283;co takového:
-  </p><pre class="screen"><em class="replaceable"><code>c:\cesta\k\</code></em>mplayer.exe %1</pre><p>
-  To nechá <span class="application">MPlayer</span> p&#345;ehrát jakýkoli film, který je
-  p&#345;eta&#382;en na zástupce. P&#345;idejte <tt class="option">-fs</tt> pro celoobrazovkový
-  re&#382;im.
-</p><p>Nejlep&#353;ích výsledk&#367; dosáhnete pou&#382;itím nativního DirectX video rozhraní
-  (<tt class="option">-vo directx</tt>). Alternativami jsou OpenGL a SDL, ale výkon
-  OpenGL se velmi r&#367;zní na jednotlivých systémech a o SDL je známo, &#382;e na
-  n&#283;kterých systémech drobí video nebo padá. Pokud je obraz rozsypán, zkuste
-  vypnout hardwarovou akceleraci pomocí
-  <tt class="option">-vo directx:noaccel</tt>. Stáhn&#283;te si
-  <a href="http://www.mplayerhq.hu/MPlayer/releases/win32/contrib/dx7headers.tgz" target="_top">hlavi&#269;kové
-  soubory DirectX 7</a>
-  pro kompilaci výstupního rozhraní DirectX. Navíc budete muset mít
-  nainstalovány DirectX 7 nebo vy&#353;&#353;í, aby rozhraní pracovalo.
-  </p><p><a href="output-trad.html#vidix" title="8.2.13. VIDIX">VIDIX</a> nyní pracuje pod Windows jako
-  <tt class="option">-vo winvidix</tt>, a&#269;koli je stále experimentální
-  a vy&#382;aduje trochu manuálního nastavování. Stáhn&#283;te si
-  <a href="http://www.mplayerhq.hu/MPlayer/releases/win32/dhahelperwin/dhahelper.sys" target="_top">dhahelper.sys</a> nebo
-  <a href="http://www.mplayerhq.hu/MPlayer/releases/win32/dhahelperwin/withmtrr/dhahelper.sys" target="_top">dhahelper.sys (s podporou MTRR)</a>
-  a zkopírujte jej do adresá&#345;e
-  <tt class="filename">libdha/dhahelperwin</tt> ve svém strom&#283; se
-  zdrojovými kódy <span class="application">MPlayer</span>u.
-  Otev&#345;ete konzoli a p&#345;esu&#328;te se do tohoto adresá&#345;e. Pak zadejte
-
-  </p><pre class="screen">gcc -o dhasetup.exe dhasetup.c</pre><p>
-
-  a spus&#357;te
-
-  </p><pre class="screen">dhasetup.exe install</pre><p>
-
-  jako Administrator. Pak budete muset restartovat. Jakmile budete hotovi,
-  zkopírujte <code class="systemitem">.so</code> soubory z
-  <tt class="filename">vidix/drivers</tt> do adresá&#345;e
-  <tt class="filename">mplayer/vidix</tt>
-  relativního k va&#353;emu <tt class="filename">mplayer.exe</tt>.</p><p>Pro nejlep&#353;í výsledky by m&#283;l <span class="application">MPlayer</span> pou&#382;ívat
-  barevný prostor, který podporuje va&#353;e video karta v hardware. Nane&#353;t&#283;stí
-  n&#283;které Windows ovlada&#269;e grafických karet &#353;patn&#283; hlásí n&#283;které barevné
-  prostory jako podporované v hardware. Chcete-li zjistit které, zkuste
-
-  </p><pre class="screen">mplayer -benchmark -nosound -frames 100 -vf format=<em class="replaceable"><code>barevny_prostor</code></em> <em class="replaceable"><code>film</code></em></pre><p>
-
-  kde <em class="replaceable"><code>barevny_prostor</code></em> m&#367;&#382;e být barevný prostor
-  vypsaný volbou <tt class="option">-vf format=fmt=help</tt>. Pokud najdete
-  barevný prostor, který va&#353;e karta zvládá zjevn&#283; &#353;patn&#283;,
-  <tt class="option">-vf noformat=<em class="replaceable"><code>barevny_prostor</code></em></tt>
-  zaká&#382;e jeho pou&#382;ití. P&#345;idejte si to do va&#353;eho konfig souboru, aby z&#367;stal
-  zakázán natrvalo.</p><p>Pro Windows máme k dispozici speciální balí&#269;ky kodek&#367; na na&#353;í
-  <a href="http://www.mplayerhq.hu/design7/dload.html" target="_top">download stránce</a>,
-  abyste mohli p&#345;ehrávat formáty, pro které zatím není nativní podpora.
-  Umíst&#283;te kodeky n&#283;kde do cesty (path), nebo p&#345;idejte
-  <tt class="option">--with-codecsdir=<em class="replaceable"><code>c:/cesta/ke/kodek&#367;m</code></em></tt>
-  (p&#345;ípadn&#283;
-  <tt class="option">--with-codecsdir=<em class="replaceable"><code>/cesta/ke/kodek&#367;m</code></em></tt>
-  pou&#382;ívate-li <span class="application">Cygwin</span>) do <tt class="filename">configure</tt>.
-  Máme n&#283;kolik zpráv, &#382;e Real DLL musí mít práva zápisu pro u&#382;ivatele, který
-  pou&#353;tí <span class="application">MPlayer</span>, ale pouze na n&#283;kterých systémech (NT4).
-  Máte-li potí&#382;e, zkuste jim p&#345;idat právo zápisu.</p><p>M&#367;&#382;ete p&#345;ehrávat VCD p&#345;ehráváním <tt class="filename">.DAT</tt> nebo <tt class="filename">.MPG</tt>
-  soubor&#367;, které Windows ukazuje na VCD. Pracuje to takto
-  (upravte písmeno disku va&#353;í CD-ROM):</p><pre class="screen">mplayer <em class="replaceable"><code>d:/mpegav/avseq01.dat</code></em></pre><p>DVD pracují také, upravte <tt class="option">-dvd-device</tt> na písmeno
-  DVD-ROM mechaniky:</p><pre class="screen">mplayer dvd://<em class="replaceable"><code>&lt;titul&gt;</code></em> -dvd-device <em class="replaceable"><code>d</code></em>:</pre><p><span class="application">Cygwin</span>/<span class="application">MinGW</span>
-  terminál je spí&#353;e pomalý. P&#345;esm&#283;rování výstupu nebo pou&#382;ití volby
-  <tt class="option">-quiet</tt> podle hlá&#353;ení zvý&#353;í výkon na n&#283;kterých systémech.
-  Direct rendering (<tt class="option">-dr</tt>) m&#367;&#382;e rovn&#283;&#382; pomoci.
-  Pokud je p&#345;ehrávání trhané, zkuste
-  <tt class="option">-autosync 100</tt>. Pokud vám n&#283;které z t&#283;chto voleb pomohly,
-  m&#283;li byste si je zapsat do konfigura&#269;ního souboru.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Poznámka</h3><p>Runtime CPU detekce na Windows vypíná podporu SSE kv&#367;li opakovaným a
-  t&#283;&#382;ko vystopovatelným se SSE souvisejícím pád&#367;m. Pokud chcete mít podporu
-  SSE pod Windows, budete muset kompilovat bez runtime CPU detekce.
-</p><p>Máte-li Pentium 4 a dojde k pádu p&#345;i pou&#382;ití
-  RealPlayer kodek&#367;, mo&#382;ná budete muset vypnout podporu hyperthreading.
-</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="cygwin"></a>12.4.1. <span class="application">Cygwin</span></h3></div></div></div><p>Musíte pou&#382;ívat <span class="application">Cygwin</span> 1.5.0 nebo vy&#353;&#353;í,
-  abyste mohli kompilovat <span class="application">MPlayer</span>.</p><p>Hlavi&#269;kové soubory DirectX musí být rozbaleny do <tt class="filename">/usr/include/</tt> nebo
-  <tt class="filename">/usr/local/include/</tt>.</p><p>Instrukce a soubory nutné pro b&#283;h SDL pod
-  <span class="application">Cygwin</span> lze nalézt na
-  <a href="http://www.libsdl.org/extras/win32/cygwin/" target="_top">libsdl stránkách</a>.</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="mingw"></a>12.4.2. <span class="application">MinGW</span></h3></div></div></div><p>Instalace takové verze <span class="application">MinGW</span>, aby bylo lze
-  kompilovat <span class="application">MPlayer</span> byla obtí&#382;ná, ale nyní
-  pracuje bez dal&#353;ích úprav. Jen nainstalujte <span class="application">MinGW</span>
-  3.1.0 nebo vy&#353;&#353;í a MSYS 1.0.9 nebo vy&#353;&#353;í a zvolte v MSYS postinstall, &#382;e je
-  <span class="application">MinGW</span> nainstalováno.</p><p>Rozbalte DirectX hlavi&#269;kové soubory do <tt class="filename">/mingw/include/</tt>.</p><p>Podpora MOV compressed header vy&#382;aduje
-  <a href="http://www.gzip.org/zlib/" target="_top">zlib</a>, kterou
-  <span class="application">MinGW</span> neobsahuje.
-  Konfigurujte ji s <tt class="option">--prefix=/mingw</tt> a nainstalujte
-  ji p&#345;ed kompilací <span class="application">MPlayer</span>u.</p><p>Kompletní instrukce pro p&#345;eklad <span class="application">MPlayer</span>u
-  a pot&#345;ebné knihovny naleznete v
-  <a href="http://mplayerhq.hu/MPlayer/releases/win32/contrib/MPlayer-MinGW-Howto.txt" target="_top">MPlayer MinGW HOWTO</a>.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="unix.html">P&#345;edcházející</a> </td><td width="20%" align="center"><a accesskey="u" href="ports.html">Nahoru</a></td><td width="40%" align="right"> <a accesskey="n" href="macos.html">Dal&#353;í</a></td></tr><tr><td width="40%" align="left" valign="top">12.3. Komer&#269;ní Unix </td><td width="20%" align="center"><a accesskey="h" href="index.html">Dom&#367;</a></td><td width="40%" align="right" valign="top"> 12.5. Mac OS</td></tr></table></div></body></html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>12.4. Windows</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - MultimediÃ¡lnÃ­ pÅ™ehrÃ¡vaÄ"><link rel="up" href="ports.html" title="Kapitola 12. Porty"><link rel="prev" href="unix.html" title="12.3. KomerÄnÃ­ Unix"><link rel="next" href="macos.html" title="12.5. Mac OS"><link rel="preface" href="howtoread.html" title="Jak ÄÃ­st tuto dokumentaci"><link rel="chapter" href="intro.html" title="Kapitola 1. PÅ™edstavenÃ­"><link rel="chapter" href="install.html" title="Kapitola 2. Instalace"><link rel="chapter" href="usage.html" title="Kapitola 3. PouÅ¾itÃ­"><link rel="chapter" href="cd-dvd.html" title="Kapitola 4. PouÅ¾itÃ­ CD/DVD"><link rel="chapter" href="faq.html" title="Kapitola 5. ÄŒasto KladenÃ© Dotazy (FAQ)"><link rel="chapter" href="containers.html" title="Kapitola 6. NosnÃ© formÃ¡ty (Containers)"><link rel="chapter" href="codecs.html" title="Kapitola 7. Kodeky"><link rel="chapter" href="video.html" title="Kapitola 8. VÃ½stupnÃ­ video zaÅ™Ã­zenÃ­/rozhranÃ­"><link rel="chapter" href="audio.html" title="Kapitola 9. VÃ½stupnÃ­ zvukovÃ¡ zaÅ™Ã­zenÃ­"><link rel="chapter" href="tv.html" title="Kapitola 10. TV"><link rel="chapter" href="radio.html" title="Kapitola 11. RÃ¡dio"><link rel="chapter" href="ports.html" title="Kapitola 12. Porty"><link rel="chapter" href="mencoder.html" title="Kapitola 13. ZÃ¡kladnÃ­ pouÅ¾itÃ­ MEncoderu"><link rel="chapter" href="encoding-guide.html" title="Kapitola 14. EnkÃ³dovÃ¡nÃ­ s MEncoderem"><link rel="appendix" href="bugreports.html" title="PÅ™Ã­loha A. Jak hlÃ¡sit chyby"><link rel="appendix" href="bugs.html" title="PÅ™Ã­loha B. ZnÃ¡mÃ© chyby"><link rel="appendix" href="skin.html" title="PÅ™Ã­loha C. FormÃ¡t skinÅ¯ MPlayeru"><link rel="appendix" href="history.html" title="PÅ™Ã­loha D. Historie"><link rel="subsection" href="windows.html#cygwin" title="12.4.1. Cygwin"><link rel="subsection" href="windows.html#mingw" title="12.4.2. MinGW"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">12.4. Windows</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="unix.html">PÅ™edchÃ¡zejÃ­cÃ­</a>Â </td><th width="60%" align="center">Kapitola 12. Porty</th><td width="20%" align="right">Â <a accesskey="n" href="macos.html">DalÅ¡Ã­</a></td></tr></table><hr></div><div class="sect1" lang="cs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="windows"></a>12.4. Windows</h2></div></div></div><p>
+Ano, <span class="application">MPlayer</span> bÄ›Å¾Ã­ na Windows pod
+<a href="http://www.cygwin.com/" target="_top"><span class="application">Cygwin</span></a> a
+<a href="http://www.mingw.org/" target="_top"><span class="application">MinGW</span></a>.
+NemÃ¡ zatÃ­m oficiÃ¡lnÃ­ GUI, ale verze pro pÅ™Ã­kazovÃ½ Å™Ã¡dek je plnÄ› funkÄnÃ­.
+MÄ›li byste navÅ¡tÃ­vit konferenci
+<a href="http://lists.mplayerhq.hu/mailman/listinfo/mplayer-cygwin/" target="_top">MPlayer-cygwin</a>
+pro pomoc a poslednÃ­ informace.
+OficiÃ¡lnÃ­ Windows binÃ¡rky naleznete na
+<a href="http://www.mplayerhq.hu/design7/dload.html" target="_top">download strÃ¡nce</a>.
+InstalÃ¡tor a jednoduchÃ© GUI frontendy jsou dostupnÃ© z externÃ­ch zdrojÅ¯.
+Odkazy na nÄ› jsme umÃ­stili v sekci Windows na naÅ¡Ã­
+<a href="http://www.mplayerhq.hu/design7/projects.html#windows" target="_top">strÃ¡nce s
+projekty</a>.
+</p><p>
+Pokud se chcete vyhnout pouÅ¾itÃ­ pÅ™Ã­kazovÃ© Å™Ã¡dky, mÅ¯Å¾ete pouÅ¾Ã­t malÃ½ trik
+s umÃ­stÄ›nÃ­m zÃ¡stupce na pracovnÃ­ plochu, kterÃ½ bude obsahovat v sekci
+spuÅ¡tÄ›nÃ­ nÄ›co takovÃ©ho:
+</p><pre class="screen"><em class="replaceable"><code>c:\cesta\k\</code></em>mplayer.exe %1</pre><p>
+To nechÃ¡ <span class="application">MPlayer</span> pÅ™ehrÃ¡t jakÃ½koli film, kterÃ½ je
+pÅ™etaÅ¾en na zÃ¡stupce. PÅ™idejte <tt class="option">-fs</tt> pro celoobrazovkovÃ½
+reÅ¾im.
+</p><p>
+NejlepÅ¡Ã­ch vÃ½sledkÅ¯ dosÃ¡hnete pouÅ¾itÃ­m nativnÃ­ho DirectX video rozhranÃ­
+(<tt class="option">-vo directx</tt>). Alternativami jsou OpenGL a SDL, ale vÃ½kon
+OpenGL se velmi rÅ¯znÃ­ na jednotlivÃ½ch systÃ©mech a o SDL je znÃ¡mo, Å¾e na
+nÄ›kterÃ½ch systÃ©mech drobÃ­ video nebo padÃ¡. Pokud je obraz rozsypÃ¡n, zkuste
+vypnout hardwarovou akceleraci pomocÃ­
+<tt class="option">-vo directx:noaccel</tt>. StÃ¡hnÄ›te si
+<a href="http://www.mplayerhq.hu/MPlayer/releases/win32/contrib/dx7headers.tgz" target="_top">hlaviÄkovÃ© soubory DirectX 7</a>
+pro kompilaci vÃ½stupnÃ­ho rozhranÃ­ DirectX. NavÃ­c budete muset mÃ­t
+nainstalovÃ¡ny DirectX 7 nebo vyÅ¡Å¡Ã­, aby rozhranÃ­ pracovalo.
+</p><p>
+<a href="output-trad.html#vidix" title="8.2.14. VIDIX">VIDIX</a> nynÃ­ pracuje pod Windows jako
+<tt class="option">-vo winvidix</tt>, aÄkoli je stÃ¡le experimentÃ¡lnÃ­
+a vyÅ¾aduje trochu manuÃ¡lnÃ­ho nastavovÃ¡nÃ­. StÃ¡hnÄ›te si
+<a href="http://www.mplayerhq.hu/MPlayer/releases/win32/dhahelperwin/dhahelper.sys" target="_top">dhahelper.sys</a> nebo
+<a href="http://www.mplayerhq.hu/MPlayer/releases/win32/dhahelperwin/withmtrr/dhahelper.sys" target="_top">dhahelper.sys (s podporou MTRR)</a>
+a zkopÃ­rujte jej do adresÃ¡Å™e
+<tt class="filename">libdha/dhahelperwin</tt> ve svÃ©m stromÄ› se
+zdrojovÃ½mi kÃ³dy <span class="application">MPlayer</span>u.
+OtevÅ™ete konzoli a pÅ™esuÅˆte se do tohoto adresÃ¡Å™e. Pak zadejte
+</p><pre class="screen">gcc -o dhasetup.exe dhasetup.c</pre><p>
+a spusÅ¥te
+</p><pre class="screen">dhasetup.exe install</pre><p>
+jako Administrator. Pak budete muset restartovat. Jakmile budete hotovi,
+zkopÃ­rujte <code class="systemitem">.so</code> soubory z
+<tt class="filename">vidix/drivers</tt> do adresÃ¡Å™e
+<tt class="filename">mplayer/vidix</tt>
+relativnÃ­ho k vaÅ¡emu <tt class="filename">mplayer.exe</tt>.
+</p><p>
+Pro nejlepÅ¡Ã­ vÃ½sledky by mÄ›l <span class="application">MPlayer</span> pouÅ¾Ã­vat
+barevnÃ½ prostor, kterÃ½ podporuje vaÅ¡e video karta v hardware. NaneÅ¡tÄ›stÃ­
+nÄ›kterÃ© Windows ovladaÄe grafickÃ½ch karet Å¡patnÄ› hlÃ¡sÃ­ nÄ›kterÃ© barevnÃ©
+prostory jako podporovanÃ© v hardware. Chcete-li zjistit kterÃ©, zkuste
+</p><pre class="screen">
+mplayer -benchmark -nosound -frames 100 -vf format=<em class="replaceable"><code>barevny_prostor</code></em> <em class="replaceable"><code>film</code></em>
+</pre><p>
+kde <em class="replaceable"><code>barevny_prostor</code></em> mÅ¯Å¾e bÃ½t barevnÃ½ prostor
+vypsanÃ½ volbou <tt class="option">-vf format=fmt=help</tt>. Pokud najdete
+barevnÃ½ prostor, kterÃ½ vaÅ¡e karta zvlÃ¡dÃ¡ zjevnÄ› Å¡patnÄ›,
+<tt class="option">-vf noformat=<em class="replaceable"><code>barevny_prostor</code></em></tt>
+zakÃ¡Å¾e jeho pouÅ¾itÃ­. PÅ™idejte si to do vaÅ¡eho konfig souboru, aby zÅ¯stal
+zakÃ¡zÃ¡n natrvalo.
+</p><p>Pro Windows mÃ¡me k dispozici speciÃ¡lnÃ­ balÃ­Äky kodekÅ¯ na naÅ¡Ã­
+  <a href="http://www.mplayerhq.hu/design7/dload.html" target="_top">download strÃ¡nce</a>,
+  abyste mohli pÅ™ehrÃ¡vat formÃ¡ty, pro kterÃ© zatÃ­m nenÃ­ nativnÃ­ podpora.
+  UmÃ­stÄ›te kodeky nÄ›kde do cesty (path), nebo pÅ™idejte
+  <tt class="option">--codecsdir=<em class="replaceable"><code>c:/cesta/ke/kodekÅ¯m</code></em></tt>
+  (pÅ™Ã­padnÄ›
+  <tt class="option">--codecsdir=<em class="replaceable"><code>/cesta/ke/kodekÅ¯m</code></em></tt>
+  pouÅ¾Ã­vate-li <span class="application">Cygwin</span>) do <tt class="filename">configure</tt>.
+  MÃ¡me nÄ›kolik zprÃ¡v, Å¾e Real DLL musÃ­ mÃ­t prÃ¡va zÃ¡pisu pro uÅ¾ivatele, kterÃ½
+  pouÅ¡tÃ­ <span class="application">MPlayer</span>, ale pouze na nÄ›kterÃ½ch systÃ©mech (NT4).
+  MÃ¡te-li potÃ­Å¾e, zkuste jim pÅ™idat prÃ¡vo zÃ¡pisu.
+  </p><p>
+MÅ¯Å¾ete pÅ™ehrÃ¡vat VCD pÅ™ehrÃ¡vÃ¡nÃ­m <tt class="filename">.DAT</tt> nebo
+<tt class="filename">.MPG</tt> souborÅ¯, kterÃ© Windows ukazuje na VCD. Pracuje to
+takto (upravte pÃ­smeno disku vaÅ¡Ã­ CD-ROM):
+</p><pre class="screen">mplayer <em class="replaceable"><code>d:/mpegav/avseq01.dat</code></em></pre><p>
+DVD pracujÃ­ takÃ©, upravte <tt class="option">-dvd-device</tt> na pÃ­smeno
+DVD-ROM mechaniky:
+</p><pre class="screen">
+mplayer dvd://<em class="replaceable"><code>&lt;titul&gt;</code></em> -dvd-device <em class="replaceable"><code>d</code></em>:
+</pre><p>
+<span class="application">Cygwin</span>/<span class="application">MinGW</span>
+terminÃ¡l je spÃ­Å¡e pomalÃ½. PÅ™esmÄ›rovÃ¡nÃ­ vÃ½stupu nebo pouÅ¾itÃ­ volby
+<tt class="option">-quiet</tt> podle hlÃ¡Å¡enÃ­ zvÃ½Å¡Ã­ vÃ½kon na nÄ›kterÃ½ch systÃ©mech.
+Direct rendering (<tt class="option">-dr</tt>) mÅ¯Å¾e rovnÄ›Å¾ pomoci.
+Pokud je pÅ™ehrÃ¡vÃ¡nÃ­ trhanÃ©, zkuste
+<tt class="option">-autosync 100</tt>. Pokud vÃ¡m nÄ›kterÃ© z tÄ›chto voleb pomohly,
+mÄ›li byste si je zapsat do konfiguraÄnÃ­ho souboru.
+</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">PoznÃ¡mka</h3><p>
+Runtime CPU detekce na Windows vypÃ­nÃ¡ podporu SSE kvÅ¯li opakovanÃ½m a
+tÄ›Å¾ko vystopovatelnÃ½m se SSE souvisejÃ­cÃ­m pÃ¡dÅ¯m. Pokud chcete mÃ­t podporu
+SSE pod Windows, budete muset kompilovat bez runtime CPU detekce.
+</p><p>
+MÃ¡te-li Pentium 4 a dojde k pÃ¡du pÅ™i pouÅ¾itÃ­
+RealPlayer kodekÅ¯, moÅ¾nÃ¡ budete muset vypnout podporu hyperthreading.
+</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="cygwin"></a>12.4.1. <span class="application">Cygwin</span></h3></div></div></div><p>
+MusÃ­te pouÅ¾Ã­vat <span class="application">Cygwin</span> 1.5.0 nebo vyÅ¡Å¡Ã­,
+abyste mohli kompilovat <span class="application">MPlayer</span>.
+</p><p>
+HlaviÄkovÃ© soubory DirectX musÃ­ bÃ½t rozbaleny do
+<tt class="filename">/usr/include/</tt> nebo
+<tt class="filename">/usr/local/include/</tt>.
+</p><p>
+Instrukce a soubory nutnÃ© pro bÄ›h SDL pod
+<span class="application">Cygwin</span> lze nalÃ©zt na
+<a href="http://www.libsdl.org/extras/win32/cygwin/" target="_top">libsdl strÃ¡nkÃ¡ch</a>.
+</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="mingw"></a>12.4.2. <span class="application">MinGW</span></h3></div></div></div><p>
+Instalace takovÃ© verze <span class="application">MinGW</span>, aby bylo lze
+kompilovat <span class="application">MPlayer</span> byla obtÃ­Å¾nÃ¡, ale nynÃ­
+pracuje bez dalÅ¡Ã­ch Ãºprav. Jen nainstalujte <span class="application">MinGW</span>
+3.1.0 nebo vyÅ¡Å¡Ã­ a MSYS 1.0.9 nebo vyÅ¡Å¡Ã­ a zvolte v MSYS postinstall, Å¾e je
+<span class="application">MinGW</span> nainstalovÃ¡no.
+</p><p>
+Rozbalte DirectX hlaviÄkovÃ© soubory do
+<tt class="filename">/mingw/include/</tt>.
+</p><p>
+Podpora MOV compressed header vyÅ¾aduje
+<a href="http://www.gzip.org/zlib/" target="_top">zlib</a>,
+kterou <span class="application">MinGW</span> neobsahuje.
+Konfigurujte ji s <tt class="option">--prefix=/mingw</tt> a nainstalujte
+ji pÅ™ed kompilacÃ­ <span class="application">MPlayer</span>u.
+</p><p>
+KompletnÃ­ instrukce pro pÅ™eklad <span class="application">MPlayer</span>u
+a potÅ™ebnÃ© knihovny naleznete v
+<a href="http://www.mplayerhq.hu/MPlayer/releases/win32/contrib/MPlayer-MinGW-Howto.txt" target="_top">MPlayer MinGW HOWTO</a>.
+</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="unix.html">PÅ™edchÃ¡zejÃ­cÃ­</a>Â </td><td width="20%" align="center"><a accesskey="u" href="ports.html">Nahoru</a></td><td width="40%" align="right">Â <a accesskey="n" href="macos.html">DalÅ¡Ã­</a></td></tr><tr><td width="40%" align="left" valign="top">12.3. KomerÄnÃ­ UnixÂ </td><td width="20%" align="center"><a accesskey="h" href="index.html">DomÅ¯</a></td><td width="40%" align="right" valign="top">Â 12.5. Mac OS</td></tr></table></div></body></html>

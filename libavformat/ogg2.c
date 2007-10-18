@@ -41,6 +41,7 @@ static ogg_codec_t *ogg_codecs[] = {
     &vorbis_codec,
     &theora_codec,
     &flac_codec,
+    &old_flac_codec,
     &ogm_video_codec,
     &ogm_audio_codec,
     &ogm_old_codec,
@@ -67,8 +68,8 @@ ogg_write_trailer (AVFormatContext * avfcontext)
 
 AVOutputFormat ogg_muxer = {
     "ogg",
-    "Ogg Vorbis",
-    "audio/x-vorbis",
+    "Ogg format",
+    "application/ogg",
     "ogg",
     sizeof (OggContext),
     CODEC_ID_VORBIS,
@@ -90,6 +91,7 @@ ogg_save (AVFormatContext * s)
     ost->pos = url_ftell (&s->pb);;
     ost->curidx = ogg->curidx;
     ost->next = ogg->state;
+    ost->nstreams = ogg->nstreams;
     memcpy(ost->streams, ogg->streams, ogg->nstreams * sizeof(*ogg->streams));
 
     for (i = 0; i < ogg->nstreams; i++){
@@ -123,8 +125,9 @@ ogg_restore (AVFormatContext * s, int discard)
 
         url_fseek (bc, ost->pos, SEEK_SET);
         ogg->curidx = ost->curidx;
-        memcpy (ogg->streams, ost->streams,
-        ogg->nstreams * sizeof (*ogg->streams));
+        ogg->nstreams = ost->nstreams;
+        memcpy(ogg->streams, ost->streams,
+               ost->nstreams * sizeof(*ogg->streams));
     }
 
     av_free (ost);
@@ -198,7 +201,7 @@ ogg_new_stream (AVFormatContext * s, uint32_t serial)
 
     st = av_new_stream (s, idx);
     if (!st)
-        return AVERROR_NOMEM;
+        return AVERROR(ENOMEM);
 
     av_set_pts_info(st, 64, 1, 1000000);
 
@@ -482,7 +485,8 @@ ogg_get_length (AVFormatContext * s)
     url_fseek (&s->pb, end, SEEK_SET);
 
     while (!ogg_read_page (s, &i)){
-        if (ogg->streams[i].granule != -1 && ogg->streams[i].granule != 0)
+        if (ogg->streams[i].granule != -1 && ogg->streams[i].granule != 0 &&
+            ogg->streams[i].codec)
             idx = i;
     }
 
@@ -537,7 +541,7 @@ ogg_read_packet (AVFormatContext * s, AVPacket * pkt)
     //Get an ogg packet
     do{
         if (ogg_packet (s, &idx, &pstart, &psize) < 0)
-            return AVERROR_IO;
+            return AVERROR(EIO);
     }while (idx < 0 || !s->streams[idx]);
 
     ogg = s->priv_data;
@@ -545,7 +549,7 @@ ogg_read_packet (AVFormatContext * s, AVPacket * pkt)
 
     //Alloc a pkt
     if (av_new_packet (pkt, psize) < 0)
-        return AVERROR_IO;
+        return AVERROR(EIO);
     pkt->stream_index = idx;
     memcpy (pkt->data, os->buf + pstart, psize);
     if (os->lastgp != -1LL){
@@ -673,8 +677,6 @@ ogg_read_timestamp (AVFormatContext * s, int stream_index, int64_t * pos_arg,
 
 static int ogg_probe(AVProbeData *p)
 {
-    if (p->buf_size < 6)
-        return 0;
     if (p->buf[0] == 'O' && p->buf[1] == 'g' &&
         p->buf[2] == 'g' && p->buf[3] == 'S' &&
         p->buf[4] == 0x0 && p->buf[5] <= 0x7 )

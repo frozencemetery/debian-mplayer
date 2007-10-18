@@ -28,8 +28,14 @@
 #endif
 #endif
 
+#if defined(USE_LANGINFO) && defined(USE_ICONV)
+#include <locale.h>
+#include <langinfo.h>
+#endif
+
 #include <unistd.h>
 
+#include "mp_fifo.h"
 #include "keycodes.h"
 
 #ifdef HAVE_TERMIOS
@@ -128,91 +134,117 @@ void get_screen_size(void){
 #endif
 }
 
-int getch2(int time){
-  int len=0;
-  int code=0;
-  int i=0;
+void getch2(void)
+{
+    int retval = read(0, &getch2_buf[getch2_len], BUF_LEN-getch2_len);
+    if (retval < 1)
+        return;
+    getch2_len += retval;
 
-  while(!getch2_len || (getch2_len==1 && getch2_buf[0]==27)){
-    fd_set rfds;
-    struct timeval tv;
-    int retval;
-    /* Watch stdin (fd 0) to see when it has input. */
-    FD_ZERO(&rfds); FD_SET(0,&rfds);
-    /* Wait up to 'time' microseconds. */
-    tv.tv_sec=time/1000; tv.tv_usec = (time%1000)*1000;
-    retval=select(1, &rfds, NULL, NULL, &tv);
-    if(retval<=0) return -1;
-    /* Data is available now. */
-    retval=read(0,&getch2_buf[getch2_len],BUF_LEN-getch2_len);
-    if(retval<1) return -1;
-    getch2_len+=retval;
-  }
+    while (getch2_len > 0 && (getch2_len > 1 || getch2_buf[0] != 27)) {
+        int i, len, code;
 
-    /* First find in the TERMCAP database: */
-    for(i=0;i<getch2_key_db;i++){
-      if((len=getch2_keys[i].len)<=getch2_len)
-        if(memcmp(getch2_keys[i].chars,getch2_buf,len)==0){
-          code=getch2_keys[i].code; goto found;
+        /* First find in the TERMCAP database: */
+        for (i = 0; i < getch2_key_db; i++) {
+            if ((len = getch2_keys[i].len) <= getch2_len)
+                if(memcmp(getch2_keys[i].chars, getch2_buf, len) == 0) {
+                    code = getch2_keys[i].code;
+                    goto found;
+                }
         }
+        /* We always match some keypress here, with length 1 if nothing else.
+         * Since some of the cases explicitly test remaining buffer length
+         * having a keycode only partially read in the buffer could incorrectly
+         * use the first byte as an independent character.
+         * However the buffer is big enough that this shouldn't happen too
+         * easily, and it's been this way for years without many complaints.
+         * I see no simple fix as there's no easy test which would tell
+         * whether a string must be part of a longer keycode. */
+        len = 1;
+        code = getch2_buf[0];
+        /* Check the well-known codes... */
+        if (code != 27) {
+            if (code == 'A'-64) code = KEY_HOME;
+            else if (code == 'E'-64) code = KEY_END;
+            else if (code == 'D'-64) code = KEY_DEL;
+            else if (code == 'H'-64) code = KEY_BS;
+            else if (code == 'U'-64) code = KEY_PGUP;
+            else if (code == 'V'-64) code = KEY_PGDWN;
+            else if (code == 8 || code==127) code = KEY_BS;
+            else if (code == 10 || code==13) {
+                if (getch2_len > 1) {
+                    int c = getch2_buf[1];
+                    if ((c == 10 || c == 13) && (c != code))
+                        len = 2;
+                }
+                code = KEY_ENTER;
+            }
+        }
+        else if (getch2_len > 1) {
+            int c = getch2_buf[1];
+            if (c == 27) {
+                code = KEY_ESC;
+                len = 2;
+                goto found;
+            }
+            if (c >= '0' && c <= '9') {
+                code = c-'0'+KEY_F;
+                len = 2;
+                goto found;
+            }
+            if (getch2_len >= 4 && c == '[' && getch2_buf[2] == '[') {
+                int c = getch2_buf[3];
+                if (c >= 'A' && c < 'A'+12) {
+                    code = KEY_F+1 + c-'A';
+                    len = 4;
+                    goto found;
+                }
+            }
+            if ((c == '[' || c == 'O') && getch2_len >= 3) {
+                int c = getch2_buf[2];
+                const short ctable[] = {
+                    KEY_UP, KEY_DOWN, KEY_RIGHT, KEY_LEFT, 0,
+                    KEY_END, KEY_PGDWN, KEY_HOME, KEY_PGUP, 0, 0, KEY_INS, 0, 0, 0,
+                    KEY_F+1, KEY_F+2, KEY_F+3, KEY_F+4};
+                if (c >= 'A' && c <= 'S')
+                    if (ctable[c - 'A']) {
+                        code = ctable[c - 'A'];
+                        len = 3;
+                        goto found;
+                    }
+            }
+            if (getch2_len >= 4 && c == '[' && getch2_buf[3] == '~') {
+                int c = getch2_buf[2];
+                const int ctable[8] = {KEY_HOME, KEY_INS, KEY_DEL, KEY_END, KEY_PGUP, KEY_PGDWN, KEY_HOME, KEY_END};
+                if (c >= '1' && c <= '8') {
+                    code = ctable[c - '1'];
+                    len = 4;
+                    goto found;
+                }
+            }
+            if (getch2_len >= 5 && c == '[' && getch2_buf[4] == '~') {
+                int i = getch2_buf[2] - '0';
+                int j = getch2_buf[3] - '0';
+                if (i >= 0 && i <= 9 && j >= 0 && j <= 9) {
+                    const short ftable[20] = {
+                        11,12,13,14,15, 17,18,19,20,21,
+                        23,24,25,26,28, 29,31,32,33,34 };
+                    int a = i*10 + j;
+                    for (i = 0; i < 20; i++)
+                        if (ftable[i] == a) {
+                            code = KEY_F+1 + i;
+                            len = 5;
+                            goto found;
+                        }
+                }
+            }
+        }
+    found:
+        getch2_len -= len;
+        for (i = 0; i < getch2_len; i++)
+            getch2_buf[i] = getch2_buf[len+i];
+        mplayer_put_key(code);
     }
-    len=1;code=getch2_buf[0];
-    /* Check the well-known codes... */
-    if(code!=27){
-      if(code=='A'-64){ code=KEY_HOME; goto found;}
-      if(code=='E'-64){ code=KEY_END; goto found;}
-      if(code=='D'-64){ code=KEY_DEL; goto found;}
-      if(code=='H'-64){ code=KEY_BS; goto found;}
-      if(code=='U'-64){ code=KEY_PGUP; goto found;}
-      if(code=='V'-64){ code=KEY_PGDWN; goto found;}
-      if(code==8 || code==127){ code=KEY_BS; goto found;}
-      if(code==10 || code==13){
-        if(getch2_len>1){
-          int c=getch2_buf[1];
-          if(c==10 || c==13) if(c!=code) len=2;
-        }
-        code=KEY_ENTER;
-        goto found;
-      }
-    } else if(getch2_len>1){
-      int c=getch2_buf[1];
-      if(c==27){ code=KEY_ESC; len=2; goto found;}
-      if(c>='0' && c<='9'){ code=c-'0'+KEY_F; len=2; goto found;}
-      if(getch2_len>=4 && c=='[' && getch2_buf[2]=='['){
-        int c=getch2_buf[3];
-        if(c>='A' && c<'A'+12){ code=KEY_F+1+c-'A';len=4;goto found;}
-      }
-      if(c=='[' || c=='O') if(getch2_len>=3){
-        int c=getch2_buf[2];
-        static short int ctable[]={ KEY_UP,KEY_DOWN,KEY_RIGHT,KEY_LEFT,0,
-                       KEY_END,KEY_PGDWN,KEY_HOME,KEY_PGUP,0,0,KEY_INS,0,0,0,
-                       KEY_F+1,KEY_F+2,KEY_F+3,KEY_F+4};
-        if(c>='A' && c<='S')
-          if(ctable[c-'A']){ code=ctable[c-'A']; len=3; goto found;}
-      }
-      if(getch2_len>=4 && c=='[' && getch2_buf[3]=='~'){
-        int c=getch2_buf[2];
-        int ctable[8]={KEY_HOME,KEY_INS,KEY_DEL,KEY_END,KEY_PGUP,KEY_PGDWN,KEY_HOME,KEY_END};
-        if(c>='1' && c<='8'){ code=ctable[c-'1']; len=4; goto found;}
-      }
-      if(getch2_len>=5 && c=='[' && getch2_buf[4]=='~'){
-        int i=getch2_buf[2]-'0';
-        int j=getch2_buf[3]-'0';
-        if(i>=0 && i<=9 && j>=0 && j<=9){
-          static short int ftable[20]={
-            11,12,13,14,15, 17,18,19,20,21,
-            23,24,25,26,28, 29,31,32,33,34 };
-          int a=i*10+j;
-          for(i=0;i<20;i++) if(ftable[i]==a){ code=KEY_F+1+i;len=5;goto found;}
-        }
-      }
-    }
-found:
-  if((getch2_len-=len)>0){
-    int i;
-    for(i=0;i<getch2_len;i++) getch2_buf[i]=getch2_buf[len+i];
-  }
-  return code;
 }
 
 static int getch2_status=0;
@@ -220,24 +252,12 @@ static int getch2_status=0;
 void getch2_enable(void){
 #ifdef HAVE_TERMIOS
 struct termios tio_new;
-#if defined(__NetBSD__) || defined(__svr4__) || defined(__CYGWIN__) || defined(__OS2__) || defined(__GLIBC__) || defined(_AIX)
     tcgetattr(0,&tio_orig);
-#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__bsdi__) || defined(__APPLE__) || defined(__DragonFly__)
-    ioctl(0,TIOCGETA,&tio_orig);
-#else
-    ioctl(0,TCGETS,&tio_orig);
-#endif
     tio_new=tio_orig;
     tio_new.c_lflag &= ~(ICANON|ECHO); /* Clear ICANON and ECHO. */
     tio_new.c_cc[VMIN] = 1;
     tio_new.c_cc[VTIME] = 0;
-#if defined(__NetBSD__) || defined(__svr4__) || defined(__CYGWIN__) || defined(__OS2__) || defined(__GLIBC__) || defined(_AIX)
     tcsetattr(0,TCSANOW,&tio_new);
-#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__bsdi__) || defined(__APPLE__) || defined(__DragonFly__)
-    ioctl(0,TIOCSETA,&tio_new);
-#else
-    ioctl(0,TCSETS,&tio_new);
-#endif
 #endif
     getch2_status=1;
 }
@@ -245,14 +265,21 @@ struct termios tio_new;
 void getch2_disable(void){
     if(!getch2_status) return; // already disabled / never enabled
 #ifdef HAVE_TERMIOS
-#if defined(__NetBSD__) || defined(__svr4__) || defined(__CYGWIN__) || defined(__OS2__) || defined(__GLIBC__) || defined(_AIX)
     tcsetattr(0,TCSANOW,&tio_orig);
-#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__bsdi__) || defined(__APPLE__) || defined(__DragonFly__)
-    ioctl(0,TIOCSETA,&tio_orig);
-#else
-    ioctl(0,TCSETS,&tio_orig);
-#endif
 #endif
     getch2_status=0;
 }
+
+#ifdef USE_ICONV
+char* get_term_charset(void)
+{
+    char* charset = NULL;
+#ifdef USE_LANGINFO
+    setlocale(LC_CTYPE, "");
+    charset = nl_langinfo(CODESET);
+    setlocale(LC_CTYPE, "C");
+#endif
+    return charset;
+}
+#endif
 

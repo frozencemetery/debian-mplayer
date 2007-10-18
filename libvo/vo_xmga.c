@@ -44,7 +44,7 @@ static unsigned int timerd = 0;
 #endif
 
 #ifdef HAVE_NEW_GUI
-#include "Gui/interface.h"
+#include "gui/interface.h"
 #endif
 
 static vo_info_t info = {
@@ -117,7 +117,6 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
                        uint32_t d_height, uint32_t flags, char *title,
                        uint32_t format)
 {
-    char *mTitle = (title == NULL) ? "XMGA render" : title;
     XVisualInfo vinfo;
     unsigned long xswamask;
     int r, g, b;
@@ -220,31 +219,9 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
 
         } else
         {
-
-            if (vo_window == None)
-            {
-                vo_window = XCreateWindow(mDisplay, mRootWin,
-                                          vo_dx, vo_dy,
-                                          vo_dwidth, vo_dheight,
-                                          xWAttribs.border_pixel,
-                                          mDepth,
-                                          InputOutput,
-                                          vinfo.visual, xswamask,
-                                          &xWAttribs);
-
-                vo_x11_classhint(mDisplay, vo_window, "xmga");
-                vo_hidecursor(mDisplay, vo_window);
-                vo_x11_sizehint(vo_dx, vo_dy, vo_dwidth, vo_dheight, 0);
-
-                XStoreName(mDisplay, vo_window, mTitle);
-                XMapWindow(mDisplay, vo_window);
-                vo_x11_nofs_sizepos(vo_dx, vo_dy, vo_dwidth, vo_dheight);
-
-                if (flags & VOFLAG_FULLSCREEN)
-                    vo_x11_fullscreen();
-
-            } else
-                vo_x11_nofs_sizepos(vo_dx, vo_dy, vo_dwidth, vo_dheight);
+            vo_x11_create_vo_window(&vinfo, vo_dx, vo_dy, d_width, d_height,
+                    flags, xWAttribs.colormap, "xmga", title);
+            XChangeWindowAttributes(mDisplay, vo_window, xswamask, &xWAttribs);
         }
 
         if (vo_gc != None)

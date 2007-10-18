@@ -9,13 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <inttypes.h>
 #include <limits.h>
-
-#include "af.h"
-#include "bswap.h"
-#include "libvo/fastmemcpy.h"
 
 // Integer to float conversion through lrintf()
 #ifdef HAVE_LRINTF
@@ -25,17 +20,22 @@ long int lrintf(float);
 #define lrintf(x) ((int)(x))
 #endif
 
+#include "af.h"
+#include "libavutil/common.h"
+#include "mpbswap.h"
+#include "libvo/fastmemcpy.h"
+
 /* Functions used by play to convert the input audio to the correct
    format */
 
-/* The below includes retrives functions for converting to and from
+/* The below includes retrieves functions for converting to and from
    ulaw and alaw */ 
 #include "af_format_ulaw.c"
 #include "af_format_alaw.c"
 
-// Switch endianess
+// Switch endianness
 static void endian(void* in, void* out, int len, int bps);
-// From singed to unsigned and the other way
+// From signed to unsigned and the other way
 static void si2us(void* data, int len, int bps);
 // Change the number of bits per sample
 static void change_bps(void* in, void* out, int len, int inbps, int outbps);
@@ -91,7 +91,7 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
        af->data->bps == data->bps)
       return AF_DETACH;
 
-    // Check for errors in configuraton
+    // Check for errors in configuration
     if((AF_OK != check_bps(data->bps)) ||
        (AF_OK != check_format(data->format)) ||
        (AF_OK != check_bps(af->data->bps)) ||
@@ -110,11 +110,11 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
     
     af->play = play; // set default
     
-    // look whether only endianess differences are there
+    // look whether only endianness differences are there
     if ((af->data->format & ~AF_FORMAT_END_MASK) ==
 	(data->format & ~AF_FORMAT_END_MASK))
     {
-	af_msg(AF_MSG_VERBOSE,"[format] Accelerated endianess conversion only\n");
+	af_msg(AF_MSG_VERBOSE,"[format] Accelerated endianness conversion only\n");
 	af->play = play_swapendian;
     }
     if ((data->format == AF_FORMAT_FLOAT_NE) &&
@@ -146,7 +146,7 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
     return AF_OK;
   }
   case AF_CONTROL_FORMAT_FMT | AF_CONTROL_SET:{
-    // Check for errors in configuraton
+    // Check for errors in configuration
     if(AF_OK != check_format(*(int*)arg))
       return AF_ERROR;
 
@@ -162,8 +162,9 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
 // Deallocate memory 
 static void uninit(struct af_instance_s* af)
 {
-  if(af->data)
-    free(af->data);
+  if (af->data)
+      free(af->data->audio);
+  free(af->data);
   af->setup = 0;  
 }
 
@@ -171,7 +172,7 @@ static af_data_t* play_swapendian(struct af_instance_s* af, af_data_t* data)
 {
   af_data_t*   l   = af->data;	// Local data
   af_data_t*   c   = data;	// Current working data
-  int 	       len = c->len/c->bps; // Lenght in samples of current audio block
+  int 	       len = c->len/c->bps; // Length in samples of current audio block
 
   if(AF_OK != RESIZE_LOCAL_BUFFER(af,data))
     return NULL;
@@ -188,7 +189,7 @@ static af_data_t* play_float_s16(struct af_instance_s* af, af_data_t* data)
 {
   af_data_t*   l   = af->data;	// Local data
   af_data_t*   c   = data;	// Current working data
-  int 	       len = c->len/4; // Lenght in samples of current audio block
+  int 	       len = c->len/4; // Length in samples of current audio block
 
   if(AF_OK != RESIZE_LOCAL_BUFFER(af,data))
     return NULL;
@@ -207,7 +208,7 @@ static af_data_t* play_s16_float(struct af_instance_s* af, af_data_t* data)
 {
   af_data_t*   l   = af->data;	// Local data
   af_data_t*   c   = data;	// Current working data
-  int 	       len = c->len/2; // Lenght in samples of current audio block
+  int 	       len = c->len/2; // Length in samples of current audio block
 
   if(AF_OK != RESIZE_LOCAL_BUFFER(af,data))
     return NULL;
@@ -227,7 +228,7 @@ static af_data_t* play(struct af_instance_s* af, af_data_t* data)
 {
   af_data_t*   l   = af->data;	// Local data
   af_data_t*   c   = data;	// Current working data
-  int 	       len = c->len/c->bps; // Lenght in samples of current audio block
+  int 	       len = c->len/c->bps; // Length in samples of current audio block
 
   if(AF_OK != RESIZE_LOCAL_BUFFER(af,data))
     return NULL;
@@ -286,12 +287,12 @@ static af_data_t* play(struct af_instance_s* af, af_data_t* data)
       if(c->bps != l->bps)
 	change_bps(c->audio,l->audio,len,c->bps,l->bps);
       else
-	memcpy(l->audio,c->audio,len*c->bps);
+	fast_memcpy(l->audio,c->audio,len*c->bps);
       break;
     }
   }
 
-  // Switch from cpu native endian to the correct endianess 
+  // Switch from cpu native endian to the correct endianness 
   if((l->format&AF_FORMAT_END_MASK)!=AF_FORMAT_NE)
     endian(l->audio,l->audio,len,l->bps);
 
@@ -304,7 +305,7 @@ static af_data_t* play(struct af_instance_s* af, af_data_t* data)
 }
 
 // Allocate memory and set function pointers
-static int open(af_instance_t* af){
+static int af_open(af_instance_t* af){
   af->control=control;
   af->uninit=uninit;
   af->play=play;
@@ -323,7 +324,7 @@ af_info_t af_info_format = {
   "Anders",
   "",
   AF_FLAGS_REENTRANT,
-  open
+  af_open
 };
 
 static inline uint32_t load24bit(void* data, int pos) {

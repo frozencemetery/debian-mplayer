@@ -34,6 +34,8 @@ that your patch will be included.
     use 'diff -uwbBE' to help you remove them. Don't forget to check the
     patch to make sure diff didn't ignore some important change and remove
     any remaining cosmetics!
+    To use these options directly with svn, use this command:
+    svn diff --diff-cmd diff -x -uwbBE
 
  6. Comment parts that really need it (tricky side-effects etc).
     Always document string operations! Comment on what you are doing
@@ -52,7 +54,7 @@ that your patch will be included.
     in separate mails. Likewise, if your patch is very big, try splitting
     it into several self-contained pieces. Each part can then be reviewed
     and committed separately. Logical units should stay together, though,
-    e.g. do not send a patch for every file you change.
+    i.e. do not send a patch for every file or directory you change.
 
  9. Send your patch to the mplayer-dev-eng mailing list as a base64-encoded
     attachment with the subject line:

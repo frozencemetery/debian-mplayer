@@ -30,8 +30,7 @@ Documentation:
     * MPlayer: Diego Biurrun
     * MEncoder: Guillaume Poirier
     * man page: Diego Biurrun
-    * console messages: Reynaldo H. Verdejo Pinochet
-    * translation coordination: Sebastian Krämer
+    * translation coordination: Sebastian KrÃ¤mer
     * input layer, LIRC, slave mode docs: Alban Bedel
     * tech/* docs: None
     * tech/* documentation docs: Diego Biurrun
@@ -39,43 +38,47 @@ Documentation:
 Man page translations:
     * Czech: Jiri Heryan
     * French: Guillaume Poirier
-    * German: Sebastian Krämer
+    * German: Sebastian KrÃ¤mer
     * Hungarian: Gabor Mizda
     * Italian: Daniele Forghieri
     * Polish: Waclaw Schiller
     * Spanish: Reynaldo H. Verdejo Pinochet (outdated)
     * Chinese: unmaintained, outdated
     * Swedish: unmaintained, outdated, incomplete
+    * Russian: Vladimir Voroshilov (incomplete)
 
 Documentation translations:
     * Czech: Jiri Heryan
     * French: Guillaume Poirier
-    * German: Sebastian Krämer
+    * German: Sebastian KrÃ¤mer
     * Hungarian: Gabor Mizda
+    * Italian: Paolo Tresoldi
     * Polish: Waclaw Schiller
     * Spanish: Reynaldo H. Verdejo Pinochet (outdated)
     * Chinese (simplified): unmaintained, outdated, still HTML
     * Italian: unmaintained, outdated, still HTML
-    * Russian: Vladimir Voroshilov (outdated,incomplete)
+    * Russian: Vladimir Voroshilov
 
 Platforms/ports:
-    * Debian packaging: None
+    * Debian packaging: Diego Biurrun
     * Red Hat/RPM packaging: Dominik Mierzejewski
     * FreeBSD: Vladimir Kushnir, Nexus
     * BSD/OS: Steven Schultz
     * NetBSD: Bernd Ernesti
-    * OpenBSD: Björn Sandell
+    * OpenBSD: BjÃ¶rn Sandell
     * Solaris: Derek Lewis
-    * Win32/Cygwin/MinGW: Sascha Sommer, Joey Parrish, Diego Biurrun
+    * Win32/Cygwin/MinGW: Sascha Sommer, Joey Parrish
     * Mac OS X: Nicolas Plourde
     * AIX: Derek Lewis
 
 MPlayer code:
     * build system: Diego Biurrun
-    * A-V sync code, MPlayer/MEncoder core: None
+    * A-V sync code, MPlayer core: Uoti Urpala
+    * MEncoder core: None (unmaintained)
     * libmpdemux: Roberto Togni, Nico Sabbi
     * libmpcodecs: Roberto Togni
-    * TV input/capture: Jindrich Makovicka
+    * TV input/capture: Vladimir Voroshilov
+    * TV teletext: Vladimir Voroshilov
     * network streaming: Roberto Togni, Nico Sabbi, Benjamin Zores
     * DVD/VOB subtitles: None
     * config files & commandline parser: Alban Bedel
@@ -87,13 +90,14 @@ MPlayer code:
     * EDL code: Reynaldo H. Verdejo Pinochet, Oded Shimon
 
 Imported libs/projects:
-    * libavcodec, libavformat: Michael Niedermayer
-    * VIDIX core, libdha: Sascha Sommer
+    * FFmpeg: Michael Niedermayer
+    * VIDIX core: Benjamin Zores
     * mp3lib: None
-    * loader: Alex Beregszaszi
+    * loader: None
     * liba52: None
     * libmpeg2: None
-    * libmpdvdkit2: None
+    * libdvdcss: Diego Biurrun
+    * libdvdread: Diego Biurrun
     * libfaad2: None
     * realrtsp: Roberto Togni
     * librtsp: Benjamin Zores
@@ -104,40 +108,50 @@ demuxers:
     * demux_fli.c - Roberto Togni
     * demux_gif.c - Joey Parrish
     * demux_lavf.c - Michael Niedermayer
-    * demux_mkv.c - Moritz Bunkus
+    * demux_mkv.c - Moritz Bunkus, Aurelien Jacobs
     * demux_nsv.c - Roberto Togni
     * demux_ogg.c - Moritz Bunkus
     * demux_realaud.c - Roberto Togni
     * demux_rtp* - Ross Finlayson
     * demux_mpg and demux_ts - Nico Sabbi
-    * demux_mpc.c - Reimar Döffinger
+    * demux_mpc.c - Reimar DÃ¶ffinger
+    * demux_nuv.c - Reimar DÃ¶ffinger
 
 muxers:
     * muxer_lavf.c - Michael Niedermayer
+    * muxer_mpeg.c - Nico Sabbi
 
 streams:
     * stream_pvr.c - Benjamin Zores
     * stream_udp.c - Benjamin Zores
     * stream_rtp.c - Benjamin Zores
     * stream_rtsp.c - Benjamin Zores
+    * stream_radio.c - Vladimir Voroshilov
+    * stream_dvb.c - Nico Sabbi
+    * stream_dvd.c - Nico Sabbi
+    * stream_dvdnav.c - Nico Sabbi
 
 codec support:
     * FFmpeg: Michael Niedermayer
     * XviD: Ivan Kalvachev
     * x264: Loren Merritt
-    * musepack, speex: Reimar Döffinger
+    * musepack, speex: Reimar DÃ¶ffinger
 
 video filters:
     * general: Richard Felker, Michael Niedermayer
     * vf_filmdint.c - Zoltan Hidvegi
     * vf_blackframe.c - Ivo van Poorten
     * vf_zrmjpeg.c - Rik Snel
+    * all filters written by Michael Niedermayer - Michael Niedermayer
 
 audio filters:
     * general: Alex Beregszaszi
     * af_ladspa.c - Ivo van Poorten
     * af_equalizer.c - Reynaldo H. Verdejo Pinochet
     * af_karaoke.c - Reynaldo H. Verdejo Pinochet
+
+audio encoders:
+    * ae_toolame.c, ae_twolame.c and ae_faac.c - Nico Sabbi
 
 libvo drivers:
     * vo_3dfx.c - OBSOLETED, use xv or tdfxfb
@@ -146,7 +160,7 @@ libvo drivers:
     * vo_bl.c - Rik Snel
     * vo_cvidix.c - Sascha Sommer
     * vo_dga.c - None
-    * vo_dfbmga.c - Ville Syrjälä
+    * vo_dfbmga.c - Ville SyrjÃ¤lÃ¤
     * vo_directfb[2].c - Jiri Svoboda
     * vo_directx.c - Sascha Sommer
     * vo_dxr2.c - Alban Bedel
@@ -155,8 +169,8 @@ libvo drivers:
     * vo_fbdev2.c - Joey Parrish
     * vo_ggi.c - Christoph Egger
     * vo_gif89a.c - Joey Parrish
-    * vo_gl.c - Reimar Döffinger
-    * vo_gl2.c - Reimar Döffinger
+    * vo_gl.c - Reimar DÃ¶ffinger
+    * vo_gl2.c - Reimar DÃ¶ffinger
     * vo_ivtv.c - Benjamin Zores
     * vo_jpeg.c - Ivo van Poorten
     * vo_macosx.m - Nicolas Plourde
@@ -164,10 +178,10 @@ libvo drivers:
     * vo_mga.c - Attila Kinali
     * vo_mpegpes.c - None
     * vo_null.c - None
-    * vo_png.c - Felix Bünemann
+    * vo_png.c - Felix BÃ¼nemann
     * vo_pnm.c - Ivo van Poorten
     * vo_quartz.c - Nicolas Plourde
-    * vo_sdl.c - Felix Bünemann
+    * vo_sdl.c - Felix BÃ¼nemann
     * vo_svga.c - Ivan Kalvachev
     * vo_tdfxfb.c - Alban Bedel
     * vo_tga.c - Daniele Forghieri
@@ -183,16 +197,8 @@ libvo drivers:
     * vo_zr.c - Rik Snel
     * vo_zr2.c - Rik Snel
 
-    * x11_common.c - Alexander Strasser
-    * w32_common.c - Reimar Döffinger
-
-VIDIX drivers:
-    * mach64_vid - None
-    * mga_vid - None
-    * nvidia_vid - Sascha Sommer
-    * radeon_vid - Sascha Sommer
-    * rage128_vid - None
-    * sis_vid - Jake Page
+    * x11_common.c - Alexander Strasser, Reimar DÃ¶ffinger
+    * w32_common.c - Reimar DÃ¶ffinger
 
 libao2 drivers:
     * ao_alsa5.c - None
@@ -202,7 +208,7 @@ libao2 drivers:
     * ao_dxr2.c - None
     * ao_esd.c - None
     * ao_ivtv.c - Benjamin Zores
-    * ao_jack.c - Reimar Döffinger
+    * ao_jack.c - Reimar DÃ¶ffinger
     * ao_mpegpes.c - None
     * ao_nas.c - Tobias Diedrich
     * ao_null.c - None

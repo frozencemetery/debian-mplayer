@@ -16,10 +16,8 @@
  *  GNU General Public License for more details.
  *   
  *  You should have received a copy of the GNU General Public License
- *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
- *
- *
+ *  along with MPlayer; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 /*
@@ -60,7 +58,8 @@
 #include "help_mp.h"
 #include "m_option.h"
 #include "m_struct.h"
-#include "bswap.h"
+#include "libavutil/common.h"
+#include "mpbswap.h"
 
 #include "netstream.h"
 #include "tcp.h"
@@ -220,7 +219,7 @@ static int control(struct stream_st *s,int cmd,void* arg) {
   case STREAM_CTRL_RESET:
     return net_stream_reset(s);
   }
-  return STREAM_UNSUPORTED;
+  return STREAM_UNSUPPORTED;
 }
 
 static void close_s(struct stream_st *s) {
@@ -238,7 +237,7 @@ static int open_s(stream_t *stream,int mode, void* opts, int* file_format) {
   mp_net_stream_opened_t* opened;
 
   if(mode != STREAM_READ)
-    return STREAM_UNSUPORTED;
+    return STREAM_UNSUPPORTED;
 
   if(!p->host) {
     mp_msg(MSGT_OPEN,MSGL_ERR, "We need an host name (ex: mpst://server.net/cdda://5)\n");

@@ -1,1031 +1,1057 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>14.1. Nagyon jó min&#337;ség&#369; MPEG-4 ("DivX") rip készítése DVD filmb&#337;l</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="encoding-guide.html" title="14. fejezet - Kódolás a MEncoderrel"><link rel="prev" href="encoding-guide.html" title="14. fejezet - Kódolás a MEncoderrel"><link rel="next" href="menc-feat-telecine.html" title="14.2. Mit kezdjünk a telecine-nel és az átlapolással NTSC DVD-ken"><link rel="preface" href="howtoread.html" title="Hogyan olvasd ezt a dokumentációt"><link rel="chapter" href="intro.html" title="1. fejezet - Bevezetés"><link rel="chapter" href="install.html" title="2. fejezet - Telepítés"><link rel="chapter" href="usage.html" title="3. fejezet - Használat"><link rel="chapter" href="cd-dvd.html" title="4. fejezet - CD/DVD használat"><link rel="chapter" href="faq.html" title="5. fejezet - Gyakran ismételt kérdések"><link rel="chapter" href="containers.html" title="6. fejezet - Konténerek"><link rel="chapter" href="codecs.html" title="7. fejezet - Codec-ek"><link rel="chapter" href="video.html" title="8. fejezet - Videó kimeneti eszközök"><link rel="chapter" href="audio.html" title="9. fejezet - Audió kimeneti eszközök"><link rel="chapter" href="tv.html" title="10. fejezet - TV"><link rel="chapter" href="radio.html" title="11. fejezet - Rádió"><link rel="chapter" href="ports.html" title="12. fejezet - Portok"><link rel="chapter" href="mencoder.html" title="13. fejezet - A MEncoder használatának alapjai"><link rel="chapter" href="encoding-guide.html" title="14. fejezet - Kódolás a MEncoderrel"><link rel="appendix" href="bugreports.html" title="A. függelék - Hogyan jelentsd a hibákat"><link rel="appendix" href="bugs.html" title="B. függelék - Ismert hibák"><link rel="appendix" href="skin.html" title="C. függelék - MPlayer skin formátum"><link rel="appendix" href="history.html" title="D. függelék - Történelem"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-preparing-encode" title="14.1.1. Felkészülés a kódolásra: A forrás anyag és frameráta azonosítása"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-2pass" title="14.1.2. Konstans kvantálás vs. többmenetes kódolás"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-constraints" title="14.1.3. Megszorítások a hatékony kódoláshoz"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-crop" title="14.1.4. Vágás és méretezés"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-resolution-bitrate" title="14.1.5. Felbontás és bitráta kiválasztása"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-filtering" title="14.1.6. Sz&#369;rés"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-interlacing" title="14.1.7. Interlacing és Telecine"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-encoding-interlaced" title="14.1.8. Átlapolt videó elkódolása"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-av-sync" title="14.1.9. Megjegyzések az Audió/Videó szinkronizáláshoz"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-codec" title="14.1.10. A videó codec kiválasztása"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-audio" title="14.1.11. Audió"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-muxing" title="14.1.12. Keverés"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">14.1. Nagyon jó min&#337;ség&#369; MPEG-4 ("DivX") rip készítése DVD filmb&#337;l</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="encoding-guide.html">El&#337;z&#337;</a> </td><th width="60%" align="center">14. fejezet - Kódolás a <span class="application">MEncoder</span>rel</th><td width="20%" align="right"> <a accesskey="n" href="menc-feat-telecine.html">Következ&#337;</a></td></tr></table><hr></div><div class="sect1" lang="hu"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-dvd-mpeg4"></a>14.1. Nagyon jó min&#337;ség&#369; MPEG-4 ("DivX") rip készítése DVD filmb&#337;l</h2></div></div></div><p>
-  Egy gyakran feltett kérdés: "Hogyan készíthetem el a legjobb min&#337;ség&#369;
-  DVD rip-et egy adott méretben? Vagy: "Hogyan készíthetem el a
-  lehet&#337; legjobb min&#337;ség&#369; DVD rip-et? Nem érdekel a fájl méret, csak a
-  legjobb min&#337;séget akarom."
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>14.1. Nagyon jÃ³ minÅ‘sÃ©gÅ± MPEG-4 ("DivX") rip kÃ©szÃ­tÃ©se DVD filmbÅ‘l</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="encoding-guide.html" title="14. fejezet - KÃ³dolÃ¡s a MEncoderrel"><link rel="prev" href="encoding-guide.html" title="14. fejezet - KÃ³dolÃ¡s a MEncoderrel"><link rel="next" href="menc-feat-telecine.html" title="14.2. Mit kezdjÃ¼nk a telecine-nel Ã©s az Ã¡tlapolÃ¡ssal NTSC DVD-ken"><link rel="preface" href="howtoread.html" title="Hogyan olvasd ezt a dokumentÃ¡ciÃ³t"><link rel="chapter" href="intro.html" title="1. fejezet - BevezetÃ©s"><link rel="chapter" href="install.html" title="2. fejezet - TelepÃ­tÃ©s"><link rel="chapter" href="usage.html" title="3. fejezet - HasznÃ¡lat"><link rel="chapter" href="cd-dvd.html" title="4. fejezet - CD/DVD hasznÃ¡lat"><link rel="chapter" href="faq.html" title="5. fejezet - Gyakran ismÃ©telt kÃ©rdÃ©sek"><link rel="chapter" href="containers.html" title="6. fejezet - KontÃ©nerek"><link rel="chapter" href="codecs.html" title="7. fejezet - Codec-ek"><link rel="chapter" href="video.html" title="8. fejezet - VideÃ³ kimeneti eszkÃ¶zÃ¶k"><link rel="chapter" href="audio.html" title="9. fejezet - AudiÃ³ kimeneti eszkÃ¶zÃ¶k"><link rel="chapter" href="tv.html" title="10. fejezet - TV"><link rel="chapter" href="radio.html" title="11. fejezet - RÃ¡diÃ³"><link rel="chapter" href="ports.html" title="12. fejezet - Portok"><link rel="chapter" href="mencoder.html" title="13. fejezet - A MEncoder hasznÃ¡latÃ¡nak alapjai"><link rel="chapter" href="encoding-guide.html" title="14. fejezet - KÃ³dolÃ¡s a MEncoderrel"><link rel="appendix" href="bugreports.html" title="A. fÃ¼ggelÃ©k - Hogyan jelentsd a hibÃ¡kat"><link rel="appendix" href="bugs.html" title="B. fÃ¼ggelÃ©k - Ismert hibÃ¡k"><link rel="appendix" href="skin.html" title="C. fÃ¼ggelÃ©k - MPlayer skin formÃ¡tum"><link rel="appendix" href="history.html" title="D. fÃ¼ggelÃ©k - TÃ¶rtÃ©nelem"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-preparing-encode" title="14.1.1. FelkÃ©szÃ¼lÃ©s a kÃ³dolÃ¡sra: A forrÃ¡s anyag Ã©s framerÃ¡ta azonosÃ­tÃ¡sa"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-2pass" title="14.1.2. Konstans kvantÃ¡lÃ¡s vs. tÃ¶bbmenetes kÃ³dolÃ¡s"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-constraints" title="14.1.3. MegszorÃ­tÃ¡sok a hatÃ©kony kÃ³dolÃ¡shoz"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-crop" title="14.1.4. VÃ¡gÃ¡s Ã©s mÃ©retezÃ©s"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-resolution-bitrate" title="14.1.5. FelbontÃ¡s Ã©s bitrÃ¡ta kivÃ¡lasztÃ¡sa"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-filtering" title="14.1.6. SzÅ±rÃ©s"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-interlacing" title="14.1.7. Interlacing Ã©s Telecine"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-encoding-interlaced" title="14.1.8. Ãtlapolt videÃ³ elkÃ³dolÃ¡sa"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-av-sync" title="14.1.9. MegjegyzÃ©sek az AudiÃ³/VideÃ³ szinkronizÃ¡lÃ¡shoz"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-codec" title="14.1.10. A videÃ³ codec kivÃ¡lasztÃ¡sa"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-audio" title="14.1.11. AudiÃ³"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-muxing" title="14.1.12. KeverÃ©s"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">14.1. Nagyon jÃ³ minÅ‘sÃ©gÅ± MPEG-4 ("DivX")
+  rip kÃ©szÃ­tÃ©se DVD filmbÅ‘l</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="encoding-guide.html">ElÅ‘zÅ‘</a>Â </td><th width="60%" align="center">14. fejezet - KÃ³dolÃ¡s a <span class="application">MEncoder</span>rel</th><td width="20%" align="right">Â <a accesskey="n" href="menc-feat-telecine.html">KÃ¶vetkezÅ‘</a></td></tr></table><hr></div><div class="sect1" lang="hu"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-dvd-mpeg4"></a>14.1. Nagyon jÃ³ minÅ‘sÃ©gÅ± MPEG-4 ("DivX")
+  rip kÃ©szÃ­tÃ©se DVD filmbÅ‘l</h2></div></div></div><p>
+Egy gyakran feltett kÃ©rdÃ©s: "Hogyan kÃ©szÃ­thetem el a legjobb minÅ‘sÃ©gÅ±
+DVD rip-et egy adott mÃ©retben?" Vagy: "Hogyan kÃ©szÃ­thetem el a lehetÅ‘
+legjobb minÅ‘sÃ©gÅ± DVD rip-et? Nem Ã©rdekel a fÃ¡jl mÃ©ret, csak a legjobb
+minÅ‘sÃ©get akarom."
 </p><p>
-  Az utóbbi kérdés talán kicsit rosszul van megfogalmazva. Hiszen ha nem
-  érdekel a fájl méret, akkor miért nem másolod át az egész MPEG-2 videó
-  stream-et a DVD-r&#337;l egy az egyben? Az AVI fájlod 5GB körül fogja végezni,
-  fogd és vidd, de ha a legjobb min&#337;séget akarod és nem érdekel a méret,
-  akkor biztos, hogy ez lesz a legjobb lehet&#337;séged.
+Az utÃ³bbi kÃ©rdÃ©s talÃ¡n kicsit rosszul van megfogalmazva. Hiszen ha nem
+Ã©rdekel a fÃ¡jl mÃ©ret, akkor miÃ©rt nem mÃ¡solod Ã¡t az egÃ©sz MPEG-2 videÃ³
+stream-et a DVD-rÅ‘l egy az egyben? Az AVI fÃ¡jlod 5GB kÃ¶rÃ¼l fogja vÃ©gezni,
+fogd Ã©s vidd, de ha a legjobb minÅ‘sÃ©get akarod Ã©s nem Ã©rdekel a mÃ©ret,
+akkor biztos, hogy ez lesz a legjobb lehetÅ‘sÃ©ged.
 </p><p>
-  Valójában egy DVD MPEG-4-be történ&#337; átkódolásának az oka pont az, hogy
-  <span class="bold"><strong>érdekel</strong></span> a fájl mérete.
+ValÃ³jÃ¡ban egy DVD MPEG-4-be tÃ¶rtÃ©nÅ‘ Ã¡tkÃ³dolÃ¡sÃ¡nak az oka pont az, hogy
+<span class="bold"><strong>Ã©rdekel</strong></span> a fÃ¡jl mÃ©rete.
 </p><p>
-  Nehéz egy általános receptet adni a jó min&#337;ség&#369; DVD rip-ek készítéséhez.
-  Számos szempontot figyelembe kell venni és meg kell értened ezeket a
-  részleteket, különben elégedetlen leszel a végeredménnyel. Kicsit körbejárjuk
-  ezen dolgok közül néhányat és utána példát is adunk. Feltételezzük, hogy a
-  <code class="systemitem">libavcodec</code>-et használod a videó
-  kódolásához, habár az elmélet bármilyen codec-kel használható.
+NehÃ©z egy Ã¡ltalÃ¡nos receptet adni a jÃ³ minÅ‘sÃ©gÅ± DVD rip-ek kÃ©szÃ­tÃ©sÃ©hez.
+SzÃ¡mos szempontot figyelembe kell venni Ã©s meg kell Ã©rtened ezeket a
+rÃ©szleteket, kÃ¼lÃ¶nben elÃ©gedetlen leszel a vÃ©geredmÃ©nnyel. Kicsit kÃ¶rbejÃ¡rjuk
+ezen dolgok kÃ¶zÃ¼l nÃ©hÃ¡nyat Ã©s utÃ¡na pÃ©ldÃ¡t is adunk. FeltÃ©telezzÃ¼k, hogy a
+<code class="systemitem">libavcodec</code>-et hasznÃ¡lod a videÃ³
+kÃ³dolÃ¡sÃ¡hoz, habÃ¡r az elmÃ©let bÃ¡rmilyen codec-kel hasznÃ¡lhatÃ³.
 </p><p>
-  Ha ez túl sok neked, akkor talán jobb, ha a sok nagyszer&#369; frontend
-  valamelyikét használod, amik fel vannak sorolva a
-  kapcsolódó projektek oldalán a
-  <a href="http://www.mplayerhq.hu/design7/projects.html#mencoder_frontends" target="_top">MEncoder részben</a>.
-  Így nagyon jó min&#337;ség&#369; rip-eket készíthetsz túl sok gondolkodás nélkül,
-  mert ezen eszközök legtöbbje úgy lett megtervezve, hogy jó döntéseket
-  hozzon.
-</p><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode"></a>14.1.1. Felkészülés a kódolásra: A forrás anyag és frameráta azonosítása</h3></div></div></div><p>
-  Miel&#337;tt eszedbe jutna bármiféle film átkódolása, meg kell tenned
-  pár el&#337;készületi lépést.
+Ha ez tÃºl sok neked, akkor talÃ¡n jobb, ha a sok nagyszerÅ± frontend
+valamelyikÃ©t hasznÃ¡lod, amik fel vannak sorolva a
+kapcsolÃ³dÃ³ projektek oldalÃ¡n a
+<a href="http://www.mplayerhq.hu/design7/projects.html#mencoder_frontends" target="_top">MEncoder rÃ©szben</a>.
+Ãgy nagyon jÃ³ minÅ‘sÃ©gÅ± rip-eket kÃ©szÃ­thetsz tÃºl sok gondolkodÃ¡s nÃ©lkÃ¼l,
+mert ezen eszkÃ¶zÃ¶k legtÃ¶bbje Ãºgy lett megtervezve, hogy jÃ³ dÃ¶ntÃ©seket
+hozzon.
+</p><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode"></a>14.1.1. FelkÃ©szÃ¼lÃ©s a kÃ³dolÃ¡sra: A forrÃ¡s anyag Ã©s framerÃ¡ta azonosÃ­tÃ¡sa</h3></div></div></div><p>
+MielÅ‘tt eszedbe jutna bÃ¡rmifÃ©le film Ã¡tkÃ³dolÃ¡sa, meg kell tenned
+pÃ¡r elÅ‘kÃ©szÃ¼leti lÃ©pÃ©st.
 </p><p>
-  Az els&#337; és legfontosabb lépés a kódolás el&#337;tt annak megállapítása,
-  hogy miféle anyaggal van egyáltalán dolgod.
-  Ha a forrás anyagod DVD-r&#337;l származik vagy sugárzott/kábeles/m&#369;holdas
-  TV, a következ&#337; két formátum valamelyikében tárolódik: NTSC Észak
-  Amerikában és Japánban, PAL Európában.
-  Fontos tudatosítani, hogy ez csak a televízión történ&#337; megjelenítés
-  formátuma és gyakran <span class="bold"><strong>nincs</strong></span>
-  összhangban a film eredeti formátumával.
-  A tapasztalatok szerint az NTSC tartalmat sokkal nehezebb elkódolni, mert
-  több elemet kell azonosítani a forrásban.
-  Ahhoz, hogy megfelel&#337; legyen a kódolás, ismerned kell az eredeti
-  formátumot.
-  Ennek elmulasztása esetén különböz&#337; hibák lesznek a kódolásodban,
-  csúnya törési (átlapolás) mellékhatások, duplázott
-  vagy akár elveszett képkockák.
-  Mindamellett, hogy csúnya, a mellékhatások rontják a kódolási
-  hatékonyságot is: rosszabb min&#337;ség per bitráta egység arányt kapsz.
-</p><div class="sect3" lang="hu"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode-fps"></a>14.1.1.1. A forrás framerátájának azonosítása</h4></div></div></div><p>
-  Itt van egy lista a forrás anyagok által általában használt típusokról,
-  ebben valószín&#369;leg megtalálod a tiédet és annak jellemz&#337;it:
+Az elsÅ‘ Ã©s legfontosabb lÃ©pÃ©s a kÃ³dolÃ¡s elÅ‘tt annak megÃ¡llapÃ­tÃ¡sa,
+hogy mifÃ©le anyaggal van egyÃ¡ltalÃ¡n dolgod.
+Ha a forrÃ¡s anyagod DVD-rÅ‘l szÃ¡rmazik vagy sugÃ¡rzott/kÃ¡beles/mÅ±holdas
+TV, a kÃ¶vetkezÅ‘ kÃ©t formÃ¡tum valamelyikÃ©ben tÃ¡rolÃ³dik: NTSC Ã‰szak
+AmerikÃ¡ban Ã©s JapÃ¡nban, PAL EurÃ³pÃ¡ban.
+Fontos tudatosÃ­tani, hogy ez csak a televÃ­ziÃ³n tÃ¶rtÃ©nÅ‘ megjelenÃ­tÃ©s
+formÃ¡tuma Ã©s gyakran <span class="bold"><strong>nincs</strong></span>
+Ã¶sszhangban a film eredeti formÃ¡tumÃ¡val.
+A tapasztalatok szerint az NTSC tartalmat sokkal nehezebb elkÃ³dolni, mert
+tÃ¶bb elemet kell azonosÃ­tani a forrÃ¡sban.
+Ahhoz, hogy megfelelÅ‘ legyen a kÃ³dolÃ¡s, ismerned kell az eredeti
+formÃ¡tumot.
+Ennek elmulasztÃ¡sa esetÃ©n kÃ¼lÃ¶nbÃ¶zÅ‘ hibÃ¡k lesznek a kÃ³dolÃ¡sodban,
+csÃºnya tÃ¶rÃ©si (Ã¡tlapolÃ¡s) mellÃ©khatÃ¡sok, duplÃ¡zott
+vagy akÃ¡r elveszett kÃ©pkockÃ¡k.
+Mindamellett, hogy csÃºnya, a mellÃ©khatÃ¡sok rontjÃ¡k a kÃ³dolÃ¡si
+hatÃ©konysÃ¡got is: rosszabb minÅ‘sÃ©g per bitrÃ¡ta egysÃ©g arÃ¡nyt kapsz.
+</p><div class="sect3" lang="hu"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode-fps"></a>14.1.1.1. A forrÃ¡s framerÃ¡tÃ¡jÃ¡nak azonosÃ­tÃ¡sa</h4></div></div></div><p>
+Itt van egy lista a forrÃ¡s anyagok Ã¡ltal Ã¡ltalÃ¡ban hasznÃ¡lt tÃ­pusokrÃ³l,
+ebben valÃ³szÃ­nÅ±leg megtalÃ¡lod a tiÃ©det Ã©s annak jellemzÅ‘it:
 </p><div class="itemizedlist"><ul type="disc"><li><p>
-  <span class="bold"><strong>Szabványos film</strong></span>: Moziban történ&#337;
-  vetítéshez rögzítették 24 fps-sel.
+  <span class="bold"><strong>SzabvÃ¡nyos film</strong></span>: Moziban tÃ¶rtÃ©nÅ‘
+  vetÃ­tÃ©shez rÃ¶gzÃ­tettÃ©k 24 fps-sel.
 </p></li><li><p>
-  <span class="bold"><strong>PAL videó</strong></span>: PAL videókamerával
-  rögzítették 50 mez&#337; per másodperc sebességgel.
-  Egy mez&#337; csak a képkocka páros vagy páratlan sorszámú sorait
+  <span class="bold"><strong>PAL videÃ³</strong></span>: PAL videÃ³kamerÃ¡val
+  rÃ¶gzÃ­tettÃ©k 50 mezÅ‘ per mÃ¡sodperc sebessÃ©ggel.
+  Egy mezÅ‘ csak a kÃ©pkocka pÃ¡ros vagy pÃ¡ratlan sorszÃ¡mÃº sorait
   tartalmazza.
-  A televíziót úgy tervezték meg, hogy ilyen arányban frissítsen,
-  az analóg tömörítés egy olcsó formájaként.
-  Az emberi szemnek ezt kompenzálnia kellene, de ha egyszer megérted
-  az átlapolást, meg fogod látni a TV-n és soha többé nem fogod
-  élvezni a TV adást.
-  Két mez&#337; még <span class="bold"><strong>nem</strong></span> alkot egy
-  teljes képkockát, mert 1/50 másodpercnyire vannak egymástól id&#337;ben
-  és így csak mozgásnál igazodnak össze.
+  A televÃ­ziÃ³t Ãºgy terveztÃ©k meg, hogy ilyen arÃ¡nyban frissÃ­tsen,
+  az analÃ³g tÃ¶mÃ¶rÃ­tÃ©s egy olcsÃ³ formÃ¡jakÃ©nt.
+  Az emberi szemnek ezt kompenzÃ¡lnia kellene, de ha egyszer megÃ©rted
+  az Ã¡tlapolÃ¡st, meg fogod lÃ¡tni a TV-n Ã©s soha tÃ¶bbÃ© nem fogod
+  Ã©lvezni a TV adÃ¡st.
+  KÃ©t mezÅ‘ mÃ©g <span class="bold"><strong>nem</strong></span> alkot egy
+  teljes kÃ©pkockÃ¡t, mert 1/50 mÃ¡sodpercnyire vannak egymÃ¡stÃ³l idÅ‘ben
+  Ã©s Ã­gy csak mozgÃ¡snÃ¡l igazodnak Ã¶ssze.
 </p></li><li><p>
-  <span class="bold"><strong>NTSC Videó</strong></span>: NTSC kamerával felvett,
-  60000/1001 mez&#337; per másodperc vagy a színek el&#337;tti id&#337;ben 60 mez&#337; per
-  másodperc sebesség&#369; film. Egyébként hasonló a PAL-hoz.
+  <span class="bold"><strong>NTSC VideÃ³</strong></span>: NTSC kamerÃ¡val felvett,
+  60000/1001 mezÅ‘ per mÃ¡sodperc vagy a szÃ­nek elÅ‘tti idÅ‘ben 60 mezÅ‘ per
+  mÃ¡sodperc sebessÃ©gÅ± film. EgyÃ©bkÃ©nt hasonlÃ³ a PAL-hoz.
 </p></li><li><p>
-  <span class="bold"><strong>Animáció</strong></span>: Általában 24fps-sel
-  rajzolják, de található kevert-framerátás változat is.
+  <span class="bold"><strong>AnimÃ¡ciÃ³</strong></span>: ÃltalÃ¡ban 24fps-sel
+  rajzoljÃ¡k, de talÃ¡lhatÃ³ kevert-framerÃ¡tÃ¡s vÃ¡ltozat is.
 </p></li><li><p>
-  <span class="bold"><strong>Számítógépes grafika (CG)</strong></span>: Bármilyen
-  framerátával mehet, de van pár, ami gyakoribb a többinél; 24 és
-  30 képkocka per másodpercesek a tipikusak NTSC-nél és 25fps PAL-nál.
+  <span class="bold"><strong>SzÃ¡mÃ­tÃ³gÃ©pes grafika (CG)</strong></span>: BÃ¡rmilyen
+  framerÃ¡tÃ¡val mehet, de van pÃ¡r, ami gyakoribb a tÃ¶bbinÃ©l; 24 Ã©s
+  30 kÃ©pkocka per mÃ¡sodpercesek a tipikusak NTSC-nÃ©l Ã©s 25fps PAL-nÃ¡l.
 </p></li><li><p>
-  <span class="bold"><strong>Régi film</strong></span>: Különböz&#337; alacsony
-  frameráták.
-</p></li></ul></div></div><div class="sect3" lang="hu"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode-material"></a>14.1.1.2. A forrásanyag beazonosítása</h4></div></div></div><p>
-  A képkockákból álló filmekre progresszívként szoktak hivatkozni,
-  míg az egymástól független mez&#337;kb&#337;l állóakra vagy átlapoltként
-  vagy videóként - bár ez utóbbi félreérthet&#337;.
+  <span class="bold"><strong>RÃ©gi film</strong></span>: KÃ¼lÃ¶nbÃ¶zÅ‘ alacsony
+  framerÃ¡tÃ¡k.
+</p></li></ul></div></div><div class="sect3" lang="hu"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode-material"></a>14.1.1.2. A forrÃ¡sanyag beazonosÃ­tÃ¡sa</h4></div></div></div><p>
+A kÃ©pkockÃ¡kbÃ³l Ã¡llÃ³ filmekre progresszÃ­vkÃ©nt szoktak hivatkozni,
+mÃ­g az egymÃ¡stÃ³l fÃ¼ggetlen mezÅ‘kbÅ‘l Ã¡llÃ³akra vagy Ã¡tlapoltkÃ©nt
+vagy videÃ³kÃ©nt - bÃ¡r ez utÃ³bbi fÃ©lreÃ©rthetÅ‘.
 </p><p>
-  További bonyolításként néhány film a fenti kett&#337; keveréke.
+TovÃ¡bbi bonyolÃ­tÃ¡skÃ©nt nÃ©hÃ¡ny film a fenti kettÅ‘ keverÃ©ke.
 </p><p>
-  A legfontosabb különbség, amit észre kell venni a két formátum
-  között, hogy van, amelyik képkocka-alapú míg mások mez&#337; alapúak.
-  <span class="bold"><strong>Bármikor</strong></span>, ha egy filmet televíziós
-  megjelenítésre készítenek el&#337; (beleértve a DVD-t is), átkonvertálják
-  mez&#337;-alapú formába.
-  A különböz&#337; módszereket, amikkel ez végrehajtható, gy&#369;jt&#337;néven
-  "pulldown"-nak hívjuk, ennek egyik változata a hírhedt NTSC-s
-  "3:2 telecine".
-  Hacsak nem volt az eredeti anyag is mez&#337;-alapú (és megegyez&#337;
-  mez&#337; rátájú), más formátumbú lesz a filmed, mint az eredeti.
-</p><div class="itemizedlist"><p class="title"><b>Számos általános típusa van a pulldown-nak:</b></p><ul type="disc"><li><p>
-  <span class="bold"><strong>PAL 2:2 pulldown</strong></span>: Az összes közül a
+A legfontosabb kÃ¼lÃ¶nbsÃ©g, amit Ã©szre kell venni a kÃ©t formÃ¡tum
+kÃ¶zÃ¶tt, hogy van, amelyik kÃ©pkocka-alapÃº mÃ­g mÃ¡sok mezÅ‘ alapÃºak.
+<span class="bold"><strong>BÃ¡rmikor</strong></span>, ha egy filmet televÃ­ziÃ³s
+megjelenÃ­tÃ©sre kÃ©szÃ­tenek elÅ‘ (beleÃ©rtve a DVD-t is), Ã¡tkonvertÃ¡ljÃ¡k
+mezÅ‘-alapÃº formÃ¡ba.
+A kÃ¼lÃ¶nbÃ¶zÅ‘ mÃ³dszereket, amikkel ez vÃ©grehajthatÃ³, gyÅ±jtÅ‘nÃ©ven
+"telecine"-nek hÃ­vjuk, ennek egyik vÃ¡ltozata a hÃ­rhedt NTSC-s
+"3:2 pulldown".
+Hacsak nem volt az eredeti anyag is mezÅ‘-alapÃº (Ã©s megegyezÅ‘
+mezÅ‘ rÃ¡tÃ¡jÃº), mÃ¡s formÃ¡tumbÃº lesz a filmed, mint az eredeti.
+</p><div class="itemizedlist"><p class="title"><b>SzÃ¡mos Ã¡ltalÃ¡nos tÃ­pusa van a pulldown-nak:</b></p><ul type="disc"><li><p>
+  <span class="bold"><strong>PAL 2:2 pulldown</strong></span>: Az Ã¶sszes kÃ¶zÃ¼l a
   legjobb.
-  Minden képkocka két mez&#337; idejéig látszódik, úgy, hogy a páros és páratlan
-  sorokat kinyeri bel&#337;lük és váltakozva mutatja &#337;ket.
-  Ha az eredeti anyag 24fps-es, ez az eljárás felgyorsítja a filmet
+  Minden kÃ©pkocka kÃ©t mezÅ‘ idejÃ©ig lÃ¡tszÃ³dik, Ãºgy, hogy a pÃ¡ros Ã©s pÃ¡ratlan
+  sorokat kinyeri belÅ‘lÃ¼k Ã©s vÃ¡ltakozva mutatja Å‘ket.
+  Ha az eredeti anyag 24fps-es, ez az eljÃ¡rÃ¡s felgyorsÃ­tja a filmet
   4%-kal.
 </p></li><li><p>
   <span class="bold"><strong>PAL 2:2:2:2:2:2:2:2:2:2:2:3 pulldown</strong></span>:
-  Minden 12. kockát három mez&#337; hosszan mutat kett&#337; helyett.
-  Ezzel elkerüli a 4%-os gyorsulást, de sokkal nehezebben megfordíthatóvá
+  Minden 12. kockÃ¡t hÃ¡rom mezÅ‘ hosszan mutat kettÅ‘ helyett.
+  Ezzel elkerÃ¼li a 4%-os gyorsulÃ¡st, de sokkal nehezebben megfordÃ­thatÃ³vÃ¡
   teszi a folyamatot.
-  Általában musical készítésénél használják, ahol a 4%-os sebességmódosulás
-  komolyan rontaná a zenei jelet.
+  ÃltalÃ¡ban musical kÃ©szÃ­tÃ©sÃ©nÃ©l hasznÃ¡ljÃ¡k, ahol a 4%-os sebessÃ©gmÃ³dosulÃ¡s
+  komolyan rontanÃ¡ a zenei jelet.
 </p></li><li><p>
-  <span class="bold"><strong>NTSC 3:2 telecine</strong></span>: A kockák
-  felváltva 3 vagy 2 mez&#337;nyi ideig látszódnak. Ezáltal a mez&#337; ráta
-  2.5-szöröse lesz az eredeti framerátának.
-  Az eredmény nagyon kis mértékben lelassul, 60 mez&#337; per másodpercr&#337;l
-  59.94 mez&#337; per másodpercre, az NTSC mez&#337; ráta megtartása miatt.
+  <span class="bold"><strong>NTSC 3:2 telecine</strong></span>: A kockÃ¡k
+  felvÃ¡ltva 3 vagy 2 mezÅ‘nyi ideig lÃ¡tszÃ³dnak. EzÃ¡ltal a mezÅ‘ rÃ¡ta
+  2.5-szÃ¶rÃ¶se lesz az eredeti framerÃ¡tÃ¡nak.
+  Az eredmÃ©ny nagyon kis mÃ©rtÃ©kben lelassul, 60 mezÅ‘ per mÃ¡sodpercrÅ‘l
+  59.94 mezÅ‘ per mÃ¡sodpercre, az NTSC mezÅ‘ rÃ¡ta megtartÃ¡sa miatt.
 </p></li><li><p>
   <span class="bold"><strong>NTSC 2:2 pulldown</strong></span>: A 30fps-es
-  anyagok NTSC-n történ&#337; megjelenítéséhez használják.
-  Szép, csakúgy, mint a 2:2 PAL pulldown.
+  anyagok NTSC-n tÃ¶rtÃ©nÅ‘ megjelenÃ­tÃ©sÃ©hez hasznÃ¡ljÃ¡k.
+  SzÃ©p, csakÃºgy, mint a 2:2 PAL pulldown.
 </p></li></ul></div><p>
-  Vannak még egyéb módszerek az NTSC és a PAL videó közötti konvertáláshoz,
-  de ez a téma meghaladja ezen leírás célkit&#369;zéseit.
-  Ha ilyen filmbe futsz bele és el szeretnéd kódolni, a legjobb, ha
-  keresel egy másolatot az eredeti formátumban.
-  A két formátum közötti konvertálás nagyon romboló hatású és nem
-  lehet teljesen visszafordítani, így a kódolt adatod nagyon
-  megszenvedi, ha már konvertált forrásból készül.
+Vannak mÃ©g egyÃ©b mÃ³dszerek az NTSC Ã©s a PAL videÃ³ kÃ¶zÃ¶tti konvertÃ¡lÃ¡shoz,
+de ez a tÃ©ma meghaladja ezen leÃ­rÃ¡s cÃ©lkitÅ±zÃ©seit.
+Ha ilyen filmbe futsz bele Ã©s el szeretnÃ©d kÃ³dolni, a legjobb, ha
+keresel egy mÃ¡solatot az eredeti formÃ¡tumban.
+A kÃ©t formÃ¡tum kÃ¶zÃ¶tti konvertÃ¡lÃ¡s nagyon rombolÃ³ hatÃ¡sÃº Ã©s nem
+lehet teljesen visszafordÃ­tani, Ã­gy a kÃ³dolt adatod nagyon
+megszenvedi, ha mÃ¡r konvertÃ¡lt forrÃ¡sbÃ³l kÃ©szÃ¼l.
 </p><p>
-  Ha a videó DVD-n van, az egymást követ&#337; mez&#337;k képkockává
-  csoportosíthatóak, még akkor is, ha nem egyidej&#369; megjelenítésre
-  tervezték &#337;ket.
-  A DVD-n és digitális TV-n használt MPEG-2 szabvány lehet&#337;séget nyújt
-  mind az eredeti progresszív kockák elkódolására, mind pedig arra, hogy
-  azon mez&#337;k számát, amelyhez egy képkockát meg kell jeleníteni, az
-  adott képkocka fejlécében tárolhassuk.
-  Ha ezt a módszert használják, a filmet gyakran "soft-telecined"-ként
-  jellemzik, mert ez az eljárás csak utasítja a DVD lejátszót a pulldown
-  alkalmazására a film tényleges megváltoztatása helyett.
-  Ez a lehet&#337;ség nagyon preferált, mert könnyen visszafordítható
-  (tulajdonképpen kihagyható) a kódoló által és megtartja a maximális
-  min&#337;séget.
-  Bár sok DVD és m&#369;sorszóró stúdió nem használ megfelel&#337; kódolási
-  technikát, hanem inkább "hard telecine"-es filmeket alkalmaznak,
-  ahol a mez&#337;k tulajdonképpen duplázva vannak az elkódolt MPEG-2-ben.
+Ha a videÃ³ DVD-n van, az egymÃ¡st kÃ¶vetÅ‘ mezÅ‘k kÃ©pkockÃ¡vÃ¡
+csoportosÃ­thatÃ³ak, mÃ©g akkor is, ha nem egyidejÅ± megjelenÃ­tÃ©sre
+terveztÃ©k Å‘ket.
+A DVD-n Ã©s digitÃ¡lis TV-n hasznÃ¡lt MPEG-2 szabvÃ¡ny lehetÅ‘sÃ©get nyÃºjt
+mind az eredeti progresszÃ­v kockÃ¡k elkÃ³dolÃ¡sÃ¡ra, mind pedig arra, hogy
+azon mezÅ‘k szÃ¡mÃ¡t, amelyhez egy kÃ©pkockÃ¡t meg kell jelenÃ­teni, az
+adott kÃ©pkocka fejlÃ©cÃ©ben tÃ¡rolhassuk.
+Ha ezt a mÃ³dszert hasznÃ¡ljÃ¡k, a filmet gyakran "soft-telecined"-kÃ©nt
+jellemzik, mert ez az eljÃ¡rÃ¡s csak utasÃ­tja a DVD lejÃ¡tszÃ³t a pulldown
+alkalmazÃ¡sÃ¡ra a film tÃ©nyleges megvÃ¡ltoztatÃ¡sa helyett.
+Ez a lehetÅ‘sÃ©g nagyon preferÃ¡lt, mert kÃ¶nnyen visszafordÃ­thatÃ³
+(tulajdonkÃ©ppen kihagyhatÃ³) a kÃ³dolÃ³ Ã¡ltal Ã©s megtartja a maximÃ¡lis
+minÅ‘sÃ©get.
+BÃ¡r sok DVD Ã©s mÅ±sorszÃ³rÃ³ stÃºdiÃ³ nem hasznÃ¡l megfelelÅ‘ kÃ³dolÃ¡si
+technikÃ¡t, hanem inkÃ¡bb "hard telecine"-es filmeket alkalmaznak,
+ahol a mezÅ‘k tulajdonkÃ©ppen duplÃ¡zva vannak az elkÃ³dolt MPEG-2-ben.
 </p><p>
-  Az eljárás, ahogy ezeket az eseteket kezelni kell, <a href="menc-feat-telecine.html" title="14.2. Mit kezdjünk a telecine-nel és az átlapolással NTSC DVD-ken">kés&#337;bb kerül leírásra</a> ebben
-  az útmutatóban.
-  Most következzék pár tanács, amik segítségével eldöntheted, hogy milyen
-  anyaggal van dolgod:
-</p><div class="itemizedlist"><p class="title"><b>NTSC régiók:</b></p><ul type="disc"><li><p>
-  Ha az <span class="application">MPlayer</span> azt írja ki, hogy a frameráta
-  megváltozott 24000/1001-re a film nézése közben, és soha nem vált vissza,
-  akkor majdnem biztosan progresszív tartalomról van szó, amit "soft telecine"
-  eljárásnak vetettek alá.
+Az eljÃ¡rÃ¡s, ahogy ezeket az eseteket kezelni kell, <a href="menc-feat-telecine.html" title="14.2. Mit kezdjÃ¼nk a telecine-nel Ã©s az Ã¡tlapolÃ¡ssal NTSC DVD-ken">kÃ©sÅ‘bb kerÃ¼l leÃ­rÃ¡sra</a> ebben
+az ÃºtmutatÃ³ban.
+Most kÃ¶vetkezzÃ©k pÃ¡r tanÃ¡cs, amik segÃ­tsÃ©gÃ©vel eldÃ¶ntheted, hogy milyen
+anyaggal van dolgod:
+</p><div class="itemizedlist"><p class="title"><b>NTSC rÃ©giÃ³k:</b></p><ul type="disc"><li><p>
+  Ha az <span class="application">MPlayer</span> azt Ã­rja ki, hogy a framerÃ¡ta
+  megvÃ¡ltozott 24000/1001-re a film nÃ©zÃ©se kÃ¶zben, Ã©s soha nem vÃ¡lt vissza,
+  akkor majdnem biztosan progresszÃ­v tartalomrÃ³l van szÃ³, amit "soft telecine"
+  eljÃ¡rÃ¡snak vetettek alÃ¡.
 </p></li><li><p>
-  Ha az <span class="application">MPlayer</span> a frameráta oda-vissza
-  váltakozását mutatja 24000/1001 és 30000/1001 között és "hullámzást"
-  látsz ilyenkor, akkor több lehet&#337;ség is van.
-  A 24000/1001 fps-es részek majdnem biztosan progresszív
-  tartalmak, "soft telecine"-ltek, de a 30000/1001 fps-es részek
+  Ha az <span class="application">MPlayer</span> a framerÃ¡ta oda-vissza
+  vÃ¡ltakozÃ¡sÃ¡t mutatja 24000/1001 Ã©s 30000/1001 kÃ¶zÃ¶tt Ã©s "hullÃ¡mzÃ¡st"
+  lÃ¡tsz ilyenkor, akkor tÃ¶bb lehetÅ‘sÃ©g is van.
+  A 24000/1001 fps-es rÃ©szek majdnem biztosan progresszÃ­v
+  tartalmak, "soft telecine"-ltek, de a 30000/1001 fps-es rÃ©szek
   lehetnek vagy hard-telecine-lt 24000/1001 fps-esek vagy 60000/1001
-  mez&#337; per másodperces NTSC videók.
-  Kövesd a következ&#337; két esetben leírt irányelveket, hogy el tudd
-  dönteni, valójában melyik formátummal van dolgod.
+  mezÅ‘ per mÃ¡sodperces NTSC videÃ³k.
+  KÃ¶vesd a kÃ¶vetkezÅ‘ kÃ©t esetben leÃ­rt irÃ¡nyelveket, hogy el tudd
+  dÃ¶nteni, valÃ³jÃ¡ban melyik formÃ¡tummal van dolgod.
 </p></li><li><p>
-  Ha az <span class="application">MPlayer</span> soha nem mutatja a frameráta
-  változást és minden egyes mozgást tartalmazó kocka hullámosnak t&#369;nik,
-  akkor a filmed NTSC videó 60000/1001 mez&#337; per másodperc sebességgel.
+  Ha az <span class="application">MPlayer</span> soha nem mutatja a framerÃ¡ta
+  vÃ¡ltozÃ¡st Ã©s minden egyes mozgÃ¡st tartalmazÃ³ kocka hullÃ¡mosnak tÅ±nik,
+  akkor a filmed NTSC videÃ³ 60000/1001 mezÅ‘ per mÃ¡sodperc sebessÃ©ggel.
 </p></li><li><p>
-  Ha az <span class="application">MPlayer</span> soha nem mutatja a frameráta
-  változást és minden ötb&#337;l két kocka hullámosnak t&#369;nik, akkor a filmed
-  "hard telecine"-s 24000/1001fps-es formátumú.
-</p></li></ul></div><div class="itemizedlist"><p class="title"><b>PAL régiók:</b></p><ul type="disc"><li><p>
-  Ha sosem látsz hullámzást, akkor a filmed 2:2 pulldown-os.
+  Ha az <span class="application">MPlayer</span> soha nem mutatja a framerÃ¡ta
+  vÃ¡ltozÃ¡st Ã©s minden Ã¶tbÅ‘l kÃ©t kocka hullÃ¡mosnak tÅ±nik, akkor a filmed
+  "hard telecine"-s 24000/1001fps-es formÃ¡tumÃº.
+</p></li></ul></div><div class="itemizedlist"><p class="title"><b>PAL rÃ©giÃ³k:</b></p><ul type="disc"><li><p>
+  Ha sosem lÃ¡tsz hullÃ¡mzÃ¡st, akkor a filmed 2:2 pulldown-os.
 </p></li><li><p>
-  Ha hullámzást látsz váltakozóan ki-be minden fél másodpercben,
+  Ha hullÃ¡mzÃ¡st lÃ¡tsz vÃ¡ltakozÃ³an ki-be minden fÃ©l mÃ¡sodpercben,
   akkor a filmed 2:2:2:2:2:2:2:2:2:2:2:3 pulldown-os.
 </p></li><li><p>
-  Ha mindig látsz hullámzást a mozgás közben, akkor a filmed PAL
-  videó 50 mez&#337; per másodperces sebességgel.
-</p></li></ul></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Tanács:</h3><p>
-  Az <span class="application">MPlayer</span> le tudja lassítani a lejátszást
-  a -speed kapcsolóval vagy a kockáról-kockára történ&#337; lejátszással.
-  Próbáld meg használni a <tt class="option">-speed</tt> 0.2-t, hogy nagyon lassan
-  nézhesd a filmet vagy nyomogasd a "<span class="keycap"><b>.</b></span>" gombot a kockáról
-  kockára történ&#337; lejátszáshoz és azonosítsd a mintákat, ha nem látod meg
-  teljes sebességnél.
-</p></div></div></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-2pass"></a>14.1.2. Konstans kvantálás vs. többmenetes kódolás</h3></div></div></div><p>
-  Nagyon sokféle min&#337;ségben tudod elkódolni a filmedet.
-  A modern videó kódolókkal és egy kis pre-codec tömörítéssel
-  (leméretezés és zajcsökkentés), lehetséges nagyon jó min&#337;ség elérése
-  700 MB-on, egy 90-110 perces szélesvásznú filmnél.
-  Továbbá minden, kivéve a leghosszabb filmeket, elkódolható majdnem
-  tökéletes min&#337;séggel 1400 MB-ba.
+  Ha mindig lÃ¡tsz hullÃ¡mzÃ¡st a mozgÃ¡s kÃ¶zben, akkor a filmed PAL
+  videÃ³ 50 mezÅ‘ per mÃ¡sodperces sebessÃ©ggel.
+</p></li></ul></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">TanÃ¡cs:</h3><p>
+  Az <span class="application">MPlayer</span> le tudja lassÃ­tani a lejÃ¡tszÃ¡st
+  a -speed kapcsolÃ³val vagy a kockÃ¡rÃ³l-kockÃ¡ra tÃ¶rtÃ©nÅ‘ lejÃ¡tszÃ¡ssal.
+  PrÃ³bÃ¡ld meg hasznÃ¡lni a <tt class="option">-speed</tt> 0.2-t, hogy nagyon lassan
+  nÃ©zhesd a filmet vagy nyomogasd a "<span class="keycap"><b>.</b></span>" gombot a kockÃ¡rÃ³l
+  kockÃ¡ra tÃ¶rtÃ©nÅ‘ lejÃ¡tszÃ¡shoz Ã©s azonosÃ­tsd a mintÃ¡kat, ha nem lÃ¡tod meg
+  teljes sebessÃ©gnÃ©l.
+</p></div></div></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-2pass"></a>14.1.2. Konstans kvantÃ¡lÃ¡s vs. tÃ¶bbmenetes kÃ³dolÃ¡s</h3></div></div></div><p>
+Nagyon sokfÃ©le minÅ‘sÃ©gben tudod elkÃ³dolni a filmedet.
+A modern videÃ³ kÃ³dolÃ³kkal Ã©s egy kis pre-codec tÃ¶mÃ¶rÃ­tÃ©ssel
+(lemÃ©retezÃ©s Ã©s zajcsÃ¶kkentÃ©s), lehetsÃ©ges nagyon jÃ³ minÅ‘sÃ©g elÃ©rÃ©se
+700 MB-on, egy 90-110 perces szÃ©lesvÃ¡sznÃº filmnÃ©l.
+TovÃ¡bbÃ¡ minden, kivÃ©ve a leghosszabb filmeket, elkÃ³dolhatÃ³ majdnem
+tÃ¶kÃ©letes minÅ‘sÃ©ggel 1400 MB-ba.
 </p><p>
-  Három féle megközelítése van egy videó kódolásának: konstans bitráta
-  (CBR), konstans kvantálás, és többmenetes (ABR vagy átlagos bitráta).
+HÃ¡rom fÃ©le megkÃ¶zelÃ­tÃ©se van egy videÃ³ kÃ³dolÃ¡sÃ¡nak: konstans bitrÃ¡ta
+(CBR), konstans kvantÃ¡lÃ¡s, Ã©s tÃ¶bbmenetes (ABR vagy Ã¡tlagos bitrÃ¡ta).
 </p><p>
-  Egy film képkockáinak komplexitása és így a tömörítéshez szükséges bitek
-  száma nagy mértékben változhat jelentr&#337;l jelenetre.
-  A modern videó kódolók már alkalmazkodnak az igényekhez a bitráta variálásával.
-  Az egyszer&#369; módokban, mint pl. a CBR, a kódolók nem ismerik az elkövetkez&#337;
-  jelenetek bitráta igényét és így nem tudják átlépni az igényelt átlagos
-  bitrátát hosszabb id&#337;re. A fejlettebb módokban, mint pl. a több lépéses
-  kódolásnál, már figyelembe lehet venni az el&#337;z&#337; lépés statisztikáját; ez
-  megoldja a fent említett problémát.
-</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Megjegyzés:</h3><p>
-  A legtöbb ABR kódolást támogató codec csak a két lépéses kódolást
-  támogatja, míg néhány másik, mint pl. az <code class="systemitem">x264</code>,
-  az <code class="systemitem">XviD</code> és a
-  <code class="systemitem">libavcodec</code> támogatják
-  a többmenetest, ami kissé javít a min&#337;ségen minden lépésben,
-  bár ez a javulás nem mérhet&#337; és nem is észrevehet&#337; a 4. lépés után.
-  Ezért, ebben a részben a két lépéses és a többmenetes felváltva
-  értelmezhet&#337;.
+Egy film kÃ©pkockÃ¡inak komplexitÃ¡sa Ã©s Ã­gy a tÃ¶mÃ¶rÃ­tÃ©shez szÃ¼ksÃ©ges bitek
+szÃ¡ma nagy mÃ©rtÃ©kben vÃ¡ltozhat jelentrÅ‘l jelenetre.
+A modern videÃ³ kÃ³dolÃ³k mÃ¡r alkalmazkodnak az igÃ©nyekhez a bitrÃ¡ta variÃ¡lÃ¡sÃ¡val.
+Az egyszerÅ± mÃ³dokban, mint pl. a CBR, a kÃ³dolÃ³k nem ismerik az elkÃ¶vetkezÅ‘
+jelenetek bitrÃ¡ta igÃ©nyÃ©t Ã©s Ã­gy nem tudjÃ¡k Ã¡tlÃ©pni az igÃ©nyelt Ã¡tlagos
+bitrÃ¡tÃ¡t hosszabb idÅ‘re. A fejlettebb mÃ³dokban, mint pl. a tÃ¶bb lÃ©pÃ©ses
+kÃ³dolÃ¡snÃ¡l, mÃ¡r figyelembe lehet venni az elÅ‘zÅ‘ lÃ©pÃ©s statisztikÃ¡jÃ¡t; ez
+megoldja a fent emlÃ­tett problÃ©mÃ¡t.
+</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">MegjegyzÃ©s:</h3><p>
+A legtÃ¶bb ABR kÃ³dolÃ¡st tÃ¡mogatÃ³ codec csak a kÃ©t lÃ©pÃ©ses kÃ³dolÃ¡st
+tÃ¡mogatja, mÃ­g nÃ©hÃ¡ny mÃ¡sik, mint pl. az <code class="systemitem">x264</code>,
+az <code class="systemitem">Xvid</code> Ã©s a
+<code class="systemitem">libavcodec</code> tÃ¡mogatjÃ¡k
+a tÃ¶bbmenetest, ami kissÃ© javÃ­t a minÅ‘sÃ©gen minden lÃ©pÃ©sben,
+bÃ¡r ez a javulÃ¡s nem mÃ©rhetÅ‘ Ã©s nem is Ã©szrevehetÅ‘ a 4. lÃ©pÃ©s utÃ¡n.
+EzÃ©rt, ebben a rÃ©szben a kÃ©t lÃ©pÃ©ses Ã©s a tÃ¶bbmenetes felvÃ¡ltva
+Ã©rtelmezhetÅ‘.
 </p></div><p>
-  Ezen módok mindegyikében a videó codec (mint pl. a <code class="systemitem">libavcodec</code>)
-  a videó képkockákat 16x16 pixel nagyságú macroblock-okra osztja, majd egy
-  kvantálást végez mindegyik macroblock-on. Minél alacsonyabb a kvantálás, annál
-  jobb a min&#337;ség és nagyobb a bitráta. A film kódolók által egy adott macroblockhoz
-  a megfelel&#337; kvantáló kiválasztására használt módszer változó és nagymértékben
-  tuningolható. (Ez egy extrém túl-egyszer&#369;sítése a tulajdonképpeni folyamatnak,
-  de az alap koncepciót hasznos megérteni.)
+Ezen mÃ³dok mindegyikÃ©ben a videÃ³ codec (mint pl. a
+<code class="systemitem">libavcodec</code>)
+a videÃ³ kÃ©pkockÃ¡kat 16x16 pixel nagysÃ¡gÃº macroblock-okra osztja, majd egy
+kvantÃ¡lÃ¡st vÃ©gez mindegyik macroblock-on. MinÃ©l alacsonyabb a kvantÃ¡lÃ¡s, annÃ¡l
+jobb a minÅ‘sÃ©g Ã©s nagyobb a bitrÃ¡ta. A film kÃ³dolÃ³k Ã¡ltal egy adott macroblockhoz
+a megfelelÅ‘ kvantÃ¡lÃ³ kivÃ¡lasztÃ¡sÃ¡ra hasznÃ¡lt mÃ³dszer vÃ¡ltozÃ³ Ã©s nagymÃ©rtÃ©kben
+tuningolhatÃ³. (Ez egy extrÃ©m tÃºl-egyszerÅ±sÃ­tÃ©se a tulajdonkÃ©ppeni folyamatnak,
+de az alap koncepciÃ³t hasznos megÃ©rteni.)
 </p><p>
-  Ha el&#337;írsz egy konstans bitrátát, a videó codec elkódolja a videót, figyelmen
-  kívül hagyva a részleteket amennyire csak lehetséges és a legkisebb mértékben,
-  amennyire szükséges, hogy a megadott bitrátánál alacsonyabban maradjon. Ha
-  tényleg nem érdekel a fájl méret, használhatsz CBR-t és megadhatsz egy bitrátát
-  vagy hagyhatod határozatlanul. (A gyakorlatban ez egy kell&#337;en magas értéket
-  jelent, ami nem szab gátat, pl. 10000Kbit.) Ha nincs különösebb megkötés a
-  bitrátára vonatkozóan, az eredmény az lesz, hogy a codec a lehet&#337; legalacsonyabb
-  kvantálást fogja használni minden egyes macroblock-hoz (amint ez a
-  <tt class="option">vqmin</tt>-ben meg van adva a <code class="systemitem">libavcodec</code>nél, alapértelmezésként 2). Amint
-  el&#337;írsz egy megfelel&#337;en alacsony bitrátát, ami a codecet magasabb kvantálás
-  használatára kényszeríti, majdnem biztos, hogy rontod a videód min&#337;ségét.
-  Ahhoz, hogy ezt elkerüld, valószín&#369;leg downscale-t kell végrehajtani a
-  videón, az alábbiakban szerepl&#337; módszernek megfelel&#337;en. Általában igaz,
-  hogy jobb ha kerülöd a CBR-t, ha számít a min&#337;ség.
+Ha elÅ‘Ã­rsz egy konstans bitrÃ¡tÃ¡t, a videÃ³ codec elkÃ³dolja a videÃ³t, figyelmen
+kÃ­vÃ¼l hagyva a rÃ©szleteket amennyire csak lehetsÃ©ges Ã©s a legkisebb mÃ©rtÃ©kben,
+amennyire szÃ¼ksÃ©ges, hogy a megadott bitrÃ¡tÃ¡nÃ¡l alacsonyabban maradjon. Ha
+tÃ©nyleg nem Ã©rdekel a fÃ¡jl mÃ©ret, hasznÃ¡lhatsz CBR-t Ã©s megadhatsz egy bitrÃ¡tÃ¡t
+vagy hagyhatod hatÃ¡rozatlanul. (A gyakorlatban ez egy kellÅ‘en magas Ã©rtÃ©ket
+jelent, ami nem szab gÃ¡tat, pl. 10000Kbit.) Ha nincs kÃ¼lÃ¶nÃ¶sebb megkÃ¶tÃ©s a
+bitrÃ¡tÃ¡ra vonatkozÃ³an, az eredmÃ©ny az lesz, hogy a codec a lehetÅ‘ legalacsonyabb
+kvantÃ¡lÃ¡st fogja hasznÃ¡lni minden egyes macroblock-hoz (amint ez a
+<tt class="option">vqmin</tt>-ben meg van adva a <code class="systemitem">libavcodec</code>nÃ©l, alapÃ©rtelmezÃ©skÃ©nt 2). Amint
+elÅ‘Ã­rsz egy megfelelÅ‘en alacsony bitrÃ¡tÃ¡t, ami a codecet magasabb kvantÃ¡lÃ¡s
+hasznÃ¡latÃ¡ra kÃ©nyszerÃ­ti, majdnem biztos, hogy rontod a videÃ³d minÅ‘sÃ©gÃ©t.
+Ahhoz, hogy ezt elkerÃ¼ld, valÃ³szÃ­nÅ±leg downscale-t kell vÃ©grehajtani a
+videÃ³n, az alÃ¡bbiakban szereplÅ‘ mÃ³dszernek megfelelÅ‘en. ÃltalÃ¡ban igaz,
+hogy jobb ha kerÃ¼lÃ¶d a CBR-t, ha szÃ¡mÃ­t a minÅ‘sÃ©g.
 </p><p>
-  Konstans kvantálással a codec ugyan azt a kvantálót használja, amit
-  a <tt class="option">vqscale</tt> kapcsolóval megadtál (a <code class="systemitem">libavcodec</code>nek), minden macroblock-nál. Ha
-  a lehet&#337; legjobb min&#337;ség&#369; rip-et szeretnéd, szintén a bitráta kihagyásával,
-  használhatod a <tt class="option">vqscale=2</tt> kapcsolót. Ez ugyan azt a bitrátát
-  és PSNR-t (peak signal-to-noise ratio) szolgáltatja, mint a CBR a
-  <tt class="option">vbitrate</tt>=végtelen kapcsolóval és a alapértelmezett 2-es
-  <tt class="option">vqmin</tt>-nal.
+Konstans kvantÃ¡lÃ¡ssal a codec ugyan azt a kvantÃ¡lÃ³t hasznÃ¡lja, amit
+a <tt class="option">vqscale</tt> kapcsolÃ³val megadtÃ¡l (a <code class="systemitem">libavcodec</code>nek), minden macroblock-nÃ¡l. Ha
+a lehetÅ‘ legjobb minÅ‘sÃ©gÅ± rip-et szeretnÃ©d, szintÃ©n a bitrÃ¡ta kihagyÃ¡sÃ¡val,
+hasznÃ¡lhatod a <tt class="option">vqscale=2</tt> kapcsolÃ³t. Ez ugyan azt a bitrÃ¡tÃ¡t
+Ã©s PSNR-t (peak signal-to-noise ratio) szolgÃ¡ltatja, mint a CBR a
+<tt class="option">vbitrate</tt>=vÃ©gtelen kapcsolÃ³val Ã©s a alapÃ©rtelmezett 2-es
+<tt class="option">vqmin</tt>-nal.
 </p><p>
-  A konstans kvantálás problémája, hogy a megadott kvantálót alkalmazza, akár
-  szükséges a macroblock-hoz, akár nem. Lehet, hogy használható lenne egy
-  nagyobb kvantálás is a mackroblock-on a vizuális min&#337;ség feláldozása nélkül
-  is. Miért pazarolnánk a biteket szükségtelenül alacsony kvantálóra? A
-  CPU-d annyi ciklusa lehet, amennyi id&#337;d csak van, de a merevlemezed véges.
+A konstans kvantÃ¡lÃ¡s problÃ©mÃ¡ja, hogy a megadott kvantÃ¡lÃ³t alkalmazza, akÃ¡r
+szÃ¼ksÃ©ges a macroblock-hoz, akÃ¡r nem. Lehet, hogy hasznÃ¡lhatÃ³ lenne egy
+nagyobb kvantÃ¡lÃ¡s is a mackroblock-on a vizuÃ¡lis minÅ‘sÃ©g felÃ¡ldozÃ¡sa nÃ©lkÃ¼l
+is. MiÃ©rt pazarolnÃ¡nk a biteket szÃ¼ksÃ©gtelenÃ¼l alacsony kvantÃ¡lÃ³ra? A
+CPU-d annyi ciklusa lehet, amennyi idÅ‘d csak van, de a merevlemezed vÃ©ges.
 </p><p>
-  Két lépéses kódolásban az els&#337; lépés úgy rip-eli a filmet, mintha CBR lenne,
-  de megtartja a tulajdonságok listáját minden egyes képkockánál. Ezeket az
-  adatokat használja fel aztán a második lépésben a használni kívánt kvantálót
-  meghatározó intelligens döntésekben. Gyors akciónál vagy nagyon részletes
-  jeleneteknél magasabb kvantálót használ, lassú mozgásnál vagy kevésbé
-  részletes jeleneteknél alacsonyabbat.
-  Általában a mozgás mennyisége sokkal fontosabb, mint a részletesség.
+KÃ©t lÃ©pÃ©ses kÃ³dolÃ¡sban az elsÅ‘ lÃ©pÃ©s Ãºgy rip-eli a filmet, mintha CBR lenne,
+de megtartja a tulajdonsÃ¡gok listÃ¡jÃ¡t minden egyes kÃ©pkockÃ¡nÃ¡l. Ezeket az
+adatokat hasznÃ¡lja fel aztÃ¡n a mÃ¡sodik lÃ©pÃ©sben a hasznÃ¡lni kÃ­vÃ¡nt kvantÃ¡lÃ³t
+meghatÃ¡rozÃ³ intelligens dÃ¶ntÃ©sekben. Gyors akciÃ³nÃ¡l vagy nagyon rÃ©szletes
+jeleneteknÃ©l magasabb kvantÃ¡lÃ³t hasznÃ¡l, lassÃº mozgÃ¡snÃ¡l vagy kevÃ©sbÃ©
+rÃ©szletes jeleneteknÃ©l alacsonyabbat.
+ÃltalÃ¡ban a mozgÃ¡s mennyisÃ©ge sokkal fontosabb, mint a rÃ©szletessÃ©g.
 </p><p>
-  Ha használod a <tt class="option">vqscale=2</tt> kapcsolót, akkor biteket pazarolsz.
-  Ha a <tt class="option">vqscale=3</tt> kapcsolót adod meg, akkor nem a legjobb min&#337;ség&#369;
-  rip-et kapod. Tegyük fel, hogy egy DVD-t rip-elsz <tt class="option">vqscale=3</tt>-mal,
-  és az eredmény 1800Kbit. Ha két lépéses kódolást csinálsz <tt class="option">vbitrate=1800</tt>
-  kapcsolóval, az kimeneti videó <span class="bold"><strong>jobb min&#337;ség&#369;</strong></span> lesz
-  <span class="bold"><strong>ugyanolyan bitrátával</strong></span>.
+Ha hasznÃ¡lod a <tt class="option">vqscale=2</tt> kapcsolÃ³t, akkor biteket pazarolsz.
+Ha a <tt class="option">vqscale=3</tt> kapcsolÃ³t adod meg, akkor nem a legjobb minÅ‘sÃ©gÅ±
+rip-et kapod. TegyÃ¼k fel, hogy egy DVD-t rip-elsz <tt class="option">vqscale=3</tt>-mal,
+Ã©s az eredmÃ©ny 1800Kbit. Ha kÃ©t lÃ©pÃ©ses kÃ³dolÃ¡st csinÃ¡lsz <tt class="option">vbitrate=1800</tt>
+kapcsolÃ³val, az kimeneti videÃ³ <span class="bold"><strong>jobb minÅ‘sÃ©gÅ±</strong></span> lesz
+<span class="bold"><strong>ugyanolyan bitrÃ¡tÃ¡val</strong></span>.
 </p><p>
-  Mivel most meggy&#337;z&#337;dtél róla, hogy a két lépéses kódolás a megfelel&#337; módszer,
-  az igazi kérdés az, hogy milyen bitrátát ajánlott használni? A válasz az, hogy
-  nincs egyszer&#369; válasz. Valószín&#369;leg olyan bitrátát akarsz választani, ami a
-  legjobb egyensúlyt biztosítja a min&#337;ség és a fájl méret között. Ez viszont a
-  forrás videótól függ&#337;en változik.
+Mivel most meggyÅ‘zÅ‘dtÃ©l rÃ³la, hogy a kÃ©t lÃ©pÃ©ses kÃ³dolÃ¡s a megfelelÅ‘ mÃ³dszer,
+az igazi kÃ©rdÃ©s az, hogy milyen bitrÃ¡tÃ¡t ajÃ¡nlott hasznÃ¡lni? A vÃ¡lasz az, hogy
+nincs egyszerÅ± vÃ¡lasz. ValÃ³szÃ­nÅ±leg olyan bitrÃ¡tÃ¡t akarsz vÃ¡lasztani, ami a
+legjobb egyensÃºlyt biztosÃ­tja a minÅ‘sÃ©g Ã©s a fÃ¡jl mÃ©ret kÃ¶zÃ¶tt. Ez viszont a
+forrÃ¡s videÃ³tÃ³l fÃ¼ggÅ‘en vÃ¡ltozik.
 </p><p>
-  Ha a méret nem számít, egy jó kiindulási pont minden nagyon jó min&#337;ség&#369;
-  rip-hez egy 2000Kbit körüli érték, plusz-mínusz 200Kbit.
-  A gyors akciókhoz és a nagy részletesség&#369; videókhoz vagy ha sas szemed
-  van, akkor választhatsz 2400-at vagy 2600-at.
-  Néhány DVD-nél nem fogsz különbséget felfedezni 1400Kbit-en sem. Jó ötlet
-  az egyes fejezeteket különböz&#337; bitrátával megnézni, hogy meglásd a
-  különbséget.
+Ha a mÃ©ret nem szÃ¡mÃ­t, egy jÃ³ kiindulÃ¡si pont minden nagyon jÃ³ minÅ‘sÃ©gÅ±
+rip-hez egy 2000Kbit kÃ¶rÃ¼li Ã©rtÃ©k, plusz-mÃ­nusz 200Kbit.
+A gyors akciÃ³khoz Ã©s a nagy rÃ©szletessÃ©gÅ± videÃ³khoz vagy ha sas szemed
+van, akkor vÃ¡laszthatsz 2400-at vagy 2600-at.
+NÃ©hÃ¡ny DVD-nÃ©l nem fogsz kÃ¼lÃ¶nbsÃ©get felfedezni 1400Kbit-en sem. JÃ³ Ã¶tlet
+az egyes fejezeteket kÃ¼lÃ¶nbÃ¶zÅ‘ bitrÃ¡tÃ¡val megnÃ©zni, hogy meglÃ¡sd a
+kÃ¼lÃ¶nbsÃ©get.
 </p><p>
-  Ha egy bizonyos méretet céloztál be, valahogy ki kell számítanod a bitrátát.
-  De ezel&#337;tt azt kell megtudnod, hogy mennyi helyet kell fenntartanod az
-  audió sáv(ok)nak, így el&#337;ször <a href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-audio" title="14.1.11. Audió">ezeket
-  kell lerippelned</a>.
-  A következ&#337; egyenlettel tudod kiszámítani a bitrátát:
-  <code class="systemitem">bitráta = (cél_méret_Mbyteokban - hang_mérete_Mbyteokban) *
-  1024 * 1024 / hossz_másodpercben * 8 / 1000</code>
-  Például egy két órás film 702 Mbájtos CD-re való összenyomásához, 60
-  Mbájtnyi hang sávval, a videó bitrátájának
-  <code class="systemitem">(702 - 60) * 1024 * 1024 / (120*60) * 8 / 1000 =
-  740kbps</code>-nek kell lennie.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-constraints"></a>14.1.3. Megszorítások a hatékony kódoláshoz</h3></div></div></div><p>
-  Az MPEG-típusú tömörítés természetéb&#337;l adódóan számos megszorítás
-  van, amit követned kell a maximális min&#337;ség érdekében.
-  Az MPEG 16x16 makroblokknak nevezett négyzetre osztja fel a videót,
-  mindegyik 4 darab 8x8 blokk luma (intenzitás) információt és két
-  fél-felbontású 8x8 chroma (szín) blokkot tartalmaz (egy a vörös-világoskék
-  tengelyen, a másik a kék-sárga tengelyen).
-  Ha a film szélessége és magassága nem 16 többszöröse, a kódoló akkor is
-  elegend&#337; 16x16-os makroblokkot fog használni, hogy lefedje a teljes
-  képet, a maradék hely veszend&#337;be megy.
-  Így ha a min&#337;ség maximalizálása a cél egy fix fájlmérettel, akkor
-  eléggé rossz ötlet nem 16 valamelyik többszörösét használni méretként.
+Ha egy bizonyos mÃ©retet cÃ©loztÃ¡l be, valahogy ki kell szÃ¡mÃ­tanod a bitrÃ¡tÃ¡t.
+De ezelÅ‘tt azt kell megtudnod, hogy mennyi helyet kell fenntartanod az
+audiÃ³ sÃ¡v(ok)nak, Ã­gy elÅ‘szÃ¶r <a href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-audio" title="14.1.11. AudiÃ³">ezeket
+kell lerippelned</a>.
+A kÃ¶vetkezÅ‘ egyenlettel tudod kiszÃ¡mÃ­tani a bitrÃ¡tÃ¡t:
+<code class="systemitem">bitrÃ¡ta = (cÃ©l_mÃ©ret_Mbyteokban - hang_mÃ©rete_Mbyteokban) *
+1024 * 1024 / hossz_mÃ¡sodpercben * 8 / 1000</code>
+PÃ©ldÃ¡ul egy kÃ©t Ã³rÃ¡s film 702 MbÃ¡jtos CD-re valÃ³ Ã¶sszenyomÃ¡sÃ¡hoz, 60
+MbÃ¡jtnyi hang sÃ¡vval, a videÃ³ bitrÃ¡tÃ¡jÃ¡nak
+<code class="systemitem">(702 - 60) * 1024 * 1024 / (120*60) * 8 / 1000 =
+740kbps</code>-nek kell lennie.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-constraints"></a>14.1.3. MegszorÃ­tÃ¡sok a hatÃ©kony kÃ³dolÃ¡shoz</h3></div></div></div><p>
+Az MPEG-tÃ­pusÃº tÃ¶mÃ¶rÃ­tÃ©s termÃ©szetÃ©bÅ‘l adÃ³dÃ³an szÃ¡mos megszorÃ­tÃ¡s
+van, amit kÃ¶vetned kell a maximÃ¡lis minÅ‘sÃ©g Ã©rdekÃ©ben.
+Az MPEG 16x16 makroblokknak nevezett nÃ©gyzetre osztja fel a videÃ³t,
+mindegyik 4 darab 8x8 blokk luma (intenzitÃ¡s) informÃ¡ciÃ³t Ã©s kÃ©t
+fÃ©l-felbontÃ¡sÃº 8x8 chroma (szÃ­n) blokkot tartalmaz (egy a vÃ¶rÃ¶s-vilÃ¡goskÃ©k
+tengelyen, a mÃ¡sik a kÃ©k-sÃ¡rga tengelyen).
+Ha a film szÃ©lessÃ©ge Ã©s magassÃ¡ga nem 16 tÃ¶bbszÃ¶rÃ¶se, a kÃ³dolÃ³ akkor is
+elegendÅ‘ 16x16-os makroblokkot fog hasznÃ¡lni, hogy lefedje a teljes
+kÃ©pet, a maradÃ©k hely veszendÅ‘be megy.
+Ãgy ha a minÅ‘sÃ©g maximalizÃ¡lÃ¡sa a cÃ©l egy fix fÃ¡jlmÃ©rettel, akkor
+elÃ©ggÃ© rossz Ã¶tlet nem 16 valamelyik tÃ¶bbszÃ¶rÃ¶sÃ©t hasznÃ¡lni mÃ©retkÃ©nt.
 </p><p>
-  A legtöbb DVD-n van valamekkora fekete sáv a sarkokban. Ha ezeket
-  békén hagyod, akkor több módon is ronthatják a min&#337;séget.
+A legtÃ¶bb DVD-n van valamekkora fekete sÃ¡v a sarkokban. Ha ezeket bÃ©kÃ©n
+hagyod, akkor tÃ¶bb mÃ³don is <span class="bold"><strong>nagyon</strong></span>
+rontjÃ¡k a minÅ‘sÃ©get.
 </p><div class="orderedlist"><ol type="1"><li><p>
-  Az MPEG-típusú tömörítés szintén nagyban függ a frekvencia tartományok
-  transzformálásától is, általában a Diszkrét Koszinusz Transzformációt
-  (DCT) használják, ami hasonló a Fourier transzformációhoz. Ez a fajta
-  kódolás hatékony a minták és a sima átmenetek átalakításához, de
-  nehezen bírkózik meg az éles élekkel. Ezek elkódolásához sokkal több
-  bitre van szüksége, különben egy gy&#369;r&#369;södésnek nevezett mellékhatás
+  Az MPEG-tÃ­pusÃº tÃ¶mÃ¶rÃ­tÃ©s nagyban fÃ¼gg a frekvencia tartomÃ¡nyok
+  transzformÃ¡lÃ¡sÃ¡tÃ³l is, Ã¡ltalÃ¡ban a DiszkrÃ©t Koszinusz TranszformÃ¡ciÃ³t
+  (DCT) hasznÃ¡ljÃ¡k, ami hasonlÃ³ a Fourier transzformÃ¡ciÃ³hoz. Ez a fajta
+  kÃ³dolÃ¡s hatÃ©kony a mintÃ¡k Ã©s a sima Ã¡tmenetek Ã¡talakÃ­tÃ¡sÃ¡hoz, de
+  nehezen bÃ­rkÃ³zik meg az Ã©les Ã©lekkel. Ezek elkÃ³dolÃ¡sÃ¡hoz sokkal tÃ¶bb
+  bitre van szÃ¼ksÃ©ge, kÃ¼lÃ¶nben egy gyÅ±rÅ±sÃ¶dÃ©snek nevezett mellÃ©khatÃ¡s
   jelenik meg.
-</p><p>
-  A frekvencia transzformáció (DCT) külön hajtódik végre minden egyes
-  makroblokkon (tulajdonképpen minden blokkon), így ez a probléma csak
-  akkor jelentkezik, ha az éles él a blokkon belül van. Ha a fekete
-  határ épp olyan pixel határon kezd&#337;dik, ami 16 többszöröse, akkor nincs
-  probléma. Habár a fekete határok a DVD-ken ritkán vannak szépen
-  eligazítva, így a gyakorlatban majdnem mindig vágni kell, hogy
-  elkerüld ez a büntetést.
-</p></li></ol></div><p>
-  A frekvencia tartományok kódolása mellett az MPEG-típusú tömörítés
-  mozgó vektorokat használ a képkockák közötti változások ábrázolásához.
-  A mozgó vektorok természetesen kevésbé hatékonyak a sarkokból érkez&#337;
-  új tartalomnál, mert az még nincs jelen az el&#337;z&#337; képkockán. Amíg a
-  tartalom a sarkok felé terjed ki, a mozgó vektoroknak nincs problémájuk
-  a tartalom kifelé mozgásával. Habár a fekete határok megjelenésekor
-  lehetnek gondok:
-</p><div class="orderedlist"><ol start="2" type="1"><li><p>
-  Minden egyes makroblokknál az MPEG-típusú kódolás egy vektort is eltárol,
-  mely azt mondja meg, hogy az el&#337;z&#337; képkocka melyik részét kell átmásolni
-  ebbe a makroblokkba a következ&#337; kocka megbecsléséhez. Csak a megmaradt
-  különbséget kell elkódolni. Ha a makroblokkot kettéosztja a kép széle
-  és a fekete sáv, akkor a kép többi részének mozgó vektorai felül fogják
-  írni a fekete sávot. Ez azt jelenti, hogy sok bitet kell elpazarolni
-  vagy a határ felülírt részének újrafeketítéséhez vagy (inkább) a
-  mozgó vektor nem kerül felhasználásra és így a makroblokk összes
-  változását expliciten el kell kódolni. Mindkét esetben jelent&#337;sen
-  romlik a kódolás hatékonysága.
-</p><p>
-  Ez a probléma szintén csak akkor jelentkezik, ha a fekete sáv nem 16
-  többszörös&#369; pixel-határon van.
-</p></li><li><p>
-  Végül tegyük fel, hogy van egy makroblokkunk a kép belsejében és
-  egy objektum mozog be ebbe a blokkba a kép sarka fel&#337;l. Az MPEG-típusú
-  kódolás nem tudja azt mondani, hogy "másold át azt a részt, ami a kép
-  belsejében van, de a fekete sávot ne". Így a fekete sáv is átmásolódik
-  és így rengeteg bitet kell feláldozni a kép ott lév&#337; részének
-  újrakódolásához.
-</p><p>
-  Ha a kép tovább fut az elkódolt terület sarka felé, az MPEG-nek speciális
-  optimalizációi vannak az kép szélén lév&#337; pixelek ismétl&#337;d&#337; másolására,
-  ha a mozgó vektorok a kódolt területen kívülr&#337;l jönnek. Ez a tulajdonság
-  haszontalanná válik, ha a filmen fekete sávok vannak. Az els&#337; két
-  problémával ellentétben itt nem segít a 16 többszörösére való igazítás.
-</p></li><li><p>
-  Habár a sávok teljesen feketék és soha nem változnak, mindenképpen
-  egy kis plusz munkát igényelnek, mivel több macroblokk van.
-</p></li></ol></div><p>
-  A fenti okok miatt javasolt, hogy teljesen vágd le a fekete sávokat.
-  Továbbá ha a kép sarkainál zaros/torz rész van, ennek a levágása is
-  javít a kódolási hatékonyságon. A keményvonalas videósok, akik az eredeti
-  tartalmat akarják megtartani, amennyire csak lehet, biztos tiltakozni
-  fognak ez ellen, de ha nem tervezed konstant kvantálás használatát, akkor
-  a vágás miatt nyert min&#337;ségjavulás jelent&#337;sen nagyobb lesz, mint a sarkok
-  levágása miatti információvesztés.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-crop"></a>14.1.4. Vágás és méretezés</h3></div></div></div><p>
-  Emlékezz rá az el&#337;z&#337; fejezetb&#337;l, hogy a végs&#337; képméret, amibe kódolsz,
-  16 többszöröse ajánlott, hogy legyen (mind szélességben, mind magasságban).
-  Ezt vágással, méretezéssel vagy ezek kombinációjával érheted el.
-</p><p>
-  Vágásnál van egy pár ökölszabály, amit jó ha betartasz, ha nem akarsz
-  kárt tenni a filmben.
-  A normál YUV formátum 4:2:0, a chroma (szín) információkat almintaként
-  tárolja, pl. a chroma csak fele annyiszor kerül mintázásra minden
-  irányban, mint a luma (intenzítás) információk.
-  Tanulmányozd ezt a diagramot, ahol L jelenti a luma mintázási pontokat
-  és C a chroma-kat!
-</p><div class="informaltable"><table border="1" width="40%"><colgroup><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"></colgroup><tbody><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr></tbody></table></div><p>
-  Amint láthatod, a kép sorai és oszlopai természetszer&#369;leg párokba
-  rendez&#337;dnek. Így a vágási eltolásodnak és a méreteidnek páros
-  számoknak <span class="emphasis"><em>kell</em></span> lenniük.
-  Ha nem, akkor a chroma nem fog rendes sort alkotni a luma-val.
-  Elméletben lehetséges a vágás páratlan eltolással, de ehhez a
-  chroma újramintázása szükséges, ami egy veszteséges m&#369;velet és
-  nem is támogatja a vágó sz&#369;r&#337;.
-</p><p>
-  Továbbá az átlapolt videót a következ&#337;képpen mintázzák:
-</p><div class="informaltable"><table border="1" width="80%"><colgroup><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"></colgroup><tbody><tr><td colspan="8" align="center">Top field</td><td colspan="8" align="center">Bottom field</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td></tr><tr><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td></tr><tr><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td></tr><tr><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td></tr><tr><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr></tbody></table></div><p>
-  Amint láthatod a minták nem ismétl&#337;dnek meg a 4 sor után.
-  Így az átlapolt videóhoz a vágás y-eltolásának és a magasságának
-  4 többszörösének kell lennie.
-</p><p>
-  A natív DVD felbontás 720x480 NTSC-vel és 720x576 PAL-lal, de van egy
-  arányjelz&#337; is, ami megmutatja, hogy teljes képerny&#337;s (4:3) vagy széles
-  vásznú (16:9). Sok (ha nem az összes) széles képerny&#337;s DVD nem szigorúan
-  16:9-es, vagy 1.85:1-hez vagy 2.35:1-hez (cinescope). Ez azt jelenti, hogy
-  fekete sávok lesznek a videón, amit le kell vágni.
-</p><p>
-  Az <span class="application">MPlayer</span> rendelkezik egy crop detection sz&#369;r&#337;vel,
-  ami megállapítja a levágandó téglalapot (<tt class="option">-vf cropdetect</tt>).
-  Futtasd az <span class="application">MPlayer</span>t a
-  <tt class="option">-vf cropdetect</tt> kapcsolóval és kiírja a vágási beállításokat
-  a határok eltávolításához.
-  A filmet elegend&#337; ideig kell engedned futni ahhoz, hogy legyen teljesen
-  lefedett kép és helyes vágási eredményeket kapj.
-</p><p>
-  Ezután teszteld le a kapott értékeket az <span class="application">MPlayer</span>rel,
-  felhasználva a <tt class="option">cropdetect</tt> által kiírt parancssort és állíts
-  a téglalapon, ha szükséges.
-  A <tt class="option">téglalap</tt> sz&#369;r&#337; segít neked a vágási téglalap
-  filmen való, interaktív módon történ&#337; elhelyezésében.
-  Emlékezz, és kövesd a fenti oszthatósági ökölszabályokat, nehogy
-  félreigazítsd a chroma plane-eket.
-</p><p>
-  Bizonyos esetekben a méretezés nem kívánatos.
-  A méretezés függ&#337;leges irányban nehéz átlapolt videónál és ha meg akarod
-  &#337;rizni az átlapoltságot, tartózkodnod kell a méretezést&#337;l.
-  Ha nem fogsz méretezni, de 16 többszörösét akarod használni képméretként,
-  túl kell vágnod a filmet. Ne vágj kisebbet, mert a fekete szélek nagyon
-  rosszak kódoláskor!
-</p><p>
-  Mivel az MPEG-4 16x16-os macroblock-okat használ, meg kell gy&#337;z&#337;dnöd róla,
-  hogy a kódolt videó mindegyik dimenziója 16 többszöröse-e, különben rontod
-  a min&#337;séget, különösen alacsony bitrátánál. Ezt megteheted a levágandó terület
-  szélességének és magasságának 16 legközelebbi többszörösére való kerekítésével.
-  Amint az már szerepelt korábban, vágásnál növelni szeretnéd az y-offszetet a
-  régi és az új magasság közötti különbség felével, így a keletkez&#337; videó
-  elmozdul a kép középpontjából. A DVD videó mintavételezési módja miatt meg
-  kell gy&#337;z&#337;dnöd róla, hogy az offszet páros szám-e. (Valójában íratlan szabály,
-  hogy soha ne használj páratlan értékeket semmilyen paraméternek se, ha vágsz
-  vagy méretezel egy videót.) Ha nem akarsz pár extra pixelt eldobni, akkor a
-  videó méretezését kell megfontolnod inkább. Ezt nézzük meg a következ&#337; példánkban.
-  Tulajdonképpen engedélyezheted a <tt class="option">cropdetect</tt> sz&#369;r&#337;nek,
-  hogy ezt az egészet megcsinálja helyetted, mivel van egy opcionális
-  <tt class="option">kerekítési</tt> paramétere, ami alapértelmezésként 16.  
-</p><p>
-  Szintén figyelned kell a "félfekete" pixelekre a sarkokban. Gy&#337;z&#337;dj meg róla,
-  hogy ezeket szintén levágtad, különben olyan biteket pazarolsz el ott,
-  amiket máshoz jobban felhasználhatnál.
-</p><p>
-  Miután mindent elmondtunk és kész, valószín&#369;leg olyan videót kapsz, aminek
-  a pixeljei nem éppen 1.85:1 vagy 2.35:1 arányúak, de legalább valami hasonló.
-  Az új képarányt kiszámíthatod kézzel is, de a <span class="application">MEncoder</span>
-  rendelkezik egy kapcsolóval a <code class="systemitem">libavcodec</code>hez, amit <tt class="option">autoaspect</tt>-nek
-  hívnak, ami megcsinálja ezt neked. Ne méretezd át ezt a videót a pixelek
-  négyszögletesítéséhez, hacsak nem akarod pazarolni a helyet a merevlemezeden.
-  A méretezés történhet lejátszáskor, és a lejátszó az AVI-ban tárolt arányt
-  fogja használni a megfelel&#337; felbontás megállapításához.
-  Sajnos nem minden lejátszó teszi kötelez&#337;vé ezt az auto-méretezési információt,
-  ezért lehet, hogy mégis átméretezésre kényszerülsz.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-resolution-bitrate"></a>14.1.5. Felbontás és bitráta kiválasztása</h3></div></div></div><p>
-  Ha nem konstans kvantálási módban fogsz kódolni, akkor meg kell adnod
-  a bitrátát.
-  A bitráta koncepciója elég egyszer&#369;.
-  A filmed tárolására másodpercenként felhasznált bitek (átlagos) száma.
-  Normális esetben a bitrátát kilobit (1000 bit) per másodpercben mérik.
-  A filmed mérete a lemezen egyenl&#337; a bitráta és a film hosszának
-  szorzatával, plusz egy kis "túlterheléssel" (lásd
-  <a href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-muxing-avi-limitations" title="14.1.12.2. Az AVI konténer korlátai">az AVI konténer</a>t
-  például).
-  Az egyéb paraméterek, mint a méretezés, vágás, stb.
-  <span class="bold"><strong>nem</strong></span> változtatják meg a fájl méretét,
-  amíg nem változtatsz a bitrátán is.
-</p><p>
-  A bitráta <span class="bold"><strong>nem</strong></span> aránylik a felbontáshoz.
-  Ezért mondhatjuk, hogy egy 320x240-es fájl 200 kbit/sec-kel nem lesz
-  ugyan olyan min&#337;ség&#369;, mint ugyan az a film 640x480-ban, 800 kbit/sec-kel!
-  Ennek két oka van:
-</p><div class="orderedlist"><ol type="1"><li><p>
-    <span class="bold"><strong>Érzékelhet&#337;</strong></span>: Jobban észreveszed az
-    MPEG hibáit ha fel vannak nagyítva!
-    A hibák a blokkok (8x8) méretezéséb&#337;l adódnak.
-    A szemed nem látja meg a hibát 4800 kicsi blokkban olyan könnyen,
-    mint 1200 nagy blokkban (feltételezve, hogy mindkett&#337;t teljes
-    képerny&#337;re nagyítod).
-  </p></li><li><p>
-    <span class="bold"><strong>Elméleti</strong></span>: Ha egy képet leméretezel,
-    de ugyan akkora méret&#369; (8x8) blokkokat használsz a frekvenciatartomány
-    transzformálásához, több adatot mozgatsz a magasabb
-    frekvenciatartományokba. Egyszer&#369;en fogalmazva, minden pixel több
-    részletet fog tartalmazni, mint el&#337;tte.
-    Így habár a leméretezett képed kiterjedésében az információ 1/4-edét
-    tartalmazza csak, mégis az információ nagy részét tartalmazhatja a
-    frekvenciatartományban (feltéve, hogy a magas frekvenciák nincsenek
-    kell&#337;képpen kihasználva az eredeti 640x480-as képen).
+  </p><p>
+  A frekvencia transzformÃ¡ciÃ³ (DCT) kÃ¼lÃ¶n hajtÃ³dik vÃ©gre minden egyes
+  makroblokkon (tulajdonkÃ©ppen minden blokkon), Ã­gy ez a problÃ©ma csak
+  akkor jelentkezik, ha az Ã©les Ã©l a blokkon belÃ¼l van. Ha a fekete
+  hatÃ¡r Ã©pp olyan pixel hatÃ¡ron kezdÅ‘dik, ami 16 tÃ¶bbszÃ¶rÃ¶se, akkor nincs
+  problÃ©ma. HabÃ¡r a fekete hatÃ¡rok a DVD-ken ritkÃ¡n vannak szÃ©pen
+  eligazÃ­tva, Ã­gy a gyakorlatban majdnem mindig vÃ¡gni kell, hogy
+  elkerÃ¼ld ez a bÃ¼ntetÃ©st.
   </p></li></ol></div><p>
+A frekvencia tartomÃ¡nyok kÃ³dolÃ¡sa mellett az MPEG-tÃ­pusÃº tÃ¶mÃ¶rÃ­tÃ©s
+mozgÃ³ vektorokat hasznÃ¡l a kÃ©pkockÃ¡k kÃ¶zÃ¶tti vÃ¡ltozÃ¡sok Ã¡brÃ¡zolÃ¡sÃ¡hoz.
+A mozgÃ³ vektorok termÃ©szetesen kevÃ©sbÃ© hatÃ©konyak a sarkokbÃ³l Ã©rkezÅ‘
+Ãºj tartalomnÃ¡l, mert az mÃ©g nincs jelen az elÅ‘zÅ‘ kÃ©pkockÃ¡n. AmÃ­g a
+tartalom a sarkok felÃ© terjed ki, a mozgÃ³ vektoroknak nincs problÃ©mÃ¡juk
+a tartalom kifelÃ© mozgÃ¡sÃ¡val. HabÃ¡r a fekete hatÃ¡rok megjelenÃ©sekor
+lehetnek gondok:
+</p><div class="orderedlist"><ol start="2" type="1"><li><p>
+  Minden egyes makroblokknÃ¡l az MPEG-tÃ­pusÃº kÃ³dolÃ¡s egy vektort is
+  eltÃ¡rol, mely azt mondja meg, hogy az elÅ‘zÅ‘ kÃ©pkocka melyik rÃ©szÃ©t
+  kell Ã¡tmÃ¡solni ebbe a makroblokkba a kÃ¶vetkezÅ‘ kocka megbecslÃ©sÃ©hez.
+  Csak a megmaradt kÃ¼lÃ¶nbsÃ©get kell elkÃ³dolni. Ha a makroblokkot
+  kettÃ©osztja a kÃ©p szÃ©le Ã©s a fekete sÃ¡v, akkor a kÃ©p tÃ¶bbi rÃ©szÃ©nek
+  mozgÃ³ vektorai felÃ¼l fogjÃ¡k Ã­rni a fekete sÃ¡vot. Ez azt jelenti,
+  hogy sok bitet kell elpazarolni vagy a hatÃ¡r felÃ¼lÃ­rt rÃ©szÃ©nek
+  ÃºjrafeketÃ­tÃ©sÃ©hez vagy (inkÃ¡bb) a mozgÃ³ vektor nem kerÃ¼l
+  felhasznÃ¡lÃ¡sra Ã©s Ã­gy a makroblokk Ã¶sszes vÃ¡ltozÃ¡sÃ¡t expliciten el
+  kell kÃ³dolni. MindkÃ©t esetben jelentÅ‘sen romlik a kÃ³dolÃ¡s
+  hatÃ©konysÃ¡ga.
+  </p><p>
+  Ez a problÃ©ma szintÃ©n csak akkor jelentkezik, ha a fekete sÃ¡v nem 16
+  tÃ¶bbszÃ¶rÃ¶sÅ± pixel-hatÃ¡ron van.
+  </p></li><li><p>
+  VÃ©gÃ¼l tegyÃ¼k fel, hogy van egy makroblokkunk a kÃ©p belsejÃ©ben Ã©s
+  egy objektum mozog be ebbe a blokkba a kÃ©p sarka felÅ‘l. Az
+  MPEG-tÃ­pusÃº kÃ³dolÃ¡s nem tudja azt mondani, hogy "mÃ¡sold Ã¡t azt a
+  rÃ©szt, ami a kÃ©p belsejÃ©ben van, de a fekete sÃ¡vot ne". Ãgy a
+  fekete sÃ¡v is Ã¡tmÃ¡solÃ³dik Ã©s Ã­gy rengeteg bitet kell felÃ¡ldozni
+  a kÃ©p ott lÃ©vÅ‘ rÃ©szÃ©nek ÃºjrakÃ³dolÃ¡sÃ¡hoz.
+  </p><p>
+  Ha a kÃ©p tovÃ¡bb fut az elkÃ³dolt terÃ¼let sarka felÃ©, az MPEG-nek
+  speciÃ¡lis optimalizÃ¡ciÃ³i vannak az kÃ©p szÃ©lÃ©n lÃ©vÅ‘ pixelek
+  ismÃ©tlÅ‘dÅ‘ mÃ¡solÃ¡sÃ¡ra, ha a mozgÃ³ vektorok a kÃ³dolt terÃ¼leten
+  kÃ­vÃ¼lrÅ‘l jÃ¶nnek. Ez a tulajdonsÃ¡g haszontalannÃ¡ vÃ¡lik, ha a
+  filmen fekete sÃ¡vok vannak. Az elsÅ‘ kÃ©t problÃ©mÃ¡val ellentÃ©tben
+  itt nem segÃ­t a 16 tÃ¶bbszÃ¶rÃ¶sÃ©re valÃ³ igazÃ­tÃ¡s.
+  </p></li><li><p>
+  HabÃ¡r a sÃ¡vok teljesen feketÃ©k Ã©s soha nem vÃ¡ltoznak, mindenkÃ©ppen
+  egy kis plusz munkÃ¡t igÃ©nyelnek, mivel tÃ¶bb macroblokk van.
+</p></li></ol></div><p>
+A fenti okok miatt javasolt, hogy teljesen vÃ¡gd le a fekete sÃ¡vokat.
+TovÃ¡bbÃ¡ ha a kÃ©p sarkainÃ¡l zaros/torz rÃ©sz van, ennek a levÃ¡gÃ¡sa is
+javÃ­t a kÃ³dolÃ¡si hatÃ©konysÃ¡gon. A kemÃ©nyvonalas videÃ³sok, akik az
+eredeti tartalmat akarjÃ¡k megtartani, amennyire csak lehet, biztos
+tiltakozni fognak ez ellen, de ha nem tervezed konstant kvantÃ¡lÃ¡s
+hasznÃ¡latÃ¡t, akkor a vÃ¡gÃ¡s miatt nyert minÅ‘sÃ©gjavulÃ¡s jelentÅ‘sen
+nagyobb lesz, mint a sarkok levÃ¡gÃ¡sa miatti informÃ¡ciÃ³vesztÃ©s.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-crop"></a>14.1.4. VÃ¡gÃ¡s Ã©s mÃ©retezÃ©s</h3></div></div></div><p>
+EmlÃ©kezz rÃ¡ az elÅ‘zÅ‘ fejezetbÅ‘l, hogy a vÃ©gsÅ‘ kÃ©pmÃ©ret, amibe kÃ³dolsz,
+16 tÃ¶bbszÃ¶rÃ¶se ajÃ¡nlott, hogy legyen (mind szÃ©lessÃ©gben, mind magassÃ¡gban).
+Ezt vÃ¡gÃ¡ssal, mÃ©retezÃ©ssel vagy ezek kombinÃ¡ciÃ³jÃ¡val Ã©rheted el.
 </p><p>
-  A régi leírások egy "bit per pixel" megközelítés szerint javasolták a
-  bitráta és a felbontás megválasztását, ez azonban általában nem helyes
-  a fentiek miatt.
-  A legjobb becslésnek az t&#369;nik, ha a bitráta léptéke a felbontás
-  négyzetgyökével arányos, így a 320x240 és 400 kbit/sec összehasonlítható
-  a 640x480 és 800 kbit/sec-kel.
-  Azonban ez még nem lett bizonyítva sem elméleti sem gyakorlati törvénnyel.
-  Továbbá, tekintve, hogy a filmek nagyon változatosak a zajtól,
-  részletességt&#337;l, a mozgás szögét&#337;l, és a többit&#337;l függ&#337;en, haszontalan
-  általános tanácsokat adni bit per átló hosszára vonatkozóan (a bit per
-  pixel analógiája, a négyzetgyök felhasználásával).
+VÃ¡gÃ¡snÃ¡l van egy pÃ¡r Ã¶kÃ¶lszabÃ¡ly, amit jÃ³ ha betartasz, ha nem akarsz
+kÃ¡rt tenni a filmben.
+A normÃ¡l YUV formÃ¡tum 4:2:0, a chroma (szÃ­n) informÃ¡ciÃ³kat almintakÃ©nt
+tÃ¡rolja, pl. a chroma csak fele annyiszor kerÃ¼l mintÃ¡zÃ¡sra minden
+irÃ¡nyban, mint a luma (intenzÃ­tÃ¡s) informÃ¡ciÃ³k.
+TanulmÃ¡nyozd ezt a diagramot, ahol L jelenti a luma mintÃ¡zÃ¡si pontokat
+Ã©s C a chroma-kat!
+</p><div class="informaltable"><table border="1" width="40%"><colgroup><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"></colgroup><tbody><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr></tbody></table></div><p>
+Amint lÃ¡thatod, a kÃ©p sorai Ã©s oszlopai termÃ©szetszerÅ±leg pÃ¡rokba
+rendezÅ‘dnek. Ãgy a vÃ¡gÃ¡si eltolÃ¡sodnak Ã©s a mÃ©reteidnek pÃ¡ros
+szÃ¡moknak <span class="emphasis"><em>kell</em></span> lenniÃ¼k.
+Ha nem, akkor a chroma nem fog rendes sort alkotni a luma-val.
+ElmÃ©letben lehetsÃ©ges a vÃ¡gÃ¡s pÃ¡ratlan eltolÃ¡ssal, de ehhez a
+chroma ÃºjramintÃ¡zÃ¡sa szÃ¼ksÃ©ges, ami egy vesztesÃ©ges mÅ±velet Ã©s
+nem is tÃ¡mogatja a vÃ¡gÃ³ szÅ±rÅ‘.
 </p><p>
-  Eddig csak a felbontás és a bitráta kiválasztás nehézségeir&#337;l beszéltünk.
-</p><div class="sect3" lang="hu"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-resolution-bitrate-compute"></a>14.1.5.1. Felbontás kiszámítása</h4></div></div></div><p>
-  A következ&#337; képések segítenek a kódolásod felbontásának kiszámításában,
-  a videód túlzott mértékben történ&#337; torzítása nélkül, a forrás videó
-  számos tulajdonságának figyelembe vételével.
-  El&#337;ször, ki kell számítanod az elkódolt képarányt:
-  <code class="systemitem">ARc = (Wc x (ARa / PRdvd )) / Hc</code>
+TovÃ¡bbÃ¡ az Ã¡tlapolt videÃ³t a kÃ¶vetkezÅ‘kÃ©ppen mintÃ¡zzÃ¡k:
+</p><div class="informaltable"><table border="1" width="80%"><colgroup><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"></colgroup><tbody><tr><td colspan="8" align="center">Top field</td><td colspan="8" align="center">Bottom field</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td></tr><tr><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td></tr><tr><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td></tr><tr><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td></tr><tr><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr></tbody></table></div><p>
+Amint lÃ¡thatod a mintÃ¡k nem ismÃ©tlÅ‘dnek meg a 4 sor utÃ¡n.
+Ãgy az Ã¡tlapolt videÃ³hoz a vÃ¡gÃ¡s y-eltolÃ¡sÃ¡nak Ã©s a magassÃ¡gÃ¡nak
+4 tÃ¶bbszÃ¶rÃ¶sÃ©nek kell lennie.
+</p><p>
+A natÃ­v DVD felbontÃ¡s 720x480 NTSC-vel Ã©s 720x576 PAL-lal, de van egy
+arÃ¡nyjelzÅ‘ is, ami megmutatja, hogy teljes kÃ©pernyÅ‘s (4:3) vagy szÃ©les
+vÃ¡sznÃº (16:9). Sok (ha nem az Ã¶sszes) szÃ©les kÃ©pernyÅ‘s DVD nem szigorÃºan
+16:9-es, vagy 1.85:1-hez vagy 2.35:1-hez (cinescope). Ez azt jelenti,
+hogy fekete sÃ¡vok lesznek a videÃ³n, amit le kell vÃ¡gni.
+</p><p>
+Az <span class="application">MPlayer</span> rendelkezik egy crop detection
+szÅ±rÅ‘vel, ami megÃ¡llapÃ­tja a levÃ¡gandÃ³ tÃ©glalapot (<tt class="option">-vf cropdetect</tt>).
+Futtasd az <span class="application">MPlayer</span>t a
+<tt class="option">-vf cropdetect</tt> kapcsolÃ³val Ã©s kiÃ­rja a vÃ¡gÃ¡si
+beÃ¡llÃ­tÃ¡sokat a hatÃ¡rok eltÃ¡volÃ­tÃ¡sÃ¡hoz.
+A filmet elegendÅ‘ ideig kell engedned futni ahhoz, hogy legyen
+teljesen lefedett kÃ©p Ã©s helyes vÃ¡gÃ¡si eredmÃ©nyeket kapj.
+</p><p>
+EzutÃ¡n teszteld le a kapott Ã©rtÃ©keket az <span class="application">MPlayer</span>rel,
+felhasznÃ¡lva a <tt class="option">cropdetect</tt> Ã¡ltal kiÃ­rt parancssort Ã©s Ã¡llÃ­ts
+a tÃ©glalapon, ha szÃ¼ksÃ©ges.
+A <tt class="option">tÃ©glalap</tt> szÅ±rÅ‘ segÃ­t neked a vÃ¡gÃ¡si tÃ©glalap
+filmen valÃ³, interaktÃ­v mÃ³don tÃ¶rtÃ©nÅ‘ elhelyezÃ©sÃ©ben.
+EmlÃ©kezz, Ã©s kÃ¶vesd a fenti oszthatÃ³sÃ¡gi Ã¶kÃ¶lszabÃ¡lyokat, nehogy
+fÃ©lreigazÃ­tsd a chroma plane-eket.
+</p><p>
+Bizonyos esetekben a mÃ©retezÃ©s nem kÃ­vÃ¡natos.
+A mÃ©retezÃ©s fÃ¼ggÅ‘leges irÃ¡nyban nehÃ©z Ã¡tlapolt videÃ³nÃ¡l Ã©s ha meg
+akarod Å‘rizni az Ã¡tlapoltsÃ¡got, tartÃ³zkodnod kell a mÃ©retezÃ©stÅ‘l.
+Ha nem fogsz mÃ©retezni, de 16 tÃ¶bbszÃ¶rÃ¶sÃ©t akarod hasznÃ¡lni
+kÃ©pmÃ©retkÃ©nt, tÃºl kell vÃ¡gnod a filmet.
+Ne vÃ¡gj kisebbet, mert a fekete szÃ©lek nagyon rosszak kÃ³dolÃ¡skor!
+</p><p>
+Mivel az MPEG-4 16x16-os macroblock-okat hasznÃ¡l, meg kell gyÅ‘zÅ‘dnÃ¶d rÃ³la,
+hogy a kÃ³dolt videÃ³ mindegyik dimenziÃ³ja 16 tÃ¶bbszÃ¶rÃ¶se-e, kÃ¼lÃ¶nben rontod
+a minÅ‘sÃ©get, kÃ¼lÃ¶nÃ¶sen alacsony bitrÃ¡tÃ¡nÃ¡l. Ezt megteheted a levÃ¡gandÃ³
+terÃ¼let szÃ©lessÃ©gÃ©nek Ã©s magassÃ¡gÃ¡nak 16 legkÃ¶zelebbi tÃ¶bbszÃ¶rÃ¶sÃ©re valÃ³
+kerekÃ­tÃ©sÃ©vel.
+Amint az mÃ¡r szerepelt korÃ¡bban, vÃ¡gÃ¡snÃ¡l nÃ¶velni szeretnÃ©d az y-offszetet
+a rÃ©gi Ã©s az Ãºj magassÃ¡g kÃ¶zÃ¶tti kÃ¼lÃ¶nbsÃ©g felÃ©vel, Ã­gy a keletkezÅ‘ videÃ³
+elmozdul a kÃ©p kÃ¶zÃ©ppontjÃ¡bÃ³l. A DVD videÃ³ mintavÃ©telezÃ©si mÃ³dja miatt meg
+kell gyÅ‘zÅ‘dnÃ¶d rÃ³la, hogy az offszet pÃ¡ros szÃ¡m-e. (ValÃ³jÃ¡ban Ã­ratlan
+szabÃ¡ly, hogy soha ne hasznÃ¡lj pÃ¡ratlan Ã©rtÃ©keket semmilyen paramÃ©ternek
+se, ha vÃ¡gsz vagy mÃ©retezel egy videÃ³t.) Ha nem akarsz pÃ¡r extra pixelt
+eldobni, akkor a videÃ³ mÃ©retezÃ©sÃ©t kell megfontolnod inkÃ¡bb. Ezt nÃ©zzÃ¼k
+meg a kÃ¶vetkezÅ‘ pÃ©ldÃ¡nkban.
+TulajdonkÃ©ppen engedÃ©lyezheted a <tt class="option">cropdetect</tt> szÅ±rÅ‘nek,
+hogy ezt az egÃ©szet megcsinÃ¡lja helyetted, mivel van egy opcionÃ¡lis
+<tt class="option">kerekÃ­tÃ©si</tt> paramÃ©tere, ami alapÃ©rtelmezÃ©skÃ©nt 16.
+</p><p>
+SzintÃ©n figyelned kell a "fÃ©lfekete" pixelekre a sarkokban. GyÅ‘zÅ‘dj meg
+rÃ³la, hogy ezeket szintÃ©n levÃ¡gtad, kÃ¼lÃ¶nben olyan biteket pazarolsz el
+ott, amiket mÃ¡shoz jobban felhasznÃ¡lhatnÃ¡l.
+</p><p>
+MiutÃ¡n mindent elmondtunk Ã©s kÃ©sz, valÃ³szÃ­nÅ±leg olyan videÃ³t kapsz, aminek
+a pixeljei nem Ã©ppen 1.85:1 vagy 2.35:1 arÃ¡nyÃºak, de legalÃ¡bb valami hasonlÃ³.
+Az Ãºj kÃ©parÃ¡nyt kiszÃ¡mÃ­thatod kÃ©zzel is, de a <span class="application">MEncoder</span>
+rendelkezik egy kapcsolÃ³val a <code class="systemitem">libavcodec</code>hez, amit <tt class="option">autoaspect</tt>-nek
+hÃ­vnak, ami megcsinÃ¡lja ezt neked. Ne mÃ©retezd Ã¡t ezt a videÃ³t a pixelek
+nÃ©gyszÃ¶gletesÃ­tÃ©sÃ©hez, hacsak nem akarod pazarolni a helyet a merevlemezeden.
+A mÃ©retezÃ©s tÃ¶rtÃ©nhet lejÃ¡tszÃ¡skor, Ã©s a lejÃ¡tszÃ³ az AVI-ban tÃ¡rolt arÃ¡nyt
+fogja hasznÃ¡lni a megfelelÅ‘ felbontÃ¡s megÃ¡llapÃ­tÃ¡sÃ¡hoz.
+Sajnos nem minden lejÃ¡tszÃ³ teszi kÃ¶telezÅ‘vÃ© ezt az auto-mÃ©retezÃ©si
+informÃ¡ciÃ³t, ezÃ©rt lehet, hogy mÃ©gis Ã¡tmÃ©retezÃ©sre kÃ©nyszerÃ¼lsz.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-resolution-bitrate"></a>14.1.5. FelbontÃ¡s Ã©s bitrÃ¡ta kivÃ¡lasztÃ¡sa</h3></div></div></div><p>
+Ha nem konstans kvantÃ¡lÃ¡si mÃ³dban fogsz kÃ³dolni, akkor meg kell adnod
+a bitrÃ¡tÃ¡t.
+A bitrÃ¡ta koncepciÃ³ja elÃ©g egyszerÅ±.
+A filmed tÃ¡rolÃ¡sÃ¡ra mÃ¡sodpercenkÃ©nt felhasznÃ¡lt bitek (Ã¡tlagos) szÃ¡ma.
+NormÃ¡lis esetben a bitrÃ¡tÃ¡t kilobit (1000 bit) per mÃ¡sodpercben mÃ©rik.
+A filmed mÃ©rete a lemezen egyenlÅ‘ a bitrÃ¡ta Ã©s a film hosszÃ¡nak
+szorzatÃ¡val, plusz egy kis "tÃºlterhelÃ©ssel" (lÃ¡sd
+<a href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-muxing-avi-limitations" title="14.1.12.2. Az AVI kontÃ©ner korlÃ¡tai">az AVI kontÃ©ner</a>t
+pÃ©ldÃ¡ul).
+Az egyÃ©b paramÃ©terek, mint a mÃ©retezÃ©s, vÃ¡gÃ¡s, stb.
+<span class="bold"><strong>nem</strong></span> vÃ¡ltoztatjÃ¡k meg a fÃ¡jl mÃ©retÃ©t,
+amÃ­g nem vÃ¡ltoztatsz a bitrÃ¡tÃ¡n is.
+</p><p>
+A bitrÃ¡ta <span class="bold"><strong>nem</strong></span> arÃ¡nylik a felbontÃ¡shoz.
+EzÃ©rt mondhatjuk, hogy egy 320x240-es fÃ¡jl 200 kbit/sec-kel nem lesz
+ugyan olyan minÅ‘sÃ©gÅ±, mint ugyan az a film 640x480-ban, 800 kbit/sec-kel!
+Ennek kÃ©t oka van:
+</p><div class="orderedlist"><ol type="1"><li><p>
+  <span class="bold"><strong>Ã‰rzÃ©kelhetÅ‘</strong></span>: Jobban Ã©szreveszed az
+  MPEG hibÃ¡it ha fel vannak nagyÃ­tva!
+  A hibÃ¡k a blokkok (8x8) mÃ©retezÃ©sÃ©bÅ‘l adÃ³dnak.
+  A szemed nem lÃ¡tja meg a hibÃ¡t 4800 kicsi blokkban olyan kÃ¶nnyen,
+  mint 1200 nagy blokkban (feltÃ©telezve, hogy mindkettÅ‘t teljes
+  kÃ©pernyÅ‘re nagyÃ­tod).
+</p></li><li><p>
+  <span class="bold"><strong>ElmÃ©leti</strong></span>: Ha egy kÃ©pet lemÃ©retezel,
+  de ugyan akkora mÃ©retÅ± (8x8) blokkokat hasznÃ¡lsz a frekvenciatartomÃ¡ny
+  transzformÃ¡lÃ¡sÃ¡hoz, tÃ¶bb adatot mozgatsz a magasabb
+  frekvenciatartomÃ¡nyokba. EgyszerÅ±en fogalmazva, minden pixel tÃ¶bb
+  rÃ©szletet fog tartalmazni, mint elÅ‘tte.
+  Ãgy habÃ¡r a lemÃ©retezett kÃ©ped kiterjedÃ©sÃ©ben az informÃ¡ciÃ³ 1/4-edÃ©t
+  tartalmazza csak, mÃ©gis az informÃ¡ciÃ³ nagy rÃ©szÃ©t tartalmazhatja a
+  frekvenciatartomÃ¡nyban (feltÃ©ve, hogy a magas frekvenciÃ¡k nincsenek
+  kellÅ‘kÃ©ppen kihasznÃ¡lva az eredeti 640x480-as kÃ©pen).
+</p></li></ol></div><p>
+</p><p>
+A rÃ©gi leÃ­rÃ¡sok egy "bit per pixel" megkÃ¶zelÃ­tÃ©s szerint javasoltÃ¡k
+a bitrÃ¡ta Ã©s a felbontÃ¡s megvÃ¡lasztÃ¡sÃ¡t, ez azonban Ã¡ltalÃ¡ban nem
+helyes a fentiek miatt.
+A legjobb becslÃ©snek az tÅ±nik, ha a bitrÃ¡ta lÃ©ptÃ©ke a felbontÃ¡s
+nÃ©gyzetgyÃ¶kÃ©vel arÃ¡nyos, Ã­gy a 320x240 Ã©s 400 kbit/sec
+Ã¶sszehasonlÃ­thatÃ³ a 640x480 Ã©s 800 kbit/sec-kel.
+Azonban ez mÃ©g nem lett bizonyÃ­tva sem elmÃ©leti sem gyakorlati
+tÃ¶rvÃ©nnyel. TovÃ¡bbÃ¡, tekintve, hogy a filmek nagyon vÃ¡ltozatosak
+a zajtÃ³l, rÃ©szletessÃ©gtÅ‘l, a mozgÃ¡s szÃ¶gÃ©tÅ‘l, Ã©s a tÃ¶bbitÅ‘l fÃ¼ggÅ‘en,
+haszontalan Ã¡ltalÃ¡nos tanÃ¡csokat adni bit per Ã¡tlÃ³ hosszÃ¡ra
+vonatkozÃ³an (a bit per pixel analÃ³giÃ¡ja, a nÃ©gyzetgyÃ¶k
+felhasznÃ¡lÃ¡sÃ¡val).
+</p><p>
+Eddig csak a felbontÃ¡s Ã©s a bitrÃ¡ta kivÃ¡lasztÃ¡s nehÃ©zsÃ©geirÅ‘l
+beszÃ©ltÃ¼nk.
+</p><div class="sect3" lang="hu"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-resolution-bitrate-compute"></a>14.1.5.1. FelbontÃ¡s kiszÃ¡mÃ­tÃ¡sa</h4></div></div></div><p>
+A kÃ¶vetkezÅ‘ kÃ©pÃ©sek segÃ­tenek a kÃ³dolÃ¡sod felbontÃ¡sÃ¡nak kiszÃ¡mÃ­tÃ¡sÃ¡ban,
+a videÃ³d tÃºlzott mÃ©rtÃ©kben tÃ¶rtÃ©nÅ‘ torzÃ­tÃ¡sa nÃ©lkÃ¼l, a forrÃ¡s videÃ³
+szÃ¡mos tulajdonsÃ¡gÃ¡nak figyelembe vÃ©telÃ©vel.
+ElÅ‘szÃ¶r, ki kell szÃ¡mÃ­tanod az elkÃ³dolt kÃ©parÃ¡nyt:
+<code class="systemitem">ARc = (Wc x (ARa / PRdvd )) / Hc</code>
+
 </p><div class="itemizedlist"><p class="title"><b>ahol:</b></p><ul type="disc"><li><p>
-  Wc és Hc a vágott videó szélessége és a magassága,
+  Wc Ã©s Hc a vÃ¡gott videÃ³ szÃ©lessÃ©ge Ã©s a magassÃ¡ga,
 </p></li><li><p>
-  ARa a megjelenített kép aránya, ami általában 4/3 vagy 16/9,
+  ARa a megjelenÃ­tett kÃ©p arÃ¡nya, ami Ã¡ltalÃ¡ban 4/3 vagy 16/9,
 </p></li><li><p>
-  PRdvd a DVD pixel rátája, ami PAL DVD-k esetén 1.25=(720/576)
-  és 1.5=(720/480) NTSC DVD-knél,
+  PRdvd a DVD pixel rÃ¡tÃ¡ja, ami PAL DVD-k esetÃ©n 1.25=(720/576)
+  Ã©s 1.5=(720/480) NTSC DVD-knÃ©l,
 </p></li></ul></div><p>
 </p><p>
-  Ezután, kiszámíthatod az X és Y felbontást, egy bizonyos Tömörítési
-  Min&#337;ség (Compression Quality, CQ) faktornak megfelel&#337;en:
-  <code class="systemitem">ResY = INT(SQRT( 1000*Bitrate/25/ARc/CQ )/16) * 16</code>
-  és
-  <code class="systemitem">ResX = INT( ResY * ARc / 16) * 16</code>
+EzutÃ¡n, kiszÃ¡mÃ­thatod az X Ã©s Y felbontÃ¡st, egy bizonyos TÃ¶mÃ¶rÃ­tÃ©si
+MinÅ‘sÃ©g (Compression Quality, CQ) faktornak megfelelÅ‘en:
+<code class="systemitem">ResY = INT(SQRT( 1000*Bitrate/25/ARc/CQ )/16) * 16</code>
+Ã©s
+<code class="systemitem">ResX = INT( ResY * ARc / 16) * 16</code>
 </p><p>
-  Oké, de mi az a CQ?
-  A CQ reprezentálja a kódolás pixelenkénti és képkockánkénti bitszükségletét.
-  Nagy vonalakban minél nagyobb a CQ, annál kisebb a valószín&#369;sége, hogy
-  kódolási hibát fog látni.
-  Bár ha van cél méret a filmedhez (1 vagy 2 CD például), akkor korlátozott
-  a felhasználható bitek száma; ezért szükséges, hogy megfelel&#337; arányt találj
-  a tömörség és a min&#337;ség között.
+OkÃ©, de mi az a CQ?
+A CQ reprezentÃ¡lja a kÃ³dolÃ¡s pixelenkÃ©nti Ã©s kÃ©pkockÃ¡nkÃ©nti bitszÃ¼ksÃ©gletÃ©t.
+Nagy vonalakban minÃ©l nagyobb a CQ, annÃ¡l kisebb a valÃ³szÃ­nÅ±sÃ©ge, hogy
+kÃ³dolÃ¡si hibÃ¡t fog lÃ¡tni.
+BÃ¡r ha van cÃ©l mÃ©ret a filmedhez (1 vagy 2 CD pÃ©ldÃ¡ul), akkor korlÃ¡tozott
+a felhasznÃ¡lhatÃ³ bitek szÃ¡ma; ezÃ©rt szÃ¼ksÃ©ges, hogy megfelelÅ‘ arÃ¡nyt talÃ¡lj
+a tÃ¶mÃ¶rsÃ©g Ã©s a minÅ‘sÃ©g kÃ¶zÃ¶tt.
 </p><p>
-  A CQ függ a bitrátától, a videó codec hatékonyságától és a film felbontásától.
-  Ha növelni akarod a CQ-t, általában leméretezést kell végezned a filmen,
-  mivel a bitráta a cél méret és a film hosszából számítódik, ami konstans.
-  Az MPEG-4 ASP codec-ekkel, mint pl. az <code class="systemitem">XviD</code>
-  és a <code class="systemitem">libavcodec</code>, egy 0,18 alatti
-  CQ általában nagyon kockás képet eredményez, mert nincs
-  elég bit minden egyes makroblokk információinak eltárolásához. (Az MPEG4,
-  mint sok más codec, csoportokba gy&#369;jti a pixeleket a kép tömörítéséhez;
-  ha nincs elég bit, láthatóvá válik ezen blokkok széle.)
-  Ezért ésszer&#369; a CQ-t a 0,20-0,22-es tartományból választani 1 CD-s rip
-  esetén, és 0,26-0,28-ból a 2 CD-snél a szabványos kódolási opciókkal.
-  A <a href="menc-feat-enc-libavcodec.html#menc-feat-mpeg4-lavc-example-settings" title="14.3.4. Kódolás beállítási példák"><code class="systemitem">libavcodec</code></a>-hez
-  és az <a href="menc-feat-xvid.html#menc-feat-xvid-example-settings" title="14.4.4. Kódolás beállítási példák"><code class="systemitem">XviD</code></a>-hez
-  itt felsoroltaknál fejlettebb kódolási opciók segítségével lehetséges
-  ugyan ilyen min&#337;ség elérése 0,18-0,20-as CQ mellett egy 1 CD-s rip
-  esetén és 0,24-0,26-ossal 2 CD-s rip-nél.
-  Az MPEG-4 ASP codec-eknél, mint pl. az <code class="systemitem">x264</code>,
-  használhatsz 0,14-0,16-os CQ tartományt a szabványos kódolási opciókkal
-  és lemehetsz akár 0,10-0,12-ig is az
-  <a href="menc-feat-x264.html#menc-feat-x264-example-settings" title="14.5.2. Kódolás beállítási példák"><code class="systemitem">x264</code> fejlett kódolási beállításaival</a>.
+A CQ fÃ¼gg a bitrÃ¡tÃ¡tÃ³l, a videÃ³ codec hatÃ©konysÃ¡gÃ¡tÃ³l Ã©s a film felbontÃ¡sÃ¡tÃ³l.
+Ha nÃ¶velni akarod a CQ-t, Ã¡ltalÃ¡ban lemÃ©retezÃ©st kell vÃ©gezned a filmen,
+mivel a bitrÃ¡ta a cÃ©l mÃ©ret Ã©s a film hosszÃ¡bÃ³l szÃ¡mÃ­tÃ³dik, ami konstans.
+Az MPEG-4 ASP codec-ekkel, mint pl. az <code class="systemitem">Xvid</code>
+Ã©s a <code class="systemitem">libavcodec</code>, egy 0,18 alatti
+CQ Ã¡ltalÃ¡ban nagyon kockÃ¡s kÃ©pet eredmÃ©nyez, mert nincs
+elÃ©g bit minden egyes makroblokk informÃ¡ciÃ³inak eltÃ¡rolÃ¡sÃ¡hoz. (Az MPEG4,
+mint sok mÃ¡s codec, csoportokba gyÅ±jti a pixeleket a kÃ©p tÃ¶mÃ¶rÃ­tÃ©sÃ©hez;
+ha nincs elÃ©g bit, lÃ¡thatÃ³vÃ¡ vÃ¡lik ezen blokkok szÃ©le.)
+EzÃ©rt Ã©sszerÅ± a CQ-t a 0,20-0,22-es tartomÃ¡nybÃ³l vÃ¡lasztani 1 CD-s rip
+esetÃ©n, Ã©s 0,26-0,28-bÃ³l a 2 CD-snÃ©l a szabvÃ¡nyos kÃ³dolÃ¡si opciÃ³kkal.
+A <a href="menc-feat-enc-libavcodec.html#menc-feat-mpeg4-lavc-example-settings" title="14.3.4. KÃ³dolÃ¡s beÃ¡llÃ­tÃ¡si pÃ©ldÃ¡k"><code class="systemitem">libavcodec</code></a>-hez
+Ã©s az
+<a href="menc-feat-xvid.html#menc-feat-xvid-example-settings" title="14.4.4. KÃ³dolÃ¡s beÃ¡llÃ­tÃ¡si pÃ©ldÃ¡k"><code class="systemitem">Xvid</code></a>-hez
+itt felsoroltaknÃ¡l fejlettebb kÃ³dolÃ¡si opciÃ³k segÃ­tsÃ©gÃ©vel lehetsÃ©ges
+ugyan ilyen minÅ‘sÃ©g elÃ©rÃ©se 0,18-0,20-as CQ mellett egy 1 CD-s rip
+esetÃ©n Ã©s 0,24-0,26-ossal 2 CD-s rip-nÃ©l.
+Az MPEG-4 AVC codec-eknÃ©l, mint pl. az <code class="systemitem">x264</code>,
+hasznÃ¡lhatsz 0,14-0,16-os CQ tartomÃ¡nyt a szabvÃ¡nyos kÃ³dolÃ¡si opciÃ³kkal
+Ã©s lemehetsz akÃ¡r 0,10-0,12-ig is az
+<a href="menc-feat-x264.html#menc-feat-x264-example-settings" title="14.5.2. KÃ³dolÃ¡s beÃ¡llÃ­tÃ¡si pÃ©ldÃ¡k"><code class="systemitem">x264</code> fejlett kÃ³dolÃ¡si beÃ¡llÃ­tÃ¡saival</a>.
 </p><p>
-  Kérlek figyelj rá, hogy a CQ csak egy mutató, mely az elkódolt tartalomtól
-  függ, egy 0,18-as CQ-val jól nézhet ki egy Bergman, szemben az olyan
-  filmekkel, mint például a Mátrix, ami sok gyors-mozgású részt tartalmaz.
-  Másrészt nem éri meg növelni a CQ-t 0,30-nál magasabbra, mert csak
-  pazarolni fogod a biteket észrevehet&#337; min&#337;ségi nyereség nélkül.
-  Vedd figyelembe, amint azt már korábban is említettük, hogy az alacsony
-  felbontású videókhoz nagyobb CQ kell (összehasonlítva pl. a DVD
-  felbontással), hogy jól nézzen ki.
-</p></div></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-filtering"></a>14.1.6. Sz&#369;rés</h3></div></div></div><p>
-  A <span class="application">MEncoder</span> videó sz&#369;r&#337;i használatának ismerete
-  alapvet&#337; fontosságú a jó kódoláshoz.
-  Az összes videó feldolgozás a sz&#369;r&#337;kön keresztül történik -- vágás,
-  méretezés, szín állítás, zajsz&#369;rés, élesítés, deinterlacing, telecine,
-  inverz telecine és deblocking, csak hogy néhányat megemlítsünk.
-  A támogatott formátumok sokaságával együtt a <span class="application">MEncoder</span>
-  sz&#369;r&#337;inek változatossága a f&#337; el&#337;nye a hasonló programokkal szemben.
+KÃ©rlek figyelj rÃ¡, hogy a CQ csak egy mutatÃ³, mely az elkÃ³dolt tartalomtÃ³l
+fÃ¼gg, egy 0,18-as CQ-val jÃ³l nÃ©zhet ki egy Bergman, szemben az olyan
+filmekkel, mint pÃ©ldÃ¡ul a MÃ¡trix, ami sok gyors-mozgÃ¡sÃº rÃ©szt tartalmaz.
+MÃ¡srÃ©szt nem Ã©ri meg nÃ¶velni a CQ-t 0,30-nÃ¡l magasabbra, mert csak pazarolni
+fogod a biteket Ã©szrevehetÅ‘ minÅ‘sÃ©gi nyeresÃ©g nÃ©lkÃ¼l.
+Vedd figyelembe, amint azt mÃ¡r korÃ¡bban is emlÃ­tettÃ¼k, hogy az alacsony
+felbontÃ¡sÃº videÃ³khoz nagyobb CQ kell (Ã¶sszehasonlÃ­tva pl. a DVD felbontÃ¡ssal),
+hogy jÃ³l nÃ©zzen ki.
+</p></div></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-filtering"></a>14.1.6. SzÅ±rÃ©s</h3></div></div></div><p>
+A <span class="application">MEncoder</span> videÃ³ szÅ±rÅ‘i hasznÃ¡latÃ¡nak
+ismerete alapvetÅ‘ fontossÃ¡gÃº a jÃ³ kÃ³dolÃ¡shoz.
+Az Ã¶sszes videÃ³ feldolgozÃ¡s a szÅ±rÅ‘kÃ¶n keresztÃ¼l tÃ¶rtÃ©nik -- vÃ¡gÃ¡s,
+mÃ©retezÃ©s, szÃ­n Ã¡llÃ­tÃ¡s, zajszÅ±rÃ©s, Ã©lesÃ­tÃ©s, deinterlacing, telecine,
+inverz telecine Ã©s deblocking, csak hogy nÃ©hÃ¡nyat megemlÃ­tsÃ¼nk.
+A tÃ¡mogatott formÃ¡tumok sokasÃ¡gÃ¡val egyÃ¼tt a <span class="application">MEncoder</span>
+szÅ±rÅ‘inek vÃ¡ltozatossÃ¡ga a fÅ‘ elÅ‘nye a hasonlÃ³ programokkal szemben.
 </p><p>
-  A sz&#369;r&#337;k láncban tölt&#337;dnek be a -vf kapcsoló használatával:
+A szÅ±rÅ‘k lÃ¡ncban tÃ¶ltÅ‘dnek be a -vf kapcsolÃ³ hasznÃ¡latÃ¡val:
 
-  </p><pre class="screen">-vf szuro1=opciok,szuro2=opciok,...</pre><p>
+</p><pre class="screen">-vf szuro1=opciok,szuro2=opciok,...</pre><p>
 
-  A legtöbb sz&#369;r&#337; több numerikus opciót vár, kett&#337;spontokkal elválasztva,
-  de igazából a szintaxis sz&#369;r&#337;r&#337;l sz&#369;r&#337;re változik, ezért olvasd el a man
-  oldal általad használni kívánt sz&#369;r&#337;höz tartozó részét!
+A legtÃ¶bb szÅ±rÅ‘ tÃ¶bb numerikus opciÃ³t vÃ¡r, kettÅ‘spontokkal elvÃ¡lasztva,
+de igazÃ¡bÃ³l a szintaxis szÅ±rÅ‘rÅ‘l szÅ±rÅ‘re vÃ¡ltozik, ezÃ©rt olvasd el a man
+oldal Ã¡ltalad hasznÃ¡lni kÃ­vÃ¡nt szÅ±rÅ‘hÃ¶z tartozÃ³ rÃ©szÃ©t!
 </p><p>
-  A sz&#369;r&#337;k olyan sorrendben módosítják a videót, ahogy be lettek töltve.
-  Például a következ&#337; lánc:
+A szÅ±rÅ‘k olyan sorrendben mÃ³dosÃ­tjÃ¡k a videÃ³t, ahogy be lettek tÃ¶ltve.
+PÃ©ldÃ¡ul a kÃ¶vetkezÅ‘ lÃ¡nc:
 
-  </p><pre class="screen">-vf crop=688:464:12:4,scale=640:464</pre><p>
+</p><pre class="screen">-vf crop=688:464:12:4,scale=640:464</pre><p>
 
-  el&#337;ször kivágja a 688x464 terület&#369; régiót (12,4)-es bal fels&#337; sarokkal,
-  majd az eredményt leméretezi 640x464-re.
+elÅ‘szÃ¶r kivÃ¡gja a 688x464 terÃ¼letÅ± rÃ©giÃ³t (12,4)-es bal felsÅ‘
+sarokkal, majd az eredmÃ©nyt lemÃ©retezi 640x464-re.
 </p><p>
-  Bizonyos sz&#369;r&#337;ket a sz&#369;r&#337; lánc elején, vagy ahhoz közel kell betölteni,
-  ahhoz, hogy a videó dekódolótól érkez&#337; információkat megkapja, azok ne
-  vesszenek el vagy változzanak meg másik sz&#369;r&#337; miatt.
-  A legjobb példa erre a <tt class="option">pp</tt> (utófeldolgozás, csak ha
-  deblock vagy dering m&#369;veleteket hajt végre), az
-  <tt class="option">spp</tt> (másik utófeldolgozó az MPEG mellékhatások eltávolítására),
-  a <tt class="option">pullup</tt> (inverz telecine) és a
-  <tt class="option">softpulldown</tt> (a soft telecine hard telecine-re történ&#337;
-  konvertálása).
+Bizonyos szÅ±rÅ‘ket a szÅ±rÅ‘ lÃ¡nc elejÃ©n, vagy ahhoz kÃ¶zel kell betÃ¶lteni,
+ahhoz, hogy a videÃ³ dekÃ³dolÃ³tÃ³l Ã©rkezÅ‘ informÃ¡ciÃ³kat megkapja, azok ne
+vesszenek el vagy vÃ¡ltozzanak meg mÃ¡sik szÅ±rÅ‘ miatt.
+A legjobb pÃ©lda erre a <tt class="option">pp</tt> (utÃ³feldolgozÃ¡s, csak ha
+deblock vagy dering mÅ±veleteket hajt vÃ©gre), az
+<tt class="option">spp</tt> (mÃ¡sik utÃ³feldolgozÃ³ az MPEG mellÃ©khatÃ¡sok eltÃ¡volÃ­tÃ¡sÃ¡ra),
+a <tt class="option">pullup</tt> (inverz telecine) Ã©s a
+<tt class="option">softpulldown</tt> (a soft telecine hard telecine-re tÃ¶rtÃ©nÅ‘
+konvertÃ¡lÃ¡sa).
 </p><p>
-  Általában olyan kevés sz&#369;rést szeretnél, amennyit csak lehet, hogy az eredeti
-  DVD forráshoz h&#369; maradj. A vágás gyakran elkerülhetetlen (amint azt fentebb
-  leírtuk), de ne méretezd a videót. Noha a kicsinyítés néha el&#337;nyben részesül
-  a magas kvantálóknál, mi szeretnénk elkerülni mindkét dolgot: emlékezz, hogy
-  mit határoztunk el kezdetben a bitek min&#337;ségért történ&#337; feláldozásáról.
+ÃltalÃ¡ban olyan kevÃ©s szÅ±rÃ©st szeretnÃ©l, amennyit csak lehet, hogy az
+eredeti DVD forrÃ¡shoz hÅ± maradj. A vÃ¡gÃ¡s gyakran elkerÃ¼lhetetlen (amint
+azt fentebb leÃ­rtuk), de ne mÃ©retezd a videÃ³t. Noha a kicsinyÃ­tÃ©s nÃ©ha
+elÅ‘nyben rÃ©szesÃ¼l a magas kvantÃ¡lÃ³knÃ¡l, mi szeretnÃ©nk elkerÃ¼lni mindkÃ©t
+dolgot: emlÃ©kezz, hogy mit hatÃ¡roztunk el kezdetben a bitek minÅ‘sÃ©gÃ©rt
+tÃ¶rtÃ©nÅ‘ felÃ¡ldozÃ¡sÃ¡rÃ³l.
 </p><p>
-  Szintén hagyd békén a gamma, kontraszt, fényer&#337;, stb. beállításokat. Ami jól néz
-  ki a monitorodon nem biztos, hogy másnál is szép lesz. Ezeket a beállításokat
-  lejátszáskor kell elvégezni.
+SzintÃ©n hagyd bÃ©kÃ©n a gamma, kontraszt, fÃ©nyerÅ‘, stb. beÃ¡llÃ­tÃ¡sokat.
+Ami jÃ³l nÃ©z ki a monitorodon nem biztos, hogy mÃ¡snÃ¡l is szÃ©p lesz.
+Ezeket a beÃ¡llÃ­tÃ¡sokat lejÃ¡tszÃ¡skor kell elvÃ©gezni.
 </p><p>
-  Az egyetlen dolog, amit szeretnél, a videó nagyon könny&#369; zajsz&#369;r&#337;n történ&#337;
-  áteresztése, mint pl. <tt class="option">-vf hqdn3d=2:1:2</tt>. Ismételten, ezen bitek
-  jobb felhasználásáról van szó: miért vesztegessük el &#337;ket a zaj kódolására, ha
-  ezt a zajt lejátszás közben is hozzá tudod adni? A <tt class="option">hqdn3d</tt>
-  paramétereinek növelésével még jobb tömörítettséget érhetsz el, de ha túl magasra
-  állítod az értékeket, rontod a kép láthatóságát. A fent javasolt értékek
-  (<tt class="option">2:1:2</tt>) eléggé konzervatívak; kísérletezz szabadon nagyobb
-  értékekkel és ellen&#337;rizd az eredményeket magad.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-interlacing"></a>14.1.7. Interlacing és Telecine</h3></div></div></div><p>
-  Majdnem minden filmet 24 fps-sel fényképeznek. Mivel az NTSC 30000/1001 fps-es,
-  némi átdolgozás szükséges ezen a 24 fps-es videón, hogy a megfelel&#337; NTSC
-  framerátával menjen. Ez az eljárást 3:2 pulldown-nak hívják, de általában csak
-  telecine néven hivatkoznak rá (mivel a pulldownt gyakran használják a telecine
-  eljárás során), ami egyszer&#369;en leírva lelassítja a filmet 24000/1001 fps-re és
-  megismétel minden negyedik képkockát.
+Az egyetlen dolog, amit szeretnÃ©l, a videÃ³ nagyon kÃ¶nnyÅ± zajszÅ±rÅ‘n tÃ¶rtÃ©nÅ‘
+Ã¡teresztÃ©se, mint pl. <tt class="option">-vf hqdn3d=2:1:2</tt>. IsmÃ©telten, ezen
+bitek jobb felhasznÃ¡lÃ¡sÃ¡rÃ³l van szÃ³: miÃ©rt vesztegessÃ¼k el Å‘ket a zaj
+kÃ³dolÃ¡sÃ¡ra, ha ezt a zajt lejÃ¡tszÃ¡s kÃ¶zben is hozzÃ¡ tudod adni? A
+<tt class="option">hqdn3d</tt> paramÃ©tereinek nÃ¶velÃ©sÃ©vel mÃ©g jobb tÃ¶mÃ¶rÃ­tettsÃ©get
+Ã©rhetsz el, de ha tÃºl magasra Ã¡llÃ­tod az Ã©rtÃ©keket, rontod a kÃ©p
+lÃ¡thatÃ³sÃ¡gÃ¡t.
+A fent javasolt Ã©rtÃ©kek (<tt class="option">2:1:2</tt>) elÃ©ggÃ© konzervatÃ­vak;
+kÃ­sÃ©rletezz szabadon nagyobb Ã©rtÃ©kekkel Ã©s ellenÅ‘rizd az eredmÃ©nyeket magad.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-interlacing"></a>14.1.7. Interlacing Ã©s Telecine</h3></div></div></div><p>
+Majdnem minden filmet 24 fps-sel fÃ©nykÃ©peznek. Mivel az NTSC 30000/1001
+fps-es, nÃ©mi Ã¡tdolgozÃ¡s szÃ¼ksÃ©ges ezen a 24 fps-es videÃ³n, hogy a
+megfelelÅ‘ NTSC framerÃ¡tÃ¡val menjen. Ez az eljÃ¡rÃ¡st 3:2 pulldown-nak hÃ­vjÃ¡k,
+de Ã¡ltalÃ¡ban csak telecine nÃ©ven hivatkoznak rÃ¡ (mivel a pulldownt gyakran
+hasznÃ¡ljÃ¡k a telecine eljÃ¡rÃ¡s sorÃ¡n), ami egyszerÅ±en leÃ­rva lelassÃ­tja a
+filmet 24000/1001 fps-re Ã©s megismÃ©tel minden negyedik kÃ©pkockÃ¡t.
 </p><p>
-  Ez nem speciális feldolgozás, habár minden PAL DVD esetében megcsinálják, ami
-  25 fps-sel megy. (M&#369;szaki szempontból a PAL-t lehet telecine-elni, ezt 2:2
-  pulldown-nak hívják, de ez nem terjedt el a gyakorlatban.) A 24 fps-es filmet
-  egyszer&#369;en 25 fps-sel játszák le. Az eredmény az, hogy a film kissé gyorsabban
-  megy, de ha nem vagy egy földönkívüli, valószín&#369;leg nem fogod észrevenni a
-  különbséget. A legtöbb PAL DVD zajszint-javított audiót tartalmaz, így amikor
-  25 fps-sel játszák le &#337;ket, a hangok jól hangzanak, még akkor is, ha az
-  audió sáv (és ebb&#337;l adódóan az egész film) az NTSC DVD-kénél 4%-kal lassabb
-  futási id&#337;vel megy.
+Ez nem speciÃ¡lis feldolgozÃ¡s, habÃ¡r minden PAL DVD esetÃ©ben megcsinÃ¡ljÃ¡k,
+ami 25 fps-sel megy. (MÅ±szaki szempontbÃ³l a PAL-t lehet telecine-elni,
+ezt 2:2 pulldown-nak hÃ­vjÃ¡k, de ez nem terjedt el a gyakorlatban.) A 24
+fps-es filmet egyszerÅ±en 25 fps-sel jÃ¡tszÃ¡k le. Az eredmÃ©ny az, hogy a
+film kissÃ© gyorsabban megy, de ha nem vagy egy fÃ¶ldÃ¶nkÃ­vÃ¼li, valÃ³szÃ­nÅ±leg
+nem fogod Ã©szrevenni a kÃ¼lÃ¶nbsÃ©get. A legtÃ¶bb PAL DVD zajszint-javÃ­tott
+audiÃ³t tartalmaz, Ã­gy amikor 25 fps-sel jÃ¡tszÃ¡k le Å‘ket, a hangok jÃ³l
+hangzanak, mÃ©g akkor is, ha az audiÃ³ sÃ¡v (Ã©s ebbÅ‘l adÃ³dÃ³an az egÃ©sz film)
+az NTSC DVD-kÃ©nÃ©l 4%-kal lassabb futÃ¡si idÅ‘vel megy.
 </p><p>
-  Mivel a PAL DVD-ben a videót nem változtatták meg, nem kell aggódnod a
-  frameráta miatt. A forrás 25 fps-es és a rip-ed is 25 fps-es lesz. De ha
-  egy NTSC DVD filmet rippelsz, fordított telecine-t kell alkalmaznod.
+Mivel a PAL DVD-ben a videÃ³t nem vÃ¡ltoztattÃ¡k meg, nem kell aggÃ³dnod a
+framerÃ¡ta miatt. A forrÃ¡s 25 fps-es Ã©s a rip-ed is 25 fps-es lesz. De ha
+egy NTSC DVD filmet rippelsz, fordÃ­tott telecine-t kell alkalmaznod.
 </p><p>
-  A 24 fps-sel felvett filmeknél az NTSC DVD-n lév&#337; videó vagy telecine-elt
-  30000/1001 fps-re vagy pedig progresszív 24000/1001 fps-es és szándék szerint
-  a DVD lejátszó végzi a telecine-t lejátszás közben. Másrészr&#337;l a TV sorozatok
-  általában csak átlapoltak, nem telecine-ltek. Ez azonban nem ökölszabály:
-  néhány TV sorozat átlapolt (mint a Buffy a Vámpír gyilkos) míg másik a
-  progresszív és az átlapolt keverékei (mint pl. az Angyal vagy a 24).
+A 24 fps-sel felvett filmeknÃ©l az NTSC DVD-n lÃ©vÅ‘ videÃ³ vagy telecine-elt
+30000/1001 fps-re vagy pedig progresszÃ­v 24000/1001 fps-es Ã©s szÃ¡ndÃ©k szerint
+a DVD lejÃ¡tszÃ³ vÃ©gzi a telecine-t lejÃ¡tszÃ¡s kÃ¶zben. MÃ¡srÃ©szrÅ‘l a TV sorozatok
+Ã¡ltalÃ¡ban csak Ã¡tlapoltak, nem telecine-ltek. Ez azonban nem Ã¶kÃ¶lszabÃ¡ly:
+nÃ©hÃ¡ny TV sorozat Ã¡tlapolt (mint a Buffy a VÃ¡mpÃ­r gyilkos) mÃ­g mÃ¡sik a
+progresszÃ­v Ã©s az Ã¡tlapolt keverÃ©kei (mint pl. az Angyal vagy a 24).
 </p><p>
-  Javasoljuk, hogy olvasd el a <a href="menc-feat-telecine.html" title="14.2. Mit kezdjünk a telecine-nel és az átlapolással NTSC DVD-ken">mit kezdjünk a telecine-nel és az átlapolással
-  NTSC DVD-ken</a> részt, hogy kezelni tudd a különböz&#337; lehet&#337;ségeket.
+Javasoljuk, hogy olvasd el a
+<a href="menc-feat-telecine.html" title="14.2. Mit kezdjÃ¼nk a telecine-nel Ã©s az Ã¡tlapolÃ¡ssal NTSC DVD-ken">mit kezdjÃ¼nk a telecine-nel Ã©s az Ã¡tlapolÃ¡ssal NTSC DVD-ken</a>
+rÃ©szt, hogy kezelni tudd a kÃ¼lÃ¶nbÃ¶zÅ‘ lehetÅ‘sÃ©geket.
 </p><p>
-  Bár ha legtöbbször csak filmeket rippelsz, valószín&#369;leg vagy 24 fps-es
-  progresszív vagy telecine-lt videóval lesz dolgod, ezekben az esetekben
-  használhatod a <tt class="option">pullup</tt> sz&#369;r&#337;t a <tt class="option">-vf
-  pullup,softskip</tt> kapcsolóval.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-encoding-interlaced"></a>14.1.8. Átlapolt videó elkódolása</h3></div></div></div><p>
-  Ha az általad elkódolni kívánt film átlapolt (NTSC videó vagy
-  PAL videó), el kell döntened, hogy akarsz-e deinterlacing-et
-  vagy sem.
-  A deinterlacing használhatóvá teszi a filmed progresszív scan-es
-  megjelenít&#337;kön, mint pl. a számítógép monitorok vagy a projektorok,
-  van ára is: az 50 vagy 60000/1001-es mez&#337;ráta felez&#337;dik 25 vagy
-  30000/1001 képkocka per másodpercre és így a filmedben tárolt
-  információk durván fele elveszik a jelent&#337;s mozgást tartalmazó
-  részekben.
+BÃ¡r ha legtÃ¶bbszÃ¶r csak filmeket rippelsz, valÃ³szÃ­nÅ±leg vagy 24 fps-es
+progresszÃ­v vagy telecine-lt videÃ³val lesz dolgod, ezekben az esetekben
+hasznÃ¡lhatod a <tt class="option">pullup</tt> szÅ±rÅ‘t a <tt class="option">-vf
+pullup,softskip</tt> kapcsolÃ³val.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-encoding-interlaced"></a>14.1.8. Ãtlapolt videÃ³ elkÃ³dolÃ¡sa</h3></div></div></div><p>
+Ha az Ã¡ltalad elkÃ³dolni kÃ­vÃ¡nt film Ã¡tlapolt (NTSC videÃ³ vagy
+PAL videÃ³), el kell dÃ¶ntened, hogy akarsz-e deinterlacing-et
+vagy sem.
+A deinterlacing hasznÃ¡lhatÃ³vÃ¡ teszi a filmed progresszÃ­v scan-es
+megjelenÃ­tÅ‘kÃ¶n, mint pl. a szÃ¡mÃ­tÃ³gÃ©p monitorok vagy a projektorok,
+van Ã¡ra is: az 50 vagy 60000/1001-es mezÅ‘rÃ¡ta felezÅ‘dik 25 vagy
+30000/1001 kÃ©pkocka per mÃ¡sodpercre Ã©s Ã­gy a filmedben tÃ¡rolt
+informÃ¡ciÃ³k durvÃ¡n fele elveszik a jelentÅ‘s mozgÃ¡st tartalmazÃ³
+rÃ©szekben.
 </p><p>
-  Így hát ha archiválási okokból jó min&#337;ség kell, akkor kerüld el a
-  deinterlace-t.
-  Bármikor deinterlace-lheted a filmet lejátszás közben is, ha
-  progresszív scan-es megjelenít&#337;d van.
-  A jelenleg kapható számítógépek teljesítménye deinterlacing sz&#369;r&#337;
-  használatára kényszerítik a lejátszókat, ami egy kis mérték&#369;
-  képmin&#337;ség romlást okoz.
-  Azonban a jöv&#337; lejátszói képesek lesznek az átlapolt képerny&#337;
-  TV-vé történ&#337; átváltoztatására, teljes mez&#337;rátás deinterlacing-re és
-  az átlapolt videó 50 vagy 60000/1001 teljes képkocka per másodpercre
-  interpolálására.
+Ãgy hÃ¡t ha archivÃ¡lÃ¡si okokbÃ³l jÃ³ minÅ‘sÃ©g kell, akkor kerÃ¼ld el a
+deinterlace-t.
+BÃ¡rmikor deinterlace-lheted a filmet lejÃ¡tszÃ¡s kÃ¶zben is, ha
+progresszÃ­v scan-es megjelenÃ­tÅ‘d van.
+A jelenleg kaphatÃ³ szÃ¡mÃ­tÃ³gÃ©pek teljesÃ­tmÃ©nye deinterlacing szÅ±rÅ‘
+hasznÃ¡latÃ¡ra kÃ©nyszerÃ­tik a lejÃ¡tszÃ³kat, ami egy kis mÃ©rtÃ©kÅ±
+kÃ©pminÅ‘sÃ©g romlÃ¡st okoz.
+Azonban a jÃ¶vÅ‘ lejÃ¡tszÃ³i kÃ©pesek lesznek az Ã¡tlapolt kÃ©pernyÅ‘
+TV-vÃ© tÃ¶rtÃ©nÅ‘ Ã¡tvÃ¡ltoztatÃ¡sÃ¡ra, teljes mezÅ‘rÃ¡tÃ¡s deinterlacing-re Ã©s
+az Ã¡tlapolt videÃ³ 50 vagy 60000/1001 teljes kÃ©pkocka per mÃ¡sodpercre
+interpolÃ¡lÃ¡sÃ¡ra.
 </p><p>
-Fokozott figyelemmel kell eljárni, ha átlapolt videóval dolgozol:
+Fokozott figyelemmel kell eljÃ¡rni, ha Ã¡tlapolt videÃ³val dolgozol:
 </p><div class="orderedlist"><ol type="1"><li><p>
-  A vágási magasság és y-offszet 4 többszöröse kell, hogy legyen.
+  A vÃ¡gÃ¡si magassÃ¡g Ã©s y-offszet 4 tÃ¶bbszÃ¶rÃ¶se kell, hogy legyen.
 </p></li><li><p>
-  Bármilyen függ&#337;leges átméretezést átlapolt módban kell elvégezni.
+  BÃ¡rmilyen fÃ¼ggÅ‘leges Ã¡tmÃ©retezÃ©st Ã¡tlapolt mÃ³dban kell elvÃ©gezni.
 </p></li><li><p>
-  Az utófeldolgozó és a zajcsökkent&#337; sz&#369;r&#337;k nem az elvártnak megfelel&#337;en
-  m&#369;ködnek, ha nem gondoskodsz róla, hogy egyszerre csak egy mez&#337;vel
-  dolgozzanak, különben a nem megfelel&#337; használat miatt sérülhet a videó.
+  Az utÃ³feldolgozÃ³ Ã©s a zajcsÃ¶kkentÅ‘ szÅ±rÅ‘k nem az elvÃ¡rtnak megfelelÅ‘en
+  mÅ±kÃ¶dnek, ha nem gondoskodsz rÃ³la, hogy egyszerre csak egy mezÅ‘vel
+  dolgozzanak, kÃ¼lÃ¶nben a nem megfelelÅ‘ hasznÃ¡lat miatt sÃ©rÃ¼lhet a videÃ³.
 </p></li></ol></div><p>
-Mindezt észben tartva, itt az els&#337; példánk:
+Mindezt Ã©szben tartva, itt az elsÅ‘ pÃ©ldÃ¡nk:
 </p><pre class="screen">
-  mencoder <em class="replaceable"><code>capture.avi</code></em> -mc 0 -oac lavc -ovc lavc -lavcopts \
-  vcodec=mpeg2video:vbitrate=6000:ilme:ildct:acodec=mp2:abitrate=224
+mencoder <em class="replaceable"><code>capture.avi</code></em> -mc 0 -oac lavc -ovc lavc -lavcopts \
+	vcodec=mpeg2video:vbitrate=6000:ilme:ildct:acodec=mp2:abitrate=224
 </pre><p>
-Figyelj az <tt class="option">ilme</tt> és az <tt class="option">ildct</tt> kapcsolókra.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-av-sync"></a>14.1.9. Megjegyzések az Audió/Videó szinkronizáláshoz</h3></div></div></div><p>
-A <span class="application">MEncoder</span> audió/videó szinkronizáló
-algoritmusai azzal a szándékkal lettek megtervezve, hogy képesek
-legyenek a sérült szinkronú filmek megjavítására.
-De néhány esetben a képkockáknál szükségtelen kihagyásokat és duplikálásokat
-valamint kis mértékben A/V deszinkronizációt okozhatnak, ha megfelel&#337;
-bementük van (természetesen az A/V szinkron dolgok csak akkor érvényesek,
-ha feldolgozod vagy másolod az audió sávot a videó átkódolása közben,
+Figyelj az <tt class="option">ilme</tt> Ã©s az <tt class="option">ildct</tt> kapcsolÃ³kra.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-av-sync"></a>14.1.9. MegjegyzÃ©sek az AudiÃ³/VideÃ³ szinkronizÃ¡lÃ¡shoz</h3></div></div></div><p>
+A <span class="application">MEncoder</span> audiÃ³/videÃ³ szinkronizÃ¡lÃ³
+algoritmusai azzal a szÃ¡ndÃ©kkal lettek megtervezve, hogy kÃ©pesek
+legyenek a sÃ©rÃ¼lt szinkronÃº filmek megjavÃ­tÃ¡sÃ¡ra.
+De nÃ©hÃ¡ny esetben a kÃ©pkockÃ¡knÃ¡l szÃ¼ksÃ©gtelen kihagyÃ¡sokat Ã©s duplikÃ¡lÃ¡sokat
+valamint kis mÃ©rtÃ©kben A/V deszinkronizÃ¡ciÃ³t okozhatnak, ha megfelelÅ‘
+bementÃ¼k van (termÃ©szetesen az A/V szinkron dolgok csak akkor Ã©rvÃ©nyesek,
+ha feldolgozod vagy mÃ¡solod az audiÃ³ sÃ¡vot a videÃ³ Ã¡tkÃ³dolÃ¡sa kÃ¶zben,
 ami nagyon javasolt).
-
-Ezért lehet, hogy az alapértelmezett A/V szinkronizációra kell váltanod
-a <tt class="option">-mc 0</tt> opcióval, vagy írd ezt bele a
-<code class="systemitem">~/.mplayer/mencoder</code> konfigurációs fájlodba,
-feltéve, hogy csak hibátlan anyaggal dolgozol (DVD, TV mentés, nagyon
-jó min&#337;ség&#369; MPEG-4 rip, stb.) és nem hibás ASF/RM/MOV fájlokkal.
+EzÃ©rt lehet, hogy az alapÃ©rtelmezett A/V szinkronizÃ¡ciÃ³ra kell vÃ¡ltanod
+a <tt class="option">-mc 0</tt> opciÃ³val, vagy Ã­rd ezt bele a
+<code class="systemitem">~/.mplayer/mencoder</code> konfigurÃ¡ciÃ³s fÃ¡jlodba,
+feltÃ©ve, hogy csak hibÃ¡tlan anyaggal dolgozol (DVD, TV mentÃ©s, nagyon
+jÃ³ minÅ‘sÃ©gÅ± MPEG-4 rip, stb.) Ã©s nem hibÃ¡s ASF/RM/MOV fÃ¡jlokkal.
 </p><p>
-Ha még további különös képkocka kihagyásokat és duplázásokat akarsz
-elkerülni, használhatod az <tt class="option">-mc 0</tt> és <tt class="option">-noskip</tt>
-kapcsolókat együtt is.
-Ez megakadályoz <span class="emphasis"><em>mindenféle</em></span> A/V szinkronizációt és
-egy az egyben másolja a képkockákat, így nem használhatod olyan sz&#369;r&#337;kkel,
-melyek megjósolhatatlanul hozzáadnak vagy elvesznek képkockákat, vagy ha
-a bemeneti fájlodnak változó framerátája van!
-Ezért a <tt class="option">-noskip</tt> használata általában nem javasolt.
+Ha mÃ©g tovÃ¡bbi kÃ¼lÃ¶nÃ¶s kÃ©pkocka kihagyÃ¡sokat Ã©s duplÃ¡zÃ¡sokat akarsz
+elkerÃ¼lni, hasznÃ¡lhatod az <tt class="option">-mc 0</tt> Ã©s <tt class="option">-noskip</tt>
+kapcsolÃ³kat egyÃ¼tt is.
+Ez megakadÃ¡lyoz <span class="emphasis"><em>mindenfÃ©le</em></span> A/V szinkronizÃ¡ciÃ³t Ã©s
+egy az egyben mÃ¡solja a kÃ©pkockÃ¡kat, Ã­gy nem hasznÃ¡lhatod olyan szÅ±rÅ‘kkel,
+melyek megjÃ³solhatatlanul hozzÃ¡adnak vagy elvesznek kÃ©pkockÃ¡kat, vagy ha
+a bemeneti fÃ¡jlodnak vÃ¡ltozÃ³ framerÃ¡tÃ¡ja van!
+EzÃ©rt a <tt class="option">-noskip</tt> hasznÃ¡lata Ã¡ltalÃ¡ban nem javasolt.
 </p><p>
-A <span class="application">MEncoder</span> által támogatott, úgy nevezett "három
-lépéses" audió kódolás a visszajelzések szerint A/V deszinkronizációt okoz.
-Ez különösen akkor történik, ha bizonyos sz&#369;r&#337;kkel együtt használják,
-így jelenleg <span class="emphasis"><em>nem</em></span> javasolt a három lépéses audió mód
-használata.
-Ez a képesség csak kompatibilítási okok miatt maradt meg és a haladó
-felhasználóknak, akik tudják, hogy mikor lehet használni és mikor nem.
-Ha ezel&#337;tt még soha nem hallottál a három lépéses módról, felejtsd el azt
-is, hogy megemlítettük!
+A <span class="application">MEncoder</span> Ã¡ltal tÃ¡mogatott, Ãºgy nevezett
+"hÃ¡rom lÃ©pÃ©ses" audiÃ³ kÃ³dolÃ¡s a visszajelzÃ©sek szerint A/V deszinkronizÃ¡ciÃ³t
+okoz.
+Ez kÃ¼lÃ¶nÃ¶sen akkor tÃ¶rtÃ©nik, ha bizonyos szÅ±rÅ‘kkel egyÃ¼tt hasznÃ¡ljÃ¡k,
+Ã­gy jelenleg <span class="emphasis"><em>nem</em></span> javasolt a hÃ¡rom lÃ©pÃ©ses audiÃ³
+mÃ³d hasznÃ¡lata.
+Ez a kÃ©pessÃ©g csak kompatibilÃ­tÃ¡si okok miatt maradt meg Ã©s a haladÃ³
+felhasznÃ¡lÃ³knak, akik tudjÃ¡k, hogy mikor lehet hasznÃ¡lni Ã©s mikor nem.
+Ha ezelÅ‘tt mÃ©g soha nem hallottÃ¡l a hÃ¡rom lÃ©pÃ©ses mÃ³drÃ³l, felejtsd el azt
+is, hogy megemlÃ­tettÃ¼k!
 </p><p>
-Érkeztek jelentések A/V deszinkronizációról <span class="application">MEncoder</span>rel
-stdin-r&#337;l történ&#337; kódolás esetén is.
-Ne tedd ezt! Mindig használj fájlt vagy CD/DVD/stb. eszközt forrásként.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-codec"></a>14.1.10. A videó codec kiválasztása</h3></div></div></div><p>
-  A használandó videó codec kiválasztása több dologtól függ, mint például a
-  méret, min&#337;ség, stream-elhet&#337;ség, használhatóság és elterjedtség, melyeket
-  a személyes igények és a technikai korlátok határoznak meg.
+Ã‰rkeztek jelentÃ©sek A/V deszinkronizÃ¡ciÃ³rÃ³l <span class="application">MEncoder</span>rel
+stdin-rÅ‘l tÃ¶rtÃ©nÅ‘ kÃ³dolÃ¡s esetÃ©n is.
+Ne tedd ezt! Mindig hasznÃ¡lj fÃ¡jlt vagy CD/DVD/stb. eszkÃ¶zt forrÃ¡skÃ©nt.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-codec"></a>14.1.10. A videÃ³ codec kivÃ¡lasztÃ¡sa</h3></div></div></div><p>
+A hasznÃ¡landÃ³ videÃ³ codec kivÃ¡lasztÃ¡sa tÃ¶bb dologtÃ³l fÃ¼gg, mint pÃ©ldÃ¡ul a
+mÃ©ret, minÅ‘sÃ©g, stream-elhetÅ‘sÃ©g, hasznÃ¡lhatÃ³sÃ¡g Ã©s elterjedtsÃ©g, melyeket
+a szemÃ©lyes igÃ©nyek Ã©s a technikai korlÃ¡tok hatÃ¡roznak meg.
 </p><div class="itemizedlist"><ul type="disc"><li><p>
-  <span class="bold"><strong>Tömörítési hatékonyság</strong></span>:
-  Érthet&#337; módon a legtöbb új generációs codec a min&#337;ség és a tömörítés
-  javítására íródott.
-  Ezért ezen leírás szerz&#337;i és még sok más szerint sem tudsz rosszat
-  választani,
+  <span class="bold"><strong>TÃ¶mÃ¶rÃ­tÃ©si hatÃ©konysÃ¡g</strong></span>:
+  Ã‰rthetÅ‘ mÃ³don a legtÃ¶bb Ãºj generÃ¡ciÃ³s codec a minÅ‘sÃ©g Ã©s a tÃ¶mÃ¶rÃ­tÃ©s
+  javÃ­tÃ¡sÃ¡ra Ã­rÃ³dott.
+  EzÃ©rt ezen leÃ­rÃ¡s szerzÅ‘i Ã©s mÃ©g sok mÃ¡s szerint sem tudsz rosszat
+  vÃ¡lasztani,
   <sup>[<a name="fn-menc-feat-dvd-mpeg4-codec-cpu" href="#ftn.fn-menc-feat-dvd-mpeg4-codec-cpu">2</a>]</sup>
-  akár MPEG-4 AVC codec-et választasz, mint például az
-  <code class="systemitem">x264</code>, akár egy MPEG-4 ASP
+  akÃ¡r MPEG-4 AVC codec-et vÃ¡lasztasz, mint pÃ©ldÃ¡ul az
+  <code class="systemitem">x264</code>, akÃ¡r egy MPEG-4 ASP
   codec-et, mint pl. a <code class="systemitem">libavcodec</code>
-  MPEG-4 vagy az <code class="systemitem">XviD</code>.
-  (A haladóbb codec fejleszt&#337;ket talán érdekelheti Michael Niedermayer
-  véleménye, a
-  "<a href="http://guru.multimedia.cx/?p=10" target="_top">miért utáljuk az MPEG4-et</a>".)
-  Valószín&#369;leg az MPEG-4 ASP-vel jobb min&#337;séget érhetsz el, mint az
+  MPEG-4 vagy az <code class="systemitem">Xvid</code>.
+  (A haladÃ³bb codec fejlesztÅ‘ket talÃ¡n Ã©rdekelheti Michael
+  Niedermayer vÃ©lemÃ©nye, a
+  "<a href="http://guru.multimedia.cx/?p=10" target="_top">miÃ©rt utÃ¡ljuk az MPEG4-et</a>".)
+  ValÃ³szÃ­nÅ±leg az MPEG-4 ASP-vel jobb minÅ‘sÃ©get Ã©rhetsz el, mint az
   MPEG-2 codec-ekkel.
   </p><p>
-  Bár az új codec-ek, melyek még er&#337;teljes fejlesztés alatt állnak,
-  tartalmazhatnak hibákat, amiket még nem fedeztek fel és amik
-  tönkretehetnek egy kódolást. Ez a hátránya az új dolgok használatának.
+  BÃ¡r az Ãºj codec-ek, melyek mÃ©g erÅ‘teljes fejlesztÃ©s alatt Ã¡llnak,
+  tartalmazhatnak hibÃ¡kat, amiket mÃ©g nem fedeztek fel Ã©s amik
+  tÃ¶nkretehetnek egy kÃ³dolÃ¡st. Ez a hÃ¡trÃ¡nya az Ãºj dolgok hasznÃ¡latÃ¡nak.
   </p><p>
-  Mint ahogy az is, hogy amikor új codec-et kezdesz használni, id&#337;t kell
-  szánnod az opcióinak a megismerésére, hogy tudd, miket kell
-  beállítanod a kívánt képmin&#337;ség eléréséhez.
+  Mint ahogy az is, hogy amikor Ãºj codec-et kezdesz hasznÃ¡lni, idÅ‘t kell
+  szÃ¡nnod az opciÃ³inak a megismerÃ©sÃ©re, hogy tudd, miket kell
+  beÃ¡llÃ­tanod a kÃ­vÃ¡nt kÃ©pminÅ‘sÃ©g elÃ©rÃ©sÃ©hez.
   </p></li><li><p>
-  <span class="bold"><strong>Hardveres kompatibilítás</strong></span>:
-  Általában sok id&#337; kell, míg az asztali lejátszók elkezdenek támogatni
-  egy új codec-et.
-  Ennek eredménye, hogy a legtöbb csak MPEG-1 (mint a VCD, XVCD és KVCD),
-  MPEG-2 (mint a DVD, SVCD és KVCD) és MPEG-4 ASP (mint a DivX, a
-  <code class="systemitem">libavcodec</code> LMP4-e és az
-  <code class="systemitem">XviD</code>) lejátszására képes
-  (Vigyázz: Legtöbbször nem ismerik az MPEG-4 ASP összes képességét).
-  Nézd meg a lejátszód technikai specifikációját (ha van) vagy google-ozz
-  körbe további információért.
-  </p></li><li><p>
-  <span class="bold"><strong>Legjobb min&#337;ség kontra kódolási id&#337;</strong></span>:
-  A már jó ideje létez&#337; codec-ek (mint pl. a
-  <code class="systemitem">libavcodec</code> MPEG-4-e és az
-  <code class="systemitem">XviD</code>) általában nagyon jól
-  optimalizáltak mindenféle okos algoritmussal és SIMD assembly kóddal.
-  Ezért a legjobb min&#337;ség per kódolási id&#337; arány felé tartanak.
-  Azonban van néhány nagyon fejlett opció, amit ha engedélyezel, nagyon
-  nagy mértékben lelassítják a kódolást csekély javulást produkálva.
+  <span class="bold"><strong>Hardveres kompatibilÃ­tÃ¡s</strong></span>:
+  ÃltalÃ¡ban sok idÅ‘ kell, mÃ­g az asztali lejÃ¡tszÃ³k elkezdenek tÃ¡mogatni
+  egy Ãºj codec-et.
+  Ennek eredmÃ©nye, hogy a legtÃ¶bb csak MPEG-1 (mint a VCD, XVCD Ã©s KVCD),
+  MPEG-2 (mint a DVD, SVCD Ã©s KVCD) Ã©s MPEG-4 ASP (mint a DivX, a
+  <code class="systemitem">libavcodec</code> LMP4-e Ã©s az
+  <code class="systemitem">Xvid</code>) lejÃ¡tszÃ¡sÃ¡ra kÃ©pes
+  (VigyÃ¡zz: LegtÃ¶bbszÃ¶r nem ismerik az MPEG-4 ASP Ã¶sszes kÃ©pessÃ©gÃ©t).
+  NÃ©zd meg a lejÃ¡tszÃ³d technikai specifikÃ¡ciÃ³jÃ¡t (ha van) vagy google-ozz
+  kÃ¶rbe tovÃ¡bbi informÃ¡ciÃ³Ã©rt.
+</p></li><li><p>
+  <span class="bold"><strong>Legjobb minÅ‘sÃ©g kontra kÃ³dolÃ¡si idÅ‘</strong></span>:
+  A mÃ¡r jÃ³ ideje lÃ©tezÅ‘ codec-ek (mint pl. a
+  <code class="systemitem">libavcodec</code> MPEG-4-e Ã©s az
+  <code class="systemitem">Xvid</code>) Ã¡ltalÃ¡ban nagyon jÃ³l
+  optimalizÃ¡ltak mindenfÃ©le okos algoritmussal Ã©s SIMD assembly kÃ³ddal.
+  EzÃ©rt a legjobb minÅ‘sÃ©g per kÃ³dolÃ¡si idÅ‘ arÃ¡ny felÃ© tartanak.
+  Azonban van nÃ©hÃ¡ny nagyon fejlett opciÃ³, amit ha engedÃ©lyezel, nagyon
+  nagy mÃ©rtÃ©kben lelassÃ­tjÃ¡k a kÃ³dolÃ¡st csekÃ©ly javulÃ¡st produkÃ¡lva.
   </p><p>
-  Ha a fantasztikus sebességet keresed, a codec alapértelmezett beállításai
-  körül nézel&#337;dj (azonban így is ajánlott kipróbálni egyéb opciókat,
-  amiket ezen leírás más fejezetei említenek).
+  Ha a fantasztikus sebessÃ©get keresed, a codec alapÃ©rtelmezett beÃ¡llÃ­tÃ¡sai
+  kÃ¶rÃ¼l nÃ©zelÅ‘dj (azonban Ã­gy is ajÃ¡nlott kiprÃ³bÃ¡lni egyÃ©b opciÃ³kat,
+  amiket ezen leÃ­rÃ¡s mÃ¡s fejezetei emlÃ­tenek).
   </p><p>
-  Megfontolandó olyan codec-et választani, ami több-szálas módban
-  dolgozza fel a forrást, azonban ez csak a több processzoros géppel
-  rendelkez&#337;knek jelent el&#337;nyt.
+  MegfontolandÃ³ olyan codec-et vÃ¡lasztani, ami tÃ¶bb-szÃ¡las mÃ³dban
+  dolgozza fel a forrÃ¡st, azonban ez csak a tÃ¶bb processzoros gÃ©ppel
+  rendelkezÅ‘knek jelent elÅ‘nyt.
   A <code class="systemitem">libavcodec</code> MPEG-4 tudja
-  ezt, de a sebességnövekedés eléggé korlátolt és egy kis negatív hatása
-  van a képmin&#337;ségre.
-  Az <code class="systemitem">XviD</code> több-szálas kódolása,
-  melyet a <tt class="option">threads</tt> opció kapcsol be, használható a
-  kódolási sebesség &#8212; átlagban kb. 40-60%-os &#8212; növelésére,
-  nagyon csekély vagy semmilyen képromlással.
-  jelleggel vannak javítások a kódolási sebesség átlagos esetben kb.
-  40-60%-os növelésére, csekély képromlás mellett.
-  Az <code class="systemitem">x264</code> is tudja a több-szálas
-  kódolást, ami jelenleg 15-30%-kal (a kódolási beállításoktól függ&#337;en)
-  gyorsítja fel a kódolást míg a PSNR-t kb. 0.05dB-vel csökkenti.
+  ezt, de a sebessÃ©gnÃ¶vekedÃ©s elÃ©ggÃ© korlÃ¡tolt Ã©s egy kis negatÃ­v hatÃ¡sa
+  van a kÃ©pminÅ‘sÃ©gre.
+  Az <code class="systemitem">Xvid</code> tÃ¶bb-szÃ¡las kÃ³dolÃ¡sa,
+  melyet a <tt class="option">threads</tt> opciÃ³ kapcsol be, hasznÃ¡lhatÃ³ a
+  kÃ³dolÃ¡si sebessÃ©g â€” Ã¡tlagban kb. 40-60%-os â€” nÃ¶velÃ©sÃ©re,
+  nagyon csekÃ©ly vagy semmilyen kÃ©promlÃ¡ssal.
+  Az <code class="systemitem">x264</code> is tudja a tÃ¶bb-szÃ¡las
+  kÃ³dolÃ¡st, ami jelenleg CPU magonkÃ©nt 94%-kal gyorsÃ­tja fel a kÃ³dolÃ¡st
+  mÃ­g a PSNR-t kb. 0.005dB Ã©s 0.01dB kÃ¶zÃ¶tti Ã©rtÃ©kkel csÃ¶kkenti.
   </p></li><li><p>
-  <span class="bold"><strong>Egyéni igények</strong></span>:
-  Itt válik a dolog a legirrálisabbá: ugyan azért, amiért sokan leragadtak
-  a DivX 3-nál évekig, miközben az új codec-ek már csodákat m&#369;veltek,
-  néhányan az <code class="systemitem">XviD</code>-et vagy a
-  <code class="systemitem">libavcodec</code> MPEG-4-ét részesítik
-  el&#337;nyben az <code class="systemitem">x264</code>-hez képest.
+  <span class="bold"><strong>EgyÃ©ni igÃ©nyek</strong></span>:
+  Itt vÃ¡lik a dolog a legirrÃ¡lisabbÃ¡: ugyan azÃ©rt, amiÃ©rt sokan leragadtak
+  a DivXÂ 3-nÃ¡l Ã©vekig, mikÃ¶zben az Ãºj codec-ek mÃ¡r csodÃ¡kat mÅ±veltek,
+  nÃ©hÃ¡nyan az <code class="systemitem">Xvid</code>-et vagy a
+  <code class="systemitem">libavcodec</code> MPEG-4-Ã©t rÃ©szesÃ­tik
+  elÅ‘nyben az <code class="systemitem">x264</code>-hez kÃ©pest.
   </p><p>
-  A döntést magadnak kell meghoznod; ne hallgass azokra, akik egy codec-re
-  esküsznek.
-  Vegyél pár példa klippet nyers forrásokból és hasonlítsd össze a különböz&#337;
-  kódolási opciókat és codec-eket, hogy megtudd, melyik a legjobb neked.
-  A legjobb codec mindig az, amelyikhez a legjobban értesz, amelyik
-  a legjobban néz ki szerinted a monitorodon.
+  A dÃ¶ntÃ©st magadnak kell meghoznod; ne hallgass azokra, akik egy codec-re
+  eskÃ¼sznek.
+  VegyÃ©l pÃ¡r pÃ©lda klippet nyers forrÃ¡sokbÃ³l Ã©s hasonlÃ­tsd Ã¶ssze a kÃ¼lÃ¶nbÃ¶zÅ‘
+  kÃ³dolÃ¡si opciÃ³kat Ã©s codec-eket, hogy megtudd, melyik a legjobb neked.
+  A legjobb codec mindig az, amelyikhez a legjobban Ã©rtesz, amelyik
+  a legjobban nÃ©z ki szerinted a monitorodon.
   <sup>[<a name="fn-menc-feat-dvd-mpeg4-codec-playback" href="#ftn.fn-menc-feat-dvd-mpeg4-codec-playback">3</a>]</sup>!
   </p></li></ul></div><p>
-  Kérjük, nézd meg a
-  <a href="menc-feat-selecting-codec.html" title="13.1. Codec és konténer formátum kiválasztása">codec-ek és konténer formátumok kiválasztásáról</a>
-  szóló fejezetet a támogatott codec-ek listájához.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-audio"></a>14.1.11. Audió</h3></div></div></div><p>
-  Az audió egy sokkal könnyebben megoldható probléma: ha számít a min&#337;ség,
-  akkor egyszer&#369;en hagyd úgy, ahogy van.
-  Még az AC3 5.1 stream-ek is leginkább 448Kbit/s-osak és minden
-  bitet megérnek. Csábító lehet az audió jó min&#337;ség&#369; Vorbis-ba történ&#337;
-  konvertálása, de az, hogy ma nincs egy A/V receiver-ed az AC3 áteresztéshez,
-  nem jelenti azt, hogy holnap sem lesz. Készíts a jöv&#337;ben is használható
-  DVD rip-eket az AC3 stream megtartásával.
-  Megtarthatod az AC3 stream-et a <a href="menc-feat-mpeg4.html" title='13.3. Két menetes MPEG-4 ("DivX") kódolás'>kódolás közben</a>
-  a videó stream-be történ&#337; közvetlen átmásolással.
-  Vagy ki is szedheted az AC3 stream-et, hogy elkeverd valamilyen konténer
-  formátumba, mint pl. a NUT vagy a Matroska.
-  </p><pre class="screen">mplayer <em class="replaceable"><code>forras_fajl.vob</code></em> -aid 129 -dumpaudio -dumpfile <em class="replaceable"><code>hang.ac3</code></em></pre><p>
-  a 129-es audió sávot kiszedi a <em class="replaceable"><code>sound.ac3</code></em> nev&#369;
-  fájlba a <em class="replaceable"><code>source_file.vob</code></em>-ból (NB: a DVD VOB
-  fájlok általában különböz&#337; audió számozást használnak, ami azt jelenti,
-  hogy a 129-es VOB audio sáv a 2. audió sáv a fájlban).
+KÃ©rjÃ¼k, nÃ©zd meg a
+<a href="menc-feat-selecting-codec.html" title="13.1. Codec Ã©s kontÃ©ner formÃ¡tum kivÃ¡lasztÃ¡sa">codec-ek Ã©s kontÃ©ner formÃ¡tumok kivÃ¡lasztÃ¡sÃ¡rÃ³l</a>
+szÃ³lÃ³ fejezetet a tÃ¡mogatott codec-ek listÃ¡jÃ¡hoz.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-audio"></a>14.1.11. AudiÃ³</h3></div></div></div><p>
+Az audiÃ³ egy sokkal kÃ¶nnyebben megoldhatÃ³ problÃ©ma: ha szÃ¡mÃ­t a minÅ‘sÃ©g,
+akkor egyszerÅ±en hagyd Ãºgy, ahogy van.
+MÃ©g az AC-3 5.1 stream-ek is leginkÃ¡bb 448Kbit/s-osak Ã©s minden
+bitet megÃ©rnek. CsÃ¡bÃ­tÃ³ lehet az audiÃ³ jÃ³ minÅ‘sÃ©gÅ± Vorbis-ba tÃ¶rtÃ©nÅ‘
+konvertÃ¡lÃ¡sa, de az, hogy ma nincs egy A/V receiver-ed az AC-3 Ã¡teresztÃ©shez,
+nem jelenti azt, hogy holnap sem lesz. KÃ©szÃ­ts a jÃ¶vÅ‘ben is hasznÃ¡lhatÃ³
+DVD rip-eket az AC-3 stream megtartÃ¡sÃ¡val.
+Megtarthatod az AC-3 stream-et a <a href="menc-feat-mpeg4.html" title='13.3. KÃ©t menetes MPEG-4 ("DivX") kÃ³dolÃ¡s'>kÃ³dolÃ¡s kÃ¶zben</a>
+a videÃ³ stream-be tÃ¶rtÃ©nÅ‘ kÃ¶zvetlen Ã¡tmÃ¡solÃ¡ssal.
+Vagy ki is szedheted az AC-3 stream-et, hogy elkeverd valamilyen kontÃ©ner
+formÃ¡tumba, mint pl. a NUT vagy a Matroska.
+</p><pre class="screen">
+mplayer <em class="replaceable"><code>forras_fajl.vob</code></em> -aid 129 -dumpaudio -dumpfile <em class="replaceable"><code>hang.ac3</code></em>
+</pre><p>
+a 129-es audiÃ³ sÃ¡vot kiszedi a <em class="replaceable"><code>sound.ac3</code></em> nevÅ±
+fÃ¡jlba a <em class="replaceable"><code>source_file.vob</code></em>-bÃ³l (NB: a DVD VOB
+fÃ¡jlok Ã¡ltalÃ¡ban kÃ¼lÃ¶nbÃ¶zÅ‘ audiÃ³ szÃ¡mozÃ¡st hasznÃ¡lnak, ami azt jelenti,
+hogy a 129-es VOB audio sÃ¡v a 2. audiÃ³ sÃ¡v a fÃ¡jlban).
 </p><p>
-  De néha tényleg nincs más választásod, mint tovább tömöríteni a
-  hangot így több bit jut a videóra.
-  A legtöbb ember vagy MP3-at vagy Vorbis-t választ az audió tömörítéséhez.
-  Míg az utóbbi nagyon hely-takarékos codec, az MP3-nak jobb a hardveres
-  lejátszók terén a támogatottsága, bár ez a trend változóban van.
+De nÃ©ha tÃ©nyleg nincs mÃ¡s vÃ¡lasztÃ¡sod, mint tovÃ¡bb tÃ¶mÃ¶rÃ­teni a
+hangot Ã­gy tÃ¶bb bit jut a videÃ³ra.
+A legtÃ¶bb ember vagy MP3-at vagy Vorbis-t vÃ¡laszt az audiÃ³ tÃ¶mÃ¶rÃ­tÃ©sÃ©hez.
+MÃ­g az utÃ³bbi nagyon hely-takarÃ©kos codec, az MP3-nak jobb a hardveres
+lejÃ¡tszÃ³k terÃ©n a tÃ¡mogatottsÃ¡ga, bÃ¡r ez a trend vÃ¡ltozÃ³ban van.
 </p><p>
-  <span class="emphasis"><em>Ne</em></span> használd a <tt class="option">-nosound</tt>-ot ha audióval
-  rendelkez&#337; fájlt kódolsz, akkor se, ha az audiót kés&#337;bb, elkülönítve kódolod
-  és kevered.
-  Bár ideális esetben m&#369;ködik, a <tt class="option">-nosound</tt> opció okozhat némi
-  problémát a parancssori kódolási beállításaidban.
-  Más szavakkal, a zene sáv megléte biztosítja a
-  &#8222;<span class="quote">Too many audio packets in the buffer</span>&#8221; (Túl sok audió csomag a
-  bufferban) és hasonló üzenetek elkerülését és a megfelel&#337; szinkront.
+<span class="emphasis"><em>Ne</em></span> hasznÃ¡ld a <tt class="option">-nosound</tt>-ot ha
+audiÃ³val rendelkezÅ‘ fÃ¡jlt kÃ³dolsz, akkor se, ha az audiÃ³t kÃ©sÅ‘bb,
+elkÃ¼lÃ¶nÃ­tve kÃ³dolod Ã©s kevered.
+BÃ¡r ideÃ¡lis esetben mÅ±kÃ¶dik, a <tt class="option">-nosound</tt> opciÃ³ okozhat
+nÃ©mi problÃ©mÃ¡t a parancssori kÃ³dolÃ¡si beÃ¡llÃ­tÃ¡saidban.
+MÃ¡s szavakkal, a zene sÃ¡v meglÃ©te biztosÃ­tja a
+â€ž<span class="quote">Too many audio packets in the buffer</span>â€ (TÃºl sok audiÃ³ csomag
+a bufferban) Ã©s hasonlÃ³ Ã¼zenetek elkerÃ¼lÃ©sÃ©t Ã©s a megfelelÅ‘ szinkront.
 </p><p>
-  Fel kell dolgoznod a <span class="application">MEncoder</span>rel a hangot.
-  Például az <tt class="option">-oac copy</tt>-val átmásolhatod az eredeti hangsávot
-  a kódolás közben vagy átkonvertálhatod "könny&#369;" 4 kHz-es mono WAV
-  PCM-be a <tt class="option">-oac pcm -channels 1 -srate 4000</tt> kapcsolóval.
-  Különben bizonyos esetekben olyan videó fájlt fog létrehozni, amiben nem
-  lesz szinkronban az audió.
-  Akkor fordulhat el&#337; ilyen eset, ha a videó kockák száma a forrás fájlban
-  nem egyezik meg az audió keretek teljes hosszával vagy folyamatossági
-  hiba/szakadás miatt hiányzó vagy extra audió keretek vannak a fájlban.
-  A helyes megoldás ezen típusú problémák kezelésére csend beillesztése vagy
-  az audió keretek vágása ezeken a pontokon.
-  Azonban a <span class="application">MPlayer</span> ezt nem tudja megtenni, így
-  ha az AC3-at demuxálod és egy másik alkalmazással kódolod (vagy kimented
-  PCM-be az <span class="application">MPlayer</span>rel), a szeletek hibásan maradnak
-  benne és csak képkocka eldobással/duplázással lehet javítani.
-  Amíg a <span class="application">MEncoder</span> látja az audiót a videó kódolása
-  közben, meg tudja csinálni ezt az eldobást/duplázást (ami általában rendben
-  van, mert teljesen sötét/jelentetváltásos helyeken történik), de ha a
-  <span class="application">MEncoder</span> nem látja az audiót, csak feldolgoz
-  minden képkockát úgy ahogy van és nem fog illeszkedni a végs&#337; audió folyamhoz
-  ha például összeilleszted az audió és a videó sávodat egy Matroska fájlba.
+Fel kell dolgoznod a <span class="application">MEncoder</span>rel a hangot.
+PÃ©ldÃ¡ul az <tt class="option">-oac copy</tt>-val Ã¡tmÃ¡solhatod az eredeti hangsÃ¡vot
+a kÃ³dolÃ¡s kÃ¶zben vagy Ã¡tkonvertÃ¡lhatod "kÃ¶nnyÅ±" 4 kHz-es mono WAV
+PCM-be a <tt class="option">-oac pcm -channels 1 -srate 4000</tt> kapcsolÃ³val.
+KÃ¼lÃ¶nben bizonyos esetekben olyan videÃ³ fÃ¡jlt fog lÃ©trehozni, amiben nem
+lesz szinkronban az audiÃ³.
+Akkor fordulhat elÅ‘ ilyen eset, ha a videÃ³ kockÃ¡k szÃ¡ma a forrÃ¡s fÃ¡jlban
+nem egyezik meg az audiÃ³ keretek teljes hosszÃ¡val vagy folyamatossÃ¡gi
+hiba/szakadÃ¡s miatt hiÃ¡nyzÃ³ vagy extra audiÃ³ keretek vannak a fÃ¡jlban.
+A helyes megoldÃ¡s ezen tÃ­pusÃº problÃ©mÃ¡k kezelÃ©sÃ©re csend beillesztÃ©se vagy
+az audiÃ³ keretek vÃ¡gÃ¡sa ezeken a pontokon.
+Azonban a <span class="application">MPlayer</span> ezt nem tudja megtenni, Ã­gy
+ha az AC-3-at demuxÃ¡lod Ã©s egy mÃ¡sik alkalmazÃ¡ssal kÃ³dolod (vagy kimented
+PCM-be az <span class="application">MPlayer</span>rel), a szeletek hibÃ¡san maradnak
+benne Ã©s csak kÃ©pkocka eldobÃ¡ssal/duplÃ¡zÃ¡ssal lehet javÃ­tani.
+AmÃ­g a <span class="application">MEncoder</span> lÃ¡tja az audiÃ³t a videÃ³ kÃ³dolÃ¡sa
+kÃ¶zben, meg tudja csinÃ¡lni ezt az eldobÃ¡st/duplÃ¡zÃ¡st (ami Ã¡ltalÃ¡ban rendben
+van, mert teljesen sÃ¶tÃ©t/jelentetvÃ¡ltÃ¡sos helyeken tÃ¶rtÃ©nik), de ha a
+<span class="application">MEncoder</span> nem lÃ¡tja az audiÃ³t, csak feldolgoz
+minden kÃ©pkockÃ¡t Ãºgy ahogy van Ã©s nem fog illeszkedni a vÃ©gsÅ‘ audiÃ³ folyamhoz
+ha pÃ©ldÃ¡ul Ã¶sszeilleszted az audiÃ³ Ã©s a videÃ³ sÃ¡vodat egy Matroska fÃ¡jlba.
 </p><p>
-  Mindenek el&#337;tt át kell konvertálnod a DVD hangját WAV fájlba, hogy az audió
-  codec használhassa bemenetként.
-  Például:
-  </p><pre class="screen">mplayer <em class="replaceable"><code>forras_fajl.vob</code></em> -ao pcm:file=<em class="replaceable"><code>cel_hang.wav</code></em> -vc dummy -aid 1 -vo null</pre><p>
-  ki fogja szedni a második audió sávot a <em class="replaceable"><code>source_file.vob</code></em>
-  fájlból a <em class="replaceable"><code>destination_sound.wav</code></em> fájlba.
-  Kódolás el&#337;tt valószín&#369;leg normalizálni akarod a hangot, mivel a DVD audió
-  sávjait legtöbbször alacsony hanger&#337;vel rögzítik.
-  Használhatod a <span class="application">normalize</span> eszközt, ami megtalálható
-  a legtöbb disztribúcióban.
-  Ha Windows-t használsz, egy eszköz, mint pl. a <span class="application">BeSweet</span>
-  megcsinálja ezt neked.
-  Vagy Vorbis-ba vagy MP3-ba kódolsz.
-  Például:
-  </p><pre class="screen">oggenc -q1 <em class="replaceable"><code>cel_hang.wav</code></em></pre><p>
-  elkódolja a <em class="replaceable"><code>destination_sound.wav</code></em>-ot az 1-es
-  kódolási mins&#337;séggel, ami nagyjából megfelel 80Kb/s-nak és annak a minimum
-  min&#337;ségnek, amit legalább használnod kell, ha érdekel a min&#337;ség.
-  Kérlek jegyezd meg, hogy a MEncoder jelenleg nem tud Ogg Vorbis sávokat
-  belekeverni a kimeneti fájlba, mert csak AVI és MPEG konténereket támogat
-  kimenetként és mindkett&#337;nél audió/videó lejátszási szinkronizációs problémákat
-  okozhat néhány lejátszóval, ha az AVI fájl VBR-es audió stream-et tartalmaz,
-  mint pl. a Vorbis.
-  De ne aggódj, ez a dokumentáció megmutatja, hogy hogy tudod
-  ezt megcsinálni egyéb programokkal.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-muxing"></a>14.1.12. Keverés</h3></div></div></div><p>
-  Most, hogy elkódoltad a videódat, valószín&#369;leg szeretnéd elkeverni egy
-  vagy több audió sávval együtt egy film konténerbe, mint pl. az AVI,
-  MPEG, Matroska vagy a NUT.
-  A <span class="application">MEncoder</span> jelenleg csak MPEG és AVI
-  konténer formátumokba tud natív audió és videó kimenetet készíteni.
-  Például:
-  </p><pre class="screen">mencoder -oac copy -ovc copy  -o <em class="replaceable"><code>kimenet_film.avi</code></em> -audiofile <em class="replaceable"><code>bemenet_audio.mp2</code></em> <em class="replaceable"><code>bemenet_video.avi</code></em></pre><p>
-  Ez a <em class="replaceable"><code>bemenet_video.avi</code></em> videó fájlból
-  és a <em class="replaceable"><code>bemenet_audio.mp2</code></em> audió fájlból
-  elkészíti a <em class="replaceable"><code>kimenet_film.avi</code></em> fájlt.
-  Ez a parancs m&#369;ködik MPEG-1 layer I, II és III (ismertebb nevén
-  MP3) audióval, WAV és egy pár más audió formátummal.
+Mindenek elÅ‘tt Ã¡t kell konvertÃ¡lnod a DVD hangjÃ¡t WAV fÃ¡jlba, hogy az audiÃ³
+codec hasznÃ¡lhassa bemenetkÃ©nt.
+PÃ©ldÃ¡ul:
+</p><pre class="screen">
+mplayer <em class="replaceable"><code>forras_fajl.vob</code></em> -ao pcm:file=<em class="replaceable"><code>cel_hang.wav</code></em> \
+	-vc dummy -aid 1 -vo null
+</pre><p>
+ki fogja szedni a mÃ¡sodik audiÃ³ sÃ¡vot a <em class="replaceable"><code>source_file.vob</code></em>
+fÃ¡jlbÃ³l a <em class="replaceable"><code>destination_sound.wav</code></em> fÃ¡jlba.
+KÃ³dolÃ¡s elÅ‘tt valÃ³szÃ­nÅ±leg normalizÃ¡lni akarod a hangot, mivel a DVD
+audiÃ³ sÃ¡vjait legtÃ¶bbszÃ¶r alacsony hangerÅ‘vel rÃ¶gzÃ­tik.
+HasznÃ¡lhatod a <span class="application">normalize</span> eszkÃ¶zt, ami
+megtalÃ¡lhatÃ³ a legtÃ¶bb disztribÃºciÃ³ban.
+Ha Windows-t hasznÃ¡lsz, egy eszkÃ¶z, mint pl. a <span class="application">BeSweet</span>
+megcsinÃ¡lja ezt neked.
+Vagy Vorbis-ba vagy MP3-ba kÃ³dolsz.
+PÃ©ldÃ¡ul:
+</p><pre class="screen">oggenc -q1 <em class="replaceable"><code>cel_hang.wav</code></em></pre><p>
+elkÃ³dolja a <em class="replaceable"><code>destination_sound.wav</code></em>-ot az 1-es
+kÃ³dolÃ¡si minsÅ‘sÃ©ggel, ami nagyjÃ¡bÃ³l megfelel 80Kb/s-nak Ã©s annak a
+minimum minÅ‘sÃ©gnek, amit legalÃ¡bb hasznÃ¡lnod kell, ha Ã©rdekel a minÅ‘sÃ©g.
+KÃ©rlek jegyezd meg, hogy a <span class="application">MEncoder</span> jelenleg
+nem tud Ogg Vorbis sÃ¡vokat belekeverni a kimeneti fÃ¡jlba, mert csak AVI
+Ã©s MPEG kontÃ©nereket tÃ¡mogat kimenetkÃ©nt Ã©s mindkettÅ‘nÃ©l audiÃ³/videÃ³
+lejÃ¡tszÃ¡si szinkronizÃ¡ciÃ³s problÃ©mÃ¡kat okozhat nÃ©hÃ¡ny lejÃ¡tszÃ³val, ha
+az AVI fÃ¡jl VBR-es audiÃ³ stream-et tartalmaz, mint pl. a Vorbis.
+De ne aggÃ³dj, ez a dokumentÃ¡ciÃ³ megmutatja, hogy hogy tudod
+ezt megcsinÃ¡lni egyÃ©b programokkal.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-muxing"></a>14.1.12. KeverÃ©s</h3></div></div></div><p>
+Most, hogy elkÃ³doltad a videÃ³dat, valÃ³szÃ­nÅ±leg szeretnÃ©d elkeverni egy
+vagy tÃ¶bb audiÃ³ sÃ¡vval egyÃ¼tt egy film kontÃ©nerbe, mint pl. az AVI,
+MPEG, Matroska vagy a NUT.
+A <span class="application">MEncoder</span> jelenleg csak MPEG Ã©s AVI
+kontÃ©ner formÃ¡tumokba tud natÃ­v audiÃ³ Ã©s videÃ³ kimenetet kÃ©szÃ­teni.
+PÃ©ldÃ¡ul:
+</p><pre class="screen">
+mencoder -oac copy -ovc copy  -o <em class="replaceable"><code>kimenet_film.avi</code></em> \
+	-audiofile <em class="replaceable"><code>bemenet_audio.mp2</code></em> <em class="replaceable"><code>bemenet_video.avi</code></em></pre><p>
+Ez a <em class="replaceable"><code>bemenet_video.avi</code></em> videÃ³ fÃ¡jlbÃ³l
+Ã©s a <em class="replaceable"><code>bemenet_audio.mp2</code></em> audiÃ³ fÃ¡jlbÃ³l
+elkÃ©szÃ­ti a <em class="replaceable"><code>kimenet_film.avi</code></em> fÃ¡jlt.
+Ez a parancs mÅ±kÃ¶dik MPEG-1 layer I, II Ã©s III (ismertebb nevÃ©n
+MP3) audiÃ³val, WAV Ã©s egy pÃ¡r mÃ¡s audiÃ³ formÃ¡tummal.
 </p><p>
-  A MEncoderben kísérleti jelleggel van
-  <code class="systemitem">libavformat</code> támogatás, ami
-  az FFmpeg projektb&#337;l egy függvénykönyvtár, ami számos konténer keverését és
-  demux-álását támogatja.
-  Például:
-  </p><pre class="screen">mencoder -oac copy -ovc copy  -o <em class="replaceable"><code>kimenet_film.asf</code></em> -audiofile <em class="replaceable"><code>bemenet_audio.mp2</code></em> <em class="replaceable"><code>bemenet_video.avi</code></em> -of lavf -lavfopts format=asf</pre><p>
-  Ez ugyan azt csinálja, mint az el&#337;bbi példa, de a kimeneti
-  konténer ASF lesz.
-  Kérlek figyelj, hogy ez a támogatás még nagyon kísérleti (de minden
-  nap egyre jobb lesz) és csak akkor m&#369;ködik, ha az
-  <span class="application">MPlayer</span>t a
-  <code class="systemitem">libavformat</code> támogatás
-  bekapcsolásával fordítottad (ami azt jelenti, hogy az el&#337;re
-  csomagolt binárisok a legtöbb esetben nem fognak m&#369;ködni).
-</p><div class="sect3" lang="hu"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-muxing-filter-issues"></a>14.1.12.1. A keverés és az A/V szinkron megbízhatóságának növelése</h4></div></div></div><p>
-  Néhány súlyos A/V szinkron problémát tapasztalhatsz, ha a videódat
-  valamilyen audió sávval akarod összekeverni, mégpedig azt, hogy akár
-  hogyan állítod az audió késleltetést, soha nem lesz megfelel&#337; a szinkron.
-  Ez akkor történhet meg, ha olyan videó sz&#369;r&#337;t használsz, ami eldob vagy
-  megdupláz képkockákat, mint pl. az inverz telecine sz&#369;r&#337;k.
-  Javasolt a <tt class="option">harddup</tt> vide&#369; sz&#369;r&#337; hozzáillesztése a sz&#369;r&#337;
-  lánc végéhez ezen problémák elkerülése érdekében.
+A <span class="application">MEncoder</span>ben kÃ­sÃ©rleti jelleggel van
+<code class="systemitem">libavformat</code> tÃ¡mogatÃ¡s, ami
+az FFmpeg projektbÅ‘l egy fÃ¼ggvÃ©nykÃ¶nyvtÃ¡r, ami szÃ¡mos kontÃ©ner keverÃ©sÃ©t Ã©s
+demux-Ã¡lÃ¡sÃ¡t tÃ¡mogatja.
+PÃ©ldÃ¡ul:
+</p><pre class="screen">
+mencoder -oac copy -ovc copy  -o <em class="replaceable"><code>kimenet_film.asf</code></em> -audiofile <em class="replaceable"><code>bemenet_audio.mp2</code></em> \
+	<em class="replaceable"><code>bemenet_video.avi</code></em> -of lavf -lavfopts format=asf</pre><p>
+Ez ugyan azt csinÃ¡lja, mint az elÅ‘bbi pÃ©lda, de a kimeneti
+kontÃ©ner ASF lesz.
+KÃ©rlek figyelj, hogy ez a tÃ¡mogatÃ¡s mÃ©g nagyon kÃ­sÃ©rleti (de minden
+nap egyre jobb lesz) Ã©s csak akkor mÅ±kÃ¶dik, ha az
+<span class="application">MPlayer</span>t a
+<code class="systemitem">libavformat</code> tÃ¡mogatÃ¡s
+bekapcsolÃ¡sÃ¡val fordÃ­tottad (ami azt jelenti, hogy az elÅ‘re
+csomagolt binÃ¡risok a legtÃ¶bb esetben nem fognak mÅ±kÃ¶dni).
+</p><div class="sect3" lang="hu"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-muxing-filter-issues"></a>14.1.12.1. A keverÃ©s Ã©s az A/V szinkron megbÃ­zhatÃ³sÃ¡gÃ¡nak nÃ¶velÃ©se</h4></div></div></div><p>
+NÃ©hÃ¡ny sÃºlyos A/V szinkron problÃ©mÃ¡t tapasztalhatsz, ha a videÃ³dat
+valamilyen audiÃ³ sÃ¡vval akarod Ã¶sszekeverni, mÃ©gpedig azt, hogy akÃ¡r
+hogyan Ã¡llÃ­tod az audiÃ³ kÃ©sleltetÃ©st, soha nem lesz megfelelÅ‘ a szinkron.
+Ez akkor tÃ¶rtÃ©nhet meg, ha olyan videÃ³ szÅ±rÅ‘t hasznÃ¡lsz, ami eldob vagy
+megduplÃ¡z kÃ©pkockÃ¡kat, mint pl. az inverz telecine szÅ±rÅ‘k.
+Javasolt a <tt class="option">harddup</tt> videÅ± szÅ±rÅ‘ hozzÃ¡illesztÃ©se a szÅ±rÅ‘
+lÃ¡nc vÃ©gÃ©hez ezen problÃ©mÃ¡k elkerÃ¼lÃ©se Ã©rdekÃ©ben.
 </p><p>
-  A <tt class="option">harddup</tt> nélkül ha a <span class="application">MEncoder</span>
-  meg akar duplázni egy képkockát, a kever&#337;re bízza a jelölés konténerbe
-  helyezését, hogy az utolsó képkocka még egyszer megjelenjen a szinkron
-  megtartása végett, aktuális képkocka írása nélkül.
-  A <tt class="option">harddup</tt>-pal a <span class="application">MEncoder</span>
-  ehelyett egyszer&#369;en csak újra átküldi a sz&#369;r&#337; láncon az utolsó megjelenített
-  képkockát.
-  Ez azt jelenti, hogy a kódoló <span class="emphasis"><em>pontosan</em></span> ugyan azt a
-  képkockát kapja meg kétszer és tömöríti be.
-  Ez kicsit nagyobb fájlt eredményez, de nem okoz problémát demuxálásnál vagy
-  másik konténer formátumba történ&#337; újrakeverésnél.
+A <tt class="option">harddup</tt> nÃ©lkÃ¼l ha a <span class="application">MEncoder</span>
+meg akar duplÃ¡zni egy kÃ©pkockÃ¡t, a keverÅ‘re bÃ­zza a jelÃ¶lÃ©s kontÃ©nerbe
+helyezÃ©sÃ©t, hogy az utolsÃ³ kÃ©pkocka mÃ©g egyszer megjelenjen a szinkron
+megtartÃ¡sa vÃ©gett, aktuÃ¡lis kÃ©pkocka Ã­rÃ¡sa nÃ©lkÃ¼l.
+A <tt class="option">harddup</tt>-pal a <span class="application">MEncoder</span>
+ehelyett egyszerÅ±en csak Ãºjra Ã¡tkÃ¼ldi a szÅ±rÅ‘ lÃ¡ncon az utolsÃ³
+megjelenÃ­tett kÃ©pkockÃ¡t.
+Ez azt jelenti, hogy a kÃ³dolÃ³ <span class="emphasis"><em>pontosan</em></span> ugyan azt
+a kÃ©pkockÃ¡t kapja meg kÃ©tszer Ã©s tÃ¶mÃ¶rÃ­ti be.
+Ez kicsit nagyobb fÃ¡jlt eredmÃ©nyez, de nem okoz problÃ©mÃ¡t demuxÃ¡lÃ¡snÃ¡l
+vagy mÃ¡sik kontÃ©ner formÃ¡tumba tÃ¶rtÃ©nÅ‘ ÃºjrakeverÃ©snÃ©l.
 </p><p>
-  Nincs más választásod, mint a <tt class="option">harddup</tt> használata az
-  olyan konténer formátumokkal, amelyek nincsenek szoros összefüggésben a
-  <span class="application">MEncoder</span>rel. Ezek pl. azok, amelyeket a
-  <code class="systemitem">libavformat</code>-on keresztül támogat,
-  ami nem támogatja a képkocka duplázást konténer szinten.
-</p></div><div class="sect3" lang="hu"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-muxing-avi-limitations"></a>14.1.12.2. Az AVI konténer korlátai</h4></div></div></div><p>
-  Habár a legszélesebb körben támogatott konténer formátum az MPEG-1
-  után, az AVI-nak is van néhány nagy hátránya.
-  Talán a legnyilvánvalóbb a túlterhelés.
-  Az AVi fájl minden egyes chunk-ja 24 bájtot pazarol a fejlécekre és
-  az index-re.
-  Ez egy kicsit több mint 5 MB óránként vagy 1-2,5% plusz egy 700 MB-os
-  filmnél. Ez nem t&#369;nik soknak, de eldöntheti, hogy 700 kbit/sec-os
-  videót tudsz csak használni vagy 714 kbit/sec-osat, ahol minden bit a
-  min&#337;ségre megy.
+Nincs mÃ¡s vÃ¡lasztÃ¡sod, mint a <tt class="option">harddup</tt> hasznÃ¡lata az
+olyan kontÃ©ner formÃ¡tumokkal, amelyek nincsenek szoros Ã¶sszefÃ¼ggÃ©sben
+a <span class="application">MEncoder</span>rel. Ezek pl. azok, amelyeket a
+<code class="systemitem">libavformat</code>-on keresztÃ¼l
+tÃ¡mogat, ami nem tÃ¡mogatja a kÃ©pkocka duplÃ¡zÃ¡st kontÃ©ner szinten.
+</p></div><div class="sect3" lang="hu"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-muxing-avi-limitations"></a>14.1.12.2. Az AVI kontÃ©ner korlÃ¡tai</h4></div></div></div><p>
+HabÃ¡r a legszÃ©lesebb kÃ¶rben tÃ¡mogatott kontÃ©ner formÃ¡tum az MPEG-1
+utÃ¡n, az AVI-nak is van nÃ©hÃ¡ny nagy hÃ¡trÃ¡nya.
+TalÃ¡n a legnyilvÃ¡nvalÃ³bb a tÃºlterhelÃ©s.
+Az AVi fÃ¡jl minden egyes chunk-ja 24 bÃ¡jtot pazarol a fejlÃ©cekre Ã©s
+az indexre.
+Ez egy kicsit tÃ¶bb mint 5 MB Ã³rÃ¡nkÃ©nt vagy 1-2,5% plusz egy 700 MB-os
+filmnÃ©l. Ez nem tÅ±nik soknak, de eldÃ¶ntheti, hogy 700 kbit/sec-os videÃ³t
+tudsz csak hasznÃ¡lni vagy 714 kbit/sec-osat, ahol minden bit a minÅ‘sÃ©gre
+megy.
 </p><p>
-  Ezen hatalmas hátrány mellett az AVI-nak a következ&#337; f&#337; korlátai vannak:  
+Ezen hatalmas hÃ¡trÃ¡ny mellett az AVI-nak a kÃ¶vetkezÅ‘ fÅ‘ korlÃ¡tai vannak:  
 </p><div class="orderedlist"><ol type="1"><li><p>
-  Csak fix-fps-&#369; tartalmat tud tárolni. Ez különleges korlátozás, ha
-  az eredeti anyag, amit el akarsz kódolni, kevert tartalom, például
-  NTSC videó és film anyag keveréke.
-  Már vannak olyan hack-ek, amivel kevert framerátás tartalmat lehetne
-  AVI-ba tenni, de ötszörös vagy még nagyobb mértékben növelik a (már
-  amúgy is nagy) túlterhelést, így nem praktikusak.
+  Csak fix-fps-Å± tartalmat tud tÃ¡rolni. Ez kÃ¼lÃ¶nleges korlÃ¡tozÃ¡s, ha
+  az eredeti anyag, amit el akarsz kÃ³dolni, kevert tartalom, pÃ©ldÃ¡ul
+  NTSC videÃ³ Ã©s film anyag keverÃ©ke.
+  MÃ¡r vannak olyan hack-ek, amivel kevert framerÃ¡tÃ¡s tartalmat lehetne
+  AVI-ba tenni, de Ã¶tszÃ¶rÃ¶s vagy mÃ©g nagyobb mÃ©rtÃ©kben nÃ¶velik a (mÃ¡r
+  amÃºgy is nagy) tÃºlterhelÃ©st, Ã­gy nem praktikusak.
 </p></li><li><p>
-  Az AVI fájlokban az audiónak vagy konstans-bitrátásnak (CBR) vagy
-  konstans-képkocka méret&#369;nek (pl. minden képkocka ugyan annyi számú
-  mintát dekódol) kell lennie.
-  Sajnos a leghatékonyabb codec, a Vorbis, egyik kívánalomnak sem
+  Az AVI fÃ¡jlokban az audiÃ³nak vagy konstans-bitrÃ¡tÃ¡snak (CBR) vagy
+  konstans-kÃ©pkocka mÃ©retÅ±nek (pl. minden kÃ©pkocka ugyan annyi szÃ¡mÃº
+  mintÃ¡t dekÃ³dol) kell lennie.
+  Sajnos a leghatÃ©konyabb codec, a Vorbis, egyik kÃ­vÃ¡nalomnak sem
   felel meg.
-  Ezért ha AVI-ban tárolod a filmjeidet, egy kevésbé hatékony
-  codec-et kell használnod, mint pl. az MP3 vagy az AC3.
+  EzÃ©rt ha AVI-ban tÃ¡rolod a filmjeidet, egy kevÃ©sbÃ© hatÃ©kony
+  codec-et kell hasznÃ¡lnod, mint pl. az MP3 vagy az AC-3.
 </p></li></ol></div><p>
-  A fentiek miatt a <span class="application">MEncoder</span> jelenleg nem
-  támogatja a változó-fps-es kimenetet vagy a Vorbis kódolást.
-  Így ezeket nem korlátozásként fogod fel, ha a
-  <span class="application">MEncoder</span> az egyetlen
-  eszköz, mellyel kódolsz.
-  Azonban lehetséges a <span class="application">MEncoder</span>t csak
-  a videó kódolására használni és valamilyen egyéb eszközzel
-  elkódolni az audiót majd összekeverni &#337;ket egy konténer formátumba.
-</p></div><div class="sect3" lang="hu"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-muxing-matroska"></a>14.1.12.3. Keverés a Matroska konténerbe</h4></div></div></div><p>
-  A Matroska szabad, nyílt szabványú konténer formátum, melynek
-  célja, hogy rengeteg továbbfejlesztett képességet biztosítson,
-  amit a régebbi konténerek, mint pl. az AVI nem tud kezelni.
-  például a Matroska támogatja a változó bitrátás audió tartalmat
-  (VBR), változó framerátát (VFR), fejezeteket, fájl csatolásokat,
-  hiba keres&#337; kódot (EDC) és a modern A/V codec-eket, mint az
-  "Advanced Audio Coding" (AAC), "Vorbis" vagy "MPEG-4 AVC" (H.264),
-  szemben az AVI-val, amelyik egyiket sem.
+A fentiek miatt a <span class="application">MEncoder</span> jelenleg nem
+tÃ¡mogatja a vÃ¡ltozÃ³-fps-es kimenetet vagy a Vorbis kÃ³dolÃ¡st.
+Ãgy ezeket nem korlÃ¡tozÃ¡skÃ©nt fogod fel, ha a
+<span class="application">MEncoder</span> az egyetlen
+eszkÃ¶z, mellyel kÃ³dolsz.
+Azonban lehetsÃ©ges a <span class="application">MEncoder</span>t csak
+a videÃ³ kÃ³dolÃ¡sÃ¡ra hasznÃ¡lni Ã©s valamilyen egyÃ©b eszkÃ¶zzel
+elkÃ³dolni az audiÃ³t majd Ã¶sszekeverni Å‘ket egy kontÃ©ner formÃ¡tumba.
+</p></div><div class="sect3" lang="hu"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-muxing-matroska"></a>14.1.12.3. KeverÃ©s a Matroska kontÃ©nerbe</h4></div></div></div><p>
+A Matroska szabad, nyÃ­lt szabvÃ¡nyÃº kontÃ©ner formÃ¡tum, melynek
+cÃ©lja, hogy rengeteg tovÃ¡bbfejlesztett kÃ©pessÃ©get biztosÃ­tson,
+amit a rÃ©gebbi kontÃ©nerek, mint pl. az AVI nem tud kezelni.
+pÃ©ldÃ¡ul a Matroska tÃ¡mogatja a vÃ¡ltozÃ³ bitrÃ¡tÃ¡s audiÃ³ tartalmat
+(VBR), vÃ¡ltozÃ³ framerÃ¡tÃ¡t (VFR), fejezeteket, fÃ¡jl csatolÃ¡sokat,
+hiba keresÅ‘ kÃ³dot (EDC) Ã©s a modern A/V codec-eket, mint az
+"Advanced Audio Coding" (AAC), "Vorbis" vagy "MPEG-4 AVC" (H.264),
+szemben az AVI-val, amelyik egyiket sem.
 </p><p>
-  A Matroska fájlok készítéséhez szükséges eszközöket együtt
-  <span class="application">mkvtoolnix</span>-nek hívják és elérhet&#337;ek a
-  legtöbb Unix platformon, akárcsak <span class="application">Windows</span>on.
-  Mivel a Matroska nyílt szabványú, találhatsz más eszközöket is, amik
-  jobban megfelelnek neked, de mivel az mkvtoolnix a leggyakrabban
-  használt, és maga a Matroska csapat támogatja, csak ennek a
-  használatát mutatjuk be.
+A Matroska fÃ¡jlok kÃ©szÃ­tÃ©sÃ©hez szÃ¼ksÃ©ges eszkÃ¶zÃ¶ket egyÃ¼tt
+<span class="application">mkvtoolnix</span>-nek hÃ­vjÃ¡k Ã©s elÃ©rhetÅ‘ek a
+legtÃ¶bb Unix platformon, akÃ¡rcsak <span class="application">Windows</span>on.
+Mivel a Matroska nyÃ­lt szabvÃ¡nyÃº, talÃ¡lhatsz mÃ¡s eszkÃ¶zÃ¶ket is, amik
+jobban megfelelnek neked, de mivel az mkvtoolnix a leggyakrabban
+hasznÃ¡lt, Ã©s maga a Matroska csapat tÃ¡mogatja, csak ennek a
+hasznÃ¡latÃ¡t mutatjuk be.
 </p><p>
-  Talán a legegyszer&#369;bb módszer, hogy elindulj a Matroska-val, az
-  <span class="application">MMG</span> használata, az
-  <span class="application">mkvtoolnix</span>-szel szállított grafiksu frontend
-  és kövesd a
-  <a href="http://www.bunkus.org/videotools/mkvtoolnix/doc/mkvmerge-gui.html" target="_top">mkvmerge GUI (mmg) leírást</a>.
+TalÃ¡n a legegyszerÅ±bb mÃ³dszer, hogy elindulj a Matroska-val, az
+<span class="application">MMG</span> hasznÃ¡lata, az
+<span class="application">mkvtoolnix</span>-szel szÃ¡llÃ­tott grafikus frontend
+Ã©s kÃ¶vesd a
+<a href="http://www.bunkus.org/videotools/mkvtoolnix/doc/mkvmerge-gui.html" target="_top">mkvmerge GUI (mmg) leÃ­rÃ¡st</a>.
 </p><p>
-  A parancssor segítségével is összekverheted az audió és videó fájlokat:
-  </p><pre class="screen">mkvmerge -o <em class="replaceable"><code>kimenet.mkv</code></em> <em class="replaceable"><code>bemenet_video.avi</code></em> <em class="replaceable"><code>bemenet_audio1.mp3</code></em> <em class="replaceable"><code>bemenet_audio2.ac3</code></em></pre><p>
-  Ez a <em class="replaceable"><code>bemenet_video.avi</code></em> fájlt és a
-  két audió fájlt, a <em class="replaceable"><code>bemenet_audio1.mp3</code></em>-at
-  és a <em class="replaceable"><code>bemenet_audio2.ac3</code></em>-at összef&#369;zi a
-  <em class="replaceable"><code>kimenet.mkv</code></em> Matroska fájlba.
-  A Matroska, mint ahogy azt már megemlítettem, ennél sokkal többre
-  képes, mint pl. több audió sáv használatára (beleértve az audió/videó
-  szinkronizáció finom-hangolását), fejezetek, feliratok, vágás, stb...
-  Kérlek olvasd el ezen alkalmazások dokumentációit a részletekért.
-</p></div></div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a name="ftn.fn-menc-feat-dvd-mpeg4-codec-cpu" href="#fn-menc-feat-dvd-mpeg4-codec-cpu">2</a>] </sup>Azonban légy óvatos: A DVD felbontású MPEG-4 AVC videó
-  dekódolása gyors gépet igényel (pl. egy 1,5 GHz feletti Pentium 4
+A parancssor segÃ­tsÃ©gÃ©vel is Ã¶sszekverheted az audiÃ³ Ã©s videÃ³ fÃ¡jlokat:
+</p><pre class="screen">
+mkvmerge -o <em class="replaceable"><code>kimenet.mkv</code></em> <em class="replaceable"><code>bemenet_video.avi</code></em> <em class="replaceable"><code>bemenet_audio1.mp3</code></em> <em class="replaceable"><code>bemenet_audio2.ac3</code></em>
+</pre><p>
+Ez a <em class="replaceable"><code>bemenet_video.avi</code></em> fÃ¡jlt Ã©s a
+kÃ©t audiÃ³ fÃ¡jlt, a <em class="replaceable"><code>bemenet_audio1.mp3</code></em>-at
+Ã©s a <em class="replaceable"><code>bemenet_audio2.ac3</code></em>-at Ã¶sszefÅ±zi a
+<em class="replaceable"><code>kimenet.mkv</code></em> Matroska fÃ¡jlba.
+A Matroska, mint ahogy azt mÃ¡r megemlÃ­tettem, ennÃ©l sokkal tÃ¶bbre
+kÃ©pes, mint pl. tÃ¶bb audiÃ³ sÃ¡v hasznÃ¡latÃ¡ra (beleÃ©rtve az audiÃ³/videÃ³
+szinkronizÃ¡ciÃ³ finom-hangolÃ¡sÃ¡t), fejezetek, feliratok, vÃ¡gÃ¡s, stb...
+KÃ©rlek olvasd el ezen alkalmazÃ¡sok dokumentÃ¡ciÃ³it a rÃ©szletekÃ©rt.
+</p></div></div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a name="ftn.fn-menc-feat-dvd-mpeg4-codec-cpu" href="#fn-menc-feat-dvd-mpeg4-codec-cpu">2</a>] </sup>
+  Azonban lÃ©gy Ã³vatos: A DVD felbontÃ¡sÃº MPEG-4 AVC videÃ³
+  dekÃ³dolÃ¡sa gyors gÃ©pet igÃ©nyel (pl. egy 1,5 GHz feletti Pentium 4
   vagy egy 1 GHz feletti Pentium M).
-  </p></div><div class="footnote"><p><sup>[<a name="ftn.fn-menc-feat-dvd-mpeg4-codec-playback" href="#fn-menc-feat-dvd-mpeg4-codec-playback">3</a>] </sup>Ugyan az a kódolás nem biztos, hogy ugyan úgy néz ki valaki másnak
-  a monitorán vagy ha más dekódolóval játszák le, ezért ellen&#337;rizd a
-  kódolásaidat különböz&#337; beállítások mellett történ&#337; lejátszással!</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="encoding-guide.html">El&#337;z&#337;</a> </td><td width="20%" align="center"><a accesskey="u" href="encoding-guide.html">Fel</a></td><td width="40%" align="right"> <a accesskey="n" href="menc-feat-telecine.html">Következ&#337;</a></td></tr><tr><td width="40%" align="left" valign="top">14. fejezet - Kódolás a <span class="application">MEncoder</span>rel </td><td width="20%" align="center"><a accesskey="h" href="index.html">Tartalom</a></td><td width="40%" align="right" valign="top"> 14.2. Mit kezdjünk a telecine-nel és az átlapolással NTSC DVD-ken</td></tr></table></div></body></html>
+  </p></div><div class="footnote"><p><sup>[<a name="ftn.fn-menc-feat-dvd-mpeg4-codec-playback" href="#fn-menc-feat-dvd-mpeg4-codec-playback">3</a>] </sup>Ugyan az a kÃ³dolÃ¡s nem biztos, hogy ugyan Ãºgy nÃ©z ki valaki mÃ¡snak
+  a monitorÃ¡n vagy ha mÃ¡s dekÃ³dolÃ³val jÃ¡tszÃ¡k le, ezÃ©rt ellenÅ‘rizd a
+  kÃ³dolÃ¡saidat kÃ¼lÃ¶nbÃ¶zÅ‘ beÃ¡llÃ­tÃ¡sok mellett tÃ¶rtÃ©nÅ‘ lejÃ¡tszÃ¡ssal!
+  </p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="encoding-guide.html">ElÅ‘zÅ‘</a>Â </td><td width="20%" align="center"><a accesskey="u" href="encoding-guide.html">Fel</a></td><td width="40%" align="right">Â <a accesskey="n" href="menc-feat-telecine.html">KÃ¶vetkezÅ‘</a></td></tr><tr><td width="40%" align="left" valign="top">14. fejezet - KÃ³dolÃ¡s a <span class="application">MEncoder</span>relÂ </td><td width="20%" align="center"><a accesskey="h" href="index.html">Tartalom</a></td><td width="40%" align="right" valign="top">Â 14.2. Mit kezdjÃ¼nk a telecine-nel Ã©s az Ã¡tlapolÃ¡ssal NTSC DVD-ken</td></tr></table></div></body></html>

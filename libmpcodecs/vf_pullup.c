@@ -24,21 +24,6 @@ struct vf_priv_s {
 	char *qbuf;
 };
 
-static inline void *my_memcpy_pic(void * dst, void * src, int bytesPerLine, int height, int dstStride, int srcStride)
-{
-	int i;
-	void *retval=dst;
-
-	for(i=0; i<height; i++)
-	{
-		memcpy(dst, src, bytesPerLine);
-		src+= srcStride;
-		dst+= dstStride;
-	}
-
-	return retval;
-}
-
 static inline void *il_memcpy_pic(void *dst, void *src0, void *src1, int w, int h, int ds, int ss)
 {
 	int i;
@@ -47,10 +32,10 @@ static inline void *il_memcpy_pic(void *dst, void *src0, void *src1, int w, int 
 
 	for(i=h>>1; i; i--)
 	{
-		memcpy(dst, src0, w);
+		fast_memcpy(dst, src0, w);
 		src0 += ss;
 		dst += ds;
-		memcpy(dst, src1, w);
+		fast_memcpy(dst, src1, w);
 		src1 += ss;
 		dst += ds;
 	}
@@ -93,6 +78,7 @@ static void init_pullup(struct vf_instance_s* vf, mp_image_t *mpi)
 }
 
 
+#if 0
 static void get_image(struct vf_instance_s* vf, mp_image_t *mpi)
 {
 	struct pullup_context *c = vf->priv->ctx;
@@ -117,6 +103,7 @@ static void get_image(struct vf_instance_s* vf, mp_image_t *mpi)
 	mpi->flags |= MP_IMGFLAG_DIRECT;
 	mpi->flags &= ~MP_IMGFLAG_DRAW_CALLBACK;
 }
+#endif
 
 static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts)
 {
@@ -153,8 +140,8 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts)
 		}
 	}
 	if (mpi->qscale) {
-		memcpy(b->planes[3], mpi->qscale, c->w[3]);
-		memcpy(b->planes[3]+c->w[3], mpi->qscale, c->w[3]);
+		fast_memcpy(b->planes[3], mpi->qscale, c->w[3]);
+		fast_memcpy(b->planes[3]+c->w[3], mpi->qscale, c->w[3]);
 	}
 
 	p = mpi->fields & MP_IMGFIELD_TOP_FIRST ? 0 :

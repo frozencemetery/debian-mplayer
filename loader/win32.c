@@ -14,18 +14,17 @@ for DLL to know too much about its environment.
 /*
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: win32.c 18883 2006-07-02 03:59:36Z reynaldo $
+ * $Id: win32.c 24421 2007-09-10 15:38:11Z diego $
  */
 
 #include "config.h"
+#include "mangle.h"
 
-#ifdef MPLAYER
 #ifdef USE_QTX_CODECS
 #define QTX
 #endif
 #define REALPLAYER
 //#define LOADLIB_TRY_NATIVE
-#endif
 
 #ifdef QTX
 #define PSEUDO_SCREEN_WIDTH	/*640*/800
@@ -68,6 +67,9 @@ for DLL to know too much about its environment.
 #ifdef	HAVE_KSTAT
 #include <kstat.h>
 #endif
+
+#include <sys/mman.h>
+#include "osdep/mmap_anon.h"
 
 #if HAVE_VSSCANF
 int vsscanf( const char *str, const char *format, va_list ap);
@@ -188,9 +190,7 @@ static void longcount_stub(long long* z)
     longcount(z);
 }
 
-#ifdef MPLAYER
 #include "mp_msg.h"
-#endif
 int LOADER_DEBUG=1; // active only if compiled with -DDETAILED_OUT
 //#define DETAILED_OUT
 static inline void dbgprintf(char* fmt, ...)
@@ -213,7 +213,6 @@ static inline void dbgprintf(char* fmt, ...)
 	va_end(va);
     }
 #endif
-#ifdef MPLAYER
     if ( mp_msg_test(MSGT_WIN32,MSGL_DBG3) )
     {
 	va_list va;
@@ -224,7 +223,6 @@ static inline void dbgprintf(char* fmt, ...)
 	va_end(va);
     }
   fflush(stdout);
-#endif
 }
 
 
@@ -934,7 +932,6 @@ static void WINAPI expGetSystemInfo(SYSTEM_INFO* si)
     /* FIXME: better values for the two entries below... */
     static int cache = 0;
     static SYSTEM_INFO cachedsi;
-    unsigned int regs[4];
     dbgprintf("GetSystemInfo(%p) =>\n", si);
 
     if (cache) {
@@ -956,11 +953,9 @@ static void WINAPI expGetSystemInfo(SYSTEM_INFO* si)
     cachedsi.wProcessorLevel		= 5; /* pentium */
     cachedsi.wProcessorRevision		= 0x0101;
 
-#ifdef MPLAYER
     /* mplayer's way to detect PF's */
     {
 #include "cpudetect.h"
-	extern CpuCaps gCpuCaps;
 
 	if (gCpuCaps.hasMMX)
 	    PF[PF_MMX_INSTRUCTIONS_AVAILABLE] = TRUE;
@@ -989,41 +984,6 @@ static void WINAPI expGetSystemInfo(SYSTEM_INFO* si)
 	    cachedsi.wProcessorRevision = gCpuCaps.cpuStepping;
     	    cachedsi.dwNumberOfProcessors = 1;	/* hardcoded */
     }
-#endif
-
-/* disable cpuid based detection (mplayer's cpudetect.c does this - see above) */
-#ifndef MPLAYER
-#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__svr4__) || defined(__DragonFly__)
-    do_cpuid(1, regs);
-    switch ((regs[0] >> 8) & 0xf) {			// cpu family
-    case 3: cachedsi.dwProcessorType = PROCESSOR_INTEL_386;
-    cachedsi.wProcessorLevel= 3;
-    break;
-    case 4: cachedsi.dwProcessorType = PROCESSOR_INTEL_486;
-    cachedsi.wProcessorLevel= 4;
-    break;
-    case 5: cachedsi.dwProcessorType = PROCESSOR_INTEL_PENTIUM;
-    cachedsi.wProcessorLevel= 5;
-    break;
-    case 6: cachedsi.dwProcessorType = PROCESSOR_INTEL_PENTIUM;
-    cachedsi.wProcessorLevel= 5;
-    break;
-    default:cachedsi.dwProcessorType = PROCESSOR_INTEL_PENTIUM;
-    cachedsi.wProcessorLevel= 5;
-    break;
-    }
-    cachedsi.wProcessorRevision = regs[0] & 0xf;	// stepping
-    if (regs[3] & (1 <<  8))
-	PF[PF_COMPARE_EXCHANGE_DOUBLE] = TRUE;
-    if (regs[3] & (1 << 23))
-	PF[PF_MMX_INSTRUCTIONS_AVAILABLE] = TRUE;
-    if (regs[3] & (1 << 25))
-	PF[PF_XMMI_INSTRUCTIONS_AVAILABLE] = TRUE;
-    if (regs[3] & (1 << 31))
-	PF[PF_AMD3D_INSTRUCTIONS_AVAILABLE] = TRUE;
-    cachedsi.dwNumberOfProcessors=1;
-#endif
-#endif /* MPLAYER */
 
 /* MPlayer: linux detection enabled (based on proc/cpuinfo) for checking
    fdiv_bug and fpu emulation flags -- alex/MPlayer */
@@ -1035,11 +995,9 @@ static void WINAPI expGetSystemInfo(SYSTEM_INFO* si)
 
 	if (!f)
 	{
-#ifdef MPLAYER
 	  mp_msg(MSGT_WIN32, MSGL_WARN, "expGetSystemInfo: "
 	                     "/proc/cpuinfo not readable! "
 	                     "Expect bad performance and/or weird behaviour\n");
-#endif
 	  goto exit;
 	}
 	while (fgets(line,200,f)!=NULL) {
@@ -1788,8 +1746,8 @@ static HANDLE WINAPI expCreateSemaphoreA(char* v1, long init_count,
 {
     pthread_mutex_t *pm;
     pthread_cond_t  *pc;
-    mutex_list* pp;
     /*
+    mutex_list* pp;
      printf("CreateSemaphoreA(%p = %s)\n", name, (name ? name : "<null>"));
      pp=mlist;
      while(pp)
@@ -2139,7 +2097,6 @@ static HRSRC WINAPI expFindResourceA(HMODULE module, char* name, char* type)
     return result;
 }
 
-extern HRSRC WINAPI LoadResource(HMODULE, HRSRC);
 static HGLOBAL WINAPI expLoadResource(HMODULE module, HRSRC res)
 {
     HGLOBAL result=LoadResource(module, res);
@@ -2224,7 +2181,6 @@ static LPCSTR WINAPI expGetEnvironmentStrings()
 
 static int WINAPI expGetStartupInfoA(STARTUPINFOA *s)
 {
-    int i;
     dbgprintf("GetStartupInfoA(0x%x) => 1\n");
     memset(s, 0, sizeof(*s));
     s->cb=sizeof(*s);
@@ -2285,7 +2241,6 @@ static int WINAPI expGetACP(void)
     dbgprintf("GetACP() => 0\n");
     return 0;
 }
-extern WINE_MODREF *MODULE32_LookupHMODULE(HMODULE m);
 static int WINAPI expGetModuleFileNameA(int module, char* s, int len)
 {
     WINE_MODREF *mr;
@@ -2335,7 +2290,6 @@ static int WINAPI expLoadLibraryA(char* name)
 {
     int result = 0;
     char* lastbc;
-    int i;
     if (!name)
 	return -1;
     // we skip to the last backslash
@@ -2431,7 +2385,10 @@ static void* WINAPI expGetProcAddress(HMODULE mod, char* name)
     default:
 	result=GetProcAddress(mod, name);
     }
-    dbgprintf("GetProcAddress(0x%x, '%s') => 0x%x\n", mod, name, result);
+    if((unsigned int)name > 0xffff)
+	dbgprintf("GetProcAddress(0x%x, '%s') => 0x%x\n", mod, name, result);
+    else
+	dbgprintf("GetProcAddress(0x%x, '%d') => 0x%x\n", mod, (int)name, result);
     return result;
 }
 
@@ -2820,7 +2777,6 @@ static int WINAPI expWritePrivateProfileStringA(const char* appname,
 						const char* string,
 						const char* filename)
 {
-    int size=256;
     char* fullname;
     dbgprintf("WritePrivateProfileStringA('%s', '%s', '%s', '%s')", appname, keyname, string, filename );
     if(!(appname && keyname && filename) )
@@ -3170,7 +3126,6 @@ static int WINAPI expGetSystemTime(SYSTEMTIME* systime)
 #define SECS_1601_TO_1970  ((369 * 365 + 89) * 86400ULL)
 static void WINAPI expGetSystemTimeAsFileTime(FILETIME* systime)
 {
-    struct tm *local_tm;
     struct timeval tv;
     unsigned long long secs;
 
@@ -3184,7 +3139,7 @@ static void WINAPI expGetSystemTimeAsFileTime(FILETIME* systime)
 
 static int WINAPI expGetEnvironmentVariableA(const char* name, char* field, int size)
 {
-    char *p;
+    //char *p;
     //    printf("%s %x %x\n", name, field, size);
     if(field)field[0]=0;
     /*
@@ -4273,7 +4228,7 @@ static void expsrand(int seed)
 
 #if 1
 
-// prefered compilation with  -O2 -ffast-math !
+// preferred compilation with  -O2 -ffast-math !
 
 static double explog10(double x)
 {
@@ -4587,8 +4542,25 @@ static INT WINAPI expMessageBoxA(HWND hWnd, LPCSTR text, LPCSTR title, UINT type
 
 /* these are needed for mss1 */
 
-/* defined in stubs.s */
-void exp_EH_prolog(void);
+/**
+ * \brief this symbol is defined within exp_EH_prolog_dummy
+ * \param dest jump target
+ */
+void exp_EH_prolog(void *dest);
+//! just a dummy function that acts a container for the asm section
+void exp_EH_prolog_dummy(void) {
+  asm volatile (
+// take care, this "function" may not change flags or
+// registers besides eax (which is also why we can't use
+// exp_EH_prolog_dummy directly)
+MANGLE(exp_EH_prolog)":    \n\t"
+    "pop   %eax            \n\t"
+    "push  %ebp            \n\t"
+    "mov   %esp, %ebp      \n\t"
+    "lea   -12(%esp), %esp \n\t"
+    "jmp   *%eax           \n\t"
+  );
+}
 
 #include <netinet/in.h>
 static WINAPI inline unsigned long int exphtonl(unsigned long int hostlong)
@@ -4811,6 +4783,17 @@ static int WINAPI expPropVariantClear(void *pvar)
     return 1;
 }
 
+// This define is fake, the real thing is a struct
+#define LPDEVMODEA void*
+// Dummy implementation, always return 1
+// Required for frapsvid.dll 2.8.1, return value does not matter
+static WIN_BOOL WINAPI expEnumDisplaySettingsA(LPCSTR name ,DWORD n,
+    LPDEVMODEA devmode)
+{
+    dbgprintf("EnumDisplaySettingsA (dummy) => 1\n");
+    return 1;
+}
+
 struct exports
 {
     char name[64];
@@ -4826,6 +4809,9 @@ struct libs
 
 #define FF(X,Y) \
     {#X, Y, (void*)exp##X},
+
+#define UNDEFF(X, Y) \
+    {#X, Y, (void*)-1},
 
 struct exports exp_kernel32[]=
 {
@@ -4983,6 +4969,10 @@ struct exports exp_kernel32[]=
     {"LoadLibraryExA", -1, (void*)&LoadLibraryExA},
     FF(SetThreadIdealProcessor,-1)
     FF(SetProcessAffinityMask, -1)
+    UNDEFF(FlsAlloc, -1)
+    UNDEFF(FlsGetValue, -1)
+    UNDEFF(FlsSetValue, -1)
+    UNDEFF(FlsFree, -1)
 };
 
 struct exports exp_msvcrt[]={
@@ -5038,9 +5028,7 @@ struct exports exp_msvcrt[]={
 /* needed by frapsvid.dll */
     {"strstr",-1,(char *)&strstr},
     {"qsort",-1,(void *)&qsort},
-#ifdef MPLAYER
     FF(_EH_prolog,-1)
-#endif
     FF(calloc,-1)
     {"ceil",-1,(void*)&ceil},
 /* needed by imagepower mjpeg2k */
@@ -5110,6 +5098,7 @@ struct exports exp_user32[]={
     FF(DialogBoxParamA, -1)
     FF(RegisterClipboardFormatA, -1)
     FF(CharNextA, -1)
+    FF(EnumDisplaySettingsA, -1)
 };
 struct exports exp_advapi32[]={
     FF(RegCloseKey, -1)
@@ -5258,75 +5247,50 @@ struct libs libraries[]={
     LL(shlwapi)
 };
 
-static void ext_stubs(void)
+static WIN_BOOL WINAPI ext_stubs(void)
 {
-    // expects:
-    //  ax  position index
-    //  cx  address of printf function
-#if 1
-    __asm__ __volatile__
-	(
-         "push %%edx		\n\t"
-	 "movl $0xdeadbeef, %%eax \n\t"
-	 "movl $0xdeadbeef, %%edx \n\t"
-	 "shl $5, %%eax		\n\t"			// ax * 32
-	 "addl $0xdeadbeef, %%eax \n\t"			// overwrite export_names
-	 "pushl %%eax		\n\t"
-	 "pushl $0xdeadbeef   	\n\t"                   // overwrite called_unk
-	 "call *%%edx		\n\t"                   // printf (via dx)
-	 "addl $8, %%esp	\n\t"
-	 "xorl %%eax, %%eax	\n\t"
-	 "pop %%edx             \n\t"
-	 :
-	 :
-	 : "eax"
-	);
-#else
-    __asm__ __volatile__
-	(
-         "push %%edx		\n\t"
-	 "movl $0, %%eax	\n\t"
-	 "movl $0, %%edx	\n\t"
-	 "shl $5, %%eax		\n\t"			// ax * 32
-	 "addl %0, %%eax	\n\t"
-	 "pushl %%eax		\n\t"
-	 "pushl %1		\n\t"
-	 "call *%%edx		\n\t"                   // printf (via dx)
-	 "addl $8, %%esp	\n\t"
-	 "xorl %%eax, %%eax	\n\t"
-	 "pop %%edx		\n\t"
-	 ::"m"(*export_names), "m"(*called_unk)
-	: "memory", "edx", "eax"
-	);
-#endif
-
+    volatile int idx = 0xdeadabcd;
+    // make sure gcc does not do eip-relative call or something like that
+    volatile void (*my_printf)(char *, char *) = (void *)0xdeadfbcd;
+    my_printf("Called unk_%s\n", export_names[idx]);
+    return 0;
 }
 
-//static void add_stub(int pos)
-
-extern int unk_exp1;
+#define MAX_STUB_SIZE 0x60
+#define MAX_NUM_STUBS 200
 static int pos=0;
-static char extcode[20000];// place for 200 unresolved exports
-static const char* called_unk = "Called unk_%s\n";
+static char *extcode = NULL;
 
 static void* add_stub(void)
 {
+    int i;
+    int found = 0;
     // generated code in runtime!
-    char* answ = (char*)extcode+pos*0x30;
-#if 0
-    memcpy(answ, &unk_exp1, 0x64);
-    *(int*)(answ+9)=pos;
-    *(int*)(answ+47)-=((int)answ-(int)&unk_exp1);
-#endif
-    memcpy(answ, ext_stubs, 0x2f); // 0x2c is current size
-    //answ[4] = 0xb8; // movl $0, eax  (0xb8 0x00000000)
-    *((int*) (answ + 5)) = pos;
-    //answ[9] = 0xba; // movl $0, edx  (0xba 0x00000000)
-    *((long*) (answ + 10)) = (long)printf;
-    //answ[17] = 0x05; // addl $0, eax  (0x05 0x00000000)
-    *((long*) (answ + 18)) = (long)export_names;
-    //answ[23] = 0x68; // pushl $0  (0x68 0x00000000)
-    *((long*) (answ + 24)) = (long)called_unk;
+    char* answ;
+    if (!extcode)
+      extcode = mmap_anon(NULL, MAX_NUM_STUBS * MAX_STUB_SIZE,
+                  PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE, 0);
+    answ = extcode + pos * MAX_STUB_SIZE;
+    if (pos >= MAX_NUM_STUBS) {
+      printf("too many stubs, expect crash\n");
+      return NULL;
+    }
+    memcpy(answ, ext_stubs, MAX_STUB_SIZE);
+    for (i = 0; i < MAX_STUB_SIZE - 3; i++) {
+      int *magic = (int *)(answ + i);
+      if (*magic == 0xdeadabcd) {
+        *magic = pos;
+        found |= 1;
+      }
+      if (*magic == 0xdeadfbcd) {
+        *magic = (intptr_t)printf;
+        found |= 2;
+      }
+    }
+    if (found != 3) {
+      printf("magic code not found in ext_subs, expect crash\n");
+      return NULL;
+    }
     pos++;
     return (void*)answ;
 }
@@ -5396,7 +5360,6 @@ no_dll:
 
 void* LookupExternalByName(const char* library, const char* name)
 {
-    char* answ;
     int i,j;
     //   return (void*)ext_unknown;
     if(library==0)
@@ -5404,10 +5367,9 @@ void* LookupExternalByName(const char* library, const char* name)
 	printf("ERROR: library=0\n");
 	return (void*)ext_unknown;
     }
-    if(name==0)
+    if((unsigned long)name<=0xffff)
     {
-	printf("ERROR: name=0\n");
-	return (void*)ext_unknown;
+	return LookupExternal(library, (int)name);
     }
     dbgprintf("External func %s:%s\n", library, name);
     for(i=0; i<sizeof(libraries)/sizeof(struct libs); i++)
@@ -5418,6 +5380,8 @@ void* LookupExternalByName(const char* library, const char* name)
 	{
 	    if(strcmp(name, libraries[i].exps[j].name))
 		continue;
+ 	    if((unsigned int)(libraries[i].exps[j].func) == -1)
+		return NULL; //undefined func
 	    //	    printf("Hit: 0x%08X\n", libraries[i].exps[j].func);
 	    return libraries[i].exps[j].func;
 	}
@@ -5425,7 +5389,7 @@ void* LookupExternalByName(const char* library, const char* name)
 
 #ifndef LOADLIB_TRY_NATIVE
   /* hack for vss h264 */
-  if (!strcmp(library,"vssh264core.dll"))
+  if (!strcmp(library,"vssh264core.dll") || !strcmp(library,"3ivx.dll"))
 #endif
     /* ok, this is a hack, and a big memory leak. should be fixed. - alex */
     {

@@ -1,7 +1,7 @@
 /**
  * Musepack audio files decoder for MPlayer
  * by Reza Jelveh <reza.jelveh@tuhh.de> and
- * Reimar Döffinger <Reimar.Doeffinger@stud.uni-karlsruhe.de>
+ * Reimar DÃ¶ffinger <Reimar.Doeffinger@stud.uni-karlsruhe.de>
  * License: GPL
  * This code may be be relicensed under the terms of the GNU LGPL when it
  * becomes part of the FFmpeg project (ffmpeg.org)
@@ -20,7 +20,7 @@ static ad_info_t info =
 {
 	"Musepack audio decoder",
 	"mpcdec",
-	"Reza Jelveh and Reimar Döffinger",
+	"Reza Jelveh and Reimar DÃ¶ffinger",
 	"",
 	""
 };
@@ -54,7 +54,7 @@ static mpc_int32_t cb_read(void *data, void *buf, mpc_int32_t size) {
   if (d->pos < d->header_len) {
     if (s > d->header_len - d->pos)
       s = d->header_len - d->pos;
-    memcpy(p, &d->header[d->pos], s);
+    fast_memcpy(p, &d->header[d->pos], s);
   } else
     s = 0;
   memset(&p[s], 0, size - s);

@@ -358,8 +358,13 @@ static int64_t dv_frame_offset(AVFormatContext *s, DVDemuxContext *c,
     return offset;
 }
 
-void dv_flush_audio_packets(DVDemuxContext *c)
+void dv_offset_reset(DVDemuxContext *c, int64_t frame_offset)
 {
+    c->frames= frame_offset;
+    if (c->ach)
+        c->abytes= av_rescale(c->frames,
+                          c->ast[0]->codec->bit_rate * (int64_t)c->sys->frame_rate_base,
+                          8*c->sys->frame_rate);
     c->audio_pkt[0].size = c->audio_pkt[1].size = 0;
 }
 
@@ -383,7 +388,7 @@ static int dv_read_header(AVFormatContext *s,
 
     if (get_buffer(&s->pb, c->buf, DV_PROFILE_BYTES) <= 0 ||
         url_fseek(&s->pb, -DV_PROFILE_BYTES, SEEK_CUR) < 0)
-        return AVERROR_IO;
+        return AVERROR(EIO);
 
     c->dv_demux->sys = dv_frame_profile(c->buf);
     s->bit_rate = av_rescale(c->dv_demux->sys->frame_size * 8,
@@ -404,7 +409,7 @@ static int dv_read_packet(AVFormatContext *s, AVPacket *pkt)
     if (size < 0) {
         size = c->dv_demux->sys->frame_size;
         if (get_buffer(&s->pb, c->buf, size) <= 0)
-            return AVERROR_IO;
+            return AVERROR(EIO);
 
         size = dv_produce_packet(c->dv_demux, pkt, c->buf, size);
     }
@@ -419,14 +424,10 @@ static int dv_read_seek(AVFormatContext *s, int stream_index,
     DVDemuxContext *c = r->dv_demux;
     int64_t offset= dv_frame_offset(s, c, timestamp, flags);
 
-    c->frames= offset / c->sys->frame_size;
-    if (c->ach)
-        c->abytes= av_rescale(c->frames,
-                          c->ast[0]->codec->bit_rate * (int64_t)c->sys->frame_rate_base,
-                          8*c->sys->frame_rate);
+    dv_offset_reset(c, offset / c->sys->frame_size);
 
-    dv_flush_audio_packets(c);
-    return url_fseek(&s->pb, offset, SEEK_SET);
+    offset = url_fseek(&s->pb, offset, SEEK_SET);
+    return (offset < 0)?offset:0;
 }
 
 static int dv_read_close(AVFormatContext *s)

@@ -7,7 +7,7 @@
  **
  ** Modified for use with MPlayer, detailed changelog at
  ** http://svn.mplayerhq.hu/mplayer/trunk/
- ** $Id: unrarlib.h 18786 2006-06-22 13:34:00Z diego $
+ ** $Id: unrarlib.h 24135 2007-08-24 09:28:44Z diego $
  **
  **  The contents of this file are subject to the UniquE RAR File Library
  **  License (the "unrarlib-license.txt"). You may not use this file except
@@ -34,8 +34,8 @@
 /* (C) 2000-2002 by Christian Scheurer aka. UniquE */
 /* multi-OS version (Win32, Linux and SUN)         */
 
-#ifndef __URARLIB_H
-#define __URARLIB_H
+#ifndef URARLIB_H
+#define URARLIB_H
 
 #ifdef __cplusplus
 extern "C"
@@ -200,5 +200,5 @@ extern void urarlib_freelist(ArchiveList_struct *list);
 };
 #endif
 
-#endif
+#endif /* URARLIB_H */
 

@@ -4,8 +4,8 @@
  * Copyright 1996 Alexandre Julliard
  */
 
-#ifndef __WINE_WINNT_H
-#define __WINE_WINNT_H
+#ifndef WINE_WINNT_H
+#define WINE_WINNT_H
 
 #include "windef.h"
 
@@ -81,7 +81,6 @@
 /* These types are _not_ defined for the emulator, because they */
 /* depend on the UNICODE macro that only exists in user's code. */
 
-//#ifndef __WINE__
 # ifdef UNICODE
 typedef WCHAR TCHAR, *PTCHAR;
 typedef LPWSTR PTSTR, LPTSTR;
@@ -93,7 +92,6 @@ typedef LPSTR PTSTR, LPTSTR;
 typedef LPCSTR PCTSTR, LPCTSTR;
 #define __TEXT(string) string
 # endif /* UNICODE */
-//#endif   /* __WINE__ */
 #define TEXT(quote) __TEXT(quote)
 
 typedef BYTE     BOOLEAN;
@@ -629,8 +627,6 @@ typedef struct _CONTEXT
 typedef CONTEXT *PCONTEXT;
 typedef HANDLE *PHANDLE;
 
-#ifdef __WINE__
-
 /* Macros for easier access to i386 context registers */
 
 #define EAX_reg(context)     ((context)->Eax)
@@ -765,8 +761,6 @@ typedef HANDLE *PHANDLE;
 #if !defined(GET_IP) && !defined(RC_INVOKED)
 # error You must define GET_IP for this CPU
 #endif
-
-#endif  /* __WINE__ */
 
 /*
  * Exception codes
@@ -2666,4 +2660,4 @@ typedef enum tagSID_NAME_USE {
 
 #include "poppack.h"
 
-#endif  /* __WINE_WINNT_H */
+#endif  /* WINE_WINNT_H */

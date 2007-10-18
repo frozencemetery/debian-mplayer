@@ -1,20 +1,9 @@
-#ifndef _aviheader_h
-#define	_aviheader_h
+#ifndef AVIHEADER_H
+#define AVIHEADER_H
 
 //#include "config.h"	/* get correct definition WORDS_BIGENDIAN */
-#include "bswap.h"
-
-#ifndef MIN
-#define MIN(a,b) (((a)<(b))?(a):(b))
-#endif
-
-#ifndef min
-#define min(a,b) (((a)<(b))?(a):(b))
-#endif
-
-#ifndef max
-#define max(a,b) (((a)>(b))?(a):(b))
-#endif
+#include "libavutil/common.h"
+#include "mpbswap.h"
 
 #ifndef mmioFOURCC
 #define mmioFOURCC( ch0, ch1, ch2, ch3 )				\

@@ -17,9 +17,9 @@
 
 #include "img_format.h"
 
-#include "stream.h"
-#include "demuxer.h"
-#include "stheader.h"
+#include "stream/stream.h"
+#include "libmpdemux/demuxer.h"
+#include "libmpdemux/stheader.h"
 #include "dec_video.h"
 
 #include "vd.h"
@@ -90,7 +90,7 @@ vd_functions_t* mpcodecs_vd_drivers[] = {
 #ifdef USE_REALCODECS
 	&mpcodecs_vd_realvid,
 #endif
-#if defined(HAVE_XVID3) || defined(HAVE_XVID4)
+#ifdef HAVE_XVID4
 	&mpcodecs_vd_xvid,
 #endif
 #ifdef HAVE_LIBDV095
@@ -117,7 +117,7 @@ int vo_flags=0;
 int vd_use_slices=1;
 
 /** global variables for gamma, brightness, contrast, saturation and hue 
-    modified by mplayer.c and Gui/mplayer/gtk/eq.c:
+    modified by mplayer.c and gui/mplayer/gtk/eq.c:
     ranges -100 - 100
     1000 if the vo default should be used
 */   
@@ -128,7 +128,6 @@ int vo_gamma_saturation = 1000;
 int vo_gamma_hue = 1000;
 
 extern vd_functions_t* mpvdec; // FIXME!
-extern int divx_quality;
 
 int mpcodecs_config_vo(sh_video_t *sh, int w, int h, unsigned int preferred_outfmt){
     int i,j;
@@ -140,13 +139,9 @@ int mpcodecs_config_vo(sh_video_t *sh, int w, int h, unsigned int preferred_outf
     int palette=0;
     int vocfg_flags=0;
 
-    if(!sh->disp_w || !sh->disp_h)
-        mp_msg(MSGT_DECVIDEO,MSGL_WARN, MSGTR_CodecDidNotSet);
-    /* XXX: HACK, if sh->disp_* aren't set,
-     * but we have w and h, set them :: atmos */
-    if(!sh->disp_w && w)
+    if(w)
         sh->disp_w=w;
-    if(!sh->disp_h && h)
+    if(h)
         sh->disp_h=h;
 
     if(!sh->disp_w || !sh->disp_h)
@@ -230,7 +225,7 @@ csp_again:
 	return 0;	// failed
     }
     out_fmt=sh->codec->outfmt[j];
-    mp_msg(MSGT_CPLAYER,MSGL_INFO,"VDec: using %s as output csp (no %d)\n",vo_format_name(out_fmt),j);
+    mp_msg(MSGT_CPLAYER,MSGL_INFO,MSGTR_UsingXAsOutputCspNoY,vo_format_name(out_fmt),j);
     sh->outfmtidx=j;
     sh->vfilter=vf;
 
@@ -251,6 +246,7 @@ csp_again:
     // time to do aspect ratio corrections...
 
   if(movie_aspect>-1.0) sh->aspect = movie_aspect; // cmdline overrides autodetect
+  else if(sh->stream_aspect!=0.0) sh->aspect = sh->stream_aspect;
 //  if(!sh->aspect) sh->aspect=1.0;
 
   if(opt_screen_size_x||opt_screen_size_y){

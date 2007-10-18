@@ -1,6 +1,6 @@
 /* 
  *  Copyright	1994	Eric Youndale & Erik Bos
- *  Copyright	1995	Martin von Löwis
+ *  Copyright	1995	Martin von LÃ¶wis
  *  Copyright   1996-98 Marcus Meissner
  *
  *	based on Eric Youndale's pe-test and:
@@ -11,7 +11,7 @@
  *
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: pe_image.c 18786 2006-06-22 13:34:00Z diego $
+ * $Id: pe_image.c 24418 2007-09-10 15:27:23Z diego $
  *
  */
 /* Notes:
@@ -39,6 +39,7 @@
  *   to 4096 byte boundaries on disk.
  */
 #include "config.h"
+#include "debug.h"
 
 #include <errno.h>
 #include <assert.h>
@@ -65,9 +66,6 @@
 #define RVA(x) ((void *)((char *)load_addr+(unsigned int)(x)))
 
 #define AdjustPtr(ptr,delta) ((char *)(ptr) + (delta))
-
-extern void* LookupExternal(const char* library, int ordinal);
-extern void* LookupExternalByName(const char* library, const char* name);
 
 static void dump_exports( HMODULE hModule )
 { 
@@ -286,7 +284,6 @@ static DWORD fixup_imports( WINE_MODREF *wm )
      */
  
     for (i = 0, pe_imp = pem->pe_import; pe_imp->Name ; pe_imp++) {
-    	WINE_MODREF		*wmImp;
 	IMAGE_IMPORT_BY_NAME	*pe_name;
 	PIMAGE_THUNK_DATA	import_list,thunk_list;
  	char			*name = (char *) RVA(pe_imp->Name);
@@ -441,7 +438,7 @@ HMODULE PE_LoadImage( int handle, LPCSTR filename, WORD *version )
     IMAGE_NT_HEADERS *nt;
     IMAGE_SECTION_HEADER *pe_sec;
     IMAGE_DATA_DIRECTORY *dir;
-    BY_HANDLE_FILE_INFORMATION bhfi;
+//    BY_HANDLE_FILE_INFORMATION bhfi;
     int	i, rawsize, lowest_va, vma_size, file_size = 0;
     DWORD load_addr = 0, aoep, reloc = 0;
 //    struct get_read_fd_request *req = get_req_buffer();
@@ -545,7 +542,8 @@ HMODULE PE_LoadImage( int handle, LPCSTR filename, WORD *version )
      *         to work (until we support shared sections properly).
      */
 
-    if ( nt->OptionalHeader.ImageBase & 0x80000000 )
+    if ( nt->OptionalHeader.ImageBase & 0x80000000 &&
+        !strstr(filename, "xanlib.dll"))
     {
         HMODULE sharedMod = (HMODULE)nt->OptionalHeader.ImageBase; 
         IMAGE_NT_HEADERS *sharedNt = (PIMAGE_NT_HEADERS)
@@ -701,7 +699,6 @@ WINE_MODREF *PE_CreateModule( HMODULE hModule,
     IMAGE_EXPORT_DIRECTORY *pe_export = NULL;
     IMAGE_RESOURCE_DIRECTORY *pe_resource = NULL;
     WINE_MODREF *wm;
-    int	result;
 
 
     

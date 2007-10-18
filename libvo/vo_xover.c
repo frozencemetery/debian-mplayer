@@ -15,7 +15,6 @@
 #include <math.h>
 #include <errno.h>
 #include <unistd.h>
-#include <sys/ioctl.h>
 
 #include "config.h"
 #include "video_out.h"
@@ -34,7 +33,7 @@
 #include "mp_msg.h"
 
 #ifdef HAVE_NEW_GUI
-#include "Gui/interface.h"
+#include "gui/interface.h"
 #endif
 
 
@@ -67,10 +66,6 @@ static uint32_t window_width, window_height;
 /* used by XGetGeometry & XTranslateCoordinates for moving/resizing window */
 static uint32_t drwX, drwY, drwWidth, drwHeight, drwBorderWidth,
     drwDepth, drwcX, drwcY, dwidth, dheight;
-
-#ifdef HAVE_XINERAMA
-extern int xinerama_screen;
-#endif
 
 static vo_functions_t* sub_vo = NULL;
 
@@ -305,22 +300,10 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
 	}
       else
 	{
-	  if ( vo_window == None )
-	    {
-	      vo_window = XCreateWindow(mDisplay, RootWindow(mDisplay, mScreen),
-					vo_dx, vo_dy, window_width, window_height, xswa.border_pixel,
-					vinfo.depth, InputOutput, vinfo.visual, xswamask, &xswa);
-
-	      vo_x11_classhint(mDisplay, vo_window, "xvidix");
-	      vo_hidecursor(mDisplay, vo_window);
-	      vo_x11_sizehint( vo_dx,vo_dy,vo_dwidth,vo_dheight,0 );
-
-	      XStoreName(mDisplay, vo_window, title);
-	      XMapWindow(mDisplay, vo_window);
-    
-	      if ( flags&VOFLAG_FULLSCREEN ) vo_x11_fullscreen();
-    
-	    } else if ( !(flags&VOFLAG_FULLSCREEN) ) XMoveResizeWindow( mDisplay,vo_window,vo_dx,vo_dy,vo_dwidth,vo_dheight );
+	    vo_x11_create_vo_window(&vinfo, vo_dx, vo_dy,
+                  window_width, window_height, flags,
+	          xswa.colormap, "xvidix", title);
+	    XChangeWindowAttributes(mDisplay, vo_window, xswamask, &xswa);
 	}
 	 
       if ( vo_gc != None ) XFreeGC( mDisplay,vo_gc );

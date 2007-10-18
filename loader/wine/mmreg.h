@@ -3,12 +3,12 @@
  *
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: mmreg.h 18786 2006-06-22 13:34:00Z diego $
+ * $Id: mmreg.h 24442 2007-09-13 08:50:21Z diego $
  *
  */
 
-#ifndef __WINE_MMREG_H
-#define __WINE_MMREG_H
+#ifndef WINE_MMREG_H
+#define WINE_MMREG_H
 
 /***********************************************************************
  * Defines/Enums
@@ -247,4 +247,4 @@ typedef struct mpeglayer3waveformat_tag {
 #define WAVE_FORMAT_DEVELOPMENT         (0xFFFF)
 
 
-#endif /* __WINE_MMREG_H */
+#endif /* WINE_MMREG_H */

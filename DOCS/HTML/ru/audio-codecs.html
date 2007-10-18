@@ -1,93 +1,94 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=KOI8-R"><title>7.2. Аудио кодеки</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="codecs.html" title="Глава 7. Поддерживаемые кодеки"><link rel="prev" href="video-codecs.html" title="7.1. Видео кодеки"><link rel="next" href="codec-importing.html" title="7.3. КАК извлечь кодек из Win32"><link rel="preface" href="howtoread.html" title="Как читать эту документацию"><link rel="chapter" href="intro.html" title="Глава 1. Введение"><link rel="chapter" href="install.html" title="Глава 2. Установка"><link rel="chapter" href="usage.html" title="Глава 3. Использование"><link rel="chapter" href="cd-dvd.html" title="Глава 4. Использование CD/DVD"><link rel="chapter" href="faq.html" title="Глава 5. Часто Задаваемые вопросы"><link rel="chapter" href="containers.html" title="Глава 6. Поддерживаемые форматы"><link rel="chapter" href="codecs.html" title="Глава 7. Поддерживаемые кодеки"><link rel="chapter" href="tv.html" title="Глава 8. TV"><link rel="chapter" href="radio.html" title="Глава 9. Радио"><link rel="chapter" href="video.html" title="Глава 10. Устройства вывода видео"><link rel="chapter" href="audio.html" title="Глава 11. Устройства вывода звука"><link rel="chapter" href="ports.html" title="Глава 12. Портинг"><link rel="chapter" href="mencoder.html" title="Глава 13. Основы использования MEncoder"><link rel="chapter" href="encoding-guide.html" title="Глава 14. Encoding with MEncoder"><link rel="appendix" href="bugreports.html" title="Приложение A. Как сообщать об ошибках"><link rel="appendix" href="bugs.html" title="Приложение B. Известные проблемы"><link rel="appendix" href="skin.html" title="Приложение C. Формат скинов MPlayer"><link rel="appendix" href="history.html" title="Приложение D. История"><link rel="subsection" href="audio-codecs.html#swac3" title="7.2.1. Программное декодирование AC3"><link rel="subsection" href="audio-codecs.html#hwac3" title="7.2.2. Аппаратное декодирование AC3"><link rel="subsection" href="audio-codecs.html#libmad" title="7.2.3. Поддержка libmad"><link rel="subsection" href="audio-codecs.html#hwmpa" title="7.2.4. Аппаратный MPEG аудио кодек"><link rel="subsection" href="audio-codecs.html#aac" title="7.2.5. AAC кодек"><link rel="subsection" href="audio-codecs.html#amr" title="7.2.6. AMR кодеки"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">7.2. Аудио кодеки</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="video-codecs.html">Пред.</a> </td><th width="60%" align="center">Глава 7. Поддерживаемые кодеки</th><td width="20%" align="right"> <a accesskey="n" href="codec-importing.html">След.</a></td></tr></table><hr></div><div class="sect1" lang="ru"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="audio-codecs"></a>7.2. Аудио кодеки</h2></div></div></div><div class="itemizedlist"><p class="title"><b>Наиболее важными аудио кодеками среди всех являются:</b></p><ul type="disc"><li>
-  MPEG layer 1/2/3 (MP1/2/3) аудио (<span class="bold"><strong>родной</strong></span>
-  код, с MMX/SSE/3DNow! оптимизацией)
-  </li><li>
-  Windows Media Audio 7 и 8 (они же WMAv1 и WMAv2) (<span class="bold"><strong>родной</strong></span> код, с
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>7.2. п░я┐п╢п╦п╬ п╨п╬п╢п╣п╨п╦</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="codecs.html" title="п⌠п╩п╟п╡п╟ 7. п÷п╬п╢п╢п╣я─п╤п╦п╡п╟п╣п╪я▀п╣ п╨п╬п╢п╣п╨п╦"><link rel="prev" href="video-codecs.html" title="7.1. п▓п╦п╢п╣п╬ п╨п╬п╢п╣п╨п╦"><link rel="next" href="codec-importing.html" title="7.3. п п░п  п╦п╥п╡п╩п╣я┤я▄ п╨п╬п╢п╣п╨ п╦п╥ Win32"><link rel="preface" href="howtoread.html" title="п п╟п╨ я┤п╦я┌п╟я┌я▄ я█я┌я┐ п╢п╬п╨я┐п╪п╣п╫я┌п╟я├п╦я▌"><link rel="chapter" href="intro.html" title="п⌠п╩п╟п╡п╟ 1. п▓п╡п╣п╢п╣п╫п╦п╣"><link rel="chapter" href="install.html" title="п⌠п╩п╟п╡п╟ 2. пёя│я┌п╟п╫п╬п╡п╨п╟"><link rel="chapter" href="usage.html" title="п⌠п╩п╟п╡п╟ 3. п≤я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣"><link rel="chapter" href="cd-dvd.html" title="п⌠п╩п╟п╡п╟ 4. п≤я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣ CD/DVD"><link rel="chapter" href="faq.html" title="п⌠п╩п╟п╡п╟ 5. п╖п╟я│я┌п╬ п≈п╟п╢п╟п╡п╟п╣п╪я▀п╣ п╡п╬п©я─п╬я│я▀"><link rel="chapter" href="containers.html" title="п⌠п╩п╟п╡п╟ 6. п÷п╬п╢п╢п╣я─п╤п╦п╡п╟п╣п╪я▀п╣ я└п╬я─п╪п╟я┌я▀"><link rel="chapter" href="codecs.html" title="п⌠п╩п╟п╡п╟ 7. п÷п╬п╢п╢п╣я─п╤п╦п╡п╟п╣п╪я▀п╣ п╨п╬п╢п╣п╨п╦"><link rel="chapter" href="tv.html" title="п⌠п╩п╟п╡п╟ 8. TV"><link rel="chapter" href="radio.html" title="п⌠п╩п╟п╡п╟ 9. п═п╟п╢п╦п╬"><link rel="chapter" href="video.html" title="п⌠п╩п╟п╡п╟ 10. пёя│я┌я─п╬п╧я│я┌п╡п╟ п╡я▀п╡п╬п╢п╟ п╡п╦п╢п╣п╬"><link rel="chapter" href="audio.html" title="п⌠п╩п╟п╡п╟ 11. пёя│я┌я─п╬п╧я│я┌п╡п╟ п╡я▀п╡п╬п╢п╟ п╥п╡я┐п╨п╟"><link rel="chapter" href="ports.html" title="п⌠п╩п╟п╡п╟ 12. п÷п╬я─я┌п╦п╫пЁ"><link rel="chapter" href="mencoder.html" title="п⌠п╩п╟п╡п╟ 13. п·я│п╫п╬п╡я▀ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ MEncoder"><link rel="chapter" href="encoding-guide.html" title="п⌠п╩п╟п╡п╟ 14. п п╬п╢п╦я─п╬п╡п╟п╫п╦п╣ я│ MEncoder"><link rel="appendix" href="bugreports.html" title="п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ A. п п╟п╨ я│п╬п╬п╠я┴п╟я┌я▄ п╬п╠ п╬я┬п╦п╠п╨п╟я┘"><link rel="appendix" href="bugs.html" title="п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ B. п≤п╥п╡п╣я│я┌п╫я▀п╣ п©я─п╬п╠п╩п╣п╪я▀"><link rel="appendix" href="skin.html" title="п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ C. п╓п╬я─п╪п╟я┌ я│п╨п╦п╫п╬п╡ MPlayer"><link rel="appendix" href="history.html" title="п÷я─п╦п╩п╬п╤п╣п╫п╦п╣ D. п≤я│я┌п╬я─п╦я▐"><link rel="subsection" href="audio-codecs.html#swac3" title="7.2.1. п÷я─п╬пЁя─п╟п╪п╪п╫п╬п╣ п╢п╣п╨п╬п╢п╦я─п╬п╡п╟п╫п╦п╣ AC-3"><link rel="subsection" href="audio-codecs.html#hwac3" title="7.2.2. п░п©п©п╟я─п╟я┌п╫п╬п╣ п╢п╣п╨п╬п╢п╦я─п╬п╡п╟п╫п╦п╣ AC-3"><link rel="subsection" href="audio-codecs.html#libmad" title="7.2.3. п÷п╬п╢п╢п╣я─п╤п╨п╟ libmad"><link rel="subsection" href="audio-codecs.html#hwmpa" title="7.2.4. п░п©п©п╟я─п╟я┌п╫я▀п╧ MPEG п╟я┐п╢п╦п╬ п╨п╬п╢п╣п╨"><link rel="subsection" href="audio-codecs.html#aac" title="7.2.5. AAC п╨п╬п╢п╣п╨"><link rel="subsection" href="audio-codecs.html#amr" title="7.2.6. AMR п╨п╬п╢п╣п╨п╦"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">7.2. п░я┐п╢п╦п╬ п╨п╬п╢п╣п╨п╦</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="video-codecs.html">п÷я─п╣п╢.</a>б═</td><th width="60%" align="center">п⌠п╩п╟п╡п╟ 7. п÷п╬п╢п╢п╣я─п╤п╦п╡п╟п╣п╪я▀п╣ п╨п╬п╢п╣п╨п╦</th><td width="20%" align="right">б═<a accesskey="n" href="codec-importing.html">п║п╩п╣п╢.</a></td></tr></table><hr></div><div class="sect1" lang="ru"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="audio-codecs"></a>7.2. п░я┐п╢п╦п╬ п╨п╬п╢п╣п╨п╦</h2></div></div></div><div class="itemizedlist"><p class="title"><b>п²п╟п╦п╠п╬п╩п╣п╣ п╡п╟п╤п╫я▀п╪п╦ п╟я┐п╢п╦п╬ п╨п╬п╢п╣п╨п╟п╪п╦ я│я─п╣п╢п╦ п╡я│п╣я┘ я▐п╡п╩я▐я▌я┌я│я▐:</b></p><ul type="disc"><li><p>
+  MPEG layer 1/2/3 (MP1/2/3) п╟я┐п╢п╦п╬ (<span class="bold"><strong>я─п╬п╢п╫п╬п╧</strong></span>
+  п╨п╬п╢, я│ MMX/SSE/3DNow! п╬п©я┌п╦п╪п╦п╥п╟я├п╦п╣п╧)
+</p></li><li><p>
+  Windows Media Audio 7 п╦ 8 (п╬п╫п╦ п╤п╣ WMAv1 п╦ WMAv2) (<span class="bold"><strong>я─п╬п╢п╫п╬п╧</strong></span> п╨п╬п╢, я│
   <a href="video-codecs.html#ffmpeg" title="7.1.1. FFmpeg/libavcodec"><code class="systemitem">libavcodec</code></a>)
-  </li><li>
-  Windows Media Audio 9 (WMAv3) (используя DMO DLL)
-  </li><li>
-  AC3 Dolby аудио (<span class="bold"><strong>родной</strong></span> код, с
-  MMX/SSE/3DNow! оптимизацией)
-  </li><li>
-  AC3 пропускаемый через звуковое оборудование
-  </li><li>
+</p></li><li><p>
+  Windows Media Audio 9 (WMAv3) (п╦я│п©п╬п╩я▄п╥я┐я▐ DMO DLL)
+</p></li><li><p>
+  AC-3 Dolby п╟я┐п╢п╦п╬ (<span class="bold"><strong>я─п╬п╢п╫п╬п╧</strong></span> п╨п╬п╢, я│
+  MMX/SSE/3DNow! п╬п©я┌п╦п╪п╦п╥п╟я├п╦п╣п╧)
+</p></li><li><p>
+  AC-3 п©я─п╬п©я┐я│п╨п╟п╣п╪я▀п╧ я┤п╣я─п╣п╥ п╥п╡я┐п╨п╬п╡п╬п╣ п╬п╠п╬я─я┐п╢п╬п╡п╟п╫п╦п╣
+</p></li><li><p>
   AAC
-  </li><li>
-  Ogg Vorbis аудио кодек (<span class="bold"><strong>родная</strong></span> библиотека)
-  </li><li>
-  RealAudio: DNET (AC3 с низким битпотоком), Cook, Sipro и ATRAC3
-  </li><li>
-  QuickTime: Qualcomm и QDesign аудио кодеки
-  </li><li>
-  VIVO аудио (g723, Vivo Siren)
-  </li><li>
-  Voxware аудио (используя DirectShow DLL)
-  </li><li>
-  alaw и ulaw, различные gsm, adpcm и pcm форматы и другие простые старые аудио
-  кодеки
-  </li><li>
-  Adaptive Multi-Rate (AMR) речевые кодеки
-  </li></ul></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="swac3"></a>7.2.1. Программное декодирование AC3</h3></div></div></div><p>
-Это декодер, используемый, по умолчанию, для файлов с AC3 аудио
+</p></li><li><p>
+  Ogg Vorbis п╟я┐п╢п╦п╬ п╨п╬п╢п╣п╨ (<span class="bold"><strong>я─п╬п╢п╫п╟я▐</strong></span> п╠п╦п╠п╩п╦п╬я┌п╣п╨п╟)
+</p></li><li><p>
+  RealAudio: DNET (AC-3 я│ п╫п╦п╥п╨п╦п╪ п╠п╦я┌п©п╬я┌п╬п╨п╬п╪), Cook, Sipro п╦ ATRAC3
+</p></li><li><p>
+  QuickTime: Qualcomm п╦ QDesign п╟я┐п╢п╦п╬ п╨п╬п╢п╣п╨п╦
+</p></li><li><p>
+  VIVO п╟я┐п╢п╦п╬ (g723, Vivo Siren)
+</p></li><li><p>
+  Voxware п╟я┐п╢п╦п╬ (п╦я│п©п╬п╩я▄п╥я┐я▐ DirectShow DLL)
+</p></li><li><p>
+  alaw п╦ ulaw, я─п╟п╥п╩п╦я┤п╫я▀п╣ gsm, adpcm п╦ pcm я└п╬я─п╪п╟я┌я▀ п╦ п╢я─я┐пЁп╦п╣ п©я─п╬я│я┌я▀п╣ я│я┌п╟я─я▀п╣ п╟я┐п╢п╦п╬
+  п╨п╬п╢п╣п╨п╦
+</p></li><li><p>
+  Adaptive Multi-Rate (AMR) я─п╣я┤п╣п╡я▀п╣ п╨п╬п╢п╣п╨п╦
+</p></li></ul></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="swac3"></a>7.2.1. п÷я─п╬пЁя─п╟п╪п╪п╫п╬п╣ п╢п╣п╨п╬п╢п╦я─п╬п╡п╟п╫п╦п╣ AC-3</h3></div></div></div><p>
+п╜я┌п╬ п╢п╣п╨п╬п╢п╣я─, п╦я│п©п╬п╩я▄п╥я┐п╣п╪я▀п╧, п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌, п╢п╩я▐ я└п╟п╧п╩п╬п╡ я│ AC-3 п╟я┐п╢п╦п╬
 </p><p>
-Декодер AC3 может создавать аудио вывод микшированный для 2, 4 или 6 колонок.
-Будучи сконфигурированным для 6 колонок, этот декодер предоставляет раздельный
-вывод всех AC3 каналов звуковому драйверу, позволяя получить "звук вокруг"
-без внешнего AC3 декодера, необходимого для использования hwac3 кодека.
+п■п╣п╨п╬п╢п╣я─ AC-3 п╪п╬п╤п╣я┌ я│п╬п╥п╢п╟п╡п╟я┌я▄ п╟я┐п╢п╦п╬ п╡я▀п╡п╬п╢ п╪п╦п╨я┬п╦я─п╬п╡п╟п╫п╫я▀п╧ п╢п╩я▐ 2, 4 п╦п╩п╦ 6 п╨п╬п╩п╬п╫п╬п╨.
+п▒я┐п╢я┐я┤п╦ я│п╨п╬п╫я└п╦пЁя┐я─п╦я─п╬п╡п╟п╫п╫я▀п╪ п╢п╩я▐ 6 п╨п╬п╩п╬п╫п╬п╨, я█я┌п╬я┌ п╢п╣п╨п╬п╢п╣я─ п©я─п╣п╢п╬я│я┌п╟п╡п╩я▐п╣я┌ я─п╟п╥п╢п╣п╩я▄п╫я▀п╧
+п╡я▀п╡п╬п╢ п╡я│п╣я┘ AC-3 п╨п╟п╫п╟п╩п╬п╡ п╥п╡я┐п╨п╬п╡п╬п╪я┐ п╢я─п╟п╧п╡п╣я─я┐, п©п╬п╥п╡п╬п╩я▐я▐ п©п╬п╩я┐я┤п╦я┌я▄ "п╥п╡я┐п╨ п╡п╬п╨я─я┐пЁ"
+п╠п╣п╥ п╡п╫п╣я┬п╫п╣пЁп╬ AC-3 п╢п╣п╨п╬п╢п╣я─п╟, п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬пЁп╬ п╢п╩я▐ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ hwac3 п╨п╬п╢п╣п╨п╟.
 </p><p>
-Используйте опцию <tt class="option">-channels</tt>, чтобы выбрать количество каналов
-при выводе. Используйте <tt class="option">-channels 2</tt> для микширования до стерео.
-Для микширования до 4 каналов (Левый Передний, Правый Передний, Левый Задний и
-Правый Задний выводы),
-используйте <tt class="option">-channels 4</tt>. В этом случае все центральные каналы
-будут равномерно смикшированы до уровня передних каналов. <tt class="option">-channels 6</tt> будет
-выводить все AC3 каналы так, как они закодированы - по порядку:
-Левый, Правый, Левый Задний, Правый Задний, Центральный и Сабвуфер.
+п≤я│п©п╬п╩я▄п╥я┐п╧я┌п╣ п╬п©я├п╦я▌ <tt class="option">-channels</tt>, я┤я┌п╬п╠я▀ п╡я▀п╠я─п╟я┌я▄ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╨п╟п╫п╟п╩п╬п╡
+п©я─п╦ п╡я▀п╡п╬п╢п╣. п≤я│п©п╬п╩я▄п╥я┐п╧я┌п╣ <tt class="option">-channels 2</tt> п╢п╩я▐ п╪п╦п╨я┬п╦я─п╬п╡п╟п╫п╦я▐ п╢п╬ я│я┌п╣я─п╣п╬.
+п■п╩я▐ п╪п╦п╨я┬п╦я─п╬п╡п╟п╫п╦я▐ п╢п╬ 4 п╨п╟п╫п╟п╩п╬п╡ (п⌡п╣п╡я▀п╧ п÷п╣я─п╣п╢п╫п╦п╧, п÷я─п╟п╡я▀п╧ п÷п╣я─п╣п╢п╫п╦п╧, п⌡п╣п╡я▀п╧ п≈п╟п╢п╫п╦п╧ п╦
+п÷я─п╟п╡я▀п╧ п≈п╟п╢п╫п╦п╧ п╡я▀п╡п╬п╢я▀),
+п╦я│п©п╬п╩я▄п╥я┐п╧я┌п╣ <tt class="option">-channels 4</tt>. п▓ я█я┌п╬п╪ я│п╩я┐я┤п╟п╣ п╡я│п╣ я├п╣п╫я┌я─п╟п╩я▄п╫я▀п╣ п╨п╟п╫п╟п╩я▀
+п╠я┐п╢я┐я┌ я─п╟п╡п╫п╬п╪п╣я─п╫п╬ я│п╪п╦п╨я┬п╦я─п╬п╡п╟п╫я▀ п╢п╬ я┐я─п╬п╡п╫я▐ п©п╣я─п╣п╢п╫п╦я┘ п╨п╟п╫п╟п╩п╬п╡. <tt class="option">-channels 6</tt> п╠я┐п╢п╣я┌
+п╡я▀п╡п╬п╢п╦я┌я▄ п╡я│п╣ AC-3 п╨п╟п╫п╟п╩я▀ я┌п╟п╨, п╨п╟п╨ п╬п╫п╦ п╥п╟п╨п╬п╢п╦я─п╬п╡п╟п╫я▀ - п©п╬ п©п╬я─я▐п╢п╨я┐:
+п⌡п╣п╡я▀п╧, п÷я─п╟п╡я▀п╧, п⌡п╣п╡я▀п╧ п≈п╟п╢п╫п╦п╧, п÷я─п╟п╡я▀п╧ п≈п╟п╢п╫п╦п╧, п╕п╣п╫я┌я─п╟п╩я▄п╫я▀п╧ п╦ п║п╟п╠п╡я┐я└п╣я─.
 </p><p>
-Количество каналов по умолчанию - 2.
+п п╬п╩п╦я┤п╣я│я┌п╡п╬ п╨п╟п╫п╟п╩п╬п╡ п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌ - 2.
 </p><p>
-Чтобы использовать более 2 каналов, Вам нужно использовать OSS, и обладать
-карточкой, поддерживающей необходимое количество каналов через ioctl
-SNDCTL_DSP_CHANNELS.  Примером подходящего драйвера является emu10k1
-(используется для Soundblaster Live! карточек) августа 2001'го или новее
-(ALSA CVS тоже должен работать).
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="hwac3"></a>7.2.2. Аппаратное декодирование AC3</h3></div></div></div><p>
-Вам нужна AC3-совместимая карта с цифровым (S/PDIF) выводом. Драйвер карты
-должен должным образом поддерживать AFMT_AC3 формат (например C-Media).
-Подсоедините AC3 декодер к S/PDIF выводу и используйте опцию <tt class="option">-ac
-hwac3</tt>. Это экспериментальная возможность, но известно, что это работает с
-C-Media картами и Soundblaster Live! + ALSA (но не OSS) драйверами и
-картами MPEG декодирования DXR3/Hollywood+.
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="libmad"></a>7.2.3. Поддержка libmad</h3></div></div></div><p>
-<a href="http://mad.sourceforge.net" target="_top">libmad</a> - это многоплатформенная,
-целочисленная (внутренне 24'битный PCM)
-библиотека декодирования MPEG аудио. Она не очень хорошо обрабатывает битые
-файлы и иногда у неё бывают проблемы с перемещением по файлу, но она 
-может быть производительнее mp3lib на платформах без FPU
-(таких как <a href="linux.html#arm" title="12.1.3. ARM">ARM</a>).
+п╖я┌п╬п╠я▀ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ п╠п╬п╩п╣п╣ 2 п╨п╟п╫п╟п╩п╬п╡, п▓п╟п╪ п╫я┐п╤п╫п╬ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ OSS, п╦ п╬п╠п╩п╟п╢п╟я┌я▄
+п╨п╟я─я┌п╬я┤п╨п╬п╧, п©п╬п╢п╢п╣я─п╤п╦п╡п╟я▌я┴п╣п╧ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╨п╟п╫п╟п╩п╬п╡ я┤п╣я─п╣п╥ ioctl
+SNDCTL_DSP_CHANNELS.  п÷я─п╦п╪п╣я─п╬п╪ п©п╬п╢я┘п╬п╢я▐я┴п╣пЁп╬ п╢я─п╟п╧п╡п╣я─п╟ я▐п╡п╩я▐п╣я┌я│я▐ emu10k1
+(п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ п╢п╩я▐ Soundblaster Live! п╨п╟я─я┌п╬я┤п╣п╨) п╟п╡пЁя┐я│я┌п╟ 2001'пЁп╬ п╦п╩п╦ п╫п╬п╡п╣п╣
+(ALSA CVS я┌п╬п╤п╣ п╢п╬п╩п╤п╣п╫ я─п╟п╠п╬я┌п╟я┌я▄).
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="hwac3"></a>7.2.2. п░п©п©п╟я─п╟я┌п╫п╬п╣ п╢п╣п╨п╬п╢п╦я─п╬п╡п╟п╫п╦п╣ AC-3</h3></div></div></div><p>
+п▓п╟п╪ п╫я┐п╤п╫п╟ AC-3 я│п╬п╡п╪п╣я│я┌п╦п╪п╟я▐ п╨п╟я─я┌п╟ я│ я├п╦я└я─п╬п╡я▀п╪ (S/PDIF) п╡я▀п╡п╬п╢п╬п╪. п■я─п╟п╧п╡п╣я─ п╨п╟я─я┌я▀
+п╢п╬п╩п╤п╣п╫ п╢п╬п╩п╤п╫я▀п╪ п╬п╠я─п╟п╥п╬п╪ п©п╬п╢п╢п╣я─п╤п╦п╡п╟я┌я▄ AFMT_AC3 я└п╬я─п╪п╟я┌ (п╫п╟п©я─п╦п╪п╣я─ C-Media).
+п÷п╬п╢я│п╬п╣п╢п╦п╫п╦я┌п╣ AC-3 п╢п╣п╨п╬п╢п╣я─ п╨ S/PDIF п╡я▀п╡п╬п╢я┐ п╦ п╦я│п©п╬п╩я▄п╥я┐п╧я┌п╣ п╬п©я├п╦я▌ <tt class="option">-ac
+hwac3</tt>. п╜я┌п╬ я█п╨я│п©п╣я─п╦п╪п╣п╫я┌п╟п╩я▄п╫п╟я▐ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌я▄, п╫п╬ п╦п╥п╡п╣я│я┌п╫п╬, я┤я┌п╬ я█я┌п╬ я─п╟п╠п╬я┌п╟п╣я┌ я│
+C-Media п╨п╟я─я┌п╟п╪п╦ п╦ Soundblaster Live! + ALSA (п╫п╬ п╫п╣ OSS) п╢я─п╟п╧п╡п╣я─п╟п╪п╦ п╦
+п╨п╟я─я┌п╟п╪п╦ MPEG п╢п╣п╨п╬п╢п╦я─п╬п╡п╟п╫п╦я▐ DXR3/Hollywood+.
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="libmad"></a>7.2.3. п÷п╬п╢п╢п╣я─п╤п╨п╟ <code class="systemitem">libmad</code></h3></div></div></div><p>
+<a href="http://mad.sourceforge.net" target="_top"><code class="systemitem">libmad</code></a> - я█я┌п╬ п╪п╫п╬пЁп╬п©п╩п╟я┌я└п╬я─п╪п╣п╫п╫п╟я▐,
+я├п╣п╩п╬я┤п╦я│п╩п╣п╫п╫п╟я▐ (п╡п╫я┐я┌я─п╣п╫п╫п╣ 24'п╠п╦я┌п╫я▀п╧ PCM)
+п╠п╦п╠п╩п╦п╬я┌п╣п╨п╟ п╢п╣п╨п╬п╢п╦я─п╬п╡п╟п╫п╦я▐ MPEG п╟я┐п╢п╦п╬. п·п╫п╟ п╫п╣ п╬я┤п╣п╫я▄ я┘п╬я─п╬я┬п╬ п╬п╠я─п╟п╠п╟я┌я▀п╡п╟п╣я┌ п╠п╦я┌я▀п╣
+я└п╟п╧п╩я▀ п╦ п╦п╫п╬пЁп╢п╟ я┐ п╫п╣я▒ п╠я▀п╡п╟я▌я┌ п©я─п╬п╠п╩п╣п╪я▀ я│ п©п╣я─п╣п╪п╣я┴п╣п╫п╦п╣п╪ п©п╬ я└п╟п╧п╩я┐, п╫п╬ п╬п╫п╟ 
+п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п©я─п╬п╦п╥п╡п╬п╢п╦я┌п╣п╩я▄п╫п╣п╣ <code class="systemitem">mp3lib</code>
+п╫п╟ п©п╩п╟я┌я└п╬я─п╪п╟я┘ п╠п╣п╥ FPU (я┌п╟п╨п╦я┘ п╨п╟п╨ <a href="linux.html#arm" title="12.1.3. ARM">ARM</a>).
 </p><p>
-Если libmad у вас установлена, <tt class="filename">configure</tt> сообщит об этом,
-и поддержка декодирования MPEG аудио с помощью <code class="systemitem">libmad</code>
-будет включена автоматически.
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="hwmpa"></a>7.2.4. Аппаратный MPEG аудио кодек</h3></div></div></div><p>
-Этот кодек (выбираемый по -ac hwmpa) передает все аудио пакеты MPEG аппаратным
-декодерам, таким как установленные в полнофункциональных DVB картах и DXR2 адаптерах.
-Не используйте его с другими драйверами вывода звука (такими как OSS и ALSA), которые
-не способны аппаратно декодировать (вы усышите только белый шум).
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="aac"></a>7.2.5. AAC кодек</h3></div></div></div><p>
-AAC (Advanced Audio Coding) - это кодек, иногда обнаруживаемый в MOV и MP4
-файлах. Декодер с открытым исходным кодом, называемый FAAD, доступен с
+п∙я│п╩п╦ <code class="systemitem">libmad</code> я┐ п╡п╟я│ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫п╟, 
+<tt class="filename">./configure</tt> я│п╬п╬п╠я┴п╦я┌ п╬п╠ я█я┌п╬п╪,
+п╦ п©п╬п╢п╢п╣я─п╤п╨п╟ п╢п╣п╨п╬п╢п╦я─п╬п╡п╟п╫п╦я▐ MPEG п╟я┐п╢п╦п╬ я│ п©п╬п╪п╬я┴я▄я▌ 
+<code class="systemitem">libmad</code> п╠я┐п╢п╣я┌ п╡п╨п╩я▌я┤п╣п╫п╟ п╟п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╦.
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="hwmpa"></a>7.2.4. п░п©п©п╟я─п╟я┌п╫я▀п╧ MPEG п╟я┐п╢п╦п╬ п╨п╬п╢п╣п╨</h3></div></div></div><p>
+п╜я┌п╬я┌ п╨п╬п╢п╣п╨ (п╡я▀п╠п╦я─п╟п╣п╪я▀п╧ п©п╬ <tt class="option">-ac hwmpa</tt>) п©п╣я─п╣п╢п╟п╣я┌ п╡я│п╣ п╟я┐п╢п╦п╬ п©п╟п╨п╣я┌я▀ MPEG п╟п©п©п╟я─п╟я┌п╫я▀п╪
+п╢п╣п╨п╬п╢п╣я─п╟п╪, я┌п╟п╨п╦п╪ п╨п╟п╨ я┐я│я┌п╟п╫п╬п╡п╩п╣п╫п╫я▀п╣ п╡ п©п╬п╩п╫п╬я└я┐п╫п╨я├п╦п╬п╫п╟п╩я▄п╫я▀я┘ DVB п╨п╟я─я┌п╟я┘ п╦ DXR2 п╟п╢п╟п©я┌п╣я─п╟я┘.
+п²п╣ п╦я│п©п╬п╩я▄п╥я┐п╧я┌п╣ п╣пЁп╬ я│ п╢я─я┐пЁп╦п╪п╦ п╢я─п╟п╧п╡п╣я─п╟п╪п╦ п╡я▀п╡п╬п╢п╟ п╥п╡я┐п╨п╟ (я┌п╟п╨п╦п╪п╦ п╨п╟п╨ OSS п╦ ALSA), п╨п╬я┌п╬я─я▀п╣
+п╫п╣ я│п©п╬я│п╬п╠п╫я▀ п╟п©п©п╟я─п╟я┌п╫п╬ п╢п╣п╨п╬п╢п╦я─п╬п╡п╟я┌я▄ (п╡я▀ я┐я│п╩я▀я┬п╦я┌п╣ я┌п╬п╩я▄п╨п╬ п╠п╣п╩я▀п╧ я┬я┐п╪).
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="aac"></a>7.2.5. AAC п╨п╬п╢п╣п╨</h3></div></div></div><p>
+AAC (Advanced Audio Coding) - я█я┌п╬ п╨п╬п╢п╣п╨, п╦п╫п╬пЁп╢п╟ п╬п╠п╫п╟я─я┐п╤п╦п╡п╟п╣п╪я▀п╧ п╡ MOV п╦ MP4
+я└п╟п╧п╩п╟я┘. п■п╣п╨п╬п╢п╣я─ я│ п╬я┌п╨я─я▀я┌я▀п╪ п╦я│я┘п╬п╢п╫я▀п╪ п╨п╬п╢п╬п╪, п╫п╟п╥я▀п╡п╟п╣п╪я▀п╧ FAAD, п╢п╬я│я┌я┐п©п╣п╫ я│
 <a href="http://www.audiocoding.com" target="_top">http://www.audiocoding.com</a>.
-<span class="application">MPlayer</span> включает в себя CVS версию libfaad 2.1 beta, поэтому
-Вам ничего не нужно дополнительно скачивать.
+<span class="application">MPlayer</span> п╡п╨п╩я▌я┤п╟п╣я┌ п╡ я│п╣п╠я▐ CVS п╡п╣я─я│п╦я▌ libfaad 2.1 beta, п©п╬я█я┌п╬п╪я┐
+п▓п╟п╪ п╫п╦я┤п╣пЁп╬ п╫п╣ п╫я┐п╤п╫п╬ п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫п╬ я│п╨п╟я┤п╦п╡п╟я┌я▄.
 </p><p>
-Если Вы используете gcc 3.2, который не может скомпилировать встроенный FAAD,
-или просто хотите использовать внешнюю библиотеку, скачаете её с 
-<a href="http://www.audiocoding.com/download.php" target="_top">страницы загрузок</a>
-и укажите <tt class="filename">configure</tt> <tt class="option">--enable-faad-external</tt>.
-Вам не нужен весь faad2, чтобы декодировать AAC файлы, достаточно libfaad.
-Вот как Вы можете её собрать:
+п∙я│п╩п╦ п▓я▀ п╦я│п©п╬п╩я▄п╥я┐п╣я┌п╣ gcc 3.2, п╨п╬я┌п╬я─я▀п╧ п╫п╣ п╪п╬п╤п╣я┌ я│п╨п╬п╪п©п╦п╩п╦я─п╬п╡п╟я┌я▄ п╡я│я┌я─п╬п╣п╫п╫я▀п╧ FAAD,
+п╦п╩п╦ п©я─п╬я│я┌п╬ я┘п╬я┌п╦я┌п╣ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ п╡п╫п╣я┬п╫я▌я▌ п╠п╦п╠п╩п╦п╬я┌п╣п╨я┐, я│п╨п╟я┤п╟п╣я┌п╣ п╣я▒ я│ 
+<a href="http://www.audiocoding.com/download.php" target="_top">я│я┌я─п╟п╫п╦я├я▀ п╥п╟пЁя─я┐п╥п╬п╨</a>
+п╦ я┐п╨п╟п╤п╦я┌п╣ <tt class="filename">./configure</tt> <tt class="option">--enable-faad-external</tt>.
+п▓п╟п╪ п╫п╣ п╫я┐п╤п╣п╫ п╡п╣я│я▄ faad2, я┤я┌п╬п╠я▀ п╢п╣п╨п╬п╢п╦я─п╬п╡п╟я┌я▄ AAC я└п╟п╧п╩я▀, п╢п╬я│я┌п╟я┌п╬я┤п╫п╬ libfaad.
+п▓п╬я┌ п╨п╟п╨ п▓я▀ п╪п╬п╤п╣я┌п╣ п╣я▒ я│п╬п╠я─п╟я┌я▄:
 </p><pre class="screen">
 cd faad2/
 sh bootstrap
@@ -96,32 +97,17 @@ cd libfaad
 make
 make install
 </pre><p>
-Бинарники отсутствуют на audiocoding.com, но вы можете скачать (apt-get) Debian
-пакеты с <a href="http://marillat.free.fr" target="_top">домашней страницы Christian Marillat</a>,
-Mandrake RPM'ники с <a href="http://plf.zarb.org" target="_top">P.L.F</a> и RedHat RPM'ники
-с <a href="http://greysector.rangers.eu.org/" target="_top">Grey Sector</a>.
-</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="amr"></a>7.2.6. AMR кодеки</h3></div></div></div><p>
-Речевой кодек Adaptive Multi-Rate используется в мобильных телефонах третьего поколения (3G).
+п▒п╦п╫п╟я─п╫п╦п╨п╦ п╬я┌я│я┐я┌я│я┌п╡я┐я▌я┌ п╫п╟ audiocoding.com, п╫п╬ п╡я▀ п╪п╬п╤п╣я┌п╣ я│п╨п╟я┤п╟я┌я▄ (apt-get) Debian
+п©п╟п╨п╣я┌я▀ я│ <a href="http://marillat.free.fr" target="_top">п╢п╬п╪п╟я┬п╫п╣п╧ я│я┌я─п╟п╫п╦я├я▀ Christian Marillat</a>,
+Mandrake RPM'п╫п╦п╨п╦ я│ <a href="http://plf.zarb.org" target="_top">P.L.F</a> п╦ RedHat RPM'п╫п╦п╨п╦
+я│ <a href="http://rpm.livna.org/" target="_top">Livna</a>.
+</p></div><div class="sect2" lang="ru"><div class="titlepage"><div><div><h3 class="title"><a name="amr"></a>7.2.6. AMR п╨п╬п╢п╣п╨п╦</h3></div></div></div><p>
+п═п╣я┤п╣п╡п╬п╧ п╨п╬п╢п╣п╨ Adaptive Multi-Rate п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ п╡ п╪п╬п╠п╦п╩я▄п╫я▀я┘ я┌п╣п╩п╣я└п╬п╫п╟я┘ я┌я─п╣я┌я▄п╣пЁп╬ п©п╬п╨п╬п╩п╣п╫п╦я▐ (3G).
 
-Исходная реализация доступна с 
+п≤я│я┘п╬п╢п╫п╟я▐ я─п╣п╟п╩п╦п╥п╟я├п╦я▐ п╢п╬я│я┌я┐п©п╫п╟ я│ 
 <a href="http://www.3gpp.org" target="_top">The 3rd Generation Partnership Project</a>
-(бесплатна для личного использования).
-</p><p>
-Чтобы включить поддержку, скачайте исходники для
-<a href="http://www.3gpp.org/ftp/Specs/latest/Rel-6/26_series/26104-610.zip" target="_top">AMR-NB</a>
-и
-<a href="http://www.3gpp.org/ftp/Specs/latest/Rel-6/26_series/26204-600.zip" target="_top">AMR-WB</a>
-кодеков, поместите их в каталог, где распакованы исходники 
-<span class="application">MPlayer</span> и выполните следующие команды:
-</p><pre class="screen">
-unzip 26104-610.zip
-unzip 26104-610_ANSI_C_source_code.zip
-mv c-code libavcodec/amr_float
-unzip 26204-600.zip
-unzip 26204-600_ANSI-C_source_code.zip
-mv c-code libavcodec/amrwb_float
-</pre><p>
-После этого следуйте обычной <a href="features.html" title="2.4. Возможности:">процедуре сборки</a>
-<span class="application">MPlayer</span>.
-
-</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="video-codecs.html">Пред.</a> </td><td width="20%" align="center"><a accesskey="u" href="codecs.html">Уровень выше</a></td><td width="40%" align="right"> <a accesskey="n" href="codec-importing.html">След.</a></td></tr><tr><td width="40%" align="left" valign="top">7.1. Видео кодеки </td><td width="20%" align="center"><a accesskey="h" href="index.html">Начало</a></td><td width="40%" align="right" valign="top"> 7.3. КАК извлечь кодек из Win32</td></tr></table></div></body></html>
+(п╠п╣я│п©п╩п╟я┌п╫п╟ п╢п╩я▐ п╩п╦я┤п╫п╬пЁп╬ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐).
+п╖я┌п╬п╠я▀ п╡п╨п╩я▌я┤п╦я┌я▄ п©п╬п╢п╢п╣я─п╤п╨я┐, я│п╨п╟я┤п╟п╧я┌п╣ п╦ я┐я│я┌п╟п╫п╬п╡п╦я┌п╣ п╠п╦п╠п╩п╦п╬я┌п╣п╨п╦ п©п╬п╢п╢п╣я─п╤п╨п╦ п╢п╩я▐
+<a href="http://www.penguin.cz/~utx/amr" target="_top">AMR-NB п╦ AMR-WB</a>, я│п╩п╣п╢я┐я▐
+п╦п╫я│я┌я─я┐п╨я├п╦я▐п╪ п╫п╟ я┐п╨п╟п╥п╟п╫п╫п╬п╧ я│я┌я─п╟п╫п╦я├п╣.
+</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="video-codecs.html">п÷я─п╣п╢.</a>б═</td><td width="20%" align="center"><a accesskey="u" href="codecs.html">пёя─п╬п╡п╣п╫я▄ п╡я▀я┬п╣</a></td><td width="40%" align="right">б═<a accesskey="n" href="codec-importing.html">п║п╩п╣п╢.</a></td></tr><tr><td width="40%" align="left" valign="top">7.1. п▓п╦п╢п╣п╬ п╨п╬п╢п╣п╨п╦б═</td><td width="20%" align="center"><a accesskey="h" href="index.html">п²п╟я┤п╟п╩п╬</a></td><td width="40%" align="right" valign="top">б═7.3. п п░п  п╦п╥п╡п╩п╣я┤я▄ п╨п╬п╢п╣п╨ п╦п╥ Win32</td></tr></table></div></body></html>

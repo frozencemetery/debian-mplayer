@@ -1,985 +1,1007 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>14.1. Vytvo&#345;ení MPEG-4 ("DivX") ripu DVD filmu ve vysoké kvalit&#283;</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - Multimediální p&#345;ehráva&#269;"><link rel="up" href="encoding-guide.html" title="Kapitola 14. Enkódování s MEncoderem"><link rel="prev" href="encoding-guide.html" title="Kapitola 14. Enkódování s MEncoderem"><link rel="next" href="menc-feat-telecine.html" title="14.2. Jak nalo&#382;it s telecine a prokladem v NTSC DVD"><link rel="preface" href="howtoread.html" title="Jak &#269;íst tuto  dokumentaci"><link rel="chapter" href="intro.html" title="Kapitola 1. P&#345;edstavení"><link rel="chapter" href="install.html" title="Kapitola 2. Instalace"><link rel="chapter" href="usage.html" title="Kapitola 3. Pou&#382;ití"><link rel="chapter" href="cd-dvd.html" title="Kapitola 4. Pou&#382;ití CD/DVD"><link rel="chapter" href="faq.html" title="Kapitola 5. &#268;asto Kladené Dotazy (FAQ)"><link rel="chapter" href="containers.html" title="Kapitola 6. Nosné formáty (Containers)"><link rel="chapter" href="codecs.html" title="Kapitola 7. Kodeky"><link rel="chapter" href="video.html" title="Kapitola 8. Výstupní video za&#345;ízení/rozhraní"><link rel="chapter" href="audio.html" title="Kapitola 9. Výstupní zvuková za&#345;ízení"><link rel="chapter" href="tv.html" title="Kapitola 10. TV"><link rel="chapter" href="radio.html" title="Kapitola 11. Rádio"><link rel="chapter" href="ports.html" title="Kapitola 12. Porty"><link rel="chapter" href="mencoder.html" title="Kapitola 13. Základní pou&#382;ití MEncoderu"><link rel="chapter" href="encoding-guide.html" title="Kapitola 14. Enkódování s MEncoderem"><link rel="appendix" href="bugreports.html" title="P&#345;íloha A. Jak hlásit chyby"><link rel="appendix" href="bugs.html" title="P&#345;íloha B. Známé chyby"><link rel="appendix" href="skin.html" title="P&#345;íloha C. Formát skin&#367; MPlayeru"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-preparing-encode" title="14.1.1. P&#345;íprava na enkódování: Ur&#269;ení zdrojového materiálu a datového toku"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-2pass" title="14.1.2. Pevný kvantizer vs. více pr&#367;chod&#367;"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-constraints" title="14.1.3. Omezení pro efektivní enkódování"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-crop" title="14.1.4. O&#345;ezávání a &#353;kálování"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-resolution-bitrate" title="14.1.5. Volba rozli&#353;ení a datového toku"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-filtering" title="14.1.6. Filtrování"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-interlacing" title="14.1.7. Prokládání a Telecine"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-encoding-interlaced" title="14.1.8. Enkódování prokládaného videa"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-av-sync" title="14.1.9. Poznámky k Audio/Video synchronizaci"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-codec" title="14.1.10. Výb&#283;r video kodeku"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-audio" title="14.1.11. Zvuk"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-muxing" title="14.1.12. Muxování (multiplexování)"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">14.1. Vytvo&#345;ení MPEG-4 ("DivX") ripu DVD filmu ve vysoké kvalit&#283;</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="encoding-guide.html">P&#345;edcházející</a> </td><th width="60%" align="center">Kapitola 14. Enkódování s <span class="application">MEncoder</span>em</th><td width="20%" align="right"> <a accesskey="n" href="menc-feat-telecine.html">Dal&#353;í</a></td></tr></table><hr></div><div class="sect1" lang="cs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-dvd-mpeg4"></a>14.1. Vytvo&#345;ení MPEG-4 ("DivX") ripu DVD filmu ve vysoké kvalit&#283;</h2></div></div></div><p>
-  Velmi &#269;astou otázkou je "Jak mohu vytvo&#345;it rip v nejvy&#353;&#353;í mo&#382;né kvalit&#283; pro
-  danou velikost?". Dal&#353;í otázkou je "Jak vytvo&#345;ím DVD rip v nejvy&#353;&#353;í mo&#382;né
-  kvalit&#283;? Velikost souboru m&#283; nezajímá, chci tu nejvy&#353;&#353;í kvalitu."
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>14.1. VytvoÅ™enÃ­ MPEG-4 ("DivX") ripu DVD filmu ve vysokÃ© kvalitÄ›</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - MultimediÃ¡lnÃ­ pÅ™ehrÃ¡vaÄ"><link rel="up" href="encoding-guide.html" title="Kapitola 14. EnkÃ³dovÃ¡nÃ­ s MEncoderem"><link rel="prev" href="encoding-guide.html" title="Kapitola 14. EnkÃ³dovÃ¡nÃ­ s MEncoderem"><link rel="next" href="menc-feat-telecine.html" title="14.2. Jak naloÅ¾it s telecine a prokladem v NTSC DVD"><link rel="preface" href="howtoread.html" title="Jak ÄÃ­st tuto dokumentaci"><link rel="chapter" href="intro.html" title="Kapitola 1. PÅ™edstavenÃ­"><link rel="chapter" href="install.html" title="Kapitola 2. Instalace"><link rel="chapter" href="usage.html" title="Kapitola 3. PouÅ¾itÃ­"><link rel="chapter" href="cd-dvd.html" title="Kapitola 4. PouÅ¾itÃ­ CD/DVD"><link rel="chapter" href="faq.html" title="Kapitola 5. ÄŒasto KladenÃ© Dotazy (FAQ)"><link rel="chapter" href="containers.html" title="Kapitola 6. NosnÃ© formÃ¡ty (Containers)"><link rel="chapter" href="codecs.html" title="Kapitola 7. Kodeky"><link rel="chapter" href="video.html" title="Kapitola 8. VÃ½stupnÃ­ video zaÅ™Ã­zenÃ­/rozhranÃ­"><link rel="chapter" href="audio.html" title="Kapitola 9. VÃ½stupnÃ­ zvukovÃ¡ zaÅ™Ã­zenÃ­"><link rel="chapter" href="tv.html" title="Kapitola 10. TV"><link rel="chapter" href="radio.html" title="Kapitola 11. RÃ¡dio"><link rel="chapter" href="ports.html" title="Kapitola 12. Porty"><link rel="chapter" href="mencoder.html" title="Kapitola 13. ZÃ¡kladnÃ­ pouÅ¾itÃ­ MEncoderu"><link rel="chapter" href="encoding-guide.html" title="Kapitola 14. EnkÃ³dovÃ¡nÃ­ s MEncoderem"><link rel="appendix" href="bugreports.html" title="PÅ™Ã­loha A. Jak hlÃ¡sit chyby"><link rel="appendix" href="bugs.html" title="PÅ™Ã­loha B. ZnÃ¡mÃ© chyby"><link rel="appendix" href="skin.html" title="PÅ™Ã­loha C. FormÃ¡t skinÅ¯ MPlayeru"><link rel="appendix" href="history.html" title="PÅ™Ã­loha D. Historie"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-preparing-encode" title="14.1.1. PÅ™Ã­prava na enkÃ³dovÃ¡nÃ­: UrÄenÃ­ zdrojovÃ©ho materiÃ¡lu a datovÃ©ho toku"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-2pass" title="14.1.2. PevnÃ½ kvantizer vs. vÃ­ce prÅ¯chodÅ¯"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-constraints" title="14.1.3. OmezenÃ­ pro efektivnÃ­ enkÃ³dovÃ¡nÃ­"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-crop" title="14.1.4. OÅ™ezÃ¡vÃ¡nÃ­ a Å¡kÃ¡lovÃ¡nÃ­"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-resolution-bitrate" title="14.1.5. Volba rozliÅ¡enÃ­ a datovÃ©ho toku"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-filtering" title="14.1.6. FiltrovÃ¡nÃ­"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-interlacing" title="14.1.7. ProklÃ¡dÃ¡nÃ­ a Telecine"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-encoding-interlaced" title="14.1.8. EnkÃ³dovÃ¡nÃ­ proklÃ¡danÃ©ho videa"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-av-sync" title="14.1.9. PoznÃ¡mky k Audio/Video synchronizaci"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-codec" title="14.1.10. VÃ½bÄ›r video kodeku"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-audio" title="14.1.11. Zvuk"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-muxing" title="14.1.12. MuxovÃ¡nÃ­ (multiplexovÃ¡nÃ­)"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">14.1. VytvoÅ™enÃ­ MPEG-4 ("DivX")
+ripu DVD filmu ve vysokÃ© kvalitÄ›</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="encoding-guide.html">PÅ™edchÃ¡zejÃ­cÃ­</a>Â </td><th width="60%" align="center">Kapitola 14. EnkÃ³dovÃ¡nÃ­ s <span class="application">MEncoder</span>em</th><td width="20%" align="right">Â <a accesskey="n" href="menc-feat-telecine.html">DalÅ¡Ã­</a></td></tr></table><hr></div><div class="sect1" lang="cs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-dvd-mpeg4"></a>14.1. VytvoÅ™enÃ­ MPEG-4 ("DivX")
+ripu DVD filmu ve vysokÃ© kvalitÄ›</h2></div></div></div><p>
+Velmi Äastou otÃ¡zkou je "Jak mohu vytvoÅ™it rip v nejvyÅ¡Å¡Ã­ moÅ¾nÃ© kvalitÄ› pro
+danou velikost?". DalÅ¡Ã­ otÃ¡zkou je "Jak vytvoÅ™Ã­m DVD rip v nejvyÅ¡Å¡Ã­ moÅ¾nÃ©
+kvalitÄ›? Velikost souboru mÄ› nezajÃ­mÃ¡, chci tu nejvyÅ¡Å¡Ã­ kvalitu."
 </p><p>
-  Druhá otázka je pon&#283;kud &#353;patn&#283; polo&#382;ená. Konec konc&#367;, pokud je vám lhostejná
-  velikost souboru, pro&#269; prost&#283; nezkopírujete celý MPEG-2 video proud z DVD?
-  Jist&#283;&#382;e va&#353;e AVI bude mít kolem 5 GB, ale pokud chcete nejvy&#353;&#353;í kvalitu a
-  na velikosti nezále&#382;í, je to jist&#283; nejlep&#353;í volba.
+DruhÃ¡ otÃ¡zka je ponÄ›kud Å¡patnÄ› poloÅ¾enÃ¡. Konec koncÅ¯, pokud je vÃ¡m lhostejnÃ¡
+velikost souboru, proÄ prostÄ› nezkopÃ­rujete celÃ½ MPEG-2 video proud z DVD?
+JistÄ›Å¾e vaÅ¡e AVI bude mÃ­t kolem 5 GB, ale pokud chcete nejvyÅ¡Å¡Ã­ kvalitu a
+na velikosti nezÃ¡leÅ¾Ã­, je to jistÄ› nejlepÅ¡Ã­ volba.
 </p><p>
-  Ve skute&#269;nosti, d&#367;vodem p&#345;evodu DVD do MPEG-4 je práv&#283; to, &#382;e vám na velikosti
-  souboru <span class="bold"><strong>zále&#382;í</strong></span>.
+Ve skuteÄnosti, dÅ¯vodem pÅ™evodu DVD do MPEG-4 je prÃ¡vÄ› to, Å¾e vÃ¡m na velikosti
+souboru <span class="bold"><strong>zÃ¡leÅ¾Ã­</strong></span>.
 </p><p>
-  Je t&#283;&#382;ké nabídnout kucha&#345;ku jak vytvo&#345;it DVD rip ve velmi vysoké kvalit&#283;. Je
-  nutné uvá&#382;it mno&#382;ství faktor&#367; a m&#283;li byste rozum&#283;t t&#283;mto detail&#367;m, jinak
-  budete asi zklamáni výsledkem. Ní&#382;e prozkoumáme n&#283;které z t&#283;chto v&#283;cí a
-  pak se podíváme na p&#345;íklad. P&#345;edpokládáme, &#382;e pou&#382;ijete
-  <code class="systemitem">libavcodec</code> pro enkódování videa,
-  a&#269;koli teorie je stejná i pro ostatní kodeky.
+Je tÄ›Å¾kÃ© nabÃ­dnout kuchaÅ™ku jak vytvoÅ™it DVD rip ve velmi vysokÃ© kvalitÄ›. Je
+nutnÃ© uvÃ¡Å¾it mnoÅ¾stvÃ­ faktorÅ¯ a mÄ›li byste rozumÄ›t tÄ›mto detailÅ¯m, jinak
+budete asi zklamÃ¡ni vÃ½sledkem. NÃ­Å¾e prozkoumÃ¡me nÄ›kterÃ© z tÄ›chto vÄ›cÃ­ a
+pak se podÃ­vÃ¡me na pÅ™Ã­klad. PÅ™edpoklÃ¡dÃ¡me, Å¾e pouÅ¾ijete
+<code class="systemitem">libavcodec</code> pro enkÃ³dovÃ¡nÃ­ videa,
+aÄkoli teorie je stejnÃ¡ i pro ostatnÃ­ kodeky.
 </p><p>
-  Pokud je toho na vás moc, asi byste m&#283;li pou&#382;ít n&#283;který z p&#283;kných frontend&#367;,
-  které jsou zmín&#283;ny v
-  <a href="http://www.mplayerhq.hu/design7/projects.html#mencoder_frontends" target="_top">sekci MEncoder</a>
-  na na&#353;í stránce odvozených projekt&#367;.
-  Takto budete schopni dosahovat vysoce kvalitních rip&#367; bez velkého p&#345;emý&#353;lení,
-  proto&#382;e v&#283;t&#353;ina t&#283;chto nástroj&#367; je navr&#382;ena tak, aby d&#283;lala vhodná rozhodnutí
-  za vás.
-</p><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode"></a>14.1.1. P&#345;íprava na enkódování: Ur&#269;ení zdrojového materiálu a datového toku</h3></div></div></div><p>
-  P&#345;edtím ne&#382; i jen pomyslíte na enkódování filmu, budete muset u&#269;init
-  n&#283;kolik p&#345;ípravných krok&#367;.
+Pokud je toho na vÃ¡s moc, asi byste mÄ›li pouÅ¾Ã­t nÄ›kterÃ½ z pÄ›knÃ½ch frontendÅ¯,
+kterÃ© jsou zmÃ­nÄ›ny v
+<a href="http://www.mplayerhq.hu/design7/projects.html#mencoder_frontends" target="_top">sekci MEncoder</a>
+na naÅ¡Ã­ strÃ¡nce odvozenÃ½ch projektÅ¯.
+Takto budete schopni dosahovat vysoce kvalitnÃ­ch ripÅ¯ bez velkÃ©ho pÅ™emÃ½Å¡lenÃ­,
+protoÅ¾e vÄ›tÅ¡ina tÄ›chto nÃ¡strojÅ¯ je navrÅ¾ena tak, aby dÄ›lala vhodnÃ¡ rozhodnutÃ­
+za vÃ¡s.
+</p><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode"></a>14.1.1. PÅ™Ã­prava na enkÃ³dovÃ¡nÃ­: UrÄenÃ­ zdrojovÃ©ho materiÃ¡lu a datovÃ©ho toku</h3></div></div></div><p>
+PÅ™edtÃ­m neÅ¾ i jen pomyslÃ­te na enkÃ³dovÃ¡nÃ­ filmu, budete muset uÄinit
+nÄ›kolik pÅ™Ã­pravnÃ½ch krokÅ¯.
 </p><p>
-  Prvním a nejd&#367;le&#382;it&#283;j&#353;ím krokem p&#345;ed enkódováním by m&#283;lo být zji&#353;t&#283;ní
-  druhu obsahu se kterým máte co do &#269;in&#283;ní.
-  Pokud va&#353;e zdrojové video pochází z DVD nebo ve&#345;ejné/kabelové/satelitní
-  TV, bude ulo&#382;en v jednom ze dvou formát&#367;: NTSC v Severní Americe a
-  Japonsku, PAL v Euvrop&#283;, atd.
-  Je ov&#353;em d&#367;le&#382;ité si uv&#283;domit, &#382;e to je pouze formátování pro prezentaci
-  v televizi a &#269;asto <span class="bold"><strong>neodpovídá</strong></span>
-  originálnímu formátu filmu.
-  Zku&#353;enosti ukazují, &#382;e NTSC materiál je mnohem t&#283;&#382;&#353;í enkódovat,
-  jeliko&#382; musíme identifikovat více v&#283;cí ve zdrojovém videu.
-  Abyste dosáhli uspokojivého výsledku, musíte znát p&#367;vodní formát.
-  Nevezmete-li to správn&#283; v potaz, dostanete obraz plný nejr&#367;zn&#283;j&#353;ích vad,
-  v&#269;etn&#283; o&#353;klivých kombina&#269;ních (proklad) artefakt&#367; a zdvojených nebo dokonce
-  zahozených snímk&#367;.
-  Krom&#283; toho, &#382;e budete mít nekvalitní obraz, artefakty rovn&#283;&#382; sni&#382;ují
-  efektivitu kódování:
-  Dosáhnete hor&#353;í kvalitu na jednotku datového toku.
-</p><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode-fps"></a>14.1.1.1. Zji&#353;t&#283;ní snímkové rychlosti zdroje</h4></div></div></div><p>
-  Zde máte seznam b&#283;&#382;ných typ&#367; zdrojového materiálu, kde na který nejspí&#353;
-  narazíte a jejich volby:
+PrvnÃ­m a nejdÅ¯leÅ¾itÄ›jÅ¡Ã­m krokem pÅ™ed enkÃ³dovÃ¡nÃ­m by mÄ›lo bÃ½t zjiÅ¡tÄ›nÃ­
+druhu obsahu se kterÃ½m mÃ¡te co do ÄinÄ›nÃ­.
+Pokud vaÅ¡e zdrojovÃ© video pochÃ¡zÃ­ z DVD nebo veÅ™ejnÃ©/kabelovÃ©/satelitnÃ­
+TV, bude uloÅ¾en v jednom ze dvou formÃ¡tÅ¯: NTSC v SevernÃ­ Americe a
+Japonsku, PAL v EvropÄ›, atd.
+Je ovÅ¡em dÅ¯leÅ¾itÃ© si uvÄ›domit, Å¾e to je pouze formÃ¡tovÃ¡nÃ­ pro prezentaci
+v televizi a Äasto <span class="bold"><strong>neodpovÃ­dÃ¡</strong></span>
+originÃ¡lnÃ­mu formÃ¡tu filmu.
+ZkuÅ¡enosti ukazujÃ­, Å¾e NTSC materiÃ¡l je mnohem tÄ›Å¾Å¡Ã­ enkÃ³dovat,
+jelikoÅ¾ musÃ­me identifikovat vÃ­ce vÄ›cÃ­ ve zdrojovÃ©m videu.
+Abyste dosÃ¡hli uspokojivÃ©ho vÃ½sledku, musÃ­te znÃ¡t pÅ¯vodnÃ­ formÃ¡t.
+Nevezmete-li to sprÃ¡vnÄ› v potaz, dostanete obraz plnÃ½ nejrÅ¯znÄ›jÅ¡Ã­ch vad,
+vÄetnÄ› oÅ¡klivÃ½ch kombinaÄnÃ­ch (proklad) artefaktÅ¯ a zdvojenÃ½ch nebo dokonce
+zahozenÃ½ch snÃ­mkÅ¯.
+KromÄ› toho, Å¾e budete mÃ­t nekvalitnÃ­ obraz, artefakty rovnÄ›Å¾ sniÅ¾ujÃ­
+efektivitu kÃ³dovÃ¡nÃ­:
+DosÃ¡hnete horÅ¡Ã­ kvalitu na jednotku datovÃ©ho toku.
+</p><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode-fps"></a>14.1.1.1. ZjiÅ¡tÄ›nÃ­ snÃ­mkovÃ© rychlosti zdroje</h4></div></div></div><p>
+Zde mÃ¡te seznam bÄ›Å¾nÃ½ch typÅ¯ zdrojovÃ©ho materiÃ¡lu, kde na kterÃ½ nejspÃ­Å¡
+narazÃ­te a jejich volby:
 </p><div class="itemizedlist"><ul type="disc"><li><p>
-  <span class="bold"><strong>Standardní film</strong></span>: Vytvo&#345;ený pro promítání
-  v kin&#283; p&#345;i 24fps.
+  <span class="bold"><strong>StandardnÃ­ film</strong></span>: VytvoÅ™enÃ½ pro promÃ­tÃ¡nÃ­
+  v kinÄ› pÅ™i 24fps.
 </p></li><li><p>
-  <span class="bold"><strong>PAL video</strong></span>: Zaznamenáno PAL
-  video kamerou s rychlostí 50 p&#367;lsnímk&#367; za sekundu.
-  P&#367;lsnímek sestává jen z lichých nebo sudých &#345;ádk&#367; daného snímku.
-  Televize je navr&#382;ena pro jejich st&#345;ídavé zobrazování jako laciná
-  forma analogové komprese.
-  Lidské oko to pravd&#283;podobn&#283; vykompenzuje, ale jakmile porozumíte
-  prokládání, nau&#269;íte se jej vid&#283;t i v TV a u&#382; si ji neu&#382;ijete.
-  Dva p&#367;lsnímky <span class="bold"><strong>netvo&#345;í</strong></span> úplný snímek,
-  proto&#382;e jsou zaznamenány s &#269;asovou odchylkou 1/50 sekundy a proto se
-  nekryjí, dokud je zde pohyb.
+  <span class="bold"><strong>PAL video</strong></span>: ZaznamenÃ¡no PAL
+  video kamerou s rychlostÃ­ 50 pÅ¯lsnÃ­mkÅ¯ za sekundu.
+  PÅ¯lsnÃ­mek sestÃ¡vÃ¡ jen z lichÃ½ch nebo sudÃ½ch Å™Ã¡dkÅ¯ danÃ©ho snÃ­mku.
+  Televize je navrÅ¾ena pro jejich stÅ™Ã­davÃ© zobrazovÃ¡nÃ­ jako lacinÃ¡
+  forma analogovÃ© komprese.
+  LidskÃ© oko to pravdÄ›podobnÄ› vykompenzuje, ale jakmile porozumÃ­te
+  proklÃ¡dÃ¡nÃ­, nauÄÃ­te se jej vidÄ›t i v TV a uÅ¾ si ji neuÅ¾ijete.
+  Dva pÅ¯lsnÃ­mky <span class="bold"><strong>netvoÅ™Ã­</strong></span> ÃºplnÃ½ snÃ­mek,
+  protoÅ¾e jsou zaznamenÃ¡ny s Äasovou odchylkou 1/50 sekundy a proto se
+  nekryjÃ­, dokud je zde pohyb.
 </p></li><li><p>
-  <span class="bold"><strong>NTSC Video</strong></span>: Zaznamenáno
-  NTSC video kamerou s rychlostí 60000/1001 p&#367;lsnímk&#367; za sekundu, nebo 60
-  p&#367;lsnímk&#367; za sekundu v dob&#283; p&#345;ed barevnou televizí.
-  Jinak obdobné PAL.
+  <span class="bold"><strong>NTSC Video</strong></span>: ZaznamenÃ¡no
+  NTSC video kamerou s rychlostÃ­ 60000/1001 pÅ¯lsnÃ­mkÅ¯ za sekundu, nebo 60
+  pÅ¯lsnÃ­mkÅ¯ za sekundu v dobÄ› pÅ™ed barevnou televizÃ­.
+  Jinak obdobnÃ© PAL.
 </p></li><li><p>
-  <span class="bold"><strong>Animovaný film</strong></span>: Obvykle kreslený p&#345;i
-  24 snímcích za sekundu, ale rovn&#283;&#382; bývá v n&#283;které variant&#283; prm&#283;nné snímkové
+  <span class="bold"><strong>AnimovanÃ½ film</strong></span>: Obvykle kreslenÃ½ pÅ™i
+  24 snÃ­mcÃ­ch za sekundu, ale rovnÄ›Å¾ bÃ½vÃ¡ v nÄ›kterÃ© variantÄ› prmÄ›nnÃ© snÃ­mkovÃ©
   rychlosti.
 </p></li><li><p>
-  <span class="bold"><strong>Po&#269;íta&#269;ová grafika (CG)</strong></span>: M&#367;&#382;e mít jakoukoli
-  snímkovou rychlost, ale n&#283;které jsou &#269;ast&#283;j&#353;í ne&#382; jiné; 24 a 30 snímk&#367; za
-  sekundu jsou typické pro NTSC a 25 snímk&#367; za sekundu zase pro PAL.
+  <span class="bold"><strong>PoÄÃ­taÄovÃ¡ grafika (CG)</strong></span>: MÅ¯Å¾e mÃ­t jakoukoli
+  snÃ­mkovou rychlost, ale nÄ›kterÃ© jsou ÄastÄ›jÅ¡Ã­ neÅ¾ jinÃ©; 24 a 30 snÃ­mkÅ¯ za
+  sekundu jsou typickÃ© pro NTSC a 25 snÃ­mkÅ¯ za sekundu zase pro PAL.
 </p></li><li><p>
-  <span class="bold"><strong>Starý film</strong></span>: R&#367;zné ni&#382;&#353;í snímkové rychlosti.
-</p></li></ul></div></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode-material"></a>14.1.1.2. Ur&#269;ení zdrojového materiálu</h4></div></div></div><p>
-  Filmy sestávající ze snímk&#367; jsou nazývány progresivní,
-  zatímco ty slo&#382;ené z nezávislých p&#367;lsnímk&#367; bu&#271; prokládané, nebo
-  jen video &#8211; a&#269;koli druhý termín je zavád&#283;jící.
+  <span class="bold"><strong>StarÃ½ film</strong></span>: RÅ¯znÃ© niÅ¾Å¡Ã­ snÃ­mkovÃ© rychlosti.
+</p></li></ul></div></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode-material"></a>14.1.1.2. UrÄenÃ­ zdrojovÃ©ho materiÃ¡lu</h4></div></div></div><p>
+Filmy sestÃ¡vajÃ­cÃ­ ze snÃ­mkÅ¯ jsou nazÃ½vÃ¡ny progresivnÃ­,
+zatÃ­mco ty sloÅ¾enÃ© z nezÃ¡vislÃ½ch pÅ¯lsnÃ­mkÅ¯ buÄ proklÃ¡danÃ©, nebo
+jen video â€“ aÄkoli druhÃ½ termÃ­n je zavÃ¡dÄ›jÃ­cÃ­.
 </p><p>
-  Abychom to je&#353;t&#283; zkomplikovali, n&#283;které filmy mohou být sm&#283;sí
-  v&#353;eho vý&#353;e uvedeného.
+Abychom to jeÅ¡tÄ› zkomplikovali, nÄ›kterÃ© filmy mohou bÃ½t smÄ›sÃ­
+vÅ¡eho vÃ½Å¡e uvedenÃ©ho.
 </p><p>
-  Nejd&#367;le&#382;it&#283;j&#353;ím rozdílem mezi v&#353;emi t&#283;mito formáty je to, &#382;e základem
-  n&#283;kterých jsou snímky a jiných p&#367;lsnímky.
-  <span class="bold"><strong>V&#382;dy</strong></span>, kdy&#382; je film p&#345;ipravován pro promítání
-  v televizi (v&#269;etn&#283; DVD), je p&#345;eveden na p&#367;lsnímky.
-  R&#367;zné metody jak toho lze dosáhnout jsou souhrnn&#283; nazývány "pulldown" a
-  nechvaln&#283; známé NTSC "3:2 telecine" je jednou z variant.
-  Pokud nebyl základ va&#353;eho filmu rovn&#283;&#382; p&#367;lsnímkový (se stejnou p&#367;lsnímkovou
-  rychlostí), máte film v jiném formátu, ne&#382; byl p&#367;vodn&#283;.
-</p><div class="itemizedlist"><p class="title"><b>Zde je n&#283;kolik b&#283;&#382;ných typ&#367; pulldown:</b></p><ul type="disc"><li><p>
-  <span class="bold"><strong>PAL 2:2 pulldown</strong></span>: Je nejhez&#269;í z nich.
-  Ka&#382;dý snímek je zobrazován po dobu dvou p&#367;lsnímk&#367; tak, &#382;e se odd&#283;lí liché
-  a sudé &#345;ádky a zobrazují se st&#345;ídav&#283;.
-  Pokud m&#283;l originál 24 snímk&#367; za sekundu, zrychlí se film o 4%.
+NejdÅ¯leÅ¾itÄ›jÅ¡Ã­m rozdÃ­lem mezi vÅ¡emi tÄ›mito formÃ¡ty je to, Å¾e zÃ¡kladem
+nÄ›kterÃ½ch jsou snÃ­mky a jinÃ½ch pÅ¯lsnÃ­mky.
+<span class="bold"><strong>VÅ¾dy</strong></span>, kdyÅ¾ je film pÅ™ipravovÃ¡n pro promÃ­tÃ¡nÃ­
+v televizi (vÄetnÄ› DVD), je pÅ™eveden na pÅ¯lsnÃ­mky.
+RÅ¯znÃ© metody jak toho lze dosÃ¡hnout jsou souhrnnÄ› nazÃ½vÃ¡ny "telecine" a
+nechvalnÄ› znÃ¡mÃ© NTSC "3:2 pulldown" je jednou z variant.
+Pokud nebyl zÃ¡klad vaÅ¡eho filmu rovnÄ›Å¾ pÅ¯lsnÃ­mkovÃ½ (se stejnou pÅ¯lsnÃ­mkovou
+rychlostÃ­), mÃ¡te film v jinÃ©m formÃ¡tu, neÅ¾ byl pÅ¯vodnÄ›.
+</p><div class="itemizedlist"><p class="title"><b>Zde je nÄ›kolik bÄ›Å¾nÃ½ch typÅ¯ pulldown:</b></p><ul type="disc"><li><p>
+  <span class="bold"><strong>PAL 2:2 pulldown</strong></span>: Je nejhezÄÃ­ z nich.
+  KaÅ¾dÃ½ snÃ­mek je zobrazovÃ¡n po dobu dvou pÅ¯lsnÃ­mkÅ¯ tak, Å¾e se oddÄ›lÃ­ lichÃ©
+  a sudÃ© Å™Ã¡dky a zobrazujÃ­ se stÅ™Ã­davÄ›.
+  Pokud mÄ›l originÃ¡l 24 snÃ­mkÅ¯ za sekundu, zrychlÃ­ se film o 4%.
 </p></li><li><p>
   <span class="bold"><strong>PAL 2:2:2:2:2:2:2:2:2:2:2:3 pulldown</strong></span>:
-  Ka&#382;dý 12 snímek je zobrazen po dobu t&#345;í p&#367;lsnímk&#367;, místo dvou.
-  To odstraní nevýhodu 4% zrychlení, ale znesnadní obrácený proces.
-  Obvykle je pou&#382;íván pouze u hudební produkce, jeliko&#382; zde by 4% zrychlení
-  znateln&#283; po&#353;kodilo hudební zá&#382;itek.
+  KaÅ¾dÃ½ 12 snÃ­mek je zobrazen po dobu tÅ™Ã­ pÅ¯lsnÃ­mkÅ¯, mÃ­sto dvou.
+  To odstranÃ­ nevÃ½hodu 4% zrychlenÃ­, ale znesnadnÃ­ obrÃ¡cenÃ½ proces.
+  Obvykle je pouÅ¾Ã­vÃ¡n pouze u hudebnÃ­ produkce, jelikoÅ¾ zde by 4% zrychlenÃ­
+  znatelnÄ› poÅ¡kodilo hudebnÃ­ zÃ¡Å¾itek.
 </p></li><li><p>
-  <span class="bold"><strong>NTSC 3:2 telecine</strong></span>: Snímky jsou zobrazovány
-  po dobu 2 nebo 3 p&#367;lsnímk&#367;, &#269;ím&#382; je dosa&#382;eno 2.5 krát
-  vy&#353;&#353;í p&#367;lsnímkové rychlosti, ne&#382; je originální snímková rychlost.
-  Výsledek je dále velmi mírn&#283; spomalen ze 60 p&#367;lsnímk&#367; za sekundu na
-  60000/1001 p&#367;lsnímk&#367; za sekundu, aby se dosáhlo NTSC p&#367;lsnímkové rychlosti.
+  <span class="bold"><strong>NTSC 3:2 telecine</strong></span>: SnÃ­mky jsou zobrazovÃ¡ny
+  po dobu 2 nebo 3 pÅ¯lsnÃ­mkÅ¯, ÄÃ­mÅ¾ je dosaÅ¾eno 2.5 krÃ¡t
+  vyÅ¡Å¡Ã­ pÅ¯lsnÃ­mkovÃ© rychlosti, neÅ¾ je originÃ¡lnÃ­ snÃ­mkovÃ¡ rychlost.
+  VÃ½sledek je dÃ¡le velmi mÃ­rnÄ› spomalen ze 60 pÅ¯lsnÃ­mkÅ¯ za sekundu na
+  60000/1001 pÅ¯lsnÃ­mkÅ¯ za sekundu, aby se dosÃ¡hlo NTSC pÅ¯lsnÃ­mkovÃ© rychlosti.
 </p></li><li><p>
-  <span class="bold"><strong>NTSC 2:2 pulldown</strong></span>: Pou&#382;ívá se pro
-  promítání 30fps materiálu na NTSC.
-  P&#283;kné, stejn&#283; jako 2:2 PAL pulldown.
+  <span class="bold"><strong>NTSC 2:2 pulldown</strong></span>: PouÅ¾Ã­vÃ¡ se pro
+  promÃ­tÃ¡nÃ­ 30fps materiÃ¡lu na NTSC.
+  PÄ›knÃ©, stejnÄ› jako 2:2 PAL pulldown.
 </p></li></ul></div><p>
-  Existují rovn&#283;&#382; metody pro konverzi mezi NTSC a PAL vieem, ale to
-  ji&#382; je nad rámec této p&#345;íru&#269;ky.
-  Pokud se setkáte s takovým filmem a budete jej chtít enkódovat,
-  bude pro vás nejlep&#353;í opat&#345;it si jej v originálním formátu.
-  Konverze mezi t&#283;mito formáty je vysoce destruktivní a nelze ji
-  &#269;ist&#283; zvrátit, tak&#382;e výsledek velmi utrpí, pokud je vytvo&#345;en z
-  konvertovaného materiálu.
+ExistujÃ­ rovnÄ›Å¾ metody pro konverzi mezi NTSC a PAL videem, ale to
+jiÅ¾ je nad rÃ¡mec tÃ©to pÅ™Ã­ruÄky.
+Pokud se setkÃ¡te s takovÃ½m filmem a budete jej chtÃ­t enkÃ³dovat,
+bude pro vÃ¡s nejlepÅ¡Ã­ opatÅ™it si jej v originÃ¡lnÃ­m formÃ¡tu.
+Konverze mezi tÄ›mito formÃ¡ty je vysoce destruktivnÃ­ a nelze ji
+ÄistÄ› zvrÃ¡tit, takÅ¾e vÃ½sledek velmi utrpÃ­, pokud je vytvoÅ™en z
+konvertovanÃ©ho materiÃ¡lu.
 </p><p>
-  Kdy&#382; je video ukládáno na DVD, po sob&#283; jdoucí páry p&#367;lsnímk&#367; jsou
-  seskupovány do snímk&#367;, dokonce i kdy&#382; nejsou ur&#269;eny pro zobrazení
-  ve stejném okam&#382;iku.
-  Standard MPEG-2 pou&#382;itý na DVD a digitální televizi poskytuje mo&#382;nost
-  jak pro enkódování originálních progresivních snímk&#367;, tak pro ulo&#382;ení
-  informací do hlavi&#269;ky snímku o po&#269;tu p&#367;lsnímk&#367;, po jejich&#382; dobu by m&#283;l
-  být daný snímek zobrazován.
-  Pokud je pou&#382;ita tato metoda, film bývá &#269;asto ozna&#269;en jako
-  "soft-telecined", jeliko&#382; proces pouze &#345;ídí DVD p&#345;ehráva&#269; pro
-  aplikaci pulldown na film spí&#353;e ne&#382; &#382;e m&#283;ní samotný film.
-  Tento p&#345;ípad je velmi up&#345;ednost&#328;ován, jaliko&#382; m&#367;&#382;e být snadno
-  zvrácen (ve skute&#269;nosti ignorován) enkodérem a proto poskytuje maximální
-  kvalitu.
-  Mnoho DVD a televizních produk&#269;ních spole&#269;ností v&#353;ak nepou&#382;ívá vhodné
-  enkódovací techniky, ale místo toho produkují filmy s
-  "hard telecine", kdy jsou ve skute&#269;nosti p&#367;lsnímky duplikovány
-  ve výsledném MPEG-2.
+KdyÅ¾ je video uklÃ¡dÃ¡no na DVD, po sobÄ› jdoucÃ­ pÃ¡ry pÅ¯lsnÃ­mkÅ¯ jsou
+seskupovÃ¡ny do snÃ­mkÅ¯, dokonce i kdyÅ¾ nejsou urÄeny pro zobrazenÃ­
+ve stejnÃ©m okamÅ¾iku.
+Standard MPEG-2 pouÅ¾itÃ½ na DVD a digitÃ¡lnÃ­ televizi poskytuje moÅ¾nost
+jak pro enkÃ³dovÃ¡nÃ­ originÃ¡lnÃ­ch progresivnÃ­ch snÃ­mkÅ¯, tak pro uloÅ¾enÃ­
+informacÃ­ do hlaviÄky snÃ­mku o poÄtu pÅ¯lsnÃ­mkÅ¯, po jejichÅ¾ dobu by mÄ›l
+bÃ½t danÃ½ snÃ­mek zobrazovÃ¡n.
+Pokud je pouÅ¾ita tato metoda, film bÃ½vÃ¡ Äasto oznaÄen jako
+"soft-telecined", jelikoÅ¾ proces pouze Å™Ã­dÃ­ DVD pÅ™ehrÃ¡vaÄ pro
+aplikaci pulldown na film spÃ­Å¡e neÅ¾ Å¾e mÄ›nÃ­ samotnÃ½ film.
+Tento pÅ™Ã­pad je velmi upÅ™ednostÅˆovÃ¡n, jelikoÅ¾ mÅ¯Å¾e bÃ½t snadno
+zvrÃ¡cen (ve skuteÄnosti ignorovÃ¡n) enkodÃ©rem a proto poskytuje maximÃ¡lnÃ­
+kvalitu.
+Mnoho DVD a televiznÃ­ch produkÄnÃ­ch spoleÄnostÃ­ vÅ¡ak nepouÅ¾Ã­vÃ¡ vhodnÃ©
+enkÃ³dovacÃ­ techniky, ale mÃ­sto toho produkujÃ­ filmy s
+"hard telecine", kdy jsou ve skuteÄnosti pÅ¯lsnÃ­mky duplikovÃ¡ny
+ve vÃ½slednÃ©m MPEG-2.
 </p><p>
-  Postupy pro tyto p&#345;ípady budou uvedeny
-  <a href="menc-feat-telecine.html" title="14.2. Jak nalo&#382;it s telecine a prokladem v NTSC DVD">pozd&#283;ji v této p&#345;íru&#269;ce</a>.
-  Prozatím si &#345;ekneme n&#283;kolik návod&#367; pro identifikaci o jaký typ materiálu jde:
+Postupy pro tyto pÅ™Ã­pady budou uvedeny
+<a href="menc-feat-telecine.html" title="14.2. Jak naloÅ¾it s telecine a prokladem v NTSC DVD">pozdÄ›ji v tÃ©to pÅ™Ã­ruÄce</a>.
+ProzatÃ­m si Å™ekneme nÄ›kolik nÃ¡vodÅ¯ pro identifikaci o jakÃ½ typ materiÃ¡lu jde:
 </p><div class="itemizedlist"><p class="title"><b>NTSC regiony:</b></p><ul type="disc"><li><p>
-  Pokud <span class="application">MPlayer</span> p&#345;i p&#345;ehrávání vypí&#353;e, &#382;e se snímková
-  rychlost zm&#283;nila na 24000/1001 a ji&#382; se to nezm&#283;ní, pak se nejspí&#353; jedná
-  o progresivní obsah, který byl "soft telecinován".
+  Pokud <span class="application">MPlayer</span> pÅ™i pÅ™ehrÃ¡vÃ¡nÃ­ vypÃ­Å¡e, Å¾e se snÃ­mkovÃ¡
+  rychlost zmÄ›nila na 24000/1001 a jiÅ¾ se to nezmÄ›nÃ­, pak se nejspÃ­Å¡ jednÃ¡
+  o progresivnÃ­ obsah, kterÃ½ byl "soft telecinovÃ¡n".
 </p></li><li><p>
-  Pokud <span class="application">MPlayer</span> ukazuje, &#382;e se snímková rychlost
-  m&#283;ní tam a zp&#283;t mezi 24000/1001 a 30000/1001 a n&#283;kdy vidíte
-  "combing", pak je zde n&#283;kolik mo&#382;ností.
-  Segmenty 24000/1001 fps mají tém&#283;&#345; jist&#283; "soft telecinovaný" progresivní
-  obsah, ale 30000/1001 fps &#269;ásti mohou mít bu&#271; hard-telecined 24000/1001 fps
-  obsah, nobo se jedná o 60000/1001 p&#367;lsnímk&#367; za sekundu NTSC video.
-  Pou&#382;ijte stejný postup jako v následujících dvou p&#345;ípadech pro ur&#269;ení
-  který z nich to je.
+  Pokud <span class="application">MPlayer</span> ukazuje, Å¾e se snÃ­mkovÃ¡ rychlost
+  mÄ›nÃ­ tam a zpÄ›t mezi 24000/1001 a 30000/1001 a nÄ›kdy vidÃ­te
+  "combing", pak je zde nÄ›kolik moÅ¾nostÃ­.
+  Segmenty 24000/1001 fps majÃ­ tÃ©mÄ›Å™ jistÄ› "soft telecinovanÃ½" progresivnÃ­
+  obsah, ale 30000/1001 fps ÄÃ¡sti mohou mÃ­t buÄ hard-telecined 24000/1001 fps
+  obsah, nebo se jednÃ¡ o 60000/1001 pÅ¯lsnÃ­mkÅ¯ za sekundu NTSC video.
+  PouÅ¾ijte stejnÃ½ postup jako v nÃ¡sledujÃ­cÃ­ch dvou pÅ™Ã­padech pro urÄenÃ­
+  kterÃ½ z nich to je.
 </p></li><li><p>
-  Pokud <span class="application">MPlayer</span> neuká&#382;e zm&#283;nu snímkové rychlosti
-  a v&#353;echny snímky jsou zubaté, je vá&#353; film ve formátu NTSC video s 60000/1001
-  p&#367;lsnímky za sekundu.
+  Pokud <span class="application">MPlayer</span> neukÃ¡Å¾e zmÄ›nu snÃ­mkovÃ© rychlosti
+  a vÅ¡echny snÃ­mky jsou zubatÃ©, je vÃ¡Å¡ film ve formÃ¡tu NTSC video s 60000/1001
+  pÅ¯lsnÃ­mky za sekundu.
 </p></li><li><p>
-  Pokud <span class="application">MPlayer</span> neuká&#382;e zm&#283;nu snímkové rychlosti
-  a dva snímky z p&#283;ti vypadají zubat&#283;, má va&#353;e video "hard telecinovaný"
+  Pokud <span class="application">MPlayer</span> neukÃ¡Å¾e zmÄ›nu snÃ­mkovÃ© rychlosti
+  a dva snÃ­mky z pÄ›ti vypadajÃ­ zubatÄ›, mÃ¡ vaÅ¡e video "hard telecinovanÃ½"
   24000/1001fps obsah.
 </p></li></ul></div><div class="itemizedlist"><p class="title"><b>PAL regiony:</b></p><ul type="disc"><li><p>
-  Pokud není nikde vid&#283;t &#382;ádné zubat&#283;ní, je vá&#353; film 2:2 pulldown.
+  Pokud nenÃ­ nikde vidÄ›t Å¾Ã¡dnÃ© zubatÄ›nÃ­, je vÃ¡Å¡ film 2:2 pulldown.
 </p></li><li><p>
-  Pokud vidíte jak se objevuje a mizí zubat&#283;ní ka&#382;dou p&#367;lsekundu,
-  pak je vá&#353; film 2:2:2:2:2:2:2:2:2:2:2:3 pulldown.
+  Pokud vidÃ­te jak se objevuje a mizÃ­ zubatÄ›nÃ­ kaÅ¾dou pÅ¯lsekundu,
+  pak je vÃ¡Å¡ film 2:2:2:2:2:2:2:2:2:2:2:3 pulldown.
 </p></li><li><p>
-  Pokud je zubat&#283;ní vid&#283;t stále, je to PAL video s 50 p&#367;lsnímky za sekundu.
+  Pokud je zubatÄ›nÃ­ vidÄ›t stÃ¡le, je to PAL video s 50 pÅ¯lsnÃ­mky za sekundu.
 </p></li></ul></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Rada:</h3><p>
-  <span class="application">MPlayer</span> umí spomalit p&#345;ehrávání videa
-  pomocí volby -speed.
-  Zkuste pou&#382;ít <tt class="option">-speed</tt> 0.2 pro velmi pomalé p&#345;ehrávání a
-  najd&#283;te vzor, pokud jej nevidíte p&#345;i plné rychlosti.
-</p></div></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-2pass"></a>14.1.2. Pevný kvantizer vs. více pr&#367;chod&#367;</h3></div></div></div><p>
-  Enkódování va&#353;eho videa je mo&#382;né provést v &#353;iroké &#353;kále kvality.
-  S moderními video enkodéry a trochou p&#345;edkodekové komprese
-  (zmen&#353;ení a od&#353;umování) je mo&#382;né dosáhnout velmi dobré kvality v 700 MB,
-  pro 90-110 minut dlouhé &#353;irokoúhlé video.
-  Jinak lze v&#353;echna videa, snad krom&#283; t&#283;ch nejdel&#353;ích, enkódovat v tém&#283;&#345;
-  perfektní kvalit&#283; do 1400 MB.
+  <span class="application">MPlayer</span> umÃ­ spomalit pÅ™ehrÃ¡vÃ¡nÃ­ videa
+  pomocÃ­ volby -speed.
+  Zkuste pouÅ¾Ã­t <tt class="option">-speed</tt> 0.2 pro velmi pomalÃ© pÅ™ehrÃ¡vÃ¡nÃ­ 
+  nebo opakovanÄ› stiskejte klÃ¡vesu "<span class="keycap"><b>.</b></span>" pro krokovÃ¡nÃ­Ã© po
+  snÃ­mcÃ­ch a najdÄ›te vzor, pokud jej nevidÃ­te pÅ™i plnÃ© rychlosti.
+</p></div></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-2pass"></a>14.1.2. PevnÃ½ kvantizer vs. vÃ­ce prÅ¯chodÅ¯</h3></div></div></div><p>
+EnkÃ³dovÃ¡nÃ­ vaÅ¡eho videa je moÅ¾nÃ© provÃ©st v Å¡irokÃ© Å¡kÃ¡le kvality.
+S modernÃ­mi video enkodÃ©ry a trochou pÅ™edkodekovÃ© komprese
+(zmenÅ¡enÃ­ a odÅ¡umovÃ¡nÃ­) je moÅ¾nÃ© dosÃ¡hnout velmi dobrÃ© kvality v 700 MB,
+pro 90-110 minut dlouhÃ© Å¡irokoÃºhlÃ© video.
+Jinak lze vÅ¡echna videa, snad kromÄ› tÄ›ch nejdelÅ¡Ã­ch, enkÃ³dovat v tÃ©mÄ›Å™
+perfektnÃ­ kvalitÄ› do 1400 MB.
 </p><p>
-  Jsou t&#345;i p&#345;ístupy k enkódování videa: pevný datový tok (CBR), pevný kvantizer
-  a vícepr&#367;chodový (ABR, neboli pr&#367;m&#283;rovaný datový tok).
+Jsou tÅ™i pÅ™Ã­stupy k enkÃ³dovÃ¡nÃ­ videa: pevnÃ½ datovÃ½ tok (CBR), pevnÃ½ kvantizer
+a vÃ­ceprÅ¯chodovÃ½ (ABR, neboli prÅ¯mÄ›rovanÃ½ datovÃ½ tok).
 </p><p>
-  Komplexnost snímk&#367; ve filmu, a tím i po&#269;et bit&#367; pot&#345;ebných pro jejich
-  komprimaci, se m&#367;&#382;e velmi li&#353;it od scény ke scén&#283;.
-  Moderní enkodéry se umí p&#345;izp&#367;sobit t&#283;mto pot&#345;ebám zm&#283;nou datového toku.
-  V jednoduchých re&#382;im&#283;ch, jako je CBR, v&#353;ak enkodéry neznají nároky na
-  datový tok budoucích scén a tak nemohou p&#345;ekro&#269;it po&#382;adovaný st&#345;ední
-  datový tok na dlouhou dobu.
-  Pokro&#269;ilej&#353;í re&#382;imy, jako je vícepr&#367;chodové enkódování, umí vzít v
-  potaz statistiky z p&#345;edchozích re&#382;im&#367;, co&#382; odstraní vý&#353;e zmín&#283;ný problém.
-</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Poznámka:</h3><p>
-  V&#283;t&#353;ina kodek&#367;, které podporují ABR enkódování, podporují pouze dvoupr&#367;chodové
-  enkódování, zatímco ostatní jako <code class="systemitem">x264</code>,
-  <code class="systemitem">XviD</code>
-  a <code class="systemitem">libavcodec</code> podporují vícepr&#367;chodové
-  enkódování, které s ka&#382;dým pr&#367;chodem trochu zlep&#353;í kvalitu, a&#269;koli toto
-  zlep&#353;ení ji&#382; není viditelné, nebo m&#283;&#345;itelné po asi &#269;tvrtém pr&#367;chodu.
-  V této sekci budeme pova&#382;ovat dvoupr&#367;chodové a vícepr&#367;chodové
-  enkódování za shodné.
+Komplexnost snÃ­mkÅ¯ ve filmu a tÃ­m i poÄet bitÅ¯ potÅ™ebnÃ½ch pro jejich
+komprimaci, se mÅ¯Å¾e velmi liÅ¡it od scÃ©ny ke scÃ©nÄ›.
+ModernÃ­ enkodÃ©ry se umÃ­ pÅ™izpÅ¯sobit tÄ›mto potÅ™ebÃ¡m zmÄ›nou datovÃ©ho toku.
+V jednoduchÃ½ch reÅ¾imÄ›ch, jako je CBR, vÅ¡ak enkodÃ©ry neznajÃ­ nÃ¡roky na
+datovÃ½ tok budoucÃ­ch scÃ©n a tak nemohou pÅ™ekroÄit poÅ¾adovanÃ½ stÅ™ednÃ­
+datovÃ½ tok na dlouhou dobu.
+PokroÄilejÅ¡Ã­ reÅ¾imy, jako je vÃ­ceprÅ¯chodovÃ© enkÃ³dovÃ¡nÃ­, umÃ­ vzÃ­t v
+potaz statistiky z pÅ™edchozÃ­ch reÅ¾imÅ¯, coÅ¾ odstranÃ­ vÃ½Å¡e zmÃ­nÄ›nÃ½ problÃ©m.
+</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">PoznÃ¡mka:</h3><p>
+VÄ›tÅ¡ina kodekÅ¯, kterÃ© podporujÃ­ ABR enkÃ³dovÃ¡nÃ­, podporujÃ­ pouze dvouprÅ¯chodovÃ©
+enkÃ³dovÃ¡nÃ­, zatÃ­mco ostatnÃ­ jako <code class="systemitem">x264</code>,
+<code class="systemitem">Xvid</code>
+a <code class="systemitem">libavcodec</code> podporujÃ­ vÃ­ceprÅ¯chodovÃ©
+enkÃ³dovÃ¡nÃ­, kterÃ© s kaÅ¾dÃ½m prÅ¯chodem trochu zlepÅ¡Ã­ kvalitu, aÄkoli toto
+zlepÅ¡enÃ­ jiÅ¾ nenÃ­ viditelnÃ©, nebo mÄ›Å™itelnÃ© po asi ÄtvrtÃ©m prÅ¯chodu.
+V tÃ©to sekci budeme povaÅ¾ovat dvouprÅ¯chodovÃ© a vÃ­ceprÅ¯chodovÃ©
+enkÃ³dovÃ¡nÃ­ za rovnocennÃ©.
 </p></div><p>
-  V ka&#382;dém z t&#283;chto re&#382;im&#367; video kodek (jako je
-  <code class="systemitem">libavcodec</code>)
-  rozbije videosnímek na makrobloky 16x16 pixel&#367; a potom na ka&#382;dý makroblok
-  aplikuje kvantizer. &#268;ím je ni&#382;&#353;í kvantizer, tím je vy&#353;&#353;í kvalita a datový tok.
-  Metoda, kterou enkodér filmu pou&#382;ívá pro
-  ur&#269;ení jaký kvantizer pou&#382;ít pro daný makroblok, se li&#353;í a je vysoce
-  ovlivnitelná. (Toto je extrémní zjednodu&#353;ení daného procesu, ale je vhodné
-  rozum&#283;t základnímu principu.)
+V kaÅ¾dÃ©m z tÄ›chto reÅ¾imÅ¯ video kodek (jako je
+<code class="systemitem">libavcodec</code>)
+rozbije videosnÃ­mek na makrobloky 16x16 pixelÅ¯ a potom na kaÅ¾dÃ½ makroblok
+aplikuje kvantizer. ÄŒÃ­m je niÅ¾Å¡Ã­ kvantizer, tÃ­m je vyÅ¡Å¡Ã­ kvalita a datovÃ½ tok.
+Metoda, kterou enkodÃ©r filmu pouÅ¾Ã­vÃ¡ pro
+urÄenÃ­ jakÃ½ kvantizer pouÅ¾Ã­t pro danÃ½ makroblok, se liÅ¡Ã­ a je vysoce
+ovlivnitelnÃ¡. (Toto je extrÃ©mnÃ­ zjednoduÅ¡enÃ­ danÃ©ho procesu, ale je vhodnÃ©
+rozumÄ›t zÃ¡kladnÃ­mu principu.)
 </p><p>
-  Pokud nastavíte konstantní datový tok, bude videokodek enkódovat video tak,
-  &#382;e zahodí
-  detaily podle pot&#345;eby a jen tolik, aby se udr&#382;el pod zadaným datovým tokem.
-  Pokud je vám opravdu lhostejná velikost souboru, m&#367;&#382;ete také pou&#382;ít CBR a
-  nastavit datový tok na nekone&#269;no. (V praxi to znamená nastavit hodnotu tak
-  vysoko, aby nijak neomezovala, jako 10000 Kbit&#367;.) Bez reálného omezení
-  datového toku pou&#382;ije kodek
-  nejni&#382;&#353;í mo&#382;ný kvantizer pro ka&#382;dý makroblok (ten je nastaven pomocí
-  <tt class="option">vqmin</tt> pro <code class="systemitem">libavcodec</code>,
-  kde je výchozí 2). Jakmile nastavíte dostate&#269;n&#283; ni&#382;&#353;í
-  datový tok, tak&#382;e je kodek
-  p&#345;inucen pou&#382;ít vy&#353;&#353;í kvantizer, pak tém&#283;&#345; jist&#283; sní&#382;íte kvalitu svého videa.
-  Abyste se tomu vyhnuli, m&#283;li byste zvá&#382;it zmen&#353;ení videa podle postupu
-  popsaného pozd&#283;ji v této p&#345;íru&#269;ce.
+Pokud nastavÃ­te konstantnÃ­ datovÃ½ tok, bude videokodek enkÃ³dovat video tak,
+Å¾e zahodÃ­
+detaily podle potÅ™eby a jen tolik, aby se udrÅ¾el pod zadanÃ½m datovÃ½m tokem.
+Pokud je vÃ¡m opravdu lhostejnÃ¡ velikost souboru, mÅ¯Å¾ete takÃ© pouÅ¾Ã­t CBR a
+nastavit datovÃ½ tok na nekoneÄno. (V praxi to znamenÃ¡ nastavit hodnotu tak
+vysoko, aby nijak neomezovala, jako 10000 KbitÅ¯.) Bez reÃ¡lnÃ©ho omezenÃ­
+datovÃ©ho toku pouÅ¾ije kodek
+nejniÅ¾Å¡Ã­ moÅ¾nÃ½ kvantizer pro kaÅ¾dÃ½ makroblok (ten je nastaven pomocÃ­
+<tt class="option">vqmin</tt> pro <code class="systemitem">libavcodec</code>,
+kde je vÃ½chozÃ­ 2). Jakmile nastavÃ­te dostateÄnÄ› niÅ¾Å¡Ã­
+datovÃ½ tok, takÅ¾e je kodek
+pÅ™inucen pouÅ¾Ã­t vyÅ¡Å¡Ã­ kvantizer, pak tÃ©mÄ›Å™ jistÄ› snÃ­Å¾Ã­te kvalitu svÃ©ho videa.
+Abyste se tomu vyhnuli, mÄ›li byste zvÃ¡Å¾it zmenÅ¡enÃ­ videa podle postupu
+popsanÃ©ho pozdÄ›ji v tÃ©to pÅ™Ã­ruÄce.
+VÅ¡eobecnÄ› byste se mÄ›li ÃºplnÄ› vyhnout CBR, pokud vÃ¡m zÃ¡leÅ¾Ã­ na kvalitÄ›.
 </p><p>
-  P&#345;i konstantním kvantizeru kodek
-  pou&#382;ívá kvantizer nastavený volbou <tt class="option">vqscale</tt> (pro
-  <code class="systemitem">libavcodec</code>) na ka&#382;dý makroblok.
-  Pokud chcete maximáln&#283; kvalitní rip, op&#283;t bez ohledu na datový tok, m&#367;&#382;ete
-  pou&#382;ít <tt class="option">vqscale=2</tt>. To povede ke stejnému datovému toku a PSNR
-  (odstup signál &#8211; &#353;um) jako CBR s <tt class="option">vbitrate</tt>=infinity a
-  výchozím <tt class="option">vqmin</tt> rovným 2.
+PÅ™i konstantnÃ­m kvantizeru kodek
+pouÅ¾Ã­vÃ¡ kvantizer nastavenÃ½ volbou <tt class="option">vqscale</tt> (pro
+<code class="systemitem">libavcodec</code>) na kaÅ¾dÃ½ makroblok.
+Pokud chcete maximÃ¡lnÄ› kvalitnÃ­ rip, opÄ›t bez ohledu na datovÃ½ tok, mÅ¯Å¾ete
+pouÅ¾Ã­t <tt class="option">vqscale=2</tt>. To povede ke stejnÃ©mu datovÃ©mu toku a PSNR
+(odstup signÃ¡l â€“ Å¡um) jako CBR s <tt class="option">vbitrate</tt>=infinity a
+vÃ½chozÃ­m <tt class="option">vqmin</tt> rovnÃ½m 2.
 </p><p>
-  Problém s konstantní kvantizací je ten, &#382;e pou&#382;ívá zadaný kvantizer a&#357; to daný
-  makroblok pot&#345;ebuje &#269;i nikoli. Je toti&#382; mo&#382;né pou&#382;ít vy&#353;&#353;í kvantizer na
-  makroblok bez ob&#283;tování viditelné kvality. Pro&#269; tedy plýtvat bity s nemístn&#283;
-  nízkým kvantizerem? Vá&#353;e CPU má tolik cykl&#367;, kolik máte &#269;asu, ale na harddisku
-  máte jen ur&#269;itý po&#269;et bit&#367;.
+ProblÃ©m s konstantnÃ­ kvantizacÃ­ je ten, Å¾e pouÅ¾Ã­vÃ¡ zadanÃ½ kvantizer aÅ¥ to danÃ½
+makroblok potÅ™ebuje Äi nikoli. Je totiÅ¾ moÅ¾nÃ© pouÅ¾Ã­t vyÅ¡Å¡Ã­ kvantizer na
+makroblok bez obÄ›tovÃ¡nÃ­ viditelnÃ© kvality. ProÄ tedy plÃ½tvat bity s nemÃ­stnÄ›
+nÃ­zkÃ½m kvantizerem? VÃ¡Å¡e CPU mÃ¡ tolik cyklÅ¯, kolik mÃ¡te Äasu, ale na harddisku
+mÃ¡te jen urÄitÃ½ poÄet bitÅ¯.
 </p><p>
-  P&#345;i dvoupr&#367;chodovém enkódování se v prvním pr&#367;chodu projde film jakoby m&#283;l být
-  CBR, ale vlastnosti ka&#382;dého snímku se zaznamenají do logu. Tato data jsou pak
-  pou&#382;ita p&#345;i druhém pr&#367;chodu pro inteligentní stanovení pou&#382;itého kvantizeru.
-  V rychlých scénách nebo scénách s velkým po&#269;tem detail&#367; budou &#269;ast&#283;ji pou&#382;ívány
-  vy&#353;&#353;í kvantizery a v pomalých nebo mén&#283; detailních scénách zase ni&#382;&#353;í kvantizery.
-  Obvykle je d&#367;le&#382;it&#283;j&#353;í mno&#382;ství pohybu ne&#382; detail&#367;.
+PÅ™i dvouprÅ¯chodovÃ©m enkÃ³dovÃ¡nÃ­ se v prvnÃ­m prÅ¯chodu projde film jakoby mÄ›l bÃ½t
+CBR, ale vlastnosti kaÅ¾dÃ©ho snÃ­mku se zaznamenajÃ­ do logu. Tato data jsou pak
+pouÅ¾ita pÅ™i druhÃ©m prÅ¯chodu pro inteligentnÃ­ stanovenÃ­ pouÅ¾itÃ©ho kvantizeru.
+V rychlÃ½ch scÃ©nÃ¡ch nebo scÃ©nÃ¡ch s velkÃ½m poÄtem detailÅ¯ budou ÄastÄ›ji pouÅ¾Ã­vÃ¡ny
+vyÅ¡Å¡Ã­ kvantizery a v pomalÃ½ch nebo mÃ©nÄ› detailnÃ­ch scÃ©nÃ¡ch zase niÅ¾Å¡Ã­ kvantizery.
+Obvykle je dÅ¯leÅ¾itÄ›jÅ¡Ã­ mnoÅ¾stvÃ­ pohybu neÅ¾ detailÅ¯.
 </p><p>
-  Pokud pou&#382;ijete <tt class="option">vqscale=2</tt>, plýtváte bity. Pokud pou&#382;ijete
-  <tt class="option">vqscale=3</tt>, pak nedostanete nejkvalitn&#283;j&#353;í mo&#382;ný rip.
-  Dejme tomu, &#382;e ripujete DVD p&#345;i <tt class="option">vqscale=3</tt> a
-  výsledkem je 1800Kbit. Pokud provedete dvoupr&#367;chodové enkódování
-  s <tt class="option">vbitrate=1800</tt>, výsledné video bude mít <span class="bold"><strong>vy&#353;&#353;í kvalitu</strong></span> p&#345;i
-  <span class="bold"><strong>stejném datovém toku</strong></span>.
+Pokud pouÅ¾ijete <tt class="option">vqscale=2</tt>, plÃ½tvÃ¡te bity. Pokud pouÅ¾ijete
+<tt class="option">vqscale=3</tt>, pak nedostanete nejkvalitnÄ›jÅ¡Ã­ moÅ¾nÃ½ rip.
+Dejme tomu, Å¾e ripujete DVD pÅ™i <tt class="option">vqscale=3</tt> a
+vÃ½sledkem je 1800Kbit. Pokud provedete dvouprÅ¯chodovÃ© enkÃ³dovÃ¡nÃ­
+s <tt class="option">vbitrate=1800</tt>, vÃ½slednÃ© video bude mÃ­t <span class="bold"><strong>vyÅ¡Å¡Ã­ kvalitu</strong></span> pÅ™i
+<span class="bold"><strong>stejnÃ©m datovÃ©m toku</strong></span>.
 </p><p>
-  Jeliko&#382; jsme vás nyní p&#345;esv&#283;d&#269;ili, &#382;e dvoupr&#367;chodový re&#382;im je správná volba,
-  skute&#269;nou otázkou je, jaký datový tok pou&#382;ít? Odpov&#283;&#271; je, &#382;e není jediná
-  odpov&#283;&#271;. Ideáln&#283; byste m&#283;li zvolit takový datový tok, který zajistí nejlep&#353;í
-  rovnováhu mezi kvalitou a velikostí souboru. Ten bude poka&#382;dé jiný
-  v závislosti na zdrojovém videu.
+JelikoÅ¾ jsme vÃ¡s nynÃ­ pÅ™esvÄ›dÄili, Å¾e dvouprÅ¯chodovÃ½ reÅ¾im je sprÃ¡vnÃ¡ volba,
+skuteÄnou otÃ¡zkou je, jakÃ½ datovÃ½ tok pouÅ¾Ã­t? OdpovÄ›Ä je, Å¾e nenÃ­ jedinÃ¡
+odpovÄ›Ä. IdeÃ¡lnÄ› byste mÄ›li zvolit takovÃ½ datovÃ½ tok, kterÃ½ zajistÃ­ nejlepÅ¡Ã­
+rovnovÃ¡hu mezi kvalitou a velikostÃ­ souboru. Ten bude pokaÅ¾dÃ© jinÃ½
+v zÃ¡vislosti na zdrojovÃ©m videu.
 </p><p>
-  Pokud na velikosti souboru nezále&#382;í, pak je dobrý startovní m&#367;stek pro rip
-  s velmi vysokou kvalitou je kolem 2000 Kbit&#367; plus-mínus 200 Kbit&#367;.
-  Pro rychlé ak&#269;ní nebo vysoce detailní zdrojové video, nebo máte-li velmi
-  kritické oko, se budete rozhodovat mezi 2400 nebo 2600.
-  U n&#283;kterých DVD nepoznáte rozdíl p&#345;i 1400 Kbitech. Je vhodné experimentovat
-  se scénami p&#345;i r&#367;zných datových tocích, abyste pro to dostali cit.
+Pokud na velikosti souboru nezÃ¡leÅ¾Ã­, pak je dobrÃ½ startovnÃ­ mÅ¯stek pro rip
+s velmi vysokou kvalitou je kolem 2000 KbitÅ¯ plus-mÃ­nus 200 KbitÅ¯.
+Pro rychlÃ© akÄnÃ­ nebo vysoce detailnÃ­ zdrojovÃ© video, nebo mÃ¡te-li velmi
+kritickÃ© oko, se budete rozhodovat mezi 2400 nebo 2600.
+U nÄ›kterÃ½ch DVD nepoznÃ¡te rozdÃ­l pÅ™i 1400 Kbitech. Je vhodnÃ© experimentovat
+se scÃ©nami pÅ™i rÅ¯znÃ½ch datovÃ½ch tocÃ­ch, abyste pro to dostali cit.
 </p><p>
-  Pokud se sna&#382;íte o ur&#269;itou velikost, budete muset n&#283;jak spo&#269;ítat datový tok.
-  Ale je&#353;t&#283; p&#345;edtím musíte zjistit, kolik místa byste m&#283;li rezervovat pro
-  zvukové(ou) stopy(u), tak&#382;e byste si
-  <a href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-audio" title="14.1.11. Zvuk">je m&#283;li ripnout</a> jako první.
-  M&#367;&#382;ete si pak spo&#269;ítat datový tok pomocí následující rovnice:
-  <code class="systemitem">datový_tok = (po&#382;adovaná_velikost_v_Mbajtech - velikost_zvuku_v_Mbajtech) *
-  1024 * 1024 / délka_v_sek * 8 / 1000</code>
-  Nap&#345;íklad abyste nacpali dvouhodinový film na 702MB CD, se 60MB zvukovou
-  stopou, bude muset být datový tok videa:
-  <code class="systemitem">(702 - 60) * 1024 * 1024 / (120*60) * 8 / 1000
-  = 740kbps (kilobit&#367; za sekundu)</code>
-</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-constraints"></a>14.1.3. Omezení pro efektivní enkódování</h3></div></div></div><p>
-  Ze samé podstaty komprese typu MPEG vyplývají ur&#269;itá omezení, která byste m&#283;li
-  ctít, pokud chcete maximální kvalitu.
-  MPEG rozd&#283;lí video na &#269;tverce 16x16 nazývané makrobloky, které se skládají
-  ze &#269;ty&#345; blok&#367; 8x8 jasové (luma) slo&#382;ky a dvou blok&#367; 8x8 barevné (chroma)
-  slo&#382;ky v polovi&#269;ním rozli&#353;ení (jeden pro osu &#269;ervená-cyan (modrozelená) a druhý pro osu
-  modrá-&#382;lutá).
-  Dokonce i kdy&#382; &#353;í&#345;ka a vý&#353;ka va&#353;eho videa nejsou násobky 16, pou&#382;ije enkodér
-  dostatek 16x16 makroblok&#367;, aby pokryl celou oblast obrazu a zabere místo
-  navíc, které p&#345;ijde vnive&#269;.
-  Tak&#382;e chcete-li maximalizovat kvalitu p&#345;i dané velikosti souboru, není dobrý
-  nápad pou&#382;ívat rozm&#283;ry které nejsou násobky 16.
+Pokud se snaÅ¾Ã­te o urÄitou velikost, budete muset nÄ›jak spoÄÃ­tat datovÃ½ tok.
+Ale jeÅ¡tÄ› pÅ™edtÃ­m musÃ­te zjistit, kolik mÃ­sta byste mÄ›li rezervovat pro
+zvukovÃ©(ou) stopy(u), takÅ¾e byste si
+<a href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-audio" title="14.1.11. Zvuk">je mÄ›li ripnout</a> jako prvnÃ­.
+MÅ¯Å¾ete si pak spoÄÃ­tat datovÃ½ tok pomocÃ­ nÃ¡sledujÃ­cÃ­ rovnice:
+<code class="systemitem">datovÃ½_tok = (poÅ¾adovanÃ¡_velikost_v_Mbajtech - velikost_zvuku_v_Mbajtech) *
+1024 * 1024 / dÃ©lka_v_sek * 8 / 1000</code>
+NapÅ™Ã­klad abyste nacpali dvouhodinovÃ½ film na 702MB CD, se 60MB zvukovou
+stopou, bude muset bÃ½t datovÃ½ tok videa:
+<code class="systemitem">(702 - 60) * 1024 * 1024 / (120*60) * 8 / 1000
+= 740kbps (kilobitÅ¯ za sekundu)</code>
+</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-constraints"></a>14.1.3. OmezenÃ­ pro efektivnÃ­ enkÃ³dovÃ¡nÃ­</h3></div></div></div><p>
+Ze samÃ© podstaty komprese typu MPEG vyplÃ½vajÃ­ urÄitÃ¡ omezenÃ­, kterÃ¡ byste mÄ›li
+ctÃ­t, pokud chcete maximÃ¡lnÃ­ kvalitu.
+MPEG rozdÄ›lÃ­ video na Ätverce 16x16 nazÃ½vanÃ© makrobloky, kterÃ© se sklÃ¡dajÃ­
+ze ÄtyÅ™ blokÅ¯ 8x8 jasovÃ© (luma) sloÅ¾ky a dvou blokÅ¯ 8x8 barevnÃ© (chroma)
+sloÅ¾ky v poloviÄnÃ­m rozliÅ¡enÃ­ (jeden pro osu ÄervenÃ¡-cyan (modrozelenÃ¡) a druhÃ½ pro osu
+modrÃ¡-Å¾lutÃ¡).
+Dokonce i kdyÅ¾ Å¡Ã­Å™ka a vÃ½Å¡ka vaÅ¡eho videa nejsou nÃ¡sobky 16, pouÅ¾ije enkodÃ©r
+dostatek 16x16 makroblokÅ¯, aby pokryl celou oblast obrazu a zabere mÃ­sto
+navÃ­c, kterÃ© pÅ™ijde vniveÄ.
+TakÅ¾e chcete-li maximalizovat kvalitu pÅ™i danÃ© velikosti souboru, nenÃ­ dobrÃ½
+nÃ¡pad pouÅ¾Ã­vat rozmÄ›ry kterÃ© nejsou nÃ¡sobky 16.
 </p><p>
-  V&#283;t&#353;ina DVD má také r&#367;zn&#283; velké &#269;erné okraje videa. Ponechání t&#283;chto ploch
-  m&#367;&#382;e r&#367;zným zp&#367;sobem sní&#382;it kvalitu.
+VÄ›tÅ¡ina DVD mÃ¡ takÃ© rÅ¯znÄ› velkÃ© ÄernÃ© okraje videa. PonechÃ¡nÃ­ tÄ›chto ploch
+rÅ¯znÃ½m zpÅ¯sobem <span class="bold"><strong>velmi</strong></span> sniÅ¾uje kvalitu.
 </p><div class="orderedlist"><ol type="1"><li><p>
-  Komprese typu MPEG je rovn&#283;&#382; velmi závislá na plo&#353;ných frekven&#269;ních
-  transformacích, konkrétn&#283; Diskrétní Kosinové Transformaci (DCT), která se
-  podobá Fourierov&#283; transformaci. Tento druh enkódování je efektivní na
-  reprezentaci opakujících se vzor&#367; a pozvolné p&#345;echody, ale má potí&#382;e s ostrými
-  p&#345;echody. Chcete-li je enkódovat, musíte pou&#382;ít mnoho bit&#367;, jinak se objeví
-  artefakty známé jako krou&#382;kování.
-</p><p>
-  Frekven&#269;ní transformace (DCT) je provedena zvlá&#353;&#357; pro ka&#382;dý makroblok
-  (ve skute&#269;nosti na ka&#382;dý blok), tak&#382;e problém nastane pouze tehdy, je-li ostrý
-  p&#345;echod uvnit&#345; bloku. Pokud va&#353;e &#269;erné okraje za&#269;ínají p&#345;esn&#283; na hranicích
-  násobk&#367; 16 pixel&#367;, pak to není problém. &#268;erné okraje jsou v&#353;ak na DVD jen
-  málokdy p&#283;kn&#283; umíst&#283;ny, tak&#382;e je v praxi budete muset v&#382;dy odstranit, abyste
-  se vyhnuli tomuto problému.
-</p></li></ol></div><p>
-  Navíc k plo&#353;n&#283; frekven&#269;ním transformacím pou&#382;ívá komprese typu MPEG vektory
-  pohybu k popisu zm&#283;n od jednoho snímku ke druhému. Vektory pohybu p&#345;irozen&#283;
-  pracují mén&#283; efektivn&#283; s novým obsahem p&#345;icházejícím zpoza okraj&#367; snímku,
-  proto&#382;e ten nebyl p&#345;ítomen na p&#345;edchozím snímku. Dokud se obraz roz&#353;i&#345;uje
-  sm&#283;rem k okraj&#367;m snímku, nemají s tím vektory pohybu &#382;ádný problém, ale
-  jsou-li zde &#269;erné okraje, m&#367;&#382;e problém nastat:
-</p><div class="orderedlist"><ol start="2" type="1"><li><p>
-  Komprese typu MPEG ukládá pro ka&#382;dý makroblok vektor, identifikující která
-  &#269;ást p&#345;edchozího obrázku by m&#283;la být zkopírována onoho makrobloku jako základ
-  pro predikci následujícího snímku. Pouze zbývající odli&#353;nosti musí být
-  enkódovány. Pokud makroblok p&#345;esahuje okraj obrázku a obsahuje &#269;ást &#269;erného
-  okraje, vektory pohybu z ostatních &#269;ástí obrázku p&#345;epí&#353;í &#269;erný okraj.
-  To znamená mnoho bit&#367; spot&#345;ebovaných bu&#271; na znovuza&#269;ern&#283;ní, nebo se (spí&#353;)
-  vektory pohybu nepou&#382;ijí v&#367;bec a v&#353;echny zm&#283;ny v tomto makrobloku se budou
-  kódovat p&#345;ímo. Jinými slovy se velmi sní&#382;í efektivita enkódování.
-</p><p>
-  Tento problém nastává op&#283;t jen v p&#345;ípad&#283;, &#382;e &#269;erné okraje neza&#269;ínají na lince
-  její&#382; pozice je násobkem 16.
-</p></li><li><p>
-  Nakonec zde máme makroblok uvnit&#345; obrázku do n&#283;j&#382; se posunuje objekt z okraje
-  obrázku. Kódování typu MPEG neumí &#345;íct "zkopíruj to co je na obrázku, ale ne
-  &#269;erný okraj." Tak&#382;e se zkopíruje i &#269;erný okraj a spot&#345;ebuje se spousta bit&#367;
-  na enkódování té &#269;ásti obrázku, která tu m&#283;la být.
-</p><p>
-  Pokud se obrázek dostane úpln&#283; ven z enkódované oblasti, má MPEG speciální
-  optimalizace pro opakované kopírování pixel&#367; na okraj obrázku pokud p&#345;ijde
-  vektor pohybu zven&#269;í enkódované oblasti. Tato vlastnost bude k ni&#269;emu, pokud
-  má film &#269;erné okraje. Na rozdíl od problém&#367; 1 a 2 zde umíst&#283;ní okraj&#367; na
-  násobky 16 nepom&#367;&#382;e.
-</p></li><li><p>
-  Navzdory tomu, &#382;e okraje jsou úpln&#283; &#269;erné a nikdy se nem&#283;ní, je zde v&#382;dy
-  alespo&#328; minimální datový tok spot&#345;ebovaný na v&#283;t&#353;í mno&#382;ství makroblok&#367;.
-</p></li></ol></div><p>
-  Ze v&#353;ech t&#283;chto d&#367;vod&#367; doporu&#269;ujeme zcela odstranit &#269;erné okraje. Dále, pokud
-  je na okraji obrázku oblast se &#353;umem/zkreslením, jejím odst&#345;i&#382;ením se je&#353;t&#283;
-  zvý&#353;í efektivita enkódování. Videofilní puristé, kte&#345;í cht&#283;jí z&#367;stat tak
-  blízko originálu, jak je to jen mo&#382;né, mohou protestovat proti tomuto o&#345;ezání,
-  ale pokud nehodláte enkódovat s konstantním kvantizerem, kvalita kterou
-  dostanete díky o&#345;ezání znateln&#283; p&#345;evý&#353;í mno&#382;ství ztracených informací na
-  okrajích.
-</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-crop"></a>14.1.4. O&#345;ezávání a &#353;kálování</h3></div></div></div><p>
-  P&#345;ipome&#328;me z p&#345;edchozí &#269;ásti, &#382;e kone&#269;ná velikost obrázku by m&#283;la mít
-  jak &#353;í&#345;ku, tak vý&#353;ku beze zbytku d&#283;litelnou 16, &#269;eho&#382; m&#367;&#382;ete dosáhnout
-  pomocí o&#345;ezání, &#353;kálování, nebo kombinací obou.
-</p><p>
-  P&#345;i o&#345;ezávání byste se m&#283;li dr&#382;et n&#283;kolika zásad, abyste p&#345;ede&#353;li po&#353;kození
-  svého filmu.
-  Normální YUV formát 4:2:0, ukládá barvonosnou (chroma) informaci
-  podvzorkovanou, &#269;ili hustota vzorkování barvy je polovi&#269;ní oproti jasové
-  (&#269;ernobílé) slo&#382;ce v obou sm&#283;rech.
-  Prohlédn&#283;te si tento diagram, kde L ozna&#269;uje vzorkovací body jasu a C
-  barvy.
-</p><div class="informaltable"><table border="1" width="40%"><colgroup><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"></colgroup><tbody><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr></tbody></table></div><p>
-  Jak vidíte, &#345;ádky i sloupce obrázku se p&#345;irozen&#283; párují. P&#345;i o&#345;ezávání tedy
-  <span class="emphasis"><em>musí</em></span> být hodnoty odsazení i rozm&#283;r&#367; sudá &#269;ísla.
-  Pokud nejsou, nebude se barvonosná informace zprávn&#283; krýt s jasovou.
-  Teoreticky lze st&#345;íhat s lichým odsazením, ale to vy&#382;aduje p&#345;evzorkování
-  barvy, co&#382; je potenciáln&#283; ztrátový úkon a není podporován filtrem crop.
-</p><p>
-  Dále, prokládané video je vzorkováno takto:
-</p><div class="informaltable"><table border="1" width="80%"><colgroup><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"></colgroup><tbody><tr><td colspan="8" align="center">Horní p&#367;lsnímek</td><td colspan="8" align="center">Spodní p&#367;lsnímek</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td></tr><tr><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td></tr><tr><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td></tr><tr><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td></tr><tr><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr></tbody></table></div><p>
-  Jak vidíte, tak se vzor opakuje ka&#382;dé 4 &#345;ádky, tak&#382;e p&#345;i o&#345;ezu prokládaného
-  videa musí být odsazení v ose y a vý&#353;ka beze zbytku delitelné 4.
-</p><p>
-  Nativní DVD rozli&#353;ení je 720x480 pro NTSC a 720x576 pro PAL, ale je zde je&#353;t&#283;
-  p&#345;íznak pom&#283;ru stran, který udává, zda se jedná o obrazovku (full-screen)(4:3),
-  nebo &#353;irokoúhlý film (wide-screen)(16:9). Mnoho (jestli ne v&#283;t&#353;ina)
-  &#353;irokoúhlých DVD není p&#345;esn&#283; 16:9, ale bude bu&#271; 1.85:1 anebo 2.35:1
-  (cinescope). To znamená, &#382;e zde budou ve videu &#269;erné okraje, které bude nutné
-  odst&#345;ihnout.
-</p><p>
-  <span class="application">MPlayer</span> poskytuje filtr pro detekci pot&#345;ebného
-  o&#345;ezu, který stanoví o&#345;ezový obdélník (<tt class="option">-vf cropdetect</tt>).
-  Spus&#357;te <span class="application">MPlayer</span> s volbou
-  <tt class="option">-vf cropdetect</tt> a on vám vypí&#353;e nastavení filtru crop pro
-  o&#345;ezání okraj&#367;.
-  M&#283;li byste nechat b&#283;&#382;et film tak dlouho, dokud není pou&#382;ita celá plocha
-  obrázku, abyste dostali správné hodnoty crop.
-</p><p>
-  Pak otestujte získané hodnoty z p&#345;íkazového &#345;ádku
-  <span class="application">MPlayer</span>u vypisované <tt class="option">cropdetect</tt>em
-  a upravte obdélník podle pot&#345;eby.
-  V tom vám pom&#367;&#382;e filtr <tt class="option">rectangle</tt>, který umo&#382;&#328;uje interaktivn&#283;
-  nastavit obdélník pro vá&#353; film.
-  Nezapome&#328;te zachovat vý&#353;e uvedená doporu&#269;ení, abyste nepo&#353;kodili barevnou
-  mapu.
-</p><p>
-  &#352;kálování je obvykle nevhodné.
-  &#352;kálování prokládaného videa je obtí&#382;né a pokud chcete zachovat prokládání,
-  m&#283;li byste se mu úpln&#283; vyhnout.
-  Pokud mebudete &#353;kálovat, ale budete chtít pou&#382;ívat rozm&#283;ry v násobcích 16,
-  budete muset o&#345;íznout i &#269;ást obrazu.
-  Neponechávejte ani malé &#269;erné okraje, jeliko&#382; se velmi &#353;patn&#283; kódují!
-</p><p>
-  Proto&#382;e MPEG-4 pou&#382;ívá makrobloky 16x16, m&#283;li byste se ujistit, &#382;e oba rozm&#283;ry
-  videa jsou násobkem 16, jinak sní&#382;íte kvalitu, zvlá&#353;&#357; p&#345;i nízkých datových
-  tocích. M&#367;&#382;ete to zajistit zaokrouhlením &#353;í&#345;ky a vý&#353;ky o&#345;ezového obdélníku
-  dol&#367; na nejbli&#382;&#353;í násobek 16.
-  Jak jsme ji&#382; &#345;ekli, m&#283;li byste p&#345;i o&#345;ezávání zvý&#353;it odsazení
-  (offset) v ose y o polovinu rozdílu mezi starou a novou vý&#353;kou, tak&#382;e bude
-  výsledné video bráno ze st&#345;edu snímku. Z d&#367;vodu principu vzorkování DVD videa
-  se ujist&#283;te, &#382;e je odsazení sudé &#269;íslo. (Popravd&#283;, p&#345;ijm&#283;te jako pravidlo,
-  nikdy nepou&#382;ívat liché hodnoty pro jakýkoli z parametr&#367; p&#345;i o&#345;ezávání a
-  &#353;kálování videa.) Pokud nechcete zahodit t&#283;ch n&#283;kolik pixel&#367; navíc, m&#367;&#382;ete
-  místo toho rad&#283;ji zm&#283;nit velikost videa (&#353;kálovat). Na to se podíváme
-  v p&#345;íkladu ní&#382;e.
-  V praxi m&#367;&#382;ete nechat filtr <tt class="option">cropdetect</tt> ud&#283;lat v&#353;echnu práci
-  zmín&#283;nou vý&#353;e, jeliko&#382; má volitelný parametr <tt class="option">round</tt>
-  (zaokrouhlení), jeho&#382; výchozí hodnota je 16.
-</p><p>
-  Rovn&#283;&#382; bu&#271;te opatrní na "nap&#367;l &#269;erné" pixely na okrajích. V&#382;dy je rovn&#283;&#382;
-  odst&#345;ihn&#283;te, jinak zde budete plýtvat bity, které m&#367;&#382;ete pou&#382;ít jinde.
-</p><p>
-  Poté co provedete v&#353;e, co jsme si doposud &#345;ekli, budete mít video, které asi
-  nebude práv&#283; 1.85:1 nebo 2.35:1, ale n&#283;kde poblí&#382;. M&#367;&#382;ete spo&#269;ítat nový pom&#283;r
-  stran ru&#269;n&#283;, ale <span class="application">MEncoder</span> nabízí volbu pro
-  <code class="systemitem">libavcodec</code> nazývanou <tt class="option">autoaspect</tt>,
-  která to za vás ud&#283;lá. Nezv&#283;t&#353;ujte video jen proto, abyste dosáhli &#269;tvercových
-  pixel&#367;, pokud je vám milé místo na disku. &#352;kálování by m&#283;lo být provedeno p&#345;i
-  p&#345;ehrávání, kdy p&#345;ehráva&#269; pou&#382;ije pom&#283;r stran ulo&#382;ený v AVI pro zaji&#353;t&#283;ní
-  správného rozli&#353;ení.
-  Nane&#353;t&#283;stí ne v&#353;echny p&#345;ehráva&#269;e uplat&#328;ují tuto auto&#353;kálovací informaci,
-  tak&#382;e m&#367;&#382;ete p&#345;ece jen chtít &#353;kálovat.
-</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-resolution-bitrate"></a>14.1.5. Volba rozli&#353;ení a datového toku</h3></div></div></div><p>
-  Pokud nebudete enkódovat v re&#382;imu konstantního kvantizeru, musíte zvolit
-  velikost datového toku.
-  Koncepce datového toku je velmi jednoduchá.
-  Je to (pr&#367;m&#283;rný) po&#269;et bit&#367; spot&#345;ebovaný na jednu sekundu filmu.
-  Normáln&#283; se datový tok udává v kilobitech (1000 bit&#367;) za sekundu.
-  Velikost va&#353;eho filmu je pak datový tok násobený délkou filmu, plus malá
-  re&#382;ie (viz nap&#345;íklad sekci
-  <a href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-muxing-avi-limitations" title="14.1.12.2. Limitace nosného formátu AVI">kontejner AVI</a>).
-  Ostatní parametry jako je &#353;kálování, o&#345;ezání atd.
-  <span class="bold"><strong>nezm&#283;ní</strong></span> velikost souboru, pokud zárove&#328;
-  nezm&#283;níte datový tok!
-</p><p>
-  Datový tok se <span class="bold"><strong>nem&#283;ní</strong></span> proporcionáln&#283;
-  k rozli&#353;ení.
-  Jinými slovy, soubor 320x240 p&#345;i 200 kbit/sek nebude mít stejnou kvalitu
-  jako ten samý film p&#345;i 640x480 a 800 kbitech/sek!
-  Jsou pro to dva d&#367;vody:
-</p><div class="orderedlist"><ol type="1"><li><p>
-    <span class="bold"><strong>Dojem</strong></span>: MPEG artefakty jsou patrné
-    tím více, &#269;ím jsou více zv&#283;t&#353;ené!
-    Artefakty se objevují ve velikosti blok&#367; (8x8).
-    Va&#353;e oko neodhalí chyby ve 4800 malých blocích tak snadno jako ve 1200
-    velkých (p&#345;edpokládáme, &#382;e oboje budete &#353;kálovat na celou obrazovku).
-  </p></li><li><p>
-    <span class="bold"><strong>Teoretický</strong></span>: Kdy&#382; zmen&#353;íte obrázek,
-    ale stále pou&#382;ijete stejnou velikost blok&#367; (8x8) pro frekven&#269;ní prostorovou
-    transformaci, p&#345;esunete více dat do oblasti vy&#353;&#353;ích frekvencí.
-    Zjednodu&#353;en&#283; &#345;e&#269;eno, ka&#382;dý pixel nyní obsahuje více detail&#367;, ne&#382; p&#345;edtím.
-    Dokonce i kdy&#382; p&#345;ipustíme, &#382;e jste zmen&#353;ili obraz obsahující 1/4 informací
-    o daném prostoru, stále m&#367;&#382;e obsahovat mnoho detail&#367; v daném frekven&#269;ním
-    pásmu (p&#345;edpokládáme, &#382;e vysoké frekvence byly v originálním 640x480 snímku
-    o&#345;ezány).
+  Komprese typu MPEG je velmi zÃ¡vislÃ¡ na ploÅ¡nÃ½ch frekvenÄnÃ­ch
+  transformacÃ­ch, konkrÃ©tnÄ› DiskrÃ©tnÃ­ KosinovÃ© Transformaci (DCT), kterÃ¡ se
+  podobÃ¡ FourierovÄ› transformaci. Tento druh enkÃ³dovÃ¡nÃ­ je efektivnÃ­ na
+  reprezentaci opakujÃ­cÃ­ch se vzorÅ¯ a pozvolnÃ© pÅ™echody, ale mÃ¡ potÃ­Å¾e s ostrÃ½mi
+  pÅ™echody. Chcete-li je enkÃ³dovat, musÃ­te pouÅ¾Ã­t mnoho bitÅ¯, jinak se objevÃ­
+  artefakty znÃ¡mÃ© jako krouÅ¾kovÃ¡nÃ­.
+  </p><p>
+  FrekvenÄnÃ­ transformace (DCT) je provedena zvlÃ¡Å¡Å¥ pro kaÅ¾dÃ½ makroblok
+  (ve skuteÄnosti na kaÅ¾dÃ½ blok), takÅ¾e problÃ©m nastane pouze tehdy, je-li ostrÃ½
+  pÅ™echod uvnitÅ™ bloku. Pokud vaÅ¡e ÄernÃ© okraje zaÄÃ­najÃ­ pÅ™esnÄ› na hranicÃ­ch
+  nÃ¡sobkÅ¯ 16 pixelÅ¯, pak to nenÃ­ problÃ©m. ÄŒernÃ© okraje jsou vÅ¡ak na DVD jen
+  mÃ¡lokdy pÄ›knÄ› umÃ­stÄ›ny, takÅ¾e je v praxi budete muset vÅ¾dy odstranit, abyste
+  se vyhnuli tomuto problÃ©mu.
   </p></li></ol></div><p>
+NavÃ­c k ploÅ¡nÄ› frekvenÄnÃ­m transformacÃ­m pouÅ¾Ã­vÃ¡ komprese typu MPEG vektory
+pohybu k popisu zmÄ›n od jednoho snÃ­mku ke druhÃ©mu. Vektory pohybu pÅ™irozenÄ›
+pracujÃ­ mÃ©nÄ› efektivnÄ› s novÃ½m obsahem pÅ™ichÃ¡zejÃ­cÃ­m zpoza okrajÅ¯ snÃ­mku,
+protoÅ¾e ten nebyl pÅ™Ã­tomen na pÅ™edchozÃ­m snÃ­mku. Dokud se obraz rozÅ¡iÅ™uje
+smÄ›rem k okrajÅ¯m snÃ­mku, nemajÃ­ s tÃ­m vektory pohybu Å¾Ã¡dnÃ½ problÃ©m, ale
+jsou-li zde ÄernÃ© okraje, mÅ¯Å¾e problÃ©m nastat:
+</p><div class="orderedlist"><ol start="2" type="1"><li><p>
+  Komprese typu MPEG uklÃ¡dÃ¡ pro kaÅ¾dÃ½ makroblok vektor, identifikujÃ­cÃ­ kterÃ¡
+  ÄÃ¡st pÅ™edchozÃ­ho obrÃ¡zku by mÄ›la bÃ½t zkopÃ­rovÃ¡na onoho makrobloku jako zÃ¡klad
+  pro predikci nÃ¡sledujÃ­cÃ­ho snÃ­mku. Pouze zbÃ½vajÃ­cÃ­ odliÅ¡nosti musÃ­ bÃ½t
+  enkÃ³dovÃ¡ny. Pokud makroblok pÅ™esahuje okraj obrÃ¡zku a obsahuje ÄÃ¡st ÄernÃ©ho
+  okraje, vektory pohybu z ostatnÃ­ch ÄÃ¡stÃ­ obrÃ¡zku pÅ™epÃ­Å¡Ã­ ÄernÃ½ okraj.
+  To znamenÃ¡ mnoho bitÅ¯ spotÅ™ebovanÃ½ch buÄ na znovuzaÄernÄ›nÃ­, nebo se (spÃ­Å¡)
+  vektory pohybu nepouÅ¾ijÃ­ vÅ¯bec a vÅ¡echny zmÄ›ny v tomto makrobloku se budou
+  kÃ³dovat pÅ™Ã­mo. JinÃ½mi slovy se velmi snÃ­Å¾Ã­ efektivita enkÃ³dovÃ¡nÃ­.
+  </p><p>
+  Tento problÃ©m nastÃ¡vÃ¡ opÄ›t jen v pÅ™Ã­padÄ›, Å¾e ÄernÃ© okraje nezaÄÃ­najÃ­ na lince
+  jejÃ­Å¾ pozice je nÃ¡sobkem 16.
+  </p></li><li><p>
+  Nakonec zde mÃ¡me makroblok uvnitÅ™ obrÃ¡zku do nÄ›jÅ¾ se posunuje objekt z okraje
+  obrÃ¡zku. KÃ³dovÃ¡nÃ­ typu MPEG neumÃ­ Å™Ã­ct "zkopÃ­ruj to co je na obrÃ¡zku, ale ne
+  ÄernÃ½ okraj." TakÅ¾e se zkopÃ­ruje i ÄernÃ½ okraj a spotÅ™ebuje se spousta bitÅ¯
+  na enkÃ³dovÃ¡nÃ­ tÃ© ÄÃ¡sti obrÃ¡zku, kterÃ¡ tu mÄ›la bÃ½t.
+  </p><p>
+  Pokud se obrÃ¡zek dostane ÃºplnÄ› ven z enkÃ³dovanÃ© oblasti, mÃ¡ MPEG speciÃ¡lnÃ­
+  optimalizace pro opakovanÃ© kopÃ­rovÃ¡nÃ­ pixelÅ¯ na okraj obrÃ¡zku pokud pÅ™ijde
+  vektor pohybu zvenÄÃ­ enkÃ³dovanÃ© oblasti. Tato vlastnost bude k niÄemu, pokud
+  mÃ¡ film ÄernÃ© okraje. Na rozdÃ­l od problÃ©mÅ¯ 1 a 2 zde umÃ­stÄ›nÃ­ okrajÅ¯ na
+  nÃ¡sobky 16 nepomÅ¯Å¾e.
+  </p></li><li><p>
+  Navzdory tomu, Å¾e okraje jsou ÃºplnÄ› ÄernÃ© a nikdy se nemÄ›nÃ­, je zde vÅ¾dy
+  alespoÅˆ minimÃ¡lnÃ­ datovÃ½ tok spotÅ™ebovanÃ½ na vÄ›tÅ¡Ã­ mnoÅ¾stvÃ­ makroblokÅ¯.
+</p></li></ol></div><p>
+Ze vÅ¡ech tÄ›chto dÅ¯vodÅ¯ doporuÄujeme zcela odstranit ÄernÃ© okraje. DÃ¡le, pokud
+je na okraji obrÃ¡zku oblast se Å¡umem/zkreslenÃ­m, jejÃ­m odstÅ™iÅ¾enÃ­m se jeÅ¡tÄ›
+zvÃ½Å¡Ã­ efektivita enkÃ³dovÃ¡nÃ­. VideofilnÃ­ puristÃ©, kteÅ™Ã­ chtÄ›jÃ­ zÅ¯stat tak
+blÃ­zko originÃ¡lu, jak je to jen moÅ¾nÃ©, mohou protestovat proti tomuto oÅ™ezÃ¡nÃ­,
+ale pokud nehodlÃ¡te enkÃ³dovat s konstantnÃ­m kvantizerem, kvalita kterou
+dostanete dÃ­ky oÅ™ezÃ¡nÃ­ znatelnÄ› pÅ™evÃ½Å¡Ã­ mnoÅ¾stvÃ­ ztracenÃ½ch informacÃ­ na
+okrajÃ­ch.
+</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-crop"></a>14.1.4. OÅ™ezÃ¡vÃ¡nÃ­ a Å¡kÃ¡lovÃ¡nÃ­</h3></div></div></div><p>
+PÅ™ipomeÅˆme z pÅ™edchozÃ­ ÄÃ¡sti, Å¾e koneÄnÃ¡ velikost obrÃ¡zku by mÄ›la mÃ­t
+jak Å¡Ã­Å™ku, tak vÃ½Å¡ku beze zbytku dÄ›litelnou 16, ÄehoÅ¾ mÅ¯Å¾ete dosÃ¡hnout
+pomocÃ­ oÅ™ezÃ¡nÃ­, Å¡kÃ¡lovÃ¡nÃ­, nebo kombinacÃ­ obou.
 </p><p>
-  D&#345;ív&#283;j&#353;í návody doporu&#269;ovaly volit datový tok a rozli&#353;ení rozpo&#269;ítáním
-  bit&#367; na pixely, ale to obvykle není správn&#283; díky ze zmín&#283;ných d&#367;vod&#367;.
-  Mnohem lep&#353;ím se zdá odhad, &#382;e je datový tok úm&#283;rný &#269;tverci rozli&#353;ení,
-  tak&#382;e 320x240 p&#345;i 400 kbit/sek by m&#283;lo být srovnatelné s 640x480
-  p&#345;i 800 kbit/sek.
-  Tato úm&#283;ra v&#353;ak nebyla ov&#283;&#345;ena teoreticky ani empiricky.
-  Navíc, vezmeme-li v úvahu to, &#382;e se filmy velmi li&#353;í &#353;umem, po&#269;tem detail&#367;,
-  mno&#382;stvím pohybu atd, je beznad&#283;jné vytvo&#345;it obecná doporu&#269;ení pro po&#269;et
-  bit&#367; na délku diagonály (analogie bit&#367; na pixel, av&#353;ak pou&#382;ívá plochu obrazu).
+PÅ™i oÅ™ezÃ¡vÃ¡nÃ­ byste se mÄ›li drÅ¾et nÄ›kolika zÃ¡sad, abyste pÅ™edeÅ¡li poÅ¡kozenÃ­
+svÃ©ho filmu.
+NormÃ¡lnÃ­ YUV formÃ¡t 4:2:0, uklÃ¡dÃ¡ barvonosnou (chroma) informaci
+podvzorkovanou, Äili hustota vzorkovÃ¡nÃ­ barvy je poloviÄnÃ­ oproti jasovÃ©
+(ÄernobÃ­lÃ©) sloÅ¾ce v obou smÄ›rech.
+ProhlÃ©dnÄ›te si tento diagram, kde L oznaÄuje vzorkovacÃ­ body jasu a C
+barvy.
+</p><div class="informaltable"><table border="1" width="40%"><colgroup><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"></colgroup><tbody><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr></tbody></table></div><p>
+Jak vidÃ­te, Å™Ã¡dky i sloupce obrÃ¡zku se pÅ™irozenÄ› pÃ¡rujÃ­. PÅ™i oÅ™ezÃ¡vÃ¡nÃ­ tedy
+<span class="emphasis"><em>musÃ­</em></span> bÃ½t hodnoty odsazenÃ­ i rozmÄ›rÅ¯ sudÃ¡ ÄÃ­sla.
+Pokud nejsou, nebude se barvonosnÃ¡ informace zprÃ¡vnÄ› krÃ½t s jasovou.
+Teoreticky lze stÅ™Ã­hat s lichÃ½m odsazenÃ­m, ale to vyÅ¾aduje pÅ™evzorkovÃ¡nÃ­
+barvy, coÅ¾ je potenciÃ¡lnÄ› ztrÃ¡tovÃ½ Ãºkon a nenÃ­ podporovÃ¡n filtrem crop.
 </p><p>
-  Tolik k obtí&#382;nosti volby datového toku a rozli&#353;ení.
-</p><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-resolution-bitrate-compute"></a>14.1.5.1. Výpo&#269;et rozli&#353;ení</h4></div></div></div><p>
-  Následující kroky vás provedou výpo&#269;ty rozli&#353;ení výsledného filmu tak,
-  abyste p&#345;íli&#353; nesní&#382;ili kvalitu videa s p&#345;ihlédnutím k n&#283;kolika typ&#367;m
-  informací o zdrojovém videu.
-  Nejd&#345;ív byste si m&#283;li spo&#269;ítat enkódovaný pom&#283;r stran:
-  <code class="systemitem">PSo = (&#352;o x (PSa / PRdvd )) / Vo</code>
+DÃ¡le, proklÃ¡danÃ© video je vzorkovÃ¡no takto:
+</p><div class="informaltable"><table border="1" width="80%"><colgroup><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"></colgroup><tbody><tr><td colspan="8" align="center">HornÃ­ pÅ¯lsnÃ­mek</td><td colspan="8" align="center">SpodnÃ­ pÅ¯lsnÃ­mek</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td></tr><tr><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td></tr><tr><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td></tr><tr><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td></tr><tr><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr></tbody></table></div><p>
+Jak vidÃ­te, tak se vzor opakuje kaÅ¾dÃ© 4 Å™Ã¡dky, takÅ¾e pÅ™i oÅ™ezu
+proklÃ¡danÃ©ho videa musÃ­ bÃ½t odsazenÃ­ v ose y a vÃ½Å¡ka beze
+zbytku delitelnÃ© 4.
+</p><p>
+NativnÃ­ DVD rozliÅ¡enÃ­ je 720x480 pro NTSC a 720x576 pro PAL, ale je zde jeÅ¡tÄ›
+pÅ™Ã­znak pomÄ›ru stran, kterÃ½ udÃ¡vÃ¡, zda se jednÃ¡ o obrazovku (full-screen)(4:3),
+nebo Å¡irokoÃºhlÃ½ film (wide-screen)(16:9). Mnoho (jestli ne vÄ›tÅ¡ina)
+Å¡irokoÃºhlÃ½ch DVD nenÃ­ pÅ™esnÄ› 16:9, ale bude buÄ 1.85:1 anebo 2.35:1
+(cinescope). To znamenÃ¡, Å¾e zde budou ve videu ÄernÃ© okraje, kterÃ© bude nutnÃ©
+odstÅ™ihnout.
+</p><p>
+<span class="application">MPlayer</span> poskytuje filtr pro detekci potÅ™ebnÃ©ho
+oÅ™ezu, kterÃ½ stanovÃ­ oÅ™ezovÃ½ obdÃ©lnÃ­k (<tt class="option">-vf cropdetect</tt>).
+SpusÅ¥te <span class="application">MPlayer</span> s volbou
+<tt class="option">-vf cropdetect</tt> a on vÃ¡m vypÃ­Å¡e nastavenÃ­ filtru crop pro
+oÅ™ezÃ¡nÃ­ okrajÅ¯.
+MÄ›li byste nechat bÄ›Å¾et film tak dlouho, dokud nenÃ­ pouÅ¾ita celÃ¡ plocha
+obrÃ¡zku, abyste dostali sprÃ¡vnÃ© hodnoty crop.
+</p><p>
+Pak otestujte zÃ­skanÃ© hodnoty z pÅ™Ã­kazovÃ©ho Å™Ã¡dku
+<span class="application">MPlayer</span>u vypisovanÃ© <tt class="option">cropdetect</tt>em
+a upravte obdÃ©lnÃ­k podle potÅ™eby.
+V tom vÃ¡m pomÅ¯Å¾e filtr <tt class="option">rectangle</tt>, kterÃ½ umoÅ¾Åˆuje interaktivnÄ›
+nastavit obdÃ©lnÃ­k pro vÃ¡Å¡ film.
+NezapomeÅˆte zachovat vÃ½Å¡e uvedenÃ¡ doporuÄenÃ­, abyste nepoÅ¡kodili barevnou
+mapu.
+</p><p>
+Å kÃ¡lovÃ¡nÃ­ je obvykle nevhodnÃ©.
+Å kÃ¡lovÃ¡nÃ­ proklÃ¡danÃ©ho videa je obtÃ­Å¾nÃ© a pokud chcete zachovat proklÃ¡dÃ¡nÃ­,
+mÄ›li byste se mu ÃºplnÄ› vyhnout.
+Pokud mebudete Å¡kÃ¡lovat, ale budete chtÃ­t pouÅ¾Ã­vat rozmÄ›ry v nÃ¡sobcÃ­ch 16,
+budete muset oÅ™Ã­znout i ÄÃ¡st obrazu.
+NeponechÃ¡vejte ani malÃ© ÄernÃ© okraje, jelikoÅ¾ se velmi Å¡patnÄ› kÃ³dujÃ­!
+</p><p>
+ProtoÅ¾e MPEG-4 pouÅ¾Ã­vÃ¡ makrobloky 16x16, mÄ›li byste se ujistit, Å¾e oba rozmÄ›ry
+videa jsou nÃ¡sobkem 16, jinak snÃ­Å¾Ã­te kvalitu, zvlÃ¡Å¡Å¥ pÅ™i nÃ­zkÃ½ch datovÃ½ch
+tocÃ­ch. MÅ¯Å¾ete to zajistit zaokrouhlenÃ­m Å¡Ã­Å™ky a vÃ½Å¡ky oÅ™ezovÃ©ho obdÃ©lnÃ­ku
+dolÅ¯ na nejbliÅ¾Å¡Ã­ nÃ¡sobek 16.
+Jak jsme jiÅ¾ Å™ekli, mÄ›li byste pÅ™i oÅ™ezÃ¡vÃ¡nÃ­ zvÃ½Å¡it odsazenÃ­
+(offset) v ose y o polovinu rozdÃ­lu mezi starou a novou vÃ½Å¡kou, takÅ¾e bude
+vÃ½slednÃ© video brÃ¡no ze stÅ™edu snÃ­mku. Z dÅ¯vodu principu vzorkovÃ¡nÃ­ DVD videa
+se ujistÄ›te, Å¾e je odsazenÃ­ sudÃ© ÄÃ­slo. (PopravdÄ›, pÅ™ijmÄ›te jako pravidlo,
+nikdy nepouÅ¾Ã­vat lichÃ© hodnoty pro jakÃ½koli z parametrÅ¯ pÅ™i oÅ™ezÃ¡vÃ¡nÃ­ a
+Å¡kÃ¡lovÃ¡nÃ­ videa.) Pokud nechcete zahodit tÄ›ch nÄ›kolik pixelÅ¯ navÃ­c, mÅ¯Å¾ete
+mÃ­sto toho radÄ›ji zmÄ›nit velikost videa (Å¡kÃ¡lovat). Na to se podÃ­vÃ¡me
+v pÅ™Ã­kladu nÃ­Å¾e.
+V praxi mÅ¯Å¾ete nechat filtr <tt class="option">cropdetect</tt> udÄ›lat vÅ¡echnu prÃ¡ci
+zmÃ­nÄ›nou vÃ½Å¡e, jelikoÅ¾ mÃ¡ volitelnÃ½ parametr <tt class="option">round</tt>
+(zaokrouhlenÃ­), jehoÅ¾ vÃ½chozÃ­ hodnota je 16.
+</p><p>
+RovnÄ›Å¾ buÄte opatrnÃ­ na "napÅ¯l ÄernÃ©" pixely na okrajÃ­ch. VÅ¾dy je rovnÄ›Å¾
+odstÅ™ihnÄ›te, jinak zde budete plÃ½tvat bity, kterÃ© mÅ¯Å¾ete pouÅ¾Ã­t jinde.
+</p><p>
+PotÃ© co provedete vÅ¡e, co jsme si doposud Å™ekli, budete mÃ­t video, kterÃ© asi
+nebude prÃ¡vÄ› 1.85:1 nebo 2.35:1, ale nÄ›kde poblÃ­Å¾. MÅ¯Å¾ete spoÄÃ­tat novÃ½ pomÄ›r
+stran ruÄnÄ›, ale <span class="application">MEncoder</span> nabÃ­zÃ­ volbu pro
+<code class="systemitem">libavcodec</code> nazÃ½vanou <tt class="option">autoaspect</tt>,
+kterÃ¡ to za vÃ¡s udÄ›lÃ¡. NezvÄ›tÅ¡ujte video jen proto, abyste dosÃ¡hli ÄtvercovÃ½ch
+pixelÅ¯, pokud je vÃ¡m milÃ© mÃ­sto na disku. Å kÃ¡lovÃ¡nÃ­ by mÄ›lo bÃ½t provedeno pÅ™i
+pÅ™ehrÃ¡vÃ¡nÃ­, kdy pÅ™ehrÃ¡vaÄ pouÅ¾ije pomÄ›r stran uloÅ¾enÃ½ v AVI pro zajiÅ¡tÄ›nÃ­
+sprÃ¡vnÃ©ho rozliÅ¡enÃ­.
+NaneÅ¡tÄ›stÃ­ ne vÅ¡echny pÅ™ehrÃ¡vaÄe uplatÅˆujÃ­ tuto autoÅ¡kÃ¡lovacÃ­ informaci,
+takÅ¾e mÅ¯Å¾ete pÅ™ece jen chtÃ­t Å¡kÃ¡lovat.
+</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-resolution-bitrate"></a>14.1.5. Volba rozliÅ¡enÃ­ a datovÃ©ho toku</h3></div></div></div><p>
+Pokud nebudete enkÃ³dovat v reÅ¾imu konstantnÃ­ho kvantizeru, musÃ­te zvolit
+velikost datovÃ©ho toku.
+Koncepce datovÃ©ho toku je velmi jednoduchÃ¡.
+Je to (prÅ¯mÄ›rnÃ½) poÄet bitÅ¯ spotÅ™ebovanÃ½ na jednu sekundu filmu.
+NormÃ¡lnÄ› se datovÃ½ tok udÃ¡vÃ¡ v kilobitech (1000 bitÅ¯) za sekundu.
+Velikost vaÅ¡eho filmu je pak datovÃ½ tok nÃ¡sobenÃ½ dÃ©lkou filmu, plus malÃ¡
+reÅ¾ie (viz napÅ™Ã­klad sekci
+<a href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-muxing-avi-limitations" title="14.1.12.2. Limitace nosnÃ©ho formÃ¡tu AVI">kontejner AVI</a>).
+OstatnÃ­ parametry jako je Å¡kÃ¡lovÃ¡nÃ­, oÅ™ezÃ¡nÃ­ atd.
+<span class="bold"><strong>nezmÄ›nÃ­</strong></span> velikost souboru, pokud zÃ¡roveÅˆ
+nezmÄ›nÃ­te datovÃ½ tok!
+</p><p>
+DatovÃ½ tok se <span class="bold"><strong>nemÄ›nÃ­</strong></span> proporcionÃ¡lnÄ›
+k rozliÅ¡enÃ­.
+JinÃ½mi slovy, soubor 320x240 pÅ™i 200 kbit/sek nebude mÃ­t stejnou kvalitu
+jako ten samÃ½ film pÅ™i 640x480 a 800 kbitech/sek!
+Jsou pro to dva dÅ¯vody:
+</p><div class="orderedlist"><ol type="1"><li><p>
+  <span class="bold"><strong>Dojem</strong></span>: MPEG artefakty jsou patrnÃ©
+  tÃ­m vÃ­ce, ÄÃ­m jsou vÃ­ce zvÄ›tÅ¡enÃ©!
+  Artefakty se objevujÃ­ ve velikosti blokÅ¯ (8x8).
+  VaÅ¡e oko neodhalÃ­ chyby ve 4800 malÃ½ch blocÃ­ch tak snadno jako ve 1200
+  velkÃ½ch (pÅ™edpoklÃ¡dÃ¡me, Å¾e oboje budete Å¡kÃ¡lovat na celou obrazovku).
+</p></li><li><p>
+  <span class="bold"><strong>TeoretickÃ½</strong></span>: KdyÅ¾ zmenÅ¡Ã­te obrÃ¡zek,
+  ale stÃ¡le pouÅ¾ijete stejnou velikost blokÅ¯ (8x8) pro frekvenÄnÃ­ prostorovou
+  transformaci, pÅ™esunete vÃ­ce dat do oblasti vyÅ¡Å¡Ã­ch frekvencÃ­.
+  ZjednoduÅ¡enÄ› Å™eÄeno, kaÅ¾dÃ½ pixel nynÃ­ obsahuje vÃ­ce detailÅ¯, neÅ¾ pÅ™edtÃ­m.
+  Dokonce i kdyÅ¾ pÅ™ipustÃ­me, Å¾e jste zmenÅ¡ili obraz obsahujÃ­cÃ­ 1/4 informacÃ­
+  o danÃ©m prostoru, stÃ¡le mÅ¯Å¾e obsahovat mnoho detailÅ¯ v danÃ©m frekvenÄnÃ­m
+  pÃ¡smu (pÅ™edpoklÃ¡dÃ¡me, Å¾e vysokÃ© frekvence byly v originÃ¡lnÃ­m 640x480 snÃ­mku
+  oÅ™ezÃ¡ny).
+</p></li></ol></div><p>
+</p><p>
+DÅ™Ã­vÄ›jÅ¡Ã­ nÃ¡vody doporuÄovaly volit datovÃ½ tok a rozliÅ¡enÃ­ rozpoÄÃ­tÃ¡nÃ­m
+bitÅ¯ na pixely, ale to obvykle nenÃ­ sprÃ¡vnÄ› ze zmÃ­nÄ›nÃ½ch dÅ¯vodÅ¯.
+Mnohem lepÅ¡Ã­m se zdÃ¡ odhad, Å¾e je datovÃ½ tok ÃºmÄ›rnÃ½ Ätverci rozliÅ¡enÃ­,
+takÅ¾e 320x240 pÅ™i 400 kbit/sek by mÄ›lo bÃ½t srovnatelnÃ© s 640x480
+pÅ™i 800 kbit/sek.
+Tato ÃºmÄ›ra vÅ¡ak nebyla ovÄ›Å™ena teoreticky ani empiricky.
+NavÃ­c, vezmeme-li v Ãºvahu to, Å¾e se filmy velmi liÅ¡Ã­ Å¡umem, poÄtem detailÅ¯,
+mnoÅ¾stvÃ­m pohybu atd, je beznadÄ›jnÃ© vytvoÅ™it obecnÃ¡ doporuÄenÃ­ pro poÄet
+bitÅ¯ na dÃ©lku diagonÃ¡ly (analogie bitÅ¯ na pixel, avÅ¡ak pouÅ¾Ã­vÃ¡ plochu obrazu).
+</p><p>
+Tolik k obtÃ­Å¾nosti volby datovÃ©ho toku a rozliÅ¡enÃ­.
+</p><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-resolution-bitrate-compute"></a>14.1.5.1. VÃ½poÄet rozliÅ¡enÃ­</h4></div></div></div><p>
+NÃ¡sledujÃ­cÃ­ kroky vÃ¡s provedou vÃ½poÄty rozliÅ¡enÃ­ vÃ½slednÃ©ho filmu tak,
+abyste pÅ™Ã­liÅ¡ nesnÃ­Å¾ili kvalitu videa s pÅ™ihlÃ©dnutÃ­m k nÄ›kolika typÅ¯m
+informacÃ­ o zdrojovÃ©m videu.
+NejdÅ™Ã­v byste si mÄ›li spoÄÃ­tat enkÃ³dovanÃ½ pomÄ›r stran:
+<code class="systemitem">PSo = (Å o x (PSa / PRdvd )) / Vo</code>
+
 </p><div class="itemizedlist"><p class="title"><b>kde:</b></p><ul type="disc"><li><p>
-  &#352;o a Vo jsou &#353;í&#345;ka a vý&#353;ka o&#345;ezaného videa,
+  Å o a Vo jsou Å¡Ã­Å™ka a vÃ½Å¡ka oÅ™ezanÃ©ho videa,
 </p></li><li><p>
-  PSa je zobrazovaný pom&#283;r stran, je&#382; je obvykle 4/3 nebo 16/9,
+  PSa je zobrazovanÃ½ pomÄ›r stran, jeÅ¾ je obvykle 4/3 nebo 16/9,
 </p></li><li><p>
-  PRdvd je pom&#283;r pixel&#367; v DVD, který je roven 1.25=(720/576) pro DVD
+  PRdvd je pomÄ›r pixelÅ¯ v DVD, kterÃ½ je roven 1.25=(720/576) pro DVD
   v PALu a 1.5=(720/480) pro DVD v NTSC,
 </p></li></ul></div><p>
 </p><p>
-  Pak si m&#367;&#382;ete spo&#269;ítat rozli&#353;ení X a Y podle ur&#269;itého faktoru kvality komprese
-  (CQ):
-  <code class="systemitem">RozY = INT(SQRT( 1000*Datový_tok/25/PSo/CQ )/16) * 16</code>
-  a
-  <code class="systemitem">RozX = INT( RozY * PSo / 16) * 16</code>
+Pak si mÅ¯Å¾ete spoÄÃ­tat rozliÅ¡enÃ­ X a Y podle urÄitÃ©ho
+faktoru kvality komprese (CQ):
+<code class="systemitem">RozY = INT(SQRT( 1000*DatovÃ½_tok/25/PSo/CQ )/16) * 16</code>
+a
+<code class="systemitem">RozX = INT( RozY * PSo / 16) * 16</code>
 </p><p>
-  Dob&#345;e, ale co je ten CQ?
-  CQ odpovídá po&#269;tu bit&#367; na pixel a na snímek v zakódování. Jinými slovy, &#269;ím
-  vy&#353;&#353;í je CQ, tím ni&#382;&#353;í je &#353;ance uvid&#283;t enkódovací artefakty.
-  Pokud ov&#353;em máte cílový rozm&#283;r va&#353;eho filmu (1 nebo 2 CD nap&#345;íklad), máte jen
-  omezené mno&#382;ství bit&#367;, které m&#367;&#382;ete spot&#345;ebovat; tak&#382;e je nutné najít vhodný
-  kompromis mezi komprimovatelností a kvalitou.
+DobÅ™e, ale co je CQ?
+CQ odpovÃ­dÃ¡ poÄtu bitÅ¯ na pixel a na snÃ­mek po zakÃ³dovÃ¡nÃ­. JinÃ½mi slovy, ÄÃ­m
+vyÅ¡Å¡Ã­ je CQ, tÃ­m niÅ¾Å¡Ã­ je Å¡ance uvidÄ›t enkÃ³dovacÃ­ artefakty.
+Pokud ovÅ¡em mÃ¡te cÃ­lovÃ½ rozmÄ›r vaÅ¡eho filmu (1 nebo 2 CD napÅ™Ã­klad), mÃ¡te jen
+omezenÃ© mnoÅ¾stvÃ­ bitÅ¯, kterÃ© mÅ¯Å¾ete spotÅ™ebovat; takÅ¾e je nutnÃ© najÃ­t vhodnÃ½
+kompromis mezi komprimovatelnostÃ­ a kvalitou.
 </p><p>
-  CQ závisí na datovém toku, efektivit&#283; video kodeku a na rozli&#353;ení filmu.
-  Abyste zvý&#353;ili CQ, obvykle zmen&#353;íte daný film, tak&#382;e je datový tok spo&#269;ítán
-  ve funkci cílové velikosti a délky filmu, které jsou konstantní.
-  S MPEG-4 ASP kodeky jako jsou <code class="systemitem">XviD</code>
-  a <code class="systemitem">libavcodec</code>, vede CQ pod 0.18
-  obvykle k velmi &#269;tvere&#269;kovanému obrázku, proto&#382;e není dostatek bit&#367; pro
-  zakódování informací ka&#382;dého makrobloku. (MPEG4, stejn&#283; jako mnoho
-  jiných kodek&#367; seskupuje pixely do blok&#367; p&#345;i komprimaci obrázku; pokud není
-  dostatek bit&#367;, jsou viditelné hranice t&#283;chto blok&#367;.)
-  Proto je rozumné volit CQ v rozmezí 0.20 a&#382; 0.22 pro rip na 1 CD a
-  0.26 a&#382; 0.28 pro rip na 2 CD p&#345;i standardních enkódovacích volbách.
-  Pokro&#269;ilej&#353;í volby podobné t&#283;m zmi&#328;ovaným zde pro
-  <a href="menc-feat-enc-libavcodec.html#menc-feat-mpeg4-lavc-example-settings" title="14.3.4. P&#345;íklady nastavení enkódování"><code class="systemitem">libavcodec</code></a>
-  a
-  <a href="menc-feat-xvid.html#menc-feat-xvid-example-settings" title="14.4.4. P&#345;íklady nastavení enkódování"><code class="systemitem">XviD</code></a>
-  by m&#283;ly umo&#382;nit dosa&#382;ení stejné kvality p&#345;i CQ v rozsahu od
-  0.18 do 0.20 pro rip na 1 CD a 0.24 a&#382; 0.26 pro rip na 2 CD.
-  S MPEG-4 ASP kodeky jako je <code class="systemitem">x264</code>,
-  m&#367;&#382;ete pou&#382;ít CQ v rozmezí 0.14 a&#382; 0.16 p&#345;i standardních enkódovacích volbách
-  a m&#283;li byste být schopni jít a&#382; na nízký od 0.10 do 0.12 s pokro&#269;ilými
-  <a href="menc-feat-x264.html#menc-feat-x264-example-settings" title="14.5.2. P&#345;íklady nastavení enkódování"><code class="systemitem">x264</code> enkódovacími volbami</a>.
+CQ zÃ¡visÃ­ na datovÃ©m toku, efektivitÄ› video kodeku a na rozliÅ¡enÃ­ filmu.
+Abyste zvÃ½Å¡ili CQ, obvykle zmenÅ¡Ã­te danÃ½ film, takÅ¾e je datovÃ½ tok spoÄÃ­tÃ¡n
+ve funkci cÃ­lovÃ© velikosti a dÃ©lky filmu, kterÃ© jsou konstantnÃ­.
+S MPEG-4 ASP kodeky jako jsou <code class="systemitem">Xvid</code>
+a <code class="systemitem">libavcodec</code>, vede CQ pod 0.18
+obvykle k velmi ÄtvereÄkovanÃ©mu obrÃ¡zku, protoÅ¾e nenÃ­ dostatek bitÅ¯ pro
+zakÃ³dovÃ¡nÃ­ informacÃ­ kaÅ¾dÃ©ho makrobloku. (MPEG4, stejnÄ› jako mnoho
+jinÃ½ch kodekÅ¯ seskupuje pixely do blokÅ¯ pÅ™i komprimaci obrÃ¡zku; pokud nenÃ­
+dostatek bitÅ¯, jsou viditelnÃ© hranice tÄ›chto blokÅ¯.)
+Proto je rozumnÃ© volit CQ v rozmezÃ­ 0.20 aÅ¾ 0.22 pro rip na 1 CD a
+0.26 aÅ¾ 0.28 pro rip na 2 CD pÅ™i standardnÃ­ch enkÃ³dovacÃ­ch volbÃ¡ch.
+PokroÄilejÅ¡Ã­ volby podobnÃ© tÄ›m zmiÅˆovanÃ½m zde pro
+<a href="menc-feat-enc-libavcodec.html#menc-feat-mpeg4-lavc-example-settings" title="14.3.4. PÅ™Ã­klady nastavenÃ­ enkÃ³dovÃ¡nÃ­"><code class="systemitem">libavcodec</code></a>
+a
+<a href="menc-feat-xvid.html#menc-feat-xvid-example-settings" title="14.4.4. PÅ™Ã­klady nastavenÃ­ enkÃ³dovÃ¡nÃ­"><code class="systemitem">Xvid</code></a>
+by mÄ›ly umoÅ¾nit dosaÅ¾enÃ­ stejnÃ© kvality pÅ™i CQ v rozsahu od
+0.18 do 0.20 pro rip na 1 CD a 0.24 aÅ¾ 0.26 pro rip na 2 CD.
+S MPEG-4 ASP kodeky jako je <code class="systemitem">x264</code>,
+mÅ¯Å¾ete pouÅ¾Ã­t CQ v rozmezÃ­ 0.14 aÅ¾ 0.16 pÅ™i standardnÃ­ch enkÃ³dovacÃ­ch volbÃ¡ch
+a mÄ›li byste bÃ½t schopni jÃ­t aÅ¾ na nÃ­zkÃ½ od 0.10 do 0.12 s pokroÄilÃ½mi
+<a href="menc-feat-x264.html#menc-feat-x264-example-settings" title="14.5.2. PÅ™Ã­klady nastavenÃ­ enkÃ³dovÃ¡nÃ­"><code class="systemitem">x264</code> enkÃ³dovacÃ­mi volbami</a>.
 </p><p>
-  Prosíme berte v potaz, &#382;e CQ je jen informa&#269;ní pom&#367;cka závisející na
-  enkódovaném obsahu. CQ okolo 0.18 m&#367;&#382;e být dostate&#269;n&#283; dobrý pro Bergmana,
-  na rozdíl od filmu jako je Matrix, který obsahuje mnoho rychlých scén.
-  Na druhou stranu je zbyte&#269;né zvy&#353;ovat CQ vý&#353; ne&#382; 0.30, jeliko&#382; budete plýtvat
-  bity za minimální zisk kvality.
-  Také berte v potaz, jak jsme ji&#382; &#345;ekli, &#382;e videa s nízkým rozli&#353;ením
-  vy&#382;adují vy&#353;&#353;í CQ (v porovnání s nap&#345;. DVD rozli&#353;ením), aby vypadala dob&#345;e.
-</p></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-filtering"></a>14.1.6. Filtrování</h3></div></div></div><p>
-  Nau&#269;it se pou&#382;ívat video filtry <span class="application">MEncoder</span>u je
-  základem pro produkci dobrých videí.
-  Ve&#353;keré úpravy videa jsou provád&#283;ny pomocí filtr&#367;  -- o&#345;ezání, &#353;kálování,
-  úprava barev, odstran&#283;ní &#353;umu, zaost&#345;ení, odstran&#283;ní prokladu, telecinování,
-  inverzní telecine a deblokování, abychom jmenovali alespo&#328; n&#283;které.
-  Spolu s vy&#269;erpávajícím po&#269;tem podporovaných vstupních formát&#367; je nabídka
-  dostupných filtr&#367; v <span class="application">MEncoder</span>u jednou z jeho
-  hlavních výhod oproti podobným aplikacím.
+ProsÃ­me berte v potaz, Å¾e CQ je jen informaÄnÃ­ pomÅ¯cka zÃ¡visejÃ­cÃ­ na
+enkÃ³dovanÃ©m obsahu. CQ okolo 0.18 mÅ¯Å¾e bÃ½t dostateÄnÄ› dobrÃ½ pro Bergmana,
+na rozdÃ­l od filmu jako je Matrix, kterÃ½ obsahuje mnoho rychlÃ½ch scÃ©n.
+Na druhou stranu je zbyteÄnÃ© zvyÅ¡ovat CQ vÃ½Å¡ neÅ¾ 0.30, jelikoÅ¾ budete plÃ½tvat
+bity za minimÃ¡lnÃ­ zisk kvality.
+TakÃ© berte v potaz, jak jsme jiÅ¾ Å™ekli, Å¾e videa s nÃ­zkÃ½m rozliÅ¡enÃ­m
+vyÅ¾adujÃ­ vyÅ¡Å¡Ã­ CQ (v porovnÃ¡nÃ­ s napÅ™. DVD rozliÅ¡enÃ­m), aby vypadala dobÅ™e.
+</p></div></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-filtering"></a>14.1.6. FiltrovÃ¡nÃ­</h3></div></div></div><p>
+NauÄit se pouÅ¾Ã­vat video filtry <span class="application">MEncoder</span>u je
+zÃ¡kladem pro produkci dobrÃ½ch videÃ­.
+VeÅ¡kerÃ© Ãºpravy videa jsou provÃ¡dÄ›ny pomocÃ­ filtrÅ¯  -- oÅ™ezÃ¡nÃ­, Å¡kÃ¡lovÃ¡nÃ­,
+Ãºprava barev, odstranÄ›nÃ­ Å¡umu, zaostÅ™enÃ­, odstranÄ›nÃ­ prokladu, telecinovÃ¡nÃ­,
+inverznÃ­ telecine a deblokovÃ¡nÃ­, abychom jmenovali alespoÅˆ nÄ›kterÃ©.
+Spolu s vyÄerpÃ¡vajÃ­cÃ­m poÄtem podporovanÃ½ch vstupnÃ­ch formÃ¡tÅ¯ je nabÃ­dka
+dostupnÃ½ch filtrÅ¯ v <span class="application">MEncoder</span>u jednou z jeho
+hlavnÃ­ch vÃ½hod oproti podobnÃ½m aplikacÃ­m.
 </p><p>
-  Filtry jsou nahrávány v &#345;ad&#283; za pou&#382;ití volby -vf :
+Filtry jsou nahrÃ¡vÃ¡ny v Å™adÄ› za pouÅ¾itÃ­ volby -vf :
 
-  </p><pre class="screen">-vf filtr1=volby,filtr2=volby,...</pre><p>
+</p><pre class="screen">-vf filtr1=volby,filtr2=volby,...</pre><p>
 
-  V&#283;t&#353;ina filtr&#367; p&#345;ebírá n&#283;kolik &#269;íselných voleb odd&#283;lených dvojte&#269;kou, ale
-  syntaxe voleb se li&#353;í od filtru k filtru, tak&#382;e si p&#345;e&#269;t&#283;te  manuál
-  pro více informací o filtru který chcete pou&#382;ít.
+VÄ›tÅ¡ina filtrÅ¯ pÅ™ebÃ­rÃ¡ nÄ›kolik ÄÃ­selnÃ½ch voleb oddÄ›lenÃ½ch dvojteÄkou, ale
+syntaxe voleb se liÅ¡Ã­ od filtru k filtru, takÅ¾e si pÅ™eÄtÄ›te  manuÃ¡l
+pro vÃ­ce informacÃ­ o filtru kterÃ½ chcete pouÅ¾Ã­t.
 </p><p>
-  Filtry zpracovávají video v po&#345;adí, v jakém jsou na&#269;teny.
-  Nap&#345;íklad následující &#345;ada:
+Filtry zpracovÃ¡vajÃ­ video v poÅ™adÃ­, v jakÃ©m jsou naÄteny.
+NapÅ™Ã­klad nÃ¡sledujÃ­cÃ­ Å™ada:
 
-  </p><pre class="screen">-vf crop=688:464:12:4,scale=640:464</pre><p>
+</p><pre class="screen">-vf crop=688:464:12:4,scale=640:464</pre><p>
 
-  nejprve vy&#345;ízne z obrázku oblast 688x464 s levým horním rohem v bod&#283; (12,4)
-  a výsledek pak zmen&#353;í na 640x464.
+nejprve vyÅ™Ã­zne z obrÃ¡zku oblast 688x464 s levÃ½m hornÃ­m rohem v bodÄ› (12,4)
+a vÃ½sledek pak zmenÅ¡Ã­ na 640x464.
 </p><p>
-  Ur&#269;ité filtry pot&#345;ebují být nahrány na za&#269;átku, nebo co nejblí&#382; za&#269;átku
-  &#345;et&#283;zu filtr&#367;, aby mohly vyu&#382;ívat informace z video dekodéru, které budou
-  ztraceny nebo znehodnoceny ostatními filtry.
-  Nejd&#367;le&#382;it&#283;j&#353;í p&#345;íklady jsou <tt class="option">pp</tt> (postprocesing, pouze pokud
-  provádí deblok nebo dering operace),
-  <tt class="option">spp</tt> (dal&#353;í postprocesor pro odstran&#283;ní MPEG artefakt&#367;),
-  <tt class="option">pullup</tt> (inverzní telecine) a
-  <tt class="option">softpulldown</tt> (pro konverzi soft telecine na hard
-  telecine).
+UrÄitÃ© filtry potÅ™ebujÃ­ bÃ½t nahrÃ¡ny na zaÄÃ¡tku, nebo co nejblÃ­Å¾ zaÄÃ¡tku
+Å™etÄ›zu filtrÅ¯, aby mohly vyuÅ¾Ã­vat informace z video dekodÃ©ru, kterÃ© budou
+ztraceny nebo znehodnoceny ostatnÃ­mi filtry.
+NejdÅ¯leÅ¾itÄ›jÅ¡Ã­ pÅ™Ã­klady jsou <tt class="option">pp</tt> (postprocesing, pouze pokud
+provÃ¡dÃ­ deblok nebo dering operace),
+<tt class="option">spp</tt> (dalÅ¡Ã­ postprocesor pro odstranÄ›nÃ­ MPEG artefaktÅ¯),
+<tt class="option">pullup</tt> (inverznÃ­ telecine) a
+<tt class="option">softpulldown</tt> (pro konverzi soft telecine na hard
+telecine).
 </p><p>
-  V&#353;eobecn&#283; byste m&#283;li filtrovat co nejmén&#283; je to mo&#382;né, abyste z&#367;stali co
-  nejblí&#382;e DVD originálu. O&#345;ezání je &#269;asto nutné (vysv&#283;tleno vý&#353;e), ale vyhn&#283;te
-  se &#353;kálování videa. A&#269;koli je zmen&#353;ení ob&#269;as preferováno p&#345;ed pou&#382;itím
-  vy&#353;&#353;ích kvantizér&#367;. My se musíme vyvarovat obou t&#283;chto p&#345;ípad&#367;: pamatujte,
-  &#382;e jsme se ji&#382; na za&#269;átku rozhodli ob&#283;tovat bity za kvalitu.
+VÅ¡eobecnÄ› byste mÄ›li filtrovat co nejmÃ©nÄ› je to moÅ¾nÃ©, abyste zÅ¯stali co
+nejblÃ­Å¾e DVD originÃ¡lu. OÅ™ezÃ¡nÃ­ je Äasto nutnÃ© (vysvÄ›tleno vÃ½Å¡e), ale vyhnÄ›te
+se Å¡kÃ¡lovÃ¡nÃ­ videa. AÄkoli je zmenÅ¡enÃ­ obÄas preferovÃ¡no pÅ™ed pouÅ¾itÃ­m
+vyÅ¡Å¡Ã­ch kvantizÃ©rÅ¯. My se musÃ­me vyvarovat obou tÄ›chto pÅ™Ã­padÅ¯: pamatujte,
+Å¾e jsme se jiÅ¾ na zaÄÃ¡tku rozhodli obÄ›tovat bity za kvalitu.
 </p><p>
-  Rovn&#283;&#382; neupravujte gamu, kontrast, jas, atd. Co vypadá dob&#345;e na va&#353;í
-  obrazovce, nemusí vypadat dob&#345;e na ostatních. Tyto korekce by m&#283;ly být
-  provád&#283;ny výhradn&#283; p&#345;i p&#345;ehrávání.
+RovnÄ›Å¾ neupravujte gamu, kontrast, jas, atd. Co vypadÃ¡ dobÅ™e na vaÅ¡Ã­
+obrazovce, nemusÃ­ vypadat dobÅ™e na ostatnÃ­ch. Tyto korekce by mÄ›ly bÃ½t
+provÃ¡dÄ›ny vÃ½hradnÄ› pÅ™i pÅ™ehrÃ¡vÃ¡nÃ­.
 </p><p>
-  Jednu v&#283;c byste v&#353;ak ud&#283;lat mohli, a to protáhnout video velmi lehkým
-  od&#353;umovacím filtrem, jako je <tt class="option">-vf hqdn3d=2:1:2</tt>.
-  Zde je op&#283;t d&#367;vodem vyu&#382;ití bit&#367; k lep&#353;ímu ú&#269;elu: pro&#269; jimi plýtvat na
-  enkódování &#353;umu, kdy&#382; si m&#367;&#382;ete &#353;um p&#345;idat a&#382; p&#345;i p&#345;ehrávání?
-  Zvý&#353;ením parametr&#367; pro <tt class="option">hqdn3d</tt> dále zvý&#353;í komprimovatelnost,
-  ale pokud zvý&#353;íte hodnoty p&#345;íli&#353;, riskujete zhor&#353;ení viditelnosti obrazu.
-  Vý&#353;e zmín&#283;né hodnoty (<tt class="option">2:1:2</tt>) jsou dost konzervativní;
-  m&#283;li byste si zaexperimentovat s vy&#353;&#353;ími hodnotami a zhodnotit výsledky sami.
-</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-interlacing"></a>14.1.7. Prokládání a Telecine</h3></div></div></div><p>
-  Tém&#283;&#345; ve&#353;keré filmy jsou natá&#269;eny p&#345;i 24 snímcích/s. Jeliko&#382; NTSC má
-  snímkovou rychlost 30000/1001 snímk&#367;/s, je t&#345;eba provést úpravu t&#283;chto
-  24 snímk&#367;/s videí, aby m&#283;ly správnou NTSC snímkovou rychlost. Tato úprava se
-  jmenuje 3:2 pulldown a obecn&#283; je známa jako telecine (proto&#382;e je pulldown
-  &#269;asto provád&#283;n b&#283;hem p&#345;enosu filmu na video) a, jednodu&#353;e &#345;e&#269;eno, pracuje tak,
-  &#382;e se film zpomalí na 24000/1001 snímk&#367;/s a ka&#382;dý &#269;tvrtý snímek se zopakuje.
+Jednu vÄ›c byste vÅ¡ak udÄ›lat mohli, a to protÃ¡hnout video velmi lehkÃ½m
+odÅ¡umovacÃ­m filtrem, jako je <tt class="option">-vf hqdn3d=2:1:2</tt>.
+Zde je opÄ›t dÅ¯vodem vyuÅ¾itÃ­ bitÅ¯ k lepÅ¡Ã­mu ÃºÄelu: proÄ jimi plÃ½tvat na
+enkÃ³dovÃ¡nÃ­ Å¡umu, kdyÅ¾ si mÅ¯Å¾ete Å¡um pÅ™idat aÅ¾ pÅ™i pÅ™ehrÃ¡vÃ¡nÃ­?
+ZvÃ½Å¡enÃ­m parametrÅ¯ pro <tt class="option">hqdn3d</tt> dÃ¡le zvÃ½Å¡Ã­ komprimovatelnost,
+ale pokud zvÃ½Å¡Ã­te hodnoty pÅ™Ã­liÅ¡, riskujete zhorÅ¡enÃ­ viditelnosti obrazu.
+VÃ½Å¡e zmÃ­nÄ›nÃ© hodnoty (<tt class="option">2:1:2</tt>) jsou dost konzervativnÃ­;
+mÄ›li byste si zaexperimentovat s vyÅ¡Å¡Ã­mi hodnotami a zhodnotit vÃ½sledky sami.
+</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-interlacing"></a>14.1.7. ProklÃ¡dÃ¡nÃ­ a Telecine</h3></div></div></div><p>
+TÃ©mÄ›Å™ veÅ¡kerÃ© filmy jsou natÃ¡Äeny pÅ™i 24 snÃ­mcÃ­ch/s. JelikoÅ¾ NTSC mÃ¡
+snÃ­mkovou rychlost 30000/1001 snÃ­mkÅ¯/s, je tÅ™eba provÃ©st Ãºpravu tÄ›chto
+24 snÃ­mkÅ¯/s videÃ­, aby mÄ›ly sprÃ¡vnou NTSC snÃ­mkovou rychlost. Tato Ãºprava se
+jmenuje 3:2 pulldown a obecnÄ› je znÃ¡ma jako telecine (protoÅ¾e je pulldown
+Äasto provÃ¡dÄ›n bÄ›hem pÅ™enosu filmu na video) a, jednoduÅ¡e Å™eÄeno, pracuje tak,
+Å¾e se film zpomalÃ­ na 24000/1001 snÃ­mkÅ¯/s a kaÅ¾dÃ½ ÄtvrtÃ½ snÃ­mek se zopakuje.
 </p><p>
-  Naopak &#382;ádné speciální úpravy se neprovád&#283;jí videu pro PAL DVD, která b&#283;&#382;í
-  p&#345;i 25 snímcích/s. (Technicky lze na PAL provést telecine, tzv. 2:2 pulldown,
-  ale v praxi se nepou&#382;ívá.) Film s 24 snímky/s je jednodu&#353;e p&#345;ehráván rychlostí
-  25 snímk&#367;/s. Výsledkem je, &#382;e video b&#283;&#382;í o n&#283;co rychleji, ale pokud nejste
-  vet&#345;elec, tak si rozdílu ani nev&#353;imnete. V&#283;t&#353;ina film&#367; má navíc vý&#353;kov&#283;
-  korigovaný zvuk, tak&#382;e p&#345;i p&#345;ehrávání 25 snímk&#367;/s v&#353;e zní jak má i p&#345;esto, &#382;e
-  zvuk (a proto i celé video) má o 4% krat&#353;í dobu p&#345;ehrávání ne&#382; NTSC DVD.
+Naopak Å¾Ã¡dnÃ© speciÃ¡lnÃ­ Ãºpravy se neprovÃ¡dÄ›jÃ­ videu pro PAL DVD, kterÃ¡ bÄ›Å¾Ã­
+pÅ™i 25 snÃ­mcÃ­ch/s. (Technicky lze na PAL provÃ©st telecine, tzv. 2:2 pulldown,
+ale v praxi se nepouÅ¾Ã­vÃ¡.) Film s 24 snÃ­mky/s je jednoduÅ¡e pÅ™ehrÃ¡vÃ¡n rychlostÃ­
+25 snÃ­mkÅ¯/s. VÃ½sledkem je, Å¾e video bÄ›Å¾Ã­ o nÄ›co rychleji, ale pokud nejste
+vetÅ™elec, tak si rozdÃ­lu ani nevÅ¡imnete. VÄ›tÅ¡ina filmÅ¯ mÃ¡ navÃ­c vÃ½Å¡kovÄ›
+korigovanÃ½ zvuk, takÅ¾e pÅ™i pÅ™ehrÃ¡vÃ¡nÃ­ 25 snÃ­mkÅ¯/s vÅ¡e znÃ­ jak mÃ¡ i pÅ™esto, Å¾e
+zvuk (a proto i celÃ© video) mÃ¡ o 4% kratÅ¡Ã­ dobu pÅ™ehrÃ¡vÃ¡nÃ­ neÅ¾ NTSC DVD.
 </p><p>
-  Jeliko&#382; video na PAL DVD nebylo upravováno, nemusíte si d&#283;lat starosti s jeho
-  snímkovou rychlostí. Zdroj má 25 snímk&#367;/s, vá&#353; rip také. Pokud ov&#353;em ripujete
-  NTSC DVD film, musíte provést inverzní telecine.
+JelikoÅ¾ video na PAL DVD nebylo upravovÃ¡no, nemusÃ­te si dÄ›lat starosti s jeho
+snÃ­mkovou rychlostÃ­. Zdroj mÃ¡ 25 snÃ­mkÅ¯/s, vÃ¡Å¡ rip takÃ©. Pokud ovÅ¡em ripujete
+NTSC DVD film, musÃ­te provÃ©st inverznÃ­ telecine.
 </p><p>
-  Filmy to&#269;ené rychlostí 24 snímk&#367;/s jsou na NTSC DVD ulo&#382;eny bu&#271; jako
-  30000/1001 po telecine, nebo jako progresivní (neprokládaný) se snímkovou
-  24000/1001 snímk&#367;/s, na kterých by m&#283;l provést telecine DVD p&#345;ehráva&#269; za letu.
-  Není to ale zákon: n&#283;které TV série jsou prokládané (nap&#345;. Buffy Lovec upír&#367;),
-  zatímco jiné jsou por&#367;znu neprokládané nebo prokládané (nap&#345;. And&#283;l, nebo 24
-  hodin).
+Filmy toÄenÃ© rychlostÃ­ 24 snÃ­mkÅ¯/s jsou na NTSC DVD uloÅ¾eny buÄ jako
+30000/1001 po telecine, nebo jako progresivnÃ­ (neproklÃ¡danÃ½) se snÃ­mkovou
+24000/1001 snÃ­mkÅ¯/s, na kterÃ½ch by mÄ›l provÃ©st telecine DVD pÅ™ehrÃ¡vaÄ za letu.
+NenÃ­ to ale zÃ¡kon: nÄ›kterÃ© TV sÃ©rie jsou proklÃ¡danÃ© (napÅ™. Buffy Lovec upÃ­rÅ¯),
+zatÃ­mco jinÃ© jsou porÅ¯znu neproklÃ¡danÃ© nebo proklÃ¡danÃ© (napÅ™. AndÄ›l, nebo 24
+hodin).
 </p><p>
-  Doporu&#269;ujeme, abyste si p&#345;e&#269;etli sekci o tom
-  <a href="menc-feat-telecine.html" title="14.2. Jak nalo&#382;it s telecine a prokladem v NTSC DVD">Jak si poradit s telecine a prokladem na NTSC DVD</a>
-  a nau&#269;ili se jak vyu&#382;ít r&#367;zné mo&#382;nosti.
+DoporuÄujeme, abyste si pÅ™eÄetli sekci o tom
+<a href="menc-feat-telecine.html" title="14.2. Jak naloÅ¾it s telecine a prokladem v NTSC DVD">Jak si poradit s telecine a prokladem na NTSC DVD</a>
+a nauÄili se jak vyuÅ¾Ã­t rÅ¯znÃ© moÅ¾nosti.
 </p><p>
-  Pokud ov&#353;em v&#283;t&#353;inou ripujete pouze filmy, nejspí&#353; se setkáváte
-  s neprokládaným nebo prokládaným videem 24 snímk&#367;/s. V tom p&#345;ípad&#283; m&#367;&#382;ete
-  pou&#382;ít <tt class="option">pullup</tt> filtr <tt class="option">-vf pullup,softskip</tt>.
-</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-encoding-interlaced"></a>14.1.8. Enkódování prokládaného videa</h3></div></div></div><p>
-  Pokud je film, který chcete enkódovat, prokládaný (NTSC video nebo
-  PAL video), budete si muset vybrat, zda jej chcete "odprolo&#382;it" nebo ne.
-  Zatímco odstran&#283;ní prokladu u&#269;iní vá&#353; film pou&#382;itelným na progresivn&#283;
-  vykreslovaných zobrazova&#269;ích jako jsou po&#269;íta&#269;ové monitory a projektory.
-  Cenou za to je, sní&#382;ení rychlosti z 50 nebo 60000/1001 p&#367;lsnímk&#367; za sekundu
-  na 25 nebo 30000/1001 snímk&#367; za sekundu a zhruba polovina informací bude
-  z va&#353;eho filmu ztracena ve scénách s významným mno&#382;stvím pohybu.
+Pokud ovÅ¡em vÄ›tÅ¡inou ripujete pouze filmy, nejspÃ­Å¡ se setkÃ¡vÃ¡te
+s neproklÃ¡danÃ½m nebo proklÃ¡danÃ½m videem 24 snÃ­mkÅ¯/s. V tom pÅ™Ã­padÄ› mÅ¯Å¾ete
+pouÅ¾Ã­t <tt class="option">pullup</tt> filtr <tt class="option">-vf pullup,softskip</tt>.
+</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-encoding-interlaced"></a>14.1.8. EnkÃ³dovÃ¡nÃ­ proklÃ¡danÃ©ho videa</h3></div></div></div><p>
+Pokud je film, kterÃ½ chcete enkÃ³dovat, proklÃ¡danÃ½ (NTSC video nebo
+PAL video), budete si muset vybrat, zda jej chcete "odproloÅ¾it" nebo ne.
+ZatÃ­mco odstranÄ›nÃ­ prokladu uÄinÃ­ vÃ¡Å¡ film pouÅ¾itelnÃ½m na progresivnÄ›
+vykreslovanÃ½ch zobrazovaÄÃ­ch jako jsou poÄÃ­taÄovÃ© monitory a projektory.
+Cenou za to je, snÃ­Å¾enÃ­ rychlosti z 50 nebo 60000/1001 pÅ¯lsnÃ­mkÅ¯ za sekundu
+na 25 nebo 30000/1001 snÃ­mkÅ¯ za sekundu a zhruba polovina informacÃ­ bude
+z vaÅ¡eho filmu ztracena ve scÃ©nÃ¡ch s vÃ½znamnÃ½m mnoÅ¾stvÃ­m pohybu.
 </p><p>
-  Proto pokud enkódujete ve vysoké kvalit&#283; pro archiva&#269;ní ú&#269;ely, doporu&#269;ujeme
-  ponechat film prokládaný.
-  V&#382;dy m&#367;&#382;ete provést odstran&#283;ní prokladu p&#345;i p&#345;ehrávání pokud zobrazujete
-  na progresivn&#283; zobrazujícím za&#345;ízení.
-  Výkon sou&#269;asných po&#269;íta&#269;&#367; nutí p&#345;ehráva&#269;e pou&#382;ívat filtr prokladu, co&#382;
-  p&#367;sobí mírnou degradaci kvality obrazu.
-  Budoucí p&#345;ehráva&#269;e v&#353;ak budou schopny napodobovat chování prokládané
-  TV obrazovky, odstra&#328;ovat proklad v plné p&#367;lsnímkové rychlosti a
-  odvozovat 50 nebo 60000/1001 úplných snímk&#367; za sekundu z prokládaného videa.
+Proto pokud enkÃ³dujete ve vysokÃ© kvalitÄ› pro archivaÄnÃ­ ÃºÄely, doporuÄujeme
+ponechat film proklÃ¡danÃ½.
+VÅ¾dy mÅ¯Å¾ete provÃ©st odstranÄ›nÃ­ prokladu pÅ™i pÅ™ehrÃ¡vÃ¡nÃ­ pokud zobrazujete
+na progresivnÄ› zobrazujÃ­cÃ­m zaÅ™Ã­zenÃ­.
+VÃ½kon souÄasnÃ½ch poÄÃ­taÄÅ¯ nutÃ­ pÅ™ehrÃ¡vaÄe pouÅ¾Ã­vat filtr prokladu, coÅ¾
+pÅ¯sobÃ­ mÃ­rnou degradaci kvality obrazu.
+BudoucÃ­ pÅ™ehrÃ¡vaÄe vÅ¡ak budou schopny napodobovat chovÃ¡nÃ­ proklÃ¡danÃ©
+TV obrazovky, odstraÅˆovat proklad v plnÃ© pÅ¯lsnÃ­mkovÃ© rychlosti a
+odvozovat 50 nebo 60000/1001 ÃºplnÃ½ch snÃ­mkÅ¯ za sekundu z proklÃ¡danÃ©ho videa.
 </p><p>
-Kdy&#382; pracujete s prokládaným videem, musíte zvlá&#353;t&#283; dbát na:
+KdyÅ¾ pracujete s proklÃ¡danÃ½m videem, musÃ­te zvlÃ¡Å¡tÄ› dbÃ¡t na:
 </p><div class="orderedlist"><ol type="1"><li><p>
-  Vý&#353;ka a svislé odsazení pro o&#345;ezání musí být násobkem 4.
+  VÃ½Å¡ka a svislÃ© odsazenÃ­ pro oÅ™ezÃ¡nÃ­ musÃ­ bÃ½t nÃ¡sobkem 4.
 </p></li><li><p>
-  Jakékoli svislé &#353;kálování musí být provedeno v prokládaném re&#382;imu.
+  JakÃ©koli svislÃ© Å¡kÃ¡lovÃ¡nÃ­ musÃ­ bÃ½t provedeno v proklÃ¡danÃ©m reÅ¾imu.
 </p></li><li><p>
-  Postprocesní a od&#353;umovací filtry nemusí pracovat podle o&#269;ekávání,
-  dokud neza&#345;ídíte, aby zpracovávaly najednou pouze jeden p&#367;lsnímek a
-  mohou vám po&#353;kodit video p&#345;i nesprávném pou&#382;ití.
+  PostprocesnÃ­ a odÅ¡umovacÃ­ filtry nemusÃ­ pracovat podle oÄekÃ¡vÃ¡nÃ­,
+  dokud nezaÅ™Ã­dÃ­te, aby zpracovÃ¡valy najednou pouze jeden pÅ¯lsnÃ­mek a
+  mohou vÃ¡m poÅ¡kodit video pÅ™i nesprÃ¡vnÃ©m pouÅ¾itÃ­.
 </p></li></ol></div><p>
-S v&#283;domím t&#283;chto souvislostí vám p&#345;edkládáme první p&#345;íklad:
+S vÄ›domÃ­m tÄ›chto souvislostÃ­ vÃ¡m pÅ™edklÃ¡dÃ¡me prvnÃ­ pÅ™Ã­klad:
 </p><pre class="screen">
-  mencoder <em class="replaceable"><code>capture.avi</code></em> -mc 0 -oac lavc -ovc lavc -lavcopts \
-  vcodec=mpeg2video:vbitrate=6000:ilme:ildct:acodec=mp2:abitrate=224
+mencoder <em class="replaceable"><code>capture.avi</code></em> -mc 0 -oac lavc -ovc lavc -lavcopts \
+    vcodec=mpeg2video:vbitrate=6000:ilme:ildct:acodec=mp2:abitrate=224
 </pre><p>
-Pov&#353;imn&#283;te si voleb <tt class="option">ilme</tt> a <tt class="option">ildct</tt>.
-</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-av-sync"></a>14.1.9. Poznámky k Audio/Video synchronizaci</h3></div></div></div><p>
-<span class="application">MEncoder</span>ovy audio/video synchroniza&#269;ní
-algoritmy byly navr&#382;eny se zám&#283;rem obnovy soubor&#367; s vadnou synchronizací.
-V n&#283;kterých p&#345;ípadech v&#353;ak m&#367;&#382;ou p&#367;sobit zbyte&#269;né zahazování a duplikaci snímk&#367;
-a mo&#382;ná mírnou A/V desynchronizaci p&#345;i pou&#382;ití s bezvadným vstupem
-(p&#345;irozen&#283; tyto A/V synchroniza&#269;ní omezení projeví pouze pokud kopírujete
-zvukovou stopu p&#345;i p&#345;ekódovávání videa, co&#382; je velmi doporu&#269;ováno).
-M&#367;&#382;ete v&#353;ak p&#345;epnout do základní A/V synchronizace s volbou
-<tt class="option">-mc 0</tt>, nebo ji p&#345;idejte do svého konfigura&#269;ního souboru
-<code class="systemitem">~/.mplayer/mencoder</code> config file, aspo&#328; pokud pracujete
-pouze s kvalitními zdroji (DVD, zachytávaná TV, vysoce kvalitní MPEG-4 ripy,
-atd) ale nikoli s vadnými ASF/RM/MOV soubory.
+PovÅ¡imnÄ›te si voleb <tt class="option">ilme</tt> a <tt class="option">ildct</tt>.
+</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-av-sync"></a>14.1.9. PoznÃ¡mky k Audio/Video synchronizaci</h3></div></div></div><p>
+<span class="application">MEncoder</span>ovy audio/video synchronizaÄnÃ­
+algoritmy byly navrÅ¾eny se zÃ¡mÄ›rem obnovy souborÅ¯ s vadnou synchronizacÃ­.
+V nÄ›kterÃ½ch pÅ™Ã­padech vÅ¡ak mÅ¯Å¾ou pÅ¯sobit zbyteÄnÃ© zahazovÃ¡nÃ­ a duplikaci snÃ­mkÅ¯
+a moÅ¾nÃ¡ mÃ­rnou A/V desynchronizaci pÅ™i pouÅ¾itÃ­ s bezvadnÃ½m vstupem
+(pÅ™irozenÄ› tyto A/V synchronizaÄnÃ­ omezenÃ­ projevÃ­ pouze pokud kopÃ­rujete
+zvukovou stopu pÅ™i pÅ™ekÃ³dovÃ¡vÃ¡nÃ­ videa, coÅ¾ je velmi doporuÄovÃ¡no).
+MÅ¯Å¾ete vÅ¡ak pÅ™epnout do zÃ¡kladnÃ­ A/V synchronizace s volbou
+<tt class="option">-mc 0</tt>, nebo ji pÅ™idejte do svÃ©ho konfiguraÄnÃ­ho souboru
+<code class="systemitem">~/.mplayer/mencoder</code> config file, aspoÅˆ pokud pracujete
+pouze s kvalitnÃ­mi zdroji (DVD, zachytÃ¡vanÃ¡ TV, vysoce kvalitnÃ­ MPEG-4 ripy,
+atd) ale nikoli s vadnÃ½mi ASF/RM/MOV soubory.
 </p><p>
-Chcete-li si dále pohlídat podivné zahazování snímk&#367; a duplikaci, m&#367;&#382;ete pou&#382;ít
+Chcete-li si dÃ¡le pohlÃ­dat podivnÃ© zahazovÃ¡nÃ­ snÃ­mkÅ¯ a duplikaci, mÅ¯Å¾ete pouÅ¾Ã­t
 <tt class="option">-mc 0</tt> spolu s <tt class="option">-noskip</tt>.
-To zamezí <span class="emphasis"><em>ve&#353;keré</em></span> A/V synchronizaci a snímky se skopírují
-jedna k jedné, tak&#382;e to nelze pou&#382;ít ve spojení s filtry, které v nest&#345;&#382;eném
-okam&#382;iku p&#345;idají nebo zahodí snímky, nebo pokud zdrojové video má prom&#283;nnou
-snímkovou rychlost!
-V tom p&#345;ípad&#283; není pou&#382;ití <tt class="option">-noskip</tt> obecn&#283; doporu&#269;ováno.
+To zamezÃ­ <span class="emphasis"><em>veÅ¡kerÃ©</em></span> A/V synchronizaci a snÃ­mky se skopÃ­rujÃ­
+jedna k jednÃ©, takÅ¾e to nelze pouÅ¾Ã­t ve spojenÃ­ s filtry, kterÃ© v nestÅ™Å¾enÃ©m
+okamÅ¾iku pÅ™idajÃ­ nebo zahodÃ­ snÃ­mky, nebo pokud zdrojovÃ© video mÃ¡ promÄ›nnou
+snÃ­mkovou rychlost!
+V tom pÅ™Ã­padÄ› nenÃ­ pouÅ¾itÃ­ <tt class="option">-noskip</tt> obecnÄ› doporuÄovÃ¡no.
 </p><p>
-O takzvaném "t&#345;ípr&#367;chodovém" enkódování zvuku podporované
-<span class="application">MEncoder</span>em bylo hlá&#353;eno, &#382;e zp&#367;sobuje A/V
+O takzvanÃ©m "tÅ™Ã­prÅ¯chodovÃ©m" enkÃ³dovÃ¡nÃ­ zvuku podporovanÃ©m
+<span class="application">MEncoder</span>em bylo hlÃ¡Å¡eno, Å¾e zpÅ¯sobuje A/V
 desynchronizaci.
-To nastává tehdy, pokud je pou&#382;ito v kombinaci s n&#283;kterými filtry, tak&#382;e
-<span class="emphasis"><em>není</em></span> v tuto chvíli doporu&#269;ováno pou&#382;ívat t&#345;ípr&#367;chodové
-enkódování zvuku.
-Tato vlastnost je zachována pouze z d&#367;vodu kompatibility a pro expertní
-u&#382;ivatele, kte&#345;í v&#283;dí, kdy je bezpe&#269;né ji pou&#382;ít a kdy ne.
-Pokud jste o tomto re&#382;imu nikdy p&#345;edtím nesly&#353;eli, zapom&#283;&#328;te, &#382;e jsme se
-o n&#283;m v&#367;bec zmínili!
+To nastÃ¡vÃ¡ tehdy, pokud je pouÅ¾ito v kombinaci s nÄ›kterÃ½mi filtry, takÅ¾e
+<span class="emphasis"><em>nenÃ­</em></span> v tuto chvÃ­li doporuÄovÃ¡no pouÅ¾Ã­vat tÅ™Ã­prÅ¯chodovÃ©
+enkÃ³dovÃ¡nÃ­ zvuku.
+Tato vlastnost je zachovÃ¡na pouze z dÅ¯vodu kompatibility a pro expertnÃ­
+uÅ¾ivatele, kteÅ™Ã­ vÄ›dÃ­, kdy je bezpeÄnÃ© ji pouÅ¾Ã­t a kdy ne.
+Pokud jste o tomto reÅ¾imu nikdy pÅ™edtÃ­m neslyÅ¡eli, zapomÄ›Åˆte, Å¾e jsme se
+o nÄ›m vÅ¯bec zmÃ­nili!
 </p><p>
-Existují rovn&#283;&#382; hlá&#353;ení o A/V desynchronizaci p&#345;i enkódování ze stdin
+ExistujÃ­ rovnÄ›Å¾ hlÃ¡Å¡enÃ­ o A/V desynchronizaci pÅ™i enkÃ³dovÃ¡nÃ­ ze stdin
 <span class="application">MEncoder</span>em.
-Ned&#283;lejte to! V&#382;dy pou&#382;ijte jako zdroj soubor nebo CD/DVD/atd za&#345;ízení.
-</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-codec"></a>14.1.10. Výb&#283;r video kodeku</h3></div></div></div><p>
-  Výb&#283;r vhodného video kodeku k pou&#382;ití závisí na n&#283;kolika faktorech,
-  jako je velikost, kvalita, schopnost p&#345;ehrávání po síti, pou&#382;itelnost nebo
-  obliba, z nich&#382; n&#283;které &#269;ist&#283; v&#283;cí osobního vkusu, n&#283;které závisí na technických
-  omezeních.
+NedÄ›lejte to! VÅ¾dy pouÅ¾ijte jako zdroj soubor nebo CD/DVD/atd zaÅ™Ã­zenÃ­.
+</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-codec"></a>14.1.10. VÃ½bÄ›r video kodeku</h3></div></div></div><p>
+VÃ½bÄ›r vhodnÃ©ho video kodeku k pouÅ¾itÃ­ zÃ¡visÃ­ na nÄ›kolika faktorech,
+jako je velikost, kvalita, schopnost pÅ™ehrÃ¡vÃ¡nÃ­ po sÃ­ti, pouÅ¾itelnost nebo
+obliba, z nichÅ¾ nÄ›kterÃ© jsou ÄistÄ› vÄ›cÃ­ osobnÃ­ho vkusu, jinÃ© zÃ¡visÃ­
+na technickÃ½ch omezenÃ­ch.
 </p><div class="itemizedlist"><ul type="disc"><li><p>
-  <span class="bold"><strong>Ú&#269;inost komprimace</strong></span>:
-  Jednodu&#353;e m&#367;&#382;eme &#345;íct, &#382;e v&#283;t&#353;ina kodek&#367; nov&#283;j&#353;í generace je vytvo&#345;ena
-  tak, aby dosahovala vy&#353;&#353;í kvality a komrimace ne&#382; p&#345;edchozí generace.
-  Proto se auto&#345;i této p&#345;íru&#269;ky a mnoho jiných lidí, domnívají &#382;e
-  neud&#283;láte chybu,
+  <span class="bold"><strong>ÃšÄinost komprimace</strong></span>:
+  JednoduÅ¡e mÅ¯Å¾eme Å™Ã­ct, Å¾e vÄ›tÅ¡ina kodekÅ¯ novÄ›jÅ¡Ã­ generace je vytvoÅ™ena
+  tak, aby dosahovala vyÅ¡Å¡Ã­ kvality a komrimace neÅ¾ pÅ™edchozÃ­ generace.
+  Proto se autoÅ™i tÃ©to pÅ™Ã­ruÄky a mnoho jinÃ½ch lidÃ­, domnÃ­vajÃ­ Å¾e
+  neudÄ›lÃ¡te chybu,
   <sup>[<a name="fn-menc-feat-dvd-mpeg4-codec-cpu" href="#ftn.fn-menc-feat-dvd-mpeg4-codec-cpu">2</a>]</sup>
-  kdy&#382; zvolíte MPEG-4 AVC kodeky, jako
-  <code class="systemitem">x264</code> místo MPEG-4 ASP kodek&#367;
+  kdyÅ¾ zvolÃ­te MPEG-4 AVC kodeky, jako
+  <code class="systemitem">x264</code> mÃ­sto MPEG-4 ASP kodekÅ¯
   jako jsou <code class="systemitem">libavcodec</code> MPEG-4, nebo
-  <code class="systemitem">XviD</code>.
-  (Pokro&#269;ilé vývojá&#345;e kodek&#367; by mohl zajímat názor Michaela Niedermayera na
-  "<a href="http://guru.multimedia.cx/?p=10" target="_top">pro&#269; m&#283; &#353;tve MPEG4-ASP</a>".)
-  Podobn&#283; byste m&#283;li dosáhnout lep&#353;í kvality pou&#382;itím MPEG-4 ASP místo
-  MPEG-2 kodek&#367;.
+  <code class="systemitem">Xvid</code>.
+  (PokroÄilÃ© vÃ½vojÃ¡Å™e kodekÅ¯ by mohl zajÃ­mat nÃ¡zor Michaela Niedermayera na
+  "<a href="http://guru.multimedia.cx/?p=10" target="_top">proÄ mÄ› Å¡tve MPEG4-ASP</a>".)
+  PodobnÄ› byste mÄ›li dosÃ¡hnout lepÅ¡Ã­ kvality pouÅ¾itÃ­m MPEG-4 ASP mÃ­sto
+  MPEG-2 kodekÅ¯.
   </p><p>
-  Nov&#283;j&#353;í kodeky, které jsou v rozsáhlém vývoji, mohou obsahovat chyby,
-  kterých si dosud nikdo nev&#353;iml a které mohou zni&#269;it výsledek.
-  To je da&#328; za pou&#382;ití nejnov&#283;j&#353;í technologie.
+  NovÄ›jÅ¡Ã­ kodeky, kterÃ© jsou v rozsÃ¡hlÃ©m vÃ½voji, mohou obsahovat chyby,
+  kterÃ½ch si dosud nikdo nevÅ¡iml a kterÃ© mohou zniÄit vÃ½sledek.
+  To je daÅˆ za pouÅ¾itÃ­ nejnovÄ›jÅ¡Ã­ technologie.
   </p><p>
-  Navíc, v za&#269;átku pou&#382;ívání nového kodeku se budete muset strávit n&#283;jaký
-  &#269;as seznámením se s jeho volbami, abyste se dov&#283;d&#283;li co kde nastavit pro
-  dosa&#382;ení po&#382;adované kvality obrazu.
+  NavÃ­c, v zaÄÃ¡tku pouÅ¾Ã­vÃ¡nÃ­ novÃ©ho kodeku se budete muset strÃ¡vit nÄ›jakÃ½
+  Äas seznÃ¡menÃ­m se s jeho volbami, abyste se dovÄ›dÄ›li co kde nastavit pro
+  dosaÅ¾enÃ­ poÅ¾adovanÃ© kvality obrazu.
   </p></li><li><p>
-  <span class="bold"><strong>Hardwarová kompatibilita</strong></span>:
-  Obvykle trvá dlouhou dobu, ne&#382; za&#269;nou stolní video p&#345;ehráva&#269;e podporovat
-  nejnov&#283;j&#353;í videokodeky. Výsledkem toho je, &#382;e v&#283;t&#353;ina z nich podporuje
+  <span class="bold"><strong>HardwarovÃ¡ kompatibilita</strong></span>:
+  Obvykle trvÃ¡ dlouhou dobu, neÅ¾ zaÄnou stolnÃ­ video pÅ™ehrÃ¡vaÄe podporovat
+  nejnovÄ›jÅ¡Ã­ videokodeky. VÃ½sledkem toho je, Å¾e vÄ›tÅ¡ina z nich podporuje
   pouze kodeky MPEG-1 (jako VCD, XVCD a KVCD), MPEG-2 (jako DVD, SVCD a KVCD)
   a MPEG-4 ASP (jako DivX,
   LMP4 z <code class="systemitem">libavcodec</code>u a
-  <code class="systemitem">XviD</code>)
-  (Pozor: obvykle nejsou podporovány v&#353;echny vlastnosti (features) MPEG-4 ASP).
-  Nahlédn&#283;te prosím do technických specifikací va&#353;eho p&#345;ehráva&#269;e (pokud jsou),
-  nebo si vygooglete více informací.
-  </p></li><li><p>
-  <span class="bold"><strong>Nejlep&#353;í kvalita na enkódovací &#269;as</strong></span>:
-  Kodeky, které ji&#382; jsou zde n&#283;jakou dobu (jako
+  <code class="systemitem">Xvid</code>)
+  (Pozor: obvykle nejsou podporovÃ¡ny vÅ¡echny vlastnosti (features) MPEG-4 ASP).
+  NahlÃ©dnÄ›te prosÃ­m do technickÃ½ch specifikacÃ­ vaÅ¡eho pÅ™ehrÃ¡vaÄe (pokud jsou),
+  nebo si vygooglete vÃ­ce informacÃ­.
+</p></li><li><p>
+  <span class="bold"><strong>NejlepÅ¡Ã­ kvalita na enkÃ³dovacÃ­ Äas</strong></span>:
+  Kodeky, kterÃ© jiÅ¾ jsou zde nÄ›jakou dobu (jako
   <code class="systemitem">libavcodec</code> MPEG-4 a
-  <code class="systemitem">XviD</code>), jsou obvykle vysoce
-  optimalizovány v&#353;emi druhy chytrých algoritm&#367; a SIMD assembly kódem.
-  Proto mají snahu dosahovat nejlep&#353;í pom&#283;r kvality na enkódovací &#269;as.
-  Mohou v&#353;ak mít n&#283;které velmi pokro&#269;ilé volby, které, pokud jsou zapnuty,
-  velmi spomalí enkódování p&#345;i mizivém zisku.
+  <code class="systemitem">Xvid</code>), jsou obvykle vysoce
+  optimalizovÃ¡ny vÅ¡emi druhy chytrÃ½ch algoritmÅ¯ a SIMD assembly kÃ³dem.
+  Proto majÃ­ snahu dosahovat nejlepÅ¡Ã­ pomÄ›r kvality na enkÃ³dovacÃ­ Äas.
+  Mohou vÅ¡ak mÃ­t nÄ›kterÃ© velmi pokroÄilÃ© volby, kterÃ©, pokud jsou zapnuty,
+  velmi spomalÃ­ enkÃ³dovÃ¡nÃ­ pÅ™i mizivÃ©m zisku.
   </p><p>
-  Pokud vám jde o rychlost, m&#283;li byste se dr&#382;et výchozího nastavení
-  video kodeku (a&#269;koli byste stejn&#283; m&#283;li zkusit ostatní volby
-  zmín&#283;né v dal&#353;ích &#269;ástech této p&#345;íru&#269;ky).
+  Pokud vÃ¡m jde o rychlost, mÄ›li byste se drÅ¾et vÃ½chozÃ­ho nastavenÃ­
+  video kodeku (aÄkoli byste stejnÄ› mÄ›li zkusit ostatnÃ­ volby
+  zmÃ­nÄ›nÃ© v dalÅ¡Ã­ch ÄÃ¡stech tÃ©to pÅ™Ã­ruÄky).
   </p><p>
-  Rovn&#283;&#382; m&#367;&#382;ete zvá&#382;it pou&#382;ití kodeku, který umí vícevláknové zpracování,
-  co&#382; je ov&#353;em k n&#283;&#269;emu jen u&#382;ivatel&#367;m víceprocesorových stroj&#367;.
-  <code class="systemitem">libavcodec</code> MPEG-4 to umo&#382;&#328;uje,
-  ale nár&#367;st rychlosti je omezený a dostanete nepatrn&#283; mén&#283; kvalitní obraz.
-  Vícevláknový re&#382;im <code class="systemitem">XviD</code>, aktivovaný
-  volbou <tt class="option">threads</tt>, m&#367;&#382;ete vyu&#382;ít ke zvý&#353;ení rychlosti
-  enkódování &#8212; obvykle o 40&#8211;60% &#8212; s velmi malým nebo &#382;ádným
-  zhor&#353;ením obrazu.
-  <code class="systemitem">x264</code> rovn&#283;&#382; umo&#382;&#328;uje vícevláknové
-  enkódování, které v sou&#269;asnosti zrychluje enkódování asi o 15&#8211;30%
-  (v závislosti na pou&#382;itých volbách), ale sní&#382;uje PSNR o 0.05dB.
+  RovnÄ›Å¾ mÅ¯Å¾ete zvÃ¡Å¾it pouÅ¾itÃ­ kodeku, kterÃ½ umÃ­ vÃ­cevlÃ¡knovÃ© zpracovÃ¡nÃ­,
+  coÅ¾ je ovÅ¡em k nÄ›Äemu jen uÅ¾ivatelÅ¯m vÃ­ceprocesorovÃ½ch strojÅ¯.
+  <code class="systemitem">libavcodec</code> MPEG-4 to umoÅ¾Åˆuje,
+  ale nÃ¡rÅ¯st rychlosti je omezenÃ½ a dostanete nepatrnÄ› mÃ©nÄ› kvalitnÃ­ obraz.
+  VÃ­cevlÃ¡knovÃ½ reÅ¾im <code class="systemitem">Xvid</code>, aktivovanÃ½
+  volbou <tt class="option">threads</tt>, mÅ¯Å¾ete vyuÅ¾Ã­t ke zvÃ½Å¡enÃ­ rychlosti
+  enkÃ³dovÃ¡nÃ­ â€” obvykle o 40â€“60% â€” s velmi malÃ½m nebo Å¾Ã¡dnÃ½m
+  zhorÅ¡enÃ­m obrazu.
+  <code class="systemitem">x264</code> rovnÄ›Å¾ umoÅ¾Åˆuje vÃ­cevlÃ¡knovÃ©
+  enkÃ³dovÃ¡nÃ­, kterÃ© v souÄasnosti zrychluje enkÃ³dovÃ¡nÃ­ asi o 94% na kaÅ¾dÃ© procesorovÃ©
+  jÃ¡dro, ale snÃ­Å¾uje PSNR o 0.05dB.
   </p></li><li><p>
-  <span class="bold"><strong>Osobní vkus</strong></span>:
-  Zde jsme v rovin&#283; tém&#283;&#345; iracionální: Ze stejného d&#367;vodu, pro který n&#283;kte&#345;í
-  setrvávali léta u DivX 3 i kdy&#382; nov&#283;j&#353;í kodeky ji&#382; d&#283;laly zázraky,
-  preferují n&#283;kte&#345;í lidé <code class="systemitem">XviD</code>
-  nebo <code class="systemitem">libavcodec</code> MPEG-4 p&#345;ed
+  <span class="bold"><strong>OsobnÃ­ vkus</strong></span>:
+  Zde jsme v rovinÄ› tÃ©mÄ›Å™ iracionÃ¡lnÃ­: Ze stejnÃ©ho dÅ¯vodu, pro kterÃ½ nÄ›kteÅ™Ã­
+  setrvÃ¡vali lÃ©ta u DivXÂ 3 i kdyÅ¾ novÄ›jÅ¡Ã­ kodeky jiÅ¾ dÄ›laly zÃ¡zraky,
+  preferujÃ­ nÄ›kteÅ™Ã­ lidÃ© <code class="systemitem">Xvid</code>
+  nebo <code class="systemitem">libavcodec</code> MPEG-4 pÅ™ed
   <code class="systemitem">x264</code>.
   </p><p>
-  Ud&#283;lejte si vlastní úsudek a neposlouchejte lidi, kte&#345;í p&#345;ísahají na jediný
+  UdÄ›lejte si vlastnÃ­ Ãºsudek a neposlouchejte lidi, kteÅ™Ã­ pÅ™Ã­sahajÃ­ na jedinÃ½
   kodek.
-  Ud&#283;lejte si n&#283;kolik vzork&#367; ze surových zdroj&#367; a porovnejte r&#367;zné volby
-  enkódování a kodeky, abyste nalezli ten, který vám vyhovuje nejlépe.
-  Nejlep&#353;í kodek je ten, který nejlépe
-  ovládáte a který vypadá nejlépe na va&#353;í obrazovce
+  UdÄ›lejte si nÄ›kolik vzorkÅ¯ ze surovÃ½ch zdrojÅ¯ a porovnejte rÅ¯znÃ© volby
+  enkÃ³dovÃ¡nÃ­ a kodeky, abyste nalezli ten, kterÃ½ vÃ¡m vyhovuje nejlÃ©pe.
+  NejlepÅ¡Ã­ kodek je ten, kterÃ½ nejlÃ©pe
+  ovlÃ¡dÃ¡te a kterÃ½ vypadÃ¡ nejlÃ©pe na vaÅ¡Ã­ obrazovce
   <sup>[<a name="fn-menc-feat-dvd-mpeg4-codec-playback" href="#ftn.fn-menc-feat-dvd-mpeg4-codec-playback">3</a>]</sup>!
   </p></li></ul></div><p>
-  Seznam podporovaných kodek&#367; najdete v sekci
-  <a href="menc-feat-selecting-codec.html" title="13.1. Výb&#283;r kodek&#367; a nosných formát&#367;">výb&#283;r kodek&#367; a nosných formát&#367;</a>.
+Seznam podporovanÃ½ch kodekÅ¯ najdete v sekci
+<a href="menc-feat-selecting-codec.html" title="13.1. VÃ½bÄ›r kodekÅ¯ a nosnÃ½ch formÃ¡tÅ¯">vÃ½bÄ›r kodekÅ¯ a nosnÃ½ch formÃ¡tÅ¯</a>.
 </p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-audio"></a>14.1.11. Zvuk</h3></div></div></div><p>
-  Zvuk je mnohem jednodu&#353;&#353;í problém k &#345;e&#353;ení: pokud prahnete po kvalit&#283;, prost&#283;
-  jej nechte jak je.
-  Dokonce i AC3 5.1 datové proudy mají nanejvý&#353; 448Kbit&#367;/s a stojí za ka&#382;dý bit.
-  Mo&#382;ná jste v poku&#353;ení p&#345;evést zvuk do Ogg Vorbis p&#345;i vysoké kvalit&#283;, ale jen
-  proto, &#382;e dnes nemáte A/V receiver pro hardwarové dekódování AC3 neznamená,
-  &#382;e jej nebudete mít zítra. P&#345;ipravte své DVD ripy na budoucnost zachováním
-  AC3 datových proud&#367;.
-  Datový proud AC3 m&#367;&#382;ete zachovat bu&#271; jeho zkopírováním p&#345;ímo do video proudu
-  <a href="menc-feat-mpeg4.html" title='13.3. Dvoupr&#367;chodové enkódování MPEG-4 ("DivX")'>b&#283;hem enkódování</a>.
-  Také m&#367;&#382;ete extrahovat AC3 proud, abyste jej pak namixovali do nosi&#269;&#367; jako je
-  NUT nebo Matroska.
-  </p><pre class="screen">mplayer <em class="replaceable"><code>zdrojový_soubor.vob</code></em> -aid 129 -dumpaudio -dumpfile <em class="replaceable"><code>zvuk.ac3</code></em></pre><p>
-  vytáhne do souboru <em class="replaceable"><code>zvuk.ac3</code></em> zvukovou stopu
-  &#269;íslo 129 ze souboru <em class="replaceable"><code>zdrojový_soubor.vob</code></em> (NB: DVD
-  VOB soubory obvykle pou&#382;ívají odli&#353;né &#269;íslování audia,
-  co&#382; znamená, &#382;e VOB zvuková stopa 120 je druhou zvukovou stopou v souboru).
+Zvuk je mnohem jednoduÅ¡Å¡Ã­ problÃ©m k Å™eÅ¡enÃ­: pokud prahnete po kvalitÄ›, prostÄ›
+jej nechte jak je.
+Dokonce i AC3 5.1 datovÃ© proudy majÃ­ nanejvÃ½Å¡ 448KbitÅ¯/s a stojÃ­ za kaÅ¾dÃ½ bit.
+MoÅ¾nÃ¡ jste v pokuÅ¡enÃ­ pÅ™evÃ©st zvuk do Ogg Vorbis pÅ™i vysokÃ© kvalitÄ›, ale jen
+proto, Å¾e dnes nemÃ¡te A/V receiver pro hardwarovÃ© dekÃ³dovÃ¡nÃ­ AC3 neznamenÃ¡,
+Å¾e jej nebudete mÃ­t zÃ­tra. PÅ™ipravte svÃ© DVD ripy na budoucnost zachovÃ¡nÃ­m
+AC3 datovÃ½ch proudÅ¯.
+DatovÃ½ proud AC3 mÅ¯Å¾ete zachovat buÄ jeho zkopÃ­rovÃ¡nÃ­m pÅ™Ã­mo do video proudu
+<a href="menc-feat-mpeg4.html" title='13.3. DvouprÅ¯chodovÃ© enkÃ³dovÃ¡nÃ­ MPEG-4 ("DivX")'>bÄ›hem enkÃ³dovÃ¡nÃ­</a>.
+TakÃ© mÅ¯Å¾ete extrahovat AC3 proud, abyste jej pak namixovali do nosiÄÅ¯ jako je
+NUT nebo Matroska.
+</p><pre class="screen">
+mplayer <em class="replaceable"><code>zdrojovÃ½_soubor.vob</code></em> -aid 129 -dumpaudio -dumpfile <em class="replaceable"><code>zvuk.ac3</code></em>
+</pre><p>
+vytÃ¡hne do souboru <em class="replaceable"><code>zvuk.ac3</code></em> zvukovou stopu
+ÄÃ­slo 129 ze souboru <em class="replaceable"><code>zdrojovÃ½_soubor.vob</code></em> (NB: DVD
+VOB soubory obvykle pouÅ¾Ã­vajÃ­ odliÅ¡nÃ© ÄÃ­slovÃ¡nÃ­ audia,
+coÅ¾ znamenÃ¡, Å¾e VOB zvukovÃ¡ stopa 129 je druhou zvukovou stopou v souboru).
 </p><p>
-  N&#283;kdy ov&#353;em opravdu nemáte jinou mo&#382;nost ne&#382; dále zkomprimovat zvuk, aby vám
-  zbylo více bit&#367; na video.
-  V&#283;t&#353;ina lidí volí komprimaci bu&#271; pomocí MP3 nebo Vorbis audio kodek&#367;.
-  Zatímco ten druhý je efektivn&#283;j&#353;í z prostorového hlediska, MP3 je lépe
-  podporován hardwarovými p&#345;ehráva&#269;i, a&#269;koli &#269;asy se m&#283;ní.
+NÄ›kdy ovÅ¡em opravdu nemÃ¡te jinou moÅ¾nost neÅ¾ dÃ¡le komprimovat zvuk, aby vÃ¡m
+zbylo vÃ­ce bitÅ¯ na video.
+VÄ›tÅ¡ina lidÃ­ volÃ­ komprimaci buÄ pomocÃ­ MP3 nebo Vorbis audio kodekÅ¯.
+ZatÃ­mco ten druhÃ½ je efektivnÄ›jÅ¡Ã­ z prostorovÃ©ho hlediska, MP3 je lÃ©pe
+podporovÃ¡n hardwarovÃ½mi pÅ™ehrÃ¡vaÄi, aÄkoli Äasy se mÄ›nÃ­.
 </p><p>
-  <span class="emphasis"><em>Nepou&#382;ívejte</em></span> <tt class="option">-nosound</tt>, enkódujete-li
-  soubor se zvukem, dokonce i v tom p&#345;ípad&#283;, &#382;e budete enkódovat a muxovat
-  zvuk samostatn&#283; pozd&#283;ji.
-  A&#269;koli to m&#367;&#382;e v ideálním p&#345;ípad&#283; fungovat, pou&#382;ití <tt class="option">-nosound</tt>
-  spí&#353;e skryje ur&#269;ité problémy v nastaveních enkódování na p&#345;íkazovém &#345;ádku.
-  Jinými slovy vám p&#345;ítomnost zvukové stopy zajistí, pokud neuvidíte
-  hlá&#353;ky typu
-  &#8222;<span class="quote">P&#345;íli&#353; mnoho audio paket&#367; ve vyrovnávací pam&#283;ti</span>&#8220;, &#382;e budete
-  schopni dosáhnout správné synchronizace.
+<span class="emphasis"><em>NepouÅ¾Ã­vejte</em></span> <tt class="option">-nosound</tt>, enkÃ³dujete-li
+soubor se zvukem, dokonce i v tom pÅ™Ã­padÄ›, Å¾e budete enkÃ³dovat a muxovat
+zvuk samostatnÄ› pozdÄ›ji.
+AÄkoli to mÅ¯Å¾e v ideÃ¡lnÃ­m pÅ™Ã­padÄ› fungovat, pouÅ¾itÃ­ <tt class="option">-nosound</tt>
+spÃ­Å¡e skryje urÄitÃ© problÃ©my v nastavenÃ­ch enkÃ³dovÃ¡nÃ­ na pÅ™Ã­kazovÃ©m Å™Ã¡dku.
+JinÃ½mi slovy vÃ¡m pÅ™Ã­tomnost zvukovÃ© stopy zajistÃ­, pokud neuvidÃ­te
+hlÃ¡Å¡ky typu
+â€ž<span class="quote">PÅ™Ã­liÅ¡ mnoho audio paketÅ¯ ve vyrovnÃ¡vacÃ­ pamÄ›ti</span>â€œ, Å¾e budete
+schopni dosÃ¡hnout sprÃ¡vnÃ© synchronizace.
 </p><p>
-  Musíte nechat <span class="application">MEncoder</span> zpracovat zvuk.
-  M&#367;&#382;ete nap&#345;íklad skopírovat originální zvukovou stopu b&#283;hem enkódování
-  pomocí <tt class="option">-oac copy</tt>, nebo jej p&#345;evést na "tenký" 4 kHz mono WAV
-  PCM pomocí <tt class="option">-oac pcm -channels 1 -srate 4000</tt>.
-  Jinak v n&#283;kterých p&#345;ípadech vytvo&#345;íte video soubor, který nebude synchronní
-  se zvukem.
-  Tyto p&#345;ípady nastávají tehdy, kdy&#382; po&#269;et videosnímk&#367; ve zdroji neodpovídá
-  celkové délce zvukových vzork&#367;, nebo pokud je zvuk p&#345;eru&#353;ovaný &#269;i p&#345;ekrývaný
-  díky chyb&#283;jícím &#269;i nadbývajícím audio vzork&#367;m.
-  Správným zp&#367;sobem jak toto &#345;e&#353;it, je vlo&#382;ení ticha nebo odst&#345;i&#382;ení zvuku na
-  t&#283;chto místech.
-  <span class="application">MPlayer</span> to v&#353;ak neumí, tak&#382;e pokud demuxujete
-  AC3 zvuk a enkódujete jej zvlá&#353;tní aplikací (nebo jej dumpnete do PCM
-  <span class="application">MPlayer</span>em), z&#367;stanou zmín&#283;né vady jak jsou a
-  jediný zp&#367;sob jak je opravit je zahodit/namno&#382;it video snímky v t&#283;chto
-  místech.
-  Dokud <span class="application">MEncoder</span> sleduje zvuk p&#345;i enkódování
-  videa, m&#367;&#382;e provád&#283;t toto zahazování/duplikování (co&#382; je obvykle OK,
-  jeliko&#382; nastává p&#345;i &#269;erné obrazovce/zm&#283;n&#283; scény, ale pokud
-  <span class="application">MEncoder</span> nevidí zvuk, zpracuje snímky jak jsou
-  a ty pak nepasují na kone&#269;nou zvukovou stopu kdy&#382; nap&#345;íklad spojíte svou
-  video a zvukovou stopu do Matroska souboru.
+MusÃ­te nechat <span class="application">MEncoder</span> zpracovat zvuk.
+MÅ¯Å¾ete napÅ™Ã­klad skopÃ­rovat originÃ¡lnÃ­ zvukovou stopu bÄ›hem enkÃ³dovÃ¡nÃ­
+pomocÃ­ <tt class="option">-oac copy</tt>, nebo jej pÅ™evÃ©st na "tenkÃ½" 4 kHz mono WAV
+PCM pomocÃ­ <tt class="option">-oac pcm -channels 1 -srate 4000</tt>.
+Jinak v nÄ›kterÃ½ch pÅ™Ã­padech vytvoÅ™Ã­te video soubor, kterÃ½ nebude synchronnÃ­
+se zvukem.
+Tyto pÅ™Ã­pady nastÃ¡vajÃ­ tehdy, kdyÅ¾ poÄet videosnÃ­mkÅ¯ ve zdroji neodpovÃ­dÃ¡
+celkovÃ© dÃ©lce zvukovÃ½ch vzorkÅ¯, nebo pokud je zvuk pÅ™eruÅ¡ovanÃ½ Äi pÅ™ekrÃ½vanÃ½
+dÃ­ky chybÄ›jÃ­cÃ­m Äi nadbÃ½vajÃ­cÃ­m audio vzorkÅ¯m.
+SprÃ¡vnÃ½m zpÅ¯sobem jak toto Å™eÅ¡it, je vloÅ¾enÃ­ ticha nebo odstÅ™iÅ¾enÃ­ zvuku na
+tÄ›chto mÃ­stech.
+<span class="application">MPlayer</span> to vÅ¡ak neumÃ­, takÅ¾e pokud demuxujete
+AC3 zvuk a enkÃ³dujete jej zvlÃ¡Å¡tnÃ­ aplikacÃ­ (nebo jej dumpnete do PCM
+<span class="application">MPlayer</span>em), zÅ¯stanou zmÃ­nÄ›nÃ© vady jak jsou a
+jedinÃ½ zpÅ¯sob jak je opravit je zahodit/namnoÅ¾it video snÃ­mky v tÄ›chto
+mÃ­stech.
+Dokud <span class="application">MEncoder</span> sleduje zvuk pÅ™i enkÃ³dovÃ¡nÃ­
+videa, mÅ¯Å¾e provÃ¡dÄ›t toto zahazovÃ¡nÃ­/duplikovÃ¡nÃ­ (coÅ¾ je obvykle OK,
+jelikoÅ¾ nastÃ¡vÃ¡ pÅ™i ÄernÃ© obrazovce/zmÄ›nÄ› scÃ©ny), ale pokud
+<span class="application">MEncoder</span> nevidÃ­ zvuk, zpracuje snÃ­mky jak jsou
+a ty pak nepasujÃ­ na koneÄnou zvukovou stopu kdyÅ¾ napÅ™Ã­klad spojÃ­te svou
+video a zvukovou stopu do Matroska souboru.
 </p><p>
-  Nejd&#345;íve ze v&#353;eho budete muset p&#345;evést DVD zvuk do WAV souboru, který pak
-  pou&#382;ije zvukový kodek jako vstup.
-  Nap&#345;íklad:
-  </p><pre class="screen">mplayer <em class="replaceable"><code>zdrojový_soubor.vob</code></em> -ao pcm:file=<em class="replaceable"><code>výsledný_zvuk.wav</code></em> -vc dummy -aid 1 -vo null</pre><p>
-  vylije druhou zvukovou stopu ze souboru
-  <em class="replaceable"><code>zdrojový_soubor.vob</code></em> do souboru
-  <em class="replaceable"><code>výsledný_zvuk.wav</code></em>.
-  M&#283;li byste normalizovat zvuk p&#345;ed enkódováním, proto&#382;e DVD zvukové stopy jsou
-  obvykle nahrávány p&#345;i nízkých hlasitostech.
-  M&#367;&#382;ete nap&#345;íklad pou&#382;ít nástroj <span class="application">normalize</span>, který je
-  k dispozici ve v&#283;t&#353;in&#283; distribucí.
-  Pokud pou&#382;íváte Windows, stejnou práci ud&#283;lá nástroj jako
-  <span class="application">BeSweet</span>.
-  Komprimovat budete bu&#271; ve Vorbisu nebo MP3.
-  Nap&#345;íklad:
-  </p><pre class="screen">oggenc -q1 <em class="replaceable"><code>cílový_zvuk.wav</code></em></pre><p>
-  provede enkódování <em class="replaceable"><code>cílového_zvuku.wav</code></em> s kvalitou 1,
-  která p&#345;ibli&#382;n&#283; odpovídá 80Kb/s a je to minimální kvalita na kterou byste m&#283;li
-  enkódovat, pokud vám zále&#382;í na kvalit&#283;.
-  Poznamenejme, &#382;e <span class="application">MEncoder</span> v sou&#269;asnosti neumí
-  muxovat Vorbis zvukové stopy do výstupního souboru, proto&#382;e podporuje pouze
-  AVI a MPEG kontejnery jako výstup. Pro oba platí, &#382;e n&#283;které p&#345;ehráva&#269;e mohou
-  mít problémy s udr&#382;ením audio/video synchronizace, pokud je p&#345;ítomen VBR zvuk
-  jako je Vorbis.
-  Nem&#283;jte obavy, v tomto dokumentu vám uká&#382;eme, jak to lze ud&#283;lat pomocí
-  program&#367; t&#345;etích stran.
-</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-muxing"></a>14.1.12. Muxování (multiplexování)</h3></div></div></div><p>
-  Nyní, kdy&#382; máte své video enkódované, budete jej nejspí&#353; chtít muxovat
-  s jedním nebo více zvukovými stopami do nosného filmového formátu, jako je
-  AVI, MPEG, Matroska nebo NUT.
-  <span class="application">MEncoder</span> je zatím schopen nativn&#283; zapracovat
-  zvuk a video pouze do nosných formát&#367; MPEG a AVI.
-  Nap&#345;íklad:
-  </p><pre class="screen">mencoder -oac copy -ovc copy  -o <em class="replaceable"><code>výstupní_film.avi</code></em> -audiofile <em class="replaceable"><code>vstupní_audio.mp2</code></em> <em class="replaceable"><code>vstupní_video.avi</code></em></pre><p>
-  To by m&#283;lo slou&#269;it video soubor <em class="replaceable"><code>vstupní_video.avi</code></em>
-  a zvukový soubor <em class="replaceable"><code>vstupní_audio.mp2</code></em>
-  do AVI souboru <em class="replaceable"><code>výstupní_film.avi</code></em>.
-  Tento p&#345;íkaz pracuje s MPEG-1 layer I, II a III (známým jako MP3) zvukem,
-  WAV a také n&#283;kolika dal&#353;ími formáty zvuku.
+NejdÅ™Ã­ve ze vÅ¡eho budete muset pÅ™evÃ©st DVD zvuk do WAV souboru, kterÃ½ pak
+pouÅ¾ije zvukovÃ½ kodek jako vstup.
+NapÅ™Ã­klad:
+</p><pre class="screen">
+mplayer <em class="replaceable"><code>zdrojovÃ½_soubor.vob</code></em> -ao pcm:file=<em class="replaceable"><code>vÃ½slednÃ½_zvuk.wav</code></em> \
+    -vc dummy -aid 1 -vo null
+</pre><p>
+vylije druhou zvukovou stopu ze souboru
+<em class="replaceable"><code>zdrojovÃ½_soubor.vob</code></em> do souboru
+<em class="replaceable"><code>vÃ½slednÃ½_zvuk.wav</code></em>.
+MÄ›li byste normalizovat zvuk pÅ™ed enkÃ³dovÃ¡nÃ­m, protoÅ¾e DVD zvukovÃ© stopy jsou
+obvykle nahrÃ¡vÃ¡ny pÅ™i nÃ­zkÃ½ch hlasitostech.
+MÅ¯Å¾ete napÅ™Ã­klad pouÅ¾Ã­t nÃ¡stroj <span class="application">normalize</span>, kterÃ½ je
+k dispozici ve vÄ›tÅ¡inÄ› distribucÃ­.
+Pokud pouÅ¾Ã­vÃ¡te Windows, stejnou prÃ¡ci udÄ›lÃ¡ nÃ¡stroj jako
+<span class="application">BeSweet</span>.
+Komprimovat budete buÄ ve Vorbisu nebo MP3.
+NapÅ™Ã­klad:
+</p><pre class="screen">oggenc -q1 <em class="replaceable"><code>cÃ­lovÃ½_zvuk.wav</code></em></pre><p>
+provede enkÃ³dovÃ¡nÃ­ <em class="replaceable"><code>cÃ­lovÃ©ho_zvuku.wav</code></em> s kvalitou 1,
+kterÃ¡ pÅ™ibliÅ¾nÄ› odpovÃ­dÃ¡ 80Kb/s a je to minimÃ¡lnÃ­ kvalita na kterou byste mÄ›li
+enkÃ³dovat, pokud vÃ¡m zÃ¡leÅ¾Ã­ na kvalitÄ›.
+Poznamenejme, Å¾e <span class="application">MEncoder</span> v souÄasnosti neumÃ­
+muxovat Vorbis zvukovÃ© stopy do vÃ½stupnÃ­ho souboru, protoÅ¾e podporuje pouze
+AVI a MPEG kontejnery jako vÃ½stup. Pro oba platÃ­, Å¾e nÄ›kterÃ© pÅ™ehrÃ¡vaÄe mohou
+mÃ­t problÃ©my s udrÅ¾enÃ­m audio/video synchronizace, pokud je pÅ™Ã­tomen VBR zvuk
+jako je Vorbis.
+NemÄ›jte obavy, v tomto dokumentu vÃ¡m ukÃ¡Å¾eme, jak to lze udÄ›lat pomocÃ­
+programÅ¯ tÅ™etÃ­ch stran.
+</p></div><div class="sect2" lang="cs"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-muxing"></a>14.1.12. MuxovÃ¡nÃ­ (multiplexovÃ¡nÃ­)</h3></div></div></div><p>
+NynÃ­, kdyÅ¾ mÃ¡te svÃ© video enkÃ³dovanÃ©, budete jej nejspÃ­Å¡ chtÃ­t muxovat
+s jednou nebo vÃ­ce zvukovÃ½mi stopami do nosnÃ©ho filmovÃ©ho formÃ¡tu, jako je
+AVI, MPEG, Matroska nebo NUT.
+<span class="application">MEncoder</span> je zatÃ­m schopen nativnÄ› zapracovat
+zvuk a video pouze do nosnÃ½ch formÃ¡tÅ¯ MPEG a AVI.
+NapÅ™Ã­klad:
+</p><pre class="screen">
+mencoder -oac copy -ovc copy  -o <em class="replaceable"><code>vÃ½stupnÃ­_film.avi</code></em> \
+    -audiofile <em class="replaceable"><code>vstupnÃ­_audio.mp2</code></em> <em class="replaceable"><code>vstupnÃ­_video.avi</code></em>
+</pre><p>
+To by mÄ›lo slouÄit video soubor <em class="replaceable"><code>vstupnÃ­_video.avi</code></em>
+a zvukovÃ½ soubor <em class="replaceable"><code>vstupnÃ­_audio.mp2</code></em>
+do AVI souboru <em class="replaceable"><code>vÃ½stupnÃ­_film.avi</code></em>.
+Tento pÅ™Ã­kaz pracuje s MPEG-1 layer I, II a III (znÃ¡mÃ½m jako MP3) zvukem,
+WAV a takÃ© nÄ›kolika dalÅ¡Ã­mi formÃ¡ty zvuku.
 </p><p>
-  <span class="application">MEncoder</span> obsahuje experimentální podporu pro
-  <code class="systemitem">libavformat</code>, co&#382; je knihovna
-  z projektu FFmpeg, která podporuje muxování a demuxování celé &#345;ady nosných
-  formát&#367;.
-  Nap&#345;íklad:
-  </p><pre class="screen">mencoder -oac copy -ovc copy  -o <em class="replaceable"><code>výstupní_film.asf</code></em> -audiofile <em class="replaceable"><code>vstupní_audio.mp2</code></em> <em class="replaceable"><code>vstupní_video.avi</code></em> -of lavf -lavfopts format=asf</pre><p>
-  To provede stejnou &#269;innost jako p&#345;edchozí p&#345;íklad, av&#353;ak výstupním formátem
-  bude ASF.
-  Prosím berte na v&#283;domí, &#382;e tato podpora je velmi experimentální (ale de ode
-  dne lep&#353;í) a bude funk&#269;ní pouze pokud jste zkompilovali
-  <span class="application">MPlayer</span> s podporou pro
-  <code class="systemitem">libavformat</code> (co&#382; znamená, &#382;e
-  p&#345;edkompilovaná binární verze nebude v&#283;t&#353;inou fungovat).
-</p><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-muxing-filter-issues"></a>14.1.12.1. Zlep&#353;ování spolehlivosti muxování a A/V synchronizace</h4></div></div></div><p>
-  M&#367;&#382;ete se dostat do vá&#382;ných problém&#367; s A/V sychronizací, pokud se sna&#382;íte
-  muxovat video a n&#283;které zvukové stopy, kdy bez ohledu na nastavení zpo&#382;d&#283;ní
-  zvuku nedosáhnete správné synchronizace.
-  To m&#367;&#382;e nastat, pokud pou&#382;ijete n&#283;které video filtry, které zahodí nebo
-  zdvojí n&#283;které snímky, jako jsou filtry pro inverzi telecine.
-  Velmi doporu&#269;ujeme p&#345;idat videofiltr <tt class="option">harddup</tt> na samý konec
-  &#345;et&#283;zu videofiltr&#367; pro potla&#269;ení tohoto problému.
+<span class="application">MEncoder</span> obsahuje experimentÃ¡lnÃ­ podporu pro
+<code class="systemitem">libavformat</code>, coÅ¾ je knihovna
+z projektu FFmpeg, kterÃ¡ podporuje muxovÃ¡nÃ­ a demuxovÃ¡nÃ­ celÃ© Å™ady nosnÃ½ch
+formÃ¡tÅ¯.
+NapÅ™Ã­klad:
+</p><pre class="screen">
+mencoder -oac copy -ovc copy  -o <em class="replaceable"><code>vÃ½stupnÃ­_film.asf</code></em> -audiofile <em class="replaceable"><code>vstupnÃ­_audio.mp2</code></em> \
+    <em class="replaceable"><code>vstupnÃ­_video.avi</code></em> -of lavf -lavfopts format=asf
+</pre><p>
+To provede stejnou Äinnost jako pÅ™edchozÃ­ pÅ™Ã­klad, avÅ¡ak vÃ½stupnÃ­m formÃ¡tem
+bude ASF.
+ProsÃ­m berte na vÄ›domÃ­, Å¾e tato podpora je velmi experimentÃ¡lnÃ­ (ale den ode
+dne lepÅ¡Ã­) a bude funkÄnÃ­ pouze pokud jste zkompilovali
+<span class="application">MPlayer</span> s podporou pro
+<code class="systemitem">libavformat</code> (coÅ¾ znamenÃ¡, Å¾e
+pÅ™edkompilovanÃ¡ binÃ¡rnÃ­ verze nebude vÄ›tÅ¡inou fungovat).
+</p><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-muxing-filter-issues"></a>14.1.12.1. ZlepÅ¡ovÃ¡nÃ­ spolehlivosti muxovÃ¡nÃ­ a A/V synchronizace</h4></div></div></div><p>
+MÅ¯Å¾ete se dostat do vÃ¡Å¾nÃ½ch problÃ©mÅ¯ s A/V sychronizacÃ­, pokud se snaÅ¾Ã­te
+muxovat video a nÄ›kterÃ© zvukovÃ© stopy, kdy bez ohledu na nastavenÃ­ zpoÅ¾dÄ›nÃ­
+zvuku nedosÃ¡hnete sprÃ¡vnÃ© synchronizace.
+To mÅ¯Å¾e nastat, pokud pouÅ¾ijete nÄ›kterÃ© video filtry, kterÃ© zahodÃ­ nebo
+zdvojÃ­ nÄ›kterÃ© snÃ­mky, jako jsou filtry pro inverzi telecine.
+Velmi doporuÄujeme pÅ™idat videofiltr <tt class="option">harddup</tt> na samÃ½ konec
+Å™etÄ›zu videofiltrÅ¯ pro potlaÄenÃ­ tohoto problÃ©mu.
 </p><p>
-  Bez <tt class="option">harddup</tt>, pokud chce <span class="application">MEncoder</span>
-  duplikovat snímek, závisí na muxeru, aby vlo&#382;il zna&#269;ku do nosi&#269;e, tak&#382;e
-  bude poslední snímek zobrazen znovu, aby se dosáhlo synchronizace, p&#345;i&#269;em&#382;
-  se nezapí&#353;e &#382;ádný snímek.
-  S <tt class="option">harddup</tt>, <span class="application">MEncoder</span>
-  pustí poslední zobrazený snímek znovu do &#345;et&#283;zu filtr&#367;.
-  To znamená, &#382;e enkodér obdr&#382;í stejný snímek dvakrát a comprimuje ho.
-  To povede k o n&#283;co v&#283;t&#353;ímu souboru, ale nezp&#367;sobí problémy p&#345;i demuxování
-  nebo remuxování do jiného nosného formátu.
+Bez <tt class="option">harddup</tt>, pokud chce <span class="application">MEncoder</span>
+duplikovat snÃ­mek, zÃ¡visÃ­ na muxeru, aby vloÅ¾il znaÄku do nosiÄe, takÅ¾e
+bude poslednÃ­ snÃ­mek zobrazen znovu, aby se dosÃ¡hlo synchronizace, pÅ™iÄemÅ¾
+se nezapÃ­Å¡e Å¾Ã¡dnÃ½ snÃ­mek.
+S <tt class="option">harddup</tt>, <span class="application">MEncoder</span>
+pustÃ­ poslednÃ­ zobrazenÃ½ snÃ­mek znovu do Å™etÄ›zu filtrÅ¯.
+To znamenÃ¡, Å¾e enkodÃ©r obdrÅ¾Ã­ stejnÃ½ snÃ­mek dvakrÃ¡t a comprimuje ho.
+To povede k o nÄ›co vÄ›tÅ¡Ã­mu souboru, ale nezpÅ¯sobÃ­ problÃ©my pÅ™i demuxovÃ¡nÃ­
+nebo remuxovÃ¡nÃ­ do jinÃ©ho nosnÃ©ho formÃ¡tu.
 </p><p>
-  Rovn&#283;&#382; nemáte jinou mo&#382;nost ne&#382; pou&#382;ít <tt class="option">harddup</tt> s t&#283;mi
-  nosnými formáty, které nejsou t&#283;sn&#283; spjaty s
-  <span class="application">MEncoder</span>em, jako jsou ty, které jsou podporovány
-  p&#345;es <code class="systemitem">libavformat</code>, které nemusí
-  podporovat duplikaci na úrovni nosného formátu.
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-muxing-avi-limitations"></a>14.1.12.2. Limitace nosného formátu AVI</h4></div></div></div><p>
-  A&#269;koli je to po MPEG-1 nejpodporovan&#283;j&#353;í nosný formát, má AVI i jisté
-  zásadní nedostatky. Snad nejviditeln&#283;j&#353;í je re&#382;ie.
-  Na ka&#382;dý chunk AVI souboru je 24 bajt&#367; ztraceno na hlavi&#269;ky a index.
-  To se projeví asi 5 MP na hodinu, neboli 1-2.5% prodlou&#382;ení 700 MB filmu.
-  Nevypadá to jako mnoho, ale m&#367;&#382;e to znamenat rozdíl mezi mo&#382;ností pou&#382;ít
-  video p&#345;i 700 kbitech/s nebo 714 kbitech/s a tady se ka&#382;dý bit projeví na
-  kvalit&#283;.
+RovnÄ›Å¾ nemÃ¡te jinou moÅ¾nost neÅ¾ pouÅ¾Ã­t <tt class="option">harddup</tt> s tÄ›mi
+nosnÃ½mi formÃ¡ty, kterÃ© nejsou tÄ›snÄ› spjaty s
+<span class="application">MEncoder</span>em, jako jsou ty, kterÃ© jsou podporovÃ¡ny
+pÅ™es <code class="systemitem">libavformat</code>, kterÃ© nemusÃ­
+podporovat duplikaci na Ãºrovni nosnÃ©ho formÃ¡tu.
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-muxing-avi-limitations"></a>14.1.12.2. Limitace nosnÃ©ho formÃ¡tu AVI</h4></div></div></div><p>
+AÄkoli je to po MPEG-1 nejpodporovanÄ›jÅ¡Ã­ nosnÃ½ formÃ¡t, mÃ¡ AVI i jistÃ©
+zÃ¡sadnÃ­ nedostatky. Snad nejviditelnÄ›jÅ¡Ã­ je reÅ¾ie.
+Na kaÅ¾dÃ½ chunk AVI souboru je 24 bajtÅ¯ ztraceno na hlaviÄky a index.
+To se projevÃ­ asi 5 MB na hodinu, neboli 1-2.5% prodlouÅ¾enÃ­ 700 MB filmu.
+NevypadÃ¡ to jako mnoho, ale mÅ¯Å¾e to znamenat rozdÃ­l mezi moÅ¾nostÃ­ pouÅ¾Ã­t
+video pÅ™i 700 kbitech/s nebo 714 kbitech/s a tady se kaÅ¾dÃ½ bit projevÃ­ na
+kvalitÄ›.
 </p><p>
-  Navíc k této neefektivit&#283; má AVI také následující hlavní omezení:
+NavÃ­c k tÃ©to neefektivitÄ› mÃ¡ AVI takÃ© nÃ¡sledujÃ­cÃ­ hlavnÃ­ omezenÃ­:
 </p><div class="orderedlist"><ol type="1"><li><p>
-  M&#367;&#382;e být uchováván pouze obsah s konstantní snímkovou rychlostí. To je
-  zvlá&#353;t&#283; omezující, kdy&#382; má p&#367;vodní materiál, který chcete enkódovat, smí&#353;ený
-  obsah. Nap&#345;íklad sm&#283;s NTSC videa a filmového materiálu.
-  Jist&#283;&#382;e jsou zde cesti&#269;ky, které umo&#382;ní ulo&#382;it obsah se smí&#353;enou snímkovou
-  rychlostí v AVI, ale ty zvy&#353;ují (ji&#382; tak velkou) re&#382;ii p&#283;tinásobn&#283; nebo víc,
-  proto nejsou praktické.
+  MÅ¯Å¾e bÃ½t uchovÃ¡vÃ¡n pouze obsah s konstantnÃ­ snÃ­mkovou rychlostÃ­. To je
+  zvlÃ¡Å¡tÄ› omezujÃ­cÃ­, kdyÅ¾ mÃ¡ pÅ¯vodnÃ­ materiÃ¡l, kterÃ½ chcete enkÃ³dovat, smÃ­Å¡enÃ½
+  obsah. NapÅ™Ã­klad smÄ›s NTSC videa a filmovÃ©ho materiÃ¡lu.
+  JistÄ›Å¾e jsou zde cestiÄky, kterÃ© umoÅ¾nÃ­ uloÅ¾it obsah se smÃ­Å¡enou snÃ­mkovou
+  rychlostÃ­ v AVI, ale ty zvyÅ¡ujÃ­ (jiÅ¾ tak velkou) reÅ¾ii pÄ›tinÃ¡sobnÄ› nebo vÃ­c,
+  proto nejsou praktickÃ©.
 </p></li><li><p>
-  Zvuk v AVI musí mít bu&#271; konstantní datový tok (CBR) nebo konstantní velikost
-  rámce (&#269;ili v&#353;echny rámce se dekódují na stejný po&#269;et vzork&#367;).
-  Nane&#353;t&#283;stí ten nejefektivn&#283;j&#353;í kodek, Vorbis, nespl&#328;uje ani jeden z t&#283;chto
-  po&#382;adavk&#367;.
-  Pokud tedy plánujete ulo&#382;it sv&#367;j film do AVI, budete muset pou&#382;ít mén&#283;
-  efektivní kodek, jako MP3 nebo AC3.
+  Zvuk v AVI musÃ­ mÃ­t buÄ konstantnÃ­ datovÃ½ tok (CBR) nebo konstantnÃ­ velikost
+  rÃ¡mce (Äili vÅ¡echny rÃ¡mce se dekÃ³dujÃ­ na stejnÃ½ poÄet vzorkÅ¯).
+  NaneÅ¡tÄ›stÃ­ ten nejefektivnÄ›jÅ¡Ã­ kodek, Vorbis, nesplÅˆuje ani jeden z tÄ›chto
+  poÅ¾adavkÅ¯.
+  Pokud tedy plÃ¡nujete uloÅ¾it svÅ¯j film do AVI, budete muset pouÅ¾Ã­t mÃ©nÄ›
+  efektivnÃ­ kodek, jako MP3 nebo AC3.
 </p></li></ol></div><p>
-  Z vý&#353;e uvedených d&#367;vod&#367; <span class="application">MEncoder</span> zatím
-  nepodporuje prom&#283;nnou snímkovou rychlost ani enkódování do Vorbisu.
-  Nemusíte to v&#353;ak pova&#382;ovat za omezení, jestli&#382;e je
-  <span class="application">MEncoder</span> jediným nástrojem pro va&#353;e
-  enkódování. Nakonec je mo&#382;né pou&#382;ít <span class="application">MEncoder</span> pouze
-  pro enkódování videa a pak pou&#382;ít externí nástroje pro enkódování zvuku a
-  namuxování do jiného nosného formátu.
-</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-muxing-matroska"></a>14.1.12.3. Muxování do nosného formátu Matroska</h4></div></div></div><p>
-  Matroska je svobodný a otev&#345;ený standard nosného formátu, zam&#283;&#345;ený na
-  nabídku mnoha pokro&#269;ilých vlastností, které star&#353;í nosné formáty, jako AVI,
-  nemohou poskytnout.
-  Nap&#345;íklad Matroska podporuje zvuk s prom&#283;nným datovým tokem (VBR),
-  prom&#283;nné snímkové rychlosti (VFR), kapitoly, p&#345;ílohy soubor&#367;, kód pro
-  detekci chyb (EDC) a moderní A/V kodeky jako "Advanced Audio
-  Coding" (AAC), "Vorbis" nebo "MPEG-4 AVC" (H.264), z nich&#382; &#382;ádný nelze
-  pou&#382;ít v AVI.
+Z vÃ½Å¡e uvedenÃ½ch dÅ¯vodÅ¯ <span class="application">MEncoder</span> zatÃ­m
+nepodporuje promÄ›nnou snÃ­mkovou rychlost ani enkÃ³dovÃ¡nÃ­ Vorbis.
+NemusÃ­te to vÅ¡ak povaÅ¾ovat za omezenÃ­, jestliÅ¾e je
+<span class="application">MEncoder</span> jedinÃ½m nÃ¡strojem pro vaÅ¡e
+enkÃ³dovÃ¡nÃ­. Nakonec je moÅ¾nÃ© pouÅ¾Ã­t <span class="application">MEncoder</span>
+pouze pro enkÃ³dovÃ¡nÃ­ videa a pak pouÅ¾Ã­t externÃ­ nÃ¡stroje pro enkÃ³dovÃ¡nÃ­
+zvuku a namuxovÃ¡nÃ­ do jinÃ©ho nosnÃ©ho formÃ¡tu.
+</p></div><div class="sect3" lang="cs"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-muxing-matroska"></a>14.1.12.3. MuxovÃ¡nÃ­ do nosnÃ©ho formÃ¡tu Matroska</h4></div></div></div><p>
+Matroska je svobodnÃ½ a otevÅ™enÃ½ standard nosnÃ©ho formÃ¡tu, zamÄ›Å™enÃ½ na
+nabÃ­dku mnoha pokroÄilÃ½ch vlastnostÃ­, kterÃ© starÅ¡Ã­ nosnÃ© formÃ¡ty, jako AVI,
+nemohou poskytnout.
+NapÅ™Ã­klad Matroska podporuje zvuk s promÄ›nnÃ½m datovÃ½m tokem (VBR),
+promÄ›nnÃ© snÃ­mkovÃ© rychlosti (VFR), kapitoly, pÅ™Ã­lohy souborÅ¯, kÃ³d pro
+detekci chyb (EDC) a modernÃ­ A/V kodeky jako "Advanced Audio
+Coding" (AAC), "Vorbis" nebo "MPEG-4 AVC" (H.264), z nichÅ¾ Å¾Ã¡dnÃ½ nelze
+pouÅ¾Ã­t v AVI.
 </p><p>
-  Nástroje pro vytvá&#345;ení Matroska soubor&#367; jsou souhrnn&#283; nazvány 
-  <span class="application">mkvtoolnix</span> a jsou dostupné pro v&#283;t&#353;inu Unixových
-  platforem a stejn&#283; tak <span class="application">Windows</span>.
-  Proto&#382;e je Matroska otev&#345;ený standard, m&#367;&#382;ete najít jiné nástroje, které vám
-  lépe padnou, ale proto&#382;e mkvtoolnix je nejroz&#353;í&#345;en&#283;j&#353;í a je podporován
-  p&#345;ímo Matroska týmem, pokryjeme jen jejich pou&#382;ití.
+NÃ¡stroje pro vytvÃ¡Å™enÃ­ Matroska souborÅ¯ jsou souhrnnÄ› nazvÃ¡ny
+<span class="application">mkvtoolnix</span> a jsou dostupnÃ© pro vÄ›tÅ¡inu UnixovÃ½ch
+platforem a stejnÄ› tak <span class="application">Windows</span>.
+ProtoÅ¾e je Matroska otevÅ™enÃ½ standard, mÅ¯Å¾ete najÃ­t jinÃ© nÃ¡stroje, kterÃ© vÃ¡m
+lÃ©pe padnou, ale protoÅ¾e mkvtoolnix je nejrozÅ¡Ã­Å™enÄ›jÅ¡Ã­ a je podporovÃ¡n
+pÅ™Ã­mo Matroska tÃ½mem, pokryjeme jen jejich pouÅ¾itÃ­.
 </p><p>
-  Asi nejsnaz&#353;í zp&#367;sob, jak za&#269;ít s Matroskou je pou&#382;ít 
-  <span class="application">MMG</span>, grafickou nadstavbu dodávanou s
-  <span class="application">mkvtoolnix</span> a &#345;ídit se
-  <a href="http://www.bunkus.org/videotools/mkvtoolnix/doc/mkvmerge-gui.html" target="_top">návodem k mkvmerge GUI (mmg)</a>
+Asi nejsnazÅ¡Ã­ zpÅ¯sob, jak zaÄÃ­t s Matroskou je pouÅ¾Ã­t 
+<span class="application">MMG</span>, grafickou nadstavbu dodÃ¡vanou s
+<span class="application">mkvtoolnix</span> a Å™Ã­dit se
+<a href="http://www.bunkus.org/videotools/mkvtoolnix/doc/mkvmerge-gui.html" target="_top">nÃ¡vodem k mkvmerge GUI (mmg)</a>
 </p><p>
-  M&#367;&#382;ete rovn&#283;&#382; muxovat zvukové a video soubory z p&#345;íkazového &#345;ádku:
-  </p><pre class="screen">mkvmerge -o <em class="replaceable"><code>výstup.mkv</code></em> <em class="replaceable"><code>vstupní_video.avi</code></em> <em class="replaceable"><code>vstupní_audio1.mp3</code></em> <em class="replaceable"><code>vstupní_audio2.ac3</code></em></pre><p>
-  To spojí video soubor <em class="replaceable"><code>vstupní_video.avi</code></em>
-  a dva zvukové soubory <em class="replaceable"><code>vstupní_audio1.mp3</code></em>
-  a <em class="replaceable"><code>vstupní_audio2.ac3</code></em> do Matroska souboru
-  <em class="replaceable"><code>výstup.mkv</code></em>.
-  Matroska, jak jsme ji&#382; &#345;ekli, umí mnohem víc ne&#382; to, jako více zvukových stop
-  (v&#269;etn&#283; dolad&#283;ní audio/video synchronizace), kapitoly, titulky, st&#345;íhání,
-  atd...
-  Detaily naleznete v dokumentaci k t&#283;mto aplikacím.
-</p></div></div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a name="ftn.fn-menc-feat-dvd-mpeg4-codec-cpu" href="#fn-menc-feat-dvd-mpeg4-codec-cpu">2</a>] </sup>Bu&#271;te v&#353;ak opartní: Dekódování MPEG-4 AVC videa v DVD
-  rozli&#353;ení vy&#382;aduje rychlý stroj (nap&#345;.Pentium 4 nad 1.5Ghz, nebo
-  Pentium M nad 1Ghz).
-  </p></div><div class="footnote"><p><sup>[<a name="ftn.fn-menc-feat-dvd-mpeg4-codec-playback" href="#fn-menc-feat-dvd-mpeg4-codec-playback">3</a>] </sup>Stejný film nemusí vypadat stejn&#283; na monitoru n&#283;koho jiného, nebo
-  kdy&#382; je p&#345;ehráván jiným dekodérem, tak&#382;e si prov&#283;&#345;ujte své výtvory
-  p&#345;ehráváním na r&#367;zných sestavách.</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="encoding-guide.html">P&#345;edcházející</a> </td><td width="20%" align="center"><a accesskey="u" href="encoding-guide.html">Nahoru</a></td><td width="40%" align="right"> <a accesskey="n" href="menc-feat-telecine.html">Dal&#353;í</a></td></tr><tr><td width="40%" align="left" valign="top">Kapitola 14. Enkódování s <span class="application">MEncoder</span>em </td><td width="20%" align="center"><a accesskey="h" href="index.html">Dom&#367;</a></td><td width="40%" align="right" valign="top"> 14.2. Jak nalo&#382;it s telecine a prokladem v NTSC DVD</td></tr></table></div></body></html>
+MÅ¯Å¾ete rovnÄ›Å¾ muxovat zvukovÃ© a video soubory z pÅ™Ã­kazovÃ©ho Å™Ã¡dku:
+</p><pre class="screen">
+mkvmerge -o <em class="replaceable"><code>vÃ½stup.mkv</code></em> <em class="replaceable"><code>vstupnÃ­_video.avi</code></em> <em class="replaceable"><code>vstupnÃ­_audio1.mp3</code></em> <em class="replaceable"><code>vstupnÃ­_audio2.ac3</code></em>
+</pre><p>
+To spojÃ­ video soubor <em class="replaceable"><code>vstupnÃ­_video.avi</code></em>
+a dva zvukovÃ© soubory <em class="replaceable"><code>vstupnÃ­_audio1.mp3</code></em>
+a <em class="replaceable"><code>vstupnÃ­_audio2.ac3</code></em> do Matroska souboru
+<em class="replaceable"><code>vÃ½stup.mkv</code></em>.
+Matroska, jak jsme jiÅ¾ Å™ekli, umÃ­ mnohem vÃ­c neÅ¾ to, jako vÃ­ce zvukovÃ½ch stop
+(vÄetnÄ› doladÄ›nÃ­ audio/video synchronizace), kapitoly, titulky, stÅ™Ã­hÃ¡nÃ­,
+atd...
+Detaily naleznete v dokumentaci k tÄ›mto aplikacÃ­m.
+</p></div></div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a name="ftn.fn-menc-feat-dvd-mpeg4-codec-cpu" href="#fn-menc-feat-dvd-mpeg4-codec-cpu">2</a>] </sup>
+  BuÄte vÅ¡ak opartnÃ­: DekÃ³dovÃ¡nÃ­ MPEG-4 AVC videa v DVD
+  rozliÅ¡enÃ­ vyÅ¾aduje rychlÃ½ stroj (napÅ™.Pentium 4 nad 1.5GHz, nebo
+  Pentium M nad 1GHz).
+  </p></div><div class="footnote"><p><sup>[<a name="ftn.fn-menc-feat-dvd-mpeg4-codec-playback" href="#fn-menc-feat-dvd-mpeg4-codec-playback">3</a>] </sup>
+  StejnÃ½ film nemusÃ­ vypadat stejnÄ› na monitoru nÄ›koho jinÃ©ho, nebo
+  kdyÅ¾ je pÅ™ehrÃ¡vÃ¡n jinÃ½m dekodÃ©rem, takÅ¾e si provÄ›Å™ujte svÃ© vÃ½tvory
+  pÅ™ehrÃ¡vÃ¡nÃ­m na rÅ¯znÃ½ch sestavÃ¡ch.
+  </p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="encoding-guide.html">PÅ™edchÃ¡zejÃ­cÃ­</a>Â </td><td width="20%" align="center"><a accesskey="u" href="encoding-guide.html">Nahoru</a></td><td width="40%" align="right">Â <a accesskey="n" href="menc-feat-telecine.html">DalÅ¡Ã­</a></td></tr><tr><td width="40%" align="left" valign="top">Kapitola 14. EnkÃ³dovÃ¡nÃ­ s <span class="application">MEncoder</span>emÂ </td><td width="20%" align="center"><a accesskey="h" href="index.html">DomÅ¯</a></td><td width="40%" align="right" valign="top">Â 14.2. Jak naloÅ¾it s telecine a prokladem v NTSC DVD</td></tr></table></div></body></html>

@@ -1,5 +1,5 @@
-#ifndef _M_STRUCT_H
-#define _M_STRUCT_H
+#ifndef M_STRUCT_H
+#define M_STRUCT_H
 
 /// \defgroup OptionsStruct Options struct
 /// \ingroup Options
@@ -17,7 +17,7 @@ typedef struct m_struct_st {
   /// size of the whole struct
   unsigned int size;
   /// Pointer to a struct filled with the default settings
-  void* defaults;
+  const void* defaults;
   /// Field list.
   /** The p field of the \ref m_option struct must contain the offset
    *  of the member in the struct (use M_ST_OFF macro for this).
@@ -42,9 +42,9 @@ typedef struct m_struct_st {
  *  \return Pointer to the struct field.
  */
 #define M_ST_MB_P(struct_p, struct_offset)   \
-    ((void*) (struct_p) + (unsigned long) (struct_offset))
+    ((void *)((char *)(struct_p) + (unsigned long)(struct_offset)))
 
-/// Acces a struct field at a given offset.
+/// Access a struct field at a given offset.
 /** \param member_type Type of the field.
  *  \param struct_p Pointer to the struct.
  *  \param struct_offset Offset of the field in the struct.
@@ -73,7 +73,7 @@ int
 m_struct_set(m_struct_t* st, void* obj, char* field, char* param);
 
 /// Reset a field (or all if field == NULL) to defaults.
-/** \param st Struct definiton.
+/** \param st Struct definition.
  *  \param obj Pointer to the struct to set.
  *  \param field Name of the field to reset, if NULL all fields are reseted.
  */
@@ -81,7 +81,7 @@ void
 m_struct_reset(m_struct_t* st, void* obj, const char* field);
 
 /// Create a copy of an existing struct.
-/** \param st Struct definiton.
+/** \param st Struct definition.
  *  \param obj Pointer to the struct to copy.
  *  \return Newly allocated copy of obj.
  */
@@ -89,14 +89,14 @@ void*
 m_struct_copy(m_struct_t* st, void* obj);
 
 /// Free an allocated struct.
-/** \param st Struct definiton.
+/** \param st Struct definition.
  *  \param obj Pointer to the struct to copy.
  */
 void
 m_struct_free(m_struct_t* st, void* obj);
 
 /// Get a field description.
-/** \param st Struct definiton.
+/** \param st Struct definition.
  *  \param f Name of the field.
  *  \return The \ref m_option struct describing the field or NULL if not found.
  */
@@ -105,4 +105,4 @@ m_struct_get_field(m_struct_t* st,const char* f);
 
 ///@}
 
-#endif /* _M_STRUCT_H */
+#endif /* M_STRUCT_H */

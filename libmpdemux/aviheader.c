@@ -8,27 +8,24 @@
 #include "mp_msg.h"
 #include "help_mp.h"
 
-#include "stream.h"
+#include "stream/stream.h"
 #include "demuxer.h"
 #include "stheader.h"
 
-#include "bswap.h"
 #include "aviheader.h"
-
-#define MIN(a,b) (((a)<(b))?(a):(b))
-
+#include "libavutil/common.h"
 
 static MainAVIHeader avih;
 
-extern void print_avih(MainAVIHeader *h, int verbose_level);
-extern void print_avih_flags(MainAVIHeader *h, int verbose_level);
-extern void print_strh(AVIStreamHeader *h, int verbose_level);
-extern void print_wave_header(WAVEFORMATEX *h, int verbose_level);
-extern void print_video_header(BITMAPINFOHEADER *h, int verbose_level);
-extern void print_index(AVIINDEXENTRY *idx,int idx_size, int verbose_level);
-extern void print_avistdindex_chunk(avistdindex_chunk *h, int verbose_level);
-extern void print_avisuperindex_chunk(avisuperindex_chunk *h, int verbose_level);
-extern void print_vprp(VideoPropHeader *vprp, int verbose_level);
+void print_avih(MainAVIHeader *h, int verbose_level);
+void print_avih_flags(MainAVIHeader *h, int verbose_level);
+void print_strh(AVIStreamHeader *h, int verbose_level);
+void print_wave_header(WAVEFORMATEX *h, int verbose_level);
+void print_video_header(BITMAPINFOHEADER *h, int verbose_level);
+void print_index(AVIINDEXENTRY *idx,int idx_size, int verbose_level);
+void print_avistdindex_chunk(avistdindex_chunk *h, int verbose_level);
+void print_avisuperindex_chunk(avisuperindex_chunk *h, int verbose_level);
+void print_vprp(VideoPropHeader *vprp, int verbose_level);
 
 static int odml_get_vstream_id(int id, unsigned char res[])
 {
@@ -67,6 +64,7 @@ while(1){
   int id=stream_read_dword_le(demuxer->stream);
   unsigned chunksize,size2;
   static int last_fccType=0;
+  static int last_fccHandler=0;
   char* hdr=NULL;
   //
   if(stream_eof(demuxer->stream)) break;
@@ -182,31 +180,39 @@ while(1){
     case mmioFOURCC('I','D','I','T'): hdr="Digitization Time";break;
 
     case ckidAVIMAINHDR:          // read 'avih'
-      stream_read(demuxer->stream,(char*) &avih,MIN(size2,sizeof(avih)));
+      stream_read(demuxer->stream,(char*) &avih,FFMIN(size2,sizeof(avih)));
       le2me_MainAVIHeader(&avih); // swap to machine endian
-      chunksize-=MIN(size2,sizeof(avih));
+      chunksize-=FFMIN(size2,sizeof(avih));
       if( mp_msg_test(MSGT_HEADER,MSGL_V) ) print_avih(&avih,MSGL_V); // else print_avih_flags(&avih,MSGL_V);
       break;
     case ckidSTREAMHEADER: {      // read 'strh'
       AVIStreamHeader h;
-      stream_read(demuxer->stream,(char*) &h,MIN(size2,sizeof(h)));
+      stream_read(demuxer->stream,(char*) &h,FFMIN(size2,sizeof(h)));
       le2me_AVIStreamHeader(&h);  // swap to machine endian
-      chunksize-=MIN(size2,sizeof(h));
+      chunksize-=FFMIN(size2,sizeof(h));
       ++stream_id;
       if(h.fccType==streamtypeVIDEO){
         sh_video=new_sh_video(demuxer,stream_id);
+        mp_msg(MSGT_DEMUX, MSGL_INFO, MSGTR_VideoID, "aviheader", stream_id);
         memcpy(&sh_video->video,&h,sizeof(h));
+        sh_video->stream_delay = (float)sh_video->video.dwStart * sh_video->video.dwScale/sh_video->video.dwRate;
       } else
       if(h.fccType==streamtypeAUDIO){
         sh_audio=new_sh_audio(demuxer,stream_id);
+        mp_msg(MSGT_DEMUX, MSGL_INFO, MSGTR_AudioID, "aviheader", stream_id);
         memcpy(&sh_audio->audio,&h,sizeof(h));
+        sh_audio->stream_delay = (float)sh_audio->audio.dwStart * sh_audio->audio.dwScale/sh_audio->audio.dwRate;
       }
       last_fccType=h.fccType;
+      last_fccHandler=h.fccHandler;
       if( mp_msg_test(MSGT_HEADER,MSGL_V) ) print_strh(&h,MSGL_V);
       break; }
     case mmioFOURCC('i', 'n', 'd', 'x'): {
       uint32_t i;
       avisuperindex_chunk *s;
+
+      if(!index_mode) break;
+
       if(chunksize<=24){
         break;
       }
@@ -227,24 +233,23 @@ while(1){
 	  
       print_avisuperindex_chunk(s,MSGL_V);
       
-      if( ((chunksize/4)/s->wLongsPerEntry) < s->nEntriesInUse){
-        mp_msg (MSGT_HEADER, MSGL_WARN, "Broken super index chunk\n");
-        s->nEntriesInUse = (chunksize/4)/s->wLongsPerEntry;
-      }
-
       // Check and fix this useless crap
       if(s->wLongsPerEntry != sizeof (avisuperindex_entry)/4) {
           mp_msg (MSGT_HEADER, MSGL_WARN, "Broken super index chunk size: %u\n",s->wLongsPerEntry);
           s->wLongsPerEntry = sizeof(avisuperindex_entry)/4;
       }
+      if( ((chunksize/4)/s->wLongsPerEntry) < s->nEntriesInUse){
+        mp_msg (MSGT_HEADER, MSGL_WARN, "Broken super index chunk\n");
+        s->nEntriesInUse = (chunksize/4)/s->wLongsPerEntry;
+      }
+
       s->aIndex = calloc(s->nEntriesInUse, sizeof (avisuperindex_entry));
       s->stdidx = calloc(s->nEntriesInUse, sizeof (avistdindex_chunk));
 
       // now the real index of indices
       for (i=0; i<s->nEntriesInUse; i++) {
 	  chunksize-=16;
-	  s->aIndex[i].qwOffset = stream_read_dword_le(demuxer->stream) & 0xffffffff;
-	  s->aIndex[i].qwOffset |= ((uint64_t)stream_read_dword_le(demuxer->stream) & 0xffffffff)<<32;
+	  s->aIndex[i].qwOffset = stream_read_qword_le(demuxer->stream);
 	  s->aIndex[i].dwSize = stream_read_dword_le(demuxer->stream);
 	  s->aIndex[i].dwDuration = stream_read_dword_le(demuxer->stream);
 	  mp_msg (MSGT_HEADER, MSGL_V, "ODML (%.4s): [%d] 0x%016"PRIx64" 0x%04x %u\n", 
@@ -255,18 +260,20 @@ while(1){
       break; }
     case ckidSTREAMFORMAT: {      // read 'strf'
       if(last_fccType==streamtypeVIDEO){
-        sh_video->bih=calloc((chunksize<sizeof(BITMAPINFOHEADER))?sizeof(BITMAPINFOHEADER):chunksize,1);
+        sh_video->bih=calloc(FFMAX(chunksize, sizeof(BITMAPINFOHEADER)), 1);
 //        sh_video->bih=malloc(chunksize); memset(sh_video->bih,0,chunksize);
         mp_msg(MSGT_HEADER,MSGL_V,MSGTR_MPDEMUX_AVIHDR_FoundBitmapInfoHeader,chunksize,sizeof(BITMAPINFOHEADER));
         stream_read(demuxer->stream,(char*) sh_video->bih,chunksize);
 	le2me_BITMAPINFOHEADER(sh_video->bih);  // swap to machine endian
+	if (sh_video->bih->biSize > chunksize && sh_video->bih->biSize > sizeof(BITMAPINFOHEADER))
+		sh_video->bih->biSize = chunksize;
 	// fixup MS-RLE header (seems to be broken for <256 color files)
 	if(sh_video->bih->biCompression<=1 && sh_video->bih->biSize==40)
 	    sh_video->bih->biSize=chunksize;
         if( mp_msg_test(MSGT_HEADER,MSGL_V) ) print_video_header(sh_video->bih,MSGL_V);
         chunksize=0;
-//        sh_video->fps=(float)sh_video->video.dwRate/(float)sh_video->video.dwScale;
-//        sh_video->frametime=(float)sh_video->video.dwScale/(float)sh_video->video.dwRate;
+        sh_video->fps=(float)sh_video->video.dwRate/(float)sh_video->video.dwScale;
+        sh_video->frametime=(float)sh_video->video.dwScale/(float)sh_video->video.dwRate;
 //        if(demuxer->video->id==-1) demuxer->video->id=stream_id;
         // IdxFix:
         idxfix_videostream=stream_id;
@@ -317,6 +324,11 @@ while(1){
 	    wf_size < sizeof(WAVEFORMATEX)+sh_audio->wf->cbSize) {
 	    sh_audio->wf=realloc(sh_audio->wf, sizeof(WAVEFORMATEX)+sh_audio->wf->cbSize);
 	}
+	sh_audio->format=sh_audio->wf->wFormatTag;
+	if (sh_audio->format == 1 &&
+	    last_fccHandler == mmioFOURCC('A', 'x', 'a', 'n'))
+	    sh_audio->format = last_fccHandler;
+	sh_audio->i_bps=sh_audio->wf->nAvgBytesPerSec;
         chunksize=0;
         if( mp_msg_test(MSGT_HEADER,MSGL_V) ) print_wave_header(sh_audio->wf,MSGL_V);
 	++priv->audio_streams;
@@ -707,7 +719,4 @@ skip_chunk:
   }
 }
 }
-
-#undef MIN
-
 

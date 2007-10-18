@@ -1,294 +1,293 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2"><title>14.1. Rippowanie DVD do wysokiej jakości pliku MPEG-4 ("DivX")</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - Odtwarzacz filmów"><link rel="up" href="encoding-guide.html" title="Rozdział 14. Kodowanie przy użyciu MEncodera"><link rel="prev" href="encoding-guide.html" title="Rozdział 14. Kodowanie przy użyciu MEncodera"><link rel="next" href="menc-feat-telecine.html" title="14.2. How to deal with telecine and interlacing within NTSC DVDs"><link rel="preface" href="howtoread.html" title="Jak czytać tę dokumentację"><link rel="chapter" href="intro.html" title="Rozdział 1. Wprowadzenie"><link rel="chapter" href="install.html" title="Rozdział 2. Instalacja"><link rel="chapter" href="usage.html" title="Rozdział 3. Sposób użycia"><link rel="chapter" href="cd-dvd.html" title="Rozdział 4. Używanie CD/DVD"><link rel="chapter" href="faq.html" title="Rozdział 5. FAQ - Często Zadawane Pytania"><link rel="chapter" href="formats.html" title="Rozdział 6. Kontenery"><link rel="chapter" href="codecs.html" title="Rozdział 7. Obsługiwane kodeki"><link rel="chapter" href="video.html" title="Rozdział 8. Urządzenia wyjścia video"><link rel="chapter" href="audio.html" title="Rozdział 9. Urządzenia wyjściowe audio"><link rel="chapter" href="tv.html" title="Rozdział 10. TV"><link rel="chapter" href="radio.html" title="Rozdział 11. Radio"><link rel="chapter" href="ports.html" title="Rozdział 12. Porty"><link rel="chapter" href="mencoder.html" title="Rozdział 13. Podstawy używania MEncodera"><link rel="chapter" href="encoding-guide.html" title="Rozdział 14. Kodowanie przy użyciu MEncodera"><link rel="appendix" href="bugreports.html" title="Dodatek A. Jak zgłaszać błędy"><link rel="appendix" href="bugs.html" title="Dodatek B. Znane błędy"><link rel="appendix" href="skin.html" title="Dodatek C. Format skórki MPlayera"><link rel="appendix" href="history.html" title="Dodatek D. Historia"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-preparing-encode" title="14.1.1. Przygotowanie do kodowania: Identyfikowanie materiału źródłowego
-i framerate"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-2pass" title="14.1.2. Stały kwantyzator a tryb wieloprzebiegowy"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-constraints" title="14.1.3. Constraints for efficient encoding"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-crop" title="14.1.4. Cropping and Scaling"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-resolution-bitrate" title="14.1.5. Choosing resolution and bitrate"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-filtering" title="14.1.6. Filtering"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-interlacing" title="14.1.7. Interlacing and Telecine"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-encoding-interlaced" title="14.1.8. Encoding interlaced video"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-av-sync" title="14.1.9. Notes on Audio/Video synchronization"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-audio" title="14.1.10. Audio"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-muxing" title="14.1.11. Muxing"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">14.1. Rippowanie DVD do wysokiej jakości pliku MPEG-4 ("DivX")</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="encoding-guide.html">Poprzedni</a> </td><th width="60%" align="center">Rozdział 14. Kodowanie przy użyciu <span class="application">MEncodera</span></th><td width="20%" align="right"> <a accesskey="n" href="menc-feat-telecine.html">Następny</a></td></tr></table><hr></div><div class="sect1" lang="pl"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-dvd-mpeg4"></a>14.1. Rippowanie DVD do wysokiej jakości pliku MPEG-4 ("DivX")</h2></div></div></div><p>
-  Jednym z często zadawanych pytań jest "Jak zrobić rip najlepszej jakości
-  przy danej objętości?". Innym pytaniem jest "Jak zrobić najlepszy możliwy
-  rip? Nie ważne jaka będzie objętość, chcę najlepszej jakości."
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>14.1. Rippowanie DVD do wysokiej jakoĹci pliku MPEG-4 ("DivX")</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - Odtwarzacz filmĂłw"><link rel="up" href="encoding-guide.html" title="RozdziaĹ 14. Kodowanie przy uĹźyciu MEncodera"><link rel="prev" href="encoding-guide.html" title="RozdziaĹ 14. Kodowanie przy uĹźyciu MEncodera"><link rel="next" href="menc-feat-telecine.html" title="14.2. How to deal with telecine and interlacing within NTSC DVDs"><link rel="preface" href="howtoread.html" title="Jak czytaÄ tÄ dokumentacjÄ"><link rel="chapter" href="intro.html" title="RozdziaĹ 1. Wprowadzenie"><link rel="chapter" href="install.html" title="RozdziaĹ 2. Instalacja"><link rel="chapter" href="usage.html" title="RozdziaĹ 3. SposĂłb uĹźycia"><link rel="chapter" href="cd-dvd.html" title="RozdziaĹ 4. UĹźywanie CD/DVD"><link rel="chapter" href="faq.html" title="RozdziaĹ 5. FAQ - CzÄsto Zadawane Pytania"><link rel="chapter" href="formats.html" title="RozdziaĹ 6. Kontenery"><link rel="chapter" href="codecs.html" title="RozdziaĹ 7. ObsĹugiwane kodeki"><link rel="chapter" href="video.html" title="RozdziaĹ 8. UrzÄdzenia wyjĹcia video"><link rel="chapter" href="audio.html" title="RozdziaĹ 9. UrzÄdzenia wyjĹciowe audio"><link rel="chapter" href="tv.html" title="RozdziaĹ 10. TV"><link rel="chapter" href="radio.html" title="RozdziaĹ 11. Radio"><link rel="chapter" href="ports.html" title="RozdziaĹ 12. Porty"><link rel="chapter" href="mencoder.html" title="RozdziaĹ 13. Podstawy uĹźywania MEncodera"><link rel="chapter" href="encoding-guide.html" title="RozdziaĹ 14. Kodowanie przy uĹźyciu MEncodera"><link rel="appendix" href="bugreports.html" title="Dodatek A. Jak zgĹaszaÄ bĹÄdy"><link rel="appendix" href="bugs.html" title="Dodatek B. Znane bĹÄdy"><link rel="appendix" href="skin.html" title="Dodatek C. Format skĂłrki MPlayera"><link rel="appendix" href="history.html" title="Dodatek D. Historia"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-preparing-encode" title="14.1.1. Przygotowanie do kodowania: Identyfikowanie materiaĹu ĹşrĂłdĹowego i framerate"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-2pass" title="14.1.2. StaĹy kwantyzator a tryb wieloprzebiegowy"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-constraints" title="14.1.3. Constraints for efficient encoding"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-crop" title="14.1.4. Cropping and Scaling"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-resolution-bitrate" title="14.1.5. Choosing resolution and bitrate"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-filtering" title="14.1.6. Filtering"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-interlacing" title="14.1.7. Interlacing and Telecine"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-encoding-interlaced" title="14.1.8. Encoding interlaced video"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-av-sync" title="14.1.9. Notes on Audio/Video synchronization"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-audio" title="14.1.10. Audio"><link rel="subsection" href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-muxing" title="14.1.11. Muxing"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">14.1. Rippowanie DVD do wysokiej jakoĹci pliku MPEG-4 ("DivX")</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="encoding-guide.html">Poprzedni</a>Â </td><th width="60%" align="center">RozdziaĹ 14. Kodowanie przy uĹźyciu <span class="application">MEncodera</span></th><td width="20%" align="right">Â <a accesskey="n" href="menc-feat-telecine.html">NastÄpny</a></td></tr></table><hr></div><div class="sect1" lang="pl"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-dvd-mpeg4"></a>14.1. Rippowanie DVD do wysokiej jakoĹci pliku MPEG-4 ("DivX")</h2></div></div></div><p>
+  Jednym z czÄsto zadawanych pytaĹ jest "Jak zrobiÄ rip najlepszej jakoĹci
+  przy danej objÄtoĹci?". Innym pytaniem jest "Jak zrobiÄ najlepszy moĹźliwy
+  rip? Nie waĹźne jaka bÄdzie objÄtoĹÄ, chcÄ najlepszej jakoĹci."
 </p><p>
-  To drugie pytanie jest przynajmniej źle postawione. W końcu, jeśli nie
-  przejmujesz się wielkością pliku, mógłbyć po prostu skopiować strumień
-  MPEG-2 z DVD. Pewnie, dostaniesz AVI wielkości około 5GB, ale jeśli chcesz
-  najlepszej jakości i nie przejmujesz się wielkością to jest to najlepsze
-  wyjście.
+  To drugie pytanie jest przynajmniej Ĺşle postawione. W koĹcu, jeĹli nie
+  przejmujesz siÄ wielkoĹciÄ pliku, mĂłgĹbyÄ po prostu skopiowaÄ strumieĹ
+  MPEG-2 z DVD. Pewnie, dostaniesz AVI wielkoĹci okoĹo 5GB, ale jeĹli chcesz
+  najlepszej jakoĹci i nie przejmujesz siÄ wielkoĹciÄ to jest to najlepsze
+  wyjĹcie.
 </p><p>
-  Tak na prawdę, powodem dla którego chcesz przekodować DVD na MPEG-4 jest to,
-  że <span class="bold"><strong>przejmujesz</strong></span> się wielkością pliku.
+  Tak na prawdÄ, powodem dla ktĂłrego chcesz przekodowaÄ DVD na MPEG-4 jest to,
+  Ĺźe <span class="bold"><strong>przejmujesz</strong></span> siÄ wielkoĹciÄ pliku.
 </p><p>
-  Ciężko jest pokazać książkowy przepis na tworzenie ripu DVD bardzo wysokiej
-  jakości. Trzeba wziąć pod uwagę kilka czynników, i powinieneś rozumieć
-  szczegóły albo masz dużą szansę że nie będziesz zadowolony z wyników.
-  Poniżej zbadamy niektóre problemy i pokażemy przykład. Zakładamy że używasz
+  CiÄĹźko jest pokazaÄ ksiÄĹźkowy przepis na tworzenie ripu DVD bardzo wysokiej
+  jakoĹci. Trzeba wziÄÄ pod uwagÄ kilka czynnikĂłw, i powinieneĹ rozumieÄ
+  szczegĂłĹy albo masz duĹźÄ szansÄ Ĺźe nie bÄdziesz zadowolony z wynikĂłw.
+  PoniĹźej zbadamy niektĂłre problemy i pokaĹźemy przykĹad. ZakĹadamy Ĺźe uĹźywasz
   <code class="systemitem">libavcodec</code> do kodowania obrazu,
-  chociaż ta sama teoria działą też przy innych kodekach.
+  chociaĹź ta sama teoria dziaĹÄ teĹź przy innych kodekach.
 </p><p>
-  Jeśli to wydaje Ci się za dużo, to pewnie powinieneś użyć jednej z wielu
-  nakładek dostępnych w
+  JeĹli to wydaje Ci siÄ za duĹźo, to pewnie powinieneĹ uĹźyÄ jednej z wielu
+  nakĹadek dostÄpnych w
   <a href="http://mplayerhq.hu/homepage/design7/projects.html#mencoder_frontends" target="_top">sekcji MEncodera</a>
-  naszej strony z powiązanymi projektami.
-  W ten sposób, powinno się udać otrzymać ripy wysokiej jakości bez zbyt
-  myślenia za dużo, ponieważ te narzędzia są projektowane by podejmować za
-  Ciebie mądre decyzje.
-</p><div class="sect2" lang="pl"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode"></a>14.1.1. Przygotowanie do kodowania: Identyfikowanie materiału źródłowego
+  naszej strony z powiÄzanymi projektami.
+  W ten sposĂłb, powinno siÄ udaÄ otrzymaÄ ripy wysokiej jakoĹci bez zbyt
+  myĹlenia za duĹźo, poniewaĹź te narzÄdzia sÄ projektowane by podejmowaÄ za
+  Ciebie mÄdre decyzje.
+</p><div class="sect2" lang="pl"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode"></a>14.1.1. Przygotowanie do kodowania: Identyfikowanie materiaĹu ĹşrĂłdĹowego
 i framerate</h3></div></div></div><p>
-  Zanim w ogóle zaczniesz myśleć o kodowaniu filmu, musisz podjąć kilka
-  początkowych kroków.
+  Zanim w ogĂłle zaczniesz myĹleÄ o kodowaniu filmu, musisz podjÄÄ kilka
+  poczÄtkowych krokĂłw.
 </p><p>
-  Pierwszym i najważniejszym krokiem przed kodowaniem powinno być
-  ustalenie jakim typem filmu się zajmujesz.
-  Jeśli Twój film jest z DVD albo telewizji (zwykłej, kablowej czy
-  satelitarnej), będzie w jednym z dwóch formatów: NTSC w Ameryce Północnej
+  Pierwszym i najwaĹźniejszym krokiem przed kodowaniem powinno byÄ
+  ustalenie jakim typem filmu siÄ zajmujesz.
+  JeĹli TwĂłj film jest z DVD albo telewizji (zwykĹej, kablowej czy
+  satelitarnej), bÄdzie w jednym z dwĂłch formatĂłw: NTSC w Ameryce PĂłĹnocnej
   i Japonii, PAL w Europie itp.
-  Trzeba sobie jednak zdawać sprawę z tego, że jest to tylko format do
-  prezentacji w telewizji, i często <span class="bold"><strong>ne</strong></span> jest
+  Trzeba sobie jednak zdawaÄ sprawÄ z tego, Ĺźe jest to tylko format do
+  prezentacji w telewizji, i czÄsto <span class="bold"><strong>ne</strong></span> jest
   oryginalnym formatem filmu.
-  Doświadczenie pokazuje że filmy NTSC są trudniejsze do kodowania, ponieważ
-  jest więcej elementów do zidentyfikowania w źródle.
-  Żeby zrobić odpowienie kodowanie musisz znać oryginalny format filmu.
-  Nieuwzględnienie tego skutkuje wieloma wadami wynikowego pliku, na przykład
-  brzydkie artefakty przeplotu i powtórzone albo zagubione klatki.
-  Poza tym że są pbrzydkie, artefakty są też szkodliwe dla kodowania:
-  Dostaniesz gorszą jakość na jednostkę bitrate.
-</p><div class="sect3" lang="pl"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode-fps"></a>14.1.1.1. Ustalanie źródłowego framerate</h4></div></div></div><p>
-  Poniżej jest lista popularnych typów materiału źródłowego, gdzie można je
-  najczęściej znaleźć i ich własności:
+  DoĹwiadczenie pokazuje Ĺźe filmy NTSC sÄ trudniejsze do kodowania, poniewaĹź
+  jest wiÄcej elementĂłw do zidentyfikowania w ĹşrĂłdle.
+  Ĺťeby zrobiÄ odpowienie kodowanie musisz znaÄ oryginalny format filmu.
+  NieuwzglÄdnienie tego skutkuje wieloma wadami wynikowego pliku, na przykĹad
+  brzydkie artefakty przeplotu i powtĂłrzone albo zagubione klatki.
+  Poza tym Ĺźe sÄ pbrzydkie, artefakty sÄ teĹź szkodliwe dla kodowania:
+  Dostaniesz gorszÄ jakoĹÄ na jednostkÄ bitrate.
+</p><div class="sect3" lang="pl"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode-fps"></a>14.1.1.1. Ustalanie ĹşrĂłdĹowego framerate</h4></div></div></div><p>
+  PoniĹźej jest lista popularnych typĂłw materiaĹu ĹşrĂłdĹowego, gdzie moĹźna je
+  najczÄĹciej znaleĹşÄ i ich wĹasnoĹci:
 </p><div class="itemizedlist"><ul type="disc"><li><p>
-  <span class="bold"><strong>Typowy film</strong></span>: Tworzony do wyświetlania przy
+  <span class="bold"><strong>Typowy film</strong></span>: Tworzony do wyĹwietlania przy
   24fps.
 </p></li><li><p>
-  <span class="bold"><strong>Film PAL</strong></span>: Nagrywany kamerą video PAL
-  z prędkością 50 pól na sekundę.
-  Pole składa się tylko z parzystych albo nieparzystych linii klatki.
-  Telewizja była projektowana by odświerzać je naprzemiennie, jako tania forma
+  <span class="bold"><strong>Film PAL</strong></span>: Nagrywany kamerÄ video PAL
+  z prÄdkoĹciÄ 50 pĂłl na sekundÄ.
+  Pole skĹada siÄ tylko z parzystych albo nieparzystych linii klatki.
+  Telewizja byĹa projektowana by odĹwierzaÄ je naprzemiennie, jako tania forma
   analogowej kompresji.
-  Ludzkie oko podobno kompensuje ten efekt, ale jeśli zrozumiesz przeplot
-  nauczysz się go widzieć też w telewizji i nigdy już nie będziesz z niej
+  Ludzkie oko podobno kompensuje ten efekt, ale jeĹli zrozumiesz przeplot
+  nauczysz siÄ go widzieÄ teĹź w telewizji i nigdy juĹź nie bÄdziesz z niej
   zadowolony.
-  Dwa pola <span class="bold"><strong>nie</strong></span> dają pełnej klatki, ponieważ
-  są uchwycone co 1/50 sekundy, więc nie pasują do siebie, chyba że nie ma
+  Dwa pola <span class="bold"><strong>nie</strong></span> dajÄ peĹnej klatki, poniewaĹź
+  sÄ uchwycone co 1/50 sekundy, wiÄc nie pasujÄ do siebie, chyba Ĺźe nie ma
   ruchu.
 </p></li><li><p>
-  <span class="bold"><strong>Film NTSC</strong></span>: Nagrany kamerą NTSC z prędkością
-  6000/1001 pól na sekundę, albo 60 pól na sekundę w erze przedkolorowej.
+  <span class="bold"><strong>Film NTSC</strong></span>: Nagrany kamerÄ NTSC z prÄdkoĹciÄ
+  6000/1001 pĂłl na sekundÄ, albo 60 pĂłl na sekundÄ w erze przedkolorowej.
   Poza tym podobny do PAL.
 </p></li><li><p>
   <span class="bold"><strong>Animacja</strong></span>: Zazwyczaj rysowana przy 24fps,
-  ale zdarzają się też z mieszanym framerate.
+  ale zdarzajÄ siÄ teĹź z mieszanym framerate.
 </p></li><li><p>
-  <span class="bold"><strong>Grafika komputerowa (CG)</strong></span>: Może być dowolny
-  framerate, ale niektóre są częstsze niż inne; wartości 24 i 30 klatek na
-  sekundę są typowe dla NTSC, a 25fps jest typowe dla PAL. 
+  <span class="bold"><strong>Grafika komputerowa (CG)</strong></span>: MoĹźe byÄ dowolny
+  framerate, ale niektĂłre sÄ czÄstsze niĹź inne; wartoĹci 24 i 30 klatek na
+  sekundÄ sÄ typowe dla NTSC, a 25fps jest typowe dla PAL. 
 </p></li><li><p>
-  <span class="bold"><strong>Stary film</strong></span>: Rozmaite niższe framerate.
-</p></li></ul></div></div><div class="sect3" lang="pl"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode-material"></a>14.1.1.2. Identyfikowanie materiału źródłowego</h4></div></div></div><p>
-  Filmy składające się z klatek nazywa się progresywnymi,
-  podczas gdy te składające się z niezależnych pól nazywa się
-  z przeplotem, albo filmem - chociaż ten drugi termin jest niejasny.
+  <span class="bold"><strong>Stary film</strong></span>: Rozmaite niĹźsze framerate.
+</p></li></ul></div></div><div class="sect3" lang="pl"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode-material"></a>14.1.1.2. Identyfikowanie materiaĹu ĹşrĂłdĹowego</h4></div></div></div><p>
+  Filmy skĹadajÄce siÄ z klatek nazywa siÄ progresywnymi,
+  podczas gdy te skĹadajÄce siÄ z niezaleĹźnych pĂłl nazywa siÄ
+  z przeplotem, albo filmem - chociaĹź ten drugi termin jest niejasny.
 </p><p>
-  Żeby nie było za łatwo, niektóre filmy są kombinacją kilku powyższych typów.
+  Ĺťeby nie byĹo za Ĺatwo, niektĂłre filmy sÄ kombinacjÄ kilku powyĹźszych typĂłw.
 </p><p>
-  Najważniejszą różnicą między tymi formatami, jest to że niektóre są oparte
+  NajwaĹźniejszÄ rĂłĹźnicÄ miÄdzy tymi formatami, jest to Ĺźe niektĂłre sÄ oparte
   na klatkach a inne na polach.
   <span class="bold"><strong>Zawsze</strong></span> gdy film jest przygotowywany do
-  wyświetlania w telewizji jest przekształcany na format oparty na polach.
-  Rozliczne metody którymi się tego dokonuje są wspólnie nazywane "pulldown",
-  a niesławne "3:2 telecine" z NTSC jest jednym z jego rodzajów.
-  Jeżeli oryginał nie był też oparty na polach (z tą samą prędkością),
-  dostajesz film w innym formacie niż oryginał.
-</p><div class="itemizedlist"><p class="title"><b>Jest kilka popularnych typów pulldown:</b></p><ul type="disc"><li><p>
+  wyĹwietlania w telewizji jest przeksztaĹcany na format oparty na polach.
+  Rozliczne metody ktĂłrymi siÄ tego dokonuje sÄ wspĂłlnie nazywane "pulldown",
+  a niesĹawne "3:2 telecine" z NTSC jest jednym z jego rodzajĂłw.
+  JeĹźeli oryginaĹ nie byĹ teĹź oparty na polach (z tÄ samÄ prÄdkoĹciÄ),
+  dostajesz film w innym formacie niĹź oryginaĹ.
+</p><div class="itemizedlist"><p class="title"><b>Jest kilka popularnych typĂłw pulldown:</b></p><ul type="disc"><li><p>
   <span class="bold"><strong>pulldown PAL 2:2</strong></span>: Najprzyjemniejszy z nich
   wszystkich.
-  Każda klatka jest pokazywana przez czas dwóch pól, poprzez wydobycie
+  KaĹźda klatka jest pokazywana przez czas dwĂłch pĂłl, poprzez wydobycie
   parzystych i nieparzystych linii i pokazywanie ich na przemian.
-  Jeśli oryginalny materiał miał 24fps, ten proces przyspiesza film o 4%.
+  JeĹli oryginalny materiaĹ miaĹ 24fps, ten proces przyspiesza film o 4%.
 </p></li><li><p>
   <span class="bold"><strong>pulldown PAL 2:2:2:2:2:2:2:2:2:2:2:3</strong></span>:
-  Każda 12ta klatka jest pokazywana przez czas trzech pól zamiast tylko dwóch.
-  Dzięki temu nie ma przyspieszenia o 4%, ale proces jest o wiele trudniejszy
+  KaĹźda 12ta klatka jest pokazywana przez czas trzech pĂłl zamiast tylko dwĂłch.
+  DziÄki temu nie ma przyspieszenia o 4%, ale proces jest o wiele trudniejszy
   do odtworzenia.
-  Zazwyczaj występuje w produkcjach muzycznych, gdzie zmiana prędkości o 4%
-  poważnie by uszkodziła muzykę.
+  Zazwyczaj wystÄpuje w produkcjach muzycznych, gdzie zmiana prÄdkoĹci o 4%
+  powaĹźnie by uszkodziĹa muzykÄ.
 </p></li><li><p>
-  <span class="bold"><strong>NTSC 3:2 telecine</strong></span>: Klatki są pokazywane na
-  przemian przez czas 3ch albo 2ch pól.
-  To daje częstotliwość pól 2.5 raza większą niż oryginalna częstotliwość
-  klatek. Rezultat jest też lekko zwolniony z 60 pól na sekundę do 60000/1001
-  pól na sekundę by utrzymać częstotliwość pól w NTSC.
+  <span class="bold"><strong>NTSC 3:2 telecine</strong></span>: Klatki sÄ pokazywane na
+  przemian przez czas 3ch albo 2ch pĂłl.
+  To daje czÄstotliwoĹÄ pĂłl 2.5 raza wiÄkszÄ niĹź oryginalna czÄstotliwoĹÄ
+  klatek. Rezultat jest teĹź lekko zwolniony z 60 pĂłl na sekundÄ do 60000/1001
+  pĂłl na sekundÄ by utrzymaÄ czÄstotliwoĹÄ pĂłl w NTSC.
 </p></li><li><p>
-  <span class="bold"><strong>NTSC 2:2 pulldown</strong></span>: Używane do pokazywania
-  materiałów 30fps na NTSC.
-  Przyjemne, dokładnie jak pulldown 2:2 PAL.
+  <span class="bold"><strong>NTSC 2:2 pulldown</strong></span>: UĹźywane do pokazywania
+  materiaĹĂłw 30fps na NTSC.
+  Przyjemne, dokĹadnie jak pulldown 2:2 PAL.
 </p></li></ul></div><p>
-  Są też metody konwersji między filmami PAL i NTSC, ale ten temat
-  wykracza poza zakres tego podręcznika.
-  Jeśli natkniesz się na taki film, i chcesz go zakodować, to największe
-  szanse masz odnajdując kopię w oryginalnym formacie.
-  Konwersja między tymi dwoma formatami jest wysoce destrukcyjna i nie może
-  zostać czysto odwrócona, więc kodowanie będzie o wiele gorszej jakości jeśli
-  jest robione z przekonwertowanego źródła.
+  SÄ teĹź metody konwersji miÄdzy filmami PAL i NTSC, ale ten temat
+  wykracza poza zakres tego podrÄcznika.
+  JeĹli natkniesz siÄ na taki film, i chcesz go zakodowaÄ, to najwiÄksze
+  szanse masz odnajdujÄc kopiÄ w oryginalnym formacie.
+  Konwersja miÄdzy tymi dwoma formatami jest wysoce destrukcyjna i nie moĹźe
+  zostaÄ czysto odwrĂłcona, wiÄc kodowanie bÄdzie o wiele gorszej jakoĹci jeĹli
+  jest robione z przekonwertowanego ĹşrĂłdĹa.
 </p><p>
-  Gdy film jest zapisywany na DVD, kolejne pary pól są zapisywane jako klatka,
-  pomimo tego że nie są przezaczone do wyświetlania razem.
-  Standard MPEG-2 używany na DVD i w cyfrowej TV pozwala na zakodowanie
-  oryginalnej progresywnej klatki i na przechowanie w nagłówku klatki ilości
-  pól przez które ta klatka powinna być pokazana.
-  Filmy zrobione przy użyciu tej metody są często określane mianem "miękkiego
-  telecine" (soft-telecine), ponieważ proces ten tylko informuje odtwarzacz że
-  ma on zastosować pulldown, a nie stosuje go samemu.
-  Tak jest o wiele lepiej, ponieważ może to zostać łatwo odwrócone (a tak na
-  prawdę zignorowane) przez koder i ponieważ zachowuje możliwie najwyższą
-  jakość.
-  Niestety, wielu producentów DVD i stacji nadawczych nie stosuje prawidłowych
-  technik kodowania ale w zamian produkuje filmy przy użyciu "twardego
-  telecine" (hard-telecine), gdzie pola są faktycznie powtórzone
+  Gdy film jest zapisywany na DVD, kolejne pary pĂłl sÄ zapisywane jako klatka,
+  pomimo tego Ĺźe nie sÄ przezaczone do wyĹwietlania razem.
+  Standard MPEG-2 uĹźywany na DVD i w cyfrowej TV pozwala na zakodowanie
+  oryginalnej progresywnej klatki i na przechowanie w nagĹĂłwku klatki iloĹci
+  pĂłl przez ktĂłre ta klatka powinna byÄ pokazana.
+  Filmy zrobione przy uĹźyciu tej metody sÄ czÄsto okreĹlane mianem "miÄkkiego
+  telecine" (soft-telecine), poniewaĹź proces ten tylko informuje odtwarzacz Ĺźe
+  ma on zastosowaÄ pulldown, a nie stosuje go samemu.
+  Tak jest o wiele lepiej, poniewaĹź moĹźe to zostaÄ Ĺatwo odwrĂłcone (a tak na
+  prawdÄ zignorowane) przez koder i poniewaĹź zachowuje moĹźliwie najwyĹźszÄ
+  jakoĹÄ.
+  Niestety, wielu producentĂłw DVD i stacji nadawczych nie stosuje prawidĹowych
+  technik kodowania ale w zamian produkuje filmy przy uĹźyciu "twardego
+  telecine" (hard-telecine), gdzie pola sÄ faktycznie powtĂłrzone
   w zakodowanym MPEG-2.
 </p><p>
-  Procedury radzenia sobie z takimi przypadkami będą omówione
-  <a href="menc-feat-telecine.html" title="14.2. How to deal with telecine and interlacing within NTSC DVDs">w dalszej części przewodnika</a>.
-  Teraz podamy tylko kilka wskazówek jak identyfikować z jakim typem materiału
+  Procedury radzenia sobie z takimi przypadkami bÄdÄ omĂłwione
+  <a href="menc-feat-telecine.html" title="14.2. How to deal with telecine and interlacing within NTSC DVDs">w dalszej czÄĹci przewodnika</a>.
+  Teraz podamy tylko kilka wskazĂłwek jak identyfikowaÄ z jakim typem materiaĹu
   mamy do czynienia.
 </p><div class="itemizedlist"><p class="title"><b>Regiony NTSC:</b></p><ul type="disc"><li><p>
-  Jeśli <span class="application">MPlayer</span> wyświetla w trakcie oglądania filmu
-  że framerate zostało zmienione na 24000/1001, i nigdy nie powraca, to jest
-  to prawie na pewno progresywny materiał na którym zastosowano "miękkie
+  JeĹli <span class="application">MPlayer</span> wyĹwietla w trakcie oglÄdania filmu
+  Ĺźe framerate zostaĹo zmienione na 24000/1001, i nigdy nie powraca, to jest
+  to prawie na pewno progresywny materiaĹ na ktĂłrym zastosowano "miÄkkie
   telecine".
 </p></li><li><p>
-  Jeśli <span class="application">MPlayer</span> pokazuje że framerate zmienia się
-  między 24000/1001 i 30000/1001 i czasami widzisz "grzebienie" to jest kilka
-  możliwości.
+  JeĹli <span class="application">MPlayer</span> pokazuje Ĺźe framerate zmienia siÄ
+  miÄdzy 24000/1001 i 30000/1001 i czasami widzisz "grzebienie" to jest kilka
+  moĹźliwoĹci.
   
-  Kawałki 24000/1001fps są prawie na pewno progresywne, poddane "miękkiemu
-  telecine", ale fragmenty  30000/1001 fps mogą albo być 24000/1001 poddanym
-  "twardemu telecine" albo filmem NTCS o 60000/1001 polach na sekundę.
-  Używaj tych samych metod co w następnych dwóch przypadkach żeby je odróżnić.
+  KawaĹki 24000/1001fps sÄ prawie na pewno progresywne, poddane "miÄkkiemu
+  telecine", ale fragmenty  30000/1001 fps mogÄ albo byÄ 24000/1001 poddanym
+  "twardemu telecine" albo filmem NTCS o 60000/1001 polach na sekundÄ.
+  UĹźywaj tych samych metod co w nastÄpnych dwĂłch przypadkach Ĺźeby je odrĂłĹźniÄ.
 </p></li><li><p>
-  Jeśli <span class="application">MPlayer</span> nigdy nie pokazuje informacji
-  o zmianie framerate i każda klatka z ruchem wygląda jak grzebień, to masz
-  film NTSC z 60000/1001 polami na sekundę.
+  JeĹli <span class="application">MPlayer</span> nigdy nie pokazuje informacji
+  o zmianie framerate i kaĹźda klatka z ruchem wyglÄda jak grzebieĹ, to masz
+  film NTSC z 60000/1001 polami na sekundÄ.
 </p></li><li><p>
-  Jeśli <span class="application">MPlayer</span> nigdy nie pokazuje informacji
-  o zmianie framerate i dwie klatki z każdych pięciu mają grzebienie, to film
+  JeĹli <span class="application">MPlayer</span> nigdy nie pokazuje informacji
+  o zmianie framerate i dwie klatki z kaĹźdych piÄciu majÄ grzebienie, to film
   jest 24000/1001 fps poddanym "twardemu telecine".
 </p></li></ul></div><div class="itemizedlist"><p class="title"><b>Regiony PAL:</b></p><ul type="disc"><li><p>
-  Jeśli nie widzisz grzebieni, to jest to 2:2 pulldown.
+  JeĹli nie widzisz grzebieni, to jest to 2:2 pulldown.
 </p></li><li><p>
-  Jeśli na przemian przez pół sekundy widzisz grzebienie a potem nie, to masz
+  JeĹli na przemian przez pĂłĹ sekundy widzisz grzebienie a potem nie, to masz
   2:2:2:2:2:2:2:2:2:2:2:3 pulldown.
 </p></li><li><p>
-  Jeśli zawsze widzisz grzebienie w trakcie ruchu, to film jest filmem PAL
-  wyświetlanym z 50 polami na sekundę.
+  JeĹli zawsze widzisz grzebienie w trakcie ruchu, to film jest filmem PAL
+  wyĹwietlanym z 50 polami na sekundÄ.
   
-</p></li></ul></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Podpowiedź:</h3><p>
-  <span class="application">MPlayer</span> może zwolnić odtwarzanie filmu opcją
-  -speed albo odtwarzać klatka po klatce.
-  Spróbuj użyć opcji <tt class="option">-speed</tt> 0.2 żeby oglądać film bardzo
-  wolno, albo naciskaj wielokrotnie klawisz "<span class="keycap"><b>.</b></span>" żeby
-  wyświetlać jedną klatkę na raz. Może to pomóc zidentyfikować wzorzec jeśli
-  nie możesz go dostrzec przy pełnej prędkości.
-</p></div></div></div><div class="sect2" lang="pl"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-2pass"></a>14.1.2. Stały kwantyzator a tryb wieloprzebiegowy</h3></div></div></div><p>
-  Jest możliwe zakodowanie filmu z szeroką gamą jakości.
-  Z nowoczesnymi koderami i odrobiną kompresji przed kodekiem (zmniejszenie
-  rozdzielczości i usuwanie szumu), możliwe jest osiągnięcie bardzo dobrej
-  jakości przy 700 MB, dla 90-110 minutowego filmu kinowego.
-  Dodatkowo tylko najdłuższe filmy nie dają się zakodować na 1400 MB z prawie
-  doskonałą jakością.
+</p></li></ul></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">PodpowiedĹş:</h3><p>
+  <span class="application">MPlayer</span> moĹźe zwolniÄ odtwarzanie filmu opcjÄ
+  -speed albo odtwarzaÄ klatka po klatce.
+  SprĂłbuj uĹźyÄ opcji <tt class="option">-speed</tt> 0.2 Ĺźeby oglÄdaÄ film bardzo
+  wolno, albo naciskaj wielokrotnie klawisz "<span class="keycap"><b>.</b></span>" Ĺźeby
+  wyĹwietlaÄ jednÄ klatkÄ na raz. MoĹźe to pomĂłc zidentyfikowaÄ wzorzec jeĹli
+  nie moĹźesz go dostrzec przy peĹnej prÄdkoĹci.
+</p></div></div></div><div class="sect2" lang="pl"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-2pass"></a>14.1.2. StaĹy kwantyzator a tryb wieloprzebiegowy</h3></div></div></div><p>
+  Jest moĹźliwe zakodowanie filmu z szerokÄ gamÄ jakoĹci.
+  Z nowoczesnymi koderami i odrobinÄ kompresji przed kodekiem (zmniejszenie
+  rozdzielczoĹci i usuwanie szumu), moĹźliwe jest osiÄgniÄcie bardzo dobrej
+  jakoĹci przy 700 MB, dla 90-110 minutowego filmu kinowego.
+  Dodatkowo tylko najdĹuĹźsze filmy nie dajÄ siÄ zakodowaÄ na 1400 MB z prawie
+  doskonaĹÄ jakoĹciÄ.
 </p><p>
-  Są trzy podejścia do kodowania video: stały bitrate (CBR),
-  stały kwantyzator i tryb wieloprzebiegowy (ABR, uśrednione bitrate).
+  SÄ trzy podejĹcia do kodowania video: staĹy bitrate (CBR),
+  staĹy kwantyzator i tryb wieloprzebiegowy (ABR, uĹrednione bitrate).
 </p><p>
-  Złożoność klatek filmu, a zatem i ilość bitów potrzebna na ich zakodowanie,
-  może się bardzo mocno zmieniać w zależności od sceny.
-  Nowoczesne kodery potrafią się dostosowywać do tych zmian i zmieniać
+  ZĹoĹźonoĹÄ klatek filmu, a zatem i iloĹÄ bitĂłw potrzebna na ich zakodowanie,
+  moĹźe siÄ bardzo mocno zmieniaÄ w zaleĹźnoĹci od sceny.
+  Nowoczesne kodery potrafiÄ siÄ dostosowywaÄ do tych zmian i zmieniaÄ
   bitrate.
-  Jednak w prostych trybach, takich jak CBR, kodery nie znają zapotrzebowania
-  na bitrate w przyszłych scenach, więc nie mogą na długo przekraczać
+  Jednak w prostych trybach, takich jak CBR, kodery nie znajÄ zapotrzebowania
+  na bitrate w przyszĹych scenach, wiÄc nie mogÄ na dĹugo przekraczaÄ
   wymaganego bitrate.
-  Bardziej zaawansowane tryby, takie jak kodowanie wieloprzebiegowe, potrafią
-  wziąć pod uwagę statystyki z poprzednich przebiegów; to naprawia wyżej
+  Bardziej zaawansowane tryby, takie jak kodowanie wieloprzebiegowe, potrafiÄ
+  wziÄÄ pod uwagÄ statystyki z poprzednich przebiegĂłw; to naprawia wyĹźej
   wymieniony problem.
 </p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Uwaga:</h3><p>
-  Większość kodeków obsługujących kodowanie ABR obsługuje tylko kodowanie
-  dwuprzebiegowe, podczas gdy niektóre inne, na przykład
+  WiÄkszoĹÄ kodekĂłw obsĹugujÄcych kodowanie ABR obsĹuguje tylko kodowanie
+  dwuprzebiegowe, podczas gdy niektĂłre inne, na przykĹad
   <code class="systemitem">x264</code> albo
-  <code class="systemitem">XviD</code> potrafią wykonywać wiele
-  przebiegów, z lekką poprawą jakości po każdym przebiegu. Jednak ta poprawa
-  nie jest zauważalna ani mierzalna po około 4tym przebiegu.
-  Dlatego też, w tej części, tryb dwuprzebiegowy i wieloprzebiegowy będą
-  używane zamiennie.
+  <code class="systemitem">XviD</code> potrafiÄ wykonywaÄ wiele
+  przebiegĂłw, z lekkÄ poprawÄ jakoĹci po kaĹźdym przebiegu. Jednak ta poprawa
+  nie jest zauwaĹźalna ani mierzalna po okoĹo 4tym przebiegu.
+  Dlatego teĹź, w tej czÄĹci, tryb dwuprzebiegowy i wieloprzebiegowy bÄdÄ
+  uĹźywane zamiennie.
 </p></div><p>
-  W każdym z tych trybów, kodek video (na przykład
+  W kaĹźdym z tych trybĂłw, kodek video (na przykĹad
   <code class="systemitem">libavcodec</code>)
-  dzieli klatkę obrazu na makrobloki 16x16 pikseli i stosuje do każdego z nich
-  kwantyzator. Im niższy kwantyzator, tym lepsza jakość i tym wyższe bitrate.
-  Metody jakiej koder używa do ustalenia kwantyzatora są różne i można nimi
-  sterować. (Jest to straszliwe uproszczenie, ale wystarcza do zrozumienia
+  dzieli klatkÄ obrazu na makrobloki 16x16 pikseli i stosuje do kaĹźdego z nich
+  kwantyzator. Im niĹźszy kwantyzator, tym lepsza jakoĹÄ i tym wyĹźsze bitrate.
+  Metody jakiej koder uĹźywa do ustalenia kwantyzatora sÄ rĂłĹźne i moĹźna nimi
+  sterowaÄ. (Jest to straszliwe uproszczenie, ale wystarcza do zrozumienia
   podstaw.)
 </p><p>
-  Kiedy podajesz stałe bitrate, kodek koduje usuwając tyle szczegółów ile musi
-  i tak mało jak to tylko możliwe żeby pozostać poniżej podanego bitrate.
-  Jeśli na prawdę nie obchodzi cię wielkość pliku, możesz użyć CBR i podać
-  nieskończone bitrate (W praktyce oznacza to bitrate na tyle wysokie że nie
-  stanowi bariery, na przykład 10000Kbit.) Bez żadnego ograniczenia na bitrate
-  kodek użyje najniższego możliwego kwantyzatora do każdej klatki (ustalonego
-  dla <code class="systemitem">libavcodec</code> opcją
-  <tt class="option">vqmin</tt>, domyślnie 2).
-  Gdy tylko podasz bitrate na tyle niskie że kodek musi używać wyższego
+  Kiedy podajesz staĹe bitrate, kodek koduje usuwajÄc tyle szczegĂłĹĂłw ile musi
+  i tak maĹo jak to tylko moĹźliwe Ĺźeby pozostaÄ poniĹźej podanego bitrate.
+  JeĹli na prawdÄ nie obchodzi ciÄ wielkoĹÄ pliku, moĹźesz uĹźyÄ CBR i podaÄ
+  nieskoĹczone bitrate (W praktyce oznacza to bitrate na tyle wysokie Ĺźe nie
+  stanowi bariery, na przykĹad 10000Kbit.) Bez Ĺźadnego ograniczenia na bitrate
+  kodek uĹźyje najniĹźszego moĹźliwego kwantyzatora do kaĹźdej klatki (ustalonego
+  dla <code class="systemitem">libavcodec</code> opcjÄ
+  <tt class="option">vqmin</tt>, domyĹlnie 2).
+  Gdy tylko podasz bitrate na tyle niskie Ĺźe kodek musi uĹźywaÄ wyĹźszego
   kwantyzatora, to prawie na pewno niszczysz film.
-  Żeby tego uniknąć, powinieneś pewnie zmniejszyć rozdzielczość filmu, metodą
-  opisaną dalej.
-  Ogólnie, jeśli troszczysz się o jakość, powinieneś unikać CBR.
+  Ĺťeby tego uniknÄÄ, powinieneĹ pewnie zmniejszyÄ rozdzielczoĹÄ filmu, metodÄ
+  opisanÄ dalej.
+  OgĂłlnie, jeĹli troszczysz siÄ o jakoĹÄ, powinieneĹ unikaÄ CBR.
 </p><p>
-  Przy stałym kwantyzatorze, kodek używa na każdym makrobloku tego samego
-  kwantyzatora, podanego opcją <tt class="option">vqscale</tt>
+  Przy staĹym kwantyzatorze, kodek uĹźywa na kaĹźdym makrobloku tego samego
+  kwantyzatora, podanego opcjÄ <tt class="option">vqscale</tt>
   (w przypadku <code class="systemitem">libavcodec</code>).
-  Jeśli chcesz możliwie najlepszy efekt, znów ignorując bitrate, możesz użyć
+  JeĹli chcesz moĹźliwie najlepszy efekt, znĂłw ignorujÄc bitrate, moĹźesz uĹźyÄ
   <tt class="option">vqscale=2</tt>. Da to ten sam bitrate i PSNR (peak
-  signal-to-noise ratio, szczytowa proporcja sygnału do szumu) co CBR
-  z <tt class="option">vbitrate</tt>=nieskończoność i domyślnym
+  signal-to-noise ratio, szczytowa proporcja sygnaĹu do szumu) co CBR
+  z <tt class="option">vbitrate</tt>=nieskoĹczonoĹÄ i domyĹlnym
   <tt class="option">vqmin</tt>.
 </p><p>
-  Problemem przy stałym kwantyzatorze jest to, że używa podanego kwantyzatora
-  niezależnie od tego czy makroblok tego wymaga czy nie. To znaczy że można by
-  było zastosować do makrobloku wyższy kwantyzator bez utraty postrzegalnej
-  jakości. Dlaczego marnować bity na niepotrzebnie niski kwantyzator?
-  Mikroprocesor ma tyle cykli ile jest czasu, ale jest tylko pewna ilość bitów
+  Problemem przy staĹym kwantyzatorze jest to, Ĺźe uĹźywa podanego kwantyzatora
+  niezaleĹźnie od tego czy makroblok tego wymaga czy nie. To znaczy Ĺźe moĹźna by
+  byĹo zastosowaÄ do makrobloku wyĹźszy kwantyzator bez utraty postrzegalnej
+  jakoĹci. Dlaczego marnowaÄ bity na niepotrzebnie niski kwantyzator?
+  Mikroprocesor ma tyle cykli ile jest czasu, ale jest tylko pewna iloĹÄ bitĂłw
   na twardym dysku.
 </p><p>
   Przy kodowaniu dwuprzebiegowym, pierwszy przebieg potraktuje film jak przu
-  ustawieniu CBR, ale zachowa informacje o własnościach każdej klatki. Te dane
-  są później używane przy drugim przebiegu do podejmowania słusznych decyzji
-  o używanym kwantyzatorze. Przy szybkich scenach albo niewielu szczegółach
-  pewnie użyje większego kwantyzatora, podczas gdy dla powolnych,
-  szczegółowych scen będzie niższy kwantyzator.
+  ustawieniu CBR, ale zachowa informacje o wĹasnoĹciach kaĹźdej klatki. Te dane
+  sÄ pĂłĹşniej uĹźywane przy drugim przebiegu do podejmowania sĹusznych decyzji
+  o uĹźywanym kwantyzatorze. Przy szybkich scenach albo niewielu szczegĂłĹach
+  pewnie uĹźyje wiÄkszego kwantyzatora, podczas gdy dla powolnych,
+  szczegĂłĹowych scen bÄdzie niĹźszy kwantyzator.
 </p><p>
-  Jeśli używasz <tt class="option">vqscale=2</tt> to marnujesz bity. Jeśli używasz
-  <tt class="option">vqscale=3</tt> to nie dostajesz najlepszej możliwej jakości.
-  Załóżmy że zakodowałeś swoje DVD przy <tt class="option">vqscale=3</tt>
-  i dostałeś bitrate 1800Kbit. Jeśli zrobisz dwa przebiegi
-  z <tt class="option">vbitrate=1800</tt> ostateczny wynik będzie miał
-  <span class="bold"><strong>wyższą jakość</strong></span> przy
+  JeĹli uĹźywasz <tt class="option">vqscale=2</tt> to marnujesz bity. JeĹli uĹźywasz
+  <tt class="option">vqscale=3</tt> to nie dostajesz najlepszej moĹźliwej jakoĹci.
+  ZaĹĂłĹźmy Ĺźe zakodowaĹeĹ swoje DVD przy <tt class="option">vqscale=3</tt>
+  i dostaĹeĹ bitrate 1800Kbit. JeĹli zrobisz dwa przebiegi
+  z <tt class="option">vbitrate=1800</tt> ostateczny wynik bÄdzie miaĹ
+  <span class="bold"><strong>wyĹźszÄ jakoĹÄ</strong></span> przy
   <span class="bold"><strong>tym samym bitrate</strong></span>.
 </p><p>
-  Ponieważ jesteś już przekonany że prawidłowym wyborem są dwa przebiegi,
-  prawdziwym pytaniem jest jakiego bitrate użyć. Nie ma jednej odpowiedzi.
-  Idealnie chcesz wybrać bitrate będący najbliżej równowagi między jakością
-  a wielkością pliku. To się zmienia w zależności od filmu.
+  PoniewaĹź jesteĹ juĹź przekonany Ĺźe prawidĹowym wyborem sÄ dwa przebiegi,
+  prawdziwym pytaniem jest jakiego bitrate uĹźyÄ. Nie ma jednej odpowiedzi.
+  Idealnie chcesz wybraÄ bitrate bÄdÄcy najbliĹźej rĂłwnowagi miÄdzy jakoĹciÄ
+  a wielkoĹciÄ pliku. To siÄ zmienia w zaleĹźnoĹci od filmu.
 </p><p>
-  Jeśli wielkość nie ma znaczenia, dobrym punktem wyjściowym do bardzo
-  wysokiej jakości jest około 2000Kbit plus minus 200Kbit.
-  Jeśli jest dużo akcji albo szczegółów, albo po prostu masz bardzo wrażliwe
-  oko, możesz się zdecydować na 2400 albo 2600.
-  Przy niektórych DVD możesz nie zauważyć różnicy przy 1400Kbit. Dobrym
-  pomysłem jest poeksperymentowanie z kilkoma scenami i różnymi wartościami
-  bitrate żeby nabrać wyczucia.
+  JeĹli wielkoĹÄ nie ma znaczenia, dobrym punktem wyjĹciowym do bardzo
+  wysokiej jakoĹci jest okoĹo 2000Kbit plus minus 200Kbit.
+  JeĹli jest duĹźo akcji albo szczegĂłĹĂłw, albo po prostu masz bardzo wraĹźliwe
+  oko, moĹźesz siÄ zdecydowaÄ na 2400 albo 2600.
+  Przy niektĂłrych DVD moĹźesz nie zauwaĹźyÄ rĂłĹźnicy przy 1400Kbit. Dobrym
+  pomysĹem jest poeksperymentowanie z kilkoma scenami i rĂłĹźnymi wartoĹciami
+  bitrate Ĺźeby nabraÄ wyczucia.
 </p><p>
-  Jeśli chcesz konkretnej wielkości, musisz jakoś obliczyć bitrare.
-  Ale zanim to zrobisz, musisz wiedzieć ile miejsca potrzebujesz na dźwięk,
-  więc powinieneś <a href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-audio" title="14.1.10. Audio">ściągnąć go</a>
+  JeĹli chcesz konkretnej wielkoĹci, musisz jakoĹ obliczyÄ bitrare.
+  Ale zanim to zrobisz, musisz wiedzieÄ ile miejsca potrzebujesz na dĹşwiÄk,
+  wiÄc powinieneĹ <a href="menc-feat-dvd-mpeg4.html#menc-feat-dvd-mpeg4-audio" title="14.1.10. Audio">ĹciÄgnÄÄ go</a>
   najpierw.
-  Możesz wyliczyć bitrate z następującego równania:
-  <code class="systemitem">bitrate = (wielkość_docelowa_w_MBajtach - wielkość_dźwięku_w_MB)
-  * 1024 * 1024 / długość_w_sekundach * 8 / 1000</code>
-  Na przykład by wcisność dwugodzinny film na płytkę 702MB, z 60MB ścieżki
-  dźwiękowej, bitrate video musi być:
+  MoĹźesz wyliczyÄ bitrate z nastÄpujÄcego rĂłwnania:
+  <code class="systemitem">bitrate = (wielkoĹÄ_docelowa_w_MBajtach - wielkoĹÄ_dĹşwiÄku_w_MB)
+  * 1024 * 1024 / dĹugoĹÄ_w_sekundach * 8 / 1000</code>
+  Na przykĹad by wcisnoĹÄ dwugodzinny film na pĹytkÄ 702MB, z 60MB ĹcieĹźki
+  dĹşwiÄkowej, bitrate video musi byÄ:
   <code class="systemitem">(702 - 60) * 1024 * 1024 / (120*60) * 8 / 1000
   = 740kbps</code>
 </p></div><div class="sect2" lang="pl"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-constraints"></a>14.1.3. Constraints for efficient encoding</h3></div></div></div><p>
@@ -394,7 +393,7 @@ i framerate</h3></div></div></div><p>
   supported by the crop filter.
 </p><p>
   Further, interlaced video is sampled as follows:
-</p><div class="informaltable"><table border="1" width="80%"><colgroup><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"></colgroup><tbody><tr><td colspan="8" align="center">Top field</td><td colspan="8" align="center">Bottom field</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td></tr><tr><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td></tr><tr><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td></tr><tr><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td></tr><tr><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center"> </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr></tbody></table></div><p>
+</p><div class="informaltable"><table border="1" width="80%"><colgroup><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"><col align="center"></colgroup><tbody><tr><td colspan="8" align="center">Top field</td><td colspan="8" align="center">Bottom field</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td></tr><tr><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td></tr><tr><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td></tr><tr><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td></tr><tr><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr><tr><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td></tr><tr><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td><td colspan="2" align="center">C</td></tr><tr><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">Â </td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td><td align="center">L</td></tr></tbody></table></div><p>
   As you can see, the pattern does not repeat until after 4 lines.
   So for interlaced video, your y-offset and height for cropping must
   be multiples of 4.
@@ -753,7 +752,7 @@ Do not do this! Always use a file or CD/DVD/etc device as input.
   likely to hide some problems in your encoding command line setting.
   In other words, having a soundtrack during your encode assures you that,
   provided you do not see messages such as
-  &#8222;<span class="quote">Too many audio packets in the buffer</span>&#8221;, you will be able
+  â<span class="quote">Too many audio packets in the buffer</span>â, you will be able
   to get proper sync.
 </p><p>
   You need to have <span class="application">MEncoder</span> process the sound.
@@ -930,4 +929,4 @@ Do not do this! Always use a file or CD/DVD/etc device as input.
   synchronization), chapters, subtitles, splitting, etc...
   Please refer to the documentation of those applications for
   more details.
-</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="encoding-guide.html">Poprzedni</a> </td><td width="20%" align="center"><a accesskey="u" href="encoding-guide.html">Początek rozdziału</a></td><td width="40%" align="right"> <a accesskey="n" href="menc-feat-telecine.html">Następny</a></td></tr><tr><td width="40%" align="left" valign="top">Rozdział 14. Kodowanie przy użyciu <span class="application">MEncodera</span> </td><td width="20%" align="center"><a accesskey="h" href="index.html">Spis treści</a></td><td width="40%" align="right" valign="top"> 14.2. How to deal with telecine and interlacing within NTSC DVDs</td></tr></table></div></body></html>
+</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="encoding-guide.html">Poprzedni</a>Â </td><td width="20%" align="center"><a accesskey="u" href="encoding-guide.html">PoczÄtek rozdziaĹu</a></td><td width="40%" align="right">Â <a accesskey="n" href="menc-feat-telecine.html">NastÄpny</a></td></tr><tr><td width="40%" align="left" valign="top">RozdziaĹ 14. Kodowanie przy uĹźyciu <span class="application">MEncodera</span>Â </td><td width="20%" align="center"><a accesskey="h" href="index.html">Spis treĹci</a></td><td width="40%" align="right" valign="top">Â 14.2. How to deal with telecine and interlacing within NTSC DVDs</td></tr></table></div></body></html>

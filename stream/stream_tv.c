@@ -24,17 +24,95 @@
 
 #include "stream.h"
 #include "libmpdemux/demuxer.h"
+#include "m_option.h"
+#include "m_struct.h"
+#include "tv.h"
 
+#include <stdio.h>
+
+tv_param_t stream_tv_defaults = {
+    NULL,          //freq
+    NULL,          //channel
+    "europe-east", //chanlist
+    "pal",         //norm
+    0,             //automute
+#ifdef HAVE_TV_V4L2
+    -1,            //normid
+#endif
+    NULL,          //device
+    NULL,          //driver
+    -1,            //width
+    -1,            //height
+    0,             //input, used in v4l and bttv
+    -1,            //outfmt
+    -1.0,          //fps
+    NULL,          //channels
+    0,             //noaudio;
+    0,             //immediate;
+    44100,         //audiorate;
+    0,             //audio_id
+#if defined(HAVE_TV_V4L)
+    -1,            //amode
+    -1,            //volume
+    -1,            //bass
+    -1,            //treble
+    -1,            //balance
+    -1,            //forcechan
+    0,             //force_audio
+    -1,            //buffer_size
+    0,             //mjpeg
+    2,             //decimation
+    90,            //quality
+#if defined(HAVE_ALSA9) || defined(HAVE_ALSA1X)
+    0,             //alsa
+#endif
+#endif
+    NULL,          //adevice
+    0,             //brightness
+    0,             //contrast
+    0,             //hue
+    0,             //saturation
+    -1,            //gain
+    NULL,          //tdevice
+    0,             //tformat
+    100,           //tpage
+    0,             //tlang
+
+    0,             //scan_autostart
+    50,            //scan_threshold
+    0.5            //scan_period
+};
+
+#define ST_OFF(f) M_ST_OFF(tv_param_t,f)
+static m_option_t stream_opts_fields[] = {
+    {"hostname", ST_OFF(channel), CONF_TYPE_STRING, 0, 0 ,0, NULL},
+    {"filename", ST_OFF(input), CONF_TYPE_INT, 0, 0 ,0, NULL},
+    { NULL, NULL, 0, 0, 0, 0,  NULL }
+};
+
+static struct m_struct_st stream_opts = {
+    "tv",
+    sizeof(tv_param_t),
+    &stream_tv_defaults,
+    stream_opts_fields
+};
+
+static void
+tv_stream_close (stream_t *stream)
+{
+  if(stream->priv)
+    m_struct_free(&stream_opts,stream->priv);
+  stream->priv=NULL;
+}
 static int
 tv_stream_open (stream_t *stream, int mode, void *opts, int *file_format)
 {
-  extern char* tv_param_channel;
-  
+
   stream->type = STREAMTYPE_TV;
+  stream->priv = opts;
+  stream->close=tv_stream_close;
   *file_format =  DEMUXER_TYPE_TV;
-  if (strlen (stream->url) > 5 && stream->url[5] != '\0')
-    tv_param_channel = strdup (stream->url + 5);
-  
+
   return STREAM_OK;
 }
 
@@ -45,6 +123,6 @@ stream_info_t stream_info_tv = {
   "",
   tv_stream_open, 			
   { "tv", NULL },
-  NULL,
+  &stream_opts,
   1
 };

@@ -8,7 +8,7 @@
  *
  * Modified for use with MPlayer, changes contained in liba52_changes.diff.
  * detailed changelog at http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: bitstream.h 18786 2006-06-22 13:34:00Z diego $
+ * $Id: bitstream.h 23893 2007-07-28 14:28:38Z diego $
  *
  * a52dec is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@
 // alternative (faster) bitstram reader (reades upto 3 bytes over the end of the input)
 #define ALT_BITSTREAM_READER
 
-/* used to avoid missaligned exceptions on some archs (alpha, ...) */
+/* used to avoid misaligned exceptions on some archs (alpha, ...) */
 #if defined (ARCH_X86) || defined(ARCH_ARMV4L)
 #    define unaligned32(a) (*(uint32_t*)(a))
 #else

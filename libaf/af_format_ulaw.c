@@ -14,7 +14,6 @@
 #ifndef __af_format_ulaw_c
 #define __af_format_ulaw_c
 
-#include <unistd.h>
 #include <inttypes.h>
 
 #include "af.h"
@@ -775,7 +774,7 @@ static int from_ulaw(void* in, void* out, int len, int bps, int format)
   return AF_OK;
 }
 
-/* Convert from singed int8 to singned int32 or float to ulaw */
+/* Convert from signed int8 to signed int32 or float to ulaw */
 static int to_ulaw(void* in, void* out, int len, int bps, int format)
 {
   register int i;

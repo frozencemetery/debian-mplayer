@@ -17,6 +17,7 @@
 #ifdef MP_DEBUG
 #include <assert.h>
 #endif
+#include "mp_fifo.h"
 #include "osdep/getch2.h"
 #include "osdep/keycodes.h"
 #include "osdep/timer.h"
@@ -24,6 +25,7 @@
 #include "help_mp.h"
 #include "m_config.h"
 #include "m_option.h"
+#include "get_path.h"
 
 #include "joystick.h"
 
@@ -34,6 +36,8 @@
 #ifdef HAVE_LIRCC
 #include <lirc/lircc.h>
 #endif
+
+#include "ar.h"
 
 /// This array defines all known commands.
 /// The first field is an id used to recognize the command without too many strcmp.
@@ -51,6 +55,7 @@ static mp_cmd_t mp_cmds[] = {
   { MP_CMD_RADIO_STEP_CHANNEL, "radio_step_channel", 1,  { { MP_CMD_ARG_INT ,{0}}, {-1,{0}} }},
   { MP_CMD_RADIO_SET_CHANNEL, "radio_set_channel", 1, { { MP_CMD_ARG_STRING, {0}}, {-1,{0}}  }},
   { MP_CMD_RADIO_SET_FREQ, "radio_set_freq", 1, { {MP_CMD_ARG_FLOAT,{0}}, {-1,{0}} } },
+  { MP_CMD_RADIO_STEP_FREQ, "radio_step_freq", 1, { {MP_CMD_ARG_FLOAT,{0}}, {-1,{0}} } },
 #endif
   { MP_CMD_SEEK, "seek", 1, { {MP_CMD_ARG_FLOAT,{0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
   { MP_CMD_EDL_MARK, "edl_mark", 0, { {-1,{0}} } },
@@ -61,16 +66,17 @@ static mp_cmd_t mp_cmds[] = {
   { MP_CMD_QUIT, "quit", 0, { {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
   { MP_CMD_PAUSE, "pause", 0, { {-1,{0}} } },
   { MP_CMD_FRAME_STEP, "frame_step", 0, { {-1,{0}} } },
-  { MP_CMD_GRAB_FRAMES, "grab_frames",0, { {-1,{0}} }  },
   { MP_CMD_PLAY_TREE_STEP, "pt_step",1, { { MP_CMD_ARG_INT ,{0}}, { MP_CMD_ARG_INT ,{0}}, {-1,{0}} } },
   { MP_CMD_PLAY_TREE_UP_STEP, "pt_up_step",1,  { { MP_CMD_ARG_INT,{0} }, { MP_CMD_ARG_INT ,{0}}, {-1,{0}} } },
   { MP_CMD_PLAY_ALT_SRC_STEP, "alt_src_step",1, { { MP_CMD_ARG_INT,{0} }, {-1,{0}} } },
+  { MP_CMD_LOOP, "loop", 1,  { {MP_CMD_ARG_INT,{0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
   { MP_CMD_SUB_DELAY, "sub_delay",1,  { {MP_CMD_ARG_FLOAT,{0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
   { MP_CMD_SUB_STEP, "sub_step",1,  { { MP_CMD_ARG_INT,{0} }, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
   { MP_CMD_OSD, "osd",0, { {MP_CMD_ARG_INT,{-1}}, {-1,{0}} } },
   { MP_CMD_OSD_SHOW_TEXT, "osd_show_text", 1, { {MP_CMD_ARG_STRING, {0}}, {MP_CMD_ARG_INT,{-1}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
   { MP_CMD_OSD_SHOW_PROPERTY_TEXT, "osd_show_property_text",1, { {MP_CMD_ARG_STRING, {0}}, {MP_CMD_ARG_INT,{-1}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
   { MP_CMD_VOLUME, "volume", 1, { { MP_CMD_ARG_FLOAT,{0} }, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
+  { MP_CMD_BALANCE, "balance", 1, { { MP_CMD_ARG_FLOAT,{0} }, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
   { MP_CMD_MIXER_USEMASTER, "use_master", 0, { {-1,{0}} } },
   { MP_CMD_MUTE, "mute", 0, { {MP_CMD_ARG_INT,{-1}}, {-1,{0}} } },
   { MP_CMD_CONTRAST, "contrast",1,  { {MP_CMD_ARG_INT,{0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
@@ -87,6 +93,7 @@ static mp_cmd_t mp_cmds[] = {
   { MP_CMD_SUB_SELECT, "vobsub_lang", 0, { { MP_CMD_ARG_INT,{-2} }, {-1,{0}} } }, // for compatibility
   { MP_CMD_SUB_SELECT, "sub_select", 0, { { MP_CMD_ARG_INT,{-2} }, {-1,{0}} } },
   { MP_CMD_SUB_LOG, "sub_log", 0, { {-1,{0}} } },
+  { MP_CMD_SUB_SCALE, "sub_scale",1, { {MP_CMD_ARG_FLOAT,{0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
   { MP_CMD_GET_PERCENT_POS, "get_percent_pos", 0, { {-1,{0}} } },
   { MP_CMD_GET_TIME_POS, "get_time_pos", 0, { {-1,{0}} } },
   { MP_CMD_GET_TIME_LENGTH, "get_time_length", 0, { {-1,{0}} } },
@@ -106,12 +113,14 @@ static mp_cmd_t mp_cmds[] = {
   { MP_CMD_GET_META_GENRE, "get_meta_genre", 0, { {-1,{0}} } },
   { MP_CMD_SWITCH_AUDIO, "switch_audio", 0, { { MP_CMD_ARG_INT,{-1} }, {-1,{0}} } },
 #ifdef USE_TV
+  { MP_CMD_TV_START_SCAN, "tv_start_scan", 0,  { {-1,{0}} }},
   { MP_CMD_TV_STEP_CHANNEL, "tv_step_channel", 1,  { { MP_CMD_ARG_INT ,{0}}, {-1,{0}} }},
   { MP_CMD_TV_STEP_NORM, "tv_step_norm",0, { {-1,{0}} }  },
   { MP_CMD_TV_STEP_CHANNEL_LIST, "tv_step_chanlist", 0, { {-1,{0}} }  },
   { MP_CMD_TV_SET_CHANNEL, "tv_set_channel", 1, { { MP_CMD_ARG_STRING, {0}}, {-1,{0}}  }},
   { MP_CMD_TV_LAST_CHANNEL, "tv_last_channel", 0, { {-1,{0}} } },
   { MP_CMD_TV_SET_FREQ, "tv_set_freq", 1, { {MP_CMD_ARG_FLOAT,{0}}, {-1,{0}} } },
+  { MP_CMD_TV_STEP_FREQ, "tv_step_freq", 1, { {MP_CMD_ARG_FLOAT,{0}}, {-1,{0}} } },
   { MP_CMD_TV_SET_NORM, "tv_set_norm", 1, { {MP_CMD_ARG_STRING,{0}}, {-1,{0}} } },
   { MP_CMD_TV_SET_BRIGHTNESS, "tv_set_brightness", 1,  { { MP_CMD_ARG_INT ,{0}}, { MP_CMD_ARG_INT,{1} }, {-1,{0}} }},
   { MP_CMD_TV_SET_CONTRAST, "tv_set_contrast", 1,  { { MP_CMD_ARG_INT ,{0}}, { MP_CMD_ARG_INT,{1} }, {-1,{0}} }},
@@ -135,6 +144,10 @@ static mp_cmd_t mp_cmds[] = {
   { MP_CMD_LOADLIST, "loadlist", 1, { {MP_CMD_ARG_STRING, {0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
   { MP_CMD_RUN, "run", 1, { {MP_CMD_ARG_STRING,{0}}, {-1,{0}} } },
   { MP_CMD_VF_CHANGE_RECTANGLE, "change_rectangle", 2, { {MP_CMD_ARG_INT,{0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}}}},
+#ifdef HAVE_TV_TELETEXT
+  { MP_CMD_TV_TELETEXT_ADD_DEC, "teletext_add_dec", 1, { {MP_CMD_ARG_STRING,{0}}, {-1,{0}} } },
+  { MP_CMD_TV_TELETEXT_GO_LINK, "teletext_go_link", 1, { {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
+#endif
 
 #ifdef HAVE_NEW_GUI  
   { MP_CMD_GUI_LOADFILE, "gui_loadfile", 0, { {-1,{0}} } },
@@ -164,6 +177,7 @@ static mp_cmd_t mp_cmds[] = {
   { MP_CMD_KEYDOWN_EVENTS, "key_down_event", 1, { {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
   { MP_CMD_SET_PROPERTY, "set_property", 2, { {MP_CMD_ARG_STRING, {0}},  {MP_CMD_ARG_STRING, {0}}, {-1,{0}} } },
   { MP_CMD_GET_PROPERTY, "get_property", 1, { {MP_CMD_ARG_STRING, {0}},  {-1,{0}} } },
+  { MP_CMD_STEP_PROPERTY, "step_property", 1, { {MP_CMD_ARG_STRING, {0}}, {MP_CMD_ARG_FLOAT,{0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
   
   { MP_CMD_SEEK_CHAPTER, "seek_chapter", 1, { {MP_CMD_ARG_INT,{0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
   { MP_CMD_SET_MOUSE_POS, "set_mouse_pos", 2, { {MP_CMD_ARG_INT,{0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
@@ -176,6 +190,7 @@ static mp_cmd_t mp_cmds[] = {
 
 static mp_key_name_t key_names[] = {
   { ' ', "SPACE" },
+  { '#', "SHARP" },
   { KEY_ENTER, "ENTER" },
   { KEY_TAB, "TAB" },
   { KEY_CTRL, "CTRL" },
@@ -274,6 +289,17 @@ static mp_key_name_t key_names[] = {
   { JOY_BTN8, "JOY_BTN8" },
   { JOY_BTN9, "JOY_BTN9" },
 
+  { AR_PLAY, "AR_PLAY" },
+  { AR_PLAY_HOLD, "AR_PLAY_HOLD" },
+  { AR_NEXT, "AR_NEXT" },
+  { AR_NEXT_HOLD, "AR_NEXT_HOLD" },
+  { AR_PREV, "AR_PREV" },
+  { AR_PREV_HOLD, "AR_PREV_HOLD" },
+  { AR_MENU, "AR_MENU" },
+  { AR_MENU_HOLD, "AR_MENU_HOLD" },
+  { AR_VUP, "AR_VUP" },
+  { AR_VDOWN, "AR_VDOWN" },
+
   { KEY_POWER, "POWER" },
   { KEY_MENU, "MENU" },
   { KEY_PLAY, "PLAY" },
@@ -335,10 +361,8 @@ static mp_cmd_bind_t def_cmd_binds[] = {
   { { '}', 0 }, "speed_mult 2.0" },
   { { KEY_BACKSPACE, 0 }, "speed_set 1.0" },
   { { 'q', 0 }, "quit" },
-  { { 'Q', 0 }, "quit" },
   { { KEY_ESC, 0 }, "quit" },
   { { 'p', 0 }, "pause" },
-  { { 'P', 0 }, "pause" },
   { { ' ', 0 }, "pause" },
   { { '.', 0 }, "frame_step" },
   { { KEY_HOME, 0 }, "pt_up_step 1" },
@@ -349,7 +373,6 @@ static mp_cmd_bind_t def_cmd_binds[] = {
   { { KEY_INS, 0 }, "alt_src_step 1" },
   { { KEY_DEL, 0 }, "alt_src_step -1" },
   { { 'o', 0 }, "osd" },
-  { { 'O', 0 }, "osd" },
   { { 'I', 0 }, "osd_show_property_text \"${filename}\"" },
   { { 'z', 0 }, "sub_delay -0.1" },
   { { 'x', 0 }, "sub_delay +0.1" },
@@ -359,8 +382,9 @@ static mp_cmd_bind_t def_cmd_binds[] = {
   { { '/', 0 }, "volume -1" },
   { { '0', 0 }, "volume 1" },
   { { '*', 0 }, "volume 1" },
+  { { '(', 0 }, "balance -0.1" },
+  { { ')', 0 }, "balance 0.1" },
   { { 'm', 0 }, "mute" },
-  { { 'M', 0 }, "mute" },
   { { '1', 0 }, "contrast -1" },
   { { '2', 0 }, "contrast 1" },
   { { '3', 0 }, "brightness -1" },
@@ -370,20 +394,27 @@ static mp_cmd_bind_t def_cmd_binds[] = {
   { { '7', 0 }, "saturation -1" },
   { { '8', 0 }, "saturation 1" },
   { { 'd', 0 }, "frame_drop" },
+  { { 'D', 0 }, "step_property deinterlace" },
   { { 'r', 0 }, "sub_pos -1" },
   { { 't', 0 }, "sub_pos +1" },
   { { 'a', 0 }, "sub_alignment" },
   { { 'v', 0 }, "sub_visibility" },
-  { { 'b', 0 }, "sub_select" },
-  { { 'j', 0 }, "vobsub_lang" },
+  { { 'j', 0 }, "sub_select" },
   { { 'F', 0 }, "forced_subs_only" },
   { { '#', 0 }, "switch_audio" },
+  { { '_', 0 }, "step_property switch_video" },
+  { { KEY_TAB, 0 }, "step_property switch_program" },
   { { 'i', 0 }, "edl_mark" },
 #ifdef USE_TV
   { { 'h', 0 }, "tv_step_channel 1" },
   { { 'k', 0 }, "tv_step_channel -1" },
   { { 'n', 0 }, "tv_step_norm" },
   { { 'u', 0 }, "tv_step_chanlist" },
+#endif
+#ifdef HAVE_TV_TELETEXT
+  { { 'X', 0 }, "step_property teletext_mode 1" },
+  { { 'W', 0 }, "step_property teletext_page 1" },
+  { { 'Q', 0 }, "step_property teletext_page -1" },
 #endif
 #ifdef HAVE_JOYSTICK
   { { JOY_AXIS0_PLUS, 0 }, "seek 10" },
@@ -394,6 +425,18 @@ static mp_cmd_bind_t def_cmd_binds[] = {
   { { JOY_BTN1, 0 }, "osd" },
   { { JOY_BTN2, 0 }, "volume 1"},
   { { JOY_BTN3, 0 }, "volume -1"},
+#endif
+#ifdef HAVE_APPLE_REMOTE
+  { { AR_PLAY, 0}, "pause" },
+  { { AR_PLAY_HOLD, 0}, "quit" },
+  { { AR_NEXT, 0 }, "seek 30" },
+  { { AR_NEXT_HOLD, 0 }, "seek 120" },
+  { { AR_PREV, 0 }, "seek -10" },
+  { { AR_PREV_HOLD, 0 }, "seek -120" },
+  { { AR_MENU, 0 }, "osd" },
+  { { AR_MENU_HOLD, 0 }, "mute" },
+  { { AR_VUP, 0 }, "volume 1"},
+  { { AR_VDOWN, 0 }, "volume -1"},
 #endif
   { { 'T', 0 }, "vo_ontop" },
   { { 'f', 0 }, "vo_fullscreen" },
@@ -448,19 +491,18 @@ static mp_cmd_bind_t gui_def_cmd_binds[] = {
 #define MP_MAX_CMD_FD 10
 #endif
 
-#define MP_FD_EOF (1<<0)
-#define MP_FD_DROP (1<<1)
-#define MP_FD_DEAD (1<<2)
-#define MP_FD_GOT_CMD (1<<3)
-#define MP_FD_NO_SELECT (1<<4)
-
 #define CMD_QUEUE_SIZE 100
 
 typedef struct mp_input_fd {
   int fd;
   void* read_func;
   mp_close_func_t close_func;
-  int flags;
+  unsigned eof : 1;
+  unsigned drop : 1;
+  unsigned dead : 1;
+  unsigned got_cmd : 1;
+  unsigned no_select : 1;
+  unsigned no_readfunc_retval : 1;
   // These fields are for the cmd fds.
   char* buffer;
   int pos,size;
@@ -474,8 +516,19 @@ struct mp_cmd_filter_st {
   mp_cmd_filter_t* next;
 };
 
+typedef struct mp_cmd_bind_section_st mp_cmd_bind_section_t;
+
+struct mp_cmd_bind_section_st {
+  mp_cmd_bind_t* cmd_binds;
+  char* section;
+  mp_cmd_bind_section_t* next;
+};
+
 // These are the user defined binds
+static mp_cmd_bind_section_t* cmd_binds_section = NULL;
+static char* section = NULL;
 static mp_cmd_bind_t* cmd_binds = NULL;
+static mp_cmd_bind_t* cmd_binds_default = NULL;
 static mp_cmd_filter_t* cmd_filters = NULL;
 
 // Callback to allow the menu filter to grab the incoming keys
@@ -499,6 +552,9 @@ static unsigned int ar_delay = 100, ar_rate = 8, last_ar = 0;
 
 static int use_joystick = 1, use_lirc = 1, use_lircc = 1;
 static char* config_file = "input.conf";
+
+/* Apple Remote */
+static int use_ar = 1;
 
 static char* js_dev = NULL;
 
@@ -528,11 +584,10 @@ static m_option_t mp_input_opts[] = {
   { "lirc", &use_lirc, CONF_TYPE_FLAG, CONF_GLOBAL, 0, 1, NULL },
   { "nolircc", &use_lircc, CONF_TYPE_FLAG, CONF_GLOBAL, 1, 0, NULL },
   { "lircc", &use_lircc, CONF_TYPE_FLAG, CONF_GLOBAL, 0, 1, NULL },
+  { "noar", &use_ar, CONF_TYPE_FLAG, CONF_GLOBAL, 1, 0, NULL },
+  { "ar", &use_ar, CONF_TYPE_FLAG, CONF_GLOBAL, 0, 1, NULL },
   { NULL, NULL, 0, 0, 0, 0, NULL}
 };
-
-static int
-mp_input_default_key_func(int fd);
 
 static int
 mp_input_default_cmd_func(int fd,char* buf, int l);
@@ -547,13 +602,16 @@ mp_input_add_cmd_fd(int fd, int select, mp_cmd_func_t read_func, mp_close_func_t
     mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_INPUT_ErrCantRegister2ManyCmdFds,fd);
     return 0;
   }
+  if (select && fd < 0) {
+    mp_msg(MSGT_INPUT, MSGL_ERR, "Invalid fd %i in mp_input_add_cmd_fd", fd);
+    return 0;
+  }
 
   memset(&cmd_fds[num_cmd_fd],0,sizeof(mp_input_fd_t));
   cmd_fds[num_cmd_fd].fd = fd;
   cmd_fds[num_cmd_fd].read_func = read_func ? read_func : mp_input_default_cmd_func;
   cmd_fds[num_cmd_fd].close_func = close_func;
-  if(!select)
-    cmd_fds[num_cmd_fd].flags = MP_FD_NO_SELECT;
+  cmd_fds[num_cmd_fd].no_select = !select;
   num_cmd_fd++;
 
   return 1;
@@ -603,18 +661,47 @@ mp_input_add_key_fd(int fd, int select, mp_key_func_t read_func, mp_close_func_t
     mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_INPUT_ErrCantRegister2ManyKeyFds,fd);
     return 0;
   }
+  if (select && fd < 0) {
+    mp_msg(MSGT_INPUT, MSGL_ERR, "Invalid fd %i in mp_input_add_key_fd", fd);
+    return 0;
+  }
 
   memset(&key_fds[num_key_fd],0,sizeof(mp_input_fd_t));
   key_fds[num_key_fd].fd = fd;
-  key_fds[num_key_fd].read_func = read_func ? read_func : mp_input_default_key_func;
+  key_fds[num_key_fd].read_func = read_func;
   key_fds[num_key_fd].close_func = close_func;
-  if(!select)
-    key_fds[num_key_fd].flags |= MP_FD_NO_SELECT;
+  key_fds[num_key_fd].no_select = !select;
   num_key_fd++;
 
   return 1;
 }
 
+int
+mp_input_add_event_fd(int fd, void (*read_func)(void))
+{
+  if(num_key_fd == MP_MAX_KEY_FD) {
+    mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_INPUT_ErrCantRegister2ManyKeyFds,fd);
+    return 0;
+  }
+  if (fd < 0) {
+    mp_msg(MSGT_INPUT, MSGL_ERR, "Invalid fd %i in mp_input_add_event_fd", fd);
+    return 0;
+  }
+
+  memset(&key_fds[num_key_fd],0,sizeof(mp_input_fd_t));
+  key_fds[num_key_fd].fd = fd;
+  key_fds[num_key_fd].read_func = read_func;
+  key_fds[num_key_fd].close_func = NULL;
+  key_fds[num_key_fd].no_readfunc_retval = 1;
+  num_key_fd++;
+
+  return 1;
+}
+
+void mp_input_rm_event_fd(int fd)
+{
+    mp_input_rm_key_fd(fd);
+}
 
 
 mp_cmd_t*
@@ -751,20 +838,6 @@ mp_input_parse_cmd(char* str) {
   return cmd;
 }
 
-static int
-mp_input_default_key_func(int fd) {
-  int r,code=0;
-  unsigned int l;
-  l = 0;
-  while(l < sizeof(int)) {
-    r = read(fd,((char *)&code)+l,sizeof(int)-l);
-    if(r <= 0)
-      break;
-    l +=r;
-  }
-  return code;
-}
-
 #define MP_CMD_MAX_SIZE 256
 
 static int
@@ -780,7 +853,7 @@ mp_input_read_cmd(mp_input_fd_t* mp_fd, char** ret) {
   } 
   
   // Get some data if needed/possible
-  while( !(mp_fd->flags & MP_FD_GOT_CMD) && !(mp_fd->flags & MP_FD_EOF) && (mp_fd->size - mp_fd->pos > 1) ) {
+  while (!mp_fd->got_cmd && !mp_fd->eof && (mp_fd->size - mp_fd->pos > 1) ) {
     int r = ((mp_cmd_func_t)mp_fd->read_func)(mp_fd->fd,mp_fd->buffer+mp_fd->pos,mp_fd->size - 1 - mp_fd->pos);
     // Error ?
     if(r < 0) {
@@ -795,15 +868,14 @@ mp_input_read_cmd(mp_input_fd_t* mp_fd, char** ret) {
       }
       // EOF ?
     } else if(r == 0) {
-      mp_fd->flags |= MP_FD_EOF;
+      mp_fd->eof = 1;
       break;
     }
     mp_fd->pos += r;
     break;
   }
 
-  // Reset the got_cmd flag
-  mp_fd->flags &= ~MP_FD_GOT_CMD;
+  mp_fd->got_cmd = 0;
 
   while(1) {
     int l = 0;
@@ -816,25 +888,25 @@ mp_input_read_cmd(mp_input_fd_t* mp_fd, char** ret) {
       if(mp_fd->size - mp_fd->pos <= 1) {
 	mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_INPUT_ErrCmdBufferFullDroppingContent,mp_fd->fd);
 	mp_fd->pos = 0;
-	mp_fd->flags |= MP_FD_DROP;
+	mp_fd->drop = 1;
       }
       break;
     }
     // We already have a cmd : set the got_cmd flag
     else if((*ret)) {
-      mp_fd->flags |= MP_FD_GOT_CMD;
+      mp_fd->got_cmd = 1;
       break;
     }
 
     l = end - mp_fd->buffer;
 
     // Not dropping : put the cmd in ret
-    if( ! (mp_fd->flags & MP_FD_DROP)) {
+    if (!mp_fd->drop) {
       (*ret) = malloc(l+1);
       strncpy((*ret),mp_fd->buffer,l);
       (*ret)[l] = '\0';
     } else { // Remove the dropping flag
-      mp_fd->flags &= ~MP_FD_DROP;
+      mp_fd->drop = 0;
     }
     if( mp_fd->pos - (l+1) > 0)
       memmove(mp_fd->buffer,end+1,mp_fd->pos-(l+1));
@@ -882,8 +954,8 @@ static char*
 mp_input_find_bind_for_key(mp_cmd_bind_t* binds, int n,int* keys) {
   int j;
 
+  if (n <= 0) return NULL;
   for(j = 0; binds[j].cmd != NULL; j++) {
-    if(n > 0) {
       int found = 1,s;
       for(s = 0; s < n && binds[j].input[s] != 0; s++) {
 	if(binds[j].input[s] != keys[s]) {
@@ -893,14 +965,31 @@ mp_input_find_bind_for_key(mp_cmd_bind_t* binds, int n,int* keys) {
       }
       if(found && binds[j].input[s] == 0 && s == n)
 	break;
-      else
-	continue;
-    } else if(n == 1){
-      if(binds[j].input[0] == keys[0] && binds[j].input[1] == 0)
-	break;
-    }
   }
   return binds[j].cmd;
+}
+
+static mp_cmd_bind_section_t*
+mp_input_get_bind_section(char *section) {
+  mp_cmd_bind_section_t* bind_section = cmd_binds_section;
+
+  if (section==NULL) section="default";
+  while (bind_section) {
+    if(strcmp(section,bind_section->section)==0) return bind_section;
+    if(bind_section->next==NULL) break;
+    bind_section=bind_section->next;
+  }
+  if(bind_section) {
+    bind_section->next=malloc(sizeof(mp_cmd_bind_section_t));
+    bind_section=bind_section->next;
+  } else {
+    cmd_binds_section=malloc(sizeof(mp_cmd_bind_section_t));
+    bind_section=cmd_binds_section;
+  }
+  bind_section->cmd_binds=NULL;
+  bind_section->section=strdup(section);
+  bind_section->next=NULL;
+  return bind_section;
 }
 
 static mp_cmd_t*
@@ -910,6 +999,8 @@ mp_input_get_cmd_from_keys(int n,int* keys, int paused) {
 
   if(cmd_binds)
     cmd = mp_input_find_bind_for_key(cmd_binds,n,keys);
+  if(cmd_binds_default && cmd == NULL)
+    cmd = mp_input_find_bind_for_key(cmd_binds_default,n,keys);
   if(cmd == NULL)
     cmd = mp_input_find_bind_for_key(def_cmd_binds,n,keys);
 
@@ -923,6 +1014,7 @@ mp_input_get_cmd_from_keys(int n,int* keys, int paused) {
     mp_msg(MSGT_INPUT,MSGL_WARN,"                         \n");
     return NULL;
   }
+  if (strcmp(cmd, "ignore") == 0) return NULL;
   ret =  mp_input_parse_cmd(cmd);
   if(!ret) {
     mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_INPUT_ErrInvalidCommandForKey,mp_input_get_key_name(key_down[0]));
@@ -936,125 +1028,25 @@ mp_input_get_cmd_from_keys(int n,int* keys, int paused) {
   return ret;
 }
 
-int
-mp_input_read_key_code(int time) {
-#ifndef HAVE_NO_POSIX_SELECT
-  fd_set fds;
-  struct timeval tv,*time_val;
-#endif
-  int i,n=0,max_fd = 0, did_sleep = 0;
-  static int last_loop = 0;
-
-  if(num_key_fd == 0)
-  {
-    usec_sleep(time * 1000);
-    return MP_INPUT_NOTHING;
-  }
-
-#ifndef HAVE_NO_POSIX_SELECT
-  FD_ZERO(&fds);
-#endif
-  // Remove fd marked as dead and build the fd_set
-  // n == number of fd's to be select() checked
-  for(i = 0; (unsigned int)i < num_key_fd; i++) {
-    if( (key_fds[i].flags & MP_FD_DEAD) ) {
-      mp_input_rm_key_fd(key_fds[i].fd);
-      i--;
-      continue;
-    } else if(key_fds[i].flags & MP_FD_NO_SELECT)
-      continue;
-    if(key_fds[i].fd > max_fd)
-      max_fd = key_fds[i].fd;
-#ifndef HAVE_NO_POSIX_SELECT
-    FD_SET(key_fds[i].fd,&fds);
-#endif
-    n++;
-  }
-
-#ifndef HAVE_NO_POSIX_SELECT
-// if we have fd's without MP_FD_NO_SELECT flag, call select():
-if(n>0){
-
-  if(time >= 0 ) {
-    tv.tv_sec=time/1000; 
-    tv.tv_usec = (time%1000)*1000;
-    time_val = &tv;
-  } else
-    time_val = NULL;
-  
-  while(1) {
-    if(select(max_fd+1,&fds,NULL,NULL,time_val) < 0) {
-      if(errno == EINTR)
-	continue;
-      mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_INPUT_ErrSelect,strerror(errno));
-    }
-    break;
-  }
-  did_sleep = 1;
-
-}
-#endif
-
-  for(i = last_loop + 1 ; i != last_loop ; i++) {
-    int code = -1;
-    // This is to check all fds in turn
-    if((unsigned int)i >= num_key_fd) {
-      i = -1;
-      last_loop++;
-      last_loop %= (num_key_fd+1);
-      continue;
-    }
-#ifndef HAVE_NO_POSIX_SELECT
-    // No input from this fd
-    if(! (key_fds[i].flags & MP_FD_NO_SELECT) && ! FD_ISSET(key_fds[i].fd,&fds) && key_fds[i].fd != 0)
-      continue;
-#endif
-    if(key_fds[i].fd == 0) { // stdin is handled by getch2
-      code = getch2(time);
-      if(code < 0)
-	code = MP_INPUT_NOTHING;
-      did_sleep = 1;
-    }
-    else
-      code = ((mp_key_func_t)key_fds[i].read_func)(key_fds[i].fd);
-
-    if(code >= 0)
-      return code;
-
-    if(code == MP_INPUT_ERROR)
-      mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_INPUT_ErrOnKeyInFd,key_fds[i].fd);
-    else if(code == MP_INPUT_DEAD) {
-      mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_INPUT_ErrDeadKeyOnFd,key_fds[i].fd);
-      key_fds[i].flags |= MP_FD_DEAD;
-    }
-  }
-  if (!did_sleep)
-    usec_sleep(time * 1000);
-  return MP_INPUT_NOTHING;
-}
-    
 
 static mp_cmd_t*
-mp_input_read_keys(int time,int paused) {
-  int code = mp_input_read_key_code(time);
+interpret_key(int code, int paused)
+{
   unsigned int j;
   mp_cmd_t* ret;
 
   if(mp_input_key_cb) {
-    for( ; code >= 0 ;   code = mp_input_read_key_code(0) ) {
-      if(code & MP_KEY_DOWN) continue;
+      if (code & MP_KEY_DOWN)
+	  return NULL;
       code &= ~(MP_KEY_DOWN|MP_NO_REPEAT_KEY);
       mp_input_key_cb(code);
-    }
     return NULL;
   }
 
-  for( ; code >= 0 ;   code = mp_input_read_key_code(0) ) {
-    // key pushed
     if(code & MP_KEY_DOWN) {
       if(num_key_down > MP_MAX_KEY_DOWN) {
 	mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_INPUT_Err2ManyKeyDowns);
-	continue;
+	return NULL;
       }
       code &= ~MP_KEY_DOWN;
       // Check if we don't already have this key as pushed
@@ -1063,12 +1055,12 @@ mp_input_read_keys(int time,int paused) {
 	  break;
       }
       if(j != num_key_down)
-	continue; 
+	return NULL;
       key_down[num_key_down] = code;
       num_key_down++;
       last_key_down = GetTimer();
       ar_state = 0;
-      continue;
+      return NULL;
     }
     // key released
     // Check if the key is in the down key, driver which can't send push event
@@ -1080,7 +1072,7 @@ mp_input_read_keys(int time,int paused) {
     if(j == num_key_down) { // key was not in the down keys : add it
       if(num_key_down > MP_MAX_KEY_DOWN) {
 	mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_INPUT_Err2ManyKeyDowns);
-	continue;
+	return NULL;
       }
       key_down[num_key_down] = code;
       num_key_down++;
@@ -1098,10 +1090,11 @@ mp_input_read_keys(int time,int paused) {
       mp_cmd_free(ar_cmd);
       ar_cmd = NULL;
     }
-    if(ret)
-      return ret;
-  }
+    return ret;
+}
 
+static mp_cmd_t *check_autorepeat(int paused)
+{
   // No input : autorepeat ?
   if(ar_rate > 0 && ar_state >=0 && num_key_down > 0 && ! (key_down[num_key_down-1] & MP_NO_REPEAT_KEY)) {
     unsigned int t = GetTimer();
@@ -1121,101 +1114,133 @@ mp_input_read_keys(int time,int paused) {
       return mp_cmd_clone(ar_cmd);
     }
   }
-
   return NULL;
 }
 
-static mp_cmd_t*
-mp_input_read_cmds(int time) {
-#ifndef HAVE_NO_POSIX_SELECT
-  fd_set fds;
-  struct timeval tv,*time_val;
-#endif
-  int i,n = 0,max_fd = 0,got_cmd = 0;
-  mp_cmd_t* ret;
-  static int last_loop = 0;
 
-  if(num_cmd_fd == 0)
+static mp_cmd_t *read_events(int time, int paused)
+{
+    int i;
+    int got_cmd = 0;
+    mp_cmd_t *autorepeat_cmd;
+#ifdef HAVE_POSIX_SELECT
+    fd_set fds;
+#endif
+    for (i = 0; i < num_key_fd; i++)
+	if (key_fds[i].dead) {
+	    mp_input_rm_key_fd(key_fds[i].fd);
+	    i--;
+	}
+    for (i = 0; i < num_cmd_fd; i++)
+	if (cmd_fds[i].dead || cmd_fds[i].eof) {
+	    mp_input_rm_cmd_fd(cmd_fds[i].fd);
+	    i--;
+	}
+	else if (cmd_fds[i].got_cmd)
+	    got_cmd = 1;
+#ifdef HAVE_POSIX_SELECT
+    FD_ZERO(&fds);
+    if (!got_cmd) {
+	int max_fd = 0, num_fd = 0;
+	for (i = 0; i < num_key_fd; i++) {
+	    if (key_fds[i].no_select)
+		continue;
+	    if (key_fds[i].fd > max_fd)
+		max_fd = key_fds[i].fd;
+	    FD_SET(key_fds[i].fd, &fds);
+	    num_fd++;
+	}
+	for (i = 0; i < num_cmd_fd; i++) {
+	    if (cmd_fds[i].no_select)
+		continue;
+	    if (cmd_fds[i].fd > max_fd)
+		max_fd = cmd_fds[i].fd;
+	    FD_SET(cmd_fds[i].fd, &fds);
+	    num_fd++;
+	}
+	if (num_fd > 0) {
+	    struct timeval tv, *time_val;
+	    if (time >= 0) {
+		tv.tv_sec = time / 1000;
+		tv.tv_usec = (time % 1000) * 1000;
+		time_val = &tv;
+	    }
+	    else
+		time_val = NULL;
+	    if (select(max_fd + 1, &fds, NULL, NULL, time_val) < 0) {
+		if (errno != EINTR)
+		    mp_msg(MSGT_INPUT, MSGL_ERR, MSGTR_INPUT_INPUT_ErrSelect,
+			    strerror(errno));
+		FD_ZERO(&fds);
+	    }
+	}
+    }
+#else
+    if (!got_cmd)
+	usec_sleep(time * 1000);
+#endif
+
+
+    for (i = 0; i < num_key_fd; i++) {
+	int code;
+#ifdef HAVE_POSIX_SELECT
+	if (!key_fds[i].no_select && !FD_ISSET(key_fds[i].fd, &fds))
+	    continue;
+#endif
+
+	if (key_fds[i].no_readfunc_retval) {   // getch2 handler special-cased for now
+	    ((void (*)(void))key_fds[i].read_func)();
+	    if (cmd_queue_length)
+		return NULL;
+	    code = mplayer_get_key(0);
+	    if (code < 0)
+		code = MP_INPUT_NOTHING;
+	}
+	else
+	    code = ((mp_key_func_t)key_fds[i].read_func)(key_fds[i].fd);
+	if (code >= 0) {
+	    mp_cmd_t *ret = interpret_key(code, paused);
+	    if (ret)
+		return ret;
+	}
+	else if (code == MP_INPUT_ERROR)
+	    mp_msg(MSGT_INPUT, MSGL_ERR, MSGTR_INPUT_INPUT_ErrOnKeyInFd,
+		   key_fds[i].fd);
+	else if (code == MP_INPUT_DEAD) {
+	    mp_msg(MSGT_INPUT, MSGL_ERR, MSGTR_INPUT_INPUT_ErrDeadKeyOnFd,
+		   key_fds[i].fd);
+	    key_fds[i].dead = 1;
+	}
+    }
+    autorepeat_cmd = check_autorepeat(paused);
+    if (autorepeat_cmd)
+	return autorepeat_cmd;
+
+    for (i = 0; i < num_cmd_fd; i++) {
+	char *cmd;
+	int r;
+#ifdef HAVE_POSIX_SELECT
+	if (!cmd_fds[i].no_select && !FD_ISSET(cmd_fds[i].fd, &fds) &&
+	    !cmd_fds[i].got_cmd)
+	    continue;
+#endif
+	r = mp_input_read_cmd(&cmd_fds[i], &cmd);
+	if (r >= 0) {
+	    mp_cmd_t *ret = mp_input_parse_cmd(cmd);
+	    free(cmd);
+	    if (ret)
+		return ret;
+	}
+	else if (r == MP_INPUT_ERROR)
+	    mp_msg(MSGT_INPUT, MSGL_ERR, MSGTR_INPUT_INPUT_ErrOnCmdFd,
+		   cmd_fds[i].fd);
+	else if (r == MP_INPUT_DEAD)
+	    cmd_fds[i].dead = 1;
+    }
+
     return NULL;
-
-#ifndef HAVE_NO_POSIX_SELECT
-  FD_ZERO(&fds);
-#endif
-  for(i = 0; (unsigned int)i < num_cmd_fd ; i++) {
-    if( (cmd_fds[i].flags & MP_FD_DEAD) || (cmd_fds[i].flags & MP_FD_EOF) ) {
-      mp_input_rm_cmd_fd(cmd_fds[i].fd);
-      i--;
-      continue;
-    } else if(cmd_fds[i].flags & MP_FD_NO_SELECT)
-      continue;
-    if(cmd_fds[i].flags & MP_FD_GOT_CMD)
-      got_cmd = 1;
-    if(cmd_fds[i].fd > max_fd)
-      max_fd = cmd_fds[i].fd;
-#ifndef HAVE_NO_POSIX_SELECT
-    FD_SET(cmd_fds[i].fd,&fds);
-#endif
-    n++;
-  }
-
-  if(num_cmd_fd == 0)
-    return NULL;
-
-#ifndef HAVE_NO_POSIX_SELECT
-  if(time >= 0) {
-    tv.tv_sec=time/1000; 
-    tv.tv_usec = (time%1000)*1000;
-    time_val = &tv;
-  } else
-    time_val = NULL;
-    
-  while(n > 0) {
-    if((i = select(max_fd+1,&fds,NULL,NULL,time_val)) <= 0) {
-      if(i < 0) {
-	if(errno == EINTR)
-	  continue;
-	mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_INPUT_ErrSelect,strerror(errno));
-      }
-      if(!got_cmd)
-	return NULL;
-    }
-    break;
-  }
-#endif
-
-  for(i = last_loop + 1; i !=  last_loop ; i++) {
-    int r = 0;
-    char* cmd;
-    if((unsigned int)i >= num_cmd_fd) {
-      i = -1;
-      last_loop++;
-      last_loop %= (num_cmd_fd+1);
-      continue;
-    }
-#ifndef HAVE_NO_POSIX_SELECT
-    if( ! (cmd_fds[i].flags & MP_FD_NO_SELECT) && ! FD_ISSET(cmd_fds[i].fd,&fds) && ! (cmd_fds[i].flags & MP_FD_GOT_CMD) )
-      continue;
-#endif
-
-    r = mp_input_read_cmd(&cmd_fds[i],&cmd);
-    if(r < 0) {
-      if(r == MP_INPUT_ERROR)
-	mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_INPUT_ErrOnCmdFd,cmd_fds[i].fd);
-      else if(r == MP_INPUT_DEAD)
-	cmd_fds[i].flags |= MP_FD_DEAD;
-      continue;
-    }
-    ret = mp_input_parse_cmd(cmd);
-    free(cmd);
-    if(!ret)
-      continue;
-    last_loop = i;
-    return ret;
-  }
-  
-  last_loop = 0;
-  return NULL;  
 }
+
 
 int
 mp_input_queue_cmd(mp_cmd_t* cmd) {
@@ -1259,9 +1284,11 @@ mp_input_get_cmd(int time, int paused, int peek_only) {
     ret = mp_input_get_queued_cmd(peek_only);
     if(ret) break;
     from_queue = 0;
-    ret = mp_input_read_keys(time,paused);
-    if(ret) break;
-    ret = mp_input_read_cmds(time);
+    ret = read_events(time, paused);
+    if (!ret) {
+	from_queue = 1;
+	ret = mp_input_get_queued_cmd(peek_only);
+    }
     break;
   }
   if(!ret) return NULL;
@@ -1381,31 +1408,46 @@ mp_input_get_input_from_name(char* name,int* keys) {
   return 1;
 }
 
+#define BS_MAX 256
+#define SPACE_CHAR " \n\r\t"
+
 void
 mp_input_bind_keys(int keys[MP_MAX_KEY_DOWN+1], char* cmd) {
   int i = 0,j;
   mp_cmd_bind_t* bind = NULL;
+  mp_cmd_bind_section_t* bind_section = NULL;
+  char *section=NULL, *p;
 
 #ifdef MP_DEBUG
   assert(keys != NULL);
   assert(cmd != NULL);
 #endif
 
-  if(cmd_binds) {
-    for(i = 0; cmd_binds[i].cmd != NULL ; i++) {
-      for(j = 0 ; cmd_binds[i].input[j] == keys[j]  && keys[j] != 0 ; j++)
+  if(*cmd=='{' && (p=strchr(cmd,'}'))) {
+    *p=0;
+    section=++cmd;
+    cmd=++p;
+    // Jump beginning space
+    for(  ; cmd[0] != '\0' && strchr(SPACE_CHAR,cmd[0]) != NULL ; cmd++)
+      /* NOTHING */;
+  }
+  bind_section=mp_input_get_bind_section(section);
+
+  if(bind_section->cmd_binds) {
+    for(i = 0; bind_section->cmd_binds[i].cmd != NULL ; i++) {
+      for(j = 0 ; bind_section->cmd_binds[i].input[j] == keys[j]  && keys[j] != 0 ; j++)
 	/* NOTHING */;
-      if(keys[j] == 0 && cmd_binds[i].input[j] == 0 ) {
-	bind = &cmd_binds[i];
+      if(keys[j] == 0 && bind_section->cmd_binds[i].input[j] == 0 ) {
+	bind = &bind_section->cmd_binds[i];
 	break;
       }
     }
   }
   
   if(!bind) {
-    cmd_binds = (mp_cmd_bind_t*)realloc(cmd_binds,(i+2)*sizeof(mp_cmd_bind_t));
-    memset(&cmd_binds[i],0,2*sizeof(mp_cmd_bind_t));
-    bind = &cmd_binds[i];
+    bind_section->cmd_binds = (mp_cmd_bind_t*)realloc(bind_section->cmd_binds,(i+2)*sizeof(mp_cmd_bind_t));
+    memset(&bind_section->cmd_binds[i],0,2*sizeof(mp_cmd_bind_t));
+    bind = &bind_section->cmd_binds[i];
   }
   if(bind->cmd)
     free(bind->cmd);
@@ -1434,10 +1476,6 @@ mp_input_free_binds(mp_cmd_bind_t* binds) {
 
 }
   
-
-#define BS_MAX 256
-#define SPACE_CHAR " \n\r\t"
-
 static int
 mp_input_parse_config(char *file) {
   int fd;
@@ -1587,10 +1625,29 @@ mp_input_parse_config(char *file) {
   }
   mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_INPUT_ErrWhyHere);
   close(fd);
+  mp_input_set_section(NULL);
   return 0;
 }
 
-extern char *get_path(const char *filename);
+void
+mp_input_set_section(char *name) {
+  mp_cmd_bind_section_t* bind_section = NULL;
+
+  cmd_binds=NULL;
+  cmd_binds_default=NULL;
+  if(section) free(section);
+  if(name) section=strdup(name); else section=strdup("default");
+  if((bind_section=mp_input_get_bind_section(section)))
+    cmd_binds=bind_section->cmd_binds;
+  if(strcmp(section,"default")==0) return;
+  if((bind_section=mp_input_get_bind_section(NULL)))
+    cmd_binds_default=bind_section->cmd_binds;
+}
+
+char*
+mp_input_get_section(void) {
+  return section;
+}
 
 void
 mp_input_init(int use_gui) {
@@ -1650,6 +1707,15 @@ mp_input_init(int use_gui) {
   }
 #endif
 
+#ifdef HAVE_APPLE_REMOTE
+  if(use_ar) {
+    if(mp_input_ar_init() < 0)
+      mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_INPUT_ErrCantInitAppleRemote);
+    else
+      mp_input_add_key_fd(-1,0,mp_input_ar_read,mp_input_ar_close);
+  }
+#endif
+
   if(in_file) {
     struct stat st;
     if(stat(in_file,&st))
@@ -1668,6 +1734,7 @@ mp_input_init(int use_gui) {
 void
 mp_input_uninit(void) {
   unsigned int i;
+  mp_cmd_bind_section_t* bind_section;
 
   for(i=0; i < num_key_fd; i++) {
     if(key_fds[i].close_func)
@@ -1678,9 +1745,14 @@ mp_input_uninit(void) {
     if(cmd_fds[i].close_func)
       cmd_fds[i].close_func(cmd_fds[i].fd);
   }
-  mp_input_free_binds(cmd_binds);
-  cmd_binds=NULL;
-  
+  while (cmd_binds_section) {
+    mp_input_free_binds(cmd_binds_section->cmd_binds);
+    free(cmd_binds_section->section);
+    bind_section=cmd_binds_section->next;
+    free(cmd_binds_section);
+    cmd_binds_section=bind_section;
+  }
+  cmd_binds_section=NULL;
 }
 
 void

@@ -1,5 +1,5 @@
-#ifndef __MPLAYER_FONT_LOAD_H
-#define __MPLAYER_FONT_LOAD_H
+#ifndef MPLAYER_FONT_LOAD_H
+#define MPLAYER_FONT_LOAD_H
 
 #ifdef HAVE_FREETYPE
 #include <ft2build.h>
@@ -62,6 +62,7 @@ typedef struct {
 } font_desc_t;
 
 extern font_desc_t* vo_font;
+extern font_desc_t* sub_font;
 
 #ifdef HAVE_FREETYPE
 
@@ -86,7 +87,7 @@ void free_font_desc(font_desc_t *desc);
 void render_one_glyph(font_desc_t *desc, int c);
 int kerning(font_desc_t *desc, int prevc, int c);
 
-void load_font_ft(int width, int height);
+void load_font_ft(int width, int height, font_desc_t **desc, const char *name);
 
 void blur(unsigned char *buffer, unsigned short *tmp2, int width, int height,
           int stride, int *m2, int r, int mwidth);
@@ -101,4 +102,4 @@ static int kerning(font_desc_t *desc, int prevc, int c) { return 0; }
 raw_file* load_raw(char *name,int verbose);
 font_desc_t* read_font_desc(const char* fname,float factor,int verbose);
 
-#endif /* ! __MPLAYER_FONT_LOAD_H */
+#endif /* ! MPLAYER_FONT_LOAD_H */

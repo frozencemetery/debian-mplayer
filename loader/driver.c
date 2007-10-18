@@ -1,10 +1,11 @@
 /*
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: driver.c 18786 2006-06-22 13:34:00Z diego $
+ * $Id: driver.c 24399 2007-09-10 11:28:55Z diego $
  */
 
 #include "config.h"
+#include "debug.h"
 
 #include <stdio.h>
 #ifdef HAVE_MALLOC_H
@@ -148,16 +149,13 @@ void DrvClose(HDRVR hDriver)
 HDRVR DrvOpen(LPARAM lParam2)
 {
     NPDRVR hDriver;
-    int i;
     char unknown[0x124];
     const char* filename = (const char*) ((ICOPEN*) lParam2)->pV1Reserved;
 
-#ifdef MPLAYER
 #ifdef WIN32_LOADER
     Setup_LDT_Keeper();
 #endif
     printf("Loading codec DLL: '%s'\n",filename);
-#endif
 
     hDriver = (NPDRVR) malloc(sizeof(DRVR));
     if (!hDriver)

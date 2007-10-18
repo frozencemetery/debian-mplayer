@@ -6,13 +6,13 @@
 
 #include "config.h"
 #include "mp_msg.h"
+#include "mp_fifo.h"
 #include "x11_common.h"
 
 #ifdef X11_FULLSCREEN
 
 #include <string.h>
 #include <unistd.h>
-#include <sys/mman.h>
 #include <signal.h>
 #include <assert.h>
 
@@ -54,7 +54,7 @@
 #include "input/mouse.h"
 
 #ifdef HAVE_NEW_GUI
-#include "Gui/interface.h"
+#include "gui/interface.h"
 #include "mplayer.h"
 #endif
 
@@ -87,7 +87,7 @@ int vo_fs_type = 0; // needs to be accessible for GUI X11 code
 static int vo_fs_flip = 0;
 char **vo_fstype_list;
 
-/* if equal to 1 means that WM is a metacity (broken as hell) */
+/* 1 means that the WM is metacity (broken as hell) */
 int metacity_hack = 0;
 
 static Atom XA_NET_SUPPORTED;
@@ -121,10 +121,10 @@ static int vo_x11_get_fs_type(int supported);
 
 /*
  * Sends the EWMH fullscreen state event.
- * 
- * action: could be on of _NET_WM_STATE_REMOVE -- remove state
- *                        _NET_WM_STATE_ADD    -- add state
- *                        _NET_WM_STATE_TOGGLE -- toggle
+ *
+ * action: could be one of _NET_WM_STATE_REMOVE -- remove state
+ *                         _NET_WM_STATE_ADD    -- add state
+ *                         _NET_WM_STATE_TOGGLE -- toggle
  */
 void vo_x11_ewmh_fullscreen(int action)
 {
@@ -135,7 +135,7 @@ void vo_x11_ewmh_fullscreen(int action)
     {
         XEvent xev;
 
-        /* init X event structure for _NET_WM_FULLSCREEN client msg */
+        /* init X event structure for _NET_WM_FULLSCREEN client message */
         xev.xclient.type = ClientMessage;
         xev.xclient.serial = 0;
         xev.xclient.send_event = True;
@@ -170,7 +170,7 @@ void vo_hidecursor(Display * disp, Window win)
     static char bm_no_data[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
     if (WinID == 0)
-        return;                 // do not hide, if we're playing at rootwin
+        return;                 // do not hide if playing on the root window
 
     colormap = DefaultColormap(disp, DefaultScreen(disp));
     if ( !XAllocNamedColor(disp, colormap, "black", &black, &dummy) )
@@ -209,8 +209,9 @@ static int x11_errorhandler(Display * display, XErrorEvent * event)
            "Error code: %x, request code: %x, minor code: %x\n",
            event->error_code, event->request_code, event->minor_code);
 
-    abort();
+//    abort();
     //exit_player("X11 error");
+    return 0;
 #undef MSGLEN
 }
 
@@ -305,14 +306,15 @@ static int vo_wm_detect(void)
                 wm |= vo_wm_LAYER;
                 metacity_hack |= 1;
             } else
-                // metacity is the only manager I know which reports support only for _WIN_LAYER
-                // hint in _WIN_PROTOCOLS (what's more support for it is broken)
+                /* metacity is the only window manager I know which reports
+                 * supporting only the _WIN_LAYER hint in _WIN_PROTOCOLS.
+                 * (what's more support for it is broken) */
                 metacity_hack |= 2;
         }
         XFree(args);
         if (wm && (metacity_hack == 1))
         {
-            // metacity reports that it supports layers, but it is not really truth :-)
+            // metacity claims to support layers, but it is not the truth :-)
             wm ^= vo_wm_LAYER;
             mp_msg(MSGT_VO, MSGL_V,
                    "[x11] Using workaround for Metacity bugs.\n");
@@ -327,7 +329,7 @@ static int vo_wm_detect(void)
         XFree(args);
 #if 0
         // ugly hack for broken OpenBox _NET_WM_STATE_FULLSCREEN support
-        // (in their implementation it only changes internal state of window, nothing more!!!)
+        // (in their implementation it only changes internal window state, nothing more!!!)
         if (wm & vo_wm_FULLSCREEN)
         {
             if (x11_get_property(XA_BLACKBOX_PID, &args, &nitems))
@@ -415,7 +417,7 @@ int vo_init(void)
     char *dispName;
 	
 	if (vo_rootwin)
-		WinID = 0; // use root win
+		WinID = 0; // use root window
 
     if (vo_depthonscreen)
     {
@@ -442,8 +444,8 @@ int vo_init(void)
                "vo: couldn't open the X11 display (%s)!\n", dispName);
         return 0;
     }
-    mScreen = DefaultScreen(mDisplay);  // Screen ID.
-    mRootWin = RootWindow(mDisplay, mScreen);   // Root window ID.
+    mScreen = DefaultScreen(mDisplay);  // screen ID
+    mRootWin = RootWindow(mDisplay, mScreen);   // root window ID
 
     init_atoms();
 
@@ -557,8 +559,6 @@ void vo_uninit(void)
 #include "osdep/keycodes.h"
 #include "wskeys.h"
 
-extern void mplayer_put_key(int code);
-
 #ifdef XF86XK_AudioPause
 static void vo_x11_putkey_ext(int keysym)
 {
@@ -575,6 +575,12 @@ static void vo_x11_putkey_ext(int keysym)
             break;
         case XF86XK_AudioNext:
             mplayer_put_key(KEY_NEXT);
+            break;
+        case XF86XK_AudioLowerVolume:
+            mplayer_put_key(KEY_VOLUME_DOWN);
+            break;
+        case XF86XK_AudioRaiseVolume:
+            mplayer_put_key(KEY_VOLUME_UP);
             break;
         default:
             break;
@@ -969,7 +975,7 @@ void vo_x11_uninit(void)
         f_gc = NULL;
     }
 #ifdef HAVE_NEW_GUI
-    /* destroy window only if it's not controlled by GUI */
+    /* destroy window only if it's not controlled by the GUI */
     if (!use_gui)
 #endif
     {
@@ -1106,14 +1112,8 @@ int vo_x11_check_events(Display * mydisplay)
                     mouse_waiting_hide = 1;
                     mouse_timer = GetTimerMS();
                 }
-                // Ignore mouse whell press event
-                if (Event.xbutton.button > 3)
-                {
-                    mplayer_put_key(MOUSE_BTN0 + Event.xbutton.button - 1);
-                    break;
-                }
 #ifdef HAVE_NEW_GUI
-                // Ignor mouse button 1 - 3 under gui 
+                // Ignore mouse button 1-3 under GUI.
                 if (use_gui && (Event.xbutton.button >= 1)
                     && (Event.xbutton.button <= 3))
                     break;
@@ -1129,7 +1129,7 @@ int vo_x11_check_events(Display * mydisplay)
                     mouse_timer = GetTimerMS();
                 }
 #ifdef HAVE_NEW_GUI
-                // Ignor mouse button 1 - 3 under gui 
+                // Ignore mouse button 1-3 under GUI.
                 if (use_gui && (Event.xbutton.button >= 1)
                     && (Event.xbutton.button <= 3))
                     break;
@@ -1169,6 +1169,7 @@ int vo_x11_check_events(Display * mydisplay)
  */
 void vo_x11_nofs_sizepos(int x, int y, int width, int height)
 {
+  vo_x11_sizehint(x, y, width, height, 0);
   if (vo_fs) {
     vo_old_x = x;
     vo_old_y = y;
@@ -1185,7 +1186,7 @@ void vo_x11_nofs_sizepos(int x, int y, int width, int height)
 
 void vo_x11_sizehint(int x, int y, int width, int height, int max)
 {
-    vo_hint.flags = PPosition | PSize | PWinGravity;
+    vo_hint.flags = 0;
     if (vo_keepaspect)
     {
         vo_hint.flags |= PAspect;
@@ -1195,26 +1196,28 @@ void vo_x11_sizehint(int x, int y, int width, int height, int max)
         vo_hint.max_aspect.y = height;
     }
 
+    vo_hint.flags |= PPosition | PSize;
     vo_hint.x = x;
     vo_hint.y = y;
     vo_hint.width = width;
     vo_hint.height = height;
     if (max)
     {
+        vo_hint.flags |= PMaxSize;
         vo_hint.max_width = width;
         vo_hint.max_height = height;
-        vo_hint.flags |= PMaxSize;
     } else
     {
         vo_hint.max_width = 0;
         vo_hint.max_height = 0;
     }
 
-    // set min height/width to 4 to avoid off by one errors
-    // and because mga_vid requires a minial size of 4 pixel
-    vo_hint.min_width = vo_hint.min_height = 4;
+    // Set minimum height/width to 4 to avoid off-by-one errors
+    // and because mga_vid requires a minimal size of 4 pixels.
     vo_hint.flags |= PMinSize;
+    vo_hint.min_width = vo_hint.min_height = 4;
 
+    vo_hint.flags |= PWinGravity;
     vo_hint.win_gravity = StaticGravity;
     XSetWMNormalHints(mDisplay, vo_window, &vo_hint);
 }
@@ -1271,6 +1274,62 @@ Window vo_x11_create_smooth_window(Display * mDisplay, Window mRoot,
     return ret_win;
 }
 
+/**
+ * \brief create and setup a window suitable for display
+ * \param vis Visual to use for creating the window
+ * \param x x position of window
+ * \param y y position of window
+ * \param width width of window
+ * \param height height of window
+ * \param flags flags for window creation.
+ *              Only VOFLAG_FULLSCREEN is supported so far.
+ * \param col_map Colourmap for window or CopyFromParent if a specific colormap isn't needed
+ * \param classname name to use for the classhint
+ * \param title title for the window
+ *
+ * This also does the grunt-work like setting Window Manager hints etc.
+ * If vo_window is already set it just moves and resizes it.
+ */
+void vo_x11_create_vo_window(XVisualInfo *vis, int x, int y,
+                             unsigned int width, unsigned int height, int flags,
+                             Colormap col_map,
+                             const char *classname, const char *title)
+{
+  if (vo_window == None) {
+    XSizeHints hint;
+    XEvent xev;
+    vo_fs = 0;
+    vo_dwidth = width;
+    vo_dheight = height;
+    vo_window = vo_x11_create_smooth_window(mDisplay, mRootWin, vis->visual,
+                      x, y, width, height, vis->depth, col_map);
+    vo_x11_classhint(mDisplay, vo_window, classname);
+    XStoreName(mDisplay, vo_window, title);
+    vo_hidecursor(mDisplay, vo_window);
+    XSelectInput(mDisplay, vo_window, StructureNotifyMask);
+    hint.x = x; hint.y = y;
+    hint.width = width; hint.height = height;
+    hint.flags = PPosition | PSize;
+    XSetStandardProperties(mDisplay, vo_window, title, title, None, NULL, 0, &hint);
+    vo_x11_sizehint(x, y, width, height, 0);
+    // map window
+    XMapWindow(mDisplay, vo_window);
+    XClearWindow(mDisplay, vo_window);
+    // wait for map
+    do {
+      XNextEvent(mDisplay, &xev);
+    } while (xev.type != MapNotify || xev.xmap.event != vo_window);
+    XSelectInput(mDisplay, vo_window, NoEventMask);
+    XSync(mDisplay, False);
+    vo_x11_selectinput_witherr(mDisplay, vo_window,
+          StructureNotifyMask | KeyPressMask | PointerMotionMask |
+          ButtonPressMask | ButtonReleaseMask | ExposureMask);
+  }
+  if (vo_ontop) vo_x11_setlayer(mDisplay, vo_window, vo_ontop);
+  vo_x11_nofs_sizepos(vo_dx, vo_dy, width, height);
+  if (!!vo_fs != !!(flags & VOFLAG_FULLSCREEN))
+    vo_x11_fullscreen();
+}
 
 void vo_x11_clearwindow_part(Display * mDisplay, Window vo_window,
                              int img_width, int img_height, int use_fs)
@@ -1297,7 +1356,7 @@ void vo_x11_clearwindow_part(Display * mDisplay, Window vo_window,
         XFillRectangle(mDisplay, vo_window, f_gc, 0, left_ov, left_ov2,
                        img_height);
         XFillRectangle(mDisplay, vo_window, f_gc, u_dwidth - left_ov2 - 1,
-                       left_ov, left_ov2, img_height);
+                       left_ov, left_ov2 + 1, img_height);
     }
 
     XFlush(mDisplay);
@@ -1359,8 +1418,8 @@ void vo_x11_setlayer(Display * mDisplay, Window vo_window, int layer)
         else if (vo_fs_type & vo_wm_FULLSCREEN)
             xev.data.l[1] = XA_NET_WM_STATE_FULLSCREEN;
         else if (vo_fs_type & vo_wm_BELOW)
-            // This is not fallback. We can safely assume that situation where
-            // only NETWM_STATE_BELOW is supported and others not, doesn't exist.
+            // This is not fallback. We can safely assume that the situation
+            // where only NETWM_STATE_BELOW is supported doesn't exist.
             xev.data.l[1] = XA_NET_WM_STATE_BELOW;
 
         XSendEvent(mDisplay, mRootWin, False, SubstructureRedirectMask,
@@ -1457,8 +1516,6 @@ void vo_x11_fullscreen(void)
         // fs->win
         if ( ! (vo_fs_type & vo_wm_FULLSCREEN) ) // not needed with EWMH fs
         {
-            if (vo_dwidth != vo_screenwidth && vo_dheight != vo_screenheight)
-                return;
             x = vo_old_x;
             y = vo_old_y;
             w = vo_old_width;
@@ -1475,20 +1532,16 @@ void vo_x11_fullscreen(void)
         vo_fs = VO_TRUE;
         if ( ! (vo_fs_type & vo_wm_FULLSCREEN) ) // not needed with EWMH fs
         {
-            if (vo_old_width &&
-                (vo_dwidth == vo_screenwidth && vo_dwidth != vo_old_width) &&
-                (vo_dheight == vo_screenheight && vo_dheight != vo_old_height))
-                return;
             vo_old_x = vo_dx;
             vo_old_y = vo_dy;
             vo_old_width = vo_dwidth;
             vo_old_height = vo_dheight;
+        }
             update_xinerama_info();
             x = xinerama_x;
             y = xinerama_y;
             w = vo_screenwidth;
             h = vo_screenheight;
-        }
     }
     {
         long dummy;
@@ -1515,7 +1568,7 @@ void vo_x11_fullscreen(void)
 
         XMoveResizeWindow(mDisplay, vo_window, x, y, w, h);
     }
-    /* some WMs lose ontop after fullscreeen */
+    /* some WMs lose ontop after fullscreen */
     if ((!(vo_fs)) & vo_ontop)
         vo_x11_setlayer(mDisplay, vo_window, vo_ontop);
 
@@ -1773,7 +1826,8 @@ static int x11_selectinput_errorhandler(Display * display,
                "X11 error: BadAccess during XSelectInput Call\n");
         mp_msg(MSGT_VO, MSGL_ERR,
                "X11 error: The 'ButtonPressMask' mask of specified window has probably already used by another appication (see man XSelectInput)\n");
-        /* If you think mplayer should shutdown with this error, comments out following line */
+        /* If you think MPlayer should shutdown with this error,
+         * comment out the following line */
         return 0;
     }
     if (old_handler != NULL)
@@ -1931,9 +1985,9 @@ int vo_find_depth_from_visuals(Display * dpy, int screen,
                    visuals[i].red_mask, visuals[i].green_mask,
                    visuals[i].blue_mask);
             /*
-             * save the visual index and it's depth, if this is the first
+             * Save the visual index and its depth, if this is the first
              * truecolor visul, or a visual that is 'preferred' over the
-             * previous 'best' visual
+             * previous 'best' visual.
              */
             if (bestvisual_depth == -1
                 || (visuals[i].depth >= 15
@@ -2034,11 +2088,11 @@ uint32_t vo_x11_set_equalizer(char *name, int value)
     /*
      * IMPLEMENTME: consider using XF86VidModeSetGammaRamp in the case
      * of TrueColor-ed window but be careful:
-     * unlike the colormaps, which are private for the X client
+     * Unlike the colormaps, which are private for the X client
      * who created them and thus automatically destroyed on client
      * disconnect, this gamma ramp is a system-wide (X-server-wide)
-     * setting and _must_ be restored before the process exit.
-     * Unforunately when the process crashes (or get killed
+     * setting and _must_ be restored before the process exits.
+     * Unforunately when the process crashes (or gets killed
      * for some reason) it is impossible to restore the setting,
      * and such behaviour could be rather annoying for the users.
      */
@@ -2293,7 +2347,7 @@ static Atom xv_intern_atom_if_exists( char const * atom_name )
  * \brief Try to enable vsync for xv.
  * \return Returns -1 if not available, 0 on failure and 1 on success.
  */
-int vo_xv_enable_vsync()
+int vo_xv_enable_vsync(void)
 {
   Atom xv_atom = xv_intern_atom_if_exists("XV_SYNC_TO_VBLANK");
   if (xv_atom == None)
@@ -2305,8 +2359,8 @@ int vo_xv_enable_vsync()
  * \brief Get maximum supported source image dimensions.
  *
  *   This function does not set the variables pointed to by
- * width and height if the information could not be retreived.
- * So the caller is reponsible for initing them properly.
+ * width and height if the information could not be retrieved,
+ * so the caller is reponsible for properly initializing them.
  *
  * \param width [out] The maximum width gets stored here.
  * \param height [out] The maximum height gets stored here.
@@ -2349,7 +2403,7 @@ void vo_xv_get_max_img_dim( uint32_t * width, uint32_t * height )
  * Outputs the content of |ck_handling| as a readable message.
  *
  */
-void vo_xv_print_ck_info()
+void vo_xv_print_ck_info(void)
 {
   mp_msg( MSGT_VO, MSGL_V, "[xv common] " );
 
@@ -2417,7 +2471,7 @@ void vo_xv_print_ck_info()
  * NOTE: If vo_colorkey has bits set after the first 3 low order bytes
  *       we don't draw anything as this means it was forced to off.
  */
-int vo_xv_init_colorkey()
+int vo_xv_init_colorkey(void)
 {
   Atom xv_atom;
   int rez;
@@ -2496,7 +2550,7 @@ int vo_xv_init_colorkey()
     xv_ck_info.method = CK_METHOD_NONE;
   } /* end: should we draw colorkey */
 
-  /* output information about the curren colorkey settings */
+  /* output information about the current colorkey settings */
   vo_xv_print_ck_info();
 
   return 1; // success
@@ -2507,10 +2561,9 @@ int vo_xv_init_colorkey()
  *
  * Draws the colorkey depending on the set method ( colorkey_handling ).
  *
- * It also draws the black bars ( when the video doesn't fit to the
- * display in full screen ) seperately, so they don't overlap with the
- * video area.
- * It doesn't call XFlush
+ * Also draws the black bars ( when the video doesn't fit the display in
+ * fullscreen ) separately, so they don't overlap with the video area.
+ * It doesn't call XFlush.
  *
  */
 inline void vo_xv_draw_colorkey(  int32_t x,  int32_t y,
@@ -2530,7 +2583,7 @@ inline void vo_xv_draw_colorkey(  int32_t x,  int32_t y,
   if ( vo_fs )
   {
     XSetForeground( mDisplay, vo_gc, 0 );
-    /* making non overlap fills, requiare 8 checks instead of 4*/
+    /* making non-overlap fills, requires 8 checks instead of 4 */
     if ( y > 0 )
       XFillRectangle( mDisplay, vo_window, vo_gc,
                       0, 0,
@@ -2550,7 +2603,7 @@ inline void vo_xv_draw_colorkey(  int32_t x,  int32_t y,
   }
 }
 
-/** \brief tests if a valid arg for the ck suboption was given */ 
+/** \brief Tests if a valid argument for the ck suboption was given. */
 int xv_test_ck( void * arg )
 {
   strarg_t * strarg = (strarg_t *)arg;
@@ -2564,7 +2617,7 @@ int xv_test_ck( void * arg )
 
   return 0;
 }
-/** \brief tests if a valid arg for the ck-method suboption was given */ 
+/** \brief Tests if a valid arguments for the ck-method suboption was given. */
 int xv_test_ckm( void * arg )
 {
   strarg_t * strarg = (strarg_t *)arg;

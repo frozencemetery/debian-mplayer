@@ -52,17 +52,12 @@ static uint32_t image_bytes;
 static uint32_t image_format;
 
 //vo
-extern int vo_rootwin;
-extern int vo_ontop;
-extern int vo_fs;
 static int isFullscreen;
 static int isOntop;
 static int isRootwin;
 extern float monitor_aspect;
-extern int vo_keepaspect;
 extern float movie_aspect;
 static float old_movie_aspect;
-extern float vo_panscan;
 
 static float winAlpha = 1;
 static int int_pause = 0;
@@ -95,7 +90,6 @@ static void draw_alpha(int x0, int y0, int w, int h, unsigned char *src, unsigne
 
 static int config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uint32_t flags, char *title, uint32_t format)
 {
-	int i;
 	
 	//init screen
 	screen_array = [NSScreen screens];
@@ -203,7 +197,7 @@ static int draw_frame(uint8_t *src[])
 	{
 		case IMGFMT_BGR32:
 		case IMGFMT_RGB32:
-			memcpy(image_data, src[0], image_width*image_height*image_bytes);
+			fast_memcpy(image_data, src[0], image_width*image_height*image_bytes);
 			break;
 
 		case IMGFMT_YUY2:
@@ -248,10 +242,13 @@ static void uninit(void)
 			mp_msg(MSGT_VO, MSGL_FATAL, "uninit: shmctl failed\n");
 	}
 
-	SetSystemUIMode( kUIModeNormal, 0);
-	CGDisplayShowCursor(kCGDirectMainDisplay);
-	
-	[autoreleasepool release];
+    SetSystemUIMode( kUIModeNormal, 0);
+    CGDisplayShowCursor(kCGDirectMainDisplay);
+    
+    if(mpGLView)
+    {
+        [autoreleasepool release];
+    }
 }
 
 static int preinit(const char *arg)
@@ -327,7 +324,7 @@ static int control(uint32_t request, void *data, ...)
 		case VOCTRL_QUERY_FORMAT: return query_format(*((uint32_t*)data));
 		case VOCTRL_ONTOP: vo_ontop = (!(vo_ontop)); [mpGLView ontop]; return VO_TRUE;
 		case VOCTRL_ROOTWIN: vo_rootwin = (!(vo_rootwin)); [mpGLView rootwin]; return VO_TRUE;
-		case VOCTRL_FULLSCREEN: vo_fs = (!(vo_fs)); [mpGLView fullscreen: YES]; return VO_TRUE;
+		case VOCTRL_FULLSCREEN: vo_fs = (!(vo_fs)); if(!shared_buffer){ [mpGLView fullscreen: NO]; } else { [mplayerosxProxy toggleFullscreen]; } return VO_TRUE;
 		case VOCTRL_GET_PANSCAN: return VO_TRUE;
 		case VOCTRL_SET_PANSCAN: [mpGLView panscan]; return VO_TRUE;
 	}
@@ -338,7 +335,7 @@ static int control(uint32_t request, void *data, ...)
 // NSOpenGLView Subclass
 //////////////////////////////////////////////////////////////////////////
 @implementation MPlayerOpenGLView
-- (id) preinit
+- (void) preinit
 {
 	//init menu
 	[self initMenu];
@@ -359,7 +356,7 @@ static int control(uint32_t request, void *data, ...)
 	winSizeMult = 1;
 }
 
-- (id) config
+- (void) config
 {
 	uint32_t d_width;
 	uint32_t d_height;
@@ -413,7 +410,7 @@ static int control(uint32_t request, void *data, ...)
 */
 - (void)initMenu
 {
-	NSMenu *menu;
+	NSMenu *menu, *aspectMenu;
 	NSMenuItem *menuItem;
 	
 	[NSApp setMainMenu:[[NSMenu alloc] init]];
@@ -430,7 +427,6 @@ static int control(uint32_t request, void *data, ...)
 	kFullScreenCmd = menuItem;
 	menuItem = (NSMenuItem *)[NSMenuItem separatorItem]; [menu addItem:menuItem];
 	
-		NSMenu	*aspectMenu;
 		aspectMenu = [[NSMenu alloc] initWithTitle:@"Aspect Ratio"];
 		menuItem = [[NSMenuItem alloc] initWithTitle:@"Keep" action:@selector(menuAction:) keyEquivalent:@""]; [aspectMenu addItem:menuItem];
 		if(vo_keepaspect) [menuItem setState:NSOnState];
@@ -490,7 +486,7 @@ static int control(uint32_t request, void *data, ...)
 	if(sender == kHalfScreenCmd)
 	{
 		if(isFullscreen) {
-			vo_fs = (!(vo_fs)); [self fullscreen:YES];
+			vo_fs = (!(vo_fs)); [self fullscreen:NO];
 		}
 		
 		winSizeMult = 0.5;
@@ -502,7 +498,7 @@ static int control(uint32_t request, void *data, ...)
 	if(sender == kNormalScreenCmd)
 	{
 		if(isFullscreen) {
-			vo_fs = (!(vo_fs)); [self fullscreen:YES];
+			vo_fs = (!(vo_fs)); [self fullscreen:NO];
 		}
 		
 		winSizeMult = 1;
@@ -514,7 +510,7 @@ static int control(uint32_t request, void *data, ...)
 	if(sender == kDoubleScreenCmd)
 	{
 		if(isFullscreen) {
-			vo_fs = (!(vo_fs)); [self fullscreen:YES];
+			vo_fs = (!(vo_fs)); [self fullscreen:NO];
 		}
 		
 		winSizeMult = 2;
@@ -526,7 +522,7 @@ static int control(uint32_t request, void *data, ...)
 	if(sender == kFullScreenCmd)
 	{
 		vo_fs = (!(vo_fs));
-		[self fullscreen:YES];
+		[self fullscreen:NO];
 	}
 
 	if(sender == kKeepAspectCmd)
@@ -666,6 +662,9 @@ static int control(uint32_t request, void *data, ...)
 */ 
 - (void) render
 {
+	int curTime;
+	static int lastTime;
+
 	glClear(GL_COLOR_BUFFER_BIT);	
 	
 	glEnable(CVOpenGLTextureGetTarget(texture));
@@ -721,8 +720,8 @@ static int control(uint32_t request, void *data, ...)
 	
 	//update activity every 30 seconds to prevent
 	//screensaver from starting up.
-	int curTime = TickCount()/60;
-	static int lastTime = 0;
+	curTime  = TickCount()/60;
+	lastTime = 0;
 		
 	if( ((curTime - lastTime) >= 30) || (lastTime == 0) )
 	{
@@ -914,7 +913,7 @@ static int control(uint32_t request, void *data, ...)
 		case 0x7E: key = KEY_UP; break;
 		case 0x43: key = '*'; break;
 		case 0x4B: key = '/'; break;
-		case 0x4C: key = KEY_BACKSPACE; break;
+		case 0x4C: key = KEY_KPENTER; break;
 		case 0x41: key = KEY_KPDEC; break;
 		case 0x52: key = KEY_KP0; break;
 		case 0x53: key = KEY_KP1; break;
@@ -948,12 +947,27 @@ static int control(uint32_t request, void *data, ...)
 	[self mouseEvent: theEvent];
 }
 
+- (void) mouseUp: (NSEvent *) theEvent
+{
+	[self mouseEvent: theEvent];
+}
+
 - (void) rightMouseDown: (NSEvent *) theEvent
 {
 	[self mouseEvent: theEvent];
 }
 
+- (void) rightMouseUp: (NSEvent *) theEvent
+{
+	[self mouseEvent: theEvent];
+}
+
 - (void) otherMouseDown: (NSEvent *) theEvent
+{
+	[self mouseEvent: theEvent];
+}
+
+- (void) otherMouseUp: (NSEvent *) theEvent
 {
 	[self mouseEvent: theEvent];
 }
@@ -968,11 +982,21 @@ static int control(uint32_t request, void *data, ...)
 
 - (void) mouseEvent: (NSEvent *) theEvent
 {
-	switch( [theEvent buttonNumber] )
-	{ 
-		case 0: mplayer_put_key(MOUSE_BTN0);break;
-		case 1: mplayer_put_key(MOUSE_BTN1);break;
-		case 2: mplayer_put_key(MOUSE_BTN2);break;
+	if ( [theEvent buttonNumber] >= 0 && [theEvent buttonNumber] <= 9 )
+	{
+		switch([theEvent type])
+		{
+			case NSLeftMouseDown:
+			case NSRightMouseDown:
+			case NSOtherMouseDown:
+				mplayer_put_key((MOUSE_BTN0 + [theEvent buttonNumber]) | MP_KEY_DOWN);
+				break;
+			case NSLeftMouseUp:
+			case NSRightMouseUp:
+			case NSOtherMouseUp:
+				mplayer_put_key(MOUSE_BTN0 + [theEvent buttonNumber]);
+				break;
+		}
 	}
 }
 
@@ -996,6 +1020,7 @@ static int control(uint32_t request, void *data, ...)
 
 - (void)windowWillClose:(NSNotification *)aNotification
 {
+    mpGLView = NULL;
 	mplayer_put_key(KEY_ESC);
 }
 @end

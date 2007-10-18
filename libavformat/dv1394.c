@@ -40,7 +40,7 @@ struct dv1394_data {
     int channel;
     int format;
 
-    void *ring; /* Ring buffer */
+    uint8_t *ring; /* Ring buffer */
     int index;  /* Current frame index */
     int avail;  /* Number of frames available for reading */
     int done;   /* Number of completed frames */
@@ -83,7 +83,6 @@ static int dv1394_start(struct dv1394_data *dv)
 static int dv1394_read_header(AVFormatContext * context, AVFormatParameters * ap)
 {
     struct dv1394_data *dv = context->priv_data;
-    const char *video_device;
 
     dv->dv_demux = dv_init_demux(context);
     if (!dv->dv_demux)
@@ -100,10 +99,7 @@ static int dv1394_read_header(AVFormatContext * context, AVFormatParameters * ap
         dv->channel = DV1394_DEFAULT_CHANNEL;
 
     /* Open and initialize DV1394 device */
-    video_device = ap->device;
-    if (!video_device)
-        video_device = "/dev/dv1394/0";
-    dv->fd = open(video_device, O_RDONLY);
+    dv->fd = open(context->filename, O_RDONLY);
     if (dv->fd < 0) {
         perror("Failed to open DV interface");
         goto failed;
@@ -128,7 +124,7 @@ static int dv1394_read_header(AVFormatContext * context, AVFormatParameters * ap
 
 failed:
     close(dv->fd);
-    return AVERROR_IO;
+    return AVERROR(EIO);
 }
 
 static int dv1394_read_packet(AVFormatContext *context, AVPacket *pkt)
@@ -167,12 +163,12 @@ restart_poll:
             if (errno == EAGAIN || errno == EINTR)
                 goto restart_poll;
             perror("Poll failed");
-            return AVERROR_IO;
+            return AVERROR(EIO);
         }
 
         if (ioctl(dv->fd, DV1394_GET_STATUS, &s) < 0) {
             perror("Failed to get status");
-            return AVERROR_IO;
+            return AVERROR(EIO);
         }
 #ifdef DV1394_DEBUG
         av_log(context, AV_LOG_DEBUG, "DV1394: status\n"

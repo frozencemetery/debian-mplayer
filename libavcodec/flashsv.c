@@ -50,13 +50,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "common.h"
 #include "avcodec.h"
 #include "bitstream.h"
 
-#ifdef CONFIG_ZLIB
 #include <zlib.h>
-#endif
 
 typedef struct FlashSVContext {
     AVCodecContext *avctx;
@@ -65,9 +62,7 @@ typedef struct FlashSVContext {
     int block_width, block_height;
     uint8_t* tmpblock;
     int block_size;
-#ifdef CONFIG_ZLIB
     z_stream zstream;
-#endif
 } FlashSVContext;
 
 
@@ -86,11 +81,10 @@ static void copy_region(uint8_t *sptr, uint8_t *dptr,
 
 static int flashsv_decode_init(AVCodecContext *avctx)
 {
-    FlashSVContext *s = (FlashSVContext *)avctx->priv_data;
+    FlashSVContext *s = avctx->priv_data;
     int zret; // Zlib return code
 
     s->avctx = avctx;
-#ifdef CONFIG_ZLIB
     s->zstream.zalloc = Z_NULL;
     s->zstream.zfree = Z_NULL;
     s->zstream.opaque = Z_NULL;
@@ -99,12 +93,7 @@ static int flashsv_decode_init(AVCodecContext *avctx)
         av_log(avctx, AV_LOG_ERROR, "Inflate init error: %d\n", zret);
         return 1;
     }
-#else
-    av_log(avctx, AV_LOG_ERROR, "Zlib support not compiled. Needed for the decoder.\n");
-    return 1;
-#endif
     avctx->pix_fmt = PIX_FMT_BGR24;
-    avctx->has_b_frames = 0;
     s->frame.data[0] = NULL;
 
     return 0;
@@ -115,7 +104,7 @@ static int flashsv_decode_frame(AVCodecContext *avctx,
                                     void *data, int *data_size,
                                     uint8_t *buf, int buf_size)
 {
-    FlashSVContext *s = (FlashSVContext *)avctx->priv_data;
+    FlashSVContext *s = avctx->priv_data;
     int h_blocks, v_blocks, h_part, v_part, i, j;
     GetBitContext gb;
 
@@ -145,12 +134,12 @@ static int flashsv_decode_frame(AVCodecContext *avctx,
     if(s->block_size < s->block_width*s->block_height) {
         if (s->tmpblock != NULL)
             av_free(s->tmpblock);
-        s->block_size = s->block_width*s->block_height;
-        if ((s->tmpblock = av_malloc(3*s->block_size)) == NULL) {
+        if ((s->tmpblock = av_malloc(3*s->block_width*s->block_height)) == NULL) {
             av_log(avctx, AV_LOG_ERROR, "Can't allocate decompression buffer.\n");
             return -1;
         }
     }
+    s->block_size = s->block_width*s->block_height;
 
     /* init the image size once */
     if((avctx->width==0) && (avctx->height==0)){
@@ -198,7 +187,6 @@ static int flashsv_decode_frame(AVCodecContext *avctx,
                 /* no change, don't do anything */
             } else {
                 /* decompress block */
-#ifdef CONFIG_ZLIB
                 int ret = inflateReset(&(s->zstream));
                 if (ret != Z_OK)
                 {
@@ -222,10 +210,6 @@ static int flashsv_decode_frame(AVCodecContext *avctx,
                     av_log(avctx, AV_LOG_ERROR, "error in decompression of block %dx%d: %d\n", i, j, ret);
                     /* return -1; */
                 }
-#else
-                av_log(avctx, AV_LOG_ERROR, "Zlib support not compiled in.\n");
-                return -1;
-#endif
                 copy_region(s->tmpblock, s->frame.data[0], s->image_height-(hp+hs+1), wp, hs, ws, s->frame.linesize[0]);
                 skip_bits(&gb, 8*size);   /* skip the consumed bits */
             }
@@ -246,10 +230,8 @@ static int flashsv_decode_frame(AVCodecContext *avctx,
 
 static int flashsv_decode_end(AVCodecContext *avctx)
 {
-    FlashSVContext *s = (FlashSVContext *)avctx->priv_data;
-#ifdef CONFIG_ZLIB
+    FlashSVContext *s = avctx->priv_data;
     inflateEnd(&(s->zstream));
-#endif
     /* release the frame if needed */
     if (s->frame.data[0])
         avctx->release_buffer(avctx, &s->frame);

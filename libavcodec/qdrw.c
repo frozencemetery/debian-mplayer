@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
  */
 
 /**
@@ -31,7 +30,6 @@
 typedef struct QdrawContext{
     AVCodecContext *avctx;
     AVFrame pic;
-    uint8_t palette[256*3];
 } QdrawContext;
 
 static int decode_frame(AVCodecContext *avctx,
@@ -43,6 +41,8 @@ static int decode_frame(AVCodecContext *avctx,
     uint8_t* outdata;
     int colors;
     int i;
+    uint32_t *pal;
+    int r, g, b;
 
     if(p->data[0])
         avctx->release_buffer(avctx, p);
@@ -58,7 +58,7 @@ static int decode_frame(AVCodecContext *avctx,
     outdata = a->pic.data[0];
 
     buf += 0x68; /* jump to palette */
-    colors = BE_32(buf);
+    colors = AV_RB32(buf);
     buf += 4;
 
     if(colors < 0 || colors > 256) {
@@ -66,9 +66,10 @@ static int decode_frame(AVCodecContext *avctx,
         return -1;
     }
 
+    pal = (uint32_t*)p->data[1];
     for (i = 0; i <= colors; i++) {
         unsigned int idx;
-        idx = BE_16(buf); /* color index */
+        idx = AV_RB16(buf); /* color index */
         buf += 2;
 
         if (idx > 255) {
@@ -76,13 +77,15 @@ static int decode_frame(AVCodecContext *avctx,
             buf += 6;
             continue;
         }
-        a->palette[idx * 3 + 0] = *buf++;
+        r = *buf++;
         buf++;
-        a->palette[idx * 3 + 1] = *buf++;
+        g = *buf++;
         buf++;
-        a->palette[idx * 3 + 2] = *buf++;
+        b = *buf++;
         buf++;
+        pal[idx] = (r << 16) | (g << 8) | b;
     }
+    p->palette_has_changed = 1;
 
     buf += 18; /* skip unneeded data */
     for (i = 0; i < avctx->height; i++) {
@@ -93,34 +96,26 @@ static int decode_frame(AVCodecContext *avctx,
 
         /* decode line */
         out = outdata;
-        size = BE_16(buf); /* size of packed line */
+        size = AV_RB16(buf); /* size of packed line */
         buf += 2;
         left = size;
         next = buf + size;
         while (left > 0) {
             code = *buf++;
             if (code & 0x80 ) { /* run */
-                int i;
                 pix = *buf++;
-                if ((out + (257 - code) * 3) > (outdata +  a->pic.linesize[0]))
+                if ((out + (257 - code)) > (outdata +  a->pic.linesize[0]))
                     break;
-                for (i = 0; i < 257 - code; i++) {
-                    *out++ = a->palette[pix * 3 + 0];
-                    *out++ = a->palette[pix * 3 + 1];
-                    *out++ = a->palette[pix * 3 + 2];
-                }
+                memset(out, pix, 257 - code);
+                out += 257 - code;
                 tsize += 257 - code;
                 left -= 2;
             } else { /* copy */
-                int i, pix;
-                if ((out + code * 3) > (outdata +  a->pic.linesize[0]))
+                if ((out + code) > (outdata +  a->pic.linesize[0]))
                     break;
-                for (i = 0; i <= code; i++) {
-                    pix = *buf++;
-                    *out++ = a->palette[pix * 3 + 0];
-                    *out++ = a->palette[pix * 3 + 1];
-                    *out++ = a->palette[pix * 3 + 2];
-                }
+                memcpy(out, buf, code + 1);
+                out += code + 1;
+                buf += code + 1;
                 left -= 2 + code;
                 tsize += code + 1;
             }
@@ -142,7 +137,7 @@ static int decode_init(AVCodecContext *avctx){
         return 1;
     }
 
-    avctx->pix_fmt= PIX_FMT_RGB24;
+    avctx->pix_fmt= PIX_FMT_PAL8;
 
     return 0;
 }

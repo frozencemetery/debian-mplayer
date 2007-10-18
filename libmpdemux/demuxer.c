@@ -15,13 +15,14 @@
 
 #include "libvo/fastmemcpy.h"
 
-#include "stream.h"
+#include "stream/stream.h"
 #include "demuxer.h"
 #include "stheader.h"
 #include "mf.h"
 
 #include "libaf/af_format.h"
 
+extern void resync_video_stream(sh_video_t *sh_video);
 extern void resync_audio_stream(sh_audio_t *sh_audio);
 
 // Demuxer list
@@ -63,6 +64,7 @@ extern demuxer_desc_t demuxer_desc_xmms;
 extern demuxer_desc_t demuxer_desc_mpeg_ty;
 extern demuxer_desc_t demuxer_desc_rtp;
 extern demuxer_desc_t demuxer_desc_lavf;
+extern demuxer_desc_t demuxer_desc_lavf_preferred;
 extern demuxer_desc_t demuxer_desc_aac;
 extern demuxer_desc_t demuxer_desc_nut;
 
@@ -73,6 +75,9 @@ demuxer_desc_t* demuxer_list[] = {
   &demuxer_desc_tv,
 #endif
   &demuxer_desc_mf,
+#ifdef USE_LIBAVFORMAT
+  &demuxer_desc_lavf_preferred,
+#endif
   &demuxer_desc_avi,
   &demuxer_desc_y4m,
   &demuxer_desc_asf,
@@ -106,13 +111,15 @@ demuxer_desc_t* demuxer_list[] = {
   &demuxer_desc_mpeg_gxf,
   &demuxer_desc_mpeg4_es,
   &demuxer_desc_h264_es,
+#ifdef MUSEPACK
   &demuxer_desc_mpc,
+#endif
   &demuxer_desc_audio,
   &demuxer_desc_mpeg_ty,
-#ifdef STREAMING_LIVE555
+#if defined(STREAMING_LIVE555) || defined(LIBNEMESI)
   &demuxer_desc_rtp,
 #endif
-#if defined(USE_LIBAVFORMAT) ||  defined(USE_LIBAVFORMAT_SO)
+#ifdef USE_LIBAVFORMAT
   &demuxer_desc_lavf,
 #endif
 #ifdef HAVE_LIBDV095
@@ -182,6 +189,7 @@ demuxer_t* new_demuxer(stream_t *stream,int type,int a_id,int v_id,int s_id,char
   demuxer_t *d=malloc(sizeof(demuxer_t));
   memset(d,0,sizeof(demuxer_t));
   d->stream=stream;
+  d->stream_pts = MP_NOPTS_VALUE;
   d->movi_start=stream->start_pos;
   d->movi_end=stream->end_pos;
   d->seekable=1;
@@ -199,6 +207,34 @@ demuxer_t* new_demuxer(stream_t *stream,int type,int a_id,int v_id,int s_id,char
   stream_reset(stream);
   stream_seek(stream,stream->start_pos);
   return d;
+}
+
+extern int dvdsub_id;
+
+sh_sub_t *new_sh_sub_sid(demuxer_t *demuxer, int id, int sid) {
+  if (id > MAX_S_STREAMS - 1 || id < 0) {
+    mp_msg(MSGT_DEMUXER,MSGL_WARN,"Requested sub stream id overflow (%d > %d)\n",
+           id, MAX_S_STREAMS);
+    return NULL;
+  }
+  if (demuxer->s_streams[id])
+    mp_msg(MSGT_DEMUXER, MSGL_WARN, "Sub stream %i redefined\n", id);
+  else {
+    sh_sub_t *sh = calloc(1, sizeof(sh_sub_t));
+    demuxer->s_streams[id] = sh;
+    sh->sid = sid;
+    mp_msg(MSGT_IDENTIFY, MSGL_INFO, "ID_SUBTITLE_ID=%d\n", sid);
+    if (dvdsub_id == id) {
+      demuxer->sub->id = id;
+      demuxer->sub->sh = sh;
+    }
+  }
+  return demuxer->s_streams[id];
+}
+
+void free_sh_sub(sh_sub_t *sh) {
+    mp_msg(MSGT_DEMUXER, MSGL_DBG2, "DEMUXER: freeing sh_sub at %p\n", sh);
+    free(sh);
 }
 
 sh_audio_t* new_sh_audio_aid(demuxer_t *demuxer,int id,int aid){
@@ -271,6 +307,8 @@ void free_demuxer(demuxer_t *demuxer){
 	if(demuxer->a_streams[i]) free_sh_audio(demuxer, i);
     for(i = 0; i < MAX_V_STREAMS; i++)
 	if(demuxer->v_streams[i]) free_sh_video(demuxer->v_streams[i]);
+    for(i = 0; i < MAX_S_STREAMS; i++)
+	if(demuxer->s_streams[i]) free_sh_sub(demuxer->s_streams[i]);
     // free demuxers:
     free_demuxer_stream(demuxer->audio);
     free_demuxer_stream(demuxer->video);
@@ -362,6 +400,7 @@ int ds_fill_buffer(demux_stream_t *ds){
         ds->pts_bytes=0;
       }
       ds->pts_bytes+=p->len; // !!!
+      if(p->stream_pts != MP_NOPTS_VALUE) demux->stream_pts=p->stream_pts;
       ds->flags=p->flags;
       // unlink packet:
       ds->bytes-=p->len;
@@ -403,7 +442,7 @@ while(len>0){
     if(!ds_fill_buffer(ds)) return bytes;
   } else {
     if(x>len) x=len;
-    if(mem) memcpy(mem+bytes,&ds->buffer[ds->buffer_pos],x);
+    if(mem) fast_memcpy(mem+bytes,&ds->buffer[ds->buffer_pos],x);
     bytes+=x;len-=x;ds->buffer_pos+=x;
   }
 }
@@ -419,7 +458,7 @@ while(len>0){
     if(!ds_fill_buffer(ds)) return bytes;
   } else {
     if(x>len) x=len;
-    if(mem) memcpy(mem+bytes,&ds->buffer[ds->buffer_pos],x);
+    if(mem) fast_memcpy(mem+bytes,&ds->buffer[ds->buffer_pos],x);
     bytes+=x;len-=x;ds->buffer_pos+=x;
     return bytes; // stop at end of package! (for correct timestamping)
   }
@@ -546,28 +585,20 @@ double ds_get_next_pts(demux_stream_t *ds)
     if(demux->audio->packs>=MAX_PACKS || demux->audio->bytes>=MAX_PACK_BYTES){
       mp_msg(MSGT_DEMUXER,MSGL_ERR,MSGTR_TooManyAudioInBuffer,demux->audio->packs,demux->audio->bytes);
       mp_msg(MSGT_DEMUXER,MSGL_HINT,MSGTR_MaybeNI);
-      return -1;
+      return MP_NOPTS_VALUE;
     }
     if(demux->video->packs>=MAX_PACKS || demux->video->bytes>=MAX_PACK_BYTES){
       mp_msg(MSGT_DEMUXER,MSGL_ERR,MSGTR_TooManyVideoInBuffer,demux->video->packs,demux->video->bytes);
       mp_msg(MSGT_DEMUXER,MSGL_HINT,MSGTR_MaybeNI);
-      return -1;
+      return MP_NOPTS_VALUE;
     }
     if(!demux_fill_buffer(demux,ds))
-      return -1;
+      return MP_NOPTS_VALUE;
   }
   return ds->first->pts;
 }
 
 // ====================================================================
-
-// commandline options, flags:
-extern int force_ni;
-extern int pts_from_bps;
-
-//extern int audio_id;
-//extern int video_id;
-//extern int dvdsub_id;
 
 void demuxer_help(void)
 {
@@ -653,7 +684,7 @@ demuxer_t *demuxer=NULL;
 sh_video_t *sh_video=NULL;
 
 demuxer_desc_t *demuxer_desc;
-int fformat;
+int fformat = 0;
 int i;
 
 //printf("demux_open(%p,%d,%d,%d,%d)  \n",stream,file_format,audio_id,video_id,dvdsub_id);
@@ -881,6 +912,8 @@ int demux_seek(demuxer_t *demuxer,float rel_seek_secs,float audio_delay,int flag
     demux_stream_t *d_video=demuxer->video;
     sh_audio_t *sh_audio=d_audio->sh;
     sh_video_t *sh_video=d_video->sh;
+    double tmp = 0;
+    double pts;
 
 if(!demuxer->seekable){
     if(demuxer->file_format==DEMUXER_TYPE_AVI)
@@ -897,6 +930,7 @@ if(!demuxer->seekable){
     // clear demux buffers:
     if(sh_audio){ ds_free_packs(d_audio);sh_audio->a_buffer_len=0;}
     ds_free_packs(d_video);
+    ds_free_packs(demuxer->sub);
     
     demuxer->stream->eof=0; // clear eof flag
     demuxer->video->eof=0;
@@ -905,10 +939,30 @@ if(!demuxer->seekable){
 #if 0
     if(sh_audio) sh_audio->timer=sh_video->timer;
 #else
-    if(sh_audio) sh_audio->delay=0;
     if(sh_video) sh_video->timer=0; // !!!!!!
 #endif
 
+    if(flags & 1)  // absolute seek
+      pts = 0.0f;
+    else {
+      if(demuxer->stream_pts == MP_NOPTS_VALUE)
+        goto dmx_seek;
+      pts = demuxer->stream_pts;
+    }
+
+    if(flags & 2) {  // percent seek
+      if(stream_control(demuxer->stream, STREAM_CTRL_GET_TIME_LENGTH, &tmp) == STREAM_UNSUPPORTED)
+        goto dmx_seek;
+      pts += tmp * rel_seek_secs;
+    } else
+      pts += rel_seek_secs;
+
+    if(stream_control(demuxer->stream, STREAM_CTRL_SEEK_TO_TIME, &pts) != STREAM_UNSUPPORTED) {
+      demux_control(demuxer, DEMUXER_CTRL_RESYNC, NULL);
+      return 1;
+    }
+
+dmx_seek:
 if (demuxer->desc->seek)
     demuxer->desc->seek(demuxer,rel_seek_secs,audio_delay,flags);
 
@@ -962,7 +1016,7 @@ int demux_info_print(demuxer_t *demuxer)
     return 0;
 }
 
-char* demux_info_get(demuxer_t *demuxer, char *opt) {
+char* demux_info_get(demuxer_t *demuxer, const char *opt) {
   int i;
   char **info = demuxer->info;
 
@@ -990,7 +1044,9 @@ double demuxer_get_time_length(demuxer_t *demuxer){
     sh_audio_t *sh_audio = demuxer->audio->sh;
     // <= 0 means DEMUXER_CTRL_NOTIMPL or DEMUXER_CTRL_DONTKNOW
     if (demux_control(demuxer, DEMUXER_CTRL_GET_TIME_LENGTH,(void *)&get_time_ans)<=0)  {
-      if (sh_video && sh_video->i_bps)
+      if (sh_video && sh_video->i_bps && sh_audio && sh_audio->i_bps)
+        get_time_ans = (double)(demuxer->movi_end-demuxer->movi_start)/(sh_video->i_bps+sh_audio->i_bps);
+      else if (sh_video && sh_video->i_bps)
         get_time_ans = (double)(demuxer->movi_end-demuxer->movi_start)/sh_video->i_bps;
       else if (sh_audio && sh_audio->i_bps)
         get_time_ans = (double)(demuxer->movi_end-demuxer->movi_start)/sh_audio->i_bps;
@@ -998,6 +1054,22 @@ double demuxer_get_time_length(demuxer_t *demuxer){
         get_time_ans=0;     
     }
     return get_time_ans;
+}
+
+/**
+ * \brief demuxer_get_current_time() returns the time of the current play in three possible ways:
+ *        either when the stream reader satisfies STREAM_CTRL_GET_CURRENT_TIME (e.g. dvd)
+ *        or using sh_video->pts when the former method fails
+ *        0 otherwise
+ * \return the current play time
+ */
+int demuxer_get_current_time(demuxer_t *demuxer){
+    double get_time_ans = 0;
+    sh_video_t *sh_video = demuxer->video->sh;
+    if(demuxer->stream_pts != MP_NOPTS_VALUE)
+        get_time_ans = demuxer->stream_pts;
+    else if(sh_video) get_time_ans = sh_video->pts;
+    return (int) get_time_ans;
 }
 
 int demuxer_get_percent_pos(demuxer_t *demuxer){     
@@ -1019,6 +1091,13 @@ int demuxer_switch_audio(demuxer_t *demuxer, int index){
     int res = demux_control(demuxer, DEMUXER_CTRL_SWITCH_AUDIO, &index);
     if (res == DEMUXER_CTRL_NOTIMPL)
       index = demuxer->audio->id;
+    return index;
+}
+
+int demuxer_switch_video(demuxer_t *demuxer, int index){
+    int res = demux_control(demuxer, DEMUXER_CTRL_SWITCH_VIDEO, &index);
+    if (res == DEMUXER_CTRL_NOTIMPL)
+      index = demuxer->video->id;
     return index;
 }
 
@@ -1056,7 +1135,7 @@ int demuxer_seek_chapter(demuxer_t *demuxer, int chapter, int mode, float *seek_
     if (!demuxer->num_chapters || !demuxer->chapters) {
         if(!mode) {
             ris = stream_control(demuxer->stream, STREAM_CTRL_GET_CURRENT_CHAPTER, &current);
-            if(ris == STREAM_UNSUPORTED && !mode) return -1;
+            if(ris == STREAM_UNSUPPORTED) return -1;
             chapter += current;
         }
 
@@ -1070,6 +1149,8 @@ int demuxer_seek_chapter(demuxer_t *demuxer, int chapter, int mode, float *seek_
             ds_free_packs(demuxer->sub);
 
         ris = stream_control(demuxer->stream, STREAM_CTRL_SEEK_TO_CHAPTER, &chapter);
+        if(ris != STREAM_UNSUPPORTED)
+            demux_control(demuxer, DEMUXER_CTRL_RESYNC, NULL);
         if(sh_video) {
             ds_fill_buffer(demuxer->video);
             resync_video_stream(sh_video);
@@ -1084,7 +1165,7 @@ int demuxer_seek_chapter(demuxer_t *demuxer, int chapter, int mode, float *seek_
         *seek_pts = -1.0;
 
         if(num_chapters) {
-            if(stream_control(demuxer->stream, STREAM_CTRL_GET_NUM_CHAPTERS, num_chapters) == STREAM_UNSUPORTED)
+            if(stream_control(demuxer->stream, STREAM_CTRL_GET_NUM_CHAPTERS, num_chapters) == STREAM_UNSUPPORTED)
                 *num_chapters = 0;
         }
 
@@ -1097,7 +1178,7 @@ int demuxer_seek_chapter(demuxer_t *demuxer, int chapter, int mode, float *seek_
             }
         }
 
-        return (ris != STREAM_UNSUPORTED ? chapter : -1);
+        return (ris != STREAM_UNSUPPORTED ? chapter : -1);
     } else {  //chapters structure is set in the demuxer
         total = demuxer->num_chapters;
 

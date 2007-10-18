@@ -1,7 +1,7 @@
-#ifndef __CODEC_CFG_H
-#define __CODEC_CFG_H
+#ifndef CODEC_CFG_H
+#define CODEC_CFG_H
 
-#define CODEC_CFG_MIN	20061022
+#define CODEC_CFG_MIN	20071007
 
 #define CODECS_MAX_FOURCC	32
 #define CODECS_MAX_OUTFMT	16
@@ -70,4 +70,4 @@ void list_codecs(int audioflag);
 void codecs_reset_selection(int audioflag);
 void codecs_uninit_free(void);
 
-#endif
+#endif /* CODEC_CFG_H */

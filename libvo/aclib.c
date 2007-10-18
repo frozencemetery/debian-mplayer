@@ -8,6 +8,7 @@
   runtime cpu detection by michael niedermayer (michaelni@gmx.at) is under GPL
 */
 #include <stddef.h>
+#include <string.h>
 #include "cpudetect.h"
 #include "fastmemcpy.h"
 #undef memcpy
@@ -17,7 +18,7 @@
 //Feel free to fine-tune the above 2, it might be possible to get some speedup with them :)
 
 //#define STATISTICS
-#if defined(ARCH_X86) || defined(ARCH_X86_64)
+#ifdef ARCH_X86
 #define CAN_COMPILE_X86_ASM
 #endif
 
@@ -111,6 +112,7 @@
 #endif // CAN_COMPILE_X86_ASM
 
 
+#undef fast_memcpy
 void * fast_memcpy(void * to, const void * from, size_t len)
 {
 #ifdef RUNTIME_CPUDETECT

@@ -57,6 +57,7 @@ typedef struct ogg_state {
     uint64_t pos;
     int curidx;
     struct ogg_state *next;
+    int nstreams;
     ogg_stream_t streams[1];
 } ogg_state_t;
 
@@ -76,6 +77,7 @@ typedef struct ogg {
 extern ogg_codec_t vorbis_codec;
 extern ogg_codec_t theora_codec;
 extern ogg_codec_t flac_codec;
+extern ogg_codec_t old_flac_codec;
 extern ogg_codec_t ogm_video_codec;
 extern ogg_codec_t ogm_audio_codec;
 extern ogg_codec_t ogm_old_codec;

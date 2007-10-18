@@ -39,9 +39,13 @@ Buffer allocation:
 
 #include "subopt-helper.h"
 
+#include "input/input.h"
+
 #ifdef HAVE_NEW_GUI
-#include "Gui/interface.h"
+#include "gui/interface.h"
 #endif
+
+#include "libavutil/common.h"
 
 static vo_info_t info = {
     "X11/Xv",
@@ -55,8 +59,6 @@ LIBVO_EXTERN(xv)
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <X11/extensions/XShm.h>
-/* since it doesn't seem to be defined on some platforms */
-int XShmGetEventBase(Display *);
 
 static XShmSegmentInfo Shminfo[NUM_BUFFERS];
 static int Shmem_Flag;
@@ -89,7 +91,6 @@ static int int_pause;
 
 static Window mRoot;
 static uint32_t drwX, drwY, drwBorderWidth, drwDepth;
-static uint32_t dwidth, dheight;
 static uint32_t max_width = 0, max_height = 0; // zero means: not set
 
 static void (*draw_alpha_fnc) (int x0, int y0, int w, int h,
@@ -141,6 +142,22 @@ static void draw_alpha_null(int x0, int y0, int w, int h,
 
 static void deallocate_xvimage(int foo);
 
+static void calc_drwXY(uint32_t *drwX, uint32_t *drwY) {
+  *drwX = *drwY = 0;
+  if (vo_fs) {
+    aspect(&vo_dwidth, &vo_dheight, A_ZOOM);
+    vo_dwidth = FFMIN(vo_dwidth, vo_screenwidth);
+    vo_dheight = FFMIN(vo_dheight, vo_screenheight);
+    *drwX = (vo_screenwidth - vo_dwidth) / 2;
+    *drwY = (vo_screenheight - vo_dheight) / 2;
+    mp_msg(MSGT_VO, MSGL_V, "[xv-fs] dx: %d dy: %d dw: %d dh: %d\n",
+           *drwX, *drwY, vo_dwidth, vo_dheight);
+  } else if (WinID == 0) {
+    *drwX = vo_dx;
+    *drwY = vo_dy;
+  }
+}
+
 /*
  * connect to server, create and map window,
  * allocate colors and (shared) memory
@@ -149,10 +166,6 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
                        uint32_t d_height, uint32_t flags, char *title,
                        uint32_t format)
 {
-// int screen;
-    char *hello = (title == NULL) ? "Xv render" : title;
-
-// char *name = ":0.0";
     XSizeHints hint;
     XVisualInfo vinfo;
     XGCValues xgcv;
@@ -168,11 +181,6 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
     static uint32_t vm_height;
 #endif
 
-    panscan_init();
-
-    aspect_save_orig(width, height);
-    aspect_save_prescale(d_width, d_height);
-
     image_height = height;
     image_width = width;
     image_format = format;
@@ -180,7 +188,7 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
     if ((max_width != 0 && max_height != 0) &&
         (image_width > max_width || image_height > max_height))
     {
-        mp_msg( MSGT_VO, MSGL_ERR, "[xv] " MSGTR_VO_XV_ImagedimTooHigh,
+        mp_msg( MSGT_VO, MSGL_ERR, MSGTR_VO_XV_ImagedimTooHigh,
                 image_width, image_height, max_width, max_height);
         return -1;
     }
@@ -189,17 +197,6 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
 
     int_pause = 0;
     visible_buf = -1;
-
-    update_xinerama_info();
-    aspect(&d_width, &d_height, A_NOZOOM);
-    vo_dx = (vo_screenwidth - d_width) / 2;
-    vo_dy = (vo_screenheight - d_height) / 2;
-    geometry(&vo_dx, &vo_dy, &d_width, &d_height, vo_screenwidth,
-             vo_screenheight);
-    vo_dx += xinerama_x;
-    vo_dy += xinerama_y;
-    vo_dwidth = d_width;
-    vo_dheight = d_height;
 
 #ifdef HAVE_XF86VM
     if (flags & VOFLAG_MODESWITCHING)
@@ -258,23 +255,6 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
             aspect_save_screenres(modeline_width, modeline_height);
         } else
 #endif
-        if (vo_fs)
-        {
-#ifdef X11_FULLSCREEN
-            /* this code replaces X11_FULLSCREEN hack in mplayer.c
-             * aspect() is available through aspect.h for all vos.
-             * besides zooming should only be done with -zoom,
-             * but I leave the old -fs behaviour so users don't get
-             * irritated for now (and send lots o' mails ;) ::atmos
-             */
-
-            aspect(&d_width, &d_height, A_ZOOM);
-#endif
-
-        }
-//   dwidth=d_width; dheight=d_height; //XXX: what are the copy vars used for?
-        vo_dwidth = d_width;
-        vo_dheight = d_height;
         hint.flags = PPosition | PSize /* | PBaseSize */ ;
         hint.base_width = hint.width;
         hint.base_height = hint.height;
@@ -313,54 +293,16 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
                 XGetGeometry(mDisplay, vo_window, &mRoot,
                              &drwX, &drwY, &vo_dwidth, &vo_dheight,
                              &drwBorderWidth, &drwDepth);
-                drwX = drwY = 0; // coordinates need to be local to the window
+                if (vo_dwidth <= 0) vo_dwidth = d_width;
+                if (vo_dheight <= 0) vo_dheight = d_height;
                 aspect_save_prescale(vo_dwidth, vo_dheight);
-            } else
-            {
-                drwX = vo_dx;
-                drwY = vo_dy;
             }
-        } else if (vo_window == None)
-        {
-            vo_window =
-                vo_x11_create_smooth_window(mDisplay, mRootWin,
-                                            vinfo.visual, hint.x, hint.y,
-                                            hint.width, hint.height, depth,
-                                            CopyFromParent);
-            XChangeWindowAttributes(mDisplay, vo_window, xswamask, &xswa);
-
-            vo_x11_classhint(mDisplay, vo_window, "xv");
-            vo_hidecursor(mDisplay, vo_window);
-
-            vo_x11_selectinput_witherr(mDisplay, vo_window,
-                                       StructureNotifyMask | KeyPressMask |
-                                       PropertyChangeMask | ((WinID == 0) ?
-                                                             0
-                                                             :
-                                                             (PointerMotionMask
-                                                              |
-                                                              ButtonPressMask
-                                                              |
-                                                              ButtonReleaseMask
-                                                              |
-                                                              ExposureMask)));
-            XSetStandardProperties(mDisplay, vo_window, hello, hello, None,
-                                   NULL, 0, &hint);
-            vo_x11_sizehint(hint.x, hint.y, hint.width, hint.height, 0);
-            XMapWindow(mDisplay, vo_window);
-            vo_x11_nofs_sizepos(hint.x, hint.y, hint.width, hint.height);
-            if (flags & VOFLAG_FULLSCREEN)
-                vo_x11_fullscreen();
         } else
         {
-            // vo_fs set means we were already at fullscreen
-            vo_x11_sizehint(hint.x, hint.y, hint.width, hint.height, 0);
-            vo_x11_nofs_sizepos(hint.x, hint.y, hint.width, hint.height);
-            if (flags & VOFLAG_FULLSCREEN && !vo_fs)
-                vo_x11_fullscreen();    // handle -fs on non-first file
+            vo_x11_create_vo_window(&vinfo, vo_dx, vo_dy, d_width, d_height,
+                   flags, CopyFromParent, "xv", title);
+            XChangeWindowAttributes(mDisplay, vo_window, xswamask, &xswa);
         }
-
-//    vo_x11_sizehint( hint.x, hint.y, hint.width, hint.height,0 );   
 
         if (vo_gc != None)
             XFreeGC(mDisplay, vo_gc);
@@ -415,24 +357,8 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
 #endif
 
     aspect(&vo_dwidth, &vo_dheight, A_NOZOOM);
-    if (((flags & VOFLAG_FULLSCREEN) && (WinID <= 0)) || vo_fs)
-    {
-        aspect(&vo_dwidth, &vo_dheight, A_ZOOM);
-        drwX =
-            (vo_screenwidth -
-             (vo_dwidth >
-              vo_screenwidth ? vo_screenwidth : vo_dwidth)) / 2;
-        drwY =
-            (vo_screenheight -
-             (vo_dheight >
-              vo_screenheight ? vo_screenheight : vo_dheight)) / 2;
-        vo_dwidth =
-            (vo_dwidth > vo_screenwidth ? vo_screenwidth : vo_dwidth);
-        vo_dheight =
-            (vo_dheight > vo_screenheight ? vo_screenheight : vo_dheight);
-        mp_msg(MSGT_VO, MSGL_V, "[xv-fs] dx: %d dy: %d dw: %d dh: %d\n",
-               drwX, drwY, vo_dwidth, vo_dheight);
-    }
+    if ((flags & VOFLAG_FULLSCREEN) && WinID <= 0) vo_fs = 1;
+    calc_drwXY(&drwX, &drwY);
 
     panscan_calc();
     
@@ -488,7 +414,7 @@ static void allocate_xvimage(int foo)
     {
         Shmem_Flag = 0;
         mp_msg(MSGT_VO, MSGL_INFO,
-               "Shared memory not supported\nReverting to normal Xv\n");
+               MSGTR_LIBVO_XV_SharedMemoryNotSupported);
     }
     if (Shmem_Flag)
     {
@@ -567,29 +493,10 @@ static void check_events(void)
     {
         XGetGeometry(mDisplay, vo_window, &mRoot, &drwX, &drwY, &vo_dwidth,
                      &vo_dheight, &drwBorderWidth, &drwDepth);
-        drwX = drwY = 0;
         mp_msg(MSGT_VO, MSGL_V, "[xv] dx: %d dy: %d dw: %d dh: %d\n", drwX,
                drwY, vo_dwidth, vo_dheight);
 
-        aspect(&dwidth, &dheight, A_NOZOOM);
-        if (vo_fs)
-        {
-            aspect(&dwidth, &dheight, A_ZOOM);
-            drwX =
-                (vo_screenwidth -
-                 (dwidth > vo_screenwidth ? vo_screenwidth : dwidth)) / 2;
-            drwY =
-                (vo_screenheight -
-                 (dheight >
-                  vo_screenheight ? vo_screenheight : dheight)) / 2;
-            vo_dwidth =
-                (dwidth > vo_screenwidth ? vo_screenwidth : dwidth);
-            vo_dheight =
-                (dheight > vo_screenheight ? vo_screenheight : dheight);
-            mp_msg(MSGT_VO, MSGL_V,
-                   "[xv-fs] dx: %d dy: %d dw: %d dh: %d\n", drwX, drwY,
-                   vo_dwidth, vo_dheight);
-        }
+        calc_drwXY(&drwX, &drwY);
     }
 
     if (e & VO_EVENT_EXPOSE || e & VO_EVENT_RESIZE)
@@ -806,6 +713,7 @@ static void uninit(void)
 #ifdef HAVE_XF86VM
     vo_vm_close(mDisplay);
 #endif
+    mp_input_rm_event_fd(ConnectionNumber(mDisplay));
     vo_x11_uninit();
 }
 
@@ -844,9 +752,7 @@ static int preinit(const char *arg)
     if (Success != XvQueryExtension(mDisplay, &ver, &rel, &req, &ev, &err))
     {
         mp_msg(MSGT_VO, MSGL_ERR,
-               "Sorry, Xv not supported by this X11 version/driver\n");
-        mp_msg(MSGT_VO, MSGL_ERR,
-               "******** Try with  -vo x11  or  -vo sdl  *********\n");
+               MSGTR_LIBVO_XV_XvNotSupportedByX11);
         return -1;
     }
 
@@ -855,7 +761,7 @@ static int preinit(const char *arg)
         XvQueryAdaptors(mDisplay, DefaultRootWindow(mDisplay), &adaptors,
                         &ai))
     {
-        mp_msg(MSGT_VO, MSGL_ERR, "Xv: XvQueryAdaptors failed\n");
+        mp_msg(MSGT_VO, MSGL_ERR, MSGTR_LIBVO_XV_XvQueryAdaptorsFailed);
         return -1;
     }
 
@@ -886,7 +792,7 @@ static int preinit(const char *arg)
         } else
         {
             mp_msg(MSGT_VO, MSGL_WARN,
-                   "Xv: Invalid port parameter, overriding with port 0\n");
+                   MSGTR_LIBVO_XV_InvalidPortParameter);
             xv_port = 0;
         }
     }
@@ -904,7 +810,7 @@ static int preinit(const char *arg)
                 } else
                 {
                     mp_msg(MSGT_VO, MSGL_WARN,
-                           "Xv: could not grab port %i\n", (int) xv_p);
+                           MSGTR_LIBVO_XV_CouldNotGrabPort, (int) xv_p);
                     ++busy_ports;
                 }
         }
@@ -913,14 +819,10 @@ static int preinit(const char *arg)
     {
         if (busy_ports)
             mp_msg(MSGT_VO, MSGL_ERR,
-                   "Could not find free Xvideo port - maybe another process is already using it.\n"
-                   "Close all video applications, and try again. If that does not help,\n"
-                   "see 'mplayer -vo help' for other (non-xv) video out drivers.\n");
+                   MSGTR_LIBVO_XV_CouldNotFindFreePort);
         else
             mp_msg(MSGT_VO, MSGL_ERR,
-                   "It seems there is no Xvideo support for your video card available.\n"
-                   "Run 'xvinfo' to verify its Xv support and read DOCS/HTML/en/video.html#xv!\n"
-                   "See 'mplayer -vo help' for other (non-xv) video out drivers. Try -vo x11\n");
+                   MSGTR_LIBVO_XV_NoXvideoSupport);
         return -1;
     }
 
@@ -933,6 +835,7 @@ static int preinit(const char *arg)
 
     fo = XvListImageFormats(mDisplay, xv_port, (int *) &formats);
 
+    mp_input_add_event_fd(ConnectionNumber(mDisplay), check_events);
     return 0;
 }
 
@@ -1007,6 +910,9 @@ static int control(uint32_t request, void *data, ...)
             }
         case VOCTRL_ONTOP:
             vo_x11_ontop();
+            return VO_TRUE;
+        case VOCTRL_UPDATE_SCREENINFO:
+            update_xinerama_info();
             return VO_TRUE;
     }
     return VO_NOTIMPL;

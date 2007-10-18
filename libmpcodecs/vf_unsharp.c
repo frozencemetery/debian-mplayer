@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2002 Rémi Guyomarch <rguyom@pobox.com>
+    Copyright (C) 2002 Remi Guyomarch <rguyom@pobox.com>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,13 +35,7 @@
 #include "mp_image.h"
 #include "vf.h"
 #include "libvo/fastmemcpy.h"
-
-#ifndef MIN
-#define        MIN(a,b) (((a)<(b))?(a):(b))
-#endif
-#ifndef MAX
-#define        MAX(a,b) (((a)>(b))?(a):(b))
-#endif
+#include "libavutil/common.h"
 
 //===========================================================================//
 
@@ -91,10 +85,10 @@ static void unsharp( uint8_t *dst, uint8_t *src, int dstStride, int srcStride, i
 	if( src == dst )
 	    return;
 	if( dstStride == srcStride ) 
-	    memcpy( dst, src, srcStride*height );
+	    fast_memcpy( dst, src, srcStride*height );
 	else
 	    for( y=0; y<height; y++, dst+=dstStride, src+=srcStride )
-		memcpy( dst, src, width );
+		fast_memcpy( dst, src, width );
 	return;
     }
 
@@ -258,8 +252,8 @@ static void parse( FilterParam *fp, char* args ) {
     fp->msizeY = ( z && z+1<max ) ? atoi( pos=z+1 ) : fp->msizeX;
 
     // min/max & odd
-    fp->msizeX = 1 | MIN( MAX( fp->msizeX, MIN_MATRIX_SIZE ), MAX_MATRIX_SIZE );
-    fp->msizeY = 1 | MIN( MAX( fp->msizeY, MIN_MATRIX_SIZE ), MAX_MATRIX_SIZE );
+    fp->msizeX = 1 | av_clip(fp->msizeX, MIN_MATRIX_SIZE, MAX_MATRIX_SIZE);
+    fp->msizeY = 1 | av_clip(fp->msizeY, MIN_MATRIX_SIZE, MAX_MATRIX_SIZE);
 
     // parse amount
     pos = strchr( pos+1, ':' );
@@ -320,7 +314,7 @@ static int open( vf_instance_t *vf, char* args ) {
 vf_info_t vf_info_unsharp = {
     "unsharp mask & gaussian blur",
     "unsharp",
-    "Rémi Guyomarch",
+    "Remi Guyomarch",
     "",
     open,
     NULL

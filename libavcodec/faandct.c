@@ -2,6 +2,8 @@
  * Floating point AAN DCT
  * Copyright (c) 2003 Michael Niedermayer <michaelni@gmx.at>
  *
+ * this implementation is based upon the IJG integer AAN DCT (see jfdctfst.c)
+ *
  * This file is part of FFmpeg.
  *
  * FFmpeg is free software; you can redistribute it and/or
@@ -17,8 +19,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
- * this implementation is based upon the IJG integer AAN DCT (see jfdctfst.c)
  */
 
 /**
@@ -70,7 +70,7 @@ B6*B0, B6*B1, B6*B2, B6*B3, B6*B4, B6*B5, B6*B6, B6*B7,
 B7*B0, B7*B1, B7*B2, B7*B3, B7*B4, B7*B5, B7*B6, B7*B7,
 };
 
-static always_inline void row_fdct(FLOAT temp[64], DCTELEM * data)
+static av_always_inline void row_fdct(FLOAT temp[64], DCTELEM * data)
 {
     FLOAT tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
     FLOAT tmp10, tmp11, tmp12, tmp13;

@@ -5,6 +5,7 @@
 #include <string.h>
 #include "pullup.h"
 #include "config.h"
+#include "cpudetect.h"
 
 
 
@@ -20,11 +21,11 @@ static int diff_y_mmx(unsigned char *a, unsigned char *b, int s)
 		
 		"1: \n\t"
 		
-		"movq (%%esi), %%mm0 \n\t"
-		"movq (%%esi), %%mm2 \n\t"
-		"addl %%eax, %%esi \n\t"
-		"movq (%%edi), %%mm1 \n\t"
-		"addl %%eax, %%edi \n\t"
+		"movq (%%"REG_S"), %%mm0 \n\t"
+		"movq (%%"REG_S"), %%mm2 \n\t"
+		"add  %%"REG_a", %%"REG_S" \n\t"
+		"movq (%%"REG_D"), %%mm1 \n\t"
+		"add  %%"REG_a", %%"REG_D" \n\t"
 		"psubusb %%mm1, %%mm2 \n\t"
 		"psubusb %%mm0, %%mm1 \n\t"
 		"movq %%mm2, %%mm0 \n\t"
@@ -64,14 +65,14 @@ static int licomb_y_mmx(unsigned char *a, unsigned char *b, int s)
 		"movl $4, %%ecx \n\t"
 		"pxor %%mm6, %%mm6 \n\t"
 		"pxor %%mm7, %%mm7 \n\t"
-		"subl %%eax, %%edi \n\t"
+		"sub  %%"REG_a", %%"REG_D" \n\t"
 		
 		"2: \n\t"
 
-		"movq (%%esi), %%mm0 \n\t"
-		"movq (%%edi), %%mm1 \n\t"
+		"movq (%%"REG_D"), %%mm0 \n\t"
+		"movq (%%"REG_D"), %%mm1 \n\t"
 		"punpcklbw %%mm7, %%mm0 \n\t"
-		"movq (%%edi,%%eax), %%mm2 \n\t"
+		"movq (%%"REG_D",%%"REG_a"), %%mm2 \n\t"
 		"punpcklbw %%mm7, %%mm1 \n\t"
 		"punpcklbw %%mm7, %%mm2 \n\t"
 		"paddw %%mm0, %%mm0 \n\t"
@@ -82,10 +83,10 @@ static int licomb_y_mmx(unsigned char *a, unsigned char *b, int s)
 		"paddw %%mm0, %%mm6 \n\t"
 		"paddw %%mm1, %%mm6 \n\t"
 
-		"movq (%%esi), %%mm0 \n\t"
-		"movq (%%edi), %%mm1 \n\t"
+		"movq (%%"REG_S"), %%mm0 \n\t"
+		"movq (%%"REG_D"), %%mm1 \n\t"
 		"punpckhbw %%mm7, %%mm0 \n\t"
-		"movq (%%edi,%%eax), %%mm2 \n\t"
+		"movq (%%"REG_D",%%"REG_a"), %%mm2 \n\t"
 		"punpckhbw %%mm7, %%mm1 \n\t"
 		"punpckhbw %%mm7, %%mm2 \n\t"
 		"paddw %%mm0, %%mm0 \n\t"
@@ -96,10 +97,10 @@ static int licomb_y_mmx(unsigned char *a, unsigned char *b, int s)
 		"paddw %%mm0, %%mm6 \n\t"
 		"paddw %%mm1, %%mm6 \n\t"
 		
-		"movq (%%edi,%%eax), %%mm0 \n\t"
-		"movq (%%esi), %%mm1 \n\t"
+		"movq (%%"REG_D",%%"REG_a"), %%mm0 \n\t"
+		"movq (%%"REG_S"), %%mm1 \n\t"
 		"punpcklbw %%mm7, %%mm0 \n\t"
-		"movq (%%esi,%%eax), %%mm2 \n\t"
+		"movq (%%"REG_S",%%"REG_a"), %%mm2 \n\t"
 		"punpcklbw %%mm7, %%mm1 \n\t"
 		"punpcklbw %%mm7, %%mm2 \n\t"
 		"paddw %%mm0, %%mm0 \n\t"
@@ -110,10 +111,10 @@ static int licomb_y_mmx(unsigned char *a, unsigned char *b, int s)
 		"paddw %%mm0, %%mm6 \n\t"
 		"paddw %%mm1, %%mm6 \n\t"
 		
-		"movq (%%edi,%%eax), %%mm0 \n\t"
-		"movq (%%esi), %%mm1 \n\t"
+		"movq (%%"REG_D",%%"REG_a"), %%mm0 \n\t"
+		"movq (%%"REG_S"), %%mm1 \n\t"
 		"punpckhbw %%mm7, %%mm0 \n\t"
-		"movq (%%esi,%%eax), %%mm2 \n\t"
+		"movq (%%"REG_S",%%"REG_a"), %%mm2 \n\t"
 		"punpckhbw %%mm7, %%mm1 \n\t"
 		"punpckhbw %%mm7, %%mm2 \n\t"
 		"paddw %%mm0, %%mm0 \n\t"
@@ -124,8 +125,8 @@ static int licomb_y_mmx(unsigned char *a, unsigned char *b, int s)
 		"paddw %%mm0, %%mm6 \n\t"
 		"paddw %%mm1, %%mm6 \n\t"
 
-		"addl %%eax, %%esi \n\t"
-		"addl %%eax, %%edi \n\t"
+		"add  %%"REG_a", %%"REG_S" \n\t"
+		"add  %%"REG_a", %%"REG_D" \n\t"
 		"decl %%ecx \n\t"
 		"jnz 2b \n\t"
 		
@@ -156,10 +157,10 @@ static int var_y_mmx(unsigned char *a, unsigned char *b, int s)
 		
 		"1: \n\t"
 		
-		"movq (%%esi), %%mm0 \n\t"
-		"movq (%%esi), %%mm2 \n\t"
-		"movq (%%esi,%%eax), %%mm1 \n\t"
-		"addl %%eax, %%esi \n\t"
+		"movq (%%"REG_S"), %%mm0 \n\t"
+		"movq (%%"REG_S"), %%mm2 \n\t"
+		"movq (%%"REG_S",%%"REG_a"), %%mm1 \n\t"
+		"add  %%"REG_a", %%"REG_S" \n\t"
 		"psubusb %%mm1, %%mm2 \n\t"
 		"psubusb %%mm0, %%mm1 \n\t"
 		"movq %%mm2, %%mm0 \n\t"
@@ -218,6 +219,7 @@ static int licomb_y(unsigned char *a, unsigned char *b, int s)
 	return diff;
 }
 
+#if 0
 static int qpcomb_y(unsigned char *a, unsigned char *b, int s)
 {
 	int i, j, diff=0;
@@ -229,7 +231,6 @@ static int qpcomb_y(unsigned char *a, unsigned char *b, int s)
 	return diff;
 }
 
-#if 0
 static int licomb_y_test(unsigned char *a, unsigned char *b, int s)
 {
 	int c = licomb_y(a,b,s);
@@ -565,7 +566,6 @@ static int decide_frame_length(struct pullup_context *c)
 	struct pullup_field *f0 = c->first;
 	struct pullup_field *f1 = f0->next;
 	struct pullup_field *f2 = f1->next;
-	struct pullup_field *f3 = f2->next;
 	int l;
 	
 	if (queue_length(c->first, c->last) < 4) return 0;
@@ -795,6 +795,7 @@ void pullup_free_context(struct pullup_context *c)
 	free(c->buffers);
 	f = c->head;
 	do {
+		if (!f) break;
 		free(f->diffs);
 		free(f->comb);
 		f = f->next;

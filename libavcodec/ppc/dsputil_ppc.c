@@ -20,7 +20,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include "../dsputil.h"
+#include "dsputil.h"
 
 #include "dsputil_ppc.h"
 
@@ -39,6 +39,7 @@ void dsputil_init_altivec(DSPContext* c, AVCodecContext *avctx);
 void vc1dsp_init_altivec(DSPContext* c, AVCodecContext *avctx);
 void snow_init_altivec(DSPContext* c, AVCodecContext *avctx);
 void float_init_altivec(DSPContext* c, AVCodecContext *avctx);
+void int_init_altivec(DSPContext* c, AVCodecContext *avctx);
 
 #endif
 
@@ -55,7 +56,7 @@ int mm_support(void)
     return result;
 }
 
-#ifdef POWERPC_PERFORMANCE_REPORT
+#ifdef CONFIG_POWERPC_PERF
 unsigned long long perfdata[POWERPC_NUM_PMC_ENABLED][powerpc_perf_total][powerpc_data_total];
 /* list below must match enum in dsputil_ppc.h */
 static unsigned char* perfname[] = {
@@ -90,7 +91,7 @@ static unsigned char* perfname[] = {
 #include <stdio.h>
 #endif
 
-#ifdef POWERPC_PERFORMANCE_REPORT
+#ifdef CONFIG_POWERPC_PERF
 void powerpc_display_perf_report(void)
 {
   int i, j;
@@ -101,7 +102,7 @@ void powerpc_display_perf_report(void)
       {
         if (perfdata[j][i][powerpc_data_num] != (unsigned long long)0)
           av_log(NULL, AV_LOG_INFO,
-                  " Function \"%s\" (pmc%d):\n\tmin: %llu\n\tmax: %llu\n\tavg: %1.2lf (%llu)\n",
+                  " Function \"%s\" (pmc%d):\n\tmin: %"PRIu64"\n\tmax: %"PRIu64"\n\tavg: %1.2lf (%"PRIu64")\n",
                   perfname[i],
                   j+1,
                   perfdata[j][i][powerpc_data_min],
@@ -112,7 +113,7 @@ void powerpc_display_perf_report(void)
       }
   }
 }
-#endif /* POWERPC_PERFORMANCE_REPORT */
+#endif /* CONFIG_POWERPC_PERF */
 
 /* ***** WARNING ***** WARNING ***** WARNING ***** */
 /*
@@ -154,11 +155,7 @@ POWERPC_PERF_START_COUNT(powerpc_clear_blocks_dcbz32, 1);
       i += 16;
     }
     for ( ; i < sizeof(DCTELEM)*6*64-31 ; i += 32) {
-#ifndef __MWERKS__
       asm volatile("dcbz %0,%1" : : "b" (blocks), "r" (i) : "memory");
-#else
-      __dcbz( blocks, i );
-#endif
     }
     if (misal) {
       ((unsigned long*)blocks)[188] = 0L;
@@ -260,7 +257,7 @@ static void prefetch_ppc(void *mem, int stride, int h)
 
 void dsputil_init_ppc(DSPContext* c, AVCodecContext *avctx)
 {
-    // Common optimizations whether Altivec is available or not
+    // Common optimizations whether AltiVec is available or not
     c->prefetch = prefetch_ppc;
     switch (check_dcbzl_effect()) {
         case 32:
@@ -274,15 +271,17 @@ void dsputil_init_ppc(DSPContext* c, AVCodecContext *avctx)
     }
 
 #ifdef HAVE_ALTIVEC
-    dsputil_h264_init_ppc(c, avctx);
+    if(ENABLE_H264_DECODER) dsputil_h264_init_ppc(c, avctx);
 
     if (has_altivec()) {
         mm_flags |= MM_ALTIVEC;
 
         dsputil_init_altivec(c, avctx);
-        snow_init_altivec(c, avctx);
-        vc1dsp_init_altivec(c, avctx);
+        if(ENABLE_SNOW_DECODER) snow_init_altivec(c, avctx);
+        if(ENABLE_VC1_DECODER || ENABLE_WMV3_DECODER)
+            vc1dsp_init_altivec(c, avctx);
         float_init_altivec(c, avctx);
+        int_init_altivec(c, avctx);
         c->gmc1 = gmc1_altivec;
 
 #ifdef CONFIG_ENCODERS
@@ -304,7 +303,7 @@ void dsputil_init_ppc(DSPContext* c, AVCodecContext *avctx)
         }
         }
 
-#ifdef POWERPC_PERFORMANCE_REPORT
+#ifdef CONFIG_POWERPC_PERF
         {
           int i, j;
           for (i = 0 ; i < powerpc_perf_total ; i++)
@@ -318,7 +317,7 @@ void dsputil_init_ppc(DSPContext* c, AVCodecContext *avctx)
               }
           }
         }
-#endif /* POWERPC_PERFORMANCE_REPORT */
+#endif /* CONFIG_POWERPC_PERF */
     }
 #endif /* HAVE_ALTIVEC */
 }

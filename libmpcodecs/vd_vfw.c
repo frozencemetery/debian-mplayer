@@ -7,8 +7,8 @@
 
 #include "vd_internal.h"
 
-#include "wine/driver.h"
-#include "wine/vfw.h"
+#include "loader/wine/driver.h"
+#include "loader/wine/vfw.h"
 
 static vd_info_t info = {
 #ifdef BUILD_VFWEX
@@ -34,8 +34,6 @@ typedef struct {
     HIC handle;
     unsigned char *palette;
 } vd_vfw_ctx;
-
-extern int divx_quality;
 
 static int vfw_set_postproc(sh_video_t* sh, int quality)
 {

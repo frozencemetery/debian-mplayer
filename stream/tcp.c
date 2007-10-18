@@ -19,6 +19,7 @@
 
 #include "mp_msg.h"
 #include "help_mp.h"
+#include "input/input.h"
 
 #ifndef HAVE_WINSOCK2
 #include <netdb.h>
@@ -76,6 +77,9 @@ connect2Server_with_af(char *host, int port, int af,int verb) {
 	
 #ifdef HAVE_WINSOCK2
 	u_long val;
+	int to;
+#else
+	struct timeval to;
 #endif
 	
 	socket_server_fd = socket(af, SOCK_STREAM, 0);
@@ -85,6 +89,18 @@ connect2Server_with_af(char *host, int port, int af,int verb) {
 //		mp_msg(MSGT_NETWORK,MSGL_ERR,"Failed to create %s socket:\n", af2String(af));
 		return TCP_ERROR_FATAL;
 	}
+
+#if defined(SO_RCVTIMEO) && defined(SO_SNDTIMEO)
+#ifdef HAVE_WINSOCK2
+	/* timeout in milliseconds */
+	to = 10 * 1000;
+#else
+	to.tv_sec = 10;
+	to.tv_usec = 0;
+#endif
+	setsockopt(socket_server_fd, SOL_SOCKET, SO_RCVTIMEO, &to, sizeof(to));
+	setsockopt(socket_server_fd, SOL_SOCKET, SO_SNDTIMEO, &to, sizeof(to));
+#endif
 
 	switch (af) {
 		case AF_INET:  our_s_addr = (void *) &server_address.four.sin_addr; break;
@@ -177,15 +193,13 @@ connect2Server_with_af(char *host, int port, int af,int verb) {
 	tv.tv_usec = 500000;
 	FD_ZERO( &set );
 	FD_SET( socket_server_fd, &set );
-	// When the connection will be made, we will have a writable fd
+	// When the connection will be made, we will have a writeable fd
 	while((ret = select(socket_server_fd+1, NULL, &set, NULL, &tv)) == 0) {
-	      if( ret<0 ) mp_msg(MSGT_NETWORK,MSGL_ERR,MSGTR_MPDEMUX_NW_SelectFailed);
-	      else if(ret > 0) break;
-	      else if(count > 30 || mp_input_check_interrupt(500)) {
+	      if(count > 30 || mp_input_check_interrupt(500)) {
 		if(count > 30)
 		  mp_msg(MSGT_NETWORK,MSGL_ERR,MSGTR_MPDEMUX_NW_ConnTimeout);
 		else
-		  mp_msg(MSGT_NETWORK,MSGL_V,"Connection interuppted by user\n");
+		  mp_msg(MSGT_NETWORK,MSGL_V,"Connection interrupted by user\n");
 		return TCP_ERROR_TIMEOUT;
 	      }
 	      count++;
@@ -194,6 +208,7 @@ connect2Server_with_af(char *host, int port, int af,int verb) {
 	      tv.tv_sec = 0;
 	      tv.tv_usec = 500000;
 	}
+	if (ret < 0) mp_msg(MSGT_NETWORK,MSGL_ERR,MSGTR_MPDEMUX_NW_SelectFailed);
 
 	// Turn back the socket as blocking
 #ifndef HAVE_WINSOCK2
@@ -202,7 +217,7 @@ connect2Server_with_af(char *host, int port, int af,int verb) {
 	val = 0;
 	ioctlsocket( socket_server_fd, FIONBIO, &val );
 #endif
-	// Check if there were any error
+	// Check if there were any errors
 	err_len = sizeof(int);
 	ret =  getsockopt(socket_server_fd,SOL_SOCKET,SO_ERROR,&err,&err_len);
 	if(ret < 0) {

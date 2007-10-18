@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 #include "avformat.h"
-#include "allformats.h"
+#include "raw.h"
 #include "riff.h"
 
 typedef struct {
@@ -168,8 +168,6 @@ static int mmf_write_trailer(AVFormatContext *s)
 static int mmf_probe(AVProbeData *p)
 {
     /* check file header */
-    if (p->buf_size <= 32)
-        return 0;
     if (p->buf[0] == 'M' && p->buf[1] == 'M' &&
         p->buf[2] == 'M' && p->buf[3] == 'D' &&
         p->buf[8] == 'C' && p->buf[9] == 'N' &&
@@ -244,7 +242,7 @@ static int mmf_read_header(AVFormatContext *s,
 
     st = av_new_stream(s, 0);
     if (!st)
-        return AVERROR_NOMEM;
+        return AVERROR(ENOMEM);
 
     st->codec->codec_type = CODEC_TYPE_AUDIO;
     st->codec->codec_id = CODEC_ID_ADPCM_YAMAHA;
@@ -268,7 +266,7 @@ static int mmf_read_packet(AVFormatContext *s,
     int ret, size;
 
     if (url_feof(&s->pb))
-        return AVERROR_IO;
+        return AVERROR(EIO);
     st = s->streams[0];
 
     size = MAX_SIZE;
@@ -276,10 +274,10 @@ static int mmf_read_packet(AVFormatContext *s,
         size = mmf->data_size;
 
     if(!size)
-        return AVERROR_IO;
+        return AVERROR(EIO);
 
     if (av_new_packet(pkt, size))
-        return AVERROR_IO;
+        return AVERROR(EIO);
     pkt->stream_index = 0;
 
     ret = get_buffer(&s->pb, pkt->data, pkt->size);

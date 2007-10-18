@@ -6,11 +6,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "config.h"
 #include "mp_msg.h"
 
-#include "bswap.h"
+#include "libavutil/common.h"
+#include "mpbswap.h"
 #include "libvo/fastmemcpy.h"
 
 #include "vd_internal.h"
@@ -121,7 +123,7 @@ static void decode_rle_tga(TGAInfo *info, unsigned char *data, mp_image_t *mpi)
 	    }
 	    else /* raw packet */
 	    {
-		memcpy(final, data, replen);
+		fast_memcpy(final, data, replen);
 		data += replen;
 	    }
 	    
@@ -142,7 +144,7 @@ static void decode_uncompressed_tga(TGAInfo *info, unsigned char *data, mp_image
     for (row = info->start_row; (!info->origin && row) || (info->origin && row < info->height); row += info->increment)
     {
 	final = mpi->planes[0] + mpi->stride[0] * row;
-	memcpy(final, data, info->width * num_bytes);
+	fast_memcpy(final, data, info->width * num_bytes);
 	data += info->width * num_bytes;
     }
 

@@ -7,7 +7,6 @@
 #include "mp_msg.h"
 #include "video_out.h"
 #include "video_out_internal.h"
-#include "fastmemcpy.h"
 #include "osdep/timer.h"
 
 #include <X11/Xlib.h>
@@ -33,10 +32,12 @@
 #include "subopt-helper.h"
 
 #ifdef HAVE_NEW_GUI
-#include "Gui/interface.h"
+#include "gui/interface.h"
 #endif
 
-//no chanse xinerama to be suported in near future
+#include "libavutil/common.h"
+
+//no chance for xinerama to be supported in the near future
 #undef HAVE_XINERAMA
 
 #undef NDEBUG 
@@ -44,6 +45,11 @@
 
 
 #define UNUSED(x) ((void)(x))
+
+#include "libavcodec/avcodec.h"
+#if LIBAVCODEC_BUILD < ((51<<16)+(40<<8)+2)
+#error You need at least libavcodecs v51.40.2
+#endif
 
 
 static int benchmark;
@@ -55,6 +61,7 @@ static int bob_deinterlace;
 static int top_field_first;
 
 static int image_width,image_height;
+static int image_format;
 static uint32_t  drwX,drwY;
 
 #define NO_SUBPICTURE      0
@@ -108,6 +115,7 @@ static const struct{
                   };
 
 static void xvmc_free(void);
+static void xvmc_clean_surfaces(void);
 static int count_free_surfaces();
 static xvmc_render_state_t * find_free_surface();
 
@@ -318,12 +326,14 @@ XvMCSurfaceInfo * mc_surf_list;
 	 XFree(mc_surf_list);//if mc_surf_num==0 is list==NULL ?
       }//for ports
    }//for adaptors
+   XvFreeAdaptorInfo(ai);
 
    if(!query) printf("vo_xvmc: Could not find free matching surface. Sorry.\n");
    return 0;
 
 // somebody know cleaner way to escape from 3 internal loops?
 surface_found:
+   XvFreeAdaptorInfo(ai);
 
    memcpy(surf_info,&mc_surf_list[s],sizeof(XvMCSurfaceInfo));
    if( mp_msg_test(MSGT_VO,MSGL_DBG3) || !query)
@@ -417,6 +427,22 @@ opt_t subopts [] =
    return 0;
 }
 
+static void calc_drwXY(uint32_t *drwX, uint32_t *drwY) {
+  *drwX = *drwY = 0;
+  if (vo_fs) {
+    aspect(&vo_dwidth, &vo_dheight, A_ZOOM);
+    vo_dwidth = FFMIN(vo_dwidth, vo_screenwidth);
+    vo_dheight = FFMIN(vo_dheight, vo_screenheight);
+    *drwX = (vo_screenwidth - vo_dwidth) / 2;
+    *drwY = (vo_screenheight - vo_dheight) / 2;
+    mp_msg(MSGT_VO, MSGL_V, "[xvmc-fs] dx: %d dy: %d dw: %d dh: %d\n",
+           *drwX, *drwY, vo_dwidth, vo_dheight);
+  } else if (WinID == 0) {
+    *drwX = vo_dx;
+    *drwY = vo_dy;
+  }
+}
+
 static int config(uint32_t width, uint32_t height,
 		       uint32_t d_width, uint32_t d_height,
 		       uint32_t flags, char *title, uint32_t format){
@@ -424,7 +450,6 @@ int i,mode_id,rez;
 int numblocks,blocks_per_macroblock;//bpmb we have 6,8,12
 
 //from vo_xv
-char *hello = (title == NULL) ? "XvMC render" : title;
 XSizeHints hint;
 XVisualInfo vinfo;
 XGCValues xgcv;
@@ -448,6 +473,10 @@ static uint32_t vm_height;
 
 // Find free port that supports MC, by querying adaptors
    if( xv_port != 0 || number_of_surfaces != 0 ){
+      if( height==image_height && width==image_width && image_format==format){
+         xvmc_clean_surfaces();
+         goto skip_surface_allocation;
+      }
       xvmc_free();
    };
    numblocks=((width+15)/16)*((height+15)/16);
@@ -585,8 +614,8 @@ found_subpic:
          printf("vo_xvmc: OSD support by additional frontend rendering\n");
          break;
       case BACKEND_SUBPICTURE:
-         printf("vo_xvmc: OSD support by beckend rendering (fast)\n");
-         printf("vo_xvmc: Pleace send feedback to configrm that it work,otherwise send bugreport!\n");
+         printf("vo_xvmc: OSD support by backend rendering (fast)\n");
+         printf("vo_xvmc: Please send feedback to confirm that it works,otherwise send bugreport!\n");
          break;
    }
 
@@ -599,23 +628,12 @@ found_subpic:
    vo_xv_enable_vsync();//it won't break anything
 
 //taken from vo_xv
-   panscan_init();
-
-   aspect_save_orig(width,height);
-   aspect_save_prescale(d_width,d_height);
-
    image_height = height;
    image_width = width;
 
-   vo_mouse_autohide = 1;
+skip_surface_allocation:
 
-   update_xinerama_info();
-   aspect(&d_width,&d_height,A_NOZOOM);
-   vo_dx=( vo_screenwidth - d_width ) / 2; vo_dy=( vo_screenheight - d_height ) / 2;
-   geometry(&vo_dx, &vo_dy, &d_width, &d_height, vo_screenwidth, vo_screenheight);
-   vo_dx += xinerama_x;
-   vo_dy += xinerama_y;
-   vo_dwidth=d_width; vo_dheight=d_height;
+   vo_mouse_autohide = 1;
 
 #ifdef HAVE_XF86VM
    if( flags&VOFLAG_MODESWITCHING ) vm = 1;
@@ -647,21 +665,6 @@ found_subpic:
       }
       else
 #endif
-      if ( vo_fs )
-      {
-#ifdef X11_FULLSCREEN
-     /* this code replaces X11_FULLSCREEN hack in mplayer.c
-      * aspect() is available through aspect.h for all vos.
-      * besides zooming should only be done with -zoom,
-      * but I leave the old -fs behaviour so users don't get
-      * irritated for now (and send lots o' mails ;) ::atmos
-      */
-
-         aspect(&d_width,&d_height,A_ZOOM);
-#endif
-
-      }
-   vo_dwidth=d_width; vo_dheight=d_height;
    hint.flags = PPosition | PSize /* | PBaseSize */;
    hint.base_width = hint.width; hint.base_height = hint.height;
    XGetWindowAttributes(mDisplay, DefaultRootWindow(mDisplay), &attribs);
@@ -688,37 +691,12 @@ found_subpic:
          XGetGeometry(mDisplay, vo_window, &mRoot,
                       &drwX, &drwY, &vo_dwidth, &vo_dheight,
                       &drwBorderWidth, &drwDepth);
-         drwX = drwY = 0; // coordinates need to be local to the window
          aspect_save_prescale(vo_dwidth, vo_dheight);
-      } else { drwX=vo_dx; drwY=vo_dy; }
-   } else 
-      if ( vo_window == None ){
-         vo_window = XCreateWindow(mDisplay, mRootWin,
-              hint.x, hint.y, hint.width, hint.height,
-              0, depth,CopyFromParent,vinfo.visual,xswamask,&xswa);
-
-         vo_x11_classhint( mDisplay,vo_window,"xvmc" );
-         vo_hidecursor(mDisplay,vo_window);
-
-         vo_x11_selectinput_witherr(mDisplay, vo_window, StructureNotifyMask | KeyPressMask | PropertyChangeMask | ExposureMask |
-	      ((WinID==0) ? 0 : (PointerMotionMask
-		| ButtonPressMask | ButtonReleaseMask)) );
-         XSetStandardProperties(mDisplay, vo_window, hello, hello, None, NULL, 0, &hint);
-         XSetWMNormalHints( mDisplay,vo_window,&hint );
-	 XMapWindow(mDisplay, vo_window);
-	 vo_x11_nofs_sizepos(hint.x, hint.y, hint.width, hint.height);
-	 if ( flags&VOFLAG_FULLSCREEN ) vo_x11_fullscreen();
-	 else {
-	    vo_x11_sizehint( hint.x, hint.y, hint.width, hint.height,0 );
-	 }
-      } else {
-	// vo_fs set means we were already at fullscreen
-	 vo_x11_sizehint( hint.x, hint.y, hint.width, hint.height,0 );
-	 vo_x11_nofs_sizepos(hint.x, hint.y, hint.width, hint.height);
-	 if ( flags&VOFLAG_FULLSCREEN && !vo_fs ) vo_x11_fullscreen(); // handle -fs on non-first file
       }
-
-//    vo_x11_sizehint( hint.x, hint.y, hint.width, hint.height,0 );   
+   } else 
+      vo_x11_create_vo_window(&vinfo, vo_dx, vo_dy, d_width, d_height, flags,
+              CopyFromParent, "xvmc", title);
+      XChangeWindowAttributes(mDisplay, vo_window, xswamask, &xswa);
 
       if ( vo_gc != None ) XFreeGC( mDisplay,vo_gc );
       vo_gc = XCreateGC(mDisplay, vo_window, GCForeground, &xgcv);
@@ -736,16 +714,9 @@ found_subpic:
 #endif
    }
 
-   aspect(&vo_dwidth,&vo_dheight,A_NOZOOM);
-   if ( (( flags&VOFLAG_FULLSCREEN )&&( WinID <= 0 )) || vo_fs )
-   {
-      aspect(&vo_dwidth,&vo_dheight,A_ZOOM);
-      drwX=( vo_screenwidth - (vo_dwidth > vo_screenwidth?vo_screenwidth:vo_dwidth) ) / 2;
-      drwY=( vo_screenheight - (vo_dheight > vo_screenheight?vo_screenheight:vo_dheight) ) / 2;
-      vo_dwidth=(vo_dwidth > vo_screenwidth?vo_screenwidth:vo_dwidth);
-      vo_dheight=(vo_dheight > vo_screenheight?vo_screenheight:vo_dheight);
-      mp_msg(MSGT_VO,MSGL_V, "[xvmc-fs] dx: %d dy: %d dw: %d dh: %d\n",drwX,drwY,vo_dwidth,vo_dheight );
-   }
+   aspect(&vo_dwidth, &vo_dheight, A_NOZOOM);
+   if ((flags & VOFLAG_FULLSCREEN) && WinID <= 0) vo_fs = 1;
+   calc_drwXY(&drwX, &drwY);
 
    panscan_calc();
 
@@ -763,6 +734,7 @@ found_subpic:
    first_frame = 1;
 
    vo_directrendering = 1;//ugly hack, coz xvmc works only with direct rendering
+   image_format=format;
    return 0;		
 }
 
@@ -802,8 +774,9 @@ static void init_osd_yuv_pal(){
       }
       rez = XvMCSetSubpicturePalette(mDisplay, &subpicture, palette);
       if(rez!=Success){
-         printf("vo_xvmc: set pallete fail\n");
+         printf("vo_xvmc: Setting palette failed.\n");
       }
+      free(palette);
    }
 }
 
@@ -1100,7 +1073,6 @@ int i,cfs;
 }
 
 static void check_events(void){
-int dwidth,dheight;
 Window mRoot;
 uint32_t drwBorderWidth,drwDepth;
 
@@ -1111,20 +1083,10 @@ int e=vo_x11_check_events(mDisplay);
 
       XGetGeometry( mDisplay,vo_window,&mRoot,&drwX,&drwY,&vo_dwidth,&vo_dheight,
                    &drwBorderWidth,&drwDepth );
-      drwX = drwY = 0;
       mp_msg(MSGT_VO,MSGL_V, "[xvmc] dx: %d dy: %d dw: %d dh: %d\n",drwX,drwY,
               vo_dwidth,vo_dheight );
 
-      aspect(&dwidth,&dheight,A_NOZOOM);
-      if ( vo_fs )
-      {
-         aspect(&dwidth,&dheight,A_ZOOM);
-         drwX=( vo_screenwidth - (dwidth > vo_screenwidth?vo_screenwidth:dwidth) ) / 2;
-         drwY=( vo_screenheight - (dheight > vo_screenheight?vo_screenheight:dheight) ) / 2;
-         vo_dwidth=(dwidth > vo_screenwidth?vo_screenwidth:dwidth);
-         vo_dheight=(dheight > vo_screenheight?vo_screenheight:dheight);
-         mp_msg(MSGT_VO,MSGL_V, "[xvmc-fs] dx: %d dy: %d dw: %d dh: %d\n",drwX,drwY,vo_dwidth,vo_dheight );
-      }
+      calc_drwXY(&drwX, &drwY);
    }
    if ( e & VO_EVENT_EXPOSE )
    {
@@ -1336,6 +1298,23 @@ xvmc_render_state_t * visible_rndr;
    return NULL;
 }
 
+static void xvmc_clean_surfaces(void){
+int i;
+
+  for(i=0; i<number_of_surfaces; i++){
+
+      surface_render[i].state&=!( MP_XVMC_STATE_DISPLAY_PENDING |
+                                  MP_XVMC_STATE_OSD_SOURCE |
+                                  0);
+      surface_render[i].p_osd_target_surface_render=NULL;
+      if(surface_render[i].state != 0){
+         mp_msg(MSGT_VO,MSGL_WARN,"vo_xvmc: surface[%d].state=%d\n",
+                                   i,surface_render[i].state);
+      }
+   }
+   free_element=0;//clean up the queue
+}
+
 static uint32_t get_image(mp_image_t *mpi){
 xvmc_render_state_t * rndr;
 
@@ -1379,6 +1358,12 @@ return VO_TRUE;
 static int control(uint32_t request, void *data, ... )
 {
    switch (request){
+      case VOCTRL_GET_DEINTERLACE:
+        *(int*)data = bob_deinterlace;
+        return VO_TRUE;
+      case VOCTRL_SET_DEINTERLACE:
+        bob_deinterlace = *(int*)data;
+        return VO_TRUE;
       case VOCTRL_QUERY_FORMAT:
          return query_format(*((uint32_t*)data));
       case VOCTRL_DRAW_IMAGE:
@@ -1433,6 +1418,9 @@ static int control(uint32_t request, void *data, ... )
 
          return(vo_xv_get_eq(xv_port, data, value));
       }
+      case VOCTRL_UPDATE_SCREENINFO:
+         update_xinerama_info();
+         return VO_TRUE;
    }
 return VO_NOTIMPL;
 }

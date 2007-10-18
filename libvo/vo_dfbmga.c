@@ -39,6 +39,7 @@
 #include "sub.h"
 #include "mp_msg.h"
 #include "aspect.h"
+#include "mp_fifo.h"
 
 static vo_info_t info = {
      "DirectFB / Matrox G200/G400/G450/G550",
@@ -226,8 +227,6 @@ get_layer_by_name( DFBDisplayLayerID id,
 
      return DFENUM_OK;
 }
-
-static void uninit( void );
 
 static int
 preinit( const char *arg )
@@ -1424,8 +1423,6 @@ control( uint32_t request, void *data, ... )
 
      return VO_NOTIMPL;
 }
-
-extern void mplayer_put_key( int code );
 
 #include "osdep/keycodes.h"
 

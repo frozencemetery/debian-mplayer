@@ -1,3 +1,4 @@
+#include "libavutil/intreadwrite.h"
 //=================== VideoCD ==========================
 #if	defined(linux) || defined(sun) || defined(__bsdi__)
 
@@ -19,6 +20,7 @@ struct mp_vcd_priv_st {
 };
 
 static inline void vcd_set_msf(mp_vcd_priv_t* vcd, unsigned int sect){
+  sect += 150;
   vcd->entry.cdte_addr.msf.frame=sect%75;
   sect=sect/75;
   vcd->entry.cdte_addr.msf.second=sect%60;
@@ -29,7 +31,7 @@ static inline void vcd_set_msf(mp_vcd_priv_t* vcd, unsigned int sect){
 static inline unsigned int vcd_get_msf(mp_vcd_priv_t* vcd){
   return vcd->entry.cdte_addr.msf.frame +
         (vcd->entry.cdte_addr.msf.second+
-         vcd->entry.cdte_addr.msf.minute*60)*75;
+         vcd->entry.cdte_addr.msf.minute*60)*75 - 150;
 }
 
 int vcd_seek_to_track(mp_vcd_priv_t* vcd,int track){
@@ -127,7 +129,7 @@ static int vcd_read(mp_vcd_priv_t* vcd,char *mem){
 #elif	defined(sun)
   {
     int offset;
-    if (sun_vcd_read(vcd->fd, &offset) <= 0) return 0;
+    if (sun_vcd_read(vcd, &offset) <= 0) return 0;
     memcpy(mem,&vcd->buf[offset],VCD_SECTOR_DATA);
   }
 #endif
@@ -185,36 +187,15 @@ static int sun_vcd_read(mp_vcd_priv_t* vcd, int *offset)
   union scsi_cdb cdb;
   int lba = vcd_get_msf(vcd);
   int blocks = 1;
-  int sector_type;
-  int sync, header_code, user_data, edc_ecc, error_field;
-  int sub_channel;
-
-  /* sector_type = 3; *//* mode2 */
-  sector_type = 5;	/* mode2/form2 */
-  sync = 0;
-  header_code = 0;
-  user_data = 1;
-  edc_ecc = 0;
-  error_field = 0;
-  sub_channel = 0;
 
   memset(&cdb, 0, sizeof(cdb));
   memset(&sc, 0, sizeof(sc));
   cdb.scc_cmd = 0xBE;
-  cdb.cdb_opaque[1] = (sector_type) << 2;
-  cdb.cdb_opaque[2] = (lba >> 24) & 0xff;
-  cdb.cdb_opaque[3] = (lba >> 16) & 0xff;
-  cdb.cdb_opaque[4] = (lba >>  8) & 0xff;
-  cdb.cdb_opaque[5] =  lba & 0xff;
-  cdb.cdb_opaque[6] = (blocks >> 16) & 0xff;
-  cdb.cdb_opaque[7] = (blocks >>  8) & 0xff;
-  cdb.cdb_opaque[8] =  blocks & 0xff;
-  cdb.cdb_opaque[9] = (sync << 7) |
-		      (header_code << 5) |
-		      (user_data << 4) |
-		      (edc_ecc << 3) |
-		      (error_field << 1);
-  cdb.cdb_opaque[10] = sub_channel;
+  cdb.cdb_opaque[1] = 5 << 2; // mode2 / form2
+  AV_WB32(&cdb.cdb_opaque[2], lba);
+  AV_WB24(&cdb.cdb_opaque[6], blocks);
+  cdb.cdb_opaque[9] = 1 << 4; // user data only
+  cdb.cdb_opaque[10] = 0;     // subchannel
 
   sc.uscsi_cdb = (caddr_t)&cdb;
   sc.uscsi_cdblen = 12;

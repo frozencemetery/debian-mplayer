@@ -19,14 +19,12 @@ static ad_info_t info =
 
 LIBAD_EXTERN(dmo)
 
-#include "dmo/DMO_AudioDecoder.h"
+#include "loader/dmo/DMO_AudioDecoder.h"
 
 static int init(sh_audio_t *sh)
 {
   return 1;
 }
-
-extern int audio_output_channels;
 
 static int preinit(sh_audio_t *sh_audio)
 {

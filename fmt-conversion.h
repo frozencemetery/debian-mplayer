@@ -1,4 +1,11 @@
+#ifndef FMT_CONVERSION_H
+#define FMT_CONVERSION_H
+
+#ifdef USE_LIBAVUTIL_SO
+#include <ffmpeg/avutil.h>
+#else
 #include "avutil.h"
+#endif
 #include "img_format.h"
 
 enum PixelFormat imgfmt2pixfmt(int fmt)
@@ -50,6 +57,7 @@ enum PixelFormat imgfmt2pixfmt(int fmt)
         case IMGFMT_YVU9:
             return PIX_FMT_YUV410P;
         case IMGFMT_I420:
+        case IMGFMT_IYUV:
         case IMGFMT_YV12:
             return PIX_FMT_YUV420P;
         case IMGFMT_411P:
@@ -64,3 +72,5 @@ enum PixelFormat imgfmt2pixfmt(int fmt)
 
     return PIX_FMT_NONE;
 }
+
+#endif /* FMT_CONVERSION_H */

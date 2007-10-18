@@ -28,6 +28,10 @@
  * ratecontrol header.
  */
 
+#include <stdio.h>
+#include <stdint.h>
+#include "eval.h"
+
 typedef struct Predictor{
     double coeff;
     double count;
@@ -80,6 +84,7 @@ typedef struct RateControlContext{
     void *non_lavc_opaque;        ///< context for non lavc rc code (for example xvid)
     float dry_run_qscale;         ///< for xvid rc
     int last_picture_number;      ///< for xvid rc
+    AVEvalExpr * rc_eq_eval;
 }RateControlContext;
 
 struct MpegEncContext;

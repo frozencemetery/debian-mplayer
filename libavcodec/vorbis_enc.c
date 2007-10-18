@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with FFmpeg; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 /**
@@ -756,7 +756,7 @@ static void floor_encode(venc_context_t * venc, floor_t * fc, PutBitContext * pb
                     int maxval = 1;
                     if (c->books[l] != -1)
                         maxval = venc->codebooks[c->books[l]].nentries;
-                    // coded could be -1, but this still works, cause thats 0
+                    // coded could be -1, but this still works, cause that is 0
                     if (coded[counter + k] < maxval) break;
                 }
                 assert(l != csub);
@@ -906,7 +906,7 @@ static int apply_window_and_mdct(venc_context_t * venc, signed short * audio, in
             float * offset = venc->samples + channel*window_len*2 + window_len;
             j = channel;
             for (i = 0; i < samples; i++, j += venc->channels)
-                offset[i] = audio[j] / 32768. / n * win[window_len - i - 1];
+                offset[i] = -audio[j] / 32768. / n * win[window_len - i - 1]; //FIXME find out why the sign has to be fliped
         }
     } else {
         for (channel = 0; channel < venc->channels; channel++) {
@@ -923,7 +923,7 @@ static int apply_window_and_mdct(venc_context_t * venc, signed short * audio, in
             float * offset = venc->saved + channel*window_len;
             j = channel;
             for (i = 0; i < samples; i++, j += venc->channels)
-                offset[i] = audio[j] / 32768. / n * win[i];
+                offset[i] = -audio[j] / 32768. / n * win[i]; //FIXME find out why the sign has to be fliped
         }
         venc->have_saved = 1;
     } else {

@@ -16,11 +16,11 @@
 #include "help_mp.h"
 
 #include "codec-cfg.h"
-#include "stream.h"
-#include "demuxer.h"
-#include "stheader.h"
+#include "stream/stream.h"
+#include "libmpdemux/demuxer.h"
+#include "libmpdemux/stheader.h"
 
-#include "muxer.h"
+#include "libmpdemux/muxer.h"
 
 #include "img_format.h"
 #include "mp_image.h"
@@ -52,6 +52,8 @@ static int lavc_param_mb_qmin = 2;
 static int lavc_param_mb_qmax = 31;
 static float lavc_param_lmin = 2;
 static float lavc_param_lmax = 31;
+static float lavc_param_mb_lmin = 2;
+static float lavc_param_mb_lmax = 31;
 static int lavc_param_vqdiff = 3;
 static float lavc_param_vqcompress = 0.5;
 static float lavc_param_vqblur = 0.5;
@@ -109,6 +111,7 @@ static int lavc_param_pre_dia_size= 0;
 static int lavc_param_dia_size= 0;
 static int lavc_param_qpel= 0;
 static int lavc_param_trell= 0;
+static int lavc_param_lowdelay= 0;
 static int lavc_param_bit_exact = 0;
 static int lavc_param_aic= 0;
 static int lavc_param_aiv= 0;
@@ -141,6 +144,10 @@ static int lavc_param_closed_gop = 0;
 static int lavc_param_dc_precision = 8;
 static int lavc_param_threads= 1;
 static int lavc_param_turbo = 0;
+static int lavc_param_skip_threshold=0;
+static int lavc_param_skip_factor=0;
+static int lavc_param_skip_exp=0;
+static int lavc_param_skip_cmp=0;
 static int lavc_param_brd_scale = 0;
 static int lavc_param_bidir_refine = 0;
 static int lavc_param_sc_factor = 1;
@@ -148,6 +155,7 @@ static int lavc_param_video_global_header= 0;
 static int lavc_param_mv0_threshold = 256;
 static int lavc_param_refs = 1;
 static int lavc_param_b_sensitivity = 40;
+static int lavc_param_level = FF_LEVEL_UNKNOWN;
 
 char *lavc_param_acodec = "mp2";
 int lavc_param_atag = 0;
@@ -159,7 +167,7 @@ int lavc_param_audio_global_header= 0;
 #ifdef USE_LIBAVCODEC
 m_option_t lavcopts_conf[]={
 	{"acodec", &lavc_param_acodec, CONF_TYPE_STRING, 0, 0, 0, NULL},
-	{"abitrate", &lavc_param_abitrate, CONF_TYPE_INT, CONF_RANGE, 1, 1000, NULL},
+	{"abitrate", &lavc_param_abitrate, CONF_TYPE_INT, CONF_RANGE, 1, 1000000, NULL},
 	{"atag", &lavc_param_atag, CONF_TYPE_INT, CONF_RANGE, 0, 0xffff, NULL},
 	{"vcodec", &lavc_param_vcodec, CONF_TYPE_STRING, 0, 0, 0, NULL},
 	{"vbitrate", &lavc_param_vbitrate, CONF_TYPE_INT, CONF_RANGE, 4, 24000000, NULL},
@@ -175,6 +183,8 @@ m_option_t lavcopts_conf[]={
 	{"mbqmax", &lavc_param_mb_qmax, CONF_TYPE_INT, CONF_RANGE, 1, 31, NULL},
 	{"lmin", &lavc_param_lmin, CONF_TYPE_FLOAT, CONF_RANGE, 0.01, 255.0, NULL},
 	{"lmax", &lavc_param_lmax, CONF_TYPE_FLOAT, CONF_RANGE, 0.01, 255.0, NULL},
+	{"mblmin", &lavc_param_mb_lmin, CONF_TYPE_FLOAT, CONF_RANGE, 0.01, 255.0, NULL},
+	{"mblmax", &lavc_param_mb_lmax, CONF_TYPE_FLOAT, CONF_RANGE, 0.01, 255.0, NULL},
 	{"vqdiff", &lavc_param_vqdiff, CONF_TYPE_INT, CONF_RANGE, 1, 31, NULL},
 	{"vqcomp", &lavc_param_vqcompress, CONF_TYPE_FLOAT, CONF_RANGE, 0.0, 1.0, NULL},
 	{"vqblur", &lavc_param_vqblur, CONF_TYPE_FLOAT, CONF_RANGE, 0.0, 1.0, NULL},
@@ -224,6 +234,7 @@ m_option_t lavcopts_conf[]={
         {"cmp", &lavc_param_me_cmp, CONF_TYPE_INT, CONF_RANGE, 0, 2000, NULL},
         {"subcmp", &lavc_param_me_sub_cmp, CONF_TYPE_INT, CONF_RANGE, 0, 2000, NULL},
         {"mbcmp", &lavc_param_mb_cmp, CONF_TYPE_INT, CONF_RANGE, 0, 2000, NULL},
+        {"skipcmp", &lavc_param_skip_cmp, CONF_TYPE_INT, CONF_RANGE, 0, 2000, NULL},
 #ifdef FF_CMP_VSAD
         {"ildctcmp", &lavc_param_ildct_cmp, CONF_TYPE_INT, CONF_RANGE, 0, 2000, NULL},
 #endif
@@ -232,6 +243,7 @@ m_option_t lavcopts_conf[]={
         {"dia", &lavc_param_dia_size, CONF_TYPE_INT, CONF_RANGE, -2000, 2000, NULL},
 	{"qpel", &lavc_param_qpel, CONF_TYPE_FLAG, 0, 0, CODEC_FLAG_QPEL, NULL},
 	{"trell", &lavc_param_trell, CONF_TYPE_FLAG, 0, 0, CODEC_FLAG_TRELLIS_QUANT, NULL},
+	{"lowdelay", &lavc_param_lowdelay, CONF_TYPE_FLAG, 0, 0, CODEC_FLAG_LOW_DELAY, NULL},
 	{"last_pred", &lavc_param_last_pred, CONF_TYPE_INT, CONF_RANGE, 0, 2000, NULL},
 	{"preme", &lavc_param_pre_me, CONF_TYPE_INT, CONF_RANGE, 0, 2000, NULL},
 	{"subq", &lavc_param_me_subpel_quality, CONF_TYPE_INT, CONF_RANGE, 0, 8, NULL},
@@ -282,6 +294,9 @@ m_option_t lavcopts_conf[]={
         {"nssew", &lavc_param_nssew, CONF_TYPE_INT, CONF_RANGE, 0, 1000000, NULL},
 	{"threads", &lavc_param_threads, CONF_TYPE_INT, CONF_RANGE, 1, 8, NULL},
 	{"turbo", &lavc_param_turbo, CONF_TYPE_FLAG, 0, 0, 1, NULL},
+        {"skip_threshold", &lavc_param_skip_threshold, CONF_TYPE_INT, CONF_RANGE, 0, 1000000, NULL},
+        {"skip_factor", &lavc_param_skip_factor, CONF_TYPE_INT, CONF_RANGE, 0, 1000000, NULL},
+        {"skip_exp", &lavc_param_skip_exp, CONF_TYPE_INT, CONF_RANGE, 0, 1000000, NULL},
 	{"brd_scale", &lavc_param_brd_scale, CONF_TYPE_INT, CONF_RANGE, 0, 10, NULL},
 	{"bidir_refine", &lavc_param_bidir_refine, CONF_TYPE_INT, CONF_RANGE, 0, 4, NULL},
 	{"sc_factor", &lavc_param_sc_factor, CONF_TYPE_INT, CONF_RANGE, 1, INT_MAX, NULL},
@@ -290,6 +305,7 @@ m_option_t lavcopts_conf[]={
 	{"mv0_threshold", &lavc_param_mv0_threshold, CONF_TYPE_INT, CONF_RANGE, 0, INT_MAX, NULL},
 	{"refs", &lavc_param_refs, CONF_TYPE_INT, CONF_RANGE, 1, 16, NULL},
         {"b_sensitivity", &lavc_param_b_sensitivity, CONF_TYPE_INT, CONF_RANGE, 1, INT_MAX, NULL},
+	{"level", &lavc_param_level, CONF_TYPE_INT, CONF_RANGE, INT_MIN, INT_MAX, NULL},
 	{NULL, NULL, 0, 0, 0, 0, NULL}
 };
 #endif
@@ -341,6 +357,8 @@ static int config(struct vf_instance_s* vf,
     lavc_venc_context->mb_qmax= lavc_param_mb_qmax;
     lavc_venc_context->lmin= (int)(FF_QP2LAMBDA * lavc_param_lmin + 0.5);
     lavc_venc_context->lmax= (int)(FF_QP2LAMBDA * lavc_param_lmax + 0.5);
+    lavc_venc_context->mb_lmin= (int)(FF_QP2LAMBDA * lavc_param_mb_lmin + 0.5);
+    lavc_venc_context->mb_lmax= (int)(FF_QP2LAMBDA * lavc_param_mb_lmax + 0.5);
     lavc_venc_context->max_qdiff= lavc_param_vqdiff;
     lavc_venc_context->qcompress= lavc_param_vqcompress;
     lavc_venc_context->qblur= lavc_param_vqblur;
@@ -389,6 +407,11 @@ static int config(struct vf_instance_s* vf,
     lavc_venc_context->quantizer_noise_shaping= lavc_param_qns;
     lavc_venc_context->inter_threshold= lavc_param_inter_threshold;
     lavc_venc_context->nsse_weight= lavc_param_nssew;
+    lavc_venc_context->frame_skip_threshold= lavc_param_skip_threshold;
+    lavc_venc_context->frame_skip_factor= lavc_param_skip_factor;
+    lavc_venc_context->frame_skip_exp= lavc_param_skip_exp;
+    lavc_venc_context->frame_skip_cmp= lavc_param_skip_cmp;
+
     if (lavc_param_intra_matrix)
     {
 	char *tmp;
@@ -519,6 +542,7 @@ static int config(struct vf_instance_s* vf,
     lavc_venc_context->dia_size= lavc_param_dia_size;
     lavc_venc_context->flags|= lavc_param_qpel;
     lavc_venc_context->flags|= lavc_param_trell;
+    lavc_venc_context->flags|= lavc_param_lowdelay;
     lavc_venc_context->flags|= lavc_param_bit_exact;
     lavc_venc_context->flags|= lavc_param_aic;
     lavc_venc_context->flags|= lavc_param_aiv;
@@ -556,7 +580,9 @@ static int config(struct vf_instance_s* vf,
     lavc_venc_context->mv0_threshold = lavc_param_mv0_threshold;
     lavc_venc_context->refs = lavc_param_refs;
     lavc_venc_context->b_sensitivity = lavc_param_b_sensitivity;
+    lavc_venc_context->level = lavc_param_level;
 
+    mux_v->imgfmt = lavc_param_format;
     switch(lavc_param_format)
     {
 	case IMGFMT_YV12:
@@ -575,7 +601,7 @@ static int config(struct vf_instance_s* vf,
 	    lavc_venc_context->pix_fmt = PIX_FMT_YUV410P;
 	    break;
 	case IMGFMT_BGR32:
-	    lavc_venc_context->pix_fmt = PIX_FMT_RGBA32;
+	    lavc_venc_context->pix_fmt = PIX_FMT_RGB32;
 	    break;
 	default:
     	    mp_msg(MSGT_MENCODER,MSGL_ERR,"%s is not a supported format\n", vo_format_name(lavc_param_format));
@@ -758,6 +784,9 @@ static int encode_frame(struct vf_instance_s* vf, AVFrame *pic, double pts){
     int out_size;
     double dts;
 
+    if(pts == MP_NOPTS_VALUE)
+        pts= lavc_venc_context->frame_number * av_q2d(lavc_venc_context->time_base);
+
     if(pic){
 #if 0
         pic->opaque= malloc(sizeof(pts));
@@ -788,7 +817,7 @@ static int encode_frame(struct vf_instance_s* vf, AVFrame *pic, double pts){
     assert(MP_NOPTS_VALUE == AV_NOPTS_VALUE);
 #endif
 //fprintf(stderr, "ve_lavc %f/%f\n", dts, pts);
-    if(out_size == 0) {
+    if(out_size == 0 && lavc_param_skip_threshold==0 && lavc_param_skip_factor==0){
         ++mux_v->encoder_delay;
         return 0;
     }
@@ -980,6 +1009,12 @@ static int vf_open(vf_instance_t *vf, char* args){
 	mux_v->bih->biCompression = mmioFOURCC('F', 'F', 'V', '1');
     else if (!strcasecmp(lavc_param_vcodec, "snow"))
 	mux_v->bih->biCompression = mmioFOURCC('S', 'N', 'O', 'W');
+    else if (!strcasecmp(lavc_param_vcodec, "flv"))
+	mux_v->bih->biCompression = mmioFOURCC('F', 'L', 'V', '1');
+    else if (!strcasecmp(lavc_param_vcodec, "dvvideo"))
+	mux_v->bih->biCompression = mmioFOURCC('d', 'v', 's', 'd');
+    else if (!strcasecmp(lavc_param_vcodec, "libx264"))
+	mux_v->bih->biCompression = mmioFOURCC('h', '2', '6', '4');
     else
 	mux_v->bih->biCompression = mmioFOURCC(lavc_param_vcodec[0],
 		lavc_param_vcodec[1], lavc_param_vcodec[2], lavc_param_vcodec[3]); /* FIXME!!! */

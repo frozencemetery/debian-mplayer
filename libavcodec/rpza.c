@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
  */
 
 /**
@@ -40,7 +39,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "common.h"
 #include "avcodec.h"
 #include "dsputil.h"
 
@@ -98,7 +96,7 @@ static void rpza_decode_stream(RpzaContext *s)
             s->buf[stream_ptr]);
 
     /* Get chunk size, ingnoring first byte */
-    chunk_size = BE_32(&s->buf[stream_ptr]) & 0x00FFFFFF;
+    chunk_size = AV_RB32(&s->buf[stream_ptr]) & 0x00FFFFFF;
     stream_ptr += 4;
 
     /* If length mismatch use size from MOV file and try to decode anyway */
@@ -140,7 +138,7 @@ static void rpza_decode_stream(RpzaContext *s)
 
         /* Fill blocks with one color */
         case 0xa0:
-            colorA = BE_16 (&s->buf[stream_ptr]);
+            colorA = AV_RB16 (&s->buf[stream_ptr]);
             stream_ptr += 2;
             while (n_blocks--) {
                 block_ptr = row_ptr + pixel_ptr;
@@ -157,10 +155,10 @@ static void rpza_decode_stream(RpzaContext *s)
 
         /* Fill blocks with 4 colors */
         case 0xc0:
-            colorA = BE_16 (&s->buf[stream_ptr]);
+            colorA = AV_RB16 (&s->buf[stream_ptr]);
             stream_ptr += 2;
         case 0x20:
-            colorB = BE_16 (&s->buf[stream_ptr]);
+            colorB = AV_RB16 (&s->buf[stream_ptr]);
             stream_ptr += 2;
 
             /* sort out the colors */
@@ -209,7 +207,7 @@ static void rpza_decode_stream(RpzaContext *s)
                 for (pixel_x = 0; pixel_x < 4; pixel_x++){
                     /* We already have color of upper left pixel */
                     if ((pixel_y != 0) || (pixel_x !=0)) {
-                        colorA = BE_16 (&s->buf[stream_ptr]);
+                        colorA = AV_RB16 (&s->buf[stream_ptr]);
                         stream_ptr += 2;
                     }
                     pixels[block_ptr] = colorA;
@@ -232,11 +230,10 @@ static void rpza_decode_stream(RpzaContext *s)
 
 static int rpza_decode_init(AVCodecContext *avctx)
 {
-    RpzaContext *s = (RpzaContext *)avctx->priv_data;
+    RpzaContext *s = avctx->priv_data;
 
     s->avctx = avctx;
     avctx->pix_fmt = PIX_FMT_RGB555;
-    avctx->has_b_frames = 0;
     dsputil_init(&s->dsp, avctx);
 
     s->frame.data[0] = NULL;
@@ -248,7 +245,7 @@ static int rpza_decode_frame(AVCodecContext *avctx,
                              void *data, int *data_size,
                              uint8_t *buf, int buf_size)
 {
-    RpzaContext *s = (RpzaContext *)avctx->priv_data;
+    RpzaContext *s = avctx->priv_data;
 
     s->buf = buf;
     s->size = buf_size;
@@ -271,7 +268,7 @@ static int rpza_decode_frame(AVCodecContext *avctx,
 
 static int rpza_decode_end(AVCodecContext *avctx)
 {
-    RpzaContext *s = (RpzaContext *)avctx->priv_data;
+    RpzaContext *s = avctx->priv_data;
 
     if (s->frame.data[0])
         avctx->release_buffer(avctx, &s->frame);

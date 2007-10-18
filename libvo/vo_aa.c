@@ -37,6 +37,7 @@
 #include "subopt-helper.h"
 #include "help_mp.h"
 #include "mp_msg.h"
+#include "mp_fifo.h"
 
 
 #define MESSAGE_DURATION 3
@@ -78,24 +79,12 @@ char posbar[MESSAGE_SIZE];
 static int osdx, osdy;
 static int osd_text_length = 0;
 int aaconfigmode=1;
-#ifdef USE_OSD
 font_desc_t* vo_font_save = NULL;
-#endif
 static struct SwsContext *sws=NULL;
-
-/* our version of the playmodes :) */
-
-extern void mplayer_put_key(int code);
-
-/* to disable stdout outputs when curses/linux mode */
-extern int quiet;
 
 /* configuration */
 int aaopt_osdcolor = AA_SPECIAL;
 int aaopt_subcolor = AA_SPECIAL;
-
-extern struct aa_hardware_params aa_defparams;
-extern struct aa_renderparams aa_defrenderparams;
 
 void
 resize(void){
@@ -204,8 +193,8 @@ printosdtext(void)
   if (vo_osd_text && vo_osd_text[0] != 0) {
     int len;
     if(vo_osd_text[0] < 32) {
-      len = strlen(__sub_osd_names_short[vo_osd_text[0]]) + strlen(vo_osd_text+1) + 2;
-      aa_printf(c, 0, 0 , aaopt_osdcolor, "%s %s ", __sub_osd_names_short[vo_osd_text[0]], vo_osd_text+1);
+      len = strlen(sub_osd_names_short[vo_osd_text[0]]) + strlen(vo_osd_text+1) + 2;
+      aa_printf(c, 0, 0 , aaopt_osdcolor, "%s %s ", sub_osd_names_short[vo_osd_text[0]], vo_osd_text+1);
     } else {
       len = strlen(vo_osd_text) + 1;
       aa_printf(c, 0, 0 , aaopt_osdcolor, "%s ",vo_osd_text);
@@ -224,7 +213,7 @@ static void
 printosdprogbar(void){
     /* print mplayer osd-progbar */
     if (vo_osd_progbar_type!=-1){
-	osdpercent(1,1,0,255,vo_osd_progbar_value, __sub_osd_names[vo_osd_progbar_type], "");	
+        osdpercent(1,1,0,255,vo_osd_progbar_value, sub_osd_names[vo_osd_progbar_type], "");
     }
 }
 static int
@@ -248,7 +237,6 @@ config(uint32_t width, uint32_t height, uint32_t d_width,
     /* nothing will change its size, be we need some values initialized */
     resize();
 
-#ifdef USE_OSD
     /* now init out own 'font' (to use vo_draw_text_sub without edit them) */
     if(!vo_font_save) vo_font_save = vo_font;
     if(vo_font == vo_font_save) {
@@ -280,7 +268,7 @@ config(uint32_t width, uint32_t height, uint32_t d_width,
 	vo_font->pic_b[0]->bmp[i]=i;
       }
     }
-#endif
+
     /* say hello */
     osdmessage(5, 1, "Welcome to ASCII ART MPlayer");  
 
@@ -334,11 +322,7 @@ query_format(uint32_t format) {
 	case IMGFMT_RGB24:
 	case IMGFMT_Y8:
 	case IMGFMT_Y800:
-	    return VFCAP_CSP_SUPPORTED|VFCAP_SWSCALE
-#ifdef USE_OSD
-	    | VFCAP_OSD
-#endif
-	    ;
+	    return VFCAP_CSP_SUPPORTED | VFCAP_SWSCALE | VFCAP_OSD;
     }
     return 0;
 }
@@ -401,12 +385,12 @@ flip_page(void) {
       {
 	if (time(NULL)>=stoposd ) {
 	  showosdmessage=0;
-	  if(osdmessagetext) {
+	  if(*osdmessagetext) {
 	    memset(c->textbuffer + osdy * aa_scrwidth(c) + osdx,' ',strlen(osdmessagetext));
 	    memset(c->attrbuffer + osdy * aa_scrwidth(c) + osdx ,0,strlen(osdmessagetext));
 	    osdmessagetext[0] = '\0';
 	  }
-	  if(posbar) {
+	  if(*posbar) {
 	    memset(c->textbuffer + (osdy+1) * aa_scrwidth(c),' ',strlen(posbar));
 	    memset(c->attrbuffer + (osdy+1) * aa_scrwidth(c),0,strlen(posbar));
 	  }
@@ -419,9 +403,7 @@ flip_page(void) {
 	}
       }
     /* OSD time & playmode , subtitles */
-#ifdef USE_OSD
     printosdtext();
-#endif
 
 
     /* print out */
@@ -516,7 +498,6 @@ uninit(void) {
     if (strstr(c->driver->name,"Curses") || strstr(c->driver->name,"Linux")){
 	freopen("/dev/tty", "w", stderr);
     }
-#ifdef USE_OSD
     if(vo_font_save) {
       free(vo_font->pic_a[0]->bmp);
       free(vo_font->pic_a[0]);
@@ -526,11 +507,9 @@ uninit(void) {
       vo_font = vo_font_save;
       vo_font_save = NULL;
     }
-#endif
     aa_close(c);
 }
 
-#ifdef USE_OSD
 static void draw_alpha(int x,int y, int w,int h, unsigned char* src, unsigned char *srca, int stride){
     int i,j;
     for (i = 0; i < h; i++) {
@@ -553,11 +532,8 @@ static void clear_alpha(int x0,int y0, int w,int h) {
 }
 
 
-#endif
-
 static void
 draw_osd(void){
-#ifdef USE_OSD
     char * vo_osd_text_save;
     int vo_osd_progbar_type_save;
 
@@ -571,7 +547,6 @@ draw_osd(void){
     vo_draw_text(aa_scrwidth(c), aa_scrheight(c), draw_alpha);
     vo_osd_text=vo_osd_text_save;
     vo_osd_progbar_type=vo_osd_progbar_type_save;
-#endif
 }
 
 static int
@@ -609,7 +584,7 @@ static int parse_suboptions(const char *arg) {
         "-noboldfont", "-noinverse", "-noextended", "-noeight", "-nodither",
         "-nofloyd_steinberg", "-noerror_distribution"};
     const int nstrings = sizeof(strings_list) / sizeof(char*);
-    const int nbooleans = sizeof(booleans_list) / sizeof(int);
+    const int nbooleans = sizeof(booleans_list) / sizeof(char*);
     const int nextra_opts = sizeof(extra_opts) / sizeof(opt_t);
     const int nsubopts = nstrings + nbooleans + nextra_opts;
     int i, retval = 0;
@@ -650,7 +625,7 @@ static int parse_suboptions(const char *arg) {
                 pseudoargv[1] = strings_list[i];
                 pseudoargv[2] = strings[i];
                 aa_parseoptions(&aa_defparams, &aa_defrenderparams,
-                                                &pseudoargc, pseudoargv) != 1;
+                                                &pseudoargc, pseudoargv);
             }
         }
         pseudoargv[2] = NULL;
@@ -659,7 +634,7 @@ static int parse_suboptions(const char *arg) {
             if (booleans[i]) pseudoargv[1] = booleans_list[i];
             else pseudoargv[1] = nobooleans_list[i];
             aa_parseoptions(&aa_defparams, &aa_defrenderparams,
-                                                &pseudoargc, pseudoargv) != 1;
+                                                &pseudoargc, pseudoargv);
         }
         if (osdcolor) aaopt_osdcolor = getcolor(osdcolor);
         if (subcolor) aaopt_subcolor = getcolor(subcolor);
@@ -686,7 +661,6 @@ static int preinit(const char *arg)
     int fd, vt, major, minor;
     FILE * fp;
     char fname[12];
-    extern aa_linkedlist *aa_displayrecommended;
 
     if(arg) 
     {

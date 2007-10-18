@@ -76,6 +76,8 @@ play_tree_parser_get_line(play_tree_parser_t* p) {
       if(r > 0) {
 	p->buffer_end += r;
 	p->buffer[p->buffer_end] = '\0';
+	while(strlen(p->buffer + p->buffer_end - r) != r)
+	  p->buffer[p->buffer_end - r + strlen(p->buffer + p->buffer_end - r)] = '\n';
       }
     }
     
@@ -251,9 +253,13 @@ parse_pls(play_tree_parser_t* p) {
   play_tree_t *list = NULL, *entry = NULL, *last_entry = NULL;
 
   mp_msg(MSGT_PLAYTREE,MSGL_V,"Trying Winamp playlist...\n");
-  if (!(line = play_tree_parser_get_line(p)))
+  while((line = play_tree_parser_get_line(p))) {
+    strstrip(line);
+    if(strlen(line))
+      break;
+  }
+  if (!line)
     return NULL;
-  strstrip(line);
   if(strcasecmp(line,"[playlist]"))
     return NULL;
   mp_msg(MSGT_PLAYTREE,MSGL_V,"Detected Winamp playlist format\n");
@@ -429,8 +435,10 @@ parse_m3u(play_tree_parser_t* p) {
 static play_tree_t*
 parse_smil(play_tree_parser_t* p) {
   int entrymode=0;
-  char* line,source[512],*pos,*s_start,*s_end;
+  char* line,source[512],*pos,*s_start,*s_end,*src_line;
   play_tree_t *list = NULL, *entry = NULL, *last_entry = NULL;
+  int is_rmsmil = 0;
+  unsigned int npkt, ttlpkt;
 
   mp_msg(MSGT_PLAYTREE,MSGL_V,"Trying smil playlist...\n");
 
@@ -439,7 +447,10 @@ parse_smil(play_tree_parser_t* p) {
     strstrip(line);
     if(line[0] == '\0') // Ignore empties
       continue;
-    if (strncasecmp(line,"<smil",5)==0 || strncasecmp(line,"<?wpl",5)==0)
+    if (strncasecmp(line,"<?xml",5)==0) // smil in xml
+      continue;
+    if (strncasecmp(line,"<smil",5)==0 || strncasecmp(line,"<?wpl",5)==0 ||
+      strncasecmp(line,"(smil-document",14)==0)
       break; // smil header found
     else
       return NULL; //line not smil exit
@@ -448,52 +459,92 @@ parse_smil(play_tree_parser_t* p) {
   mp_msg(MSGT_PLAYTREE,MSGL_V,"Detected smil playlist format\n");
   play_tree_parser_stop_keeping(p);
 
+  if (strncasecmp(line,"(smil-document",14)==0) {
+    mp_msg(MSGT_PLAYTREE,MSGL_V,"Special smil-over-realrtsp playlist header\n");
+    is_rmsmil = 1;
+    if (sscanf(line, "(smil-document (ver 1.0)(npkt %u)(ttlpkt %u", &npkt, &ttlpkt) != 2) {
+      mp_msg(MSGT_PLAYTREE,MSGL_WARN,"smil-over-realrtsp: header parsing failure, assuming single packet.\n");
+      npkt = ttlpkt = 1;
+    }
+    if (ttlpkt == 0 || npkt > ttlpkt) {
+      mp_msg(MSGT_PLAYTREE,MSGL_WARN,"smil-over-realrtsp: bad packet counters (npkk = %u, ttlpkt = %u), assuming single packet.\n",
+        npkt, ttlpkt);
+      npkt = ttlpkt = 1;
+    }
+  }
 
   //Get entries from smil 
-  while((line = play_tree_parser_get_line(p)) != NULL) {
-    strstrip(line);
-    if (line[0]=='\0')
-      continue;
-    if (!entrymode) { // all entries filled so far 
-      if (strncasecmp(line,"<video",6)==0  || strncasecmp(line,"<audio",6)==0 || strncasecmp(line,"<media",6)) {
-        pos=strstr(line,"src=");   // Is source present on this line
-        if (pos !=NULL) {
-          s_start=pos+5;
-          s_end=strchr(s_start,'"');
-            if (s_end == NULL) {
-              mp_msg(MSGT_PLAYTREE,MSGL_V,"Error parsing this source line %s\n",line);
-              continue;   
-            }
-          if (s_end-s_start> 511) {
-            mp_msg(MSGT_PLAYTREE,MSGL_V,"Cannot store such a large source %s\n",line);
-            continue;
-          }
-          strncpy(source,s_start,s_end-s_start);
-          source[(s_end-s_start)]='\0'; // Null terminate
-          entry = play_tree_new();
-          play_tree_add_file(entry,source);
-          if(!list)  //Insert new entry
-            list = entry;
-          else
-            play_tree_append_entry(last_entry,entry);
-          last_entry = entry;
-        } else {
-          entrymode=1;
-        }
+  src_line = line;
+  line = NULL;
+  do {
+    strstrip(src_line);
+    if (line) {
+      free(line);
+      line = NULL;
+    }
+    /* If we're parsing smil over realrtsp and this is not the last packet and
+     * this is the last line in the packet (terminating with ") ) we must get
+     * the next line, strip the header, and concatenate it to the current line.
+     */
+    if (is_rmsmil && npkt != ttlpkt && strstr(src_line,"\")")) {
+      char *payload;
+
+      line = strdup(src_line);
+      if(!(src_line = play_tree_parser_get_line(p))) {
+        mp_msg(MSGT_PLAYTREE,MSGL_WARN,"smil-over-realrtsp: can't get line from packet %u/%u.\n", npkt, ttlpkt);
+        break;
       }
-    } else { //Entry found but not yet filled
-      pos = strstr(line,"src=");   // Is source present on this line
+      strstrip(src_line);
+      // Skip header, packet starts after "
+      if(!(payload = strchr(src_line,'\"'))) {
+        mp_msg(MSGT_PLAYTREE,MSGL_WARN,"smil-over-realrtsp: can't find start of packet, using complete line.\n");
+        payload = src_line;
+      } else
+        payload++;
+      // Skip ") at the end of the last line from the current packet
+      line[strlen(line)-2] = 0;
+      line = realloc(line, strlen(line)+strlen(payload)+1);
+      strcat (line, payload);
+      npkt++;
+    } else
+      line = strdup(src_line);
+    /* Unescape \" to " for smil-over-rtsp */
+    if (is_rmsmil && line[0] != '\0') {
+      int i, j;
+
+      for (i = 0; i < strlen(line); i++)
+        if (line[i] == '\\' && line[i+1] == '"')
+          for (j = i; line[j]; j++)
+            line[j] = line[j+1];
+    }
+    pos = line;
+   while (pos) {
+    if (!entrymode) { // all entries filled so far 
+     while ((pos=strchr(pos, '<'))) {
+      if (strncasecmp(pos,"<video",6)==0  || strncasecmp(pos,"<audio",6)==0 || strncasecmp(pos,"<media",6)==0) {
+          entrymode=1;
+          break; // Got a valid tag, exit '<' search loop
+      }
+      pos++;
+     }
+    }
+    if (entrymode) { //Entry found but not yet filled
+      pos = strstr(pos,"src=");   // Is source present on this line
       if (pos != NULL) {
         entrymode=0;
+        if (pos[4] != '"' && pos[4] != '\'') {
+          mp_msg(MSGT_PLAYTREE,MSGL_V,"Unknown delimiter %c in source line %s\n", pos[4], line);
+          break;
+        }
         s_start=pos+5;
-        s_end=strchr(s_start,'"');
+        s_end=strchr(s_start,pos[4]);
         if (s_end == NULL) {
           mp_msg(MSGT_PLAYTREE,MSGL_V,"Error parsing this source line %s\n",line);
-          continue;
+          break;
         }
         if (s_end-s_start> 511) {
           mp_msg(MSGT_PLAYTREE,MSGL_V,"Cannot store such a large source %s\n",line);
-          continue;
+          break;
         }
         strncpy(source,s_start,s_end-s_start);
         source[(s_end-s_start)]='\0'; // Null terminate
@@ -504,9 +555,14 @@ parse_smil(play_tree_parser_t* p) {
         else
           play_tree_append_entry(last_entry,entry);
         last_entry = entry;
+        pos = s_end;
       }
     }
-  }
+   }
+  } while((src_line = play_tree_parser_get_line(p)) != NULL);
+
+  if (line)
+    free(line);
 
   if(!list) return NULL; // Nothing found
 

@@ -80,7 +80,7 @@ static uint32_t read_arbitary(ByteIOContext *pb) {
 static int process_ea_header(AVFormatContext *s) {
     int inHeader;
     uint32_t blockid, size;
-    EaDemuxContext *ea = (EaDemuxContext *)s->priv_data;
+    EaDemuxContext *ea = s->priv_data;
     ByteIOContext *pb = &s->pb;
 
     if (get_buffer(pb, (void*)&blockid, 4) != 4) {
@@ -165,10 +165,7 @@ static int process_ea_header(AVFormatContext *s) {
 
 static int ea_probe(AVProbeData *p)
 {
-    if (p->buf_size < 4)
-        return 0;
-
-    if (LE_32(&p->buf[0]) != SCHl_TAG)
+    if (AV_RL32(&p->buf[0]) != SCHl_TAG)
         return 0;
 
     return AVPROBE_SCORE_MAX;
@@ -177,17 +174,17 @@ static int ea_probe(AVProbeData *p)
 static int ea_read_header(AVFormatContext *s,
                           AVFormatParameters *ap)
 {
-    EaDemuxContext *ea = (EaDemuxContext *)s->priv_data;
+    EaDemuxContext *ea = s->priv_data;
     AVStream *st;
 
     if (!process_ea_header(s))
-        return AVERROR_IO;
+        return AVERROR(EIO);
 
 #if 0
     /* initialize the video decoder stream */
     st = av_new_stream(s, 0);
     if (!st)
-        return AVERROR_NOMEM;
+        return AVERROR(ENOMEM);
     av_set_pts_info(st, 33, 1, 90000);
     ea->video_stream_index = st->index;
     st->codec->codec_type = CODEC_TYPE_VIDEO;
@@ -198,7 +195,7 @@ static int ea_read_header(AVFormatContext *s,
     /* initialize the audio decoder stream */
     st = av_new_stream(s, 0);
     if (!st)
-        return AVERROR_NOMEM;
+        return AVERROR(ENOMEM);
     av_set_pts_info(st, 33, 1, EA_SAMPLE_RATE);
     st->codec->codec_type = CODEC_TYPE_AUDIO;
     st->codec->codec_id = CODEC_ID_ADPCM_EA;
@@ -229,16 +226,16 @@ static int ea_read_packet(AVFormatContext *s,
     while (!packet_read) {
 
         if (get_buffer(pb, preamble, EA_PREAMBLE_SIZE) != EA_PREAMBLE_SIZE)
-            return AVERROR_IO;
-        chunk_type = LE_32(&preamble[0]);
-        chunk_size = LE_32(&preamble[4]) - EA_PREAMBLE_SIZE;
+            return AVERROR(EIO);
+        chunk_type = AV_RL32(&preamble[0]);
+        chunk_size = AV_RL32(&preamble[4]) - EA_PREAMBLE_SIZE;
 
         switch (chunk_type) {
         /* audio data */
         case SCDl_TAG:
             ret = av_get_packet(pb, pkt, chunk_size);
             if (ret != chunk_size)
-                ret = AVERROR_IO;
+                ret = AVERROR(EIO);
             else {
                     pkt->stream_index = ea->audio_stream_index;
                     pkt->pts = 90000;
@@ -256,7 +253,7 @@ static int ea_read_packet(AVFormatContext *s,
 
         /* ending tag */
         case SCEl_TAG:
-            ret = AVERROR_IO;
+            ret = AVERROR(EIO);
             packet_read = 1;
             break;
 
@@ -275,7 +272,7 @@ static int ea_read_packet(AVFormatContext *s,
 
 static int ea_read_close(AVFormatContext *s)
 {
-//    EaDemuxContext *ea = (EaDemuxContext *)s->priv_data;
+//    EaDemuxContext *ea = s->priv_data;
 
     return 0;
 }

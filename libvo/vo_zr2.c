@@ -4,7 +4,7 @@
  * Copyright (C) Rik Snel 2001-2005, License GNU GPL v2
  */
 
-/* $Id: vo_zr2.c 16172 2005-08-05 01:24:37Z ivo $ */
+/* $Id: vo_zr2.c 23476 2007-06-05 15:09:49Z reimar $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -151,7 +151,7 @@ static uint32_t draw_image(mp_image_t *mpi) {
 	}
 
 	/* copy the jpeg image to the buffer which we acquired */
-	memcpy(p->buf + p->zrq.size*p->frame, mpi->planes[0], size);
+	fast_memcpy(p->buf + p->zrq.size*p->frame, mpi->planes[0], size);
 			
 	return VO_TRUE;
 }

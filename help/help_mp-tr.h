@@ -63,7 +63,6 @@ static char help_text[]=
 #define MSGTR_NoHomeDir "Anadizin bulunamıyor\n"
 #define MSGTR_GetpathProblem "get_path(\"config\") problemi\n"
 #define MSGTR_CreatingCfgFile "Ayar dosyası oluşturuluyor: %s\n"
-#define MSGTR_CopyCodecsConf "(MPlayer kaynağı etc/codecs.conf dosyasını ~/.mplayer/codecs.conf olarak kopyalayın/bağlayın)\n"
 #define MSGTR_BuiltinCodecsConf "Gömülü codecs.conf dosyası kullanılıyor\n"
 #define MSGTR_CantLoadFont "Yazıtipi açılamıyor: %s\n"
 #define MSGTR_CantLoadSub "Altyazı açılamıyor: %s\n"
@@ -477,12 +476,6 @@ static char help_text[]=
 #define MSGTR_CodecDefinitionIncorrect "Kodek doğru şekilde tanımlanmamış."
 #define MSGTR_OutdatedCodecsConf "Bu codecs.conf dosyası çok eski ve bu Mplayer sürümü ile bağdaşmıyor."
 
-// divx4_vbr.c:
-#define MSGTR_OutOfMemory "yetersiz bellek"
-#define MSGTR_OverridingTooLowBitrate "Belirlenen bit oranı bu klip için çok düşük.\n"\
-"Bu klip için en az olası bit oranı %.0f kbps. Kullanıcı tanımlı değer\n"\
-"atlanıyor. \n"
-
 // fifo.c
 #define MSGTR_CannotMakePipe "PIPE yapılamıyor!\n"
 
@@ -596,7 +589,6 @@ static char help_text[]=
 #define MSGTR_OpeningAudioDemuxerFailed "Ses ayrıştırıcısı açılamadı: %s\n"
 #define MSGTR_OpeningSubtitlesDemuxerFailed "Altyazı ayrıştırıcısı açılamadı: %s\n"
 #define MSGTR_TVInputNotSeekable "TV girdisi aranabilir değil! (Muhtemelen arama kanal değiştirmek için yapılacak ;)\n"
-#define MSGTR_DemuxerInfoAlreadyPresent "%s ayrıştırıcı bilgisi önceden sunulmuş!\n"
 #define MSGTR_ClipInfo "Klip bilgisi: \n"
 
 #define MSGTR_LeaveTelecineMode "\nBulunan içerik demux_mpg: 30000/1001fps NTSC, kare oranı değiştiriliyor.\n"
@@ -714,7 +706,7 @@ static char help_text[]=
 #define MSGTR_NEMDB "Üzgünüm, tampon için yeterli hafıza yok."
 #define MSGTR_NEMFMR "Üzgünüm, menü oluşturmak için yeterli hafıza yok."
 #define MSGTR_IDFGCVD "Üzgünüm, KGA ile uyumlu video çıkış sürücüsü bulunamadı."
-#define MSGTR_NEEDLAVCFAME "Üzgünüm, MPEG olmayan dosyaları DXR3/H+ aygıtınızla oynatamazsınız. \nLütfen DXR3/H+ ayarlarından lavc veya fame seçeneğini etkinleştirin."
+#define MSGTR_NEEDLAVC "Üzgünüm, MPEG olmayan dosyaları DXR3/H+ aygıtınızla oynatamazsınız. \nLütfen DXR3/H+ ayarlarından lavc seçeneğini etkinleştirin."
 #define MSGTR_UNKNOWNWINDOWTYPE "Bilinmeyen pencere türü bulundu..."
 
 // --- skin loader error messages
@@ -874,7 +866,6 @@ static char help_text[]=
 #define MSGTR_PREFERENCES_Message "Yaptığınız değişiklikleri etkinleştirmek için lütfen Mplayer'ı yeniden başlatmayı unutmayınız."
 #define MSGTR_PREFERENCES_DXR3_VENC "Video kodlayıcı:"
 #define MSGTR_PREFERENCES_DXR3_LAVC "LAVC kullan (FFmpeg)"
-#define MSGTR_PREFERENCES_DXR3_FAME "FAME kullan"
 #define MSGTR_PREFERENCES_FontEncoding1 "Unicode"
 #define MSGTR_PREFERENCES_FontEncoding2 "Batı Avrupa Dilleri (ISO-8859-1)"
 #define MSGTR_PREFERENCES_FontEncoding3 "Batı Avrupa Dilleri ve Euro(ISO-8859-15)"
@@ -1218,6 +1209,7 @@ static char help_text[]=
 #define MSGTR_INPUT_INPUT_ErrCantInitJoystick "Kumanda kolu girdisi açılamıyor\n"
 #define MSGTR_INPUT_INPUT_ErrCantStatFile " %s sabitlenemiyor: %s\n"
 #define MSGTR_INPUT_INPUT_ErrCantOpenFile "%s açılamıyor: %s\n"
+#define MSGTR_INPUT_INPUT_ErrCantInitAppleRemote "Apple Remote açılamıyor.\n"
 
 // ========================== LIBMPDEMUX ===================================
 
@@ -1474,7 +1466,7 @@ static char help_text[]=
 // libmenu/menu_console.c
 #define MSGTR_LIBMENU_WaitPidError "[MENU] Waitpid hatası: %s.\n"
 #define MSGTR_LIBMENU_SelectError "[MENU] Seçim hatası.\n"
-#define MSGTR_LIBMENU_ReadErrorOnChilds "[MENU] Alt süreçte okuma hatası: %s.\n"
+#define MSGTR_LIBMENU_ReadErrorOnChildFD "[MENU] Alt süreçte okuma hatası: %s.\n"
 #define MSGTR_LIBMENU_ConsoleRun "[MENU] Console işlemi: %s ...\n"
 #define MSGTR_LIBMENU_AChildIsAlreadyRunning "[MENU] Bir alt süreç zaten çalışıyor.\n"
 #define MSGTR_LIBMENU_ForkFailed "[MENU] Çatallama başarısız !!!\n"
@@ -1558,9 +1550,6 @@ static char help_text[]=
 #define MSGTR_MPCODECS_WarnNextFilterDoesntSupportSlices  "UYARI! Sonraki filtre SLICES desteklemiyor,   sig11 için hazırlayınız...\n"
 #define MSGTR_MPCODECS_FunWhydowegetNULL "Neden NULL ulaşıyoruz??\n"
 
-// libmpcodecs/vf_fame.c
-#define MSGTR_MPCODECS_FatalCantOpenlibFAME "HATA: libFAME açılamıyor!\n"
-
 // libmpcodecs/vf_test.c, vf_yuy2.c, vf_yvu9.c
 #define MSGTR_MPCODECS_WarnNextFilterDoesntSupport "%s sonraki filtre/vo tarafından desteklenmiyor :(\n"
 
@@ -1574,9 +1563,8 @@ static char help_text[]=
 #define MSGTR_LIBVO_MGA_ScreenWidthHeightUnknown "[MGA] Ekran genişliği/yüksekliği bilinmiyor!\n"
 #define MSGTR_LIBVO_MGA_InvalidOutputFormat "[MGA] Geçersiz çıkış biçimi %0X\n"
 #define MSGTR_LIBVO_MGA_IncompatibleDriverVersion "[MGA] mga_video sürücünüzün sürümü bu MPlayer sürümüyle bağdaşmıyor!\n"
-#define MSGTR_LIBVO_MGA_UsingBuffers "[MGA] %d arabellek kullanılıyor.\n"
 #define MSGTR_LIBVO_MGA_CouldntOpen "[MGA] Açılamadı: %s\n"
-#define MGSTR_LIBVO_MGA_ResolutionTooHigh "[MGA] kaynak çözünürlüğün en azιndan bir boyutu 1023x1023'ten daha büyükütür. Yazılımla düzteliniz ya da -lavopts lowres=1 kulanınız\n"
+#define MGSTR_LIBVO_MGA_ResolutionTooHigh "[MGA] kaynak çözünürlüğün en azιndan bir boyutu 1023x1023'ten daha büyükütür. Yazılımla düzteliniz ya da -lavdopts lowres=1 kulanınız\n"
 
 // libvo/vesa_lvo.c
 
@@ -1709,19 +1697,6 @@ static char help_text[]=
 #define MSGTR_LIBVO_SVGA_CenteringImageStartAt "[VO_SVGA] Ortalanan görüntü. (%d,%d) ile başlatılıyor.\n"
 #define MSGTR_LIBVO_SVGA_UsingVidix "[VO_SVGA] VIDIX kullanılıyor. w=%i h=%i  mw=%i mh=%i\n"
 
-// libvo/vo_syncfb.c
-
-#define MSGTR_LIBVO_SYNCFB_CouldntOpen "[VO_SYNCFB] /dev/syncfb veya /dev/mga_vid  açılamadı.\n"
-#define MSGTR_LIBVO_SYNCFB_UsingPaletteYuv420p3 "[VO_SYNCFB] YUV420P3 paleti kullanılıyor.\n"
-#define MSGTR_LIBVO_SYNCFB_UsingPaletteYuv420p2 "[VO_SYNCFB] YUV420P2 paleti kullanılıyor.\n"
-#define MSGTR_LIBVO_SYNCFB_UsingPaletteYuv420 "[VO_SYNCFB] YUV420 paleti kullanılıyor.\n"
-#define MSGTR_LIBVO_SYNCFB_NoSupportedPaletteFound "[VO_SYNCFB] Desteklenen palet bulunamadı.\n"
-#define MSGTR_LIBVO_SYNCFB_BesSourcerSize "[VO_SYNCFB] BES kaynaklayıcı boyutu: %d x %d.\n"
-#define MSGTR_LIBVO_SYNCFB_FramebufferMemory "[VO_SYNCFB] kare tamponu belleği: %ld in %ld buffers.\n"
-#define MSGTR_LIBVO_SYNCFB_RequestingFirstBuffer "[VO_SYNCFB] #%d ilk tampon sorgulanıyor.\n"
-#define MSGTR_LIBVO_SYNCFB_GotFirstBuffer "[VO_SYNCFB] #%d ilk tampona ulaşıldı.\n"
-#define MSGTR_LIBVO_SYNCFB_UnknownSubdevice "[VO_SYNCFB] bilinmeyen altaygıt: %s.\n"
-
 // libvo/vo_tdfxfb.c
 
 #define MSGTR_LIBVO_TDFXFB_CantOpen "[VO_TDFXFB] %s açılamıyor: %s.\n"
@@ -1765,7 +1740,7 @@ static char help_text[]=
 // libvo/vo_vesa.c
 
 #define MSGTR_LIBVO_VESA_FatalErrorOccurred "[VO_VESA] Önemli hata oluştu! Devam edilemiyor.\n"
-#define MSGTR_LIBVO_VESA_UnkownSubdevice "[VO_VESA] bilinmeyen altaygıt: '%s'.\n"
+#define MSGTR_LIBVO_VESA_UnknownSubdevice "[VO_VESA] bilinmeyen altaygıt: '%s'.\n"
 #define MSGTR_LIBVO_VESA_YouHaveTooLittleVideoMemory "[VO_VESA] Bu mod için çok az video belleğiniz var:\n[VO_VESA] Gereken: %08lX Mevcut: %08lX.\n"
 #define MSGTR_LIBVO_VESA_YouHaveToSpecifyTheCapabilitiesOfTheMonitor "[VO_VESA] Monitörünüzü özelliklerine göre tanımlamalısınız. Tazeleme oranı değiştirilemiyor.\n"
 #define MSGTR_LIBVO_VESA_UnableToFitTheMode "[VO_VESA] Bu mod ile monitör sınırları uyarlanamaz. Tazeleme oranı değiştirilemiyor.\n"

@@ -1,14 +1,19 @@
-#ifndef _DEMUX_RTP_INTERNAL_H
-#define _DEMUX_RTP_INTERNAL_H
+#ifndef DEMUX_RTP_INTERNAL_H
+#define DEMUX_RTP_INTERNAL_H
 
 #include <stdlib.h>
 
 extern "C" {
-#ifndef __STREAM_H
-#include "stream.h"
+#ifndef STREAM_H
+#include "stream/stream.h"
 #endif
-#ifndef __DEMUXER_H
+#ifndef DEMUXER_H
 #include "demuxer.h"
+#endif
+#ifdef USE_LIBAVCODEC_SO
+#include <ffmpeg/avcodec.h>
+#elif defined(USE_LIBAVCODEC)
+#include "libavcodec/avcodec.h"
 #endif
 }
 
@@ -35,9 +40,5 @@ Boolean awaitRTPPacket(demuxer_t* demuxer, demux_stream_t* ds,
 		       float& pts);
     // "streamType": 0 => video; 1 => audio
     // This routine returns False if the input stream has closed
-
-// A routine for adding our own data to an incoming RTP data stream:
-Boolean insertRTPData(demuxer_t* demuxer, demux_stream_t* ds,
-		      unsigned char* data, unsigned dataLen);
 
 #endif

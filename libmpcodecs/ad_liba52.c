@@ -8,6 +8,7 @@
 
 #include "mp_msg.h"
 #include "help_mp.h"
+#include "mpbswap.h"
 
 #include "ad_internal.h"
 
@@ -37,7 +38,7 @@ static sample_t a52_level = 1;
 float a52_drc_level = 1.0;
 static int a52_drc_action = DRC_NO_ACTION;
 
-#include "bswap.h"
+#include "mpbswap.h"
 
 static ad_info_t info = 
 {
@@ -49,8 +50,6 @@ static ad_info_t info =
 };
 
 LIBAD_EXTERN(liba52)
-
-extern int audio_output_channels;
 
 int a52_fillbuff(sh_audio_t *sh_audio){
 int length=0;

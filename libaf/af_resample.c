@@ -11,7 +11,6 @@
 /* This audio filter changes the sample rate. */
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <inttypes.h>
 
 #include "af.h"
@@ -21,7 +20,7 @@
    Valid definitions are L8 and L16, where the number denotes the
    length of the filter. This definition affects the computational
    complexity (see play()), the performance (see filter.h) and the
-   memory usage. The filterlenght is choosen to 8 if the machine is
+   memory usage. The filterlength is choosen to 8 if the machine is
    slow and to 16 if the machine is fast and has MMX.  
 */
 
@@ -173,6 +172,7 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
 	if(s->xq[i])
 	  free(s->xq[i]);
       free(s->xq);
+      s->xq = NULL;
     }
 
     if(AF_DETACH == (rv = set_types(af,n)))
@@ -219,6 +219,8 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
       int j;
       s->up = af->data->rate/d;	
       s->dn = n->rate/d;
+      s->wi = 0;
+      s->i = 0;
       
       // Calculate cuttof frequency for filter
       fc = 1/(float)(max(s->up,s->dn));
@@ -295,7 +297,8 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
 static void uninit(struct af_instance_s* af)
 {
   if(af->data)
-    free(af->data);
+    free(af->data->audio);
+  free(af->data);
 }
 
 // Filter data through filter
@@ -352,7 +355,7 @@ static af_data_t* play(struct af_instance_s* af, af_data_t* data)
 }
 
 // Allocate memory and set function pointers
-static int open(af_instance_t* af){
+static int af_open(af_instance_t* af){
   af->control=control;
   af->uninit=uninit;
   af->play=play;
@@ -373,6 +376,6 @@ af_info_t af_info_resample = {
   "Anders",
   "",
   AF_FLAGS_REENTRANT,
-  open
+  af_open
 };
 

@@ -34,9 +34,10 @@
 #include "mp_msg.h"
 #include "aspect.h"
 #include "geometry.h"
+#include "mp_fifo.h"
 
 #ifdef HAVE_NEW_GUI
-#include "Gui/interface.h"
+#include "gui/interface.h"
 #endif
 
 #ifndef WM_XBUTTONDOWN
@@ -85,7 +86,6 @@ static float window_aspect;
 static BOOL (WINAPI* myGetMonitorInfo)(HMONITOR, LPMONITORINFO) = NULL;
 static RECT last_rect = {0xDEADC0DE, 0xDEADC0DE, 0xDEADC0DE, 0xDEADC0DE};
 
-extern void mplayer_put_key(int code);              //let mplayer handel the keyevents 
 extern void vo_draw_text(int dxs,int dys,void (*draw_alpha)(int x0,int y0, int w,int h, unsigned char* src, unsigned char *srca, int stride));
 extern int vidmode;
 
@@ -675,7 +675,7 @@ static uint32_t Directx_ManageDisplay()
 			ovfx.dckDestColorkey.dwColorSpaceLowValue = destcolorkey; 
             ovfx.dckDestColorkey.dwColorSpaceHighValue = destcolorkey;
 		}
-        // set the flags we'll send to UpdateOverlay      //DDOVER_AUTOFLIP|DDOVERFX_MIRRORLEFTRIGHT|DDOVERFX_MIRRORUPDOWN could be usefull?;
+        // set the flags we'll send to UpdateOverlay      //DDOVER_AUTOFLIP|DDOVERFX_MIRRORLEFTRIGHT|DDOVERFX_MIRRORUPDOWN could be useful?;
         dwUpdateFlags = DDOVER_SHOW | DDOVER_DDFX;
         /*if hardware can't do colorkeying set the window on top*/
 		if(capsDrv.dwCKeyCaps & DDCKEYCAPS_DESTOVERLAY) dwUpdateFlags |= DDOVER_KEYDESTOVERRIDE;
@@ -1015,9 +1015,10 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		}
         case WM_MOUSEWHEEL:
 		{
+			int x;
 			if (vo_nomouse_input)
 				break;
-			int x = GET_WHEEL_DELTA_WPARAM(wParam);
+			x = GET_WHEEL_DELTA_WPARAM(wParam);
 			if (x > 0)
 				mplayer_put_key(MOUSE_BTN3);
 			else
@@ -1178,7 +1179,7 @@ static void flip_page(void)
 
 static int draw_frame(uint8_t *src[])
 {
-  	memcpy( image, *src, dstride * image_height );
+  	fast_memcpy( image, *src, dstride * image_height );
 	return 0;
 }
 
@@ -1261,7 +1262,7 @@ static uint32_t put_image(mp_image_t *mpi){
 	}
 	else //packed
 	{
-        memcpy( image, mpi->planes[0], image_height * dstride);
+        fast_memcpy( image, mpi->planes[0], image_height * dstride);
 	}
 	return VO_TRUE;
 }
@@ -1270,8 +1271,6 @@ static int
 config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uint32_t options, char *title, uint32_t format)
 {
     RECT rd;
-    vo_screenwidth = monitor_rect.right - monitor_rect.left;
-    vo_screenheight = monitor_rect.bottom - monitor_rect.top;
     vo_fs = options & 0x01;
 	image_format =  format;
 	image_width = width;
@@ -1279,22 +1278,10 @@ config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uin
 	d_image_width = d_width;
 	d_image_height = d_height;
     if(format != primary_image_format)nooverlay = 0;
-    aspect_save_orig(image_width,image_height);
-    aspect_save_prescale(d_image_width,d_image_height);
-    if(vidmode){
-	    vo_screenwidth=vm_width;
-	    vo_screenheight=vm_height;
-    }	
-	aspect_save_screenres(vo_screenwidth,vo_screenheight);
-    aspect(&d_image_width, &d_image_height, A_NOZOOM);
     window_aspect= (float)d_image_width / (float)d_image_height;
-    vo_dx = 0;
-    vo_dy = 0;   
 
 #ifdef HAVE_NEW_GUI
     if(use_gui){
-        vo_dwidth = d_image_width;
-        vo_dheight = d_image_height;
         guiGetEvent(guiSetShVideo, 0);
     }
 #endif
@@ -1313,11 +1300,7 @@ config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uin
     mp_msg(MSGT_VO, MSGL_DBG3,"<vo_directx><INFO>overlay surfaces released\n");
 
     if(!vidmode){
-        if(vo_geometry){
-            vo_dx= ( vo_screenwidth - d_image_width ) / 2; vo_dy=( vo_screenheight - d_image_height ) / 2;    
-            geometry(&vo_dx, &vo_dy, &d_image_width, &d_image_height, vo_screenwidth, vo_screenheight);
-        }
-        else {
+        if(!vo_geometry){
             GetWindowRect(hWnd,&rd);
             vo_dx=rd.left;
             vo_dy=rd.top;
@@ -1583,6 +1566,16 @@ static int control(uint32_t request, void *data, ...)
 		va_end(ap);
 		return color_ctrl_get(data, value);
 	}
+    case VOCTRL_UPDATE_SCREENINFO:
+        if (vidmode) {
+            vo_screenwidth = vm_width;
+            vo_screenheight = vm_height;
+        } else {
+            vo_screenwidth = monitor_rect.right - monitor_rect.left;
+            vo_screenheight = monitor_rect.bottom - monitor_rect.top;
+        }
+        aspect_save_screenres(vo_screenwidth, vo_screenheight);
+        return VO_TRUE;
     case VOCTRL_RESET:
         last_rect.left = 0xDEADC0DE;   // reset window position cache
         // fall-through intended

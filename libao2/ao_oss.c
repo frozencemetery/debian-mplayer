@@ -147,6 +147,7 @@ static int oss2format(int format)
 static char *dsp=PATH_DEV_DSP;
 static audio_buf_info zz;
 static int audio_fd=-1;
+static int prepause_space;
 
 static const char *oss_mixer_device = PATH_DEV_MIXER;
 static int oss_mixer_channel = SOUND_MIXER_PCM;
@@ -351,10 +352,6 @@ ac3_retry:
     ao_data.samplerate=rate;
     ioctl (audio_fd, SNDCTL_DSP_SPEED, &ao_data.samplerate);
     mp_msg(MSGT_AO,MSGL_V,"audio_setup: using %d Hz samplerate (requested: %d)\n",ao_data.samplerate,rate);
-#if 0
-    if(ao_data.samplerate!=rate)
-	mp_msg(MSGT_AO,MSGL_WARN,"WARNING! Your soundcard does NOT support %d Hz samplerate! A-V sync problems or wrong speed are possible! Try with '-aop list=resample:fout=%d'\n",rate,ao_data.samplerate);
-#endif
   }
 
   if(ioctl(audio_fd, SNDCTL_DSP_GETOSPACE, &zz)==-1){
@@ -452,13 +449,21 @@ static void reset(void){
 // stop playing, keep buffers (for pause)
 static void audio_pause(void)
 {
+    prepause_space = get_space();
     uninit(1);
 }
 
 // resume playing, after audio_pause()
 static void audio_resume(void)
 {
+    int fillcnt;
     reset();
+    fillcnt = get_space() - prepause_space;
+    if (fillcnt > 0) {
+      void *silence = calloc(fillcnt, 1);
+      play(silence, fillcnt, 0);
+      free(silence);
+    }
 }
 
 

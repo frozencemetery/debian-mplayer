@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
  */
 
 /**
@@ -29,7 +28,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "common.h"
 #include "avcodec.h"
 
 enum EncTypes {
@@ -72,14 +70,14 @@ typedef struct VmncContext {
 } VmncContext;
 
 /* read pixel value from stream */
-static always_inline int vmnc_get_pixel(uint8_t* buf, int bpp, int be) {
+static av_always_inline int vmnc_get_pixel(uint8_t* buf, int bpp, int be) {
     switch(bpp * 2 + be) {
     case 2:
     case 3: return *buf;
-    case 4: return LE_16(buf);
-    case 5: return BE_16(buf);
-    case 8: return LE_32(buf);
-    case 9: return BE_32(buf);
+    case 4: return AV_RL16(buf);
+    case 5: return AV_RB16(buf);
+    case 8: return AV_RL32(buf);
+    case 9: return AV_RB32(buf);
     default: return 0;
     }
 }
@@ -172,7 +170,7 @@ static void put_cursor(uint8_t *dst, int stride, VmncContext *c, int dx, int dy)
 }
 
 /* fill rectangle with given colour */
-static always_inline void paint_rect(uint8_t *dst, int dx, int dy, int w, int h, int color, int bpp, int stride)
+static av_always_inline void paint_rect(uint8_t *dst, int dx, int dy, int w, int h, int color, int bpp, int stride)
 {
     int i, j;
     dst += dx * bpp + dy * stride;
@@ -202,7 +200,7 @@ static always_inline void paint_rect(uint8_t *dst, int dx, int dy, int w, int h,
     }
 }
 
-static always_inline void paint_raw(uint8_t *dst, int w, int h, uint8_t* src, int bpp, int be, int stride)
+static av_always_inline void paint_raw(uint8_t *dst, int w, int h, uint8_t* src, int bpp, int be, int stride)
 {
     int i, j, p;
     for(j = 0; j < h; j++) {
@@ -287,7 +285,7 @@ static int decode_hextile(VmncContext *c, uint8_t* dst, uint8_t* src, int ssize,
 
 static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, uint8_t *buf, int buf_size)
 {
-    VmncContext * const c = (VmncContext *)avctx->priv_data;
+    VmncContext * const c = avctx->priv_data;
     uint8_t *outptr;
     uint8_t *src = buf;
     int dx, dy, w, h, depth, enc, chunks, res, size_left;
@@ -328,13 +326,13 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, uint8
         }
     }
     src += 2;
-    chunks = BE_16(src); src += 2;
+    chunks = AV_RB16(src); src += 2;
     while(chunks--) {
-        dx = BE_16(src); src += 2;
-        dy = BE_16(src); src += 2;
-        w  = BE_16(src); src += 2;
-        h  = BE_16(src); src += 2;
-        enc = BE_32(src); src += 4;
+        dx = AV_RB16(src); src += 2;
+        dy = AV_RB16(src); src += 2;
+        w  = AV_RB16(src); src += 2;
+        h  = AV_RB16(src); src += 2;
+        enc = AV_RB32(src); src += 4;
         outptr = c->pic.data[0] + dx * c->bpp2 + dy * c->pic.linesize[0];
         size_left = buf_size - (src - buf);
         switch(enc) {
@@ -460,10 +458,9 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, uint8
  */
 static int decode_init(AVCodecContext *avctx)
 {
-    VmncContext * const c = (VmncContext *)avctx->priv_data;
+    VmncContext * const c = avctx->priv_data;
 
     c->avctx = avctx;
-    avctx->has_b_frames = 0;
 
     c->pic.data[0] = NULL;
     c->width = avctx->width;
@@ -501,7 +498,7 @@ static int decode_init(AVCodecContext *avctx)
  */
 static int decode_end(AVCodecContext *avctx)
 {
-    VmncContext * const c = (VmncContext *)avctx->priv_data;
+    VmncContext * const c = avctx->priv_data;
 
     if (c->pic.data[0])
         avctx->release_buffer(avctx, &c->pic);

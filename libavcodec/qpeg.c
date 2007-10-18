@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
  */
 
 /**
@@ -124,14 +123,12 @@ static void qpeg_decode_inter(uint8_t *src, uint8_t *dst, int size,
     int code;
     int filled = 0;
     int orig_height;
-    uint8_t *blkdata;
 
     /* copy prev frame */
     for(i = 0; i < height; i++)
         memcpy(refdata + (i * width), dst + (i * stride), width);
 
     orig_height = height;
-    blkdata = src - 0x86;
     height--;
     dst = dst + height * stride;
 
@@ -293,7 +290,6 @@ static int decode_init(AVCodecContext *avctx){
 
     a->avctx = avctx;
     avctx->pix_fmt= PIX_FMT_PAL8;
-    avctx->has_b_frames = 0;
     a->pic.data[0] = NULL;
     a->refdata = av_malloc(avctx->width * avctx->height);
 

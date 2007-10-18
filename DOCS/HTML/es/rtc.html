@@ -1,50 +1,49 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>1.5. RTC</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - El reproductor de Películas
-para LINUX"><link rel="up" href="intro.html" title="Capítulo 1. Introducción"><link rel="prev" href="subosd.html" title="1.4. Subtítulos y OSD"><link rel="next" href="features.html" title="Capítulo 2. Características"><link rel="preface" href="howtoread.html" title="Como leer esta documentación"><link rel="chapter" href="intro.html" title="Capítulo 1. Introducción"><link rel="chapter" href="features.html" title="Capítulo 2. Características"><link rel="chapter" href="usage.html" title="Capítulo 3. Uso"><link rel="chapter" href="faq.html" title="Capítulo 4. Preguntas de Usuario Frecuentes"><link rel="chapter" href="cd-dvd.html" title="Capítulo 5. Uso de CD/DVD"><link rel="chapter" href="ports.html" title="Capítulo 6. Adaptaciones"><link rel="chapter" href="mencoder.html" title="Capítulo 7. Codificando con MEncoder"><link rel="appendix" href="bugreports.html" title="Apéndice A. Cómo reportar errores"><link rel="appendix" href="bugs.html" title="Apéndice B. Problemas conocidos"><link rel="appendix" href="skin.html" title="Apéndice C. Formato del skin de MPlayer"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">1.5. RTC</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="subosd.html">Anterior</a> </td><th width="60%" align="center">Capítulo 1. Introducción</th><td width="20%" align="right"> <a accesskey="n" href="features.html">Siguiente</a></td></tr></table><hr></div><div class="sect1" lang="es"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="rtc"></a>1.5. RTC</h2></div></div></div><p>
-Existen tres métodos de temporización en <span class="application">MPlayer</span>.
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>1.5. RTC</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - El reproductor de PelÃ­culas para LINUX"><link rel="up" href="intro.html" title="CapÃ­tulo 1. IntroducciÃ³n"><link rel="prev" href="subosd.html" title="1.4. SubtÃ­tulos y OSD"><link rel="next" href="features.html" title="CapÃ­tulo 2. CaracterÃ­sticas"><link rel="preface" href="howtoread.html" title="Como leer esta documentaciÃ³n"><link rel="chapter" href="intro.html" title="CapÃ­tulo 1. IntroducciÃ³n"><link rel="chapter" href="features.html" title="CapÃ­tulo 2. CaracterÃ­sticas"><link rel="chapter" href="usage.html" title="CapÃ­tulo 3. Uso"><link rel="chapter" href="faq.html" title="CapÃ­tulo 4. Preguntas de Usuario Frecuentes"><link rel="chapter" href="cd-dvd.html" title="CapÃ­tulo 5. Uso de CD/DVD"><link rel="chapter" href="ports.html" title="CapÃ­tulo 6. Adaptaciones"><link rel="chapter" href="mencoder.html" title="CapÃ­tulo 7. Codificando con MEncoder"><link rel="appendix" href="bugreports.html" title="ApÃ©ndice A. CÃ³mo reportar errores"><link rel="appendix" href="bugs.html" title="ApÃ©ndice B. Problemas conocidos"><link rel="appendix" href="skin.html" title="ApÃ©ndice C. Formato del skin de MPlayer"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">1.5. RTC</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="subosd.html">Anterior</a>Â </td><th width="60%" align="center">CapÃ­tulo 1. IntroducciÃ³n</th><td width="20%" align="right">Â <a accesskey="n" href="features.html">Siguiente</a></td></tr></table><hr></div><div class="sect1" lang="es"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="rtc"></a>1.5. RTC</h2></div></div></div><p>
+Existen tres mÃ©todos de temporizaciÃ³n en <span class="application">MPlayer</span>.
 
-</p><div class="itemizedlist"><ul type="disc"><li>
-<span class="bold"><strong>Para usar el método viejo</strong></span>, no tiene que hacer 
-  nada. Usa <code class="systemitem">usleep()</code> para ajustar la sincronización
-  A/V, con una precisión de +/- 10ms. Sin embargo muchas veces la sincronización
-  debe ser más precisa.
-  </li><li><p>
-<span class="bold"><strong>El nuevo código temporizador</strong></span> usa el RTC (Reloj de
-  Tiempo Real) de su PC para esta tarea, ya que tiene precisión de 1ms. Es activado
-  automágicamente cuando está disponible, pero requiere privilegios de administrador,
+</p><div class="itemizedlist"><ul type="disc"><li><p>
+<span class="bold"><strong>Para usar el mÃ©todo viejo</strong></span>, no tiene que hacer 
+  nada. Usa <code class="systemitem">usleep()</code> para ajustar la sincronizaciÃ³n
+  A/V, con una precisiÃ³n de +/- 10ms. Sin embargo muchas veces la sincronizaciÃ³n
+  debe ser mÃ¡s precisa.
+  </p></li><li><p>
+<span class="bold"><strong>El nuevo cÃ³digo temporizador</strong></span> usa el RTC (Reloj de
+  Tiempo Real) de su PC para esta tarea, ya que tiene precisiÃ³n de 1ms. Es activado
+  automÃ¡gicamente cuando estÃ¡ disponible, pero requiere privilegios de administrador,
   que el archivo ejecutable de <span class="application">MPlayer</span> tenga <span class="emphasis"><em>
-  permiso de SUID root</em></span> o un núcleo configurado apropiadamente.
-  Si utiliza un núcleo 2.4.19pre8 o más nuevo entonces puede ajustar la frecuencia
-  máxima del RTC para usuarios normales a través del sistema de archivo
+  permiso de SUID root</em></span> o un nÃºcleo configurado apropiadamente.
+  Si utiliza un nÃºcleo 2.4.19pre8 o mÃ¡s nuevo entonces puede ajustar la frecuencia
+  mÃ¡xima del RTC para usuarios normales a travÃ©s del sistema de archivo
   <code class="systemitem">/proc</code>. Use
   este comando para habilitar el RTC para usuarios normales:
   </p><pre class="screen">echo 1024 &gt; /proc/sys/dev/rtc/max-user-freq</pre><p>
-  Si no posee dicho núcleo actualizado, puede también cambiar una línea
-  en el archivo <tt class="filename">drivers/char/rtc.c</tt> y recompilar el núcleo.
-  Busque la sección que dice:
+  Si no posee dicho nÃºcleo actualizado, puede tambiÃ©n cambiar una lÃ­nea
+  en el archivo <tt class="filename">drivers/char/rtc.c</tt> y recompilar el nÃºcleo.
+  Busque la secciÃ³n que dice:
   </p><pre class="programlisting">
        * We don't really want Joe User enabling more
        * than 64Hz of interrupts on a multi-user machine.
        */
       if ((rtc_freq &gt; 64) &amp;&amp; (!capable(CAP_SYS_RESOURCE)))
    </pre><p>
-   y cambie el 64 por 1024. Debería realmente saber lo que esta haciendo de todas
-   maneras. Puede ver la eficiencia del nuevo temporizador en la línea de estado.
-   Las funciones de  administración de energía de BIOS de algunas notebooks
-   con cambio de velocidad de CPUs interactúan muy mal con el RTC. El vídeo y el
-   audio puede salirse de sincronía. Enchufar el conector de energía externo
-   antes de encender su notebook parece ayudar a solucionar la situación.
-   Siempre que desee puede apagar el soporte de RTC con la opción <tt class="option">-nortc</tt>.
+   y cambie el 64 por 1024. DeberÃ­a realmente saber lo que esta haciendo de todas
+   maneras. Puede ver la eficiencia del nuevo temporizador en la lÃ­nea de estado.
+   Las funciones de  administraciÃ³n de energÃ­a de BIOS de algunas notebooks
+   con cambio de velocidad de CPUs interactÃºan muy mal con el RTC. El vÃ­deo y el
+   audio puede salirse de sincronÃ­a. Enchufar el conector de energÃ­a externo
+   antes de encender su notebook parece ayudar a solucionar la situaciÃ³n.
+   Siempre que desee puede apagar el soporte de RTC con la opciÃ³n <tt class="option">-nortc</tt>.
    En algunas combinaciones de hardware (confirmado durante el uso de un disco no-DMA
-   de DVD en una placa ALi1541) el uso del RTC puede causar defectos en la reproducción.
-   Es recomendado usar el tercer método en esos casos.
-  </p></li><li>
-  <span class="bold"><strong>El tercer código de temporización</strong></span> es activado con la opción
+   de DVD en una placa ALi1541) el uso del RTC puede causar defectos en la reproducciÃ³n.
+   Es recomendado usar el tercer mÃ©todo en esos casos.
+  </p></li><li><p>
+  <span class="bold"><strong>El tercer cÃ³digo de temporizaciÃ³n</strong></span> es activado con la opciÃ³n
   <tt class="option">-softsleep</tt>. Tiene la eficiencia del RTC, pero no usa el RTC. Por otro lado
-  requiere más CPU.
-  </li></ul></div><p>
-</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Nota</h3><p><span class="bold"><strong>¡NUNCA instale un archivo ejecutable de 
+  requiere mÃ¡s CPU.
+  </p></li></ul></div><p>
+</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Nota</h3><p><span class="bold"><strong>Â¡NUNCA instale un archivo ejecutable de 
 <span class="application">MPlayer</span>con permisos de SUID root en un sistema
 multiusuario!</strong></span>
-Es una manera fácil para cualquiera de convertirse en administrador.
+Es una manera fÃ¡cil para cualquiera de convertirse en administrador.
 </p></div><p>
-</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="subosd.html">Anterior</a> </td><td width="20%" align="center"><a accesskey="u" href="intro.html">Subir</a></td><td width="40%" align="right"> <a accesskey="n" href="features.html">Siguiente</a></td></tr><tr><td width="40%" align="left" valign="top">1.4. Subtítulos y OSD </td><td width="20%" align="center"><a accesskey="h" href="index.html">Inicio</a></td><td width="40%" align="right" valign="top"> Capítulo 2. Características</td></tr></table></div></body></html>
+</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="subosd.html">Anterior</a>Â </td><td width="20%" align="center"><a accesskey="u" href="intro.html">Subir</a></td><td width="40%" align="right">Â <a accesskey="n" href="features.html">Siguiente</a></td></tr><tr><td width="40%" align="left" valign="top">1.4. SubtÃ­tulos y OSDÂ </td><td width="20%" align="center"><a accesskey="h" href="index.html">Inicio</a></td><td width="40%" align="right" valign="top">Â CapÃ­tulo 2. CaracterÃ­sticas</td></tr></table></div></body></html>

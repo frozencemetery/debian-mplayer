@@ -172,12 +172,12 @@ static void init_offset(ShortenContext *s)
             s->offset[chan][i] = mean;
 }
 
-static int inline get_le32(GetBitContext *gb)
+static inline int get_le32(GetBitContext *gb)
 {
     return bswap_32(get_bits_long(gb, 32));
 }
 
-static short inline get_le16(GetBitContext *gb)
+static inline short get_le16(GetBitContext *gb)
 {
     return bswap_16(get_bits_long(gb, 16));
 }
@@ -293,12 +293,13 @@ static int shorten_decode_frame(AVCodecContext *avctx,
         s->bitstream_size= buf_size;
 
         if(buf_size < s->max_framesize){
-            //dprintf("wanna more data ... %d\n", buf_size);
+            //dprintf(avctx, "wanna more data ... %d\n", buf_size);
+            *data_size = 0;
             return input_buf_size;
         }
     }
     init_get_bits(&s->gb, buf, buf_size*8);
-    get_bits(&s->gb, s->bitindex);
+    skip_bits(&s->gb, s->bitindex);
     if (!s->blocksize)
     {
         int maxnlpc = 0;
@@ -335,7 +336,8 @@ static int shorten_decode_frame(AVCodecContext *avctx,
         }
         s->nwrap = FFMAX(NWRAP, maxnlpc);
 
-        allocate_buffers(s);
+        if (allocate_buffers(s))
+            return -1;
 
         init_offset(s);
 
@@ -470,6 +472,7 @@ static int shorten_decode_frame(AVCodecContext *avctx,
                 s->blocksize = get_uint(s, av_log2(s->blocksize));
                 break;
             case FN_QUIT:
+                *data_size = 0;
                 return buf_size;
                 break;
             default:

@@ -2,6 +2,7 @@
 #include "fastmemcpy.h"
 #include "cpudetect.h"
 #include "libswscale/swscale.h"
+#include "libswscale/rgb2rgb.h"
 #include "libmpcodecs/vf_scale.h"
 #include "mp_msg.h"
 #include "help_mp.h"
@@ -10,9 +11,6 @@
 static void set_window( void );		/* forward declaration to kill warnings */
 #ifdef VO_XMGA
 static void mDrawColorKey( void );	/* forward declaration to kill warnings */
-#ifdef HAVE_XINERAMA
-extern int xinerama_screen;
-#endif
 #endif
 
 static int mga_next_frame=0;
@@ -209,6 +207,7 @@ query_format(uint32_t format)
     return 0;
 }
 
+#ifndef VO_XMGA
 static void mga_fullscreen()
 {
 	uint32_t w,h;
@@ -228,6 +227,7 @@ static void mga_fullscreen()
 	if ( ioctl( f,MGA_VID_CONFIG,&mga_vid_config ) )
 		mp_msg(MSGT_VO,MSGL_WARN, MSGTR_LIBVO_MGA_ErrorInConfigIoctl );
 }
+#endif
 
 static int control(uint32_t request, void *data, ...)
 {
@@ -371,12 +371,6 @@ static int mga_init(int width,int height,unsigned int format){
             return (-1);
         }
 
-	if(width>1023 || height >1023)
-	{
-		mp_msg(MSGT_VO,MSGL_ERR, MGSTR_LIBVO_MGA_ResolutionTooHigh);
-		return (-1);
-	}
-
 	mga_vid_config.src_width = width;
 	mga_vid_config.src_height= height;
 	if(!mga_vid_config.dest_width)
@@ -388,14 +382,43 @@ static int mga_init(int width,int height,unsigned int format){
 	
 	mga_vid_config.num_frames=(vo_directrendering && !vo_doublebuffering)?1:3;
 	mga_vid_config.version=MGA_VID_VERSION;
-	if (ioctl(f,MGA_VID_CONFIG,&mga_vid_config))
+
+	if(width > 1024 && height > 1024)
 	{
-		perror("Error in mga_vid_config ioctl()");
-                mp_msg(MSGT_VO,MSGL_WARN, MSGTR_LIBVO_MGA_IncompatibleDriverVersion);
-		return -1;
+		mp_msg(MSGT_VO,MSGL_ERR, MGSTR_LIBVO_MGA_ResolutionTooHigh);
+		return (-1);
+	} else if(height <= 1024)
+	{
+		// try whether we have a G550
+		int ret;
+		if ((ret = ioctl(f,MGA_VID_CONFIG,&mga_vid_config)))
+		{
+			if(mga_vid_config.card_type != MGA_G550)
+			{
+				// we don't have a G550, so our resolution is too high
+				mp_msg(MSGT_VO,MSGL_ERR, MGSTR_LIBVO_MGA_ResolutionTooHigh);
+				return (-1);
+			} else {
+				// there is a deeper problem
+				// we have a G550, but still couldn't configure mga_vid
+				perror("Error in mga_vid_config ioctl()");
+				mp_msg(MSGT_VO,MSGL_WARN, MSGTR_LIBVO_MGA_IncompatibleDriverVersion);
+				return -1;
+			}
+			// if we arrived here, then we could successfully configure mga_vid
+			// at this high resolution
+		}
+	} else {
+		// configure mga_vid in case resolution is < 1024x1024 too
+		if (ioctl(f,MGA_VID_CONFIG,&mga_vid_config))
+		{
+			perror("Error in mga_vid_config ioctl()");
+			mp_msg(MSGT_VO,MSGL_WARN, MSGTR_LIBVO_MGA_IncompatibleDriverVersion);
+			return -1;
+		}
 	}
 	
-	mp_msg(MSGT_VO,MSGL_INFO, MSGTR_LIBVO_MGA_UsingBuffers,mga_vid_config.num_frames);
+	mp_msg(MSGT_VO,MSGL_V,"[MGA] Using %d buffers.\n",mga_vid_config.num_frames);
 
 	frames[0] = (char*)mmap(0,mga_vid_config.frame_size*mga_vid_config.num_frames,PROT_WRITE,MAP_SHARED,f,0);
 	frames[1] = frames[0] + 1*mga_vid_config.frame_size;
@@ -510,6 +533,15 @@ static void set_window( void ){
 				 */
 				i = xinerama_screen;
 		 	}
+
+			if(xinerama_screen == -1)
+			{
+				// The default value of the xinerama_screen is
+				// still there. Which means we could never
+				// figure out on which screen we are.
+				// Choose the first screen as default
+				xinerama_screen = i = 0;
+			}
 
 		 	/* set drwcX and drwcY to the right values */
 		 	drwcX = drwcX - screens[i].x_org;

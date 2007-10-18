@@ -8,8 +8,10 @@
 #include "libmpcodecs/img_format.h"
 #include "tv.h"
 
+static tvi_handle_t *tvi_init_dummy(tv_param_t* tv_param);
 /* information about this file */
-static tvi_info_t info = {
+tvi_info_t tvi_info_dummy = {
+	tvi_init_dummy,
 	"NULL-TV",
 	"dummy",
 	"alex",
@@ -25,7 +27,7 @@ typedef struct {
 #include "tvi_def.h"
 
 /* handler creator - entry point ! */
-tvi_handle_t *tvi_init_dummy(char *device)
+static tvi_handle_t *tvi_init_dummy(tv_param_t* tv_param)
 {
     return(new_handle());
 }
@@ -87,14 +89,6 @@ static int control(priv_t *priv, int cmd, void *arg)
     }
     return(TVI_CONTROL_UNKNOWN);
 }
-
-#ifdef HAVE_TV_BSDBT848
-static double grabimmediate_video_frame(priv_t *priv, char *buffer, int len)
-{
-    memset(buffer, 0xCC, len);
-    return(1);
-}
-#endif
 
 static double grab_video_frame(priv_t *priv, char *buffer, int len)
 {

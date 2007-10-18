@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h> 
 
-#include <unistd.h>
 #include <inttypes.h>
 #include <math.h>
 #include <limits.h>
@@ -32,7 +31,7 @@ typedef struct af_sinesuppress_s
 }af_sinesuppress_t;
 
 static af_data_t* play_s16(struct af_instance_s* af, af_data_t* data);
-static af_data_t* play_float(struct af_instance_s* af, af_data_t* data);
+//static af_data_t* play_float(struct af_instance_s* af, af_data_t* data);
 
 // Initialization and runtime control
 static int control(struct af_instance_s* af, int cmd, void* arg)
@@ -150,7 +149,7 @@ static af_data_t* play_float(struct af_instance_s* af, af_data_t* data)
 #endif
 
 // Allocate memory and set function pointers
-static int open(af_instance_t* af){
+static int af_open(af_instance_t* af){
   af->control=control;
   af->uninit=uninit;
   af->play=play_s16;
@@ -173,5 +172,5 @@ af_info_t af_info_sinesuppress = {
     "Michael Niedermayer",
     "",
     0,
-    open
+    af_open
 };

@@ -1,216 +1,226 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>6.1. Videó formátumok</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="containers.html" title="6. fejezet - Konténerek"><link rel="prev" href="containers.html" title="6. fejezet - Konténerek"><link rel="next" href="audio-formats.html" title="6.2. Audió formátumok"><link rel="preface" href="howtoread.html" title="Hogyan olvasd ezt a dokumentációt"><link rel="chapter" href="intro.html" title="1. fejezet - Bevezetés"><link rel="chapter" href="install.html" title="2. fejezet - Telepítés"><link rel="chapter" href="usage.html" title="3. fejezet - Használat"><link rel="chapter" href="cd-dvd.html" title="4. fejezet - CD/DVD használat"><link rel="chapter" href="faq.html" title="5. fejezet - Gyakran ismételt kérdések"><link rel="chapter" href="containers.html" title="6. fejezet - Konténerek"><link rel="chapter" href="codecs.html" title="7. fejezet - Codec-ek"><link rel="chapter" href="video.html" title="8. fejezet - Videó kimeneti eszközök"><link rel="chapter" href="audio.html" title="9. fejezet - Audió kimeneti eszközök"><link rel="chapter" href="tv.html" title="10. fejezet - TV"><link rel="chapter" href="radio.html" title="11. fejezet - Rádió"><link rel="chapter" href="ports.html" title="12. fejezet - Portok"><link rel="chapter" href="mencoder.html" title="13. fejezet - A MEncoder használatának alapjai"><link rel="chapter" href="encoding-guide.html" title="14. fejezet - Kódolás a MEncoderrel"><link rel="appendix" href="bugreports.html" title="A. függelék - Hogyan jelentsd a hibákat"><link rel="appendix" href="bugs.html" title="B. függelék - Ismert hibák"><link rel="appendix" href="skin.html" title="C. függelék - MPlayer skin formátum"><link rel="appendix" href="history.html" title="D. függelék - Történelem"><link rel="subsection" href="video-formats.html#mpg-vob-dat" title="6.1.1. MPEG fájlok"><link rel="subsection" href="video-formats.html#avi" title="6.1.2. AVI fájlok"><link rel="subsection" href="video-formats.html#asf-wmv" title="6.1.3. ASF/WMV fájlok"><link rel="subsection" href="video-formats.html#mov" title="6.1.4. QuickTime/MOV fájlok"><link rel="subsection" href="video-formats.html#vivo" title="6.1.5. VIVO fájlok"><link rel="subsection" href="video-formats.html#fli" title="6.1.6. FLI fájlok"><link rel="subsection" href="video-formats.html#realmedia" title="6.1.7. RealMedia (RM) fájlok"><link rel="subsection" href="video-formats.html#nuppelvideo" title="6.1.8. NuppelVideo fájlok"><link rel="subsection" href="video-formats.html#yuv4mpeg" title="6.1.9. yuv4mpeg fájlok"><link rel="subsection" href="video-formats.html#film" title="6.1.10. FILM fájlok"><link rel="subsection" href="video-formats.html#roq" title="6.1.11. RoQ fájlok"><link rel="subsection" href="video-formats.html#ogg" title="6.1.12. OGG/OGM fájlok"><link rel="subsection" href="video-formats.html#sdp" title="6.1.13. SDP fájlok"><link rel="subsection" href="video-formats.html#pva" title="6.1.14. PVA fájlok"><link rel="subsection" href="video-formats.html#nsv" title="6.1.15. NSV fájlok"><link rel="subsection" href="video-formats.html#matroska" title="6.1.16. Matroska fájlok"><link rel="subsection" href="video-formats.html#nut" title="6.1.17. NUT fájlok"><link rel="subsection" href="video-formats.html#gif" title="6.1.18. GIF fájlok"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">6.1. Videó formátumok</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="containers.html">El&#337;z&#337;</a> </td><th width="60%" align="center">6. fejezet - Konténerek</th><td width="20%" align="right"> <a accesskey="n" href="audio-formats.html">Következ&#337;</a></td></tr></table><hr></div><div class="sect1" lang="hu"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="video-formats"></a>6.1. Videó formátumok</h2></div></div></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="mpg-vob-dat"></a>6.1.1. MPEG fájlok</h3></div></div></div><p>
-Az MPEG fájlok különböz&#337; alakúak lehetnek:
-</p><div class="itemizedlist"><ul type="disc"><li>
-  MPG: Ez a <span class="bold"><strong>legalapabb</strong></span> formátum az
-  MPEG fájl formátumok közül. MPEG-1 videót és MP2 (MPEG-1 layer 2) vagy
-  ritkán MP1 audiót tartalmaz.
-  </li><li>
-  DAT: Ez majdnem ugyan olyan formátum, mint az MPG, csak a kiterjesztés
-  különbözik. <span class="bold"><strong>Video CD</strong></span>-ken használják. A VCD-k
-  készítési és a Linux tervezési módja miatt a DAT fájlokat nem lehet sem
-  lejátszani sem átmásolni a VCD-kr&#337;l mint rendes fájlokat. A
-  <tt class="option">vcd://</tt> el&#337;tagot kell használnod a Video CD lejátszásához.
-  </li><li>
-  VOB: Ez a <span class="bold"><strong>DVD</strong></span>-ken használt MPEG fájl formátum.
-  Ugyan az, mint az MPG, plusz tartalmazhat feliratot és nem-MPEG (AC3) hangot.
-  Kódolt MPEG-2 videót és általában AC3 audiót tartalmaz, de DTS, MP2 és
-  tömörítetlen LPCM is megengedett. <span class="bold"><strong>Olvasd el a
-  <a href="dvd.html" title="4.2. DVD lejátszás">DVD</a> részt</strong></span>!
-  </li><li>
-  TY: Ez egy TiVo MPEG stream. MPEG PES adatot tartalmaz az audió és
-  videó stream-hez, valamint extra információkat, mint pl. zárt feliratok.
-  A konténer nem MPEG program stream, csak egy TiVo által készített hasonló
-  formátum. Ha többet akarsz megtudni a TiVo stream formátumról, olvasd el a
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>6.1. VideÃ³ formÃ¡tumok</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.71.0"><link rel="start" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="containers.html" title="6. fejezet - KontÃ©nerek"><link rel="prev" href="containers.html" title="6. fejezet - KontÃ©nerek"><link rel="next" href="audio-formats.html" title="6.2. AudiÃ³ formÃ¡tumok"><link rel="preface" href="howtoread.html" title="Hogyan olvasd ezt a dokumentÃ¡ciÃ³t"><link rel="chapter" href="intro.html" title="1. fejezet - BevezetÃ©s"><link rel="chapter" href="install.html" title="2. fejezet - TelepÃ­tÃ©s"><link rel="chapter" href="usage.html" title="3. fejezet - HasznÃ¡lat"><link rel="chapter" href="cd-dvd.html" title="4. fejezet - CD/DVD hasznÃ¡lat"><link rel="chapter" href="faq.html" title="5. fejezet - Gyakran ismÃ©telt kÃ©rdÃ©sek"><link rel="chapter" href="containers.html" title="6. fejezet - KontÃ©nerek"><link rel="chapter" href="codecs.html" title="7. fejezet - Codec-ek"><link rel="chapter" href="video.html" title="8. fejezet - VideÃ³ kimeneti eszkÃ¶zÃ¶k"><link rel="chapter" href="audio.html" title="9. fejezet - AudiÃ³ kimeneti eszkÃ¶zÃ¶k"><link rel="chapter" href="tv.html" title="10. fejezet - TV"><link rel="chapter" href="radio.html" title="11. fejezet - RÃ¡diÃ³"><link rel="chapter" href="ports.html" title="12. fejezet - Portok"><link rel="chapter" href="mencoder.html" title="13. fejezet - A MEncoder hasznÃ¡latÃ¡nak alapjai"><link rel="chapter" href="encoding-guide.html" title="14. fejezet - KÃ³dolÃ¡s a MEncoderrel"><link rel="appendix" href="bugreports.html" title="A. fÃ¼ggelÃ©k - Hogyan jelentsd a hibÃ¡kat"><link rel="appendix" href="bugs.html" title="B. fÃ¼ggelÃ©k - Ismert hibÃ¡k"><link rel="appendix" href="skin.html" title="C. fÃ¼ggelÃ©k - MPlayer skin formÃ¡tum"><link rel="appendix" href="history.html" title="D. fÃ¼ggelÃ©k - TÃ¶rtÃ©nelem"><link rel="subsection" href="video-formats.html#mpg-vob-dat" title="6.1.1. MPEG fÃ¡jlok"><link rel="subsection" href="video-formats.html#avi" title="6.1.2. AVI fÃ¡jlok"><link rel="subsection" href="video-formats.html#asf-wmv" title="6.1.3. ASF/WMV fÃ¡jlok"><link rel="subsection" href="video-formats.html#mov" title="6.1.4. QuickTime/MOV fÃ¡jlok"><link rel="subsection" href="video-formats.html#vivo" title="6.1.5. VIVO fÃ¡jlok"><link rel="subsection" href="video-formats.html#fli" title="6.1.6. FLI fÃ¡jlok"><link rel="subsection" href="video-formats.html#realmedia" title="6.1.7. RealMedia (RM) fÃ¡jlok"><link rel="subsection" href="video-formats.html#nuppelvideo" title="6.1.8. NuppelVideo fÃ¡jlok"><link rel="subsection" href="video-formats.html#yuv4mpeg" title="6.1.9. yuv4mpeg fÃ¡jlok"><link rel="subsection" href="video-formats.html#film" title="6.1.10. FILM fÃ¡jlok"><link rel="subsection" href="video-formats.html#roq" title="6.1.11. RoQ fÃ¡jlok"><link rel="subsection" href="video-formats.html#ogg" title="6.1.12. OGG/OGM fÃ¡jlok"><link rel="subsection" href="video-formats.html#sdp" title="6.1.13. SDP fÃ¡jlok"><link rel="subsection" href="video-formats.html#pva" title="6.1.14. PVA fÃ¡jlok"><link rel="subsection" href="video-formats.html#nsv" title="6.1.15. NSV fÃ¡jlok"><link rel="subsection" href="video-formats.html#matroska" title="6.1.16. Matroska fÃ¡jlok"><link rel="subsection" href="video-formats.html#nut" title="6.1.17. NUT fÃ¡jlok"><link rel="subsection" href="video-formats.html#gif" title="6.1.18. GIF fÃ¡jlok"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">6.1. VideÃ³ formÃ¡tumok</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="containers.html">ElÅ‘zÅ‘</a>Â </td><th width="60%" align="center">6. fejezet - KontÃ©nerek</th><td width="20%" align="right">Â <a accesskey="n" href="audio-formats.html">KÃ¶vetkezÅ‘</a></td></tr></table><hr></div><div class="sect1" lang="hu"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="video-formats"></a>6.1. VideÃ³ formÃ¡tumok</h2></div></div></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="mpg-vob-dat"></a>6.1.1. MPEG fÃ¡jlok</h3></div></div></div><p>
+Az MPEG fÃ¡jlok kÃ¼lÃ¶nbÃ¶zÅ‘ alakÃºak lehetnek:
+</p><div class="itemizedlist"><ul type="disc"><li><p>
+  MPG: Ez a <span class="bold"><strong>legalapabb</strong></span> formÃ¡tum az
+  MPEG fÃ¡jl formÃ¡tumok kÃ¶zÃ¼l. MPEG-1 videÃ³t Ã©s MP2 (MPEG-1 layer 2) vagy
+  ritkÃ¡n MP1 audiÃ³t tartalmaz.
+</p></li><li><p>
+  DAT: Ez majdnem ugyan olyan formÃ¡tum, mint az MPG, csak a kiterjesztÃ©s
+  kÃ¼lÃ¶nbÃ¶zik. <span class="bold"><strong>Video CD</strong></span>-ken hasznÃ¡ljÃ¡k. A VCD-k
+  kÃ©szÃ­tÃ©si Ã©s a Linux tervezÃ©si mÃ³dja miatt a DAT fÃ¡jlokat nem lehet sem
+  lejÃ¡tszani sem Ã¡tmÃ¡solni a VCD-krÅ‘l mint rendes fÃ¡jlokat. A
+  <tt class="option">vcd://</tt> elÅ‘tagot kell hasznÃ¡lnod a Video CD lejÃ¡tszÃ¡sÃ¡hoz.
+</p></li><li><p>
+  VOB: Ez a <span class="bold"><strong>DVD</strong></span>-ken hasznÃ¡lt MPEG fÃ¡jl formÃ¡tum.
+  Ugyan az, mint az MPG, plusz tartalmazhat feliratot Ã©s nem-MPEG (AC-3) hangot.
+  KÃ³dolt MPEG-2 videÃ³t Ã©s Ã¡ltalÃ¡ban AC-3 audiÃ³t tartalmaz, de DTS, MP2 Ã©s
+  tÃ¶mÃ¶rÃ­tetlen LPCM is megengedett. <span class="bold"><strong>Olvasd el a
+  <a href="dvd.html" title="4.2. DVD lejÃ¡tszÃ¡s">DVD</a> rÃ©szt</strong></span>!
+</p></li><li><p>
+  TY: Ez egy TiVo MPEG stream. MPEG PES adatot tartalmaz az audiÃ³ Ã©s
+  videÃ³ stream-hez, valamint extra informÃ¡ciÃ³kat, mint pl. zÃ¡rt feliratok.
+  A kontÃ©ner nem MPEG program stream, csak egy TiVo Ã¡ltal kÃ©szÃ­tett hasonlÃ³
+  formÃ¡tum. Ha tÃ¶bbet akarsz megtudni a TiVo stream formÃ¡tumrÃ³l, olvasd el a
   <a href="http://dvd-create.sourceforge.net/tystudio/tystream.shtml" target="_top">
-  TyStudio oldalát</a>.
-  </li></ul></div><p>
-A képkockák sorozata független csoportokat alkot az MPEG fájlokban. Ez azt jelenti,
-hogy egy MPEG fájlt szabványos fájl eszközökkel (például <span><strong class="command">dd</strong></span>,
-<span><strong class="command">cut</strong></span>) vághatsz/összeilleszthetsz, úgy, hogy teljesen m&#369;köd&#337;képes
-marad.
+  TyStudio oldalÃ¡t</a>.
+</p></li></ul></div><p>
+A kÃ©pkockÃ¡k sorozata fÃ¼ggetlen csoportokat alkot az MPEG fÃ¡jlokban. Ez azt
+jelenti, hogy egy MPEG fÃ¡jlt szabvÃ¡nyos fÃ¡jl eszkÃ¶zÃ¶kkel (pÃ©ldÃ¡ul
+<span><strong class="command">dd</strong></span>, <span><strong class="command">cut</strong></span>) vÃ¡ghatsz/Ã¶sszeilleszthetsz,
+Ãºgy, hogy teljesen mÅ±kÃ¶dÅ‘kÃ©pes marad.
 </p><p>
-Az MPG-k egyik legfontosabb tulajdonsága, hogy van egy mez&#337;jük, mely a videó
-folyam képarányát írja le. Például az SVCD-knek 480x480 felbontású videójuk van,
-a fejlécben ilyenkor ez a mez&#337; 4:3 arányra van állítva, ezért játszódnak le
-640x480-ban. Az AVI fájlokból gyakran hiányzik ez a mez&#337;, ezért ezeket újra kell
-méretezni a <tt class="option">-aspect</tt> kapcsolóval kódolás vagy lejátszás közben.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="avi"></a>6.1.2. AVI fájlok</h3></div></div></div><p>
-A Microsoft tervezte, az <span class="bold"><strong>AVI (Audio Video Interleaved)</strong></span>
-egy széles körben elterjedt, többcélú formátum, melyet jelenleg leginkább MPEG-4 (DivX
-és DivX4) videóknál használnak. Rengeteg ismert hátránya és hiányossága van (például
-stream-elésben). Támogat egy videó folyamot 0-99 audió folyammal, max 2 GB-ig, de
-van egy <span class="bold"><strong>OpenDML</strong></span> kiterjesztés, amivel ennél nagyobb
-fájlok is kezelhet&#337;ek. A Microsoft már nem javasolja a használatát, és az
-ASF/WMV használatára buzdít. Nem mintha ez bárkit is érdekelne.
+Az MPG-k egyik legfontosabb tulajdonsÃ¡ga, hogy van egy mezÅ‘jÃ¼k, mely a
+videÃ³ folyam kÃ©parÃ¡nyÃ¡t Ã­rja le. PÃ©ldÃ¡ul az SVCD-knek 480x480 felbontÃ¡sÃº
+videÃ³juk van, a fejlÃ©cben ilyenkor ez a mezÅ‘ 4:3 arÃ¡nyra van Ã¡llÃ­tva, ezÃ©rt
+jÃ¡tszÃ³dnak le 640x480-ban. Az AVI fÃ¡jlokbÃ³l gyakran hiÃ¡nyzik ez a mezÅ‘,
+ezÃ©rt ezeket Ãºjra kell mÃ©retezni a <tt class="option">-aspect</tt> kapcsolÃ³val
+kÃ³dolÃ¡s vagy lejÃ¡tszÃ¡s kÃ¶zben.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="avi"></a>6.1.2. AVI fÃ¡jlok</h3></div></div></div><p>
+A Microsoft Ã¡ltal tervezett
+<span class="bold"><strong>AVI (Audio Video Interleaved)</strong></span>
+egy szÃ©les kÃ¶rben elterjedt, tÃ¶bbcÃ©lÃº formÃ¡tum, melyet jelenleg leginkÃ¡bb
+MPEG-4 (DivX Ã©s DivX4) videÃ³knÃ¡l hasznÃ¡lnak. Rengeteg ismert hÃ¡trÃ¡nya Ã©s
+hiÃ¡nyossÃ¡ga van (pÃ©ldÃ¡ul stream-elÃ©sben). TÃ¡mogat egy videÃ³ folyamot 0-99
+audiÃ³ folyammal, max 2 GB-ig, de van egy <span class="bold"><strong>OpenDML</strong></span>
+kiterjesztÃ©s, amivel ennÃ©l nagyobb fÃ¡jlok is kezelhetÅ‘ek. A Microsoft mÃ¡r
+nem javasolja a hasznÃ¡latÃ¡t, Ã©s az ASF/WMV hasznÃ¡latÃ¡ra buzdÃ­t. Nem
+mintha ez bÃ¡rkit is Ã©rdekelne.
 </p><p>
-Van egy hack, aminek a segítségével az AVI fájlokban lehet Ogg Vorbis audió
-folyam is, de így inkompatibilisek lesznek a szabványos AVI-val.
-Az <span class="application">MPlayer</span> le tudja játszani ezeket a fájlokat. A
-keresés is megoldott, de ezt egyszer&#369;en gátolja a rosszul kódolt fájlok
-zavaros fejléce. Sajnos jelenleg az egyetlen kódoló program, ami tud ilyen
-fájlokat készíteni, a <span class="application">NanDub</span> is küzd ezzel a
-problémával.
-</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Megjegyzés</h3><p>
-A DV kamerák készítenek nyers DV folyamokat, amit a DV grab-bel&#337; segédprogramja
-két különböz&#337; típusú AVI fájllá konvertál. Az AVI ezután vagy külön audió és videó
+Van egy hack, aminek a segÃ­tsÃ©gÃ©vel az AVI fÃ¡jlokban lehet Ogg Vorbis audiÃ³
+folyam is, de Ã­gy inkompatibilisek lesznek a szabvÃ¡nyos AVI-val.
+Az <span class="application">MPlayer</span> le tudja jÃ¡tszani ezeket a fÃ¡jlokat. A
+keresÃ©s is megoldott, de ezt egyszerÅ±en gÃ¡tolja a rosszul kÃ³dolt fÃ¡jlok
+zavaros fejlÃ©ce. Sajnos jelenleg az egyetlen kÃ³dolÃ³ program, ami tud ilyen
+fÃ¡jlokat kÃ©szÃ­teni, a <span class="application">NanDub</span> is kÃ¼zd ezzel a problÃ©mÃ¡val.
+</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">MegjegyzÃ©s</h3><p>
+A DV kamerÃ¡k kÃ©szÃ­tenek nyers DV folyamokat, amit a DV grab-belÅ‘ segÃ©dprogramja
+kÃ©t kÃ¼lÃ¶nbÃ¶zÅ‘ tÃ­pusÃº AVI fÃ¡jllÃ¡ konvertÃ¡l. Az AVI ezutÃ¡n vagy kÃ¼lÃ¶n audiÃ³ Ã©s videÃ³
 stream-et fog tartalmazni, amit az <span class="application">MPlayer</span> le tud
-játszani vagy nyers DV stream-et, aminek a támogatása még fejlesztés alatt van.
+jÃ¡tszani vagy nyers DV stream-et, aminek a tÃ¡mogatÃ¡sa mÃ©g fejlesztÃ©s alatt van.
 </p></div><p>
-Kétfajta AVI fájl létezik:
-</p><div class="itemizedlist"><ul type="disc"><li>
-  <span class="bold"><strong>Interleaved (átlapolt):</strong></span> Az audió és a videó
-  tartalom át van lapolva. Ez az alapértelmezett. Javasolt és a legtöbbször használt.
-  Néhány segédprogram hibás szinkronú átlapolt AVI-t készít. Az <span class="application">MPlayer</span>
-  ezeket átlapoltként detektálja és emiatt elveszik az A/V szinkronizáció,
-  valószín&#369;leg pörgetésnél. Ezeket a fájlokat nem-átlapoltként kell lejátszani
-  (a <tt class="option">-ni</tt> kapcsolóval).
-  </li><li>
-  <span class="bold"><strong>Non-interleaved (Nem-átlapolt):</strong></span> El&#337;ször jön a
-  teljes videó folyam, majd a teljes audió folyam. Így rengeteg ugrásra van szükség,
-  mely megnehezíti a hálózati és CD-ROM-ról történ&#337; lejátszást.
-  </li></ul></div><p>
+KÃ©tfajta AVI fÃ¡jl lÃ©tezik:
+</p><div class="itemizedlist"><ul type="disc"><li><p>
+  <span class="bold"><strong>Interleaved (Ã¡tlapolt):</strong></span> Az audiÃ³ Ã©s a
+  videÃ³ tartalom Ã¡t van lapolva. Ez az alapÃ©rtelmezett. Javasolt Ã©s a
+  legtÃ¶bbszÃ¶r hasznÃ¡lt. NÃ©hÃ¡ny segÃ©dprogram hibÃ¡s szinkronÃº Ã¡tlapolt AVI-t kÃ©szÃ­t.
+  Az <span class="application">MPlayer</span> ezeket Ã¡tlapoltkÃ©nt detektÃ¡lja Ã©s
+  emiatt elveszik az A/V szinkronizÃ¡ciÃ³, valÃ³szÃ­nÅ±leg pÃ¶rgetÃ©snÃ©l.
+  Ezeket a fÃ¡jlokat nem-Ã¡tlapoltkÃ©nt kell lejÃ¡tszani
+  (a <tt class="option">-ni</tt> kapcsolÃ³val).
+</p></li><li><p>
+  <span class="bold"><strong>Non-interleaved (Nem-Ã¡tlapolt):</strong></span> ElÅ‘szÃ¶r jÃ¶n
+  a teljes videÃ³ folyam, majd a teljes audiÃ³ folyam. Ãgy rengeteg ugrÃ¡sra van
+  szÃ¼ksÃ©g, mely megnehezÃ­ti a hÃ¡lÃ³zati Ã©s CD-ROM-rÃ³l tÃ¶rtÃ©nÅ‘ lejÃ¡tszÃ¡st.
+</p></li></ul></div><p>
 </p><p>
-Az <span class="application">MPlayer</span> kétféle id&#337;zítést támogat az AVI
-fájlokhoz:
-</p><div class="itemizedlist"><ul type="disc"><li>
-  <span class="bold"><strong>bps-alapú:</strong></span> A videó/audió folyam bitrátán/mintavételi
-  rátáján alapul. Ezt a módszert használja a legtöbb lejátszó, beleértve az
-  <a href="http://avifile.sf.net" target="_top">avifile</a>t és a
-  <span class="application">Windows Media Player</span>-t. A sérült fejléc&#369; vagy VBR
-  audióval, de nem VBR-kész kódolóval készített fájlok A/V deszinkronizációhoz
-  vezetnek ezzel a módszerrel (legtöbbször pörgetésnél).
-  </li><li>
-  <span class="bold"><strong>interleaving-alapú:</strong></span> Nem használja a fejléc bitráta
-  értékét, inkább az átlapolt audió és videó darabok relatív pozícióját nézi,
-  lehet&#337;vé téve ezzel a VBR audió-s, rosszul kódolt fájlok lejátszását.
-  </li></ul></div><p>
+Az <span class="application">MPlayer</span> kÃ©tfÃ©le idÅ‘zÃ­tÃ©st tÃ¡mogat az AVI
+fÃ¡jlokhoz:
+</p><div class="itemizedlist"><ul type="disc"><li><p>
+  <span class="bold"><strong>bps-alapÃº:</strong></span> A videÃ³/audiÃ³ folyam
+  bitrÃ¡tÃ¡n/mintavÃ©teli rÃ¡tÃ¡jÃ¡n alapul. Ezt a mÃ³dszert hasznÃ¡lja a legtÃ¶bb
+  lejÃ¡tszÃ³, beleÃ©rtve az <a href="http://avifile.sf.net" target="_top">avifile</a>t
+  Ã©s a <span class="application">Windows Media Player</span>-t. A sÃ©rÃ¼lt fejlÃ©cÅ±
+  vagy VBR audiÃ³val, de nem VBR-kÃ©sz kÃ³dolÃ³val kÃ©szÃ­tett fÃ¡jlok A/V
+  deszinkronizÃ¡ciÃ³hoz vezetnek ezzel a mÃ³dszerrel (legtÃ¶bbszÃ¶r pÃ¶rgetÃ©snÃ©l).
+</p></li><li><p>
+  <span class="bold"><strong>interleaving-alapÃº:</strong></span> Nem hasznÃ¡lja a
+  fejlÃ©c bitrÃ¡ta Ã©rtÃ©kÃ©t, inkÃ¡bb az Ã¡tlapolt audiÃ³ Ã©s videÃ³ darabok
+  relatÃ­v pozÃ­ciÃ³jÃ¡t nÃ©zi, lehetÅ‘vÃ© tÃ©ve ezzel a VBR audiÃ³-s, rosszul
+  kÃ³dolt fÃ¡jlok lejÃ¡tszÃ¡sÃ¡t.
+</p></li></ul></div><p>
 </p><p>
-Bármelyik audió és videó codec engedélyezett, de vedd figyelembe, hogy a
-VBR audiót a legtöbb lejátszó nem támogatja. A fájl formátum lehet&#337;vé teszi
-a VBR audió használatát, de a legtöbb lejátszó CBR audiót vár, így elakadnak
-a VBR-ben. A VBR ritka és a Microsoft AVI specifikációi csak a CBR audiót
-írják le. Azt is észre lehet venni, hogy a legtöbb AVI kódoló/multiplexel&#337;
-hibás fájlt készít VBR audió használatakor.
-Csak két ismert kivétel van: a <span class="application">NanDub</span> és a
-<a href="mencoder.html" title="13. fejezet - A MEncoder használatának alapjai"><span class="application">MEncoder</span></a>.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="asf-wmv"></a>6.1.3. ASF/WMV fájlok</h3></div></div></div><p>
-Az ASF (Active Streaming Format) szintén a Microsofttól származik. Az ASF-nek
-kétfajta verzióját készítették el, v1.0 és v2.0. A v1.0-t a saját média eszközeik
-használják (<span class="application">Windows Media Player</span> és
-<span class="application">Windows Media Encoder</span>) és nagyon titkos. A
-v2.0 nyilvános és szabadalmaztatott :). Természetesen különböznek,
-semmilyen kompatibilitás nincs köztük (ez is csak egy jogi játék).
-Az <span class="application">MPlayer</span> csak a v1.0-t támogatja, mivel még
-soha senki sem látott v2.0 fájlokat :). Figyelj rá, hogy az ASF fájlok
-manapság <tt class="filename">.WMA</tt> vagy <tt class="filename">.WMV</tt> kiterjesztés&#369;ek.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="mov"></a>6.1.4. QuickTime/MOV fájlok</h3></div></div></div><p>
-Ezeket a formátumokat az Apple fejlesztette ki, és bármilyen codec-et
-tartalmazhatnak, CBR-t vagy VBR-t. Legtöbbször <tt class="filename">.QT</tt> vagy
-<tt class="filename">.MOV</tt> kiterjesztésük van. Megjegyzend&#337;, hogy mióta az
-MPEG-4 csapat a QuickTime-ot választotta az MPEG-4 javasolt fájlformátumának,
-a MOV fájlaik <tt class="filename">.MPG</tt> vagy <tt class="filename">.MP4</tt>
-kiterjesztéssel jönnek (Érdekes módon a videó és audió folyamok ezekben a
-fájlokban igazi MPG és AAC fájlok. Még ki is tudod &#337;ket csomagolni a
-<tt class="option">-dumpvideo</tt> és <tt class="option">-dumpaudio</tt> kapcsolókkal.).
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="vivo"></a>6.1.5. VIVO fájlok</h3></div></div></div><p>
-Az <span class="application">MPlayer</span> örömmel demuxálja a VIVO fájl formátumokat.
-A legnagyobb hátránya a formátumnak az, hogy nincs index blokkja, sem
-fix csomag mérete vagy szinkron bájtja, és a legtöbb fájlban még a
-kulcs képkockák is hiányoznak, így felejtsd el a pörgetést!
+BÃ¡rmelyik audiÃ³ Ã©s videÃ³ codec engedÃ©lyezett, de vedd figyelembe, hogy a
+VBR audiÃ³t a legtÃ¶bb lejÃ¡tszÃ³ nem tÃ¡mogatja. A fÃ¡jl formÃ¡tum lehetÅ‘vÃ© teszi
+a VBR audiÃ³ hasznÃ¡latÃ¡t, de a legtÃ¶bb lejÃ¡tszÃ³ CBR audiÃ³t vÃ¡r, Ã­gy elakadnak
+a VBR-ben. A VBR ritka Ã©s a Microsoft AVI specifikÃ¡ciÃ³i csak a CBR audiÃ³t
+Ã­rjÃ¡k le. Azt is Ã©szre lehet venni, hogy a legtÃ¶bb AVI kÃ³dolÃ³/multiplexelÅ‘
+hibÃ¡s fÃ¡jlt kÃ©szÃ­t VBR audiÃ³ hasznÃ¡latakor.
+Csak kÃ©t ismert kivÃ©tel van: a <span class="application">NanDub</span> Ã©s a
+<a href="mencoder.html" title="13. fejezet - A MEncoder hasznÃ¡latÃ¡nak alapjai"><span class="application">MEncoder</span></a>.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="asf-wmv"></a>6.1.3. ASF/WMV fÃ¡jlok</h3></div></div></div><p>
+Az ASF (Active Streaming Format) szintÃ©n a MicrosofttÃ³l szÃ¡rmazik. Az ASF-nek
+kÃ©tfajta verziÃ³jÃ¡t kÃ©szÃ­tettÃ©k el, v1.0 Ã©s v2.0. A v1.0-t a sajÃ¡t mÃ©dia
+eszkÃ¶zeik hasznÃ¡ljÃ¡k (<span class="application">Windows Media Player</span> Ã©s
+<span class="application">Windows Media Encoder</span>) Ã©s nagyon titkos. A
+v2.0 nyilvÃ¡nos Ã©s szabadalmaztatott :). TermÃ©szetesen kÃ¼lÃ¶nbÃ¶znek,
+semmilyen kompatibilitÃ¡s nincs kÃ¶ztÃ¼k (ez is csak egy jogi jÃ¡tÃ©k).
+Az <span class="application">MPlayer</span> csak a v1.0-t tÃ¡mogatja, mivel mÃ©g
+soha senki sem lÃ¡tott v2.0 fÃ¡jlokat :). Figyelj rÃ¡, hogy az ASF fÃ¡jlok
+manapsÃ¡g <tt class="filename">.WMA</tt> vagy <tt class="filename">.WMV</tt> kiterjesztÃ©sÅ±ek.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="mov"></a>6.1.4. QuickTime/MOV fÃ¡jlok</h3></div></div></div><p>
+Ezeket a formÃ¡tumokat az Apple fejlesztette ki, Ã©s bÃ¡rmilyen codec-et
+tartalmazhatnak, CBR-t vagy VBR-t. LegtÃ¶bbszÃ¶r <tt class="filename">.QT</tt> vagy
+<tt class="filename">.MOV</tt> kiterjesztÃ©sÃ¼k van. MegjegyzendÅ‘, hogy miÃ³ta az
+MPEG-4 csapat a QuickTime-ot vÃ¡lasztotta az MPEG-4 javasolt fÃ¡jlformÃ¡tumÃ¡nak,
+a MOV fÃ¡jlaik <tt class="filename">.MPG</tt> vagy <tt class="filename">.MP4</tt>
+kiterjesztÃ©ssel jÃ¶nnek (Ã©rdekes mÃ³don a videÃ³ Ã©s audiÃ³ folyamok ezekben a
+fÃ¡jlokban igazi MPG Ã©s AAC fÃ¡jlok. MÃ©g ki is tudod Å‘ket csomagolni a
+<tt class="option">-dumpvideo</tt> Ã©s <tt class="option">-dumpaudio</tt> kapcsolÃ³kkal.).
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="vivo"></a>6.1.5. VIVO fÃ¡jlok</h3></div></div></div><p>
+Az <span class="application">MPlayer</span> Ã¶rÃ¶mmel demuxÃ¡lja a VIVO fÃ¡jl formÃ¡tumokat.
+A legnagyobb hÃ¡trÃ¡nya a formÃ¡tumnak az, hogy nincs index blokkja, sem
+fix csomag mÃ©rete vagy szinkron bÃ¡jtja, Ã©s a legtÃ¶bb fÃ¡jlban mÃ©g a
+kulcs kÃ©pkockÃ¡k is hiÃ¡nyoznak, Ã­gy felejtsd el a pÃ¶rgetÃ©st!
 </p><p>
-A VIVO/1.0 fájlok videó codec-je szabványos <span class="bold"><strong>h.263</strong></span>.
-A VIVO/2.0 fájlok videó codec-je módosult, nem szabványos
-<span class="bold"><strong>h.263v2</strong></span>. Az audio ugyan az, valószín&#369;leg
+A VIVO/1.0 fÃ¡jlok videÃ³ codec-je szabvÃ¡nyos
+<span class="bold"><strong>h.263</strong></span>.
+A VIVO/2.0 fÃ¡jlok videÃ³ codec-je mÃ³dosult, nem szabvÃ¡nyos
+<span class="bold"><strong>h.263v2</strong></span>. Az audio ugyan az, valÃ³szÃ­nÅ±leg
 <span class="bold"><strong>g.723 (standard)</strong></span> vagy
 <span class="bold"><strong>Vivo Siren</strong></span>.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="fli"></a>6.1.6. FLI fájlok</h3></div></div></div><p>
-A <span class="bold"><strong>FLI</strong></span> egy nagyon régi fájl formátum, melyet az
-Autodesk Animator használt, de gyakoran használják rövid animációkhoz a neten.
-Az <span class="application">MPlayer</span> demuxálja és dekódolja a FLI filmeket és
-még keresni is tud bennük (hasznos a <tt class="option">-loop</tt> kapcsolóval történ&#337;
-ciklikus lejátszásnál). A FLI fájlokban nincs kulcs képkocka, így a kép
-egy rövid id&#337;re zavaros lesz a keresés után.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="realmedia"></a>6.1.7. RealMedia (RM) fájlok</h3></div></div></div><p>
-Igen, az <span class="application">MPlayer</span> tudja olvasni (demuxálni) a RealMedia
-(<tt class="filename">.rm</tt>) fájlokat.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="nuppelvideo"></a>6.1.8. NuppelVideo fájlok</h3></div></div></div><p>
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="fli"></a>6.1.6. FLI fÃ¡jlok</h3></div></div></div><p>
+A <span class="bold"><strong>FLI</strong></span> egy nagyon rÃ©gi fÃ¡jl formÃ¡tum,
+melyet az Autodesk Animator hasznÃ¡lt, de gyakoran hasznÃ¡ljÃ¡k rÃ¶vid
+animÃ¡ciÃ³khoz a neten.
+Az <span class="application">MPlayer</span> demuxÃ¡lja Ã©s dekÃ³dolja a FLI
+filmeket Ã©s mÃ©g keresni is tud bennÃ¼k (hasznos a <tt class="option">-loop</tt>
+kapcsolÃ³val tÃ¶rtÃ©nÅ‘ ciklikus lejÃ¡tszÃ¡snÃ¡l). A FLI fÃ¡jlokban nincs kulcs
+kÃ©pkocka, Ã­gy a kÃ©p egy rÃ¶vid idÅ‘re zavaros lesz a keresÃ©s utÃ¡n.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="realmedia"></a>6.1.7. RealMedia (RM) fÃ¡jlok</h3></div></div></div><p>
+Igen, az <span class="application">MPlayer</span> tudja olvasni (demuxÃ¡lni)
+a RealMedia (<tt class="filename">.rm</tt>) fÃ¡jlokat.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="nuppelvideo"></a>6.1.8. NuppelVideo fÃ¡jlok</h3></div></div></div><p>
 A NuppelVideo
-egy TV grab-bel&#337; eszköz (AFAIK:). Az <span class="application">MPlayer</span> tudja
-olvasni a <tt class="filename">.NUV</tt> fájlait (csak NuppelVideo 5.0). Ezek a
-fájlok tartalmazhatnak tömörítetlen YV12, YV12+RTJpeg tömörített,
-YV12 RTJpeg+lzo tömörített és YV12+lzo tömörített képkockákat.
-Az <span class="application">MPlayer</span> dekódolja (és <span class="bold"><strong>kódolja</strong></span>
-a <span class="application">MEncoder</span>rel MPEG-4-be (DivX)/stb.!) &#337;ket. A keresés
-m&#369;ködik.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="yuv4mpeg"></a>6.1.9. yuv4mpeg fájlok</h3></div></div></div><p>
+egy TV grab-belÅ‘ eszkÃ¶z (AFAIK:). Az <span class="application">MPlayer</span> tudja
+olvasni a <tt class="filename">.NUV</tt> fÃ¡jlait (csak NuppelVideo 5.0). Ezek a
+fÃ¡jlok tartalmazhatnak tÃ¶mÃ¶rÃ­tetlen YV12, YV12+RTJpeg tÃ¶mÃ¶rÃ­tett,
+YV12 RTJpeg+lzo tÃ¶mÃ¶rÃ­tett Ã©s YV12+lzo tÃ¶mÃ¶rÃ­tett kÃ©pkockÃ¡kat.
+Az <span class="application">MPlayer</span> dekÃ³dolja (Ã©s
+<span class="bold"><strong>kÃ³dolja</strong></span>
+a <span class="application">MEncoder</span>rel MPEG-4-be (DivX)/stb.!) Å‘ket.
+A keresÃ©s mÅ±kÃ¶dik.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="yuv4mpeg"></a>6.1.9. yuv4mpeg fÃ¡jlok</h3></div></div></div><p>
 A <a href="http://mjpeg.sf.net" target="_top">yuv4mpeg / yuv4mpeg2</a>
 egy az <a href="http://mjpeg.sf.net" target="_top">mjpegtools programok</a>
-által használt fájlformátum. Grab-belheted, készíthetsz, sz&#369;rheted vagy
-kódolhatod az ilyen formátumú videókat ezekkel az eszközökkel.
-A fájl formátum igazából tömörítetlen YUV 4:2:0 képek sorozatából áll.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="film"></a>6.1.10. FILM fájlok</h3></div></div></div><p>
-Ezt a formátumot a régi Sega Saturn CD-ROM játékok használták.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="roq"></a>6.1.11. RoQ fájlok</h3></div></div></div><p>
-A RoQ fájlok multimédia fájlok, melyeket pár ID játék használ, pl. a Quake III és
+Ã¡ltal hasznÃ¡lt fÃ¡jlformÃ¡tum. Grab-belheted, kÃ©szÃ­thetsz, szÅ±rheted vagy
+kÃ³dolhatod az ilyen formÃ¡tumÃº videÃ³kat ezekkel az eszkÃ¶zÃ¶kkel.
+A fÃ¡jl formÃ¡tum igazÃ¡bÃ³l tÃ¶mÃ¶rÃ­tetlen YUV 4:2:0 kÃ©pek sorozatÃ¡bÃ³l Ã¡ll.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="film"></a>6.1.10. FILM fÃ¡jlok</h3></div></div></div><p>
+Ezt a formÃ¡tumot a rÃ©gi Sega Saturn CD-ROM jÃ¡tÃ©kok hasznÃ¡ltÃ¡k.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="roq"></a>6.1.11. RoQ fÃ¡jlok</h3></div></div></div><p>
+A RoQ fÃ¡jlok multimÃ©dia fÃ¡jlok, melyeket pÃ¡r ID jÃ¡tÃ©k hasznÃ¡l, pl. a Quake III Ã©s
 a Return to Castle Wolfenstein.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="ogg"></a>6.1.12. OGG/OGM fájlok</h3></div></div></div><p>
-Ez egy új fájlformátum a <a href="http://www.xiph.org" target="_top">Xiphophorus</a>-tól.
-Bármilyen videó és audió codec-et tartalmazhat, CBR vagy VBR. El kell végezned
-a <code class="systemitem">libogg</code> és a
-<code class="systemitem">libvorbis</code> telepítését az
-<span class="application">MPlayer</span> fordítása el&#337;tt, hogy le tudd játszani
-ezeket a fájlokat.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="sdp"></a>6.1.13. SDP fájlok</h3></div></div></div><p>
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="ogg"></a>6.1.12. OGG/OGM fÃ¡jlok</h3></div></div></div><p>
+Ez egy Ãºj fÃ¡jlformÃ¡tum a
+<a href="http://www.xiph.org" target="_top">Xiphophorus</a>-tÃ³l.
+BÃ¡rmilyen videÃ³ Ã©s audiÃ³ codec-et tartalmazhat, CBR vagy VBR. El kell vÃ©gezned
+a <code class="systemitem">libogg</code> Ã©s a
+<code class="systemitem">libvorbis</code> telepÃ­tÃ©sÃ©t az
+<span class="application">MPlayer</span> fordÃ­tÃ¡sa elÅ‘tt, hogy le tudd jÃ¡tszani
+ezeket a fÃ¡jlokat.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="sdp"></a>6.1.13. SDP fÃ¡jlok</h3></div></div></div><p>
 Az <a href="ftp://ftp.rfc-editor.org/in-notes/rfc2327.txt" target="_top">SDP</a> egy
-IETF szabványos formátum videó és/vagy audió RTP folyamok leírásához.
+IETF szabvÃ¡nyos formÃ¡tum videÃ³ Ã©s/vagy audiÃ³ RTP folyamok leÃ­rÃ¡sÃ¡hoz.
 ("<a href="http://www.live555.com/mplayer/" target="_top">LIVE555 Streaming Media</a>"
-szükséges.)
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="pva"></a>6.1.14. PVA fájlok</h3></div></div></div><p>
-A PVA egy MPEG-szer&#369; formátum, melyet a DVB TV kártyák szoftvere használ (pl.:
-<span class="application">MultiDec</span>, <span class="application">WinTV</span> Windows alatt).
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="nsv"></a>6.1.15. NSV fájlok</h3></div></div></div><p>
-NSV (NullSoft Video) egy a <span class="application">Winamp</span> lejátszó által
-használt formátum audio és video stream-eléshez.
-A videó VP3, VP5 vagy VP6, az audió MP3, AAC vagy VLB.
-Az csak audiót tartalmazó fájlnak <tt class="filename">.nsa</tt> kiterjesztése van.
-Az <span class="application">MPlayer</span> mindkét NSV folyamot és fájlt le tudja
-játszani.
-Meg szeretném jegyezni, hogy a
-<a href="http://www.winamp.com" target="_top">Winamp oldalán</a> a legtöbb fájl VLB audiót
-használ, amit nem lehet dekódolni még. Ezenkívül több stream az oldalon külön
-szétcsomagoló réteget igényel, amit még el kellene készíteni (ezek a fájlok
-úgyis lejátszhatatlanok, mert VLB audiót használnak).
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="matroska"></a>6.1.16. Matroska fájlok</h3></div></div></div><p>
-A Matroska egy nyílt konténer formátum.
-További infók a <a href="http://www.matroska.org/" target="_top">hivatalos weboldalukon</a> találhatóak.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="nut"></a>6.1.17. NUT fájlok</h3></div></div></div><p>
-A NUT az <span class="application">MPlayer</span>es és az <span class="application">FFmpeg</span>es
-emberkék által kifejlesztett konténer formátum. Mindkét projekt támogatja.
-További infókat a <a href="http://www.nut.hu/" target="_top">hivatalos weboldalon</a> olvashatsz.
-</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="gif"></a>6.1.18. GIF fájlok</h3></div></div></div><p>
-A <span class="bold"><strong>GIF</strong></span> egy gyakori web-es grafikus formátum.
-Két verziója van a GIF specifikációnak, GIF87a és GIF89a. A f&#337; különbség az,
-hogy a GIF89a megengedi az animációt. Az <span class="application">MPlayer</span>
-támogatja mindkét formátumot a <code class="systemitem">libungif</code> vagy
-más libgif-kompatibilis függvénykönyvtár segítségével. A nem animált GIF-ek egy
-képkockát tartalmazó videóként lesznek megjelenítve. (Használd a <tt class="option">-loop</tt>
-és a <tt class="option">-fixed-vo</tt> kapcsolókat a hosszabb megjelenítéshez.)
+szÃ¼ksÃ©ges.)
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="pva"></a>6.1.14. PVA fÃ¡jlok</h3></div></div></div><p>
+A PVA egy MPEG-szerÅ± formÃ¡tum, melyet a DVB TV kÃ¡rtyÃ¡k szoftvere hasznÃ¡l (pl.:
+<span class="application">MultiDec</span>,
+<span class="application">WinTV</span> Windows alatt).
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="nsv"></a>6.1.15. NSV fÃ¡jlok</h3></div></div></div><p>
+NSV (NullSoft Video) egy a <span class="application">Winamp</span> lejÃ¡tszÃ³ Ã¡ltal
+hasznÃ¡lt formÃ¡tum audio Ã©s video stream-elÃ©shez.
+A videÃ³ VP3, VP5 vagy VP6, az audiÃ³ MP3, AAC vagy VLB.
+Az csak audiÃ³t tartalmazÃ³ fÃ¡jlnak <tt class="filename">.nsa</tt> kiterjesztÃ©se van.
+Az <span class="application">MPlayer</span> mindkÃ©t NSV folyamot Ã©s fÃ¡jlt le tudja
+jÃ¡tszani.
+Meg szeretnÃ©m jegyezni, hogy a
+<a href="http://www.winamp.com" target="_top">Winamp oldalÃ¡n</a> a legtÃ¶bb fÃ¡jl VLB audiÃ³t
+hasznÃ¡l, amit nem lehet dekÃ³dolni mÃ©g. EzenkÃ­vÃ¼l tÃ¶bb stream az oldalon kÃ¼lÃ¶n
+szÃ©tcsomagolÃ³ rÃ©teget igÃ©nyel, amit mÃ©g el kellene kÃ©szÃ­teni (ezek a fÃ¡jlok
+Ãºgyis lejÃ¡tszhatatlanok, mert VLB audiÃ³t hasznÃ¡lnak).
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="matroska"></a>6.1.16. Matroska fÃ¡jlok</h3></div></div></div><p>
+A Matroska egy nyÃ­lt kontÃ©ner formÃ¡tum.
+TovÃ¡bbi infÃ³k a <a href="http://www.matroska.org/" target="_top">hivatalos weboldalukon</a> talÃ¡lhatÃ³ak.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="nut"></a>6.1.17. NUT fÃ¡jlok</h3></div></div></div><p>
+A NUT az <span class="application">MPlayer</span>es Ã©s az <span class="application">FFmpeg</span>es
+emberkÃ©k Ã¡ltal kifejlesztett kontÃ©ner formÃ¡tum. MindkÃ©t projekt tÃ¡mogatja.
+TovÃ¡bbi infÃ³kat a <a href="http://www.nut.hu/" target="_top">hivatalos weboldalon</a> olvashatsz.
+</p></div><div class="sect2" lang="hu"><div class="titlepage"><div><div><h3 class="title"><a name="gif"></a>6.1.18. GIF fÃ¡jlok</h3></div></div></div><p>
+A <span class="bold"><strong>GIF</strong></span> egy gyakori web-es grafikus formÃ¡tum.
+KÃ©t verziÃ³ja van a GIF specifikÃ¡ciÃ³nak, GIF87a Ã©s GIF89a. A fÅ‘ kÃ¼lÃ¶nbsÃ©g az,
+hogy a GIF89a megengedi az animÃ¡ciÃ³t. Az <span class="application">MPlayer</span>
+tÃ¡mogatja mindkÃ©t formÃ¡tumot a <code class="systemitem">libungif</code>
+vagy mÃ¡s libgif-kompatibilis fÃ¼ggvÃ©nykÃ¶nyvtÃ¡r segÃ­tsÃ©gÃ©vel. A nem animÃ¡lt GIF-ek
+egy kÃ©pkockÃ¡t tartalmazÃ³ videÃ³kÃ©nt lesznek megjelenÃ­tve.
+(HasznÃ¡ld a <tt class="option">-loop</tt> Ã©s a <tt class="option">-fixed-vo</tt> kapcsolÃ³kat
+a hosszabb megjelenÃ­tÃ©shez.)
 </p><p>
-Az <span class="application">MPlayer</span> jelenleg nem támogatja a keresést a
-GIF fájlokban. A GIF fájlok nem szükségszer&#369;en fix képkocka méret&#369;ek, sem fix
-framrátájúak. Inkább minden egyes képkocka független méret&#369; és meghatározott
-helyzet&#369; egy fix méret&#369; mez&#337;n. A framerátát egy opcionális blokk vezérli
-minden egyes képkocka el&#337;tt, ami leírja a következ&#337; képkocka késleltetését
-centisecundumokban.
+Az <span class="application">MPlayer</span> jelenleg nem tÃ¡mogatja a keresÃ©st
+a GIF fÃ¡jlokban. A GIF fÃ¡jlok nem szÃ¼ksÃ©gszerÅ±en fix kÃ©pkocka mÃ©retÅ±ek,
+sem fix framrÃ¡tÃ¡jÃºak. InkÃ¡bb minden egyes kÃ©pkocka fÃ¼ggetlen mÃ©retÅ± Ã©s
+meghatÃ¡rozott helyzetÅ± egy fix mÃ©retÅ± mezÅ‘n. A framerÃ¡tÃ¡t egy opcionÃ¡lis
+blokk vezÃ©rli minden egyes kÃ©pkocka elÅ‘tt, ami leÃ­rja a kÃ¶vetkezÅ‘
+kÃ©pkocka kÃ©sleltetÃ©sÃ©t centisecundumokban.
 </p><p>
-A szabványos GIF fájlok 24-bites RGB képkockákat tartalmaznak legtöbbször egy
-8-bites indexelt palettával. Ezeket a képkockák legtöbbször LZW-vel tömörítettek,
-habár néhány GIF kódoló tömörítetlen képkockákat készít, hogy elkerüljék az LZW
-tömörítés szabadalmának megsértését.
+A szabvÃ¡nyos GIF fÃ¡jlok 24-bites RGB kÃ©pkockÃ¡kat tartalmaznak legtÃ¶bbszÃ¶r
+egy 8-bites indexelt palettÃ¡val. Ezeket a kÃ©pkockÃ¡k legtÃ¶bbszÃ¶r LZW-vel
+tÃ¶mÃ¶rÃ­tettek, habÃ¡r nÃ©hÃ¡ny GIF kÃ³dolÃ³ tÃ¶mÃ¶rÃ­tetlen kÃ©pkockÃ¡kat kÃ©szÃ­t,
+hogy elkerÃ¼ljÃ©k az LZW tÃ¶mÃ¶rÃ­tÃ©s szabadalmÃ¡nak megsÃ©rtÃ©sÃ©t.
 </p><p>
-Ha a disztribúciódban nincs <code class="systemitem">libungif</code>,
-töltsd le a
+Ha a disztribÃºciÃ³dban nincs <code class="systemitem">libungif</code>,
+tÃ¶ltsd le a
 <a href="http://sourceforge.net/projects/libungif" target="_top">libungif
-weboldaláról</a>. B&#337;vebb technikai információkért vess egy pillantást a
-<a href="http://www.w3.org/Graphics/GIF/spec-gif89a.txt" target="_top">GIF89a specifikációra</a>.
-</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="containers.html">El&#337;z&#337;</a> </td><td width="20%" align="center"><a accesskey="u" href="containers.html">Fel</a></td><td width="40%" align="right"> <a accesskey="n" href="audio-formats.html">Következ&#337;</a></td></tr><tr><td width="40%" align="left" valign="top">6. fejezet - Konténerek </td><td width="20%" align="center"><a accesskey="h" href="index.html">Tartalom</a></td><td width="40%" align="right" valign="top"> 6.2. Audió formátumok</td></tr></table></div></body></html>
+weboldalÃ¡rÃ³l</a>. BÅ‘vebb technikai informÃ¡ciÃ³kÃ©rt vess egy pillantÃ¡st a
+<a href="http://www.w3.org/Graphics/GIF/spec-gif89a.txt" target="_top">GIF89a specifikÃ¡ciÃ³ra</a>.
+</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="containers.html">ElÅ‘zÅ‘</a>Â </td><td width="20%" align="center"><a accesskey="u" href="containers.html">Fel</a></td><td width="40%" align="right">Â <a accesskey="n" href="audio-formats.html">KÃ¶vetkezÅ‘</a></td></tr><tr><td width="40%" align="left" valign="top">6. fejezet - KontÃ©nerekÂ </td><td width="20%" align="center"><a accesskey="h" href="index.html">Tartalom</a></td><td width="40%" align="right" valign="top">Â 6.2. AudiÃ³ formÃ¡tumok</td></tr></table></div></body></html>

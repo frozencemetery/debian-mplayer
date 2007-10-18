@@ -10,8 +10,6 @@
 #include "font_load.h"
 #include "mp_msg.h"
 
-extern char *get_path ( char * );
-
 raw_file* load_raw(char *name,int verbose){
     int bpp;
     raw_file* raw=malloc(sizeof(raw_file));
@@ -55,7 +53,7 @@ unsigned char sor2[1024];
 font_desc_t *desc;
 FILE *f = NULL;
 char *dn;
-struct stat fstate;
+//struct stat fstate;
 char section[64];
 int i,j;
 int chardb=0;

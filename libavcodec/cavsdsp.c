@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with FFmpeg; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <stdio.h>
@@ -63,16 +63,16 @@ static inline void loop_filter_l1(uint8_t *p0_p, int stride, int alpha, int beta
     int q0 = Q0;
 
     if(abs(p0-q0)<alpha && abs(P1-p0)<beta && abs(Q1-q0)<beta) {
-        int delta = clip(((q0-p0)*3+P1-Q1+4)>>3,-tc, tc);
-        P0 = clip_uint8(p0+delta);
-        Q0 = clip_uint8(q0-delta);
+        int delta = av_clip(((q0-p0)*3+P1-Q1+4)>>3,-tc, tc);
+        P0 = av_clip_uint8(p0+delta);
+        Q0 = av_clip_uint8(q0-delta);
         if(abs(P2-p0)<beta) {
-            delta = clip(((P0-P1)*3+P2-Q0+4)>>3, -tc, tc);
-            P1 = clip_uint8(P1+delta);
+            delta = av_clip(((P0-P1)*3+P2-Q0+4)>>3, -tc, tc);
+            P1 = av_clip_uint8(P1+delta);
         }
         if(abs(Q2-q0)<beta) {
-            delta = clip(((Q1-Q0)*3+P0-Q2+4)>>3, -tc, tc);
-            Q1 = clip_uint8(Q1-delta);
+            delta = av_clip(((Q1-Q0)*3+P0-Q2+4)>>3, -tc, tc);
+            Q1 = av_clip_uint8(Q1-delta);
         }
     }
 }
@@ -98,9 +98,9 @@ static inline void loop_filter_c2(uint8_t *p0_p,int stride,int alpha, int beta) 
 static inline void loop_filter_c1(uint8_t *p0_p,int stride,int alpha, int beta,
                                   int tc) {
     if(abs(P0-Q0)<alpha && abs(P1-P0)<beta && abs(Q1-Q0)<beta) {
-        int delta = clip(((Q0-P0)*3+P1-Q1+4)>>3, -tc, tc);
-        P0 = clip_uint8(P0+delta);
-        Q0 = clip_uint8(Q0-delta);
+        int delta = av_clip(((Q0-P0)*3+P1-Q1+4)>>3, -tc, tc);
+        P0 = av_clip_uint8(P0+delta);
+        Q0 = av_clip_uint8(Q0-delta);
     }
 }
 
@@ -184,7 +184,7 @@ static void cavs_filter_ch_c(uint8_t *d, int stride, int alpha, int beta, int tc
 static void cavs_idct8_add_c(uint8_t *dst, DCTELEM *block, int stride) {
     int i;
     DCTELEM (*src)[8] = (DCTELEM(*)[8])block;
-    uint8_t *cm = cropTbl + MAX_NEG_CROP;
+    uint8_t *cm = ff_cropTbl + MAX_NEG_CROP;
 
     src[0][0] += 8;
 
@@ -260,7 +260,7 @@ static void cavs_idct8_add_c(uint8_t *dst, DCTELEM *block, int stride) {
 #define CAVS_SUBPIX(OPNAME, OP, NAME, A, B, C, D, E, F) \
 static void OPNAME ## cavs_filt8_h_ ## NAME(uint8_t *dst, uint8_t *src, int dstStride, int srcStride){\
     const int h=8;\
-    uint8_t *cm = cropTbl + MAX_NEG_CROP;\
+    uint8_t *cm = ff_cropTbl + MAX_NEG_CROP;\
     int i;\
     for(i=0; i<h; i++)\
     {\
@@ -279,7 +279,7 @@ static void OPNAME ## cavs_filt8_h_ ## NAME(uint8_t *dst, uint8_t *src, int dstS
 \
 static void OPNAME ## cavs_filt8_v_  ## NAME(uint8_t *dst, uint8_t *src, int dstStride, int srcStride){\
     const int w=8;\
-    uint8_t *cm = cropTbl + MAX_NEG_CROP;\
+    uint8_t *cm = ff_cropTbl + MAX_NEG_CROP;\
     int i;\
     for(i=0; i<w; i++)\
     {\
@@ -333,7 +333,7 @@ static void OPNAME ## cavs_filt8_hv_ ## NAME(uint8_t *dst, uint8_t *src1, uint8_
     int16_t *tmp = temp;\
     const int h=8;\
     const int w=8;\
-    uint8_t *cm = cropTbl + MAX_NEG_CROP;\
+    uint8_t *cm = ff_cropTbl + MAX_NEG_CROP;\
     int i;\
     src1 -= 2*srcStride;\
     for(i=0; i<h+5; i++)\

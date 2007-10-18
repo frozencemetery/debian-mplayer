@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <inttypes.h>
 #include <limits.h>
 
@@ -22,7 +21,7 @@
 int af_str2fmt(const char* str)
 {
   int format=0;
-  // Scan for endianess
+  // Scan for endianness
   if(strstr(str,"be") || strstr(str,"BE"))
     format |= AF_FORMAT_BE;
   else if(strstr(str,"le") || strstr(str,"LE"))
@@ -95,7 +94,7 @@ char* af_fmt2str(int format, char* str, int size)
     return NULL;
   size--; // reserve one for terminating 0
 
-  // Endianess
+  // Endianness
   if(AF_FORMAT_LE == (format & AF_FORMAT_END_MASK))
     i+=snprintf(str,size-i,"little-endian ");
   else
