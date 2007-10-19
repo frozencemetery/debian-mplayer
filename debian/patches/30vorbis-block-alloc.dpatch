@@ -1,0 +1,89 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 30vorbis-block-alloc.dpatch by dann frazier
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: fix: _vorbis_block_alloc() implicitly converted to pointer
+
+@DPATCH@
+diff -urNad mplayer-1.0~rc2~/tremor/block.c mplayer-1.0~rc2/tremor/block.c
+--- mplayer-1.0~rc2~/tremor/block.c	2007-10-07 21:49:27.000000000 +0200
++++ mplayer-1.0~rc2/tremor/block.c	2007-10-19 20:59:26.000000000 +0200
+@@ -25,6 +25,7 @@
+ #include "window.h"
+ #include "registry.h"
+ #include "misc.h"
++#include "block.h"
+ 
+ static int ilog(unsigned int v){
+   int ret=0;
+diff -urNad mplayer-1.0~rc2~/tremor/block.h mplayer-1.0~rc2/tremor/block.h
+--- mplayer-1.0~rc2~/tremor/block.h	1970-01-01 01:00:00.000000000 +0100
++++ mplayer-1.0~rc2/tremor/block.h	2007-10-19 20:57:44.000000000 +0200
+@@ -0,0 +1,23 @@
++/********************************************************************
++ *                                                                  *
++ * THIS FILE IS PART OF THE OggVorbis 'TREMOR' CODEC SOURCE CODE.   *
++ *                                                                  *
++ * USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS     *
++ * GOVERNED BY A BSD-STYLE SOURCE LICENSE INCLUDED WITH THIS SOURCE *
++ * IN 'COPYING'. PLEASE READ THESE TERMS BEFORE DISTRIBUTING.       *
++ *                                                                  *
++ * THE OggVorbis 'TREMOR' SOURCE CODE IS (C) COPYRIGHT 1994-2002    *
++ * BY THE Xiph.Org FOUNDATION http://www.xiph.org/                  *
++ *                                                                  *
++ ********************************************************************
++
++ function: basic shared block operations
++
++ ********************************************************************/
++
++#ifndef _V_BLOCK_H_
++#define _V_BLOCK_H_
++
++void *_vorbis_block_alloc(vorbis_block *vb,long bytes);
++
++#endif
+diff -urNad mplayer-1.0~rc2~/tremor/floor0.c mplayer-1.0~rc2/tremor/floor0.c
+--- mplayer-1.0~rc2~/tremor/floor0.c	2007-10-07 21:49:27.000000000 +0200
++++ mplayer-1.0~rc2/tremor/floor0.c	2007-10-19 20:57:44.000000000 +0200
+@@ -25,6 +25,7 @@
+ #include "codebook.h"
+ #include "misc.h"
+ #include "os.h"
++#include "block.h"
+ 
+ #define LSP_FRACBITS 14
+ 
+diff -urNad mplayer-1.0~rc2~/tremor/floor1.c mplayer-1.0~rc2/tremor/floor1.c
+--- mplayer-1.0~rc2~/tremor/floor1.c	2007-10-07 21:49:27.000000000 +0200
++++ mplayer-1.0~rc2/tremor/floor1.c	2007-10-19 20:57:44.000000000 +0200
+@@ -24,6 +24,7 @@
+ #include "registry.h"
+ #include "codebook.h"
+ #include "misc.h"
++#include "block.h"
+ 
+ #define floor1_rangedB 140 /* floor 1 fixed at -140dB to 0dB range */
+ 
+diff -urNad mplayer-1.0~rc2~/tremor/res012.c mplayer-1.0~rc2/tremor/res012.c
+--- mplayer-1.0~rc2~/tremor/res012.c	2007-10-07 21:49:27.000000000 +0200
++++ mplayer-1.0~rc2/tremor/res012.c	2007-10-19 20:57:44.000000000 +0200
+@@ -25,6 +25,7 @@
+ #include "codebook.h"
+ #include "misc.h"
+ #include "os.h"
++#include "block.h"
+ 
+ typedef struct {
+   vorbis_info_residue0 *info;
+diff -urNad mplayer-1.0~rc2~/tremor/synthesis.c mplayer-1.0~rc2/tremor/synthesis.c
+--- mplayer-1.0~rc2~/tremor/synthesis.c	2007-10-07 21:49:27.000000000 +0200
++++ mplayer-1.0~rc2/tremor/synthesis.c	2007-10-19 20:57:44.000000000 +0200
+@@ -23,6 +23,7 @@
+ #include "registry.h"
+ #include "misc.h"
+ #include "os.h"
++#include "block.h"
+ 
+ int vorbis_synthesis(vorbis_block *vb,ogg_packet *op){
+   vorbis_dsp_state     *vd=vb->vd;

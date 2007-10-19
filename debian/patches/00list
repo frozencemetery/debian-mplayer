@@ -2,3 +2,4 @@
 11configure-mktemp.dpatch
 12configure-vidix-alpha.dpatch
 22disable-xscreensaver.dpatch
+30vorbis-block-alloc.dpatch
