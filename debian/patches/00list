@@ -1,4 +1,4 @@
 10configure-alpha.dpatch
 11configure-mktemp.dpatch
+12configure-vidix-alpha.dpatch
 22disable-xscreensaver.dpatch
-

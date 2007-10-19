@@ -1,3 +1,10 @@
+mplayer (1.0~rc2-3) unstable; urgency=low
+
+  * vidix drivers cyberblade sis unichrome fail on alpha, and are probably
+    useless but in x86_32 and x86_64 archs
+
+ -- A Mennucc1 <mennucc1@debian.org>  Fri, 19 Oct 2007 18:10:59 +0200
+
 mplayer (1.0~rc2-2) unstable; urgency=low
 
   * Runtime CPU detection only works for x86, x86-64 and PPC

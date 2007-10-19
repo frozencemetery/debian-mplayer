@@ -1,0 +1,19 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## configure-vidix-alpha.dpatch by  <mennucc1@debian.org>
+##
+## DP: vidix : cyberblade sis unichrome fail on alpha, and are probably 
+## DP:   useless but in x86_32 and x86_64 archs
+
+@DPATCH@
+diff -urNad mplayer-1.0~rc2~/configure mplayer-1.0~rc2/configure
+--- mplayer-1.0~rc2~/configure	2007-10-07 21:49:33.000000000 +0200
++++ mplayer-1.0~rc2/configure	2007-10-19 18:04:20.000000000 +0200
+@@ -4238,7 +4238,7 @@
+   test $_ivtv = "yes" || _vidix_drivers=`echo $_vidix_drivers | sed s/ivtv//`
+ 
+   # some vidix drivers are not meant to work on powerpc, discard them
+-  ppc && _vidix_drivers=`echo $_vidix_drivers | sed -e s/cyberblade// -e s/sis// -e s/unichrome//`
++  x86 || _vidix_drivers=`echo $_vidix_drivers | sed -e s/cyberblade// -e s/sis// -e s/unichrome//`
+ 
+   for driver in $_vidix_drivers ; do
+     uc_driver=`echo $driver | tr '[a-z]' '[A-Z]'`
