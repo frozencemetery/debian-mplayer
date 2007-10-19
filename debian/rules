@@ -70,6 +70,11 @@ DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 DEB_HOST_ARCH_OS    ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
 DEB_HOST_ARCH_CPU   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_CPU)
 
+
+## This can be overridden from the command line, see README.Debian.
+DEB_BUILD_CONFIGURE=--disable-bitmap-font  --disable-ggi  --disable-xvid --language=all  --disable-xmms --disable-arts --disable-jack --disable-aa --disable-mad --disable-libdv $(archconf)
+
+
 # Choose whether we want binary codec support (default on unknown archs: no).
 with_real_and_xanim = false
 with_win32 = false
@@ -79,12 +84,14 @@ ifeq ($(arch),i386)
   archconf += --target=i586-linux
   with_real_and_xanim = true
   with_win32 = true
+  DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
 endif
 ifeq ($(arch),amd64)
   #this needs the patch 
   # http://people.freedesktop.org/~jinghua/real64/mplayer-amd64-real-codecs.diff
   with_real_and_xanim = true
   #this does not compile, though : with_win32 = true
+  DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
 endif
 ifeq ($(arch),kfreebsd-i386)
   with_real_and_xanim = true
@@ -94,6 +101,7 @@ ifeq ($(arch),kfreebsd-amd64)
 endif
 ifeq ($(arch),powerpc)
   with_real_and_xanim = true
+  DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
 endif
 ifeq ($(arch),alpha)
 #Avoid high optimization through gcc.
@@ -114,8 +122,6 @@ endif
 
 
 
-## This can be overridden from the command line, see README.Debian.
-DEB_BUILD_CONFIGURE=--disable-bitmap-font  --enable-runtime-cpudetection --disable-ggi  --disable-xvid --language=all  --disable-xmms --disable-arts --disable-jack --disable-aa --disable-mad --disable-libdv $(archconf)
 
 ifeq ($(DFSG),)
 DEB_BUILD_CONFIGURE += --disable-libdvdcss-internal --enable-dvdread --disable-mencoder

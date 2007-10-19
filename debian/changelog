@@ -1,3 +1,9 @@
+mplayer (1.0~rc2-2) unstable; urgency=low
+
+  * Runtime CPU detection only works for x86, x86-64 and PPC
+
+ -- A Mennucc1 <mennucc1@debian.org>  Fri, 19 Oct 2007 09:43:08 +0200
+
 mplayer (1.0~rc2-1) unstable; urgency=low
 
   * New upstream version.
