@@ -1,24 +1,22 @@
-# Translation of mplayer debconf templates to French
-# Copyright (C) 2006 Yves Rütschlé <l10n@rutschle.net>
-# This file is distributed under the same license as the mplayer package.
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: mplayer\n"
 "Report-Msgid-Bugs-To: mennucc1@debian.org\n"
-"POT-Creation-Date: 2007-10-28 09:36+0100\n"
-"PO-Revision-Date: 2007-10-29 21:12+0100\n"
-"Last-Translator: Yves Rütschlé <l10n@rutschle.net>\n"
-"Language-Team: French <debian-l10n-french@lists.debian.org>\n"
+"POT-Creation-Date: 2007-10-18 10:01+0200\n"
+"PO-Revision-Date: 2007-10-20 14:41+0200\n"
+"Last-Translator: Esko Arajärvi <edu@iki.fi>\n"
+"Language-Team: Finnish <debian-l10n-finnish@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Finnish\n"
+"X-Poedit-Country: FINLAND\n"
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:2001
 msgid "Detailed configuration needed for each user"
-msgstr "Configuration détaillée par utilisateur"
+msgstr "Jokaiselle käyttäjälle tarvitaan yksityiskohtaiset asetukset"
 
 #. Type: note
 #. Description
@@ -27,17 +25,15 @@ msgid ""
 "The performance of MPlayer depends heavily on hardware; this means that it "
 "may benefit from tweaking options for every single machine it's installed on."
 msgstr ""
-"Les performances de MPlayer dépendent énormément du matériel. Jouer sur les "
-"options pour chaque machine peut donc les améliorer."
+"MPlayerin suorituskyky riippuu vahvasti laitteistosta. Tämä tarkoittaa, että "
+"se saattaa hyötyä kunkin tietokoneen paranteluominaisuuksista."
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:2001
 msgid ""
 "You should read the documentation provided by the 'mplayer-doc' package."
-msgstr ""
-"Vous devriez lire la documentation qui est fournie dans le paquet « mplayer-"
-"doc »."
+msgstr "Lue paketin ”mplayer-doc” tarjoama (englanninkielinen) dokumentaatio."
 
 #. Type: note
 #. Description
@@ -47,16 +43,15 @@ msgid ""
 "mplayer/mplayer.conf which may be adapted later. Any user can also refine "
 "options in ~/.mplayer/config."
 msgstr ""
-"Certaines options globales au système vont être réglées dans le fichier /etc/"
-"mplayer/mplayer.conf, et pourront être adaptées par la suite. Chaque "
-"utilisateur peut également établir des réglages personnels dans ~/.mplayer/"
-"config."
+"Joitain asetuksia asetetaan järjestelmän laajuisesti tiedostossa /etc/"
+"mplayer/mplayer.conf, jota voidaan mukauttaa myöhemmin. Kukin käyttäjä voi "
+"myös parannella asetuksia tiedostossa ~/.mplayer/config."
 
 #. Type: boolean
 #. Description
 #: ../mplayer.templates:3001
 msgid "Replace existing configuration file?"
-msgstr "Faut-il remplacer le fichier de configuration existant ?"
+msgstr "Korvataanko olemassa oleva asetustiedosto?"
 
 #. Type: boolean
 #. Description
@@ -67,23 +62,23 @@ msgid ""
 "generated one (the old file will be moved to /etc/mplayer/mplayer.conf."
 "debconf-old)."
 msgstr ""
-"Un fichier /etc/mplayer/mplayer.conf existe déjà, mais il ne contient pas de "
-"section créée automatiquement. Il est possible de créer automatiquement un "
-"nouveau fichier. L'ancien fichier sera alors renommé /etc/mplayer/mplayer."
-"conf.debconf-old."
+"Järjestelmässä on jo tiedosto /etc/mplayer/mplayer.conf, joka ei sisällä "
+"automaattisesti luotua osaa. Kyseinen tiedosto voidaan korvata luodulla "
+"(vanha siirretään nimelle /etc/mplayer/mplayer.conf.debconf-old)."
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:4001
 msgid "Old configuration file kept"
-msgstr "Conservation du fichier de configuration existant"
+msgstr "Vanha asetustiedosto säilytetty"
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:4001
 msgid "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
 msgstr ""
-"Vous avez choisi de remplacer le fichier /etc/mplayer/mplayer.conf existant."
+"Valitsit, että olemassa olevaa tiedostoa /etc/mplayer/mplayer.conf ei "
+"korvata."
 
 #. Type: note
 #. Description
@@ -92,14 +87,14 @@ msgid ""
 "That file can be generated automatically later by running 'dpkg-reconfigure "
 "mplayer'."
 msgstr ""
-"Ce fichier peut être créé automatiquement avec la commande « dpkg-"
-"reconfigure mplayer »."
+"Kyseinen tiedosto voidaan luoda automaattisesti myöhemmin käskyllä ”dpkg-"
+"reconfigure mplayer”."
 
 #. Type: select
 #. Description
 #: ../mplayer.templates:5001
 msgid "MPlayer video output:"
-msgstr "Sortie vidéo de MPlayer :"
+msgstr "Mplayerin videoulostulo:"
 
 #. Type: select
 #. Description
@@ -108,8 +103,8 @@ msgid ""
 "MPlayer can use a very wide range of video output drivers. The needed driver "
 "may be detected automatically or chosen manually."
 msgstr ""
-"MPlayer peut utiliser de nombreux pilotes de sortie vidéo. Les pilotes "
-"requis peuvent être détectés automatiquement ou choisis manuellement."
+"MPlayer voi käyttää erittäin laajaa kirjoa videoulostuloajureita. Tarvittava "
+"ajuri voidaan etsiä automaattisesti tai valita käsin."
 
 #. Type: select
 #. Description
@@ -119,10 +114,9 @@ msgid ""
 "matching this system's video card. If none match and the card supports 'XV', "
 "choose that option (the 'xvinfo' command may help)."
 msgstr ""
-"Si vous préférez choisir le pilote, vous devez le choisir parmi les pilotes "
-"correspondant à la carte vidéo du système. Si aucun ne correspond et que la "
-"carte gère « XV », choisissez cette option. La commande « xvinfo » peut être "
-"utile pour identifier cette fonctionnalité."
+"Jos suosit ajurin valitsemista käsin, sinun tulisi ensin valita kohta, joka "
+"vastaa järjestelmän näyttökorttia. Jos mikään ei sovi ja kortti tukee ”XV”:"
+"tä, valitse tuo vaihtoehto (komento ”xvinfo” saattaa auttaa)."
 
 #. Type: select
 #. Description
@@ -131,20 +125,20 @@ msgid ""
 "Please read the /usr/share/doc/mplayer-doc/HTML/en/video.html file from the "
 "'mplayer-doc' package for more details."
 msgstr ""
-"Veuillez lire le fichier /usr/share/doc/mplayer-doc/HTML/en/video.html du "
-"paquet « mplayer-doc » pour plus de détails."
+"Lisätietoja englanniksi löytyy paketin ”mplayer-doc” tiedostosta /usr/share/"
+"doc/mplayer-doc/HTML/en/video.html."
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:6001
 msgid "Binary codecs download"
-msgstr "Téléchargement de codecs binaires"
+msgstr "Binäärikoodekkien lataus"
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:6001
 msgid "MPlayer supports most video formats without additional software."
-msgstr "MPlayer gère la plupart des formats vidéos sans logiciel additionnel."
+msgstr "MPlayer tukee useimpia videomuotoja ilman lisäohjelmia."
 
 #. Type: note
 #. Description
@@ -153,8 +147,8 @@ msgid ""
 "Additional video formats, such as Real 3.0/4.0, Windows Media 9, or "
 "Quicktime, can be supported by using binary codecs."
 msgstr ""
-"Certains formats vidéos, tels que Real 3.0 et 4.0, Windows Media 9 ou encore "
-"Quicktime, peuvent être gérés en utilisant des « codecs » binaires."
+"Lisävideomuotoja, kuten Real 3.0/4.0, Windows Media 9 ja Quicktime voidaan "
+"tukea käyttämällä binäärikoodekkeja."
 
 #. Type: note
 #. Description
@@ -165,36 +159,34 @@ msgid ""
 "binary_codecs.sh' script is provided in this package to help downloading "
 "them from the MPlayer web site."
 msgstr ""
-"Comme ces « codecs » ne sont pas libres, ils ne sont pas distribués dans ce "
-"paquet, mais ils peuvent être téléchargés gratuitement. Le script « /usr/"
-"share/mplayer/scripts/binary_codecs.sh » est fourni pour aider au "
-"téléchargement sur le site de MPlayer."
+"Koodekit eivät sinänsä ole vapaita ohjelmistoja, eikä niitä levitetä tämän "
+"paketin mukana, mutta ne voi ladata ilmaiseksi. Paketin mukana toimitettu "
+"komentotiedosto ”/usr/share/mplayer/scripts/binary_codecs.sh” auttaa niiden "
+"lataamisessa MPlayerin verkkosivulta."
 
 #. Type: string
 #. Description
 #: ../mplayer.templates:7001
 msgid "DVD device name:"
-msgstr "Nom du fichier de périphérique DVD :"
+msgstr "DVD-laitteen nimi:"
 
 #. Type: string
 #. Description
 #: ../mplayer.templates:7001
 msgid "Please enter the name of the device for your DVD player, if any."
-msgstr ""
-"Veuillez indiquer le nom de périphérique de votre lecteur DVD, s'il en "
-"existe un."
+msgstr "Anna DVD-soittimen laitenimi, jos järjestelmässä on sellainen."
 
 #. Type: select
 #. Description
 #: ../mplayer.templates:8001
 msgid "Font for On Screen Display:"
-msgstr "Police pour l'affichage OSD :"
+msgstr "Ruudulle piirrossa käytettävä fontti:"
 
 #. Type: error
 #. Description
 #: ../mplayer.templates:9001
 msgid "No TrueType fonts found for On Screen Display"
-msgstr "Pas de police TrueType pour l'affichage à l'écran"
+msgstr "Ruudulle piirtoon käytettäväksi ei löytynyt yhtään TrueType-fonttia."
 
 #. Type: error
 #. Description
@@ -202,8 +194,8 @@ msgstr "Pas de police TrueType pour l'affichage à l'écran"
 msgid ""
 "MPlayer needs at least one TrueType font for its 'On Screen Display' feature."
 msgstr ""
-"Au moins une police TrueType doit être installée pour que la fonction "
-"d'affichage à l'écran (OSD : « On Screen Display ») fonctionne."
+"Mplayer tarvitsee vähintään yhden TrueType-fontin sen ”ruudulle piirto” (”On "
+"Screen Display”) -ominaisuutta varten."
 
 #. Type: error
 #. Description
@@ -213,6 +205,6 @@ msgid ""
 "'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by running "
 "'dpkg-reconfigure mplayer')."
 msgstr ""
-"Vous devriez installer un paquet contenant des polices TrueType, tel que "
-"« ttf-freefont », « ttf-bitstream-vera » ou « msttcorefonts », avant de "
-"reconfigurer MPlayer avec la commande « dpkg-reconfigure mplayer »."
+"Sinun tulisi asentaa tällaisia fontteja tarjoava paketti (kuten ”ttf-"
+"freefont”, ”ttf-bitstream-vera” tai ”msttcorefonts”) ja tehdä MPlayerin "
+"asetukset uudelleen (komennolla ”dpkg-reconfigure mplayer”)."

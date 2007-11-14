@@ -19,10 +19,10 @@ HOST_CC = cc
 RANLIB = true
 LDCONFIG = ldconfig
 INSTALL = install
-EXTRA_INC =  -I/usr/include/directfb -I/usr/include/  -I/usr/include/SDL  -D_REENTRANT   -I/usr/include/freetype2 -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/freetype2 -I/usr/include/libpng12  
-EXTRAXX_INC =  -I/usr/include/directfb -I/usr/include/  -I/usr/include/SDL  -D_REENTRANT   -I/usr/include/freetype2 -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/freetype2 -I/usr/include/libpng12   -I/usr/include/liveMedia -I/usr/include/UsageEnvironment              -I/usr/include/BasicUsageEnvironment -I/usr/include/groupsock
-OPTFLAGS = -Wdisabled-optimization -Wno-pointer-sign -Wdeclaration-after-statement -I. -I.. -I../libavutil -Wall -Wno-switch -Wpointer-arith -Wredundant-decls -O4 -march=i586 -mtune=i586 -pipe -ffast-math -fomit-frame-pointer -D_REENTRANT -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -DHAVE_CONFIG_H $(EXTRA_INC)
-CXXFLAGS =  -I. -I.. -I../libavutil -Wall -Wno-switch -Wpointer-arith -Wredundant-decls -O4 -march=i586 -mtune=i586 -pipe -ffast-math -fomit-frame-pointer -D_REENTRANT -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -DHAVE_CONFIG_H -D__STDC_LIMIT_MACROS $(EXTRAXX_INC)
+EXTRA_INC =  -I/usr/include/directfb -I/usr/include/  -I/usr/include/SDL  -D_REENTRANT   -I/usr/include/freetype2 -DPNG_NO_MMX_CODE -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/freetype2 -I/usr/include/libpng12  
+EXTRAXX_INC =  -I/usr/include/directfb -I/usr/include/  -I/usr/include/SDL  -D_REENTRANT   -I/usr/include/freetype2 -DPNG_NO_MMX_CODE -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/freetype2 -I/usr/include/libpng12   -I/usr/include/liveMedia -I/usr/include/UsageEnvironment              -I/usr/include/BasicUsageEnvironment -I/usr/include/groupsock
+OPTFLAGS = -Wdisabled-optimization -Wno-pointer-sign -Wdeclaration-after-statement -I. -I.. -I../libavutil -Wall -Wno-switch -Wpointer-arith -Wredundant-decls -O4 -march=x86-64  -pipe -ffast-math -fomit-frame-pointer -D_REENTRANT -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -DHAVE_CONFIG_H $(EXTRA_INC)
+CXXFLAGS =  -I. -I.. -I../libavutil -Wall -Wno-switch -Wpointer-arith -Wredundant-decls -O4 -march=x86-64  -pipe -ffast-math -fomit-frame-pointer -D_REENTRANT -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -DHAVE_CONFIG_H -D__STDC_LIMIT_MACROS $(EXTRAXX_INC)
 CFLAG_STACKREALIGN = 
 INSTALLSTRIP = -s
 CHARSET = 
@@ -62,7 +62,7 @@ GIF = yes
 
 EXTRALIBS = 
 EXTRA_LIB = -L/usr/lib -L/usr/lib -L/usr/lib -Wl,-z,noexecstack    -lncurses -lsmbclient -lpng -lz -ljpeg -lungif -lasound -ldl -lpthread -lcdda_interface -lcdda_paranoia -lfreetype -lz -lfontconfig  -lz -lspeex  -ltheora -logg   -ldts -lliveMedia -lgroupsock -lUsageEnvironment -lBasicUsageEnvironment -lstdc++ -lpthread -ldl -rdynamic -llirc_client  -lm
-EXTRALIBS_MPLAYER =  -ldirectfb -lXext -lX11 -lpthread -lXv -lXvMC -lXvMCW -lXinerama -lXxf86vm -lXxf86dga -lGL -ldl -lcaca -lcucul -lvga -lSDL -laudio -lXt -lesd -laudiofile -lm -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgdk_pixbuf-2.0 -lm -lpangocairo-1.0 -lfontconfig -lXext -lXrender -lXinerama -lXi -lXrandr -lXcursor -lXcomposite -lXdamage -lpango-1.0 -lcairo -lX11 -lXfixes -lgobject-2.0 -lgmodule-2.0 -ldl -lglib-2.0 -lglib-2.0
+EXTRALIBS_MPLAYER =  -ldirectfb -lXext -lX11 -lpthread -lXv -lXvMC -lXvMCW -lXinerama -lXxf86vm -lXxf86dga -lGL -ldl -lcaca -lcucul -lSDL -laudio -lXt -lesd -laudiofile -lm -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgdk_pixbuf-2.0 -lm -lpangocairo-1.0 -lfontconfig -lXext -lXrender -lXinerama -lXi -lXrandr -lXcursor -lXfixes -lpango-1.0 -lcairo -lX11 -lgobject-2.0 -lgmodule-2.0 -ldl -lglib-2.0 -lglib-2.0
 EXTRALIBS_MENCODER = 
 
 HAVE_MLIB = no
@@ -113,8 +113,8 @@ DVDREAD = yes
 DVDREAD_INTERNAL = yes
 DVDCSS_INTERNAL = no
 DVDNAV = no
-WIN32DLL = yes
-QTX_CODECS = yes
+WIN32DLL = no
+QTX_CODECS = auto
 REAL_CODECS = yes
 XANIM_CODECS = yes
 LIBAVUTIL = yes
@@ -467,16 +467,16 @@ VIDIX_SIS=yes
 VIDIX_UNICHROME=yes
 
 # --- Some stuff for autoconfigure ----
-ARCH_X86_32 = yes
+ARCH_X86_64 = yes
 ARCH_X86 = yes
 TARGET_WIN32 = no
-TARGET_CPU=586
+TARGET_CPU=x86_64
 HAVE_MMX   = yes
 HAVE_MMX2   = yes
 HAVE_3DNOW   = yes
 HAVE_3DNOWEX   = yes
 HAVE_SSE   = yes
-HAVE_CMOV   = no
+HAVE_CMOV   = yes
 HAVE_ALTIVEC   = auto
 HAVE_ARMV5TE   = auto
 HAVE_ARMV6   = auto
@@ -487,10 +487,10 @@ HAVE_VIS   =
 GUI = yes
 
 # --- libvo stuff ---
-VO_SRCS =  vo_tdfxfb.c vo_tga.c vo_md5sum.c vo_directfb2.c vo_dfbmga.c x11_common.c vo_x11.c vo_xover.c vo_xv.c vo_xvmc.c vo_dga.c vo_3dfx.c vo_gl.c vo_gl2.c gl_common.c vo_cvidix.c vo_xvidix.c vo_mga.c vo_xmga.c vo_caca.c vo_svga.c vo_fbdev.c vo_fbdev2.c vo_png.c vo_jpeg.c vo_pnm.c vo_gif89a.c vo_sdl.c vo_v4l2.c
+VO_SRCS =  vo_tdfxfb.c vo_tga.c vo_md5sum.c vo_directfb2.c vo_dfbmga.c x11_common.c vo_x11.c vo_xover.c vo_xv.c vo_xvmc.c vo_dga.c vo_3dfx.c vo_gl.c vo_gl2.c gl_common.c vo_cvidix.c vo_xvidix.c vo_mga.c vo_xmga.c vo_caca.c vo_fbdev.c vo_fbdev2.c vo_png.c vo_jpeg.c vo_pnm.c vo_gif89a.c vo_sdl.c
 
 # --- libao2 stuff ---
-AO_SRCS =  ao_sdl.c ao_nas.c ao_v4l2.c ao_oss.c ao_esd.c ao_alsa.c
+AO_SRCS =  ao_sdl.c ao_nas.c ao_oss.c ao_esd.c ao_alsa.c
 
 # --- libaf stuff ---
 AF_SRCS =  af_ladspa.c

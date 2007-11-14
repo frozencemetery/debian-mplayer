@@ -1,26 +1,27 @@
-# SOME DESCRIPTIVE TITLE.
+# translation of mplayer1.0-rc1-17.po to Belarusian
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
+# Pavel Piatruk <berserker@neolocation.com>, 2007.
+# Paul Petruk <berserker@neolocation.com>, 2007.
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: mplayer1.0-rc1-17\n"
 "Report-Msgid-Bugs-To: mennucc1@debian.org\n"
-"POT-Creation-Date: 2007-10-28 09:36+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"POT-Creation-Date: 2007-10-18 10:01+0200\n"
+"PO-Revision-Date: 2007-10-19 20:03+0300\n"
+"Last-Translator: Paul Petruk <berserker@neolocation.com>\n"
+"Language-Team: Belarusian <i18n@mova.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:2001
 msgid "Detailed configuration needed for each user"
-msgstr ""
+msgstr "Падрабязная наладка для кожнага карыстальніка"
 
 #. Type: note
 #. Description
@@ -29,6 +30,8 @@ msgid ""
 "The performance of MPlayer depends heavily on hardware; this means that it "
 "may benefit from tweaking options for every single machine it's installed on."
 msgstr ""
+"Прадуктыўнасць MPlayer залежыць пераважна ад апаратнага забеспячэння - "
+"значыць, ён патрабуе рэгулявання налад для кожнай машыны, куды ўсталяваны."
 
 #. Type: note
 #. Description
@@ -36,6 +39,8 @@ msgstr ""
 msgid ""
 "You should read the documentation provided by the 'mplayer-doc' package."
 msgstr ""
+"Вы маеце пажадаць прачытаць дакументацыю, што пастаўляецца ў пакеце'mplayer-"
+"doc'."
 
 #. Type: note
 #. Description
@@ -45,12 +50,15 @@ msgid ""
 "mplayer/mplayer.conf which may be adapted later. Any user can also refine "
 "options in ~/.mplayer/config."
 msgstr ""
+"Зараз некалькі налады будуць вызначаны для сістэмы агулам ў файле /etc/"
+"mplayer/mplayer.conf, які можа быць зменены пазней. Любы карыстальнік можа "
+"пакінуць налады ў сваім файле ~/.mplayer/config."
 
 #. Type: boolean
 #. Description
 #: ../mplayer.templates:3001
 msgid "Replace existing configuration file?"
-msgstr ""
+msgstr "Ці замяніць існы файл наладаў?"
 
 #. Type: boolean
 #. Description
@@ -61,18 +69,21 @@ msgid ""
 "generated one (the old file will be moved to /etc/mplayer/mplayer.conf."
 "debconf-old)."
 msgstr ""
+"Файл /etc/mplayer/mplayer.conf ужо існуе, але ён не змяшчае аўтаматычна "
+"згенераванай часткі. Гэты файл можа быць заменены згенераваным новым (стары "
+"будзе перамешчаны ў /etc/mplayer/mplayer.conf.debconf-old)."
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:4001
 msgid "Old configuration file kept"
-msgstr ""
+msgstr "Стары файл наладаў пакінуты"
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:4001
 msgid "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
-msgstr ""
+msgstr "Вы выбралі не змяняць файла /etc/mplayer/mplayer.conf."
 
 #. Type: note
 #. Description
@@ -81,12 +92,14 @@ msgid ""
 "That file can be generated automatically later by running 'dpkg-reconfigure "
 "mplayer'."
 msgstr ""
+"Файл можа быць аўтаматычна створаны пазней запускам 'dpkg-reconfigure "
+"mplayer'."
 
 #. Type: select
 #. Description
 #: ../mplayer.templates:5001
 msgid "MPlayer video output:"
-msgstr ""
+msgstr "Вывад відэа MPlayer:"
 
 #. Type: select
 #. Description
@@ -95,6 +108,8 @@ msgid ""
 "MPlayer can use a very wide range of video output drivers. The needed driver "
 "may be detected automatically or chosen manually."
 msgstr ""
+"MPlayer можа выводзіць відэа праз шмат якія драйверы. Патрэбны драйвер можа "
+"быць вызначаны аўтаматычна або выбраны ўручную."
 
 #. Type: select
 #. Description
@@ -104,6 +119,9 @@ msgid ""
 "matching this system's video card. If none match and the card supports 'XV', "
 "choose that option (the 'xvinfo' command may help)."
 msgstr ""
+"Калі хочаце выбраць драйвер самі, спярша выберыце пункт, што адпавядае "
+"відэакартцы ў вашай сістэме. Калі не знойдзеце адпаведнасцяў, а картка "
+"падтрымлівае 'XV', выберыце пункт 'XV' (каманда 'xvinfo' мусіць дапамагчы)."
 
 #. Type: select
 #. Description
@@ -112,18 +130,22 @@ msgid ""
 "Please read the /usr/share/doc/mplayer-doc/HTML/en/video.html file from the "
 "'mplayer-doc' package for more details."
 msgstr ""
+"Калі ласка, для падрабязнасцей прачытайце файл /usr/share/doc/mplayer-doc/"
+"HTML/en/video.html з пакета 'mplayer-doc'."
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:6001
 msgid "Binary codecs download"
-msgstr ""
+msgstr "Спампоўванне двайковых кодэкаў"
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:6001
 msgid "MPlayer supports most video formats without additional software."
 msgstr ""
+"MPlayer падтрымлівае большасць відэафарматаў адразу без дадатковых "
+"праграмных сродкаў."
 
 #. Type: note
 #. Description
@@ -132,6 +154,8 @@ msgid ""
 "Additional video formats, such as Real 3.0/4.0, Windows Media 9, or "
 "Quicktime, can be supported by using binary codecs."
 msgstr ""
+"Дадатковыя фарматы відэа (Real 3.0/4.0, Windows Media 9, Quicktime і іншыя) "
+"могуць быць прайграны з дапамогай двайковых кодэкаў."
 
 #. Type: note
 #. Description
@@ -142,30 +166,34 @@ msgid ""
 "binary_codecs.sh' script is provided in this package to help downloading "
 "them from the MPlayer web site."
 msgstr ""
+"Такія кодэкі не ўключаны ў гэты пакет, таму што яны не падлягаюць вольнаму "
+"распаўсюджванню. Аднак яны могуць быць свабодна спампаваны. Скрыпт '/usr/"
+"share/mplayer/scripts/binary_codecs.sh' дапаможа спампаваць іх з web-сайта "
+"MPlayer."
 
 #. Type: string
 #. Description
 #: ../mplayer.templates:7001
 msgid "DVD device name:"
-msgstr ""
+msgstr "Назва прылады DVD:"
 
 #. Type: string
 #. Description
 #: ../mplayer.templates:7001
 msgid "Please enter the name of the device for your DVD player, if any."
-msgstr ""
+msgstr "Увядзіце назву вашай прылады DVD, калі ёсць."
 
 #. Type: select
 #. Description
 #: ../mplayer.templates:8001
 msgid "Font for On Screen Display:"
-msgstr ""
+msgstr "Шрыфт для On Screen Display:"
 
 #. Type: error
 #. Description
 #: ../mplayer.templates:9001
 msgid "No TrueType fonts found for On Screen Display"
-msgstr ""
+msgstr "Няма шрыфтоў True Type для On Screen Display"
 
 #. Type: error
 #. Description
@@ -173,6 +201,8 @@ msgstr ""
 msgid ""
 "MPlayer needs at least one TrueType font for its 'On Screen Display' feature."
 msgstr ""
+"MPlayer патрабуе прынамсі адзін шрыфт True Type для функцыі On Screen "
+"Display."
 
 #. Type: error
 #. Description
@@ -182,3 +212,6 @@ msgid ""
 "'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by running "
 "'dpkg-reconfigure mplayer')."
 msgstr ""
+"Вы маеце ўстанавіць пакет, што прадастаўляе шрыфты truetype (такія, як 'ttf-"
+"freefont', ці 'ttf-bitstream-vera', ці 'msttcorefonts' ) і пераналадзьце "
+"MPlayer (камандай \"dpkg-reconfigure mplayer\")"

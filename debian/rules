@@ -16,10 +16,6 @@ export DH_OPTIONS
 
 ############
 
-# This is the debhelper compatibility version to use.
-# (3 would be fine actually, but it is deprecated in etch; anyway sarge has 4)
-export DH_COMPAT=4
-
 package        := mplayer
 
 ## The Subversion revision is not autodetected in some targets!

@@ -1,0 +1,14 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## dpatch by  <mennucc1@debian.org>
+##
+## DP: can't open a URI with encoded chars (like a space), bug 449298
+
+@DPATCH@
+diff -urNad mplayer-1.0~rc2~/etc/mplayer.desktop mplayer-1.0~rc2/etc/mplayer.desktop
+--- mplayer-1.0~rc2~/etc/mplayer.desktop	2007-11-14 14:59:15.000000000 +0100
++++ mplayer-1.0~rc2/etc/mplayer.desktop	2007-10-07 21:49:33.000000000 +0200
+@@ -12,3 +12,3 @@
+ TryExec=gmplayer
+-Exec=gmplayer %U
++Exec=gmplayer %F
+ Terminal=false

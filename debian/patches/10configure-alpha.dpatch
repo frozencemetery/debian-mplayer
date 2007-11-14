@@ -17,15 +17,6 @@ diff -urNad mplayer-1.0~rc2~/configure mplayer-1.0~rc2/configure
      *) return 1;;
    esac
  }
-@@ -1257,7 +1257,7 @@
-         fi
-       ;;
-       macppc|ppc|ppc64) host_arch=ppc ;;
--      alpha) host_arch=alpha ;;
-+      alpha*) host_arch=alpha ;;
-       sparc) host_arch=sparc ;;
-       sparc64) host_arch=sparc64 ;;
-       parisc*|hppa*|9000*) host_arch=hppa ;;
 @@ -2126,14 +2126,20 @@
  
      ;;

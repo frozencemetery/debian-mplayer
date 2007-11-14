@@ -1,3 +1,44 @@
+mplayer (1.0~rc2-6) unstable; urgency=low
+
+  * created debhelper debian/compat '5'
+  * corrected mplayer.menu to section="Applications/Viewers"
+  * fix: cant open a file with spaces in the name through nautilus,
+    thanks to giggz (Closes: #449298)
+  * fix: 2xsai filter generates side-by-side double-height images on amd64, 
+    thanks to Josh Triplett and  Reimar Döffinger (Closes: #450999)
+  * clean up of 10configure-alpha.dpatch and 12configure-vidix-alpha.dpatch
+  * Debconf templates and debian/control reviewed by the debian-l10n-
+    english team as part of the Smith review project. Thanks to Christian Perrier. 
+    Closes: #447111, #448247, #412394, #414510, #448247
+  [Debconf translation updates]
+  * Belarusian. Thanks Andrei Darashenka. Closes: #447115, #447305
+  * Galician. Thanks Jacobo Tarrio. Closes: #447300
+  * French Thanks Yves Rütschlé. Closes: #448844
+  * Finnish. Thanks Esko Arajärvi. Closes: #447349
+  * Spanish; Castilian. Thanks Javier Fernández-Sanguino Peña. Closes: #447416
+  * Czech. Thanks Miroslav Kure. Closes: #447439
+  * Portuguese. Thanks "traduz" Carlos Lisboa. Closes: #447800
+  * Vietnamese. Thanks Clytie Siddall. Closes: #447873
+  * Romanian. Thanks Eddy Petrișor. Closes: #447922
+  * Dutch; Flemish. Thanks "cobaco". Closes: #448120
+  * Italian. Thanks Luca Monducci. Closes: #448237
+  * German. Thanks Helge Kreutzmann. Closes: #448246
+  * Malayalam. Thanks Santhosh Thottingal. Closes: #448468
+  * Russian. Thanks Sergey Alyoshin. Closes: #449000
+
+ -- A Mennucc1 <mennucc1@debian.org>  Wed, 14 Nov 2007 15:49:04 +0100
+
+mplayer (1.0~rc2-5) unstable; urgency=low
+
+  * patch to play rtsp stream (hack to skip short packets)
+    thanks to Stefan Strasser,  Reimar Döffinger  (Closes: #410424).
+  * the bug "mplayer segfaults on ogg video" was actually a libtheora bug,
+    fixed in 1.0~beta1-1 or above: added dependency.
+    Thanks to Pierre Habouzit,  Reimar Döffinger  (Closes: #408071).
+  * Fix FTBFS on GNU/kFreeBSD, thanks to Petr Salinger (Closes: #448791).
+
+ -- A Mennucc1 <mennucc1@debian.org>  Sun, 04 Nov 2007 12:56:38 +0000
+
 mplayer (1.0~rc2-4) unstable; urgency=low
 
   * fix: _vorbis_block_alloc() implicitly converted to pointer,

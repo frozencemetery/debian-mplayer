@@ -1,0 +1,44 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 25kFreeBDS.dpatch by  Petr Salinger <Petr.Salinger@seznam.cz>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: to build on GNU/kFreeBSD
+
+@DPATCH@
+diff -urNad mplayer-1.0~rc2~/configure mplayer-1.0~rc2/configure
+--- mplayer-1.0~rc2~/configure	2007-10-07 19:49:33.000000000 +0000
++++ mplayer-1.0~rc2/configure	2007-11-04 12:57:48.000000000 +0000
+@@ -6728,6 +6728,7 @@
+             "dev/ic/bt8xx.h" ; do
+     cat > $TMPC <<EOF
+ #include <sys/types.h>
++#include <sys/ioctl.h>
+ #include <$file>
+ int main(void) {
+  ioctl(0, TVTUNER_GETFREQ, 0);
+diff -urNad mplayer-1.0~rc2~/debian/rules mplayer-1.0~rc2/debian/rules
+--- mplayer-1.0~rc2~/debian/rules	2007-11-04 11:37:57.000000000 +0000
++++ mplayer-1.0~rc2/debian/rules	2007-11-04 12:57:48.000000000 +0000
+@@ -95,9 +95,11 @@
+ endif
+ ifeq ($(arch),kfreebsd-i386)
+   with_real_and_xanim = true
++  DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
+ endif
+ ifeq ($(arch),kfreebsd-amd64)
+   with_real_and_xanim = true
++  DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
+ endif
+ ifeq ($(arch),powerpc)
+   with_real_and_xanim = true
+diff -urNad mplayer-1.0~rc2~/stream/tvi_bsdbt848.c mplayer-1.0~rc2/stream/tvi_bsdbt848.c
+--- mplayer-1.0~rc2~/stream/tvi_bsdbt848.c	2007-10-07 19:49:26.000000000 +0000
++++ mplayer-1.0~rc2/stream/tvi_bsdbt848.c	2007-11-04 12:57:48.000000000 +0000
+@@ -30,6 +30,7 @@
+ #include <stdlib.h>
+ #include <unistd.h>
+ #include <fcntl.h>
++#include <errno.h>
+ #include <sys/types.h>
+ #include <sys/mman.h>
+ #include <sys/filio.h>

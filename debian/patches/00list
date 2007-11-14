@@ -2,4 +2,8 @@
 11configure-mktemp.dpatch
 12configure-vidix-alpha.dpatch
 22disable-xscreensaver.dpatch
+24mplayer.desktop.dpatch
+25kFreeBDS.dpatch
 30vorbis-block-alloc.dpatch
+40rtsp_demux.dpatch
+51xsai.dpatch

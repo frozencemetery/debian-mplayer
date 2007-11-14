@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MPlayer 1.0~rc1-11\n"
 "Report-Msgid-Bugs-To: mennucc1@debian.org\n"
-"POT-Creation-Date: 2007-03-10 13:03+0100\n"
+"POT-Creation-Date: 2007-10-18 10:01+0200\n"
 "PO-Revision-Date: 2007-01-21 23:40+0100\n"
 "Last-Translator: Andreas Henriksson <andreas@fatal.se>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -19,59 +19,33 @@ msgstr ""
 
 #. Type: note
 #. Description
-#: ../mplayer.templates:1001
-msgid "Create your ~/.mplayer/config file"
-msgstr "Skapa din ~/.mplayer/config fil"
+#: ../mplayer.templates:2001
+msgid "Detailed configuration needed for each user"
+msgstr ""
 
 #. Type: note
 #. Description
-#: ../mplayer.templates:1001
-msgid ""
-"Performance of MPlayer depends heavily on hardware - this means that it may "
-"benefit from tweaking options, for every single machine it's installed to. "
-"You may wish to read the documentation (it is in the package 'mplayer-doc', "
-"under /usr/share/doc/mplayer-doc/). This DebConf interface will help you "
-"setup just a few main features; you may wish to add to /etc/mplayer/mplayer."
-"conf some more refined options (to enable multichannel audio, or video "
-"postprocessing, etc etc); and any user similarly may customize MPlayer using "
-"the file ~/.mplayer/config"
-msgstr ""
-"Prestandan hos MPlayer beror kraftigt på hårdvaran - detta betyder att det "
-"kan vara förmånligt att justera inställningar, för varje enskild maskin som "
-"det installerats på. Det kan vara så att du vill läsa dokumentationen (som "
-"finns i paketet 'mplayer-doc', under /usr/share/doc/mplayer-doc/). Detta "
-"DebConf-gränssnitt kommer hjälpa dig att konfigurera endast ett par "
-"grundläggande funktioner; det kan vara så att du vill lägga till fler "
-"finjusterade inställningar till /etc/mplayer/mplayer.conf (för att slå på "
-"multikanals-ljud, video efterbehandling, etc.); och godtyckliga användare "
-"kan konfigurera MPlayer genom filen ~/.mplayer/config"
-
-#. Type: boolean
-#. Description
 #: ../mplayer.templates:2001
-msgid "Enable access to RTC?"
-msgstr "Aktivera tillgång till realtidsklockan (RTC)?"
+msgid ""
+"The performance of MPlayer depends heavily on hardware; this means that it "
+"may benefit from tweaking options for every single machine it's installed on."
+msgstr ""
 
-#. Type: boolean
+#. Type: note
 #. Description
 #: ../mplayer.templates:2001
 msgid ""
-"On older kernels MPlayer can use the RTC (Real Time Clock) to provide better "
-"timing in reproduction, with less CPU cost; to this end, though, the device /"
-"dev/rtc must be accessible to group audio, and the default max-user-freq "
-"must be raised to 1024.  Any needed change must be done by root. If you "
-"wish, MPlayer will automatically do this at boot, so that any user can enjoy "
-"this feature. Note that there may be security issues with this (although "
-"none are known now)."
+"You should read the documentation provided by the 'mplayer-doc' package."
 msgstr ""
-"På äldre kärnor kan MPlayer använda RTC (realtidsklockan) för att förse "
-"bättre tidspressicion i reproduktion, med lägre CPU-kostnad; för detta "
-"ändamål måste dock enheten /dev/rtc vara tillgänglig för gruppen audio, om "
-"standard-värdet för max-user-freq måste höjjas till 1024. Någon begärd "
-"ändring måste göras av root. Om du önskar kan MPlayer automatiskt göra detta "
-"vid systemets uppstart, så att alla användare kan åtnjuta denna funktion. "
-"Notera att det kan finnas säkerhets-betänkligheter med detta (även om ingen "
-"är känd för tillfället)."
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:2001
+msgid ""
+"Now, some configuration options will be set for the entire system in /etc/"
+"mplayer/mplayer.conf which may be adapted later. Any user can also refine "
+"options in ~/.mplayer/config."
+msgstr ""
 
 #. Type: boolean
 #. Description
@@ -82,10 +56,17 @@ msgstr "Ersätt existerande konfigurationsfil?"
 #. Type: boolean
 #. Description
 #: ../mplayer.templates:3001
+#, fuzzy
+#| msgid ""
+#| "There is already a file /etc/mplayer/mplayer.conf, but it does not "
+#| "contain an automatically generated part. This script may generate a new "
+#| "file (the old file will be moved to /etc/mplayer/mplayer.conf.debconf-"
+#| "old)."
 msgid ""
-"There is already a file /etc/mplayer/mplayer.conf, but it does not contain "
-"an automatically generated part. This script may generate a new file (the "
-"old file will be moved to /etc/mplayer/mplayer.conf.debconf-old)."
+"An /etc/mplayer/mplayer.conf file already exists on the system and does not "
+"contain an automatically-generated part. That file can be replaced by a "
+"generated one (the old file will be moved to /etc/mplayer/mplayer.conf."
+"debconf-old)."
 msgstr ""
 "Det finns redan en fil /etc/mplayer/mplayer.conf, men den innehåller ingen "
 "automatiskt genererard del. Detta skript kan generera en ny fil (den gamla "
@@ -94,20 +75,24 @@ msgstr ""
 #. Type: note
 #. Description
 #: ../mplayer.templates:4001
-msgid "Files not replaced"
-msgstr "Filer ersattes ej"
+#, fuzzy
+#| msgid "Replace existing configuration file?"
+msgid "Old configuration file kept"
+msgstr "Ersätt existerande konfigurationsfil?"
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:4001
+msgid "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
+msgstr ""
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:4001
 msgid ""
-"It seems that you don't want to replace your existing configuration file /"
-"etc/mplayer/mplayer.conf.  If you change your mind later, you can run \"dpkg-"
-"reconfigure mplayer\"."
+"That file can be generated automatically later by running 'dpkg-reconfigure "
+"mplayer'."
 msgstr ""
-"Det verkar som du inte vill ersätta din existerande konfigurationsfil /etc/"
-"mplayer/mplayer.conf. Om du ändrar dig vid senare tillfälle kan du då köra "
-"\"dpkg-reconfigure mplayer\"."
 
 #. Type: select
 #. Description
@@ -119,44 +104,56 @@ msgstr "MPlayer video ut-system:"
 #. Description
 #: ../mplayer.templates:5001
 msgid ""
-"MPlayer can use a very wide range of video output drivers; it will try to "
-"autodetect the best one, but you may choose a preferred one. Here is a guide "
-"to the choice (in decreasing order of speed): (1) if you see an entry that "
-"matches your video card, choose that; (2) if your video card supports 'XV', "
-"choose that (use 'xvinfo' to know). You should read /usr/share/doc/mplayer-"
-"doc/HTML/en/video.html (it is in package 'mplayer-doc')."
+"MPlayer can use a very wide range of video output drivers. The needed driver "
+"may be detected automatically or chosen manually."
 msgstr ""
-"MPlayer kan använda en väldigt bred rad av video utmatnings-system; den "
-"bästa kommer försöka automatiskt hittas, men du kan vilja välja en du "
-"föredrar. Här är en guide till valet (i avtagande ordning av fart): (1) om "
-"du ser något val som matchar ditt grafikkort välj det; (2) om ditt video-"
-"kort stödjer 'XV', välj det (använda 'xvinfo' för att kontrollera). Du bör "
-"läsa /usr/share/doc/mplayer-doc/HTML/en/video.html (som finns i paketet "
-"'mplayer-doc')."
+
+#. Type: select
+#. Description
+#: ../mplayer.templates:5001
+msgid ""
+"If you prefer choosing the driver yourself, you first should choose an entry "
+"matching this system's video card. If none match and the card supports 'XV', "
+"choose that option (the 'xvinfo' command may help)."
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../mplayer.templates:5001
+msgid ""
+"Please read the /usr/share/doc/mplayer-doc/HTML/en/video.html file from the "
+"'mplayer-doc' package for more details."
+msgstr ""
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:6001
-msgid "How to download binary codecs"
-msgstr "Hur man laddar ner binära codecs"
+msgid "Binary codecs download"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:6001
+msgid "MPlayer supports most video formats without additional software."
+msgstr ""
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:6001
 msgid ""
-"MPlayer supports most codecs out of the box and the rest with the help of "
-"binary codecs. Binary codecs are only necessary for Real 3.0  and 4.0, "
-"Windows Media 9, QuickTime audio and some very obscure codecs. Debian cannot "
-"distribute these codecs, but these are available on the internet for "
-"download. Run the script `/usr/share/mplayer/scripts/binary_codecs.sh' to "
-"install those  made available from MPlayer web site."
+"Additional video formats, such as Real 3.0/4.0, Windows Media 9, or "
+"Quicktime, can be supported by using binary codecs."
 msgstr ""
-"MPlayer stödjer de flesta codecs direkt från start och resten med hjälp av "
-"binära codecs. Binära codecs är endast nödvändiga för Real 3.0 och 4.0, "
-"Windows Media 9, QuickTime audio och några väldigt obskyra codecs. Debian "
-"kan inte distribuera dessa codecs, men de finns tillgängliga på Internet för "
-"nerladdning, Kör skriptet `/usr/share/mplayer/scripts/binary_codecs.sh' för "
-"att installera de som gjorts tillgängliga på MPlayers webbplats."
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:6001
+msgid ""
+"As such codecs are not free software, they are not distributed with this "
+"package but can be downloaded freely. The '/usr/share/mplayer/scripts/"
+"binary_codecs.sh' script is provided in this package to help downloading "
+"them from the MPlayer web site."
+msgstr ""
 
 #. Type: string
 #. Description
@@ -167,37 +164,152 @@ msgstr "DVD-enhetens namn:"
 #. Type: string
 #. Description
 #: ../mplayer.templates:7001
-msgid "What is the name of your DVD device (if any):"
-msgstr "Vad är namnet på din DVD-enhet (om någon):"
+msgid "Please enter the name of the device for your DVD player, if any."
+msgstr ""
 
 #. Type: select
 #. Description
 #: ../mplayer.templates:8001
-msgid "MPlayer OSD font:"
-msgstr "MPlayer OSD typsnitt:"
+msgid "Font for On Screen Display:"
+msgstr ""
 
-#. Type: select
+#. Type: error
 #. Description
-#: ../mplayer.templates:8001
-msgid ""
-" MPlayer needs True Type fonts for On Screen Display. Choose your favorite."
+#: ../mplayer.templates:9001
+#, fuzzy
+#| msgid ""
+#| " MPlayer needs True Type fonts for On Screen Display. Choose your "
+#| "favorite."
+msgid "No TrueType fonts found for On Screen Display"
 msgstr ""
 "MPlayer behöver TrueType teckensnitt för On Screen Display. Välj din favorit."
 
-#. Type: note
+#. Type: error
 #. Description
 #: ../mplayer.templates:9001
-msgid "MPlayer cannot find TrueType Fonts"
-msgstr "MPlayer kan inte hitta TrueType-teckensnitten"
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:9001
+#, fuzzy
+#| msgid ""
+#| " MPlayer needs True Type fonts for On Screen Display. Choose your "
+#| "favorite."
 msgid ""
-"You should install a package providing truetype fonts (such as   'ttf-"
-"freefont' or 'ttf-bitstream-vera' or  'msttcorefonts' ) and reconfigure "
-"MPlayer (with the command \"dpkg-reconfigure mplayer\")"
+"MPlayer needs at least one TrueType font for its 'On Screen Display' feature."
+msgstr ""
+"MPlayer behöver TrueType teckensnitt för On Screen Display. Välj din favorit."
+
+#. Type: error
+#. Description
+#: ../mplayer.templates:9001
+#, fuzzy
+#| msgid ""
+#| "You should install a package providing truetype fonts (such as   'ttf-"
+#| "freefont' or 'ttf-bitstream-vera' or  'msttcorefonts' ) and reconfigure "
+#| "MPlayer (with the command \"dpkg-reconfigure mplayer\")"
+msgid ""
+"You should install a package providing such fonts (such as 'ttf-freefont' or "
+"'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by running "
+"'dpkg-reconfigure mplayer')."
 msgstr ""
 "Du bör installera ett paket som tillhandahåller TrueType-teckensnitt (så som "
 "'ttf-freefont', 'ttf-bitstream-vera' eller 'msttcorefonts') och "
 "omkonfigurera MPlayer (med kommandot \"dpkg-reconfigure mplayer\")"
+
+#~ msgid "Create your ~/.mplayer/config file"
+#~ msgstr "Skapa din ~/.mplayer/config fil"
+
+#~ msgid ""
+#~ "Performance of MPlayer depends heavily on hardware - this means that it "
+#~ "may benefit from tweaking options, for every single machine it's "
+#~ "installed to. You may wish to read the documentation (it is in the "
+#~ "package 'mplayer-doc', under /usr/share/doc/mplayer-doc/). This DebConf "
+#~ "interface will help you setup just a few main features; you may wish to "
+#~ "add to /etc/mplayer/mplayer.conf some more refined options (to enable "
+#~ "multichannel audio, or video postprocessing, etc etc); and any user "
+#~ "similarly may customize MPlayer using the file ~/.mplayer/config"
+#~ msgstr ""
+#~ "Prestandan hos MPlayer beror kraftigt på hårdvaran - detta betyder att "
+#~ "det kan vara förmånligt att justera inställningar, för varje enskild "
+#~ "maskin som det installerats på. Det kan vara så att du vill läsa "
+#~ "dokumentationen (som finns i paketet 'mplayer-doc', under /usr/share/doc/"
+#~ "mplayer-doc/). Detta DebConf-gränssnitt kommer hjälpa dig att konfigurera "
+#~ "endast ett par grundläggande funktioner; det kan vara så att du vill "
+#~ "lägga till fler finjusterade inställningar till /etc/mplayer/mplayer.conf "
+#~ "(för att slå på multikanals-ljud, video efterbehandling, etc.); och "
+#~ "godtyckliga användare kan konfigurera MPlayer genom filen ~/.mplayer/"
+#~ "config"
+
+#~ msgid "Enable access to RTC?"
+#~ msgstr "Aktivera tillgång till realtidsklockan (RTC)?"
+
+#~ msgid ""
+#~ "On older kernels MPlayer can use the RTC (Real Time Clock) to provide "
+#~ "better timing in reproduction, with less CPU cost; to this end, though, "
+#~ "the device /dev/rtc must be accessible to group audio, and the default "
+#~ "max-user-freq must be raised to 1024.  Any needed change must be done by "
+#~ "root. If you wish, MPlayer will automatically do this at boot, so that "
+#~ "any user can enjoy this feature. Note that there may be security issues "
+#~ "with this (although none are known now)."
+#~ msgstr ""
+#~ "På äldre kärnor kan MPlayer använda RTC (realtidsklockan) för att förse "
+#~ "bättre tidspressicion i reproduktion, med lägre CPU-kostnad; för detta "
+#~ "ändamål måste dock enheten /dev/rtc vara tillgänglig för gruppen audio, "
+#~ "om standard-värdet för max-user-freq måste höjjas till 1024. Någon begärd "
+#~ "ändring måste göras av root. Om du önskar kan MPlayer automatiskt göra "
+#~ "detta vid systemets uppstart, så att alla användare kan åtnjuta denna "
+#~ "funktion. Notera att det kan finnas säkerhets-betänkligheter med detta "
+#~ "(även om ingen är känd för tillfället)."
+
+#~ msgid "Files not replaced"
+#~ msgstr "Filer ersattes ej"
+
+#~ msgid ""
+#~ "It seems that you don't want to replace your existing configuration file /"
+#~ "etc/mplayer/mplayer.conf.  If you change your mind later, you can run "
+#~ "\"dpkg-reconfigure mplayer\"."
+#~ msgstr ""
+#~ "Det verkar som du inte vill ersätta din existerande konfigurationsfil /"
+#~ "etc/mplayer/mplayer.conf. Om du ändrar dig vid senare tillfälle kan du då "
+#~ "köra \"dpkg-reconfigure mplayer\"."
+
+#~ msgid ""
+#~ "MPlayer can use a very wide range of video output drivers; it will try to "
+#~ "autodetect the best one, but you may choose a preferred one. Here is a "
+#~ "guide to the choice (in decreasing order of speed): (1) if you see an "
+#~ "entry that matches your video card, choose that; (2) if your video card "
+#~ "supports 'XV', choose that (use 'xvinfo' to know). You should read /usr/"
+#~ "share/doc/mplayer-doc/HTML/en/video.html (it is in package 'mplayer-doc')."
+#~ msgstr ""
+#~ "MPlayer kan använda en väldigt bred rad av video utmatnings-system; den "
+#~ "bästa kommer försöka automatiskt hittas, men du kan vilja välja en du "
+#~ "föredrar. Här är en guide till valet (i avtagande ordning av fart): (1) "
+#~ "om du ser något val som matchar ditt grafikkort välj det; (2) om ditt "
+#~ "video-kort stödjer 'XV', välj det (använda 'xvinfo' för att kontrollera). "
+#~ "Du bör läsa /usr/share/doc/mplayer-doc/HTML/en/video.html (som finns i "
+#~ "paketet 'mplayer-doc')."
+
+#~ msgid "How to download binary codecs"
+#~ msgstr "Hur man laddar ner binära codecs"
+
+#~ msgid ""
+#~ "MPlayer supports most codecs out of the box and the rest with the help of "
+#~ "binary codecs. Binary codecs are only necessary for Real 3.0  and 4.0, "
+#~ "Windows Media 9, QuickTime audio and some very obscure codecs. Debian "
+#~ "cannot distribute these codecs, but these are available on the internet "
+#~ "for download. Run the script `/usr/share/mplayer/scripts/binary_codecs."
+#~ "sh' to install those  made available from MPlayer web site."
+#~ msgstr ""
+#~ "MPlayer stödjer de flesta codecs direkt från start och resten med hjälp "
+#~ "av binära codecs. Binära codecs är endast nödvändiga för Real 3.0 och "
+#~ "4.0, Windows Media 9, QuickTime audio och några väldigt obskyra codecs. "
+#~ "Debian kan inte distribuera dessa codecs, men de finns tillgängliga på "
+#~ "Internet för nerladdning, Kör skriptet `/usr/share/mplayer/scripts/"
+#~ "binary_codecs.sh' för att installera de som gjorts tillgängliga på "
+#~ "MPlayers webbplats."
+
+#~ msgid "What is the name of your DVD device (if any):"
+#~ msgstr "Vad är namnet på din DVD-enhet (om någon):"
+
+#~ msgid "MPlayer OSD font:"
+#~ msgstr "MPlayer OSD typsnitt:"
+
+#~ msgid "MPlayer cannot find TrueType Fonts"
+#~ msgstr "MPlayer kan inte hitta TrueType-teckensnitten"

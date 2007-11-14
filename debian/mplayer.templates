@@ -1,70 +1,80 @@
 Template: mplayer/cfgnote
 Type: note
-_Description: Create your ~/.mplayer/config file
- Performance of MPlayer depends heavily on hardware - this means that
- it may benefit from tweaking options, for every single machine it's
- installed to. You may wish to read the documentation (it is in the
- package 'mplayer-doc', under /usr/share/doc/mplayer-doc/). This DebConf
- interface will help you setup just a few main features; you may wish to
- add to /etc/mplayer/mplayer.conf some more refined options (to enable
- multichannel audio, or video postprocessing, etc etc); and any user
- similarly may customize MPlayer using the file ~/.mplayer/config
+_Description: Detailed configuration needed for each user
+ The performance of MPlayer depends heavily on hardware; this means that
+ it may benefit from tweaking options for every single machine it's
+ installed on.
+ .
+ You should read the documentation provided by the
+ 'mplayer-doc' package.
+ .
+ Now, some configuration options will be set for the entire system in
+ /etc/mplayer/mplayer.conf which may be adapted later. Any user can also
+ refine options in ~/.mplayer/config.
 
 Template: mplayer/replace-existing-files
 Type: boolean
 Default: false
 _Description: Replace existing configuration file?
- There is already a file /etc/mplayer/mplayer.conf, but it does not
- contain an automatically generated part. This script may generate a
- new file (the old file will be moved to /etc/mplayer/mplayer.conf.debconf-old).
+ An /etc/mplayer/mplayer.conf file already exists on the system and
+ does not contain an automatically-generated part. That file can be replaced
+ by a generated one (the old file will be moved to
+ /etc/mplayer/mplayer.conf.debconf-old).
 
 Template: mplayer/replace-existing-files-bail
 Type: note
-_Description: Files not replaced
- It seems that you don't want to replace your existing configuration
- file /etc/mplayer/mplayer.conf.  If you change your mind later, you
- can run "dpkg-reconfigure mplayer".
+_Description: Old configuration file kept
+ You chose not to replace the existing /etc/mplayer/mplayer.conf
+ file.
+ .
+ That file can be generated automatically later by running
+ 'dpkg-reconfigure mplayer'.
 
 Template: mplayer/voutput
 Type: select
 Default: autodetect
 Choices: ${vochoices}
 _Description: MPlayer video output:
- MPlayer can use a very wide range of video output drivers;
- it will try to autodetect the best one, but you may choose a preferred one.
- Here is a guide to the choice (in decreasing order of speed):
- (1) if you see an entry that matches your video card, choose that;
- (2) if your video card supports 'XV', choose that (use 'xvinfo' to know).
- You should read /usr/share/doc/mplayer-doc/HTML/en/video.html (it is in
- package 'mplayer-doc').
+ MPlayer can use a very wide range of video output drivers.
+ The needed driver may be detected automatically or chosen manually.
+ .
+ If you prefer choosing the driver yourself, you first should choose
+ an entry matching this system's video card. If none match and the
+ card supports 'XV', choose that option (the 'xvinfo' command may help).
+ .
+ Please read the /usr/share/doc/mplayer-doc/HTML/en/video.html file from
+ the 'mplayer-doc' package for more details.
 
 Template: mplayer/install_codecs
 Type: note
-_Description: How to download binary codecs
- MPlayer supports most codecs out of the box and the rest with the
- help of binary codecs. Binary codecs are only necessary for Real 3.0 
- and 4.0, Windows Media 9, QuickTime audio and some very obscure codecs.
- Debian cannot distribute these codecs, but these are available on the
- internet for download. Run the script
- `/usr/share/mplayer/scripts/binary_codecs.sh' to install those 
- made available from MPlayer web site.
+_Description: Binary codecs download
+ MPlayer supports most video formats without additional software.
+ .
+ Additional video formats, such as Real 3.0/4.0, Windows Media 9, or Quicktime,
+ can be supported by using binary codecs.
+ .
+ As such codecs are not free software, they are not distributed with
+ this package but can be downloaded freely. The
+ '/usr/share/mplayer/scripts/binary_codecs.sh' script is provided in
+ this package to help downloading them from the MPlayer web site.
 
 Template: mplayer/dvd_device
 Type: string
 Default: /dev/cdrom
 _Description: DVD device name:
- What is the name of your DVD device (if any):
+ Please enter the name of the device for your DVD player, if any.
 
 Template: mplayer/ttfont
 Type: select
 Choices: ${ttfontchoices}
 Default: ${ttfontdefault}
-_Description: MPlayer OSD font:
-  MPlayer needs True Type fonts for On Screen Display. Choose your favorite.
+_Description: Font for On Screen Display:
 
 Template: mplayer/no-ttfont
-Type: note
-_Description: MPlayer cannot find TrueType Fonts
- You should install a package providing truetype fonts (such as  
- 'ttf-freefont' or 'ttf-bitstream-vera' or  'msttcorefonts' )
- and reconfigure MPlayer (with the command "dpkg-reconfigure mplayer")
+Type: error
+_Description: No TrueType fonts found for On Screen Display
+ MPlayer needs at least one TrueType font for its 'On Screen Display' feature.
+ .
+ You should install a package providing such fonts (such as
+ 'ttf-freefont' or 'ttf-bitstream-vera' or 'msttcorefonts')
+ and reconfigure MPlayer (by running 'dpkg-reconfigure mplayer').

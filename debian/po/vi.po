@@ -1,24 +1,26 @@
-# Translation of mplayer debconf templates to French
-# Copyright (C) 2006 Yves Rütschlé <l10n@rutschle.net>
-# This file is distributed under the same license as the mplayer package.
+# Vietnamese translation for MPlayer.
+# Copyright © 2007 Free Software Foundation, Inc.
+# Clytie Siddall <clytie@riverland.net.au>, 2007
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mplayer\n"
 "Report-Msgid-Bugs-To: mennucc1@debian.org\n"
-"POT-Creation-Date: 2007-10-28 09:36+0100\n"
-"PO-Revision-Date: 2007-10-29 21:12+0100\n"
-"Last-Translator: Yves Rütschlé <l10n@rutschle.net>\n"
-"Language-Team: French <debian-l10n-french@lists.debian.org>\n"
+"POT-Creation-Date: 2007-10-18 10:01+0200\n"
+"PO-Revision-Date: 2007-10-24 22:10+0930\n"
+"Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
+"Language-Team: Vietnamese <vi-VN@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: LocFactoryEditor 1.7b1\n"
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:2001
 msgid "Detailed configuration needed for each user"
-msgstr "Configuration détaillée par utilisateur"
+msgstr "Cấu hình chi tiết cần thiết cho mỗi người dùng"
 
 #. Type: note
 #. Description
@@ -27,17 +29,15 @@ msgid ""
 "The performance of MPlayer depends heavily on hardware; this means that it "
 "may benefit from tweaking options for every single machine it's installed on."
 msgstr ""
-"Les performances de MPlayer dépendent énormément du matériel. Jouer sur les "
-"options pour chaque machine peut donc les améliorer."
+"Hiệu suất của MPlayer phụ thuộc nặng vào phần cứng: có nghĩa là nó có thể "
+"lợi dụng điều chỉnh các tùy chọn cho từng máy riêng rẽ trên đó nó đã cài đặt."
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:2001
 msgid ""
 "You should read the documentation provided by the 'mplayer-doc' package."
-msgstr ""
-"Vous devriez lire la documentation qui est fournie dans le paquet « mplayer-"
-"doc »."
+msgstr "Khuyên bạn đọc tài liệu hướng dẫn có sẵn trong gói « mplayer-doc »."
 
 #. Type: note
 #. Description
@@ -47,16 +47,15 @@ msgid ""
 "mplayer/mplayer.conf which may be adapted later. Any user can also refine "
 "options in ~/.mplayer/config."
 msgstr ""
-"Certaines options globales au système vont être réglées dans le fichier /etc/"
-"mplayer/mplayer.conf, et pourront être adaptées par la suite. Chaque "
-"utilisateur peut également établir des réglages personnels dans ~/.mplayer/"
-"config."
+"Lúc này một số tùy chọn cấu hình sẽ được đặt cho toàn hệ thống trong tập tin "
+"« /etc/mplayer/mplayer.conf » mà cũng có thể sửa đổi sau. Bất cứ người dùng "
+"nào cũng có thể điều chỉnh các tùy chọn riêng trong « ~/.mplayer/config »."
 
 #. Type: boolean
 #. Description
 #: ../mplayer.templates:3001
 msgid "Replace existing configuration file?"
-msgstr "Faut-il remplacer le fichier de configuration existant ?"
+msgstr "Thay thế tập tin cấu hình đã tồn tại không?"
 
 #. Type: boolean
 #. Description
@@ -67,23 +66,22 @@ msgid ""
 "generated one (the old file will be moved to /etc/mplayer/mplayer.conf."
 "debconf-old)."
 msgstr ""
-"Un fichier /etc/mplayer/mplayer.conf existe déjà, mais il ne contient pas de "
-"section créée automatiquement. Il est possible de créer automatiquement un "
-"nouveau fichier. L'ancien fichier sera alors renommé /etc/mplayer/mplayer."
-"conf.debconf-old."
+"Một tập tin « /etc/mplayer/mplayer.conf » đã có trên hệ thống, và không chứa "
+"phần được tạo ra tự động. Có thể thay thế tập tin đó bằng tập tin đã tạo ra "
+"(tập tin cũ sẽ bị di chuyển sang « /etc/mplayer/mplayer.conf.debconf-old »)."
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:4001
 msgid "Old configuration file kept"
-msgstr "Conservation du fichier de configuration existant"
+msgstr "Vẫn giữ tập tin cấu hình cũ"
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:4001
 msgid "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
 msgstr ""
-"Vous avez choisi de remplacer le fichier /etc/mplayer/mplayer.conf existant."
+"Bạn đã chọn không thay thế tập tin « /etc/mplayer/mplayer.conf » đã có."
 
 #. Type: note
 #. Description
@@ -92,14 +90,14 @@ msgid ""
 "That file can be generated automatically later by running 'dpkg-reconfigure "
 "mplayer'."
 msgstr ""
-"Ce fichier peut être créé automatiquement avec la commande « dpkg-"
-"reconfigure mplayer »."
+"Vẫn còn có thể tạo ra tự động tập tin đó về sau bằng cách chạy lệnh cấu hình "
+"lại gói « dpkg-reconfigure mplayer »."
 
 #. Type: select
 #. Description
 #: ../mplayer.templates:5001
 msgid "MPlayer video output:"
-msgstr "Sortie vidéo de MPlayer :"
+msgstr "Ảnh động MPlayer xuất ra:"
 
 #. Type: select
 #. Description
@@ -108,8 +106,9 @@ msgid ""
 "MPlayer can use a very wide range of video output drivers. The needed driver "
 "may be detected automatically or chosen manually."
 msgstr ""
-"MPlayer peut utiliser de nombreux pilotes de sortie vidéo. Les pilotes "
-"requis peuvent être détectés automatiquement ou choisis manuellement."
+"MPlayer có khả năng sử dụng rất nhiều trình điều khiển kết xuất ảnh động "
+"khác nhau. Nó có thể phát hiện tự động trình điều khiển cần thiết, hoặc bạn "
+"có thể tự chọn."
 
 #. Type: select
 #. Description
@@ -119,10 +118,9 @@ msgid ""
 "matching this system's video card. If none match and the card supports 'XV', "
 "choose that option (the 'xvinfo' command may help)."
 msgstr ""
-"Si vous préférez choisir le pilote, vous devez le choisir parmi les pilotes "
-"correspondant à la carte vidéo du système. Si aucun ne correspond et que la "
-"carte gère « XV », choisissez cette option. La commande « xvinfo » peut être "
-"utile pour identifier cette fonctionnalité."
+"Muốn tự chọn thì bạn đầu tiên nên chọn mục nhập tương ứng với bo mạch ảnh "
+"động của hệ thống. Không có, và bo mạch hỗ trợ « XV » thì bật tùy chọn đó "
+"(câu lệnh thông tin « xvinfo » có thể giúp)."
 
 #. Type: select
 #. Description
@@ -131,20 +129,21 @@ msgid ""
 "Please read the /usr/share/doc/mplayer-doc/HTML/en/video.html file from the "
 "'mplayer-doc' package for more details."
 msgstr ""
-"Veuillez lire le fichier /usr/share/doc/mplayer-doc/HTML/en/video.html du "
-"paquet « mplayer-doc » pour plus de détails."
+"Vui lòng đọc tập tin « /usr/share/doc/mplayer-doc/HTML/en/video.html » có "
+"sẵn trong gói tài liệu « mplayer-doc » để tìm thêm chi tiết."
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:6001
 msgid "Binary codecs download"
-msgstr "Téléchargement de codecs binaires"
+msgstr "Tải xuống codec nhị phân"
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:6001
 msgid "MPlayer supports most video formats without additional software."
-msgstr "MPlayer gère la plupart des formats vidéos sans logiciel additionnel."
+msgstr ""
+"MPlayer hỗ trợ phần lớn định dạng ảnh động, không cần phần mềm bổ sung."
 
 #. Type: note
 #. Description
@@ -153,8 +152,8 @@ msgid ""
 "Additional video formats, such as Real 3.0/4.0, Windows Media 9, or "
 "Quicktime, can be supported by using binary codecs."
 msgstr ""
-"Certains formats vidéos, tels que Real 3.0 et 4.0, Windows Media 9 ou encore "
-"Quicktime, peuvent être gérés en utilisant des « codecs » binaires."
+"Các định dạng ảnh động thêm, như Real 3.0/4.0, Windows Media 9, hoặc "
+"Quicktime, cũng hỗ trợ được bằng cách sử dụng codec nhị phân."
 
 #. Type: note
 #. Description
@@ -165,36 +164,34 @@ msgid ""
 "binary_codecs.sh' script is provided in this package to help downloading "
 "them from the MPlayer web site."
 msgstr ""
-"Comme ces « codecs » ne sont pas libres, ils ne sont pas distribués dans ce "
-"paquet, mais ils peuvent être téléchargés gratuitement. Le script « /usr/"
-"share/mplayer/scripts/binary_codecs.sh » est fourni pour aider au "
-"téléchargement sur le site de MPlayer."
+"Vì các codec như vậy không phải là phần mềm tự do, chúng không được phân "
+"phối cùng với gói này, nhưng vẫn có thể tải xuống miễn phí. Văn lệnh « usr/"
+"share/mplayer/scripts/binary_codecs.sh » được cung cấp trong gói này để giúp "
+"tải chúng xuống địa chỉ Web của MPlayer."
 
 #. Type: string
 #. Description
 #: ../mplayer.templates:7001
 msgid "DVD device name:"
-msgstr "Nom du fichier de périphérique DVD :"
+msgstr "Tên thiết bị DVD:"
 
 #. Type: string
 #. Description
 #: ../mplayer.templates:7001
 msgid "Please enter the name of the device for your DVD player, if any."
-msgstr ""
-"Veuillez indiquer le nom de périphérique de votre lecteur DVD, s'il en "
-"existe un."
+msgstr "Hãy gõ tên của thiết bị ổ đĩa DVD, nếu có."
 
 #. Type: select
 #. Description
 #: ../mplayer.templates:8001
 msgid "Font for On Screen Display:"
-msgstr "Police pour l'affichage OSD :"
+msgstr "Phông để hiển thị trên màn hình:"
 
 #. Type: error
 #. Description
 #: ../mplayer.templates:9001
 msgid "No TrueType fonts found for On Screen Display"
-msgstr "Pas de police TrueType pour l'affichage à l'écran"
+msgstr "Không tìm thấy phông TrueType để hiển thị trên màn hình"
 
 #. Type: error
 #. Description
@@ -202,8 +199,8 @@ msgstr "Pas de police TrueType pour l'affichage à l'écran"
 msgid ""
 "MPlayer needs at least one TrueType font for its 'On Screen Display' feature."
 msgstr ""
-"Au moins une police TrueType doit être installée pour que la fonction "
-"d'affichage à l'écran (OSD : « On Screen Display ») fonctionne."
+"MPlayer yêu cầu ít nhất một phông TrueType (.ttf) cho tính năng « Hiển thị "
+"trên màn hình » của nó."
 
 #. Type: error
 #. Description
@@ -213,6 +210,7 @@ msgid ""
 "'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by running "
 "'dpkg-reconfigure mplayer')."
 msgstr ""
-"Vous devriez installer un paquet contenant des polices TrueType, tel que "
-"« ttf-freefont », « ttf-bitstream-vera » ou « msttcorefonts », avant de "
-"reconfigurer MPlayer avec la commande « dpkg-reconfigure mplayer »."
+"Bạn nên cài đặt một gói phông .ttf (v.d. URWVN [http://freshmeat.net/"
+"projects/urwvn/] hay DejaVu [http://dejavu.sourceforge.net/wiki/index.php/"
+"Main_Page], cả hai hiển thị đúng tiếng Việt UTF-8), rồi cấu hình lại MPlayer "
+"bằng cách chạy lệnh « dpkg-reconfigure mplayer »."

@@ -9,121 +9,169 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ro\n"
-"Report-Msgid-Bugs-To: eyck@ghost.anime.pl\n"
-"POT-Creation-Date: 2006-11-19 21:34+0100\n"
-"PO-Revision-Date: 2007-03-06 00:22+0200\n"
+"Report-Msgid-Bugs-To: mennucc1@debian.org\n"
+"POT-Creation-Date: 2007-10-18 10:01+0200\n"
+"PO-Revision-Date: 2007-10-24 23:13+0300\n"
 "Last-Translator: Eddy Petrișor <eddy.petrisor@gmail.com>\n"
 "Language-Team: Romanian <debian-l10n-romanian@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms:  nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2;\n"
+"Plural-Forms:  nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
+"20)) ? 1 : 2;\n"
 "X-Generator: KBabel 1.11.4\n"
 
 #. Type: note
 #. Description
-#: ../mplayer.templates:1001
-msgid "Create your ~/.mplayer/mplayer.conf file"
-msgstr "Creaţi propriul fişier ~/.mplayer/mplayer.conf"
+#: ../mplayer.templates:2001
+msgid "Detailed configuration needed for each user"
+msgstr "Este necesară o configurare detaliată pentru fiecare utilizator"
 
 #. Type: note
 #. Description
-#: ../mplayer.templates:1001
-msgid ""
-"Performance of MPlayer depends heavily on hardware - this means that it may "
-"benefit from tweaking options, for every single machine it's installed to. "
-"You may wish to read the documentation (it is in the package 'mplayer-doc', "
-"under /usr/share/doc/mplayer-doc/). This DebConf interface will help you "
-"setup just a few main features; you may wish to add to /etc/mplayer/mplayer."
-"conf some more refined options (to enable multichannel audio, or video "
-"postprocessing, etc etc); and any user similarly may customize MPlayer using "
-"the file ~/.mplayer/config"
-msgstr "Performanţa lui MPlayer depinde foarte mult de componentele calculatorului - acest lucru înseamnă că poate beneficia din reglarea fină a opţiunilor, dependent de maşina pe care este instalat. Dacă doriţi să citiţi documentaţia (este în pachetul „mplayer-doc” în directorul /usr/share/doc/mplayer-doc/). Acestă interfaţă DebConf vă va ajuta să ajustaţi doar câteva facilităţi; probail veţi dori să adăugaţi la /etc/mplayer/mplayer.conf câteva rafinamente ale opţiunilor (activarea ieşirea multi-canal a sunetului sau post-procesarea video, etc.); oricare utilizator poate particulariza în mod similar MPlayer-ul folosind fişierul ~/.mplayer/config"
-
-#. Type: boolean
-#. Description
 #: ../mplayer.templates:2001
-msgid "Enable access to RTC?"
-msgstr "Se activează accesul la RTC?"
+msgid ""
+"The performance of MPlayer depends heavily on hardware; this means that it "
+"may benefit from tweaking options for every single machine it's installed on."
+msgstr ""
+"Performanța lui MPlayer depinde foarte mult de componentele calculatorului; "
+"acest lucru înseamnă că ar putea beneficia de pe urma ajustărilor opțiunilor "
+"pentru fiecare sistem pe care este instalat."
 
-#. Type: boolean
+#. Type: note
 #. Description
 #: ../mplayer.templates:2001
 msgid ""
-"On older kernels MPlayer can use the RTC (Real Time Clock) to provide better "
-"timing in reproduction, with less CPU cost; to this end, though, the device /"
-"dev/rtc must be accessible to group audio, and the default max-user-freq "
-"must be raised to 1024.  Any needed change must be done by root. If you "
-"wish, MPlayer will automatically do this at boot, so that any user can enjoy "
-"this feature. Note that there may be security issues with this (although "
-"none are known now)."
-msgstr "Pe nuclee mai vechi, MPlayer pote folosi Ceasul de timp real (abrev. eng. RTC) pentru o mai bună sincronizare la redare, cu costuri reduse la nivel de procesor; pentru aceasta, însă, dispozitivul /dev/rtc trebuie să fie accesibil pentru grupul audio, iar valoarea implicită max-user-freq trebuie să fie ridicată la 1024. Schimbările necesare trebuiesc făcute de utilizatorul root. Dacă doriţi, MPlayer va face acest lucru automat la pornire pentru ca orice utilizator să se poată bucura de această facilitate. A se reţine că ar putea exista probleme de securitate legate de aceasta (deşi acum nu se cunoaşte nici una)."
+"You should read the documentation provided by the 'mplayer-doc' package."
+msgstr "Ar trebui să citiți documentația furnizată în pachetul „mplayer-doc”."
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:2001
+msgid ""
+"Now, some configuration options will be set for the entire system in /etc/"
+"mplayer/mplayer.conf which may be adapted later. Any user can also refine "
+"options in ~/.mplayer/config."
+msgstr ""
+"Pentru moment câteva opțiuni de configurare vor fi definite pentru tot "
+"sistemul în /etc/mplayer/mplayer.conf, acestea putând fi adaptate mai "
+"târziu. Orice utilizator poate rafina opțiunile în ~/.mplayer/config."
 
 #. Type: boolean
 #. Description
 #: ../mplayer.templates:3001
 msgid "Replace existing configuration file?"
-msgstr "Se înlocuiesc fişierele de configurare existente?"
+msgstr "Se înlocuiesc fișierele de configurare existente?"
 
 #. Type: boolean
 #. Description
 #: ../mplayer.templates:3001
 msgid ""
-"There is already a file /etc/mplayer/mplayer.conf, but it does not contain "
-"an automatically generated part. This script may generate a new file (the "
-"old file will be moved to /etc/mplayer/mplayer.conf.debconf-old)."
-msgstr "Există deja un fişier /etc/mplayer/mplayer.conf, însă acesta nu conţine o parte generată automat. Acest script poate genera un nou fişier (cel vechi va fi redenumit ca /etc/mplayer/mplayer.conf.debconf-old)."
+"An /etc/mplayer/mplayer.conf file already exists on the system and does not "
+"contain an automatically-generated part. That file can be replaced by a "
+"generated one (the old file will be moved to /etc/mplayer/mplayer.conf."
+"debconf-old)."
+msgstr ""
+"Există deja un fișier /etc/mplayer/mplayer.conf care nu conține o parte "
+"generată automat. Acel fișier poate fi înlocuit de un fișier generat (cel "
+"vechi va fi redenumit ca /etc/mplayer/mplayer.conf.debconf-old)."
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:4001
-msgid "Files not replaced"
-msgstr "Fişiere neînlocuite"
+msgid "Old configuration file kept"
+msgstr "Fișierul de configurare vechi este păstrat"
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:4001
+msgid "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
+msgstr "Ați ales să nu înlocuiți fișierul existent /etc/mplayer/mplayer.conf."
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:4001
 msgid ""
-"It seems that you don't want to replace your existing configuration file /"
-"etc/mplayer/mplayer.conf.  If you change your mind later, you can run \"dpkg-"
-"reconfigure mplayer\"."
-msgstr "Se pare că nu doriţi să înlocuiţi fişierul /etc/mplayer/mplayer.conf deja existent. Dacă vă răzgândiţi ulterior, puteţi rula „dpkg-reconfigure mplayer”."
+"That file can be generated automatically later by running 'dpkg-reconfigure "
+"mplayer'."
+msgstr ""
+"Acel fișier poate fi generat automat la un moment ulterior prin rularea "
+"comenzii „dpkg-reconfigure mplayer”."
 
 #. Type: select
 #. Description
 #: ../mplayer.templates:5001
 msgid "MPlayer video output:"
-msgstr "Ieşire video a lui MPlayer:"
+msgstr "Ieșire video a lui MPlayer:"
 
 #. Type: select
 #. Description
 #: ../mplayer.templates:5001
 msgid ""
-"MPlayer can use a very wide range of video output drivers; it will try to "
-"autodetect the best one, but you may choose a preferred one. Here is the a "
-"guide to the choice (in decreasing order of speed): (1) if you see an entry "
-"that matches your video card, choose that; (2) if your video card supports "
-"'XV', choose that (use 'xvinfo' to know). You should read /usr/share/doc/"
-"mplayer-doc/HTML/en/devices.html (it is in package 'mplayer-doc')."
-msgstr "MPlayer poste folosi o gamă largă de module de ieşire video; va încerca să-l detecteze automat pe cel mai bun, dar puteţi să alegeţi unul pe care-l preferaţi. Iată un mic ghid care vă poate ajuta să alegeţi (în ordinea descrescătoare a vitezei): (1) dacă vedeti vreo intrare care poartă numele plăcii video, alegeţi-o pe aceea; (2) dacă placa video suportă 'XV', alegeţi acea opţiune (folosiţi „xvinfo” pentru a afla). Ar trebui să citiţi /usr/share/doc/mplayer-doc/HTML/en/devices.html (din pachetul „mplayer-doc”)."
+"MPlayer can use a very wide range of video output drivers. The needed driver "
+"may be detected automatically or chosen manually."
+msgstr ""
+"MPlayer este capabil să folosească o gamă variată de driver-e video. Driver-"
+"ul necesar poate fi detectat automat sau poate fi ales manual."
+
+#. Type: select
+#. Description
+#: ../mplayer.templates:5001
+msgid ""
+"If you prefer choosing the driver yourself, you first should choose an entry "
+"matching this system's video card. If none match and the card supports 'XV', "
+"choose that option (the 'xvinfo' command may help)."
+msgstr ""
+"Dacă preferați să alegeți personal driver-ul, va trebui ca mai întâi să "
+"alegeți o intrare care se potrivește cu placa video a acestui sistem. Dacă "
+"nu se potrivește nici una și placa video suportă „XV”, alegeți acea opțiune "
+"(comanda „xvinfo” ar putea fi de ajutor)."
+
+#. Type: select
+#. Description
+#: ../mplayer.templates:5001
+msgid ""
+"Please read the /usr/share/doc/mplayer-doc/HTML/en/video.html file from the "
+"'mplayer-doc' package for more details."
+msgstr ""
+"Pentru mai multe detalii, citiți fișierul /usr/share/doc/mplayer-doc/HTML/en/"
+"video.html din pachetul „mplayer-doc”."
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:6001
-msgid "How to download binary codecs"
-msgstr "Cum se descarcă codec-urile binare"
+msgid "Binary codecs download"
+msgstr "Descărcare de codec-uri binare"
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:6001
+msgid "MPlayer supports most video formats without additional software."
+msgstr "MPlayer suportă majoritatea formatelor video fără software adițional."
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:6001
 msgid ""
-"MPlayer supports most codecs out of the box and the rest with the help of "
-"binary codecs. Binary codecs are only necessary for Real 3.0  and 4.0, "
-"Windows Media 9, QuickTime audio and some very obscure codecs. Debian cannot "
-"distribute these codecs, but these are available on the internet for "
-"download. Run the script `/usr/share/mplayer/scripts/binary_codecs.sh' to "
-"install those  made available from MPlayer web site."
-msgstr "MPlayer suportă cele mai multe codec-uri în mod implicit iar pe restul prin intermediul codec-urilor binare. Codec-urile binare sunt necesare doar pentru Real 3.0 şi 4,0, Windows Media 9, QuickTime audio şi unele codec-uri foarte obscure. Debian nu poate distribui aceste codec-uri, însă acestea sunt disponibile pe internet şi pot fi descărcate. Rulaţi script-ul „/usr/share/mplayer/scripts/binary_codecs.sh” pentru a le instala pe acelea care sunt disponibile pe situl MPlayer."
+"Additional video formats, such as Real 3.0/4.0, Windows Media 9, or "
+"Quicktime, can be supported by using binary codecs."
+msgstr ""
+"Formate video adițioanle precum Real 3.0/4.0, Windows Media 9, sau Quicktime "
+"pot fi suportate prin intermediul codec-urilor binare."
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:6001
+msgid ""
+"As such codecs are not free software, they are not distributed with this "
+"package but can be downloaded freely. The '/usr/share/mplayer/scripts/"
+"binary_codecs.sh' script is provided in this package to help downloading "
+"them from the MPlayer web site."
+msgstr ""
+"Deoarece asemenea codec-uri nu sunt software liber, nu sunt distribuite cu "
+"acest pachet însă pot fi descărcate. Script-ul „/usr/share/mplayer/scripts/"
+"binary_codecs.sh” este furnizat pentru a fi de ajutor la descărcarea lor de "
+"pe pagina de internet a lui MPlayer."
 
 #. Type: string
 #. Description
@@ -134,36 +182,144 @@ msgstr "Numele dispozitivului DVD"
 #. Type: string
 #. Description
 #: ../mplayer.templates:7001
-msgid "What is the name of your DVD device (if any):"
-msgstr "Care este numele dispozitivului DVD (dacă e cazul):"
+msgid "Please enter the name of the device for your DVD player, if any."
+msgstr ""
+"Introduceți numele dispozitivului pentru player-ul DVD al dumneavoastră, "
+"dacă aveți unul."
 
 #. Type: select
 #. Description
 #: ../mplayer.templates:8001
-# nu cred că treducerea lui OSD e mare problemă
-msgid "MPlayer OSD font:"
-msgstr "Fontul folosit de MPlayer pentru afişarea pe ecran:"
+msgid "Font for On Screen Display:"
+msgstr "Fontul pentru afișarea pe ecran:"
 
-#. Type: select
-#. Description
-#: ../mplayer.templates:8001
 # nu cred că treducerea lui OSD e mare problemă
-msgid " MPlayer needs True Type fonts for On Screen Display. Choose your favorite."
-msgstr " MPlayer are nevoie de fonturi „True Type” pentru afişarea pe ecran. Alegeţi-l pe cel pe care-l preferaţi."
-
-#. Type: note
+#. Type: error
 #. Description
 #: ../mplayer.templates:9001
-msgid "MPlayer cannot find TrueType Fonts"
-msgstr "Mplayer nu poate găsi fonturi „TrueType”"
+msgid "No TrueType fonts found for On Screen Display"
+msgstr "N-a fost găsit nici un font „True Type” pentru afișarea pe ecran"
 
-#. Type: note
+# nu cred că treducerea lui OSD e mare problemă
+#. Type: error
 #. Description
 #: ../mplayer.templates:9001
-# am preferat ttf-dejavu pentru că e potrivit pentru limba română
 msgid ""
-"You should install a package providing truetype fonts (such as   'ttf-"
-"freefont' or 'ttf-bitstream-vera' or  'msttcorefonts' ) and reconfigure "
-"MPlayer (with the command \"dpkg-reconfigure mplayer\")"
-msgstr "Ar trebui să instalaţi un pachet care furnizează fonturi truetype (cum ar fi „ttf-dejavu”, „ttf-freefont” sau „msttcorefonts”) şi să reconfiguraţi MPlayer-ul (cu comanda „dpkg-reconfigure mplayer”)"
+"MPlayer needs at least one TrueType font for its 'On Screen Display' feature."
+msgstr ""
+"MPlayer are nevoie decel puțin un font „True Type” pentru afișarea pe ecran."
 
+# am preferat ttf-dejavu pentru că e potrivit pentru limba română
+#. Type: error
+#. Description
+#: ../mplayer.templates:9001
+msgid ""
+"You should install a package providing such fonts (such as 'ttf-freefont' or "
+"'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by running "
+"'dpkg-reconfigure mplayer')."
+msgstr ""
+"Ar trebui să instalați un pachet care furnizează fonturi truetype (cum ar fi "
+"„ttf-dejavu”, „ttf-freefont” sau „msttcorefonts”) și să reconfigurați "
+"MPlayer-ul (cu comanda „dpkg-reconfigure mplayer”)."
+
+#~ msgid ""
+#~ "Performance of MPlayer depends heavily on hardware - this means that it "
+#~ "may benefit from tweaking options, for every single machine it's "
+#~ "installed to. You may wish to read the documentation (it is in the "
+#~ "package 'mplayer-doc', under /usr/share/doc/mplayer-doc/). This DebConf "
+#~ "interface will help you setup just a few main features; you may wish to "
+#~ "add to /etc/mplayer/mplayer.conf some more refined options (to enable "
+#~ "multichannel audio, or video postprocessing, etc etc); and any user "
+#~ "similarly may customize MPlayer using the file ~/.mplayer/config"
+#~ msgstr ""
+#~ "Performanța lui MPlayer depinde foarte mult de componentele "
+#~ "calculatorului - acest lucru înseamnă că poate beneficia din reglarea "
+#~ "fină a opțiunilor, dependent de mașina pe care este instalat. Dacă doriți "
+#~ "să citiți documentația (este în pachetul „mplayer-doc” în directorul /usr/"
+#~ "share/doc/mplayer-doc/). Acestă interfață DebConf vă va ajuta să ajustați "
+#~ "doar câteva facilități; probail veți dori să adăugați la /etc/mplayer/"
+#~ "mplayer.conf câteva rafinamente ale opțiunilor (activarea ieșirea multi-"
+#~ "canal a sunetului sau post-procesarea video, etc.); oricare utilizator "
+#~ "poate particulariza în mod similar MPlayer-ul folosind fișierul ~/."
+#~ "mplayer/config"
+
+#~ msgid "Enable access to RTC?"
+#~ msgstr "Se activează accesul la RTC?"
+
+#~ msgid ""
+#~ "On older kernels MPlayer can use the RTC (Real Time Clock) to provide "
+#~ "better timing in reproduction, with less CPU cost; to this end, though, "
+#~ "the device /dev/rtc must be accessible to group audio, and the default "
+#~ "max-user-freq must be raised to 1024.  Any needed change must be done by "
+#~ "root. If you wish, MPlayer will automatically do this at boot, so that "
+#~ "any user can enjoy this feature. Note that there may be security issues "
+#~ "with this (although none are known now)."
+#~ msgstr ""
+#~ "Pe nuclee mai vechi, MPlayer pote folosi Ceasul de timp real (abrev. eng. "
+#~ "RTC) pentru o mai bună sincronizare la redare, cu costuri reduse la nivel "
+#~ "de procesor; pentru aceasta, însă, dispozitivul /dev/rtc trebuie să fie "
+#~ "accesibil pentru grupul audio, iar valoarea implicită max-user-freq "
+#~ "trebuie să fie ridicată la 1024. Schimbările necesare trebuiesc făcute de "
+#~ "utilizatorul root. Dacă doriți, MPlayer va face acest lucru automat la "
+#~ "pornire pentru ca orice utilizator să se poată bucura de această "
+#~ "facilitate. A se reține că ar putea exista probleme de securitate legate "
+#~ "de aceasta (deși acum nu se cunoaște nici una)."
+
+#~ msgid "Files not replaced"
+#~ msgstr "Fișiere neînlocuite"
+
+#~ msgid ""
+#~ "It seems that you don't want to replace your existing configuration file /"
+#~ "etc/mplayer/mplayer.conf.  If you change your mind later, you can run "
+#~ "\"dpkg-reconfigure mplayer\"."
+#~ msgstr ""
+#~ "Se pare că nu doriți să înlocuiți fișierul /etc/mplayer/mplayer.conf deja "
+#~ "existent. Dacă vă răzgândiți ulterior, puteți rula „dpkg-reconfigure "
+#~ "mplayer”."
+
+#~ msgid ""
+#~ "MPlayer can use a very wide range of video output drivers; it will try to "
+#~ "autodetect the best one, but you may choose a preferred one. Here is the "
+#~ "a guide to the choice (in decreasing order of speed): (1) if you see an "
+#~ "entry that matches your video card, choose that; (2) if your video card "
+#~ "supports 'XV', choose that (use 'xvinfo' to know). You should read /usr/"
+#~ "share/doc/mplayer-doc/HTML/en/devices.html (it is in package 'mplayer-"
+#~ "doc')."
+#~ msgstr ""
+#~ "MPlayer poste folosi o gamă largă de module de ieșire video; va încerca "
+#~ "să-l detecteze automat pe cel mai bun, dar puteți să alegeți unul pe care-"
+#~ "l preferați. Iată un mic ghid care vă poate ajuta să alegeți (în ordinea "
+#~ "descrescătoare a vitezei): (1) dacă vedeti vreo intrare care poartă "
+#~ "numele plăcii video, alegeți-o pe aceea; (2) dacă placa video suportă "
+#~ "'XV', alegeți acea opțiune (folosiți „xvinfo” pentru a afla). Ar trebui "
+#~ "să citiți /usr/share/doc/mplayer-doc/HTML/en/devices.html (din pachetul "
+#~ "„mplayer-doc”)."
+
+#~ msgid "How to download binary codecs"
+#~ msgstr "Cum se descarcă codec-urile binare"
+
+#~ msgid ""
+#~ "MPlayer supports most codecs out of the box and the rest with the help of "
+#~ "binary codecs. Binary codecs are only necessary for Real 3.0  and 4.0, "
+#~ "Windows Media 9, QuickTime audio and some very obscure codecs. Debian "
+#~ "cannot distribute these codecs, but these are available on the internet "
+#~ "for download. Run the script `/usr/share/mplayer/scripts/binary_codecs."
+#~ "sh' to install those  made available from MPlayer web site."
+#~ msgstr ""
+#~ "MPlayer suportă cele mai multe codec-uri în mod implicit iar pe restul "
+#~ "prin intermediul codec-urilor binare. Codec-urile binare sunt necesare "
+#~ "doar pentru Real 3.0 și 4,0, Windows Media 9, QuickTime audio și unele "
+#~ "codec-uri foarte obscure. Debian nu poate distribui aceste codec-uri, "
+#~ "însă acestea sunt disponibile pe internet și pot fi descărcate. Rulați "
+#~ "script-ul „/usr/share/mplayer/scripts/binary_codecs.sh” pentru a le "
+#~ "instala pe acelea care sunt disponibile pe situl MPlayer."
+
+#~ msgid "What is the name of your DVD device (if any):"
+#~ msgstr "Care este numele dispozitivului DVD (dacă e cazul):"
+
+# nu cred că treducerea lui OSD e mare problemă
+#~ msgid "MPlayer OSD font:"
+#~ msgstr "Fontul folosit de MPlayer pentru afișarea pe ecran:"
+
+#~ msgid "MPlayer cannot find TrueType Fonts"
+#~ msgstr "Mplayer nu poate găsi fonturi „TrueType”"

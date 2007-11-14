@@ -8,7 +8,7 @@ Build-Depends-Indep:
 Build-Depends: debhelper (>= 4), dpatch, make (>= 3.80), pkg-config, po-debconf,
  libsdl1.2-dev | libsdl1.1-dev, svgalibg1-dev [i386], libdts-dev, ladspa-sdk,
  libpng-dev, libncurses5-dev, zlib1g-dev, libspeex-dev, libsmbclient-dev,
- libtheora-dev (>= 0.0.0.alpha3-1), libesd0-dev, liblzo-dev, libgl1-mesa-dev,
+ libtheora-dev (>= 1.0~beta1-1), libesd0-dev, liblzo-dev, libgl1-mesa-dev,
  libasound2-dev (>= 1.0.6-3) [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386],
  libvorbis-dev, liblircclient-dev, libfreetype6-dev, libdvdread3-dev, 
  libcdparanoia0-dev, libfontconfig1-dev, libjpeg62-dev, libungif4-dev,
@@ -19,30 +19,27 @@ Package: mplayer
 Architecture: any
 Suggests: mplayer-doc, ttf-freefont, netselect | fping, bzip2, fontconfig
 Depends: ${shlibs:Depends}, debconf-2.0 | debconf, mplayer-skin
-Description: The Movie Player
- MPlayer is a movie player for GNU/Linux. 
- .
+Description: movie player for Unix-like systems
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
- supported by many native, XAnim, RealPlayer, and Win32 DLL codecs. You can
- watch VideoCD, SVCD, DVD, 3ivx, RealMedia, and DivX movies too.
+ supported by many native, XAnim, RealPlayer, and Win32 DLL codecs. It can
+ also play VideoCD, SVCD, DVD, 3ivx, RealMedia, and DivX movies.
  .
  Another big feature of MPlayer is the wide range of supported output
- drivers.  It works with X11, Xv, DGA, OpenGL, SVGAlib, fbdev,
- DirectFB, but also SDL (and this way all its drivers) and some
- lowlevel card-specific drivers (for Matrox, 3Dfx and Radeon, Mach64,
- Permedia3) Most of them supports software or hardware scaling,
- so you can enjoy movies in fullscreen.  MPlayer supports also
- displaying through some hardware MPEG decoder boards, such as the DVB
+ drivers. It works with X11, Xv, DGA, OpenGL, SVGAlib, fbdev,
+ DirectFB, but also SDL (plus all its drivers) and some
+ low level card-specific drivers (for Matrox, 3Dfx and Radeon, Mach64
+ and Permedia3). Most of them support software or hardware scaling,
+ therefore allowing fullscreen display.  MPlayer is also able
+ to use some hardware MPEG decoder boards, such as the DVB
  and DXR3/Hollywood+.  
  .
- NOTE: the .tar.gz distributed with Debian does not contain all of the upstream
- code. Read README.Debian and copyright for details.
+ Not all of the upstream code is distributed in the source tarball.
+ See the README.Debian and copyright files for details.
 
 Package: mplayer-doc
 Architecture: all
 Recommends: mplayer
 Description: documentation for MPlayer
- MPlayer is a movie player for GNU/Linux. 
- .
- This package contains the documentation.
+ This package contains the documentation for MPlayer, a movie player for
+ Unix-like systems.

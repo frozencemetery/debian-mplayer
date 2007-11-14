@@ -1,74 +1,61 @@
+# translation of ru-new.po to Russian
 # Translation of mplayer debconf templates to Russian
 # Copyright (C) Sergey V. Mironov <sergo@bk.ru>, 2007.
 # This file is distributed under the same license as the mplayer package.
 #
+# Sergey V. Mironov <sergo@bk.ru>, 2007.
+# Yuri Kozlov <kozlov.y@gmail.com>, 2007.
 msgid ""
 msgstr ""
-"Project-Id-Version: mplayer_1.0RC1\n"
+"Project-Id-Version: mplayer_1.0rc1-17_ru\n"
 "Report-Msgid-Bugs-To: mennucc1@debian.org\n"
-"POT-Creation-Date: 2007-03-10 13:03+0100\n"
-"PO-Revision-Date: 2007-03-04 18:12+0300\n"
-"Last-Translator: Sergey V. Mironov <sergo@bk.ru>\n"
+"POT-Creation-Date: 2007-10-28 09:36+0100\n"
+"PO-Revision-Date: 2007-10-25 20:56+0400\n"
+"Last-Translator: Yuri Kozlov <kozlov.y@gmail.com>\n"
 "Language-Team: Russian <debian-l10n-russian@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
+"10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #. Type: note
 #. Description
-#: ../mplayer.templates:1001
-msgid "Create your ~/.mplayer/config file"
-msgstr "Создайте ваш ~/.mplayer/config файл"
+#: ../mplayer.templates:2001
+msgid "Detailed configuration needed for each user"
+msgstr "Более точная настройка"
 
 #. Type: note
 #. Description
-#: ../mplayer.templates:1001
+#: ../mplayer.templates:2001
 msgid ""
-"Performance of MPlayer depends heavily on hardware - this means that it may "
-"benefit from tweaking options, for every single machine it's installed to. "
-"You may wish to read the documentation (it is in the package 'mplayer-doc', "
-"under /usr/share/doc/mplayer-doc/). This DebConf interface will help you "
-"setup just a few main features; you may wish to add to /etc/mplayer/mplayer."
-"conf some more refined options (to enable multichannel audio, or video "
-"postprocessing, etc etc); and any user similarly may customize MPlayer using "
-"the file ~/.mplayer/config"
+"The performance of MPlayer depends heavily on hardware; this means that it "
+"may benefit from tweaking options for every single machine it's installed on."
 msgstr ""
 "Производительность MPlayer'а сильно зависит от оборудования. Это означает, "
-"что можно получить выгоду, настроив параметры под конкретную систему, на "
-"котором он установлен. Возможно, вы захотите ознакомиться с документацией "
-"(она находится в пакете 'mplayer-doc', в каталоге /usr/share/doc/mplayer-"
-"doc/). Интерфейс DebConf поможет вам настроить лишь некоторые основные "
-"опции; вы также можете захотеть добавить в /etc/mplayer/mplayer.conf "
-"дополнительные параметры настройки (для включения многоканального звука, "
-"постобработки видео и так далее). Каждый по отдельности пользователь может "
-"настроить MPlayer, используя файл ~/.mplayer/config"
+"что можно получить бОльшую производительность, настроив параметры под "
+"конкретную систему, на котором он установлен."
 
-#. Type: boolean
-#. Description
-#: ../mplayer.templates:2001
-msgid "Enable access to RTC?"
-msgstr "Включить доступ к RTC?"
-
-#. Type: boolean
+#. Type: note
 #. Description
 #: ../mplayer.templates:2001
 msgid ""
-"On older kernels MPlayer can use the RTC (Real Time Clock) to provide better "
-"timing in reproduction, with less CPU cost; to this end, though, the device /"
-"dev/rtc must be accessible to group audio, and the default max-user-freq "
-"must be raised to 1024.  Any needed change must be done by root. If you "
-"wish, MPlayer will automatically do this at boot, so that any user can enjoy "
-"this feature. Note that there may be security issues with this (although "
-"none are known now)."
+"You should read the documentation provided by the 'mplayer-doc' package."
 msgstr ""
-"На ранних ядрах MPlayer может использовать RTC (Real Time Clock), чтобы "
-"добавить бОльшую частоту дискредитации при воспроизведении и меньшей "
-"загрузкой процессора; для этого должен быть доступ к устройству /dev/rtc,  и "
-"значение по умолчанию параметра max-user-freq должен быть увеличено до 1024. "
-"Все изменения необходимо делать с правами суперпользователя. MPlayer может "
-"автоматически делать это при загрузке, причём действие данной опции "
-"распространится на всех пользователей. Заметим, что возможны проблемы с "
-"безопасностью (хотя ни об одной пока не известно)."
+"Вам следует ознакомиться с документацией поставляемой пакетом 'mplayer-doc'."
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:2001
+msgid ""
+"Now, some configuration options will be set for the entire system in /etc/"
+"mplayer/mplayer.conf which may be adapted later. Any user can also refine "
+"options in ~/.mplayer/config."
+msgstr ""
+"Сейчас будут установлены общесистемные настройки в файл /etc/mplayer/mplayer."
+"conf, которые позже можно изменить. Также любой пользователь может изменять "
+"эти параметры, редактируя свой файл ~/.mplayer/config."
 
 #. Type: boolean
 #. Description
@@ -80,122 +67,155 @@ msgstr "Заменить существующий файл конфигурац�
 #. Description
 #: ../mplayer.templates:3001
 msgid ""
-"There is already a file /etc/mplayer/mplayer.conf, but it does not contain "
-"an automatically generated part. This script may generate a new file (the "
-"old file will be moved to /etc/mplayer/mplayer.conf.debconf-old)."
+"An /etc/mplayer/mplayer.conf file already exists on the system and does not "
+"contain an automatically-generated part. That file can be replaced by a "
+"generated one (the old file will be moved to /etc/mplayer/mplayer.conf."
+"debconf-old)."
 msgstr ""
-"Файл /etc/mplayer/mplayer.conf уже существует, но не содержит формируемой "
-"автоматически части. Этот скрипт может создать новый файл (старый файл будет "
-"переименован в /etc/mplayer/mplayer.conf.debconf-old)."
+"Файл /etc/mplayer/mplayer.conf уже существует, но не содержит автоматически "
+"сгенерированной части. Этот файл может быть заменён сгенерированным "
+"(существующий файл будет переименован в /etc/mplayer/mplayer.conf.debconf-"
+"old)."
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:4001
-msgid "Files not replaced"
-msgstr "Файлы не заменены"
+msgid "Old configuration file kept"
+msgstr "Будет использоваться существующий файл конфигурации"
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:4001
+msgid "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
+msgstr "Вы выбрали не заменять существующий файл /etc/mplayer/mplayer.conf."
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:4001
 msgid ""
-"It seems that you don't want to replace your existing configuration file /"
-"etc/mplayer/mplayer.conf.  If you change your mind later, you can run \"dpkg-"
-"reconfigure mplayer\"."
+"That file can be generated automatically later by running 'dpkg-reconfigure "
+"mplayer'."
 msgstr ""
-"По всей видимости, вы не хотите заменить ваш существующий конфигурационный "
-"файл /etc/mplayer/mplayer.conf. Если вы захотите сделать это позже, вам надо "
-"будет выполнить команду  \"dpkg-reconfigure mplayer\"."
+"Позже этот файл может быть сгенерирован автоматически выполнением 'dpkg-"
+"reconfigure mplayer'."
 
 #. Type: select
 #. Description
 #: ../mplayer.templates:5001
 msgid "MPlayer video output:"
-msgstr "Режим вывода видео MPlayer'а:"
+msgstr "Видео вывод MPlayer:"
 
 #. Type: select
 #. Description
 #: ../mplayer.templates:5001
 msgid ""
-"MPlayer can use a very wide range of video output drivers; it will try to "
-"autodetect the best one, but you may choose a preferred one. Here is a guide "
-"to the choice (in decreasing order of speed): (1) if you see an entry that "
-"matches your video card, choose that; (2) if your video card supports 'XV', "
-"choose that (use 'xvinfo' to know). You should read /usr/share/doc/mplayer-"
-"doc/HTML/en/video.html (it is in package 'mplayer-doc')."
+"MPlayer can use a very wide range of video output drivers. The needed driver "
+"may be detected automatically or chosen manually."
 msgstr ""
-"MPlayer может использовать очень большое количество режимов вывода видео, он "
-"попытается определить автоматически наилучший, но вы можете выбрать его и "
-"вручную.Здесь есть небольшая подсказка (по порядку убывания скорости): (1) "
-"если вы видите название вашей видеокарты, выберите это; (2) если ваша "
-"видеокарта поддерживает 'XV', выберите этот пункт  (используйте 'xvinfo', "
-"чтобы убедиться). Прочтите /usr/share/doc/mplayer-doc/HTML/ru/video.html (в "
-"пакете 'mplayer-doc')."
+"MPlayer может использовать очень широкий диапазон драйверов видео вывода. "
+"Необходимый драйвер может быть определён автоматически или указан вручную."
+
+#. Type: select
+#. Description
+#: ../mplayer.templates:5001
+msgid ""
+"If you prefer choosing the driver yourself, you first should choose an entry "
+"matching this system's video card. If none match and the card supports 'XV', "
+"choose that option (the 'xvinfo' command may help)."
+msgstr ""
+"Если вы предпочитаете сами выбирать драйвер, то для начала укажите видео "
+"карту, соответствующую этой системе. Если её в списке нет и видео карта "
+"поддерживает 'XV', выберите этот пункт (команда 'xvinfo' может оказаться "
+"полезной)."
+
+#. Type: select
+#. Description
+#: ../mplayer.templates:5001
+msgid ""
+"Please read the /usr/share/doc/mplayer-doc/HTML/en/video.html file from the "
+"'mplayer-doc' package for more details."
+msgstr ""
+"Подробности ищите в файле /usr/share/doc/mplayer-doc/HTML/en/video.html из "
+"пакета 'mplayer-doc'."
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:6001
-msgid "How to download binary codecs"
-msgstr "Как загрузить бинарные кодеки"
+msgid "Binary codecs download"
+msgstr "Загрузка бинарных кодеков"
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:6001
+msgid "MPlayer supports most video formats without additional software."
+msgstr ""
+"MPlayer поддерживает большинство видео форматов без дополнительного "
+"программного обеспечения."
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:6001
 msgid ""
-"MPlayer supports most codecs out of the box and the rest with the help of "
-"binary codecs. Binary codecs are only necessary for Real 3.0  and 4.0, "
-"Windows Media 9, QuickTime audio and some very obscure codecs. Debian cannot "
-"distribute these codecs, but these are available on the internet for "
-"download. Run the script `/usr/share/mplayer/scripts/binary_codecs.sh' to "
-"install those  made available from MPlayer web site."
+"Additional video formats, such as Real 3.0/4.0, Windows Media 9, or "
+"Quicktime, can be supported by using binary codecs."
 msgstr ""
-"MPlayer поддерживает большинство кодеков \"из коробки\", а остальные с "
-"помощью бинарных кодеков. Бинарные кодеки нужны только для Real 3.0 и 4.0, "
-"Windows Media 9, QuickTime audio и некоторых других малоизвестных кодеков. В "
-"Дебиан данные кодеки не включены, но есть возможность загрузить их из "
-"интернета. Запустите скрипт `/usr/share/mplayer/scripts/binary_codecs.sh' "
-"для того, чтобы установить их с интернет-сайта MPlayer'а."
+"Поддержка дополнительных видео форматов, таких как Real 3.0/4.0, Windows "
+"Media 9 или Quicktime, может быть осуществлена посредством использования "
+"бинарных кодеков."
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:6001
+msgid ""
+"As such codecs are not free software, they are not distributed with this "
+"package but can be downloaded freely. The '/usr/share/mplayer/scripts/"
+"binary_codecs.sh' script is provided in this package to help downloading "
+"them from the MPlayer web site."
+msgstr ""
+"Так как бинарные кодеки не являются свободным программным обеспечением, они "
+"не входят в этот пакет, но могут быть свободно загружены. Для загрузки "
+"бинарных кодеков с веб-сайта MPlayer в пакет добавлен скрипт '/usr/share/"
+"mplayer/scripts/binary_codecs.sh'"
 
 #. Type: string
 #. Description
 #: ../mplayer.templates:7001
 msgid "DVD device name:"
-msgstr "Имя устройства DVD:"
+msgstr "Имя DVD-устройства:"
 
 #. Type: string
 #. Description
 #: ../mplayer.templates:7001
-msgid "What is the name of your DVD device (if any):"
-msgstr "Название вашего DVD-устройства (или другое):"
+msgid "Please enter the name of the device for your DVD player, if any."
+msgstr "Пожалуйста, введите имя устройства вашего DVD-плеера, если есть."
 
 #. Type: select
 #. Description
 #: ../mplayer.templates:8001
-msgid "MPlayer OSD font:"
-msgstr "Шрифт OSD в MPlayer'е:"
+msgid "Font for On Screen Display:"
+msgstr "Шрифт для OSD (отображение текста на экране):"
 
-#. Type: select
-#. Description
-#: ../mplayer.templates:8001
-msgid ""
-" MPlayer needs True Type fonts for On Screen Display. Choose your favorite."
-msgstr ""
-"MPlayer'у требуются шрифты TrueType для вывода субтитров. Выберите ваш "
-"любимый шрифт."
-
-#. Type: note
+#. Type: error
 #. Description
 #: ../mplayer.templates:9001
-msgid "MPlayer cannot find TrueType Fonts"
-msgstr "MPlayer не нашёл шрифты TrueType"
+msgid "No TrueType fonts found for On Screen Display"
+msgstr "Не найдены TrueType-шрифты для OSD (отображения текста на экране)"
 
-#. Type: note
+#. Type: error
 #. Description
 #: ../mplayer.templates:9001
 msgid ""
-"You should install a package providing truetype fonts (such as   'ttf-"
-"freefont' or 'ttf-bitstream-vera' or  'msttcorefonts' ) and reconfigure "
-"MPlayer (with the command \"dpkg-reconfigure mplayer\")"
+"MPlayer needs at least one TrueType font for its 'On Screen Display' feature."
+msgstr "Для отображения текста на экране MPlayer требуются шрифты TrueType."
+
+#. Type: error
+#. Description
+#: ../mplayer.templates:9001
+msgid ""
+"You should install a package providing such fonts (such as 'ttf-freefont' or "
+"'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by running "
+"'dpkg-reconfigure mplayer')."
 msgstr ""
-"Вам нужно установить пакет с шрифтами truetype (например, 'ttf-freefont' или "
+"Вам нужно установить пакет со шрифтами TrueType (например, 'ttf-freefont', "
 "'ttf-bitstream-vera' или 'msttcorefonts') и переконфигурировать MPlayer "
-"(запустив команду \"dpkg-reconfigure mplayer\")."
+"(выполнив 'dpkg-reconfigure mplayer')."
