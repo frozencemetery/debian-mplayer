@@ -1,8 +1,8 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
-## 02disable-xscreensaver.dpatch by  <debdev@pingu>
+## 22disable-xscreensaver.dpatch by  <mennucc1@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+## DP: This patch avoids xscreensaver from blanking onto your favorite movie ; it was made by me, based on code posted in mplayer-dev-eng by Adam  Tlałka
 
 @DPATCH@
 diff -urNad mplayer-1.0~rc2~/libvo/x11_common.c mplayer-1.0~rc2/libvo/x11_common.c

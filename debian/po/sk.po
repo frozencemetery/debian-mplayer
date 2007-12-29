@@ -1,9 +1,11 @@
+# Ivan Masár <helix84@centrum.sk>, 2007.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: mplayer 1.0~rc1-15\n"
 "Report-Msgid-Bugs-To: mennucc1@debian.org\n"
-"POT-Creation-Date: 2007-03-10 13:03+0100\n"
-"PO-Revision-Date: 2007-09-03 23:17+0100\n"
+"POT-Creation-Date: 2007-10-28 09:36+0100\n"
+"PO-Revision-Date: 2007-12-01 17:43+0100\n"
 "Last-Translator: Ivan Masár <helix84@centrum.sk>\n"
 "Language-Team: Slovak <sk-i18n@lists.linux.sk>\n"
 "MIME-Version: 1.0\n"
@@ -12,27 +14,27 @@ msgstr ""
 
 #. Type: note
 #. Description
-#: ../mplayer.templates:1001
-msgid "Create your ~/.mplayer/config file"
-msgstr "Vytvorte svoj súbor ~/.mplayer/config"
+#: ../mplayer.templates:2001
+msgid "Detailed configuration needed for each user"
+msgstr "Podrobná konfigurácia nutná pre každého používateľa"
 
 #. Type: note
 #. Description
-#: ../mplayer.templates:1001
-msgid "Performance of MPlayer depends heavily on hardware - this means that it may benefit from tweaking options, for every single machine it's installed to. You may wish to read the documentation (it is in the package 'mplayer-doc', under /usr/share/doc/mplayer-doc/). This DebConf interface will help you setup just a few main features; you may wish to add to /etc/mplayer/mplayer.conf some more refined options (to enable multichannel audio, or video postprocessing, etc etc); and any user similarly may customize MPlayer using the file ~/.mplayer/config"
-msgstr "Výkonnosť aplikácie MPlayer závisí prevažne na hardvéri - to znamená, že mu môžu pomôcť ladiace voľby pre každú jednodtlivú stanicu, kde je nainštalovaný. Možno si budete chcieť prečítať dokumentáciu (je v balíku „mplayer-doc“, v adresári /usr/share/doc/mplayer-doc/). Toto rozhranie DebConf pomôže nastaviť iba niekoľko hlavných volieb; možno budete chcieť do /etc/mplayer/mplayer.conf pridať nejaké ďalšie voľby (napr. na zapnutie viackanálovho zvuku, pre postprocesing videa atď atď.); a podobne ktorýkoľvek používateľ si môže prispôsobiť MPlayer pomocou súboru ~/.mplayer/config"
+#: ../mplayer.templates:2001
+msgid "The performance of MPlayer depends heavily on hardware; this means that it may benefit from tweaking options for every single machine it's installed on."
+msgstr "Výkon aplikácie MPlayer veľmi závisí na hardvéri; to znamená, že dolaďovanie volieb môže zvýšiť výkon na každom stroji."
 
-#. Type: boolean
+#. Type: note
 #. Description
 #: ../mplayer.templates:2001
-msgid "Enable access to RTC?"
-msgstr "Zapnúť prístup k RTC?"
+msgid "You should read the documentation provided by the 'mplayer-doc' package."
+msgstr "Mali by ste si prečítať dokumentáciu poskytovanú v balíku „mplayer-doc“."
 
-#. Type: boolean
+#. Type: note
 #. Description
 #: ../mplayer.templates:2001
-msgid "On older kernels MPlayer can use the RTC (Real Time Clock) to provide better timing in reproduction, with less CPU cost; to this end, though, the device /dev/rtc must be accessible to group audio, and the default max-user-freq must be raised to 1024.  Any needed change must be done by root. If you wish, MPlayer will automatically do this at boot, so that any user can enjoy this feature. Note that there may be security issues with this (although none are known now)."
-msgstr "Na starších jadrách môže MPlayer využiť RTC (hodiny reálneho času) pre lepšie časovanie reprodukcie pri menšej záťaži CPU; aby to však bolo možné, musí byť zariadenie /dev/rtc prístupné skupine audio  štandardnú hodnotu max-user-freq treba zvýšiť na 1024. Akúkoľvek potrebnú zmenu musí vykonať root. Ak si želáte, MPlayer to automaticky urobí pri spustení, takže túto schopnopsť môže využívať ktorýkoľvek používateľ. Majte na pamäti, že to môže byť spojené s bezpečnostnými rizikami (hoci žiadne momentálne nie sú známe)."
+msgid "Now, some configuration options will be set for the entire system in /etc/mplayer/mplayer.conf which may be adapted later. Any user can also refine options in ~/.mplayer/config."
+msgstr "Teraz sa nastavia nietoré konfiguračné voľby pre celý systém v súbore „/etc/mplayer/mplayer.conf“. Neskôr bude možné ich upraviť. Každý používateľ si ich môže prispôsobiť v súbore „~/.mplayer/config“."
 
 #. Type: boolean
 #. Description
@@ -43,20 +45,26 @@ msgstr "Nahradiť súčasný konfiguračný súbor?"
 #. Type: boolean
 #. Description
 #: ../mplayer.templates:3001
-msgid "There is already a file /etc/mplayer/mplayer.conf, but it does not contain an automatically generated part. This script may generate a new file (the old file will be moved to /etc/mplayer/mplayer.conf.debconf-old)."
+msgid "An /etc/mplayer/mplayer.conf file already exists on the system and does not contain an automatically-generated part. That file can be replaced by a generated one (the old file will be moved to /etc/mplayer/mplayer.conf.debconf-old)."
 msgstr "Súbor /etc/mplayer/mplayer.conf už existuje, ale neobsahuje automaticky vytvorenú časť. Tento skript môže vytvoriť nový súbor (starý súbor sa presunie do /etc/mplayer/mplayer.conf.debconf-old)."
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:4001
-msgid "Files not replaced"
-msgstr "Súbor nebol nahradený"
+msgid "Old configuration file kept"
+msgstr "Starý konfiguračný súbor bol zachovaný"
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:4001
-msgid "It seems that you don't want to replace your existing configuration file /etc/mplayer/mplayer.conf.  If you change your mind later, you can run \"dpkg-reconfigure mplayer\"."
-msgstr "Zdá sa, že nechcete nahradiť váš súčasný konfiguračný súbor /etc/mplayer/mplayer.conf. Ak si to neskôr rozmyslíte, môžete spustiť „dpkg-reconfigure mplayer“."
+msgid "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
+msgstr "Zvolili ste nenahrádzať existujúci súbor „/etc/mplayer/mplayer.conf“."
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:4001
+msgid "That file can be generated automatically later by running 'dpkg-reconfigure mplayer'."
+msgstr "Tento súbor je možné neskôr automaticky vygenerovať spustením príkazu „dpkg-reconfigure mplayer“."
 
 #. Type: select
 #. Description
@@ -67,20 +75,44 @@ msgstr "MPlayer výstup videa:"
 #. Type: select
 #. Description
 #: ../mplayer.templates:5001
-msgid "MPlayer can use a very wide range of video output drivers; it will try to autodetect the best one, but you may choose a preferred one. Here is a guide to the choice (in decreasing order of speed): (1) if you see an entry that matches your video card, choose that; (2) if your video card supports 'XV', choose that (use 'xvinfo' to know). You should read /usr/share/doc/mplayer-doc/HTML/en/video.html (it is in package 'mplayer-doc')."
-msgstr "MPlayer dokáže používať množstvo ovládačov pre výstup videa; pokúsi sa o automatickú detekciu najlepšieho z nich, ale môžete si zvoliť, ktorý uprednostňujete. Tu je návod, ako by ste mali vyberať (v poradí od 1): (1) ak vidíte nejaký, ktorý zodpovedá vašej grafickej karte, zvoľte ho; (2) ak vaša grafické karta podporuje „XV“, zvoľte ho (na zistenie použite „xvinfo“). Mali by ste si prečítať /usr/share/doc/mplayer-doc/HTML/en/video.html (je v balíku „mplayer-doc“)."
+msgid "MPlayer can use a very wide range of video output drivers. The needed driver may be detected automatically or chosen manually."
+msgstr "MPlayer dokáže využiť široké spektrum výstupných grafických ovládačov. Potrebný ovládač je možné automaticky detekovať alebo zvoliť ručne."
+
+#. Type: select
+#. Description
+#: ../mplayer.templates:5001
+msgid "If you prefer choosing the driver yourself, you first should choose an entry matching this system's video card. If none match and the card supports 'XV', choose that option (the 'xvinfo' command may help)."
+msgstr "Ak uprednostňujete zvoliť si ovládač sami, najprv by ste mali vybrať položku zodpovedajúcu grafickej karte tohto systému. Ak žiadne zo zoznamu nezodpovedajú a karta podporuje „XV“, zvoľte túto voľbu (príkaz „xvinfo“ môže pomôcť)."
+
+#. Type: select
+#. Description
+#: ../mplayer.templates:5001
+msgid "Please read the /usr/share/doc/mplayer-doc/HTML/en/video.html file from the 'mplayer-doc' package for more details."
+msgstr "Prosím, prečítajte si podrobnosti v súbore „/usr/share/doc/mplayer-doc/HTML/en/video.html“ z balíka „mplayer-doc“."
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:6001
-msgid "How to download binary codecs"
-msgstr "Ako stiahnuť binárne kodeky"
+msgid "Binary codecs download"
+msgstr "Stiahnutie binárnych kodekov"
 
 #. Type: note
 #. Description
 #: ../mplayer.templates:6001
-msgid "MPlayer supports most codecs out of the box and the rest with the help of binary codecs. Binary codecs are only necessary for Real 3.0  and 4.0, Windows Media 9, QuickTime audio and some very obscure codecs. Debian cannot distribute these codecs, but these are available on the internet for download. Run the script `/usr/share/mplayer/scripts/binary_codecs.sh' to install those  made available from MPlayer web site."
-msgstr "MPlayer podporuje v štandardnom zostavení väčšinu kodekov a zvyšok pomocou binárnych kodekov. Binárne kodeky sú potrebné iba pre Real 3.0 a 4.0, Windows Media 9, QuickTime audio a niektoré veľmi exotické kodeky. Debian nemôže tieto kodeky distribuovať, ale sú dostupné na stiahnutie na internete. Tie, ktoré sú dostupné z webstránky MPlayer môžete nainštalovať spustením skriptu „/usr/share/mplayer/scripts/binary_codecs.sh“."
+msgid "MPlayer supports most video formats without additional software."
+msgstr "MPlayer podporuje väčšinu videoformátov bez toho aby vyžadoval dodatočný softvér."
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:6001
+msgid "Additional video formats, such as Real 3.0/4.0, Windows Media 9, or Quicktime, can be supported by using binary codecs."
+msgstr "Ďalšie videoformáty ako Real 3.0/4.0, Windows Media 9 a Quicktime sú podporované za použitia binárnych kodekov."
+
+#. Type: note
+#. Description
+#: ../mplayer.templates:6001
+msgid "As such codecs are not free software, they are not distributed with this package but can be downloaded freely. The '/usr/share/mplayer/scripts/binary_codecs.sh' script is provided in this package to help downloading them from the MPlayer web site."
+msgstr "Kodeky ako také nie sú slobodný softvér. Nie sú distribuované spolu s týmto balíkom, ale je možné ich zadarmo stiahnuť. Skript „/usr/share/mplayer/scripts/binary_codecs.sh“ obsiahnutý v tomto balíku slúži na stiahnutie kodekov z webstránky MPlayer."
 
 #. Type: string
 #. Description
@@ -91,30 +123,119 @@ msgstr "Názov DVD zariadenia:"
 #. Type: string
 #. Description
 #: ../mplayer.templates:7001
-msgid "What is the name of your DVD device (if any):"
-msgstr "Ako sa volá vaše DVD zariadenie (ak nejaké máte):"
+msgid "Please enter the name of the device for your DVD player, if any."
+msgstr "Prosím, zadajte názov zariadenia vášho prehrávača DVD, ak nejaký máte."
 
 #. Type: select
 #. Description
 #: ../mplayer.templates:8001
-msgid "MPlayer OSD font:"
-msgstr "MPlayer OSD písmo:"
+msgid "Font for On Screen Display:"
+msgstr "Písmo pre funkciu „On Screen Display“:"
 
-#. Type: select
-#. Description
-#: ../mplayer.templates:8001
-msgid " MPlayer needs True Type fonts for On Screen Display. Choose your favorite."
-msgstr " MPlayer potrebuje na On Screen Display True Type písma. Vyberte si, ktoré preferujete."
-
-#. Type: note
+#. Type: error
 #. Description
 #: ../mplayer.templates:9001
-msgid "MPlayer cannot find TrueType Fonts"
-msgstr "MPlayer nenašiel TrueType písma"
+msgid "No TrueType fonts found for On Screen Display"
+msgstr "Pre funkciu „On Screen Display“ neboli nájdené žiadne True Type písma"
 
-#. Type: note
+#. Type: error
 #. Description
 #: ../mplayer.templates:9001
-msgid "You should install a package providing truetype fonts (such as   'ttf-freefont' or 'ttf-bitstream-vera' or  'msttcorefonts' ) and reconfigure MPlayer (with the command \"dpkg-reconfigure mplayer\")"
-msgstr "Mali by ste nainštalovať balík poskytujúci truetype písma (ako „ttf-freefont“ alebo „ttf-bitstream-vera“ alebo „msttcorefonts„) a rekonfigurovať MPlayer (príkazom „dpkg-reconfigure mplayer“)"
+msgid "MPlayer needs at least one TrueType font for its 'On Screen Display' feature."
+msgstr "MPlayer potrebuje na funkciu „On Screen Display“ aspoň jedno True Type písmo."
+
+#. Type: error
+#. Description
+#: ../mplayer.templates:9001
+msgid "You should install a package providing such fonts (such as 'ttf-freefont' or 'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by running 'dpkg-reconfigure mplayer')."
+msgstr "Mali by ste nainštalovať balík poskytujúci takéto písma (ako „ttf-freefont“ alebo „ttf-bitstream-vera“ alebo „msttcorefonts“) a rekonfigurovať MPlayer (príkazom „dpkg-reconfigure mplayer“)"
+
+#~ msgid "Create your ~/.mplayer/config file"
+#~ msgstr "Vytvorte svoj súbor ~/.mplayer/config"
+#~ msgid ""
+#~ "Performance of MPlayer depends heavily on hardware - this means that it "
+#~ "may benefit from tweaking options, for every single machine it's "
+#~ "installed to. You may wish to read the documentation (it is in the "
+#~ "package 'mplayer-doc', under /usr/share/doc/mplayer-doc/). This DebConf "
+#~ "interface will help you setup just a few main features; you may wish to "
+#~ "add to /etc/mplayer/mplayer.conf some more refined options (to enable "
+#~ "multichannel audio, or video postprocessing, etc etc); and any user "
+#~ "similarly may customize MPlayer using the file ~/.mplayer/config"
+#~ msgstr ""
+#~ "Výkonnosť aplikácie MPlayer závisí prevažne na hardvéri - to znamená, že "
+#~ "mu môžu pomôcť ladiace voľby pre každú jednodtlivú stanicu, kde je "
+#~ "nainštalovaný. Možno si budete chcieť prečítať dokumentáciu (je v balíku "
+#~ "„mplayer-doc“, v adresári /usr/share/doc/mplayer-doc/). Toto rozhranie "
+#~ "DebConf pomôže nastaviť iba niekoľko hlavných volieb; možno budete chcieť "
+#~ "do /etc/mplayer/mplayer.conf pridať nejaké ďalšie voľby (napr. na "
+#~ "zapnutie viackanálovho zvuku, pre postprocesing videa atď atď.); a "
+#~ "podobne ktorýkoľvek používateľ si môže prispôsobiť MPlayer pomocou súboru "
+#~ "~/.mplayer/config"
+#~ msgid "Enable access to RTC?"
+#~ msgstr "Zapnúť prístup k RTC?"
+#~ msgid ""
+#~ "On older kernels MPlayer can use the RTC (Real Time Clock) to provide "
+#~ "better timing in reproduction, with less CPU cost; to this end, though, "
+#~ "the device /dev/rtc must be accessible to group audio, and the default "
+#~ "max-user-freq must be raised to 1024.  Any needed change must be done by "
+#~ "root. If you wish, MPlayer will automatically do this at boot, so that "
+#~ "any user can enjoy this feature. Note that there may be security issues "
+#~ "with this (although none are known now)."
+#~ msgstr ""
+#~ "Na starších jadrách môže MPlayer využiť RTC (hodiny reálneho času) pre "
+#~ "lepšie časovanie reprodukcie pri menšej záťaži CPU; aby to však bolo "
+#~ "možné, musí byť zariadenie /dev/rtc prístupné skupine audio  štandardnú "
+#~ "hodnotu max-user-freq treba zvýšiť na 1024. Akúkoľvek potrebnú zmenu musí "
+#~ "vykonať root. Ak si želáte, MPlayer to automaticky urobí pri spustení, "
+#~ "takže túto schopnopsť môže využívať ktorýkoľvek používateľ. Majte na "
+#~ "pamäti, že to môže byť spojené s bezpečnostnými rizikami (hoci žiadne "
+#~ "momentálne nie sú známe)."
+#~ msgid "Files not replaced"
+#~ msgstr "Súbor nebol nahradený"
+#~ msgid ""
+#~ "It seems that you don't want to replace your existing configuration file /"
+#~ "etc/mplayer/mplayer.conf.  If you change your mind later, you can run "
+#~ "\"dpkg-reconfigure mplayer\"."
+#~ msgstr ""
+#~ "Zdá sa, že nechcete nahradiť váš súčasný konfiguračný súbor /etc/mplayer/"
+#~ "mplayer.conf. Ak si to neskôr rozmyslíte, môžete spustiť „dpkg-"
+#~ "reconfigure mplayer“."
+#~ msgid ""
+#~ "MPlayer can use a very wide range of video output drivers; it will try to "
+#~ "autodetect the best one, but you may choose a preferred one. Here is a "
+#~ "guide to the choice (in decreasing order of speed): (1) if you see an "
+#~ "entry that matches your video card, choose that; (2) if your video card "
+#~ "supports 'XV', choose that (use 'xvinfo' to know). You should read /usr/"
+#~ "share/doc/mplayer-doc/HTML/en/video.html (it is in package 'mplayer-doc')."
+#~ msgstr ""
+#~ "MPlayer dokáže používať množstvo ovládačov pre výstup videa; pokúsi sa o "
+#~ "automatickú detekciu najlepšieho z nich, ale môžete si zvoliť, ktorý "
+#~ "uprednostňujete. Tu je návod, ako by ste mali vyberať (v poradí od 1): "
+#~ "(1) ak vidíte nejaký, ktorý zodpovedá vašej grafickej karte, zvoľte ho; "
+#~ "(2) ak vaša grafické karta podporuje „XV“, zvoľte ho (na zistenie použite "
+#~ "„xvinfo“). Mali by ste si prečítať /usr/share/doc/mplayer-doc/HTML/en/"
+#~ "video.html (je v balíku „mplayer-doc“)."
+#~ msgid "How to download binary codecs"
+#~ msgstr "Ako stiahnuť binárne kodeky"
+#~ msgid ""
+#~ "MPlayer supports most codecs out of the box and the rest with the help of "
+#~ "binary codecs. Binary codecs are only necessary for Real 3.0  and 4.0, "
+#~ "Windows Media 9, QuickTime audio and some very obscure codecs. Debian "
+#~ "cannot distribute these codecs, but these are available on the internet "
+#~ "for download. Run the script `/usr/share/mplayer/scripts/binary_codecs."
+#~ "sh' to install those  made available from MPlayer web site."
+#~ msgstr ""
+#~ "MPlayer podporuje v štandardnom zostavení väčšinu kodekov a zvyšok "
+#~ "pomocou binárnych kodekov. Binárne kodeky sú potrebné iba pre Real 3.0 a "
+#~ "4.0, Windows Media 9, QuickTime audio a niektoré veľmi exotické kodeky. "
+#~ "Debian nemôže tieto kodeky distribuovať, ale sú dostupné na stiahnutie na "
+#~ "internete. Tie, ktoré sú dostupné z webstránky MPlayer môžete "
+#~ "nainštalovať spustením skriptu „/usr/share/mplayer/scripts/binary_codecs."
+#~ "sh“."
+#~ msgid "What is the name of your DVD device (if any):"
+#~ msgstr "Ako sa volá vaše DVD zariadenie (ak nejaké máte):"
+#~ msgid "MPlayer OSD font:"
+#~ msgstr "MPlayer OSD písmo:"
+#~ msgid "MPlayer cannot find TrueType Fonts"
+#~ msgstr "MPlayer nenašiel TrueType písma"
 

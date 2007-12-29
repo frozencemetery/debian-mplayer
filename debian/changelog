@@ -1,3 +1,24 @@
+mplayer (1.0~rc2-7) unstable; urgency=low
+
+  * fix segfault on GNU/kFreeBSD, by moving a patch from
+    debian/patches/25kFreeBDS.dpatch directly to debian/rules itself,
+    thanks to Petr Salinger (Closes: #457312).
+  * really remove /etc/init.d/mplayer and /etc/rc... files (used <
+    1.0~rc2-1), thanks to Kumar Appaiah & piuparts (Closes: #454710).
+  * Avoid 'echo -e' bashism in postinst (now uses /bin/echo ),
+    thanks to Helmut Grohne (Closes: #451551).
+  * delete  config.h config.mak from diff.gz,
+    thanks to Fabian Greffrath (Closes: #451381).
+  * [INTL:sk] Slovak po-debconf translation,
+    thanks to helix84@centrum.sk (Closes: #440717).
+  * enable jack support, thanks to Free Ekanayaka (Closes: #440461).
+  * Document 22disable-xscreensaver.dpatch
+  * Bump standard to 3.7.3.0 :
+    - menu for "/usr/bin/gmplayer" goes in section="Applications/Video"
+    - added Homepage and Vcs fields
+
+ -- A Mennucc1 <mennucc1@debian.org>  Sat, 29 Dec 2007 13:08:22 +0000
+
 mplayer (1.0~rc2-6) unstable; urgency=low
 
   * created debhelper debian/compat '5'
@@ -7,8 +28,9 @@ mplayer (1.0~rc2-6) unstable; urgency=low
   * fix: 2xsai filter generates side-by-side double-height images on amd64, 
     thanks to Josh Triplett and  Reimar Döffinger (Closes: #450999)
   * clean up of 10configure-alpha.dpatch and 12configure-vidix-alpha.dpatch
-  * Debconf templates and debian/control reviewed by the debian-l10n-
-    english team as part of the Smith review project. Thanks to Christian Perrier. 
+  * Debconf templates and debian/control reviewed by the
+    debian-l10n-english team as part of the Smith review project.
+    Thanks to Christian Perrier. 
     Closes: #447111, #448247, #412394, #414510, #448247
   [Debconf translation updates]
   * Belarusian. Thanks Andrei Darashenka. Closes: #447115, #447305

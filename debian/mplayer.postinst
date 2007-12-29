@@ -3,8 +3,13 @@
 
 set -e
 
+myecho=echo
+if [ "$BASH_VERSION" = ""  ] ; then
+ myecho=/bin/echo
+fi
+
 message () {
-    echo -n -e "$*"  >&2 ;
+    $myecho -n -e "$*"  >&2 ;
 }
 
 
@@ -90,6 +95,18 @@ fi
 
 db_stop  #using debconf
 
+## remove old init files
+if [ -r /etc/init.d/mplayer ]; then
+  if echo 'a6c67e6132f7b9be6fd1b1d19b76946f  /etc/init.d/mplayer' |\
+        md5sum -c - >/dev/null ; then
+    rm /etc/init.d/mplayer
+    update-rc.d mplayer remove
+  else
+    echo "MPlayer warning: the script  /etc/init.d/mplayer is now deprecated, but it was locally modified. Please consider deleting it (and run 'update-rc.d mplayer remove' as well)."
+  fi
+fi
+
+
 
 ###########################
 # pass control to debhelper scripts..
@@ -98,3 +115,4 @@ db_stop  #using debconf
 #DEBHELPER#
 
 #########################
+

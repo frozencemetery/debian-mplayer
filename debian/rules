@@ -68,7 +68,7 @@ DEB_HOST_ARCH_CPU   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_CPU)
 
 
 ## This can be overridden from the command line, see README.Debian.
-DEB_BUILD_CONFIGURE=--disable-bitmap-font  --disable-ggi  --disable-xvid --language=all  --disable-xmms --disable-arts --disable-jack --disable-aa --disable-mad --disable-libdv $(archconf)
+DEB_BUILD_CONFIGURE=--disable-bitmap-font  --disable-ggi  --disable-xvid --language=all  --disable-xmms --disable-arts --disable-aa --disable-mad --disable-libdv $(archconf)
 
 
 # Choose whether we want binary codec support (default on unknown archs: no).
@@ -91,9 +91,11 @@ ifeq ($(arch),amd64)
 endif
 ifeq ($(arch),kfreebsd-i386)
   with_real_and_xanim = true
+  DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
 endif
 ifeq ($(arch),kfreebsd-amd64)
   with_real_and_xanim = true
+  DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
 endif
 ifeq ($(arch),powerpc)
   with_real_and_xanim = true
@@ -231,7 +233,7 @@ clean-patched:
 	- $(MAKE) distclean
 	#- $(MAKE) -C Gui distclean
 	#
-	rm -f build-arch-stamp build-indep-stamp configure-stamp configure.log
+	rm -f config.h config.mak build-arch-stamp build-indep-stamp configure-stamp configure.log
 	#some leftovers
 	find -name '*.o' -or -name '*.a' -or -name '*~' \
 		-or -name semantic.cache -print0 |\

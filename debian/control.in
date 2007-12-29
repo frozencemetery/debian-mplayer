@@ -3,7 +3,10 @@ Section: graphics
 Priority: optional
 Maintainer:  A Mennucc1 <mennucc1@debian.org>
 Uploaders: Dariush Pietrzak <eyck@kuszelas.com>
-Standards-Version: 3.7.2.0
+Standards-Version: 3.7.3.0
+Vcs-Browser: http://svn.mplayerhq.hu/mplayer/trunk/
+Vcs-Svn: svn://svn.mplayerhq.hu/mplayer
+Homepage: http://www.mplayerhq.hu/
 Build-Depends-Indep: @DOCDEP@
 Build-Depends: debhelper (>= 4), dpatch, make (>= 3.80), pkg-config, po-debconf,
  libsdl1.2-dev | libsdl1.1-dev, svgalibg1-dev [i386], libdts-dev, ladspa-sdk,
@@ -12,7 +15,7 @@ Build-Depends: debhelper (>= 4), dpatch, make (>= 3.80), pkg-config, po-debconf,
  libasound2-dev (>= 1.0.6-3) [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386],
  libvorbis-dev, liblircclient-dev, libfreetype6-dev, libdvdread3-dev, 
  libcdparanoia0-dev, libfontconfig1-dev, libjpeg62-dev, libungif4-dev,
- libgtk2.0-dev, libdirectfb-dev, libcaca-dev, liblivemedia-dev,
+ libgtk2.0-dev, libdirectfb-dev, libcaca-dev, liblivemedia-dev, libjack-dev,
  @XLIBS@, @EXTRA_BUILDDEP@
 
 Package: @MPLAYER@
