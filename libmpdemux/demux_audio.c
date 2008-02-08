@@ -234,6 +234,8 @@ get_flac_metadata (demuxer_t* demuxer)
           ptr += 4;
 
           comment = (char *) ptr;
+	  if (&comment[length] < comments || &comment[length] >= &comments[blk_len])
+	    return;
           c = comment[length];
           comment[length] = 0;
 
