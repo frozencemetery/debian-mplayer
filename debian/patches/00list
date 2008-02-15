@@ -7,3 +7,8 @@
 30vorbis-block-alloc.dpatch
 40rtsp_demux.dpatch
 51xsai.dpatch
+CVE-2008-0630.diff
+CVE-2008-0629--stream_cddb.c.diff
+demux_mov_fix_20080129.diff
+demux_audio_fix_20080129.diff
+

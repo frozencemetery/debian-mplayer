@@ -1,3 +1,18 @@
+mplayer (1.0~rc2-7+lenny1) testing-security; urgency=high
+
+  * Non-maintainer upload by security team.
+  * This update addresses the following security issues:
+    - CVE-2008-0630: remote buffer overflow via crafted URL
+     (Closes: #464532).
+    - CVE-2008-0629: remote buffer overflow leading to arbitrary
+      code execution via a crafted CDDB entry (Closes: #464533).
+    - CVE-2008-0485: array index error in libmpdemux/demux_mov.c
+      leading to code execution via crafted MOV file (Closes: #464060).
+    - CVE-2008-0486: array index vulnerability in libmpdemux/demux_audio.c
+      possibly leading to code execution via crafted FLAC tag.
+
+ -- Nico Golde <nion@debian.org>  Fri, 15 Feb 2008 12:35:24 +0100
+
 mplayer (1.0~rc2-7) unstable; urgency=low
 
   * fix segfault on GNU/kFreeBSD, by moving a patch from
