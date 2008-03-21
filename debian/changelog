@@ -1,12 +1,18 @@
-mplayer (1.0~rc2-8+lenny1) testing-security; urgency=high
+mplayer (1.0~rc2-9) unstable; urgency=low
 
-  * Non-maintainer upload by the Security Team.
-  * This update addresses the following security issue:
-    - CVE-2008-0073: Array index error in sddpplin_parse function
-      allows remote RTSP server to execute arbitrary code via crafted
-      streams (Closes: #473056).
+  * fix: gmplayer wrong driver setting "vo_driver= xmga", thanks to
+    Siegfrid Brandstätter (Closes: #449041).
+  * added dependency libaudio-dev, libfribidi-dev, libopenal-dev;
+    this should make mplayer compiling less dependent on build environment
+  * and moreover I think I enabled almost everything around, thanks to
+    Fabian Greffrath (Closes: #419790).
+  * add BiDi support, thanks to Khaled Hosny (Closes: #462611).
+  * removed 'uploaders: Dariush Pietrzak <eyck@kuszelas.com>'
+    thanks to Lucas Nussbaum (Closes: #460031).
+  * fix missing newline from message displayed by postinst script,
+    thanks to Serafeim Zanikolas (Closes: #468059).
 
- -- Nico Golde <nion@debian.org>  Wed, 09 Apr 2008 14:52:01 +0200
+ -- A Mennucc1 <mennucc1@debian.org>  Fri, 21 Mar 2008 16:14:55 +0100
 
 mplayer (1.0~rc2-8) unstable; urgency=low
 

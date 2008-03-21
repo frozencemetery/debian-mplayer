@@ -44,11 +44,14 @@ create_conf () {
  
  db_get "mplayer/voutput"
  vo=`echo "$RET" | sed 's/_.*//;s/\W.*//'`
- if test "$RET" -a "$vo" != "" -a "$vo" != "autodetect"  ; then
+ if test "$RET" -a "$vo" != "" ; then
+     if test "$vo" = "autodetect"  ; then
+       vo="xvmc,xv,x11"
+     fi
      echo "#video output driver" >> $t
      echo "vo=$vo" >> $t
      if test "$vo"  = 'x11' -o "$vo" = 'fbdev' ; then
-	 echo "#needed for ${vo}" >> $t  
+	 echo "#needed for vo=${vo}" >> $t  
 	 echo "zoom=1" >> $t 
      fi
  fi
@@ -71,7 +74,7 @@ create_conf () {
      awk 'BEGIN{a=0};//{if(a){print}};/### END OF DEBCONF AREA./{a=1};' $CONF >> $t
  fi
  mv -b $t $CONF
- message done
+ message "done\n"
 }
 
 message "Configuring mplayer ..."
