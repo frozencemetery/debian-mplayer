@@ -68,6 +68,10 @@ create_conf () {
      echo "fontconfig=1" >> $t 
      echo "font='${RET}'" >> $t
  fi
+
+ echo "#if you do not like this default, override it by adding" >> $t
+ echo "#  a ao= line below this debconf area" >> $t
+ echo "ao=alsa,oss" >> $t
  
  echo "$end" >> $t 
  if test -r $CONF ; then

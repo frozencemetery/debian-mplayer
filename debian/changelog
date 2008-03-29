@@ -1,3 +1,11 @@
+mplayer (1.0~rc2-10) unstable; urgency=high
+
+  * fix: CVE-2008-0073 remote code execution via crafted rtsp stream,
+    thanks to Nico Golde and  Reimar Döffinger (Closes: #473056).
+  * use ALSA by default, thanks to Sam Morris (Closes: #470617).
+
+ -- A Mennucc1 <mennucc1@debian.org>  Sat, 29 Mar 2008 09:40:09 +0100
+
 mplayer (1.0~rc2-9) unstable; urgency=low
 
   * fix: gmplayer wrong driver setting "vo_driver= xmga", thanks to
