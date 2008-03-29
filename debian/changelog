@@ -1,3 +1,10 @@
+mplayer (1.0~rc1-12etch3) stable-security; urgency=low
+
+  * fix CVE-2008-0073, remote code execution via crafted rtsp stream,
+    thanks to Nico Golde and Reimar Döffinger (Closes: #473056).
+
+ -- A Mennucc1 <mennucc1@debian.org>  Sat, 29 Mar 2008 07:53:32 +0100
+
 mplayer (1.0~rc1-12etch2) stable-security; urgency=high
 
   * fix SVN25823 for 
