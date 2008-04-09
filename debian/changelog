@@ -1,3 +1,13 @@
+mplayer (1.0~rc2-8+lenny1) testing-security; urgency=high
+
+  * Non-maintainer upload by the Security Team.
+  * This update addresses the following security issue:
+    - CVE-2008-0073: Array index error in sddpplin_parse function
+      allows remote RTSP server to execute arbitrary code via crafted
+      streams (Closes: #473056).
+
+ -- Nico Golde <nion@debian.org>  Wed, 09 Apr 2008 14:52:01 +0200
+
 mplayer (1.0~rc2-8) unstable; urgency=low
 
   * fix SVN25823 for
