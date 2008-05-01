@@ -1,0 +1,7 @@
+hi
+
+mplayer source tree uses 'dpatch'. To see the code that is actually compiled, 
+run  './debian/rules patch'
+
+moreover, the file debian/control is generated from debian/control.in
+(by means of the command './debian/rules autocontrol' )

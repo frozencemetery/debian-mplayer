@@ -46,7 +46,7 @@ create_conf () {
  vo=`echo "$RET" | sed 's/_.*//;s/\W.*//'`
  if test "$RET" -a "$vo" != "" ; then
      if test "$vo" = "autodetect"  ; then
-       vo="xvmc,xv,x11"
+       vo="xv,x11"
      fi
      echo "#video output driver" >> $t
      echo "vo=$vo" >> $t

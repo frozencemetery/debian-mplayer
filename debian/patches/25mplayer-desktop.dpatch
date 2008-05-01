@@ -1,0 +1,30 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## dpatch by  <mennucc1@debian.org>
+##
+## DP: renamed mplayer.xpm to mplayer in desktop file,    thanks to giggz (Closes: #472833).
+
+@DPATCH@
+diff -urNad mplayer-1.0~rc2.orig/Makefile mplayer-1.0~rc2/Makefile
+--- mplayer-1.0~rc2.orig/Makefile
++++ mplayer-1.0~rc2/Makefile
+@@ -281,7 +281,7 @@
+ 	@echo "*** Download skin(s) at http://www.mplayerhq.hu/design7/dload.html"
+ 	@echo "*** for GUI, and extract to $(DATADIR)/skins/"
+ 	$(INSTALL) -d $(prefix)/share/pixmaps
+-	$(INSTALL) -m 644 etc/mplayer.xpm $(prefix)/share/pixmaps/
++	$(INSTALL) -m 644 etc/mplayer.xpm $(prefix)/share/pixmaps/mplayer
+ 	$(INSTALL) -d $(prefix)/share/applications
+ 	$(INSTALL) -m 644 etc/mplayer.desktop $(prefix)/share/applications/
+ 
+diff -urNad mplayer-1.0~rc2.orig/etc/mplayer.desktop mplayer-1.0~rc2/etc/mplayer.desktop
+--- mplayer-1.0~rc2.orig/etc/mplayer.desktop
++++ mplayer-1.0~rc2/etc/mplayer.desktop
+@@ -8,7 +8,7 @@
+ Comment[es]=Reproductor multimedia
+ Comment[fr]=Lecteur multimÃ©dia
+ Comment[it]=Lettore multimediale
+-Icon=mplayer.xpm
++Icon=mplayer
+ TryExec=gmplayer
+ Exec=gmplayer %U
+ Terminal=false

@@ -3,6 +3,7 @@
 12configure-vidix-alpha.dpatch
 22disable-xscreensaver.dpatch
 24mplayer.desktop.dpatch
+25mplayer-desktop.dpatch
 25kFreeBDS.dpatch
 30vorbis-block-alloc.dpatch
 40rtsp_demux.dpatch
@@ -12,4 +13,3 @@ CVE-2008-0629--stream_cddb.c.diff
 CVE-2008-0073--rtsp_fix.diff
 demux_mov_fix_20080129.diff
 demux_audio_fix_20080129.diff
-

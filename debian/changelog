@@ -1,3 +1,21 @@
+mplayer (1.0~rc2-11) unstable; urgency=low
+
+  * avoid FTBFS bug introduced by dpkg-buildpackage setting of "CFLAGS
+    & al" in environment,
+    thanks to Lucas Nussbaum (Closes: #475973).
+  * set 'autodetect' to 'xv,x11' to avoid problems with xvmc and/or gmplayer,
+    thanks to Walter B. Rasmann (Closes: #473686).
+    thanks to Sam Morris (Closes: #475934).
+    thanks to Victor Hahn (Closes: #458786).
+  * fix bashism in /bin/sh maintainer script,
+    thanks to Raphael Geissert (Closes: #472232).
+  * renamed mplayer.xpm to mplayer in desktop file,
+    thanks to giggz (Closes: #472833).
+  * added debian/README.source
+  * add libmpcdec to build-dependencies
+
+ -- A Mennucc1 <mennucc1@debian.org>  Thu, 01 May 2008 12:16:08 +0200
+
 mplayer (1.0~rc2-10) unstable; urgency=high
 
   * fix: CVE-2008-0073 remote code execution via crafted rtsp stream,

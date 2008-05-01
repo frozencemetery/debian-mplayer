@@ -67,6 +67,10 @@ DEB_HOST_ARCH_OS    ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
 DEB_HOST_ARCH_CPU   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_CPU)
 
 
+# hi dpkg-buildpackage. nice to see you make the game tougher
+CLEAN_ENV=env -u CFLAGS -u CPPFLAGS -u LDFLAGS -u FFLAGS -u CXXFLAGS
+
+
 ## This can be overridden from the command line, see README.Debian.
 DEB_BUILD_CONFIGURE=--disable-bitmap-font  --disable-ggi  --disable-xvid --language=all  --disable-xmms --disable-arts --disable-aa --disable-mad --disable-libdv $(archconf)
 
@@ -167,7 +171,7 @@ configure-stamp:
 	grep -x 'Package: $(package)' debian/control
 	if test "$(USE_EXT_FFMPEG)" = yes ; then for i in libavcodec libavformat libavutil libpostproc  ; do mv -v $$i $$i.disabled ; done ; fi
 	# Add commands to configure the package here.
-	./configure --prefix=/usr --confdir=/etc/mplayer  \
+	${CLEAN_ENV} ./configure --prefix=/usr --confdir=/etc/mplayer  \
         --datadir=/usr/share/mplayer --codecsdir=/usr/lib/codecs \
         --enable-xvmc --enable-sdl --enable-ossaudio \
 	--enable-lirc --enable-gui --enable-freetype --enable-menu \
@@ -195,10 +199,10 @@ build-arch: patch configure-stamp build-arch-stamp
 build-arch-stamp:
 	dh_testdir
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	cd libvo && make  CC='gcc -O'  osd.o
-	cd libavcodec  &&  make cabac.o  OPTFLAGS =" -O2 -ffast-math -fomit-frame-pointer"
+	cd libvo && ${CLEAN_ENV} ${MAKE}  CC='gcc -O'  osd.o
+	cd libavcodec  &&  ${CLEAN_ENV} ${MAKE} cabac.o  OPTFLAGS =" -O2 -ffast-math -fomit-frame-pointer"
 endif
-	${MAKE}
+	${CLEAN_ENV} ${MAKE}
 	touch build-arch-stamp
 
 ###### build-indep
@@ -210,7 +214,7 @@ build-indep-stamp:
 	#Configure the independent part (not in a separate block: it is fast!).
 	[ -r DOCS/.upstream_ships_docs ] || { cd DOCS/xml && ./configure ; }
 	#
-	[ -r DOCS/.upstream_ships_docs ] || ${MAKE} -C DOCS/xml html-chunked
+	[ -r DOCS/.upstream_ships_docs ] || ${CLEAN_ENV} ${MAKE} -C DOCS/xml html-chunked
 	touch build-indep-stamp
 
 
@@ -255,7 +259,7 @@ install-arch:  build-arch
 	dh_install debian/prefs var/lib/mplayer/
 
 # commands to install the package into debian/<packagename>
-	$(MAKE) prefix=$(destdir)/usr BINDIR=$(destdir)/usr/bin CONFDIR=$(destdir)/etc/mplayer LIBDIR=$(destdir)/usr/lib DATADIR=$(destdir)/usr/share/mplayer  MANDIR=$(destdir)/usr/share/man  install
+	${MAKE} prefix=$(destdir)/usr BINDIR=$(destdir)/usr/bin CONFDIR=$(destdir)/etc/mplayer LIBDIR=$(destdir)/usr/lib DATADIR=$(destdir)/usr/share/mplayer  MANDIR=$(destdir)/usr/share/man  install
 
 	dh_link usr/bin/mplayer usr/bin/gmplayer
 	dh_link usr/share/man/man1/mplayer.1.gz usr/share/man/man1/gmplayer.1.gz
