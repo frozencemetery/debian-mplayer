@@ -1,0 +1,19 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## mplayer-debug-printf.dpatch by  <debdev@pingu>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: on crash, warn that mplayer is compiled with --enable-debug, with symbols in mplayer-dbg
+
+@DPATCH@
+--- m/mplayer.c	2007-10-07 21:49:33.000000000 +0200
++++ m/mplayer.c.new	2008-05-03 10:53:38.000000000 +0200
+@@ -764,6 +764,9 @@
+       mp_msg(MSGT_CPLAYER,MSGL_FATAL,MSGTR_Exit_SIGSEGV_SIGFPE);
+   default:
+       mp_msg(MSGT_CPLAYER,MSGL_FATAL,MSGTR_Exit_SIGCRASH);
++      printf(" [ This binary of MPlayer in Debian is currently compiled with\n"
++	     "   '--enable-debug'; the debugging symbols are in the package\n"
++	     "   'mplayer-dbg'.]\n");
+ #ifdef CRASH_DEBUG
+       if (crash_debug) {
+         int gdb_pid;

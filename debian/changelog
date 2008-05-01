@@ -1,3 +1,17 @@
+mplayer (1.0~rc2-12) unstable; urgency=low
+
+  * Conflicts on gcc-4.3 <= 4.3.0-3 to avoid bug 475153 .
+  * Sorry, 'DEB_BUILD_OPTIONS=noopt ./debian/rules  build-arch'
+    is again broken in i386 . It is simply too difficult to build
+    mplayer on i386 w/o optimizing it a bit. For details, see 
+    http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=402950#44
+    and following.
+  * For this reason, and to help solving the strange bug 478731
+    I have decided to build mplayer with  'configure --enable-debug' and
+    to create a 'mplayer-dbg' package, to ship debugging symbols.
+
+ -- A Mennucc1 <mennucc1@debian.org>  Thu, 01 May 2008 20:40:42 +0200
+
 mplayer (1.0~rc2-11) unstable; urgency=low
 
   * avoid FTBFS bug introduced by dpkg-buildpackage setting of "CFLAGS

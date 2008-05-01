@@ -7,6 +7,7 @@ Vcs-Browser: http://svn.mplayerhq.hu/mplayer/trunk/
 Vcs-Svn: svn://svn.mplayerhq.hu/mplayer
 Homepage: http://www.mplayerhq.hu/
 Build-Depends-Indep: 
+Build-Conflicts: gcc-4.3 (<= 4.3.0-3)
 Build-Depends: debhelper (>= 4), dpatch, make (>= 3.80), pkg-config, po-debconf,
  libsdl1.2-dev | libsdl1.1-dev, svgalibg1-dev [i386], libdts-dev, ladspa-sdk,
  libpng-dev, libncurses5-dev, zlib1g-dev, libspeex-dev, libsmbclient-dev,
@@ -35,10 +36,18 @@ Description: movie player for Unix-like systems
  and Permedia3). Most of them support software or hardware scaling,
  therefore allowing fullscreen display.  MPlayer is also able
  to use some hardware MPEG decoder boards, such as the DVB
- and DXR3/Hollywood+.  
+ and DXR3/Hollywood+. 
  .
  Not all of the upstream code is distributed in the source tarball.
  See the README.Debian and copyright files for details.
+
+Package: mplayer-dbg
+Architecture: any
+Depends: mplayer
+Description: debugging symbols for MPlayer
+ This package contains the debugging symbols for MPlayer, a movie
+ player for Unix-like systems. You only need these if you want to
+ generate debugging backtraces.
 
 Package: mplayer-doc
 Architecture: all
