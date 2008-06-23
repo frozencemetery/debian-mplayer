@@ -1,3 +1,13 @@
+mplayer (1.0~rc2-14) unstable; urgency=low
+
+  * Links with ffmpeg-free provided libraries  (Closes: #395252).
+  * Uses libsvga1-dev  in Build-Depends instead of svgalibg1-dev,
+    thanks to Guillem Jover (Closes: #483460).
+  * Build-depend on vstream-client-dev,
+    thanks to Paul Hedderly (Closes: #487291).
+
+ -- A Mennucc1 <mennucc1@debian.org>  Mon, 23 Jun 2008 13:20:34 +0200
+
 mplayer (1.0~rc2-12) unstable; urgency=low
 
   * Conflicts on gcc-4.3 <= 4.3.0-3 to avoid bug 475153 .

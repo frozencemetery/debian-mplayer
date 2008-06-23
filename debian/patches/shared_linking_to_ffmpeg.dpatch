@@ -1,0 +1,58 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## shared_linking_to_ffmpeg.dpatch by  <mennucc1@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: can link with ffmpeg-free
+
+@DPATCH@
+diff -ru mplayer-1.0~rc2~patched~/libmpdemux/demux_mkv.c mplayer-1.0~rc2~linked~/libmpdemux/demux_mkv.c
+--- mplayer-1.0~rc2~patched~/libmpdemux/demux_mkv.c	2007-10-07 21:49:33.000000000 +0200
++++ mplayer-1.0~rc2~linked~/libmpdemux/demux_mkv.c	2008-06-18 14:37:59.000000000 +0200
+@@ -40,7 +40,7 @@
+ 
+ #ifdef USE_LIBAVUTIL_SO
+ #include <ffmpeg/lzo.h>
+-#include <ffmpeg/intreadwrite.h>
++#include <libavutil/intreadwrite.h>
+ #else
+ #include "libavutil/lzo.h"
+ #include "libavutil/intreadwrite.h"
+diff -ru mplayer-1.0~rc2~patched~/spudec.c mplayer-1.0~rc2~linked~/spudec.c
+--- mplayer-1.0~rc2~patched~/spudec.c	2007-10-07 21:49:33.000000000 +0200
++++ mplayer-1.0~rc2~linked~/spudec.c	2008-06-18 12:24:05.000000000 +0200
+@@ -25,10 +25,12 @@
+ #include "spudec.h"
+ #ifdef USE_LIBAVUTIL_SO
+ #include <ffmpeg/avutil.h>
++#include "ffmpeg/swscale.h"
+ #else
+ #include "avutil.h"
+-#endif
+ #include "libswscale/swscale.h"
++#endif
++
+ 
+ /* Valid values for spu_aamode:
+    0: none (fastest, most ugly)
+--- mplayer-1.0~rc2-12/Makefile	2007-10-07 21:49:33.000000000 +0200
++++ mplayer-1.0~rc2-14/Makefile	2008-06-23 13:29:45.000000000 +0200
+@@ -53,13 +53,14 @@
+               libaf/libaf.a \
+               libmpdemux/libmpdemux.a \
+               stream/stream.a \
+-              libswscale/libswscale.a \
++              /usr/lib/libswscale.so \
+               libvo/libosd.a \
+ 
+-COMMON_LIBS-$(LIBAVFORMAT_A)      += libavformat/libavformat.a
+-COMMON_LIBS-$(LIBAVCODEC_A)       += libavcodec/libavcodec.a
+-COMMON_LIBS-$(LIBAVUTIL_A)        += libavutil/libavutil.a
+-COMMON_LIBS-$(LIBPOSTPROC_A)      += libpostproc/libpostproc.a
++COMMON_LIBS-$(LIBAVFORMAT_A)      += /usr/lib/libavformat.so
++COMMON_LIBS-$(LIBAVCODEC_A)       += /usr/lib/libavcodec.so
++COMMON_LIBS-$(LIBAVUTIL_A)        += /usr/lib/libavutil.so
++COMMON_LIBS-$(LIBPOSTPROC_A)      += /usr/lib/libpostproc.so
++
+ COMMON_LIBS-$(WIN32DLL)           += loader/libloader.a
+ COMMON_LIBS-$(MP3LIB)             += mp3lib/libmp3.a
+ COMMON_LIBS-$(LIBA52)             += liba52/liba52.a
