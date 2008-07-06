@@ -1,3 +1,18 @@
+mplayer (1.0~rc2-15) unstable; urgency=low
+
+  * build-depend on  liblzo2-dev  
+  * Bug fix: "mplayer segfaults on opening any *.flv file", thanks A LOT to
+    Ondrej Certik (Closes: #489291).
+  * Bug fix: "mplayer: crashes on playing a standalone aac file", thanks
+    to Michal Suchanek (Closes: #489419).
+  * Bug fix: "mplayer: crashes with &quot;MPlayer interrupted by signal 11
+    in module: demux_open&quot; on FLV files", thanks to Paul Collins
+    (Closes: #487830).
+  * Bug fix: "mplayer: [INTL:it] debconf templates italian translation",
+    thanks to Alessandro Vietta (Closes: #481418).
+
+ -- A Mennucc1 <mennucc1@debian.org>  Sun, 06 Jul 2008 17:57:29 +0200
+
 mplayer (1.0~rc2-14) unstable; urgency=low
 
   * Links with ffmpeg-free provided libraries  (Closes: #395252).
