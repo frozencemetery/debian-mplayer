@@ -1,10 +1,14 @@
 cb4bb06ebc804f5dc4ec0ed516dc20d9  all-20061022.tar.bz2
+0407e8ad132e37ccd3f932448ca201c5  all-20071007.tar.bz2
 c71cbf23c9ac84b85a15801af6fe5fa4  all-alpha-20061028.tar.bz2
 7918b605cca3df7e2c34784f1328e494  all-ppc-20061022.tar.bz2
 abcf4a3abc16cf88c9df7e0a77e9b941  essential-20061022.tar.bz2
+4ea9c2dbd0945c83af1a8d0dd363993c  essential-20071007.tar.bz2
 96fe3d614650531dda6675124f986a13  essential-alpha-20061028.tar.bz2
 af409ba2918dc8f639dded805102fc76  essential-amd64-20061203.tar.bz2
+8e1ceeec51469f5baac65e56fac709e8  essential-amd64-20071007.tar.bz2
 df9ec99d9fa7ef0ab6a633cfb421d637  essential-ppc-20061022.tar.bz2
+6682d5013a91bb80fdde87a516f6a8af  essential-ppc-20071007.tar.bz2
 1f5b8e9d9e31f898b1207a0b3bd70f32  qt5dlls-20040626.tar.bz2
 dbb2e77156a69179473b86f7498e9b29  qt63dlls-20050115.tar.bz2
 9fb88417aef157e2f1f5b7be57eaed7b  qt65dlls-20040704.tar.bz2
@@ -25,4 +29,6 @@ a7c980a1a94fbac6ebd34c7485a1891d  xanimdlls-20040626.tar.bz2
 1e409d500336a8318cbe2a67bbf9d9ca  essential-macosx-x86-20060611.zip
 788cf4940280fd787c0a2141d88ce3c7  rp9codecs-macosx-20041107.pkg.zip
 1323e8d46bfc7b8d1d6d172018222e9c  windows-all-20061022.zip
+f96557eeddb4ea9d286a89ff8c91750a  windows-all-20071007.zip
 0cc375cebb4f7820ad82bc2802171193  windows-essential-20061022.zip
+e32bdc9970f0df7da8eb23d2b254b866  windows-essential-20071007.zip

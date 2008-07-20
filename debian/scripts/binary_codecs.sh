@@ -44,6 +44,11 @@ choosemirror ()
       head -3 mirrors > bestsites
     fi
   fi
+
+  #sometimes the above fails
+  if ! test -s bestsites ; then 
+    head -3 mirrors > bestsites
+  fi
 }
 
 

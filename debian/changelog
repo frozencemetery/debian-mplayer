@@ -1,3 +1,11 @@
+mplayer (1.0~rc2-16) unstable; urgency=high
+
+  * fix FTBFS, build-depends against libdvdread-dev,
+    thanks to Bastian Blank (Closes: #491366).
+  * update lists of binary codecs and mirrors
+
+ -- A Mennucc1 <mennucc1@debian.org>  Sun, 20 Jul 2008 12:05:47 +0200
+
 mplayer (1.0~rc2-15) unstable; urgency=low
 
   * build-depend on  liblzo2-dev  
