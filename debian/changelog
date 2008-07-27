@@ -1,3 +1,16 @@
+mplayer (1.0~rc2-17) unstable; urgency=low
+
+  * fix bashism in binary_codecs.sh script,
+    thanks to Raphael Geissert (Closes: #489636).
+  * use proper name 'mplayer.xpm' for the icon,
+    thanks to Fernando Mitio Yamada (Closes: #483499).
+  * fix: show correct length of theora video (from svn27354),
+    thanks to Sam Morris and  Reimar Döffinger (Closes: #464207).
+  * [INTL:sv] Swedish strings for mplayer debconf, 
+    thanks to brother@bsnet.se (Closes: #491777).
+
+ -- A Mennucc1 <mennucc1@debian.org>  Sun, 27 Jul 2008 09:26:24 +0200
+
 mplayer (1.0~rc2-16) unstable; urgency=high
 
   * fix FTBFS, build-depends against libdvdread-dev,

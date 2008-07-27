@@ -6,10 +6,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: MPlayer 1.0~rc1-11\n"
-"Report-Msgid-Bugs-To: mennucc1@debian.org\n"
-"POT-Creation-Date: 2007-10-18 10:01+0200\n"
-"PO-Revision-Date: 2007-01-21 23:40+0100\n"
-"Last-Translator: Andreas Henriksson <andreas@fatal.se>\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-07-08 04:35+0200\n"
+"PO-Revision-Date: 2008-07-21 19:10+0100\n"
+"Last-Translator: Martin Bagge <brother@bsnet.se>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -19,203 +19,144 @@ msgstr ""
 
 #. Type: note
 #. Description
-#: ../mplayer.templates:2001
+#: ../mplayer.templates:1001
 msgid "Detailed configuration needed for each user"
-msgstr ""
+msgstr "Detaljerad konfiguration krävs för alla användare"
 
 #. Type: note
 #. Description
-#: ../mplayer.templates:2001
-msgid ""
-"The performance of MPlayer depends heavily on hardware; this means that it "
-"may benefit from tweaking options for every single machine it's installed on."
-msgstr ""
+#: ../mplayer.templates:1001
+msgid "The performance of MPlayer depends heavily on hardware; this means that it may benefit from tweaking options for every single machine it's installed on."
+msgstr "Hur MPlayer fungerar beror i hög grad på hårdvaran i maskinen och det betyder att man kan vinna mycket på att ändra i inställningar vid varje installation."
 
 #. Type: note
 #. Description
-#: ../mplayer.templates:2001
-msgid ""
-"You should read the documentation provided by the 'mplayer-doc' package."
-msgstr ""
+#: ../mplayer.templates:1001
+msgid "You should read the documentation provided by the 'mplayer-doc' package."
+msgstr "Du bör läsa dokumentationen i paketet 'mplayer-doc'."
 
 #. Type: note
 #. Description
-#: ../mplayer.templates:2001
-msgid ""
-"Now, some configuration options will be set for the entire system in /etc/"
-"mplayer/mplayer.conf which may be adapted later. Any user can also refine "
-"options in ~/.mplayer/config."
-msgstr ""
+#: ../mplayer.templates:1001
+msgid "Now, some configuration options will be set for the entire system in /etc/mplayer/mplayer.conf which may be adapted later. Any user can also refine options in ~/.mplayer/config."
+msgstr "En del standarduppsättning med inställningar placeras i /etc/mplayer/mplayer.conf, användare kan ha egna inställningar i ~/.mplayer/config."
 
 #. Type: boolean
 #. Description
-#: ../mplayer.templates:3001
+#: ../mplayer.templates:2001
 msgid "Replace existing configuration file?"
 msgstr "Ersätt existerande konfigurationsfil?"
 
 #. Type: boolean
 #. Description
+#: ../mplayer.templates:2001
+msgid "An /etc/mplayer/mplayer.conf file already exists on the system and does not contain an automatically-generated part. That file can be replaced by a generated one (the old file will be moved to /etc/mplayer/mplayer.conf.debconf-old)."
+msgstr "Det finns redan en fil /etc/mplayer/mplayer.conf, men den innehåller ingen automatiskt genererard del. Detta skript kan generera en ny fil (den gamla filen kommer då flyttas till /etc/mplayer/mplayer.conf.debconf-old)."
+
+#. Type: note
+#. Description
 #: ../mplayer.templates:3001
-#, fuzzy
-#| msgid ""
-#| "There is already a file /etc/mplayer/mplayer.conf, but it does not "
-#| "contain an automatically generated part. This script may generate a new "
-#| "file (the old file will be moved to /etc/mplayer/mplayer.conf.debconf-"
-#| "old)."
-msgid ""
-"An /etc/mplayer/mplayer.conf file already exists on the system and does not "
-"contain an automatically-generated part. That file can be replaced by a "
-"generated one (the old file will be moved to /etc/mplayer/mplayer.conf."
-"debconf-old)."
-msgstr ""
-"Det finns redan en fil /etc/mplayer/mplayer.conf, men den innehåller ingen "
-"automatiskt genererard del. Detta skript kan generera en ny fil (den gamla "
-"gilen kommer då flyttas till /etc/mplayer/mplayer.conf.debconf-old)."
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:4001
-#, fuzzy
-#| msgid "Replace existing configuration file?"
 msgid "Old configuration file kept"
-msgstr "Ersätt existerande konfigurationsfil?"
+msgstr "Den äldre inställningsfilen sparades."
 
 #. Type: note
 #. Description
-#: ../mplayer.templates:4001
+#: ../mplayer.templates:3001
 msgid "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
-msgstr ""
+msgstr "Du valde att inte ersätta /etc/mplayer/mplayer.conf."
 
 #. Type: note
 #. Description
-#: ../mplayer.templates:4001
-msgid ""
-"That file can be generated automatically later by running 'dpkg-reconfigure "
-"mplayer'."
-msgstr ""
+#: ../mplayer.templates:3001
+msgid "That file can be generated automatically later by running 'dpkg-reconfigure mplayer'."
+msgstr "Filen kan skapas vid ett senare tillfälle genom att köra 'dpkg-reconfigure mplayer'."
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:4001
 msgid "MPlayer video output:"
 msgstr "MPlayer video ut-system:"
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
-msgid ""
-"MPlayer can use a very wide range of video output drivers. The needed driver "
-"may be detected automatically or chosen manually."
-msgstr ""
+#: ../mplayer.templates:4001
+msgid "MPlayer can use a very wide range of video output drivers. The needed driver may be detected automatically or chosen manually."
+msgstr "MPlayer kan använda en mängd olika drivrutiner för utdata. Drivrutinerna kan upptäckas automatiskt eller anges manuellt."
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
-msgid ""
-"If you prefer choosing the driver yourself, you first should choose an entry "
-"matching this system's video card. If none match and the card supports 'XV', "
-"choose that option (the 'xvinfo' command may help)."
-msgstr ""
+#: ../mplayer.templates:4001
+msgid "If you prefer choosing the driver yourself, you first should choose an entry matching this system's video card. If none match and the card supports 'XV', choose that option (the 'xvinfo' command may help)."
+msgstr "Om du föredrar att välja drivrutinen manuellt ska du först ange maskinens grafik-/videokort. Om du inte hittar något passande och ditt kort stöder 'XV' så anger du det (se även information från kommandot 'xvinfo')."
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
-msgid ""
-"Please read the /usr/share/doc/mplayer-doc/HTML/en/video.html file from the "
-"'mplayer-doc' package for more details."
-msgstr ""
+#: ../mplayer.templates:4001
+msgid "Please read the /usr/share/doc/mplayer-doc/HTML/en/video.html file from the 'mplayer-doc' package for more details."
+msgstr "Läs även /usr/share/doc/mplayer-doc/HTML/en/video.html från paketet 'mplayer-doc' för mer detaljerade alternativ."
 
 #. Type: note
 #. Description
-#: ../mplayer.templates:6001
+#: ../mplayer.templates:5001
 msgid "Binary codecs download"
-msgstr ""
+msgstr "Binära kodek/omvandlare har laddats hem."
 
 #. Type: note
 #. Description
-#: ../mplayer.templates:6001
+#: ../mplayer.templates:5001
 msgid "MPlayer supports most video formats without additional software."
-msgstr ""
+msgstr "MPlayer stödjer de flesta videoformaten utan särskilda tilläggsprogram."
 
 #. Type: note
 #. Description
-#: ../mplayer.templates:6001
-msgid ""
-"Additional video formats, such as Real 3.0/4.0, Windows Media 9, or "
-"Quicktime, can be supported by using binary codecs."
-msgstr ""
+#: ../mplayer.templates:5001
+msgid "Additional video formats, such as Real 3.0/4.0, Windows Media 9, or Quicktime, can be supported by using binary codecs."
+msgstr "Tilläggsprogram kan hämtas för att ge möjlighet att visa ytterligare videoformat som Real 3.0/4.0, Windows Media 9 eller Quicktime."
 
 #. Type: note
 #. Description
-#: ../mplayer.templates:6001
-msgid ""
-"As such codecs are not free software, they are not distributed with this "
-"package but can be downloaded freely. The '/usr/share/mplayer/scripts/"
-"binary_codecs.sh' script is provided in this package to help downloading "
-"them from the MPlayer web site."
-msgstr ""
+#: ../mplayer.templates:5001
+msgid "As such codecs are not free software, they are not distributed with this package but can be downloaded freely. The '/usr/share/mplayer/scripts/binary_codecs.sh' script is provided in this package to help downloading them from the MPlayer web site."
+msgstr "Dessa kodek är inte fri programvara och distribueras där med inte med detta paketet men kan laddas hem fritt. Scriptet '/usr/share/mplayer/scripts/binary_codecs.sh' finns tillgängligt för att hämta dessa från MPlayers webbplats."
 
 #. Type: string
 #. Description
-#: ../mplayer.templates:7001
+#: ../mplayer.templates:6001
 msgid "DVD device name:"
 msgstr "DVD-enhetens namn:"
 
 #. Type: string
 #. Description
-#: ../mplayer.templates:7001
+#: ../mplayer.templates:6001
 msgid "Please enter the name of the device for your DVD player, if any."
-msgstr ""
+msgstr "Ange enhetsnamnet för din DVD-spelare, om du har någon."
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:8001
+#: ../mplayer.templates:7001
 msgid "Font for On Screen Display:"
-msgstr ""
+msgstr "Teckensnitt för skärminformation:"
 
 #. Type: error
 #. Description
-#: ../mplayer.templates:9001
-#, fuzzy
-#| msgid ""
-#| " MPlayer needs True Type fonts for On Screen Display. Choose your "
-#| "favorite."
+#: ../mplayer.templates:8001
 msgid "No TrueType fonts found for On Screen Display"
-msgstr ""
-"MPlayer behöver TrueType teckensnitt för On Screen Display. Välj din favorit."
+msgstr "Hittade inga TrueType teckensnitt för skärminformation."
 
 #. Type: error
 #. Description
-#: ../mplayer.templates:9001
-#, fuzzy
-#| msgid ""
-#| " MPlayer needs True Type fonts for On Screen Display. Choose your "
-#| "favorite."
-msgid ""
-"MPlayer needs at least one TrueType font for its 'On Screen Display' feature."
-msgstr ""
-"MPlayer behöver TrueType teckensnitt för On Screen Display. Välj din favorit."
+#: ../mplayer.templates:8001
+msgid "MPlayer needs at least one TrueType font for its 'On Screen Display' feature."
+msgstr "MPlayer behöver åtminstone ett TrueType teckensnitt för funktionen skärminformation."
 
 #. Type: error
 #. Description
-#: ../mplayer.templates:9001
-#, fuzzy
-#| msgid ""
-#| "You should install a package providing truetype fonts (such as   'ttf-"
-#| "freefont' or 'ttf-bitstream-vera' or  'msttcorefonts' ) and reconfigure "
-#| "MPlayer (with the command \"dpkg-reconfigure mplayer\")"
-msgid ""
-"You should install a package providing such fonts (such as 'ttf-freefont' or "
-"'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by running "
-"'dpkg-reconfigure mplayer')."
-msgstr ""
-"Du bör installera ett paket som tillhandahåller TrueType-teckensnitt (så som "
-"'ttf-freefont', 'ttf-bitstream-vera' eller 'msttcorefonts') och "
-"omkonfigurera MPlayer (med kommandot \"dpkg-reconfigure mplayer\")"
+#: ../mplayer.templates:8001
+msgid "You should install a package providing such fonts (such as 'ttf-freefont' or 'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by running 'dpkg-reconfigure mplayer')."
+msgstr "Du bör installera ett paket som tillhandahåller TrueType-teckensnitt (så som 'ttf-freefont', 'ttf-bitstream-vera' eller 'msttcorefonts') och omkonfigurera MPlayer (med kommandot \"dpkg-reconfigure mplayer\")"
 
 #~ msgid "Create your ~/.mplayer/config file"
 #~ msgstr "Skapa din ~/.mplayer/config fil"
-
 #~ msgid ""
 #~ "Performance of MPlayer depends heavily on hardware - this means that it "
 #~ "may benefit from tweaking options, for every single machine it's "
@@ -236,10 +177,8 @@ msgstr ""
 #~ "(för att slå på multikanals-ljud, video efterbehandling, etc.); och "
 #~ "godtyckliga användare kan konfigurera MPlayer genom filen ~/.mplayer/"
 #~ "config"
-
 #~ msgid "Enable access to RTC?"
 #~ msgstr "Aktivera tillgång till realtidsklockan (RTC)?"
-
 #~ msgid ""
 #~ "On older kernels MPlayer can use the RTC (Real Time Clock) to provide "
 #~ "better timing in reproduction, with less CPU cost; to this end, though, "
@@ -257,10 +196,8 @@ msgstr ""
 #~ "detta vid systemets uppstart, så att alla användare kan åtnjuta denna "
 #~ "funktion. Notera att det kan finnas säkerhets-betänkligheter med detta "
 #~ "(även om ingen är känd för tillfället)."
-
 #~ msgid "Files not replaced"
 #~ msgstr "Filer ersattes ej"
-
 #~ msgid ""
 #~ "It seems that you don't want to replace your existing configuration file /"
 #~ "etc/mplayer/mplayer.conf.  If you change your mind later, you can run "
@@ -269,7 +206,6 @@ msgstr ""
 #~ "Det verkar som du inte vill ersätta din existerande konfigurationsfil /"
 #~ "etc/mplayer/mplayer.conf. Om du ändrar dig vid senare tillfälle kan du då "
 #~ "köra \"dpkg-reconfigure mplayer\"."
-
 #~ msgid ""
 #~ "MPlayer can use a very wide range of video output drivers; it will try to "
 #~ "autodetect the best one, but you may choose a preferred one. Here is a "
@@ -285,10 +221,8 @@ msgstr ""
 #~ "video-kort stödjer 'XV', välj det (använda 'xvinfo' för att kontrollera). "
 #~ "Du bör läsa /usr/share/doc/mplayer-doc/HTML/en/video.html (som finns i "
 #~ "paketet 'mplayer-doc')."
-
 #~ msgid "How to download binary codecs"
 #~ msgstr "Hur man laddar ner binära codecs"
-
 #~ msgid ""
 #~ "MPlayer supports most codecs out of the box and the rest with the help of "
 #~ "binary codecs. Binary codecs are only necessary for Real 3.0  and 4.0, "
@@ -304,12 +238,10 @@ msgstr ""
 #~ "Internet för nerladdning, Kör skriptet `/usr/share/mplayer/scripts/"
 #~ "binary_codecs.sh' för att installera de som gjorts tillgängliga på "
 #~ "MPlayers webbplats."
-
 #~ msgid "What is the name of your DVD device (if any):"
 #~ msgstr "Vad är namnet på din DVD-enhet (om någon):"
-
 #~ msgid "MPlayer OSD font:"
 #~ msgstr "MPlayer OSD typsnitt:"
-
 #~ msgid "MPlayer cannot find TrueType Fonts"
 #~ msgstr "MPlayer kan inte hitta TrueType-teckensnitten"
+

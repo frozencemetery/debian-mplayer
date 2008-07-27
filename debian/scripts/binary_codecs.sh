@@ -44,11 +44,6 @@ choosemirror ()
       head -3 mirrors > bestsites
     fi
   fi
-
-  #sometimes the above fails
-  if ! test -s bestsites ; then 
-    head -3 mirrors > bestsites
-  fi
 }
 
 
@@ -97,7 +92,7 @@ UNPACK ()
 	grep "  $filename$" $PREFDIR/MD5SUMS | md5sum -c -
     else
 	echo Warning: no MD5 for $filename were found. Hit enter to continue.
-	read
+	read dummy
     fi
     echo Installing $filename  ...
     if [ -r $filename.list  ] ; then

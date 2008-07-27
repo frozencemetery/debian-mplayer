@@ -17,3 +17,4 @@ mplayer-debug-printf.dpatch
 shared_linking_to_ffmpeg.dpatch
 to-ffmpeg-free-0.svn20080206.diff
 demux.patch
+theora_length_fix_svn27354.diff
