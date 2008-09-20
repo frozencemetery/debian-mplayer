@@ -1,3 +1,12 @@
+mplayer (1.0~rc2-17+lenny1) testing-security; urgency=high
+
+  * Non-maintainer upload by the security team
+  * Apply upstream patch to fix three integer overflows in the real
+    demuxing code
+    Fixes: CVE-2008-3827
+
+ -- Steffen Joeris <white@debian.org>  Sat, 20 Sep 2008 08:30:59 +0000
+
 mplayer (1.0~rc2-17) unstable; urgency=low
 
   * fix bashism in binary_codecs.sh script,
