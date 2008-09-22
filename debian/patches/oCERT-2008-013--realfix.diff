@@ -1,10 +1,8 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
+#!/bin/sh /usr/share/dpatch/dpatch-run
 @DPATCH@
-Index: libmpdemux/demux_real.c
-===================================================================
---- libmpdemux/demux_real.c	(revision 27605)
+--- mplayer-1.0~rc2~/libmpdemux/demux_real.c	(revision 27605)
 +++ mplayer-1.0~rc2/libmpdemux/demux_real.c	(working copy)
-@@ -947,6 +947,7 @@
+@@ -959,6 +959,7 @@
  			    // last fragment!
  			    if(dp_hdr->len!=vpkg_length-vpkg_offset)
  				mp_msg(MSGT_DEMUX,MSGL_V,"warning! assembled.len=%d  frag.len=%d  total.len=%d  \n",dp->len,vpkg_offset,vpkg_length-vpkg_offset);
@@ -12,7 +10,7 @@ Index: libmpdemux/demux_real.c
              		    stream_read(demuxer->stream, dp_data+dp_hdr->len, vpkg_offset);
  			    if((dp_data[dp_hdr->len]&0x20) && (sh_video->format==0x30335652)) --dp_hdr->chunks; else
  			    dp_hdr->len+=vpkg_offset;
-@@ -970,6 +971,7 @@
+@@ -982,6 +982,7 @@
  			// non-last fragment:
  			if(dp_hdr->len!=vpkg_offset)
  			    mp_msg(MSGT_DEMUX,MSGL_V,"warning! assembled.len=%d  offset=%d  frag.len=%d  total.len=%d  \n",dp->len,vpkg_offset,len,vpkg_length);
@@ -20,7 +18,7 @@ Index: libmpdemux/demux_real.c
              		stream_read(demuxer->stream, dp_data+dp_hdr->len, len);
  			if((dp_data[dp_hdr->len]&0x20) && (sh_video->format==0x30335652)) --dp_hdr->chunks; else
  			dp_hdr->len+=len;
-@@ -992,6 +994,7 @@
+@@ -1004,6 +1004,7 @@
  		extra[0]=1; extra[1]=0; // offset of the first chunk
  		if(0x00==(vpkg_header&0xc0)){
  		    // first fragment:

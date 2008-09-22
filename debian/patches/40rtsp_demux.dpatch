@@ -9,14 +9,11 @@
 diff -urNad mplayer-1.0~rc2~/libmpdemux/demux_real.c mplayer-1.0~rc2/libmpdemux/demux_real.c
 --- mplayer-1.0~rc2~/libmpdemux/demux_real.c	(revision 24859)
 +++ mplayer-1.0~rc2/libmpdemux/demux_real.c	(working copy)
-@@ -685,6 +686,10 @@
+@@ -685,6 +686,7 @@
  		free(sub_packet_lengths);
  		return 1;
  	    }
-+if (len < 256) {
-+    stream_skip(demuxer->stream, len);
-+    continue;
-+}
++        if (len < 256) {    stream_skip(demuxer->stream, len);    continue; }
          if ((priv->intl_id[stream_id] == mmioFOURCC('I', 'n', 't', '4')) ||
              (priv->intl_id[stream_id] == mmioFOURCC('g', 'e', 'n', 'r')) ||
              (priv->intl_id[stream_id] == mmioFOURCC('s', 'i', 'p', 'r'))) {

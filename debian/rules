@@ -48,7 +48,7 @@ endif
 ifeq ($(shell cat /etc/debian_version),3.1) #AKA Sarge
 XLIBS := xlibs-dev
 else
-XLIBS := libx11-dev, libxext-dev, libxinerama-dev, libxv-dev, libxvmc-dev, libxxf86dga-dev, libxxf86vm-dev, x-dev
+XLIBS := libx11-dev, libxext-dev, libxinerama-dev, libxv-dev, libxvmc-dev, libxxf86dga-dev, libxxf86vm-dev, x11proto-core-dev
 endif
 
 ifeq  ($(wildcard DOCS/.upstream_ships_docs),DOCS/.upstream_ships_docs)
@@ -141,6 +141,13 @@ DEB_BUILD_CONFIGURE += --enable-debug
 #endif
 #endif
 
+
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+         NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+         MAKEFLAGS += -j$(NUMJOBS)
+endif
+
+
 ifeq (linux,$(DEB_HOST_ARCH_OS))
     DEB_BUILD_CONFIGURE += --enable-tv-v4l2 --enable-xmga --enable-mga --enable-3dfx --enable-tdfxfb --enable-fbdev
 endif
@@ -149,7 +156,7 @@ ifeq (kfreebsd,$(DEB_HOST_ARCH_OS))
 endif
 
 
-USE_EXT_FFMPEG = no
+
 #DEB_BUILD_CONFIGURE += --enable-libavutil_so --enable-libavformat_so --enable-libavcodec_so --enable-libpostproc_so 
 #EXTRA_BUILDDEP += libavcodec-dev (>= 0.svn6767), libavformat-dev (>= 0.svn6767), libpostproc-dev (>= 0.svn6767)
 
@@ -165,14 +172,12 @@ unpatch:
 
 ####### build-arch
 
-configure: patch-stamp configure-stamp
-#This is actually a configure-arch-stamp.
-configure-stamp:
+configure: configure-arch-stamp
+configure-arch-stamp: patch-stamp
 	dh_testdir
 	#Check consistency between debian/control and what we are compiling.
 	grep -x 'Source: $(package)'  debian/control
 	grep -x 'Package: $(package)' debian/control
-	if test "$(USE_EXT_FFMPEG)" = yes ; then for i in libavcodec libavformat libavutil libpostproc  ; do mv -v $$i $$i.disabled ; done ; fi
 	# Add commands to configure the package here.
 	${CLEAN_ENV} ./configure --prefix=/usr --confdir=/etc/mplayer  \
         --datadir=/usr/share/mplayer --codecsdir=/usr/lib/codecs \
@@ -182,7 +187,6 @@ configure-stamp:
 	#
 	if test "$(svn_revision)" ; then echo  "#define VERSION \"dev-SVN-r$(svn_revision)-$(CC_version)-$(extraversion)\""  > version.h ; else sh version.sh $(CC_version)-$(extraversion) ; fi
 
-	if test "$(USE_EXT_FFMPEG)" = yes ; then for i in libavcodec libavformat libavutil libpostproc  ; do mv -v  $$i.disabled $$i ; done ; fi
 
 	#tweak config.mak on request
 ifneq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
@@ -199,11 +203,11 @@ ifeq (powerpc,$(DEB_HOST_ARCH_CPU))
 	mv config.mak  config.mak~~
 	sed '/FLAGS/s/ -O[0-9] / -O /' config.mak~~ > config.mak
 endif
-	touch configure-stamp
+	touch configure-arch-stamp
 
 # commands to compile the package
-build-arch: patch configure-stamp build-arch-stamp
-build-arch-stamp:
+build-arch: build-arch-stamp
+build-arch-stamp: configure-arch-stamp
 	dh_testdir
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 ifeq ($(arch),i386)
@@ -239,21 +243,17 @@ build: build-indep build-arch
 
 ################ clean
 
-clean: clean-patched unpatch
+clean: clean-patched
 
-clean-patched:
+clean-patched: unpatch
 	dh_testdir
 	dh_testroot
-	#
-	#put back internal ffmpeg, just in case
-	for i in libavcodec libavformat libavutil libpostproc  ; do if test -d $$i.disabled ; then  mv -v  $$i.disabled $$i ; fi ; done 
-	#
 	# commands to clean up after the build process
 	-[ -r DOCS/.upstream_ships_docs ] || ${MAKE} -C DOCS/xml distclean
 	- $(MAKE) distclean
 	#- $(MAKE) -C Gui distclean
 	#
-	rm -f config.h config.mak build-arch-stamp build-indep-stamp configure-stamp configure.log
+	rm -f config.h config.mak build-arch-stamp build-indep-stamp configure-arch-stamp configure.log
 	#some leftovers
 	find -name '*.o' -or -name '*.a' -or -name '*~' \
 		-or -name semantic.cache -print0 |\
@@ -291,7 +291,7 @@ install-arch:  build-arch
 
 
 
-install-indep:  build-indep
+install-indep: build-indep 
 	dh_testdir
 	dh_clean -i -k
 	dh_installdocs  -p mplayer-doc Copyright DOCS/HTML DOCS/tech
@@ -346,20 +346,14 @@ endif
 
 
 # Build architecture-independent packages using the common target.
-binary-indep: build-indep install-indep
+binary-indep: install-indep
 	$(MAKE) -f debian/rules DH_OPTIONS=-i THISPACKAGE=mplayer-doc binary-common
 
 # Build architecture-dependent packages using the common target.
-binary-arch: build-arch install-arch
+binary-arch: install-arch
 	$(MAKE) -f debian/rules DH_OPTIONS=-a THISPACKAGE=mplayer binary-common
 
-# Any other binary targets build just one binary package at a time.
-binary-%: build install
-	make -f debian/rules binary-common DH_OPTIONS=-p$*
-
 binary: binary-indep binary-arch
-
-
 
 #####################################################
 ##This target generates debian/control. It is not automatically invoked.

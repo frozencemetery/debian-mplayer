@@ -1,11 +1,16 @@
-mplayer (1.0~rc2-17+lenny1) testing-security; urgency=high
+mplayer (1.0~rc2-18) unstable; urgency=high
 
-  * Non-maintainer upload by the security team
-  * Apply upstream patch to fix three integer overflows in the real
-    demuxing code
-    Fixes: CVE-2008-3827
+  * fix oCERT-2008-013 Mplayer real demuxer heap.
+    Thanks to Felipe Andres Manzano, Andrea Barisani,
+     Steffen Joeris, Reimar Döffinger. (Closes: #500683).
+  * Clean lintian warnings:
+     build-depend on libgif-dev instead of libungif4-dev
+     build-depend on x11proto-core-dev instead of x-dev 
+     depends on  debconf | debconf-2.0
+  * Up standard to 3.8.0.0
+     support DEB_BUILD_OPTIONS="parallel=n"
 
- -- Steffen Joeris <white@debian.org>  Sat, 20 Sep 2008 08:30:59 +0000
+ -- A Mennucc1 <mennucc1@debian.org>  Mon, 22 Sep 2008 11:01:26 +0200
 
 mplayer (1.0~rc2-17) unstable; urgency=low
 
