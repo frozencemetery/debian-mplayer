@@ -1,3 +1,10 @@
+mplayer (1.0~rc2-19) unstable; urgency=high
+
+  * SA33136: MPlayer TwinVQ Processing Buffer Overflow Vulnerability
+    Thanks to T. Klein, G. Iuculano, R. Döffinger  (Closes: #508803).
+
+ -- A Mennucc1 <mennucc1@debian.org>  Mon, 15 Dec 2008 21:05:07 +0100
+
 mplayer (1.0~rc2-18) unstable; urgency=high
 
   * fix oCERT-2008-013 Mplayer real demuxer heap.
