@@ -72,7 +72,7 @@ CLEAN_ENV=env -u CFLAGS -u CPPFLAGS -u LDFLAGS -u FFLAGS -u CXXFLAGS
 
 
 ## This can be overridden from the command line, see README.Debian.
-DEB_BUILD_CONFIGURE=--disable-bitmap-font  --disable-ggi  --disable-xvid --language=all  --disable-xmms --disable-arts --disable-aa --disable-mad --disable-libdv  --enable-libavutil_so   --enable-libavcodec_so  --enable-libavformat_so --enable-libpostproc_so $(archconf)
+DEB_BUILD_CONFIGURE=--disable-bitmap-font  --disable-ggi  --disable-xvid --language=all  --disable-xmms --disable-arts --disable-aa --disable-mad --disable-libdv  --enable-libavutil_so   --enable-libavcodec_so  --enable-libavformat_so --enable-libpostproc_so --enable-faad-external $(archconf)
 
 
 # Choose whether we want binary codec support (default on unknown archs: no).

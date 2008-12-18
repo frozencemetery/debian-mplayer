@@ -1,3 +1,10 @@
+mplayer (1.0~rc2-20) unstable; urgency=low
+
+  * use external libfaad : external libfaad is newer, and does not crash
+    on aac file in  http://bugs.debian.org/407010
+
+ -- A Mennucc1 <mennucc1@debian.org>  Thu, 18 Dec 2008 11:48:42 +0100
+
 mplayer (1.0~rc2-19) unstable; urgency=high
 
   * SA33136: MPlayer TwinVQ Processing Buffer Overflow Vulnerability
