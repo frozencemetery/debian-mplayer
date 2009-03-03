@@ -6,13 +6,10 @@ export DH_OPTIONS
 ############
 
 package        := mplayer
-
-## The Subversion revision is not autodetected in some targets!
-upstreamversion := 1.0rc2
-
-## We add a ~ to it.
-debian_version := 1.0~rc2
-
+DEB_SOURCE := $(shell dpkg-parsechangelog | sed -n 's/^Source: //p')
+DEB_VERSION := $(shell dpkg-parsechangelog | sed -n 's/^Version: //p')
+UPSTREAM_VERSION := $(shell echo $(DEB_VERSION) | sed -r 's/[^:]+://; s/-[^-]+$$//')
+SVN_VERSION := $(shell echo $(UPSTREAM_VERSION) | sed -nr 's/^[0-9.:-~]+svn([0-9]+)$$/\1/p')
 
 
 svn_revision := $(shell if test -r .svn ; then LC_ALL=C svn info 2> /dev/null | grep Revision | cut -d' ' -f2 ; elif test -r revision.svn ; then cat revision.svn ; fi )
@@ -356,64 +353,10 @@ autocontrol:
 ##These targets generate the DFSG-free tar.gz.
 ## They are not automatically invoked.
 
-##temporary dir
-D := temp_dir_to_debianize_mplayer
-
-##What we expect to find in a tar.bz2 from upstream.
-M := MPlayer-$(upstreamversion)
-
-
-download-and-unpack-orig:
-	mkdir $(D)
-	###Darn, this does not work in any dir (as requested by policy).
-	# $(dirname ??)/scripts/binary_codecs.sh download MPlayer-$(upstreamversion).tar.bz2
-	### Download file, or link it if available.
-	if [ -r  $(M).tar.bz2 ] ; then  ln -s ../$(M).tar.bz2 $(D)/. ; elif 	  [ -r  ../$(M).tar.bz2 ] ; then  ln -s ../../$(M).tar.bz2 $(D)/. ; else  cd  $(D) && wget -N $(UPSTREAMSOURCE) ; fi
-	cd $(D) && tar xjf  $(M).tar.bz2 && rm $(M).tar.bz2
-
-copy-orig-from-svn: ../mplayer/.svn /usr/bin/svn
-	mkdir $(D)
-	cp -al ../mplayer $(D)/$(M)
-	cd $(D)/$(M) && LC_ALL=C svn info 2> /dev/null | grep Revision | cut -d' ' -f2 > revision.svn
-	find $(D)/$(M) -type d -name .svn  | xargs rm -r
-
-##Part of the source that is not shipped with Debian.
-E := mplayer-non-DFSG-$(debian_version)
-
-##Part of the source that is shipped with Debian.
-S := mplayer-$(debian_version)
-
-
-fix-orig-source: $(D)/$(M)
-	mkdir $(D)/$(E)
-	# This contains the dreaded DVD decryption code. We can live without it
-	#  by using libdvdread3 (and the optional library installed by
-	#    http://www.debian-unofficial.org/   :-)
-	cd $(D) &&  mv $(M)/libdvdcss  $(E)
-	# Well this may seem a bit excessive... But this code is not useful
-	#  for building the package, and most of it does not correctly state
-	#  author-license-copyright:  So I throw out the baby and the bath...
-	# When and if someone needs this stuff, I will carefully scrutinize
-	#  it and add what is suitable.
-	cd $(D) && mv $(M)/TOOLS $(E)
-	#Check if upstream includes DOCS and then don't rebuild them.
-	cd $(D)/$(M)/DOCS && if [ -r HTML ] ; then touch .upstream_ships_docs; fi
-	# My debian dir is too different.
-	cd $(D)/$(M) && mv debian debian_upstream
-	# Do not support encoding in any way.
-	cd $(D) && mv $(M)/mencoder.c  $(E)
-	# OK, let's repackage.
-	cd $(D) && mv MPlayer-$(upstreamversion) $(S) && 	 tar czf  ../mplayer_$(debian_version).orig.tar.gz $(S) &&  rm -r $(S)
-
-	cd $(D) && tar czf  mplayer-non-DFSG_$(debian_version).tar.gz $(E) && gpg  --passphrase yes -c mplayer-non-DFSG_$(debian_version).tar.gz   && mv mplayer-non-DFSG_$(debian_version).tar.gz.gpg .. && rm -r $(E) mplayer-non-DFSG_$(debian_version).tar.gz
-	rmdir $(D)
-
-#unfix-orig-source: debian/mplayer.menu
-#	if [ -r  $(M).tar.bz2 ] ; then  ln -s ../$(M).tar.bz2 $(D)/. ; elif 	  [ -r  ../$(M).tar.bz2 ] ; then  ln -s ../../$(M).tar.bz2 $(D)/. ; else  cd  $(D) && wget -N $(UPSTREAMSOURCE) ; fi
-#	cd $(D) && tar xjf  $(M).tar.bz2 && rm $(M).tar.bz2
-
-
-# This will fail for Subversion-derived sources.
-get-orig-source : download-and-unpack-orig  fix-orig-source
+get-orig-source:
+	dh_testdir
+	# strip patented code
+	chmod +x debian/strip.sh
+	sh debian/get-orig-source.sh -d$(SVN_VERSION)
 
 .PHONY: build clean binary-indep binary-arch binary-common binary install binary binary-arch binary-indep clean checkroot get-orig-source autocontrol fix-orig-source copy-orig-from-svn download-and-unpack-orig
