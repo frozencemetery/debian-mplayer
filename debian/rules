@@ -1,15 +1,4 @@
 #!/usr/bin/make -f
-###########
-## this snippet comes from debhelper-5.0.40/examples/rules.multi2
-#
-# Based on a sample debian/rules that uses debhelper.
-# (That file is public domain software, originally written by Joey Hess.)
-#
-# This version is for a multibinary package. It also allows you to build any
-# of the binary packages independantly, via binary-<package> targets.
-
-# Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
 
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
