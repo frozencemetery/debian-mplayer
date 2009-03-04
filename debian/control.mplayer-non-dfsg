@@ -1,0 +1,109 @@
+Source: mplayer
+Section: graphics
+Priority: optional
+Maintainer: Debian multimedia packages maintainers <pkg-multimedia-maintainers@lists.alioth.debian.org>
+Uploaders: A Mennucc1 <mennucc1@debian.org>,
+	   Reinhard Tartler <siretart@tauware.de>
+Standards-Version: 3.8.0.0
+Vcs-Git: git://git.debian.org/git/pkg-multimedia/mplayer.git
+Vcs-Browser: http://git.debian.org/?p=pkg-multimedia/mplayer;a=summary
+Homepage: http://www.mplayerhq.hu/
+Build-Depends-Indep: docbook-xml,
+		     docbook-xsl,
+		     xsltproc
+Build-Depends: debhelper (>= 7),
+	       ladspa-sdk,
+	       libasound2-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386],
+	       libaudio-dev,
+	       libavcodec-dev (>= 0.svn20080206),
+	       libavdevice-dev,
+	       libavformat-dev,
+	       libavutil-dev,
+	       libcaca-dev,
+	       libcdparanoia0-dev,
+	       libdirectfb-dev,
+	       libdts-dev,
+	       libdvdread-dev,
+	       libesd0-dev,
+	       libfontconfig1-dev,
+	       libfreetype6-dev,
+	       libfribidi-dev,
+	       libgif-dev,
+	       libgl1-mesa-dev,
+	       libgtk2.0-dev,
+	       libjack-dev,
+	       libjpeg62-dev,
+	       liblircclient-dev,
+	       liblivemedia-dev,
+	       liblzo2-dev,
+	       libmpcdec-dev,
+	       libncurses5-dev,
+	       libopenal-dev,
+	       libpng-dev,
+	       libpostproc-dev,
+	       libsdl1.2-dev | libsdl1.1-dev,
+	       libsmbclient-dev,
+	       libspeex-dev,
+	       libsvga1-dev [i386 amd64],
+	       libswscale-dev,
+	       libtheora-dev (>= 1.0~beta1-1),
+	       libvorbis-dev,
+	       libx11-dev,
+	       libxext-dev,
+	       libxinerama-dev,
+	       libxv-dev,
+	       libxvmc-dev,
+	       libxxf86dga-dev,
+	       libxxf86vm-dev,
+	       make,
+	       pkg-config,
+	       po-debconf,
+	       quilt,
+	       vstream-client-dev,
+	       x11proto-core-dev,
+	       zlib1g-dev
+
+Package: mplayer
+Architecture: any
+Suggests: mplayer-doc,
+	  ttf-freefont,
+	  netselect | fping,
+	  bzip2,
+	  fontconfig
+Depends: debconf | debconf-2.0,
+	 mplayer-skin,
+	 ${shlibs:Depends}
+Description: movie player for Unix-like systems
+ MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
+ ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
+ supported by many native, XAnim, RealPlayer, and Win32 DLL codecs. It can
+ also play VideoCD, SVCD, DVD, 3ivx, RealMedia, and DivX movies.
+ .
+ Another big feature of MPlayer is the wide range of supported output
+ drivers. It works with X11, Xv, DGA, OpenGL, SVGAlib, fbdev,
+ DirectFB, but also SDL (plus all its drivers) and some
+ low level card-specific drivers (for Matrox, 3Dfx and Radeon, Mach64
+ and Permedia3). Most of them support software or hardware scaling,
+ therefore allowing fullscreen display.  MPlayer is also able
+ to use some hardware MPEG decoder boards, such as the DVB
+ and DXR3/Hollywood+. 
+ .
+ Not all of the upstream code is distributed in the source tarball.
+ See the README.Debian and copyright files for details.
+
+Package: mplayer-dbg
+Architecture: any
+Priority: extra
+Depends: mplayer
+Description: debugging symbols for MPlayer
+ This package contains the debugging symbols for MPlayer, a movie
+ player for Unix-like systems. You only need these if you want to
+ generate debugging backtraces.
+
+Package: mplayer-doc
+Architecture: all
+Recommends: mplayer
+Section: doc
+Description: documentation for MPlayer
+ This package contains the documentation for MPlayer, a movie player for
+ Unix-like systems.
