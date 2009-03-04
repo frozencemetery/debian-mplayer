@@ -15,9 +15,6 @@ rm -rf TOOLS
 #Check if upstream includes DOCS and then don't rebuild them.
 if [ -r DOCS/HTML ]; then touch DOCS/.upstream_ships_docs; fi
 
-# My debian dir is too different.
-mv debian debian_upstream
-
 # Do not support encoding in any way.
 rm -fv mencoder.c
 

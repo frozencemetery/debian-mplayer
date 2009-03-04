@@ -97,6 +97,11 @@ while read external url; do
       > ${TMPDIR}/${PACKAGENAME}/${external}/.svnrevision
 done
 
+# this doesn't belong in strip.sh, because the unstripped source should
+# have this directory renamed as well.
+( cd ${TMPDIR}/${PACKAGENAME} && mv debian debian_upstream )
+
+
 tar czf ${TARBALL_UNSTRIPPED} -C ${TMPDIR} ${PACKAGENAME}
 	
 ( cd ${TMPDIR}/${PACKAGENAME} && sh ${CLEANUPSCRIPT} )
