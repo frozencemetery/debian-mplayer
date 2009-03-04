@@ -4,17 +4,14 @@
 
 WARNING WARNING WARNING WARNING
 
-the  mplayer*.tar.gz in Debian is  different from  @UPSTREAMSOURCE@
+The sources as published in debian/main have some parts removed!
 
+* In order to update the package yourself and/or review the changes done
+  to the source code, please see the files:
 
-* If the code is pulled from SVN, then tar.gz in Debian is
-obtained by
-  debian/rules copy-orig-from-svn
-  debian/rules fix-orig-source
-If the code is from an upstream .tar.gz , then tar.gz in Debian is
-obtained by
-  debian/rules download-and-unpack-orig
-  debian/rules fix-orig-source
+   debian/README.upstream-upgrade
+   debian/get-orig-source.sh
+   debian/strip.sh
 
 * In particular, the mpdvdkit internal library was deleted: so
   mplayer.deb is uncapable to play encrypted DVDs ; if you want to
@@ -26,7 +23,7 @@ obtained by
  FOR FEATURES, but, send bugs to Debian: indeed, missing features
  and/or bugs may be due to my butchering of the upstream code
 
-A. Mennucc
+A. Mennucc with adaptions by Reinhard Tartler
 
 -------------- on GPLv2 sec 2.a
 
