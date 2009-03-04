@@ -1,0 +1,19 @@
+--- a/Makefile
++++ b/Makefile
+@@ -701,11 +701,11 @@ SRCS_COMMON   += $(SRCS_COMMON-yes) $(SR
+ SRCS_MENCODER += $(SRCS_MENCODER-yes)
+ SRCS_MPLAYER  += $(SRCS_MPLAYER-yes)
+ 
+-COMMON_LIBS-$(LIBAVFORMAT_A)      += libavformat/libavformat.a
+-COMMON_LIBS-$(LIBAVCODEC_A)       += libavcodec/libavcodec.a
+-COMMON_LIBS-$(LIBAVUTIL_A)        += libavutil/libavutil.a
+-COMMON_LIBS-$(LIBPOSTPROC_A)      += libpostproc/libpostproc.a
+-COMMON_LIBS-$(LIBSWSCALE_A)       += libswscale/libswscale.a
++COMMON_LIBS-$(LIBAVFORMAT_A)      += /usr/lib/libavformat.so
++COMMON_LIBS-$(LIBAVCODEC_A)       += /usr/lib/libavcodec.so
++COMMON_LIBS-$(LIBAVUTIL_A)        += /usr/lib/libavutil.so
++COMMON_LIBS-$(LIBPOSTPROC_A)      += /usr/lib/libpostproc.so
++COMMON_LIBS-$(LIBSWSCALE_A)       += /usr/lib/libswscale.so
+ COMMON_LIBS += $(COMMON_LIBS-yes)
+ 
+ OBJS_COMMON    += $(addsuffix .o, $(basename $(SRCS_COMMON)))

@@ -1,0 +1,15 @@
+Author: <debdev@pingu>
+Description: use mktemp for temp files
+--- a/configure
++++ b/configure
+@@ -1477,6 +1477,10 @@ for I in "$TMPDIR" "$TEMPDIR" "/tmp" ; d
+   test "$I" && break
+ done
+ 
++if which mktemp >/dev/null 2>/dev/null; then
++  # BSD/Debian/etc. mktemp avoids symlink attacks etc.
++  I=`mktemp -d "$I"/mplayer.XXXXXX` || exit 1
++fi
+ 
+ TMPLOG="configure.log"
+ TMPC="$I/mplayer-conf-$RANDOM-$$.c"

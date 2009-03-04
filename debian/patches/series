@@ -1,0 +1,4 @@
+11configure-mktemp.patch
+22disable-xscreensaver.patch
+23mplayer-debug-printf.patch
+30link-system-ffmpeg.patch

@@ -1,14 +1,8 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
-## 22disable-xscreensaver.dpatch by  <mennucc1@debian.org>
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: This patch avoids xscreensaver from blanking onto your favorite movie ; it was made by me, based on code posted in mplayer-dev-eng by Adam  Tlałka
-
-@DPATCH@
-diff -urNad mplayer-1.0~rc2~/libvo/x11_common.c mplayer-1.0~rc2/libvo/x11_common.c
---- mplayer-1.0~rc2~/libvo/x11_common.c	2007-10-07 21:49:28.000000000 +0200
-+++ mplayer-1.0~rc2/libvo/x11_common.c	2007-10-18 19:56:06.000000000 +0200
-@@ -161,6 +161,9 @@
+Author: <mennucc1@debian.org>
+Description: This patch avoids xscreensaver from blanking onto your favorite movie ; it was made by me, based on code posted in mplayer-dev-eng by Adam  Tlałka
+--- a/libvo/x11_common.c
++++ b/libvo/x11_common.c
+@@ -177,6 +177,9 @@ void vo_x11_ewmh_fullscreen(int action)
      }
  }
  
@@ -18,7 +12,7 @@ diff -urNad mplayer-1.0~rc2~/libvo/x11_common.c mplayer-1.0~rc2/libvo/x11_common
  void vo_hidecursor(Display * disp, Window win)
  {
      Cursor no_ptr;
-@@ -180,6 +183,7 @@
+@@ -196,6 +199,7 @@ void vo_hidecursor(Display * disp, Windo
      bm_no = XCreateBitmapFromData(disp, win, bm_no_data, 8, 8);
      no_ptr = XCreatePixmapCursor(disp, bm_no, bm_no, &black, &black, 0, 0);
      XDefineCursor(disp, win, no_ptr);
@@ -26,7 +20,7 @@ diff -urNad mplayer-1.0~rc2~/libvo/x11_common.c mplayer-1.0~rc2/libvo/x11_common
      XFreeCursor(disp, no_ptr);
      if (bm_no != None)
          XFreePixmap(disp, bm_no);
-@@ -191,6 +195,7 @@
+@@ -207,6 +211,7 @@ void vo_showcursor(Display * disp, Windo
      if (WinID == 0)
          return;
      XDefineCursor(disp, win, 0);
@@ -34,7 +28,7 @@ diff -urNad mplayer-1.0~rc2~/libvo/x11_common.c mplayer-1.0~rc2/libvo/x11_common
  }
  
  static int x11_errorhandler(Display * display, XErrorEvent * event)
-@@ -1010,6 +1015,7 @@
+@@ -805,6 +810,7 @@ void vo_x11_uninit(void)
  
  static unsigned int mouse_timer;
  static int mouse_waiting_hide;
@@ -42,7 +36,7 @@ diff -urNad mplayer-1.0~rc2~/libvo/x11_common.c mplayer-1.0~rc2/libvo/x11_common
  
  int vo_x11_check_events(Display * mydisplay)
  {
-@@ -1097,7 +1103,9 @@
+@@ -878,7 +884,9 @@ int vo_x11_check_events(Display * mydisp
                      sprintf(cmd_str,"set_mouse_pos %i %i",Event.xmotion.x, Event.xmotion.y);
                      mp_input_queue_cmd(mp_input_parse_cmd(cmd_str));
                  }
@@ -53,9 +47,9 @@ diff -urNad mplayer-1.0~rc2~/libvo/x11_common.c mplayer-1.0~rc2/libvo/x11_common
                  if (vo_mouse_autohide)
                  {
                      vo_showcursor(mydisplay, vo_window);
-@@ -1678,6 +1686,16 @@
-         XSync(mDisplay, False);
-         XSetErrorHandler(old_handler);        
+@@ -1437,6 +1445,16 @@ void xscreensaver_heartbeat(void)
+ 
+         XResetScreenSaver(mDisplay);
      }
 +
 +    static unsigned int last_warp_time = 0;
@@ -69,4 +63,4 @@ diff -urNad mplayer-1.0~rc2~/libvo/x11_common.c mplayer-1.0~rc2/libvo/x11_common
 +    }
  }
  
- static void xscreensaver_disable(Display * dpy)
+ static int xss_suspend(Bool suspend)
