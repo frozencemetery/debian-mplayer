@@ -7,16 +7,11 @@ export DH_OPTIONS
 
 ############
 
-package        := mplayer
 DEB_SOURCE := $(shell dpkg-parsechangelog | sed -n 's/^Source: //p')
 DEB_VERSION := $(shell dpkg-parsechangelog | sed -n 's/^Version: //p')
 UPSTREAM_VERSION := $(shell echo $(DEB_VERSION) | sed -r 's/[^:]+://; s/-[^-]+$$//')
 SVN_VERSION := $(shell echo $(UPSTREAM_VERSION) | sed -nr 's/^[0-9.:-~]+svn([0-9]+)$$/\1/p')
 
-
-svn_revision := $(shell if test -r .svn ; then LC_ALL=C svn info 2> /dev/null | grep Revision | cut -d' ' -f2 ; elif test -r revision.svn ; then cat revision.svn ; fi )
-
-CC_version := $(shell $(CC) -dumpversion)
 
 #UPSTREAMSOURCE := upstream SVN repository
 UPSTREAMSOURCE := http://www1.mplayerhq.hu/MPlayer/releases/MPlayer-1.0rc1.tar.bz2
@@ -25,29 +20,10 @@ UPSTREAMSOURCE := http://www1.mplayerhq.hu/MPlayer/releases/MPlayer-1.0rc1.tar.b
 # See target "fix-orig-source" in this makefile.
 DFSG := $(shell test -d libdvdcss && echo 'This version of MPlayer contains libdvdcss.' )
 
-ifeq ($(DFSG),)
-extraversion := DFSG-free
-else
-extraversion := DFSG-nonfree
-endif
-
-
-
-ifeq ($(shell cat /etc/debian_version),3.1) #AKA Sarge
-XLIBS := xlibs-dev
-else
-XLIBS := libx11-dev, libxext-dev, libxinerama-dev, libxv-dev, libxvmc-dev, libxxf86dga-dev, libxxf86vm-dev, x11proto-core-dev
-endif
-
-ifeq  ($(wildcard DOCS/.upstream_ships_docs),DOCS/.upstream_ships_docs)
-DOCDEP :=
-else
-DOCDEP := docbook-xml, docbook-xsl, xsltproc
-endif
-
-destdir := $(shell pwd)/debian/$(package)
+destdir := $(shell pwd)/debian/$(DEB_SOURCE)
 
 arch   := $(shell dpkg-architecture -qDEB_HOST_ARCH)
+
 #FIXME: How shall this be used? MPlayer has a non-autoconf configure script.
 DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
@@ -55,13 +31,24 @@ DEB_HOST_ARCH_OS    ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
 DEB_HOST_ARCH_CPU   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_CPU)
 
 
-# hi dpkg-buildpackage. nice to see you make the game tougher
-CLEAN_ENV=env -u CFLAGS -u CPPFLAGS -u LDFLAGS -u FFLAGS -u CXXFLAGS
-
 
 ## This can be overridden from the command line, see README.Debian.
-DEB_BUILD_CONFIGURE=--disable-bitmap-font  --disable-ggi  --disable-xvid --language=all  --disable-xmms --disable-arts --disable-aa --disable-mad --disable-libdv  --enable-libavutil_so   --enable-libavcodec_so  --enable-libavformat_so --enable-libpostproc_so --enable-faad-external $(archconf)
-
+DEB_BUILD_CONFIGURE = \
+	--disable-bitmap-font \
+	--disable-ggi \
+	--disable-xvid \
+	--language=all \
+	--disable-xmms \
+	--disable-arts \
+	--disable-aa \
+	--disable-mad \
+	--disable-libdv \
+	--enable-libavutil_so \
+	--enable-libavcodec_so \
+	--enable-libavformat_so \
+	--enable-libpostproc_so \
+	--enable-faad \
+	$(archconf)
 
 # Choose whether we want binary codec support (default on unknown archs: no).
 with_real_and_xanim = false
@@ -110,10 +97,7 @@ else
   archconf += --enable-real --enable-xanim
 endif
 
-
-
-
-ifeq ($(DFSG),)
+ifeq ($(DEB_SOURCE),mplayer)
 DEB_BUILD_CONFIGURE += --disable-libdvdcss-internal --enable-dvdread --disable-mencoder
 endif
 
@@ -143,28 +127,32 @@ ifeq (kfreebsd,$(DEB_HOST_ARCH_OS))
     DEB_BUILD_CONFIGURE += --enable-tv-bsdbt848 --disable-directfb
 endif
 
-
-
-#DEB_BUILD_CONFIGURE += --enable-libavutil_so --enable-libavformat_so --enable-libavcodec_so --enable-libpostproc_so 
-#EXTRA_BUILDDEP += libavcodec-dev (>= 0.svn6767), libavformat-dev (>= 0.svn6767), libpostproc-dev (>= 0.svn6767)
-
 ####### build-arch
+
+COMMON_CONFIGURE_FLAGS = \
+	--prefix=/usr \
+	--confdir=/etc/mplayer \
+	--datadir=/usr/share/mplayer \
+	--codecsdir=/usr/lib/codecs \
+	--enable-xvmc \
+	--enable-sdl \
+	--enable-ossaudio \
+	--enable-lirc \
+	--enable-gui \
+	--enable-freetype \
+	--enable-menu \
+	--enable-largefiles 
+
+# hi dpkg-buildpackage. nice to see you make the game tougher
+CLEAN_ENV=env -u CFLAGS -u CPPFLAGS -u LDFLAGS -u FFLAGS -u CXXFLAGS
 
 configure: configure-arch-stamp
 configure-arch-stamp: $(QUILT_STAMPFN)
 	dh_testdir
-	#Check consistency between debian/control and what we are compiling.
-	grep -x 'Source: $(package)'  debian/control
-	grep -x 'Package: $(package)' debian/control
+	test -r .svnrevision && cp .svnrevision snapshot_version
 	# Add commands to configure the package here.
-	${CLEAN_ENV} ./configure --prefix=/usr --confdir=/etc/mplayer  \
-        --datadir=/usr/share/mplayer --codecsdir=/usr/lib/codecs \
-        --enable-xvmc --enable-sdl --enable-ossaudio \
-	--enable-lirc --enable-gui --enable-freetype --enable-menu \
-	--enable-largefiles 	$(DEB_BUILD_CONFIGURE)
-	#
-	if test "$(svn_revision)" ; then echo  "#define VERSION \"dev-SVN-r$(svn_revision)-$(CC_version)-$(extraversion)\""  > version.h ; else sh version.sh $(CC_version)-$(extraversion) ; fi
-
+	$(CLEAN_ENV) \
+	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE)
 
 	#tweak config.mak on request
 ifneq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
@@ -200,21 +188,20 @@ endif
 	#workaround for 478731 (hopefully)
 	#cd gui && ${CLEAN_ENV} ${MAKE} skin/skin.o skin/font.o   OPTFLAGS=" -I. -I.. -g -Wall"
 
-	${CLEAN_ENV} ${MAKE}
+	$(CLEAN_ENV) \
+	$(MAKE)
 	touch build-arch-stamp
 
 ###### build-indep
 
 # commands to compile the docs
-build-indep: build-indep-stamp
+build-indep: configure-arch-stamp build-indep-stamp
 build-indep-stamp:
 	dh_testdir
-	#Configure the independent part (not in a separate block: it is fast!).
-	[ -r DOCS/.upstream_ships_docs ] || { cd DOCS/xml && ./configure ; }
-	#
-	[ -r DOCS/.upstream_ships_docs ] || ${CLEAN_ENV} ${MAKE} -C DOCS/xml html-chunked
+	cd DOCS/xml && ./configure
+	$(CLEAN_ENV) \
+	$(MAKE) -C DOCS/xml html-chunked
 	touch build-indep-stamp
-
 
 build: build-indep build-arch
 
@@ -226,18 +213,13 @@ clean: clean-real unpatch
 clean-real:
 	dh_testdir
 	dh_testroot
-	# commands to clean up after the build process
-	-[ -r DOCS/.upstream_ships_docs ] || ${MAKE} -C DOCS/xml distclean
-	- $(MAKE) distclean
-	#- $(MAKE) -C Gui distclean
-	#
-	rm -f config.h config.mak build-arch-stamp build-indep-stamp configure-arch-stamp configure.log
-	#some leftovers
+	test -r config.mak && $(MAKE) -C DOCS/xml distclean || true
+	$(MAKE) distclean
+	dh_clean config.h config.mak configure.log
+	dh_clean build-arch-stamp build-indep-stamp configure-arch-stamp snapshot_version
 	find -name '*.o' -or -name '*.a' -or -name '*~' \
 		-or -name semantic.cache -print0 |\
 		xargs -r0 rm -v
-	#
-	dh_clean
 
 
 ##################### install
@@ -261,20 +243,15 @@ install-arch:  build-arch
 # Install man pages.
 	set -e && for i in $(manlangs) ; do mkdir -p $(destdir)/usr/share/man/$$i/man1/ && cp DOCS/man/$$i/mplayer.1 $(destdir)/usr/share/man/$$i/man1/ && dh_link usr/share/man/$$i/man1/mplayer.1.gz usr/share/man/$$i/man1/gmplayer.1.gz ; done
 
-	dh_installdebconf -p $(package)
-	dh_installdocs  -p $(package) Copyright
+	dh_installdebconf -p $(DEB_SOURCE)
+	dh_installdocs  -p $(DEB_SOURCE) Copyright
 
 	dh_installexamples etc/example.conf etc/menu.conf etc/input.conf
-
-
-
 
 install-indep: build-indep 
 	dh_testdir
 	dh_clean -i -k
 	dh_installdocs  -p mplayer-doc Copyright DOCS/HTML DOCS/tech
-
-
 
 
 #####################################################
@@ -298,13 +275,13 @@ binary-common:
 #       dh_installcron
 #       dh_installinfo
 #       dh_undocumented
-	dh_strip --dbg-package=${package}-dbg
+	dh_strip --dbg-package=mplayer-dbg
 	dh_link
 ###### non-orthodox mungling
 #	Add automatic vo list.
 	if test -r	debian/$(THISPACKAGE)/DEBIAN/config ; then sh -e debian/config.augmenter debian/$(THISPACKAGE)/DEBIAN/config ; fi
 #	Rewrite README.Debian and add free or non-free statement.
-ifeq ($(DFSG),)
+ifeq ($(DEB_SOURCE),mplayer)
 	tail -n +2  debian/README.Debian.free | sed 's!@UPSTREAMSOURCE@!$(UPSTREAMSOURCE)!' > debian/$(THISPACKAGE)/usr/share/doc/$(THISPACKAGE)/README.Debian
 else
 	tail -n +2  debian/README.Debian.nonfree | sed 's!@UPSTREAMSOURCE@!$(UPSTREAMSOURCE)!' > debian/$(THISPACKAGE)/usr/share/doc/$(THISPACKAGE)/README.Debian
@@ -335,11 +312,8 @@ binary: binary-indep binary-arch
 
 #####################################################
 ##This target generates debian/control. It is not automatically invoked.
-autocontrol:
-	mv -b debian/control debian/control.bak
-	sed 's/@MPLAYER@/$(package)/;s/@XLIBS@/$(XLIBS)/;s/@EXTRA_BUILDDEP@/$(EXTRA_BUILDDEP)/;s/@DFSG@/$(DFSG)/;s/@DOCDEP@/$(DOCDEP)/' < debian/control.in >  debian/control
-	#Enjoy the difference.
-	! diff -u debian/control.bak debian/control || echo NO CHANGES
+debian/control: debian/control.$(DEB_SOURCE)
+	cp -v $< $@
 
 ###############################################
 ##These targets generate the DFSG-free tar.gz.
