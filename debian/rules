@@ -1,5 +1,7 @@
 #!/usr/bin/make -f
 
+include /usr/share/quilt/quilt.make
+
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
@@ -146,20 +148,10 @@ endif
 #DEB_BUILD_CONFIGURE += --enable-libavutil_so --enable-libavformat_so --enable-libavcodec_so --enable-libpostproc_so 
 #EXTRA_BUILDDEP += libavcodec-dev (>= 0.svn6767), libavformat-dev (>= 0.svn6767), libpostproc-dev (>= 0.svn6767)
 
-########### build
-
-patch: patch-stamp
-patch-stamp:
-	dpatch apply-all
-	dpatch cat-all >patch-stamp
-unpatch:
-	dpatch deapply-all
-	rm -rf patch-stamp debian/patched
-
 ####### build-arch
 
 configure: configure-arch-stamp
-configure-arch-stamp: patch-stamp
+configure-arch-stamp: $(QUILT_STAMPFN)
 	dh_testdir
 	#Check consistency between debian/control and what we are compiling.
 	grep -x 'Source: $(package)'  debian/control
@@ -229,9 +221,9 @@ build: build-indep build-arch
 
 ################ clean
 
-clean: clean-patched
+clean: clean-real unpatch
 
-clean-patched: unpatch
+clean-real:
 	dh_testdir
 	dh_testroot
 	# commands to clean up after the build process
