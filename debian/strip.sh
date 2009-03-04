@@ -12,9 +12,6 @@ rm -rfv libdvdcss
 #  it and add what is suitable.
 rm -rf TOOLS
 
-#Check if upstream includes DOCS and then don't rebuild them.
-if [ -r DOCS/HTML ]; then touch DOCS/.upstream_ships_docs; fi
-
 # Do not support encoding in any way.
 rm -fv mencoder.c
 
