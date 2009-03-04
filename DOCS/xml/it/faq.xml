@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- synced with r24030 -->
+<!-- synced with r27683 -->
 <chapter id="faq" xreflabel="FAQ">
 <title>Frequently Asked Questions</title>
 
@@ -111,7 +111,7 @@ Come posso compilare <application>MPlayer</application> a 32 bit su un Athlon a 
 <answer><para>
 Prova le seguenti opzioni di configure:
 <screen>
-./configure --target=athlon_xp --cc="gcc -m32" --as="as --32" --with-extralibdir=/usr/lib
+./configure --target=i386-linux --cc="gcc -m32" --as="as --32" --with-extralibdir=/usr/lib
 </screen>
 </para></answer>
 </qandaentry>
@@ -236,9 +236,8 @@ Ho dei problemi a leggere dei file col codec ... . Posso usarli?
 <answer><para>
 Controlla la
 <ulink url="../../codecs-status.html">tabella di stato dei codec</ulink>, se
-non contiene il tuo codec, leggi la
-<link linkend="codecs">documentazione sui codec</link>, in particolare
-l'HOWTO sull'<link linkend="codec-importing">importazione codec</link> e
+non contiene il tuo codec, leggi
+l'HOWTO sull'<ulink url="../../tech/win32-codec-howto">importazione codec Win32</ulink> e
 contattaci.
 </para></answer>
 </qandaentry>
@@ -819,7 +818,6 @@ Questo può avere varie motivazioni.
 </para></listitem>
 <listitem><para>
   Il tuo driver audio è bacato.
-  Leggi la <link linkend="audio">sezione audio</link>.
 </para></listitem>
 </itemizedlist>
 </para></answer>
@@ -1016,7 +1014,7 @@ farà il dump del quinto titolo del DVD sul file
 Come posso creare automaticamente dei (S)VCD?
 </para></question>
 <answer><para>
-Prova lo script <filename>mencvcd</filename> dalla sottodirectory
+Prova lo script <filename>mencvcd.sh</filename> dalla sottodirectory
 <filename class="directory">TOOLS</filename>.
 Con quello puoi codificare DVD, o altri film, nel formato VCD o SVCD e anche
 scriverli direttamente su CD.
@@ -1286,7 +1284,7 @@ ed è supportato da tutti i riproduttori decenti.
 Come posso codificare un file solo audio?
 </para></question>
 <answer><para>
-Usa <filename>aconvert</filename> dalla sottodirectory
+Usa <filename>aconvert.sh</filename> dalla sottodirectory
 <filename class="directory">TOOLS</filename> dei sorgenti di MPlayer.
 </para></answer>
 </qandaentry>

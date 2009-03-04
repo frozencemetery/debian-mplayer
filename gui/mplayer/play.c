@@ -1,3 +1,20 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <inttypes.h>
 #include <stdlib.h>
@@ -7,25 +24,25 @@
 #include <unistd.h>
 #include <signal.h>
 
-#include "wm/ws.h"
-#include "wm/wsxdnd.h"
-#include "../config.h"
-#include "../help_mp.h"
-#include "../libvo/x11_common.h"
-#include "../libvo/video_out.h"
-#include "../input/input.h"
+#include "config.h"
+#include "help_mp.h"
+#include "libvo/x11_common.h"
+#include "libvo/video_out.h"
+#include "input/input.h"
 
-#include "app.h"
+#include "gui/wm/ws.h"
+#include "gui/wm/wsxdnd.h"
 
-#include "wm/wskeys.h"
-#include "interface.h"
+#include "gui/app.h"
+#include "gui/wm/wskeys.h"
+#include "gui/interface.h"
 
 #include "widgets.h"
 #include "gmplayer.h"
 #include "play.h"
 
-#include "skin/skin.h"
-#include "skin/font.h"
+#include "gui/skin/skin.h"
+#include "gui/skin/font.h"
 
 #include "stream/stream.h"
 
@@ -87,7 +104,7 @@ void mplEnd( void )
      guiIntfStruct.AudioType=0;
      guiIntfStruct.NoWindow=False;
 
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
      guiIntfStruct.DVD.current_title=1;
      guiIntfStruct.DVD.current_chapter=1;
      guiIntfStruct.DVD.current_angle=1;
@@ -275,11 +292,11 @@ void mplCurr( void )
  if ( guiIntfStruct.Playing == 2 ) return;
  switch ( guiIntfStruct.StreamType )
   {
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
    case STREAMTYPE_DVD:
 	break;
 #endif
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
    case STREAMTYPE_VCD:
 	break;
 #endif
@@ -305,7 +322,7 @@ void mplPrev( void )
  if ( guiIntfStruct.Playing == 2 ) return;
  switch ( guiIntfStruct.StreamType )
   {
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
    case STREAMTYPE_DVD:
 	if ( --guiIntfStruct.DVD.current_chapter == 0 )
 	 {
@@ -315,7 +332,7 @@ void mplPrev( void )
 	guiIntfStruct.Track=guiIntfStruct.DVD.current_title;
 	break;
 #endif
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
    case STREAMTYPE_VCD:
 	if ( --guiIntfStruct.Track == 0 ) { guiIntfStruct.Track=1; stop=1; }
 	break;
@@ -341,7 +358,7 @@ void mplNext( void )
  if ( guiIntfStruct.Playing == 2 ) return;
  switch ( guiIntfStruct.StreamType )
   {
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
    case STREAMTYPE_DVD:
 	if ( guiIntfStruct.DVD.current_chapter++ == guiIntfStruct.DVD.chapters )
 	 {
@@ -351,7 +368,7 @@ void mplNext( void )
 	guiIntfStruct.Track=guiIntfStruct.DVD.current_title;
 	break;
 #endif
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
    case STREAMTYPE_VCD:
 	if ( ++guiIntfStruct.Track > guiIntfStruct.VCDTracks ) { guiIntfStruct.Track=guiIntfStruct.VCDTracks; stop=1; }
 	break;

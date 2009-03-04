@@ -11,7 +11,7 @@
  *
  * Modified for use with MPlayer, changes contained in liba52_changes.diff.
  * detailed changelog at http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: imdct.c 19378 2006-08-13 00:21:14Z diego $
+ * $Id: imdct.c 28396 2009-01-30 23:19:00Z diego $
  *
  * a52dec is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +53,8 @@
 void (*a52_imdct_512) (sample_t * data, sample_t * delay, sample_t bias);
 
 #ifdef RUNTIME_CPUDETECT
-#undef HAVE_3DNOWEX
+#undef HAVE_AMD3DNOWEXT
+#define HAVE_AMD3DNOWEXT 0
 #endif
 
 typedef struct complex_s {
@@ -118,7 +119,7 @@ static complex_t __attribute__((aligned(16))) * w[7] = {w_1, w_2, w_4, w_8, w_16
 static sample_t __attribute__((aligned(16))) xcos1[128];
 static sample_t __attribute__((aligned(16))) xsin1[128];
 
-#if defined(ARCH_X86) || defined(ARCH_X86_64)
+#if ARCH_X86 || ARCH_X86_64
 // NOTE: SSE needs 16byte alignment or it will segfault 
 // 
 static float __attribute__((aligned(16))) sseSinCos1c[256];
@@ -365,9 +366,9 @@ void imdct_do_512 (sample_t * data, sample_t * delay, sample_t bias)
     }
 }
 
-#ifdef HAVE_ALTIVEC
+#if HAVE_ALTIVEC
 
-#ifndef SYS_DARWIN
+#ifdef HAVE_ALTIVEC_H
 #include <altivec.h>
 #endif
 
@@ -382,11 +383,10 @@ void imdct_do_512 (sample_t * data, sample_t * delay, sample_t bias)
 #define WORD_s2 0x18,0x19,0x1a,0x1b
 #define WORD_s3 0x1c,0x1d,0x1e,0x1f
 
-#ifdef SYS_DARWIN
-#define vcprm(a,b,c,d) (const vector unsigned char)(WORD_ ## a, WORD_ ## b, WORD_ ## c, WORD_ ## d)
-#else
 #define vcprm(a,b,c,d) (const vector unsigned char){WORD_ ## a, WORD_ ## b, WORD_ ## c, WORD_ ## d}
-#endif
+#define vcii(a,b,c,d) (const vector float){FLOAT_ ## a, FLOAT_ ## b, FLOAT_ ## c, FLOAT_ ## d}
+
+#define FOUROF(a) {a,a,a,a}
 
 // vcprmle is used to keep the same index as in the SSE version.
 // it's the same as vcprm, with the index inversed
@@ -397,18 +397,6 @@ void imdct_do_512 (sample_t * data, sample_t * delay, sample_t bias)
 // n is _n_egative, p is _p_ositive
 #define FLOAT_n -1.
 #define FLOAT_p 1.
-
-#ifdef SYS_DARWIN
-#define vcii(a,b,c,d) (const vector float)(FLOAT_ ## a, FLOAT_ ## b, FLOAT_ ## c, FLOAT_ ## d)
-#else
-#define vcii(a,b,c,d) (const vector float){FLOAT_ ## a, FLOAT_ ## b, FLOAT_ ## c, FLOAT_ ## d}
-#endif
-
-#ifdef SYS_DARWIN
-#define FOUROF(a) (a)
-#else
-#define FOUROF(a) {a,a,a,a}
-#endif
 
 
 void
@@ -723,19 +711,20 @@ imdct_do_512_altivec(sample_t data[],sample_t delay[], sample_t bias)
 
 // Stuff below this line is borrowed from libac3
 #include "srfftp.h"
-#if defined(ARCH_X86) || defined(ARCH_X86_64)
-#ifndef HAVE_3DNOW
-#define HAVE_3DNOW 1
-#endif
+#if ARCH_X86 || ARCH_X86_64
+#undef HAVE_AMD3DNOW
+#define HAVE_AMD3DNOW 1
 #include "srfftp_3dnow.h"
 
 const i_cmplx_t x_plus_minus_3dnow __attribute__ ((aligned (8))) = {{ 0x00000000UL, 0x80000000UL }}; 
 const i_cmplx_t x_minus_plus_3dnow __attribute__ ((aligned (8))) = {{ 0x80000000UL, 0x00000000UL }}; 
 const complex_t HSQRT2_3DNOW __attribute__ ((aligned (8))) = { 0.707106781188, 0.707106781188 };
 
-#undef HAVE_3DNOWEX
+#undef HAVE_AMD3DNOWEXT
+#define HAVE_AMD3DNOWEXT 0
 #include "imdct_3dnow.h"
-#define HAVE_3DNOWEX
+#undef HAVE_AMD3DNOWEXT
+#define HAVE_AMD3DNOWEXT 1
 #include "imdct_3dnow.h"
 
 void
@@ -763,7 +752,7 @@ imdct_do_512_sse(sample_t data[],sample_t delay[], sample_t bias)
 
     /* Pre IFFT complex multiply plus IFFT cmplx conjugate */
     /* Bit reversed shuffling */
-	asm volatile(
+	__asm__ volatile(
 		"xor %%"REG_S", %%"REG_S"		\n\t"
 		"lea "MANGLE(bit_reverse_512)", %%"REG_a"\n\t"
 		"mov $1008, %%"REG_D"			\n\t"
@@ -823,7 +812,7 @@ imdct_do_512_sse(sample_t data[],sample_t delay[], sample_t bias)
     
     /* 1. iteration */
 	// Note w[0][0]={1,0}
-	asm volatile(
+	__asm__ volatile(
 		"xorps %%xmm1, %%xmm1	\n\t"
 		"xorps %%xmm2, %%xmm2	\n\t"
 		"mov %0, %%"REG_S"	\n\t"
@@ -845,7 +834,7 @@ imdct_do_512_sse(sample_t data[],sample_t delay[], sample_t bias)
         
     /* 2. iteration */
 	// Note w[1]={{1,0}, {0,-1}}
-	asm volatile(
+	__asm__ volatile(
 		"movaps "MANGLE(ps111_1)", %%xmm7\n\t" // 1,1,1,-1
 		"mov %0, %%"REG_S"		\n\t"
 		ASMALIGN(4)
@@ -873,7 +862,7 @@ imdct_do_512_sse(sample_t data[],sample_t delay[], sample_t bias)
  Note sseW2+32={0,0,-sqrt(2),-sqrt(2))
  Note sseW2+48={1,-1,sqrt(2),-sqrt(2))
 */
-	asm volatile(
+	__asm__ volatile(
 		"movaps 48+"MANGLE(sseW2)", %%xmm6\n\t" 
 		"movaps 16+"MANGLE(sseW2)", %%xmm7\n\t" 
 		"xorps %%xmm5, %%xmm5		\n\t"
@@ -918,7 +907,7 @@ imdct_do_512_sse(sample_t data[],sample_t delay[], sample_t bias)
 	two_m_plus_one = two_m<<1;
 	two_m_plus_one_shl3 = (two_m_plus_one<<3);
 	buf_offset = buf+128;
-	asm volatile(
+	__asm__ volatile(
 		"mov %0, %%"REG_S"			\n\t"
 		ASMALIGN(4)
 		"1:					\n\t"
@@ -950,7 +939,7 @@ imdct_do_512_sse(sample_t data[],sample_t delay[], sample_t bias)
     }
 
     /* Post IFFT complex multiply  plus IFFT complex conjugate*/
-	asm volatile(
+	__asm__ volatile(
 		"mov $-1024, %%"REG_S"			\n\t"
 		ASMALIGN(4)
 		"1:					\n\t"
@@ -973,7 +962,7 @@ imdct_do_512_sse(sample_t data[],sample_t delay[], sample_t bias)
     window_ptr = a52_imdct_window;
 
     /* Window and convert to real valued signal */
-	asm volatile(
+	__asm__ volatile(
 		"xor %%"REG_D", %%"REG_D"		\n\t"  // 0
 		"xor %%"REG_S", %%"REG_S"		\n\t"  // 0
 		"movss %3, %%xmm2			\n\t"  // bias
@@ -1000,7 +989,7 @@ imdct_do_512_sse(sample_t data[],sample_t delay[], sample_t bias)
 	delay_ptr+=128;
 //	window_ptr+=128;
 	
-	asm volatile(
+	__asm__ volatile(
 		"mov $1024, %%"REG_D"			\n\t"  // 512
 		"xor %%"REG_S", %%"REG_S"		\n\t"  // 0
 		"movss %3, %%xmm2			\n\t"  // bias
@@ -1029,7 +1018,7 @@ imdct_do_512_sse(sample_t data[],sample_t delay[], sample_t bias)
     /* The trailing edge of the window goes into the delay line */
     delay_ptr = delay;
 
-	asm volatile(
+	__asm__ volatile(
 		"xor %%"REG_D", %%"REG_D"		\n\t"  // 0
 		"xor %%"REG_S", %%"REG_S"		\n\t"  // 0
 		ASMALIGN(4)
@@ -1051,7 +1040,7 @@ imdct_do_512_sse(sample_t data[],sample_t delay[], sample_t bias)
 	delay_ptr+=128;
 //	window_ptr-=128;
 	
-	asm volatile(
+	__asm__ volatile(
 		"mov $1024, %%"REG_D"			\n\t"  // 1024
 		"xor %%"REG_S", %%"REG_S"		\n\t"  // 0
 		ASMALIGN(4)
@@ -1215,7 +1204,7 @@ void a52_imdct_init (uint32_t mm_accel)
 	    w[i][k].imag = sin (-M_PI * k / j);
 	}
     }
-#if defined(ARCH_X86) || defined(ARCH_X86_64)
+#if ARCH_X86 || ARCH_X86_64
 	for (i = 0; i < 128; i++) {
 	    sseSinCos1c[2*i+0]= xcos1[i];
 	    sseSinCos1c[2*i+1]= -xcos1[i];
@@ -1269,7 +1258,7 @@ void a52_imdct_init (uint32_t mm_accel)
 	ifft128 = ifft128_c;
 	ifft64 = ifft64_c;
 
-#if defined(ARCH_X86) || defined(ARCH_X86_64)
+#if ARCH_X86 || ARCH_X86_64
 	if(mm_accel & MM_ACCEL_X86_SSE)
 	{
 	  fprintf (stderr, "Using SSE optimized IMDCT transform\n");
@@ -1289,7 +1278,7 @@ void a52_imdct_init (uint32_t mm_accel)
 	}
 	else
 #endif // ARCH_X86 || ARCH_X86_64
-#ifdef HAVE_ALTIVEC
+#if HAVE_ALTIVEC
         if (mm_accel & MM_ACCEL_PPC_ALTIVEC)
 	{
 	  fprintf(stderr, "Using AltiVec optimized IMDCT transform\n");

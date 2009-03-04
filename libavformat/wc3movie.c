@@ -20,20 +20,21 @@
  */
 
 /**
- * @file wc3movie.c
+ * @file libavformat/wc3movie.c
  * Wing Commander III Movie file demuxer
  * by Mike Melanson (melanson@pcisys.net)
  * for more information on the WC3 .mve file format, visit:
  *   http://www.pcisys.net/~melanson/codecs/
  */
 
+#include "libavutil/intreadwrite.h"
 #include "avformat.h"
 
 #define WC3_PREAMBLE_SIZE 8
 
 #define FORM_TAG MKTAG('F', 'O', 'R', 'M')
 #define MOVE_TAG MKTAG('M', 'O', 'V', 'E')
-#define _PC__TAG MKTAG('_', 'P', 'C', '_')
+#define  PC__TAG MKTAG('_', 'P', 'C', '_')
 #define SOND_TAG MKTAG('S', 'O', 'N', 'D')
 #define BNAM_TAG MKTAG('B', 'N', 'A', 'M')
 #define SIZE_TAG MKTAG('S', 'I', 'Z', 'E')
@@ -55,7 +56,7 @@
 #define WC3_AUDIO_BITS 16
 
 /* nice, constant framerate */
-#define WC3_FRAME_PTS_INC (90000 / 15)
+#define WC3_FRAME_FPS 15
 
 #define PALETTE_SIZE (256 * 3)
 #define PALETTE_COUNT 256
@@ -126,11 +127,12 @@ static int wc3_read_header(AVFormatContext *s,
                            AVFormatParameters *ap)
 {
     Wc3DemuxContext *wc3 = s->priv_data;
-    ByteIOContext *pb = &s->pb;
+    ByteIOContext *pb = s->pb;
     unsigned int fourcc_tag;
     unsigned int size;
     AVStream *st;
     unsigned char preamble[WC3_PREAMBLE_SIZE];
+    char buffer[513];
     int ret = 0;
     int current_palette = 0;
     int bytes_to_read;
@@ -165,7 +167,7 @@ static int wc3_read_header(AVFormatContext *s,
             url_fseek(pb, size, SEEK_CUR);
             break;
 
-        case _PC__TAG:
+        case PC__TAG:
             /* need the number of palettes */
             url_fseek(pb, 8, SEEK_CUR);
             if ((ret = get_buffer(pb, preamble, 4)) != 4)
@@ -184,8 +186,10 @@ static int wc3_read_header(AVFormatContext *s,
                 bytes_to_read = size;
             else
                 bytes_to_read = 512;
-            if ((ret = get_buffer(pb, s->title, bytes_to_read)) != bytes_to_read)
+            if ((ret = get_buffer(pb, buffer, bytes_to_read)) != bytes_to_read)
                 return AVERROR(EIO);
+            buffer[bytes_to_read] = 0;
+            av_metadata_set(&s->metadata, "title", buffer);
             break;
 
         case SIZE_TAG:
@@ -239,7 +243,7 @@ static int wc3_read_header(AVFormatContext *s,
     st = av_new_stream(s, 0);
     if (!st)
         return AVERROR(ENOMEM);
-    av_set_pts_info(st, 33, 1, 90000);
+    av_set_pts_info(st, 33, 1, WC3_FRAME_FPS);
     wc3->video_stream_index = st->index;
     st->codec->codec_type = CODEC_TYPE_VIDEO;
     st->codec->codec_id = CODEC_ID_XAN_WC3;
@@ -253,16 +257,16 @@ static int wc3_read_header(AVFormatContext *s,
     st = av_new_stream(s, 0);
     if (!st)
         return AVERROR(ENOMEM);
-    av_set_pts_info(st, 33, 1, 90000);
+    av_set_pts_info(st, 33, 1, WC3_FRAME_FPS);
     wc3->audio_stream_index = st->index;
     st->codec->codec_type = CODEC_TYPE_AUDIO;
     st->codec->codec_id = CODEC_ID_PCM_S16LE;
     st->codec->codec_tag = 1;
     st->codec->channels = WC3_AUDIO_CHANNELS;
-    st->codec->bits_per_sample = WC3_AUDIO_BITS;
+    st->codec->bits_per_coded_sample = WC3_AUDIO_BITS;
     st->codec->sample_rate = WC3_SAMPLE_RATE;
     st->codec->bit_rate = st->codec->channels * st->codec->sample_rate *
-        st->codec->bits_per_sample;
+        st->codec->bits_per_coded_sample;
     st->codec->block_align = WC3_AUDIO_BITS * WC3_AUDIO_CHANNELS;
 
     return 0;
@@ -272,7 +276,7 @@ static int wc3_read_packet(AVFormatContext *s,
                            AVPacket *pkt)
 {
     Wc3DemuxContext *wc3 = s->priv_data;
-    ByteIOContext *pb = &s->pb;
+    ByteIOContext *pb = s->pb;
     unsigned int fourcc_tag;
     unsigned int size;
     int packet_read = 0;
@@ -356,7 +360,7 @@ static int wc3_read_packet(AVFormatContext *s,
                 ret = AVERROR(EIO);
 
             /* time to advance pts */
-            wc3->pts += WC3_FRAME_PTS_INC;
+            wc3->pts++;
 
             packet_read = 1;
             break;
@@ -385,7 +389,7 @@ static int wc3_read_close(AVFormatContext *s)
 
 AVInputFormat wc3_demuxer = {
     "wc3movie",
-    "Wing Commander III movie format",
+    NULL_IF_CONFIG_SMALL("Wing Commander III movie format"),
     sizeof(Wc3DemuxContext),
     wc3_probe,
     wc3_read_header,

@@ -1,5 +1,5 @@
- #ifndef DMO_FILTER_H
-#define DMO_FILTER_H
+#ifndef MPLAYER_DMO_FILTER_H
+#define MPLAYER_DMO_FILTER_H
 
 #include "dmo_guids.h"
 #include "dmo_interfaces.h"
@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-typedef struct _DMO_Filter
+typedef struct DMO_Filter
 {
     int m_iHandle;
     IDMOVideoOutputOptimizations* m_pOptim;
@@ -17,7 +17,7 @@ typedef struct _DMO_Filter
     AM_MEDIA_TYPE *m_pOurType, *m_pDestType;
 } DMO_Filter;
 
-typedef struct _CMediaBuffer CMediaBuffer;
+typedef struct CMediaBuffer CMediaBuffer;
 
 /**
  * Create DMO_Filter object - similar syntax as for DS_Filter
@@ -44,4 +44,4 @@ CMediaBuffer* CMediaBufferCreate(unsigned long maxlen, void* mem, unsigned long 
 }
 #endif
 
-#endif /* DS_FILTER_H */
+#endif /* MPLAYER_DMO_FILTER_H */

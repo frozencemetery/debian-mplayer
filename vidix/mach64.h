@@ -1,6 +1,9 @@
 /*
  * VIDIX driver for ATI Mach64 and 3DRage chipsets.
+ *
  * Copyright (C) 2002 Nick Kurshev
+ * This file is based on sources from
+ *  radeonfb, GATOS (gatos.sf.net) and X11 (www.xfree86.org)
  *
  * This file is part of MPlayer.
  *
@@ -14,16 +17,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
- * This file is based on sources from
- *  radeonfb, GATOS (gatos.sf.net) and X11 (www.xfree86.org)
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef MACH64_H
-#define MACH64_H
+#ifndef MPLAYER_MACH64_H
+#define MPLAYER_MACH64_H
 
 /* Note: this model of accessing to IO space is based on MMIO technology.
 This means that this sources don't support ISA and VLB cards */
@@ -2494,4 +2494,4 @@ This means that this sources don't support ISA and VLB cards */
 #define MIX_FN_PAINT			MIX_SRC
 
 
-#endif /* MACH64_H */
+#endif /* MPLAYER_MACH64_H */

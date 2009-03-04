@@ -1,18 +1,27 @@
-/*=============================================================================
-//	
-//  This software has been released under the terms of the GNU General Public
-//  license. See http://www.gnu.org/copyleft/gpl.html for details.
-//
-//  Copyright 2001 Anders Johansson ajh@atri.curtin.edu.au
-//
-//=============================================================================
-*/
-
-/* Equalizer filter, implementation of a 10 band time domain graphic
-   equalizer using IIR filters. The IIR filters are implemented using a
-   Direct Form II approach, but has been modified (b1 == 0 always) to
-   save computation.
-*/
+/*
+ * Equalizer filter, implementation of a 10 band time domain graphic
+ * equalizer using IIR filters. The IIR filters are implemented using a
+ * Direct Form II approach, but has been modified (b1 == 0 always) to
+ * save computation.
+ *
+ * Copyright (C) 2001 Anders Johansson ajh@atri.curtin.edu.au
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -106,7 +115,7 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
       bp2(s->a[k],s->b[k],F[k]/((float)af->data->rate),Q);
 
     // Calculate how much this plugin adds to the overall time delay
-    af->delay += 2000.0/((float)af->data->rate);
+    af->delay = 2 * af->data->nch * af->data->bps;
     
     // Calculate gain factor to prevent clipping at output
     for(k=0;k<AF_NCH;k++)
@@ -222,8 +231,7 @@ static int af_open(af_instance_t* af){
   af->control=control;
   af->uninit=uninit;
   af->play=play;
-  af->mul.n=1;
-  af->mul.d=1;
+  af->mul=1;
   af->data=calloc(1,sizeof(af_data_t));
   af->setup=calloc(1,sizeof(af_equalizer_t));
   if(af->data == NULL || af->setup == NULL)

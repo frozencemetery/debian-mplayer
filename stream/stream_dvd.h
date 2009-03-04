@@ -1,19 +1,13 @@
-#ifdef USE_DVDREAD_INTERNAL
-#include "dvdread/dvd_reader.h"
-#include "dvdread/ifo_types.h"
-#include "dvdread/ifo_read.h"
-#include "dvdread/nav_read.h"
-#elif defined(USE_DVDNAV)
-#include <dvd_reader.h>
-#include <ifo_types.h>
-#include <ifo_read.h>
-#include <nav_read.h>
-#else
+#ifndef MPLAYER_STREAM_DVD_H
+#define MPLAYER_STREAM_DVD_H
+
+#include "config.h"
+#include <stdint.h>
 #include <dvdread/dvd_reader.h>
 #include <dvdread/ifo_types.h>
 #include <dvdread/ifo_read.h>
 #include <dvdread/nav_read.h>
-#endif
+#include "stream.h"
 
 typedef struct {
   dvd_reader_t *dvd;
@@ -49,3 +43,5 @@ int dvd_lang_from_sid(stream_t *stream, int id);
 int dvd_aid_from_lang(stream_t *stream, unsigned char* lang);
 int dvd_sid_from_lang(stream_t *stream, unsigned char* lang);
 int dvd_chapter_from_cell(dvd_priv_t *dvd,int title,int cell);
+
+#endif /* MPLAYER_STREAM_DVD_H */

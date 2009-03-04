@@ -1,12 +1,29 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
-#include "app.h"
 #include "config.h"
+#include "gui/app.h"
 #include "help_mp.h"
 
-#include "mplayer/pixmaps/about.xpm"
-#include "../widgets.h"
+#include "gui/mplayer/pixmaps/about.xpm"
+#include "gui/mplayer/widgets.h"
 #include "about.h"
-#include "common.h"
+#include "gtk_common.h"
 
 GtkWidget * About = NULL;
 
@@ -28,10 +45,10 @@ GtkWidget * create_About( void )
   GtkWidget     * AboutText;
   GtkWidget     * Ok;
 
-#ifdef HAVE_GTK2_GUI
+#ifdef CONFIG_GTK2
   GtkTextBuffer * AboutTextBuffer;
   GtkTextIter   iter;
-#endif //HAVE_GTK2_GUI
+#endif /* CONFIG_GTK2 */
 
   GtkStyle      * pixmapstyle;
   GdkPixmap     * pixmapwid;
@@ -72,7 +89,7 @@ GtkWidget * create_About( void )
   gtk_box_pack_start( GTK_BOX( vbox ),scrolledwindow1,TRUE,TRUE,0 );
   gtk_scrolled_window_set_policy( GTK_SCROLLED_WINDOW( scrolledwindow1 ),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC );
 
-#ifdef HAVE_GTK2_GUI
+#ifdef CONFIG_GTK2
   AboutText = gtk_text_view_new();
   gtk_text_view_set_editable(GTK_TEXT_VIEW(AboutText), FALSE);
   gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(AboutText), FALSE);
@@ -85,7 +102,7 @@ GtkWidget * create_About( void )
   gtk_widget_set_name( AboutText,"AboutText" );
   gtk_widget_show( AboutText );
   gtk_container_add( GTK_CONTAINER( scrolledwindow1 ),AboutText );
-#ifdef HAVE_GTK2_GUI  
+#ifdef CONFIG_GTK2
   gtk_text_buffer_insert (AboutTextBuffer, &iter,   
 #else  
   gtk_text_insert( GTK_TEXT( AboutText ),NULL,NULL,NULL,

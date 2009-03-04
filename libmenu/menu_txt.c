@@ -1,3 +1,20 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include "config.h"
 #include "mp_msg.h"
@@ -66,26 +83,19 @@ static void read_cmd(menu_t* menu,int cmd) {
     menu->show = 0;
     menu->cl = 1;
     break;
-  }
-}
-
-static void read_key(menu_t* menu,int c) {
-  switch (c) {
-  case KEY_HOME:
+  case MENU_CMD_HOME:
     mpriv->cur_line = 0;
     break;
-  case KEY_END:
+  case MENU_CMD_END:
     mpriv->cur_line = mpriv->num_lines - 1;
     break;
-  case KEY_PAGE_UP:
+  case MENU_CMD_PAGE_UP:
     mpriv->cur_line =  mpriv->cur_line > mpriv->disp_lines ?
       mpriv->cur_line - mpriv->disp_lines : 0;
     break;
-  case KEY_PAGE_DOWN:
+  case MENU_CMD_PAGE_DOWN:
     mpriv->cur_line = mpriv->cur_line + mpriv->disp_lines > mpriv->num_lines - 1 ? mpriv->num_lines - 1 : mpriv->cur_line + mpriv->disp_lines;
     break;
-  default:
-    menu_dflt_read_key(menu,c);
   }
 }
 
@@ -129,7 +139,6 @@ static int open_txt(menu_t* menu, char* args) {
 
   menu->draw = draw;
   menu->read_cmd = read_cmd;
-  menu->read_key = read_key;
 
   if(!mpriv->file) {
     mp_msg(MSGT_GLOBAL,MSGL_WARN,MSGTR_LIBMENU_MenuTxtNeedATxtFileName);

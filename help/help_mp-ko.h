@@ -10,10 +10,10 @@ static char help_text[]=
 "기본 선택사항: (전체 목록은 man 페이지 참조)\n"
 " -vo <drv[:dev]>  비디오 출력 드라이버 및 장치 선택 (목록보기는 '-vo help')\n"
 " -ao <drv[:dev]>  오디오 출력 드라이버 및 장치 선택 (목록보기는 '-ao help')\n"
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
 " vcd://<trackno>  (S)VCD (Super Video CD) 트랙 재생 (장치로부터, 마운트 없이)\n"
 #endif
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 " dvd://<titleno>  일반 파일이 아닌 장치로부터 DVD 타이틀 재생\n"
 " -alang/-slang    DVD 오디오/자막 언어 선택 (두 글자의 국가 코드)\n"
 #endif
@@ -221,7 +221,7 @@ static char help_text[]=
 #define MSGTR_SMBFileNotFound "lan으로 부터 열 수 없습니다.: '%s'\n"
 #define MSGTR_SMBNotCompiled "MPlayer가 SMB읽기를 할 수 있도록 컴파일되지 않았습니다.\n"
 
-#define MSGTR_CantOpenDVD "DVD 장치를 열 수 없습니다.: %s\n"
+#define MSGTR_CantOpenDVD "DVD 장치를 열 수 없습니다.: %s (%s)\n"
 #define MSGTR_DVDnumTitles "이 DVD에는 %d개의 타이틀이 있습니다.\n"
 #define MSGTR_DVDinvalidTitle "유효하지 않은 DVD 타이틀 번호입니다.: %d\n"
 #define MSGTR_DVDnumChapters "이 DVD 타이틀에는 %d개의 챕터가 있습니다.\n"
@@ -336,7 +336,7 @@ static char help_text[]=
 
 // ====================== GUI messages/buttons ========================
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 
 // --- labels ---
 #define MSGTR_About "정보"

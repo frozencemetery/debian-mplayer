@@ -1,7 +1,6 @@
 /*
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: registry.c 24407 2007-09-10 13:08:46Z diego $
  */
 
 #include "config.h"
@@ -22,10 +21,10 @@
 #include "ext.h"
 #include "registry.h"
 
+#include "get_path.h"
+
 //#undef TRACE
 //#define TRACE printf
-
-extern char *get_path ( const char * );
 
 // ...can be set before init_registry() call
 char* regpathname = NULL;
@@ -183,6 +182,7 @@ void free_registry(void)
 }
 
 
+#if 0
 static reg_handle_t* find_handle_by_name(const char* name)
 {
 	reg_handle_t* t;
@@ -195,6 +195,7 @@ static reg_handle_t* find_handle_by_name(const char* name)
 	}
 	return 0;
 }
+#endif
 static struct reg_value* find_value_by_name(const char* name)
 {
 	int i;
@@ -313,6 +314,7 @@ static void init_registry(void)
 	insert_handle(HKEY_CURRENT_USER, "HKCU");
 }
 
+#if 0
 static reg_handle_t* find_handle_2(long key, const char* subkey)
 {
 	char* full_name;
@@ -332,6 +334,7 @@ static reg_handle_t* find_handle_2(long key, const char* subkey)
 	free(full_name);
 	return t;
 }
+#endif
 
 long __stdcall RegOpenKeyExA(long key, const char* subkey, long reserved, long access, int* newkey)
 {

@@ -1,18 +1,34 @@
 /*
-  vo_ggi.c - General Graphics Interface (GGI) Renderer for MPlayer
-
-  (C) Alex Beregszaszi
-
-  Uses libGGI - http://www.ggi-project.org/
-
-  TODO:
-   * implement gamma handling (VAA isn't obsoleted?)
-
-  Thanks to Andreas Beck for his patches.
-
-  Many thanks to Atmosfear, he hacked this driver to work with Planar
-  formats, and he fixed the RGB handling.
-*/
+ * General Graphics Interface (GGI) vo driver
+ *
+ * copyright (C) 2001 Alex Beregszaszi
+ *
+ * Uses libGGI - http://www.ggi-project.org/
+ *
+ * TODO:
+ *  * implement gamma handling (VAA isn't obsoleted?)
+ *
+ * Thanks to Andreas Beck for his patches.
+ *
+ * Many thanks to Atmosfear, he hacked this driver to work with planar
+ * formats, and he fixed the RGB handling.
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,14 +45,14 @@
 
 #include <ggi/ggi.h>
 
-#ifdef HAVE_GGIWMH
+#ifdef CONFIG_GGIWMH
 #include <ggi/wmh.h>
 #endif
 
 /* maximum buffers */
 #undef GGI_FLIP
 
-static vo_info_t info =
+static const vo_info_t info =
 {
     "General Graphics Interface (GGI) output",
     "ggi",
@@ -44,7 +60,7 @@ static vo_info_t info =
     "major"
 };
 
-LIBVO_EXTERN(ggi)
+const LIBVO_EXTERN(ggi)
 
 
 static struct ggi_conf_s {
@@ -70,7 +86,7 @@ static struct ggi_conf_s {
 } ggi_conf;
 
 
-#ifdef HAVE_GGIWMH
+#ifdef CONFIG_GGIWMH
 static void window_ontop(void)
 {
     mp_msg(MSGT_VO, MSGL_V, "[ggi] debug: window_ontop() called\n");
@@ -141,17 +157,17 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
 
     if (ggiSetMode(ggi_conf.vis, &mode) < 0) {
         mp_msg(MSGT_VO, MSGL_ERR, "[ggi] unable to set display mode\n");
-        return (-1);
+        return -1;
     }
     if (ggiGetMode(ggi_conf.vis, &mode) < 0) {
         mp_msg(MSGT_VO, MSGL_ERR, "[ggi] unable to get display mode\n");
-        return (-1);
+        return -1;
     }
     if ((mode.graphtype == GT_INVALID)
        || (mode.graphtype == GT_AUTO))
     {
         mp_msg(MSGT_VO, MSGL_ERR, "[ggi] not supported depth/bpp\n");
-        return (-1);
+        return -1;
     }
 
 #if 0
@@ -161,7 +177,7 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
 #endif
 
 
-#ifdef HAVE_GGIWMH
+#ifdef CONFIG_GGIWMH
     ggiWmhSetTitle(ggi_conf.vis, title);
     if (vo_ontop) window_ontop();
 #endif
@@ -221,7 +237,7 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
     } else {
         mp_msg(MSGT_VO, MSGL_FATAL, "[ggi] Unknown image format: %s\n",
                vo_format_name(ggi_conf.srcformat));
-        return (-1);
+        return -1;
     }
 
     mp_msg(MSGT_VO, MSGL_INFO, "[ggi] input: %dx%dx%d, output: %dx%dx%d\n",
@@ -235,7 +251,7 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
     ggi_conf.flushregion.x2 = vo_dwidth;
     ggi_conf.flushregion.y2 = vo_dheight;
 
-    return (0);
+    return 0;
 }
 
 static uint32_t get_image(mp_image_t *mpi)
@@ -244,19 +260,19 @@ static uint32_t get_image(mp_image_t *mpi)
     if (!((IMGFMT_IS_BGR(mpi->imgfmt)) &&
         (IMGFMT_BGR_DEPTH(mpi->imgfmt) == vo_dbpp)))
     {
-        return (VO_FALSE);
+        return VO_FALSE;
     }
 
     if (!((IMGFMT_IS_RGB(mpi->imgfmt)) &&
         (IMGFMT_RGB_DEPTH(mpi->imgfmt) == vo_dbpp)))
     {
-        return (VO_FALSE);
+        return VO_FALSE;
     }
 
     if (!((mpi->width == ggi_conf.srcwidth) &&
         (mpi->height == ggi_conf.srcheight)))
     {
-        return (VO_FALSE);
+        return VO_FALSE;
     }
 
     mpi->planes[1] = mpi->planes[2] = NULL;
@@ -272,7 +288,7 @@ static uint32_t get_image(mp_image_t *mpi)
     }
 #endif
 
-    return (VO_TRUE);
+    return VO_TRUE;
 }
 
 
@@ -286,7 +302,7 @@ static int draw_frame(uint8_t *src[])
     ggi_conf.flushregion.x2 = vo_dwidth;
     ggi_conf.flushregion.y2 = vo_dheight;
 
-    return (0);
+    return 0;
 }
 
 static void draw_osd(void)
@@ -346,7 +362,7 @@ static int draw_slice(uint8_t *src[], int stride[],
         ggi_conf.flushregion.y2 = vo_dy + y + h;
     }
 
-    return (1);
+    return 1;
 }
 
 static int query_format(uint32_t format)
@@ -386,19 +402,19 @@ static int query_format(uint32_t format)
             return vfcap;
         }
     }
-    return (0);
+    return 0;
 }
 
 static int preinit(const char *arg)
 {
     if (ggiInit() != 0) {
         mp_msg(MSGT_VO, MSGL_FATAL, "[ggi] unable to initialize GGI\n");
-        return (-1);
+        return -1;
     }
-#ifdef HAVE_GGIWMH
+#ifdef CONFIG_GGIWMH
     if (ggiWmhInit() < 0) {
         mp_msg(MSGT_VO, MSGL_FATAL, "[ggi] unable to initialize libggiwmh\n");
-        return (-1);
+        return -1;
     }
 #endif
 
@@ -419,12 +435,12 @@ static int preinit(const char *arg)
         mp_msg(MSGT_VO, MSGL_FATAL, "[ggi] unable to open '%s' output\n",
                (ggi_conf.driver == NULL) ? "default" : ggi_conf.driver);
         ggiExit();
-        return (-1);
+        return -1;
     }
     ggi_conf.drawvis = ggi_conf.vis;
 
 
-#ifdef HAVE_GGIWMH
+#ifdef CONFIG_GGIWMH
     ggiWmhAttach(ggi_conf.vis);
 #endif
 
@@ -440,7 +456,7 @@ static void uninit(void)
     if (ggi_conf.driver)
         free(ggi_conf.driver);
 
-#ifdef HAVE_GGIWMH
+#ifdef CONFIG_GGIWMH
     ggiWmhDetach(ggi_conf.vis);
     ggiWmhExit();
 #endif
@@ -459,7 +475,7 @@ static int control(uint32_t request, void *data, ...)
         return query_format(*((uint32_t *) data));
     case VOCTRL_GET_IMAGE:
         return get_image(data);
-#ifdef HAVE_GGIWMH
+#ifdef CONFIG_GGIWMH
     case VOCTRL_ONTOP:
         vo_ontop = (!(vo_ontop));
         window_ontop();

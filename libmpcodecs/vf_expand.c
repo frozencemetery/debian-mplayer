@@ -421,7 +421,7 @@ static int control(struct vf_instance_s* vf, int request, void* data){
 }
 
 static int query_format(struct vf_instance_s* vf, unsigned int fmt){
-  return (vf_next_query_format(vf,fmt));
+  return vf_next_query_format(vf,fmt);
 }
 
 static int open(vf_instance_t *vf, char* args){
@@ -464,7 +464,7 @@ static m_struct_t vf_opts = {
 
 
 
-vf_info_t vf_info_expand = {
+const vf_info_t vf_info_expand = {
 #ifdef OSD_SUPPORT
     "expanding & osd",
 #else

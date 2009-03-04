@@ -12,10 +12,10 @@ static char help_text[]=
 "基本的なオプション: (man page に全て網羅されています)\n"
 " -vo <drv[:dev]>  映像出力ドライバ及びデバイスを選択します ('-vo help'で一覧表示されます)\n"
 " -ao <drv[:dev]>  音声出力ドライバ及びデバイスを選択します ('-ao help'で一覧表示されます)\n"
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
 " vcd://<trackno>   play VCD (Video CD) track from device instead of plain file\n"
 #endif
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 " dvd://<titleno>   play DVD title from device instead of plain file\n"
 " -alang/-slang    DVDの 音声/サブタイトル 言語設定 (2文字のカントリーコードで指定)\n"
 #endif
@@ -168,7 +168,7 @@ static char help_text[]=
 #define MSGTR_SMBFileNotFound "ローカルエリアネットワークから開くことが出来ませんでした: '%s'\n"
 #define MSGTR_SMBNotCompiled "MPlayer はSMB reading support を無効にしてコンパイルされています\n"
 
-#define MSGTR_CantOpenDVD "DVDデバイスを開くことが出来ませんでした: %s\n"
+#define MSGTR_CantOpenDVD "DVDデバイスを開くことが出来ませんでした: %s (%s)\n"
 #define MSGTR_DVDnumTitles "このDVDには %d タイトル記録されています.\n"
 #define MSGTR_DVDinvalidTitle "不正な DVD タイトル番号です: %d\n"
 #define MSGTR_DVDnumChapters "このDVDは %d キャプターあります.\n"
@@ -273,7 +273,7 @@ static char help_text[]=
 
 // ====================== GUI messages/buttons ========================
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 
 // --- labels ---
 #define MSGTR_About "アバウト"

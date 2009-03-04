@@ -1,20 +1,22 @@
 /*
-    Copyright (C) 2005 Michael Niedermayer <michaelni@gmx.at>
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-*/
+ * Copyright (C) 2005 Michael Niedermayer <michaelni@gmx.at>
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
  
 #include <stdio.h>
@@ -28,7 +30,7 @@
 #include "mp_msg.h"
 #include "cpudetect.h"
 
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 
@@ -153,9 +155,9 @@ static void dctB_c(DCTELEM *dst, DCTELEM *src){
     }
 }
 
-#ifdef HAVE_MMX
+#if HAVE_MMX
 static void dctB_mmx(DCTELEM *dst, DCTELEM *src){
-    asm volatile (
+    __asm__ volatile (
         "movq  (%0), %%mm0      \n\t"
         "movq  1*4*2(%0), %%mm1 \n\t"
         "paddw 6*4*2(%0), %%mm0 \n\t"
@@ -395,11 +397,11 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
         memcpy_pic(dmpi->planes[2], mpi->planes[2], mpi->w>>mpi->chroma_x_shift, mpi->h>>mpi->chroma_y_shift, dmpi->stride[2], mpi->stride[2]);
     }
 
-#ifdef HAVE_MMX
-    if(gCpuCaps.hasMMX) asm volatile ("emms\n\t");
+#if HAVE_MMX
+    if(gCpuCaps.hasMMX) __asm__ volatile ("emms\n\t");
 #endif
-#ifdef HAVE_MMX2
-    if(gCpuCaps.hasMMX2) asm volatile ("sfence\n\t");
+#if HAVE_MMX2
+    if(gCpuCaps.hasMMX2) __asm__ volatile ("sfence\n\t");
 #endif
 
     return vf_next_put_image(vf,dmpi, pts);
@@ -462,7 +464,7 @@ static int open(vf_instance_t *vf, char* args){
 	case 2: requantize= mediumthresh_c; break;
     }
 
-#ifdef HAVE_MMX
+#if HAVE_MMX
     if(gCpuCaps.hasMMX){
         dctB= dctB_mmx;
     }
@@ -479,7 +481,7 @@ static int open(vf_instance_t *vf, char* args){
     return 1;
 }
 
-vf_info_t vf_info_pp7 = {
+const vf_info_t vf_info_pp7 = {
     "postprocess 7",
     "pp7",
     "Michael Niedermayer",

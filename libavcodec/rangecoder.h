@@ -20,7 +20,7 @@
  */
 
 /**
- * @file rangecoder.h
+ * @file libavcodec/rangecoder.h
  * Range coder.
  */
 
@@ -29,7 +29,7 @@
 
 #include <stdint.h>
 #include <assert.h>
-#include "common.h"
+#include "libavutil/common.h"
 
 typedef struct RangeCoder{
     int low;
@@ -138,4 +138,4 @@ static inline int get_rac(RangeCoder *c, uint8_t * const state){
 #endif
 }
 
-#endif // AVCODEC_RANGECODER_H
+#endif /* AVCODEC_RANGECODER_H */

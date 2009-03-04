@@ -20,7 +20,7 @@
  */
 
 /**
- * @file faandct.h
+ * @file libavcodec/faandct.h
  * @brief
  *     Floating point AAN DCT
  * @author Michael Niedermayer <michaelni@gmx.at>
@@ -36,4 +36,4 @@
 void ff_faandct(DCTELEM * data);
 void ff_faandct248(DCTELEM * data);
 
-#endif // AVCODEC_FAANDCT_H
+#endif /* AVCODEC_FAANDCT_H */

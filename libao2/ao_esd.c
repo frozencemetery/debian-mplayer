@@ -1,10 +1,26 @@
 /*
- * ao_esd - EsounD audio output driver for MPlayer
+ * EsounD audio output driver for MPlayer
  *
- * Juergen Keil <jk@tools.de>
+ * copyright (c) 2002 Juergen Keil <jk@tools.de>
  *
- * This driver is distributed under the terms of the GPL
+ * This file is part of MPlayer.
  *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+ /*
  * TODO / known problems:
  * - does not work well when the esd daemon has autostandby disabled
  *   (workaround: run esd with option "-as 2" - fortunatelly this is
@@ -38,7 +54,8 @@
 #include "help_mp.h"
 
 
-#undef	ESD_DEBUG
+#define ESD_RESAMPLES 0
+#define ESD_DEBUG 0
 
 #if	ESD_DEBUG
 #define	dprintf(...)	printf(__VA_ARGS__)
@@ -216,7 +233,7 @@ static int init(int rate_hz, int channels, int format, int flags)
      * latency is number of samples @ 44.1khz stereo 16 bit
      * adjust according to rate_hz & bytes_per_sample
      */
-#ifdef HAVE_ESD_LATENCY
+#ifdef CONFIG_ESD_LATENCY
     esd_latency = esd_get_latency(esd_fd);
 #else
     esd_latency = ((channels == 1 ? 2 : 1) * ESD_DEFAULT_RATE * 

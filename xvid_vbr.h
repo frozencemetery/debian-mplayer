@@ -23,8 +23,8 @@
  *
  *****************************************************************************/
 
-#ifndef XVID_VBR_H
-#define XVID_VBR_H
+#ifndef MPLAYER_XVID_VBR_H
+#define MPLAYER_XVID_VBR_H
 
 #define VBR_VERSION 0
 
@@ -58,7 +58,7 @@ typedef vbr_finish_function *vbr_finish_function_ptr;
  * The VBR CONTROLER structure - the spin of the library
  *****************************************************************************/
 
-typedef struct _vbr_control_t
+typedef struct vbr_control_t
 {
 
 	/* All modes - specifies what VBR algorithm has to be used */
@@ -228,4 +228,4 @@ extern int vbrUpdate(vbr_control_t *state,
 		     int ublocks);
 extern int vbrFinish(vbr_control_t *state);
 
-#endif
+#endif /* MPLAYER_XVID_VBR_H */

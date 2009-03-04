@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- synced with r24056 -->
+<!-- synced with r28532 -->
 <chapter id="usage">
 <title>Használat</title>
 
@@ -8,13 +8,14 @@
 
 <para>
 Az <application>MPlayer</application> egy komplex lejátszási sort használ.
-Először a globális opciók szerepelnek, például
-<screen>mplayer -vfm 5</screen>
-majd a fájlnév után írt kapcsolók, amik csak a megadott
-fájlra/URL-re/bármire vonatkoznak, például:
+A parancssorban megadott opciók minden fájlra/URL-re vagy, a helyüktől
+függően csak bizonyosokra vonatkoznak. Például az
+<screen>mplayer -vfm ffmpeg movie1.avi movie2.avi</screen>
+FFmpeg dekódolót használ mindkét fájlhoz, azonban az
 <screen>
-mplayer -vfm 5 <replaceable>movie1.avi</replaceable> <replaceable>movie2.avi</replaceable> -vfm 4
+mplayer -vfm ffmpeg <replaceable>movie1.avi</replaceable> <replaceable>movie2.avi</replaceable> -vfm dmo
 </screen>
+a második fájlt a DMO dekóderrel jeleníti meg.
 </para>
 
 <para>
@@ -426,7 +427,7 @@ Ez el fogja menteni a
 <replaceable>http://217.71.208.37:8006</replaceable> szerveren stream-elt
 tartalmat a <replaceable>stream.asf</replaceable> fájlba.
 Ez működik az <application>MPlayer</application> által támogatott
-összes protokollal, mint MMS, RSTP és így tovább.
+összes protokollal, mint MMS, RTSP és így tovább.
 </para>
 </sect2>
 </sect1>
@@ -500,18 +501,19 @@ leírt blokkok kihagyása.
 </para>
 </sect2>
 </sect1>
+</chapter>
 
 
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
 
-<sect1 id="advaudio" xreflabel="Advanced Audio">
-<title>Továbbfejlesztett audió</title>
+<chapter id="advaudio" xreflabel="Advanced Audio">
+<title>Továbbfejlesztett audió használata</title>
 
-<sect2 id="advaudio-surround">
+<sect1 id="advaudio-surround">
 <title>Térhatású/többcsatornás lejátszás</title>
 
-<sect3 id="advaudio-surround-DVD">
+<sect2 id="advaudio-surround-DVD">
 <title>DVD-k</title>
 
 <para>
@@ -531,10 +533,10 @@ kvadrafónikus lejátszás alapértelmezetté tételéhez írd be ezt a sort:
 Az <application>MPlayer</application> ekkor az audiót négy csatornán fogja
 lejátszani, ha mind a négy csatorna elérhető.
 </para>
-</sect3>
+</sect2>
 
 
-<sect3 id="advaudio-surround-stereoinfour">
+<sect2 id="advaudio-surround-stereoinfour">
 <title>Sztereó fájlok lejátszása négy hangszórón</title>
 
 <para>
@@ -544,10 +546,10 @@ ahogy a legtöbb audió vezérlő sem. Ha ilyet akarsz, kézzel kell megadnod:
 Lásd a <link linkend="advaudio-channels-copying">csatorna másolásról</link>
 szóló rész a magyarázatért.
 </para>
-</sect3>
+</sect2>
 
 
-<sect3 id="advaudio-surround-passthrough">
+<sect2 id="advaudio-surround-passthrough">
 <title>AC-3/DTS áteresztés</title>
 
 <para>
@@ -599,10 +601,10 @@ amiben nincs AC-3-as vagy DTS audió. Az <option>afm=hwac3</option>
 sorba nem kell vessző; az <application>MPlayer</application> mindenképpen vált
 ha egy audió család van megadva.
 </para>
-</sect3>
+</sect2>
 
 
-<sect3 id="hwmpa-surround-passthrough">
+<sect2 id="hwmpa-surround-passthrough">
 <title>MPEG audió áteresztés</title>
 
 <para>
@@ -618,10 +620,10 @@ az audió adatok dekódolásával.
 To use this codec:
 <screen> mplayer -ac hwmpa </screen>
 </para>
-</sect3>
+</sect2>
 
 
-<sect3 id="advaudio-surround-matrix">
+<sect2 id="advaudio-surround-matrix">
 <title>Mátrix-kódolású audió</title>
 
 <para>
@@ -652,10 +654,10 @@ Jó link-ek:
 </para></listitem>
 </itemizedlist>
 </para>
-</sect3>
+</sect2>
 
 
-<sect3 id="advaudio-surround-hrtf">
+<sect2 id="advaudio-surround-hrtf">
 <title>Térhatás emulálása fülhallgatóval</title>
 
 <para>
@@ -690,10 +692,10 @@ történő lejátszáshoz újra kell mintáznod:
 mplayer <replaceable>fájlnév</replaceable> -channels 6 -af resample=48000,hrtf
 </screen>
 </para>
-</sect3>
+</sect2>
 
 
-<sect3 id="advaudio-surround-troubleshooting">
+<sect2 id="advaudio-surround-troubleshooting">
 <title>Hibajavítás</title>
 
 <para>
@@ -701,15 +703,15 @@ Ha nem hallasz semmilyen hangot a térhatású csatornáidból, ellenőrizd a mi
 beállításait egy mixer programmal, mint pl. az <application>alsamixer</application>;
 az audió kimenetek gyakran le vannak némítva és nulla hangerőre vannak állítva alapértelmezésben.
 </para>
-</sect3>
 </sect2>
+</sect1>
 
 <!-- ********** -->
 
-<sect2 id="advaudio-channels">
+<sect1 id="advaudio-channels">
 <title>Csatorna többszörözés</title>
 
-<sect3 id="advaudio-channels-general">
+<sect2 id="advaudio-channels-general">
 <title>Általános információk</title>
 
 <para>
@@ -779,10 +781,10 @@ vagy eltávolítására, a hangkártya felé kiküldött csatornák számának b
 való. Lásd a következő fejezeteket a csatorna manipulációval kapcsolatos bővebb
 információkért.
 </para>
-</sect3>
+</sect2>
 
 
-<sect3 id="advaudio-channels-mono">
+<sect2 id="advaudio-channels-mono">
 <title>Mono lejátszása két hangszóróval</title>
 
 <para>
@@ -806,10 +808,10 @@ kikísérletezed és megkeresed a helyes hangerőt. Például:
 mplayer <replaceable>filename</replaceable> -af extrastereo=0,volume=5
 </screen>
 </para>
-</sect3>
+</sect2>
 
 
-<sect3 id="advaudio-channels-copying">
+<sect2 id="advaudio-channels-copying">
 <title>Csatorna másolás/mozgatás</title>
 
 <para>
@@ -908,10 +910,10 @@ Az alopciók összeállításával kapjuk:
 mplayer <replaceable>fájlnév</replaceable> -af channels=4:4:0:2:0:0:1:3:1:1
 </screen>
 </para>
-</sect3>
+</sect2>
 
 
-<sect3 id="advaudio-channels-mixing">
+<sect2 id="advaudio-channels-mixing">
 <title>Csatorna keverés</title>
 
 <para>
@@ -1076,12 +1078,12 @@ Ezen opciók összevonásával születik meg az eredmény:
 mplayer <replaceable>dvd://1</replaceable> -channels 6 -af pan=5:1:0:0:0:0:0:1:0:0:0:0:0:1:0:0:0:0:0:1:0:0:0:0:0:1:0.5:0.5:0:0:0
 </screen>
 </para>
-</sect3>
 </sect2>
+</sect1>
 
 <!-- ********** -->
 
-<sect2 id="advaudio-volume">
+<sect1 id="advaudio-volume">
 <title>Szoftveres hangerő állítás</title>
 
 <para>
@@ -1121,6 +1123,5 @@ meg, a <option>volume</option>-nek lehet, hogy le kell csípnie a jelet, hogy
 megakadályozza a hangkártyád elfogadható tartományán kívül eső adatok küldését;
 ez zavart audiót eredményez.
 </para>
-</sect2>
 </sect1>
 </chapter>

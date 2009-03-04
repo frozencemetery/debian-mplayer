@@ -20,16 +20,16 @@
 #define MAX_PROFILE_DEPTH 20
 
 static int
-parse_profile(m_option_t* opt,char *name, char *param, void* dst, int src);
+parse_profile(const m_option_t *opt, const char *name, char *param, void *dst, int src);
 
 static void
-set_profile(m_option_t *opt, void* dst, void* src);
+set_profile(const m_option_t *opt, void* dst, void* src);
 
 static int
 show_profile(m_option_t *opt, char* name, char *param);
 
 static void
-m_config_add_option(m_config_t *config, m_option_t *arg, char* prefix);
+m_config_add_option(m_config_t *config, const m_option_t *arg, const char* prefix);
 
 static int
 list_options(m_option_t *opt, char* name, char *param);
@@ -37,7 +37,7 @@ list_options(m_option_t *opt, char* name, char *param);
 m_config_t*
 m_config_new(void) {
   m_config_t* config;
-  static int inited = 0;
+  static int initialized = 0;
   static m_option_type_t profile_opt_type;
   static m_option_t ref_opts[] = {
     { "profile", NULL, &profile_opt_type, CONF_NOSAVE, 0, 0, NULL },
@@ -49,8 +49,8 @@ m_config_new(void) {
 
   config = calloc(1,sizeof(m_config_t));
   config->lvl = 1; // 0 Is the defaults
-  if(!inited) {
-    inited = 1;
+  if(!initialized) {
+    initialized = 1;
     profile_opt_type = m_option_type_string_list;
     profile_opt_type.parse = parse_profile;
     profile_opt_type.set = set_profile;
@@ -182,7 +182,7 @@ m_config_pop(m_config_t* config) {
 }
 
 static void
-m_config_add_option(m_config_t *config, m_option_t *arg, char* prefix) {
+m_config_add_option(m_config_t *config, const m_option_t *arg, const char* prefix) {
   m_config_option_t *co;
   m_config_save_slot_t* sl;
 
@@ -206,7 +206,7 @@ m_config_add_option(m_config_t *config, m_option_t *arg, char* prefix) {
 
   // Option with children -> add them
   if(arg->type->flags & M_OPT_TYPE_HAS_CHILD) {
-    m_option_t *ol = arg->p;
+    const m_option_t *ol = arg->p;
     int i;
     co->slots = NULL;
     for(i = 0 ; ol[i].name != NULL ; i++)
@@ -246,7 +246,7 @@ m_config_add_option(m_config_t *config, m_option_t *arg, char* prefix) {
 }
 
 int
-m_config_register_options(m_config_t *config, m_option_t *args) {
+m_config_register_options(m_config_t *config, const m_option_t *args) {
   int i;
 
 #ifdef MP_DEBUG
@@ -308,6 +308,13 @@ m_config_parse_option(m_config_t *config, char* arg, char* param,int set) {
     mp_msg(MSGT_CFGPARSER, MSGL_ERR,MSGTR_InvalidCmdlineOption,arg);
     return M_OPT_INVALID;
   }
+  // During command line preparse set only pre-parse options
+  // Otherwise only set pre-parse option if they were not already set.
+  if(((config->mode == M_COMMAND_LINE_PRE_PARSE) &&
+      !(co->opt->flags & M_OPT_PRE_PARSE)) ||
+     ((config->mode != M_COMMAND_LINE_PRE_PARSE) &&
+      (co->opt->flags & M_OPT_PRE_PARSE) && (co->flags & M_CFG_OPT_SET)))
+    set = 0;
 
   // Option with children are a bit different to parse
   if(co->opt->type->flags & M_OPT_TYPE_HAS_CHILD) {
@@ -374,7 +381,7 @@ m_config_check_option(m_config_t *config, char* arg, char* param) {
 }
 
 
-m_option_t*
+const m_option_t*
 m_config_get_option(m_config_t *config, char* arg) {
   m_config_option_t *co;
 
@@ -391,9 +398,9 @@ m_config_get_option(m_config_t *config, char* arg) {
     return NULL;
 }
 
-void*
+const void*
 m_config_get_option_ptr(m_config_t *config, char* arg) {
-  m_option_t* conf;
+  const m_option_t* conf;
 
 #ifdef MP_DEBUG
   assert(config != NULL);
@@ -415,7 +422,7 @@ m_config_print_option_list(m_config_t *config) {
 
   mp_msg(MSGT_CFGPARSER, MSGL_INFO, MSGTR_OptionListHeader);
   for(co = config->opts ; co ; co = co->next) {
-    m_option_t* opt = co->opt;
+    const m_option_t* opt = co->opt;
     if(opt->type->flags & M_OPT_TYPE_HAS_CHILD) continue;
     if(opt->flags & M_OPT_MIN)
       sprintf(min,"%-8.0f",opt->min);
@@ -477,7 +484,7 @@ m_config_set_profile_option(m_config_t* config, m_profile_t* p,
   return 1;
 }
 
-static void
+void
 m_config_set_profile(m_config_t* config, m_profile_t* p) {
   int i;
   if(config->profile_depth > MAX_PROFILE_DEPTH) {
@@ -491,7 +498,8 @@ m_config_set_profile(m_config_t* config, m_profile_t* p) {
 }
 
 static int
-parse_profile(m_option_t* opt,char *name, char *param, void* dst, int src) {
+parse_profile(const m_option_t *opt, const char *name, char *param, void *dst, int src)
+{
   m_config_t* config = opt->priv;
   char** list = NULL;
   int i,r;
@@ -526,7 +534,7 @@ parse_profile(m_option_t* opt,char *name, char *param, void* dst, int src) {
 }
 
 static void
-set_profile(m_option_t *opt, void* dst, void* src) {
+set_profile(const m_option_t *opt, void *dst, void *src) {
   m_config_t* config = opt->priv;
   m_profile_t* p;
   char** list = NULL;

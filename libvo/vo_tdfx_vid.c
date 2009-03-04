@@ -1,23 +1,21 @@
-/* 
- *  vo_tdfx_vid.c
+/*
+ * copyright (C) 2003 Alban Bedel
  *
- *	Copyright (C) Alban Bedel - 03/2003
+ * This file is part of MPlayer.
  *
- *  This file is part of MPlayer, a free movie player.
- *	
- *  MPlayer is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2, or (at your option)
- *  any later version.
- *   
- *  MPlayer is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *   
- *  You should have received a copy of the GNU General Public License along
- *  with MPlayer; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <stdio.h>
@@ -41,7 +39,7 @@
 #include "drivers/tdfx_vid.h"
 
 
-static vo_info_t info = 
+static const vo_info_t info = 
 {
 	"tdfx vid",
 	"tdfx_vid",
@@ -51,7 +49,7 @@ static vo_info_t info =
 
 //#define VERBOSE
 
-LIBVO_EXTERN(tdfx_vid)
+const LIBVO_EXTERN(tdfx_vid)
 
 static tdfx_vid_config_t tdfx_cfg;
 
@@ -75,6 +73,7 @@ static int use_overlay = 1;
 static tdfx_vid_overlay_t tdfx_ov;
 
 // FIXME
+#if 0
 static void clear_screen(void) {
   tdfx_vid_agp_move_t mov;
 
@@ -94,6 +93,7 @@ static void clear_screen(void) {
     mp_msg(MSGT_VO,MSGL_WARN, MSGTR_LIBVO_TDFXVID_AGPMoveFailedToClearTheScreen);
   
 }
+#endif
 
 static int draw_slice(uint8_t *image[], int stride[], int w,int h,int x,int y)
 {

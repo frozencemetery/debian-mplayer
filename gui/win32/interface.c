@@ -16,14 +16,14 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <windows.h>
-
-#include "interface.h"
+#include <get_path.h>
+#include "gui/interface.h"
 #include "m_option.h"
 #include "mixer.h"
 #include "mp_msg.h"
@@ -32,7 +32,7 @@
 #include "stream/stream.h"
 #include "libmpdemux/demuxer.h"
 #include "libmpdemux/stheader.h"
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 #include "stream/stream_dvd.h"
 #endif
 #include "input/input.h"
@@ -41,8 +41,7 @@
 #include "access_mpcontext.h"
 #include "gui.h"
 #include "dialogs.h"
-#include "wincfg.h"
-#ifdef HAVE_LIBCDIO
+#ifdef CONFIG_LIBCDIO
 #include <cdio/cdio.h>
 #endif
 
@@ -59,8 +58,10 @@ static gui_t *mygui = NULL;
 static int update_subwindow(void);
 static RECT old_rect;
 static DWORD style;
-ao_functions_t *audio_out = NULL;
-vo_functions_t *video_out = NULL;
+static HANDLE hThread;
+static unsigned threadId;
+const ao_functions_t *audio_out = NULL;
+const vo_functions_t *video_out = NULL;
 mixer_t *mixer = NULL;
 
 /* test for playlist files, no need to specify -playlist on the commandline.
@@ -150,7 +151,7 @@ static void guiSetEvent(int event)
         case evPause:
             mplPause();
             break;
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
         case evPlayDVD:
         {
             static char dvdname[MAX_PATH];
@@ -172,7 +173,7 @@ static void guiSetEvent(int event)
             break;
         }
 #endif
-#ifdef HAVE_LIBCDIO
+#ifdef CONFIG_LIBCDIO
         case evPlayCD:
         {
             int i;
@@ -272,7 +273,7 @@ static void guiSetEvent(int event)
         {
             switch(guiIntfStruct.StreamType)
             {
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
                 case STREAMTYPE_DVD:
                 {
                     guiIntfStruct.Title = guiIntfStruct.DVD.current_title;
@@ -336,7 +337,7 @@ void mplNext(void)
     if(guiIntfStruct.Playing == 2) return;
     switch(guiIntfStruct.StreamType)
     {
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
         case STREAMTYPE_DVD:
             if(guiIntfStruct.DVD.current_chapter == (guiIntfStruct.DVD.chapters - 1))
                 return;
@@ -358,7 +359,7 @@ void mplPrev(void)
     if(guiIntfStruct.Playing == 2) return;
     switch(guiIntfStruct.StreamType)
     {
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
         case STREAMTYPE_DVD:
             if(guiIntfStruct.DVD.current_chapter == 1)
                 return;
@@ -404,7 +405,7 @@ void mplEnd( void )
     guiIntfStruct.Position = 0;
     guiIntfStruct.AudioType = 0;
 
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
     guiIntfStruct.DVD.current_title = 1;
     guiIntfStruct.DVD.current_chapter = 1;
     guiIntfStruct.DVD.current_angle = 1;
@@ -459,7 +460,7 @@ void mplFullScreen( void )
     if(sub_window) ShowWindow(mygui->subwindow, SW_SHOW);
 }
 
-static DWORD WINAPI GuiThread(void)
+static unsigned __stdcall GuiThread(void* param)
 {
     MSG msg;
 
@@ -473,9 +474,8 @@ static DWORD WINAPI GuiThread(void)
        gtkAutoSync = autosync;
     }
 
-    while(mygui)
+    while(GetMessage(&msg, NULL, 0, 0))
     {
-        GetMessage(&msg, NULL, 0, 0);
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
@@ -486,12 +486,11 @@ static DWORD WINAPI GuiThread(void)
 
 void guiInit(void)
 {
-    DWORD threadId;
     memset(&guiIntfStruct, 0, sizeof(guiIntfStruct));
     /* Create The gui thread */
     if (!mygui)
     {
-        CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) GuiThread, NULL, 0, &threadId);
+        hThread = _beginthreadex(NULL, 0, GuiThread, NULL, 0, &threadId);
         mp_msg(MSGT_GPLAYER, MSGL_V, "[GUI] Creating GUI Thread 0x%04x\n", threadId);
     }
 
@@ -506,9 +505,11 @@ void guiDone(void)
     {
         fprintf(stderr, "[GUI] Closed by main mplayer window\n");
         fflush(stderr);
+        PostThreadMessage(threadId, WM_QUIT, 0, 0);
+        WaitForSingleObject(hThread, INFINITE);
+        CloseHandle(hThread);
         mygui->uninit(mygui);
         free(mygui);
-        TerminateThread(GuiThread, 0);
         mygui = NULL;
     }
     /* Remove tray icon */
@@ -520,7 +521,7 @@ void guiDone(void)
 int guiGetEvent(int type, char *arg)
 {
     stream_t *stream = (stream_t *) arg;
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
     dvd_priv_t *dvdp = (dvd_priv_t *) arg;
 #endif
     if(!mygui || !mygui->skin) return 0;
@@ -548,7 +549,7 @@ int guiGetEvent(int type, char *arg)
             {
                 case STREAMTYPE_PLAYLIST:
                     break;
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
                 case STREAMTYPE_DVD:
                 {
                     char tmp[512];
@@ -613,7 +614,7 @@ int guiGetEvent(int type, char *arg)
             guiIntfStruct.StreamType = stream->type;
             switch(stream->type)
             {
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
                 case STREAMTYPE_DVD:
                     guiGetEvent(guiSetDVD, (char *) stream->priv);
                     break;
@@ -621,7 +622,7 @@ int guiGetEvent(int type, char *arg)
             }
             break;
         }
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
         case guiSetDVD:
         {
             guiIntfStruct.DVD.titles = dvdp->vmg_file->tt_srpt->nr_of_srpts;

@@ -25,6 +25,7 @@
 
 #include "avcodec.h"
 #include "mpegvideo.h"
+#include "intrax8.h"
 
 /** Markers used in VC-1 AP frame data */
 //@{
@@ -126,9 +127,6 @@ enum TransformTypes {
 };
 //@}
 
-/** One more frame type */
-#define BI_TYPE 7
-
 enum CodingSet {
     CS_HIGH_MOT_INTRA = 0,
     CS_HIGH_MOT_INTER,
@@ -156,6 +154,7 @@ enum COTypes {
  */
 typedef struct VC1Context{
     MpegEncContext s;
+    IntraX8Context x8;
 
     int bits;
 
@@ -181,6 +180,7 @@ typedef struct VC1Context{
     int interlace;        ///< Progressive/interlaced (RPTFTM syntax element)
     int tfcntrflag;       ///< TFCNTR present
     int panscanflag;      ///< NUMPANSCANWIN, TOPLEFT{X,Y}, BOTRIGHT{X,Y} present
+    int refdist_flag;     ///< REFDIST syntax element present in II, IP, PI or PP field picture headers
     int extended_dmv;     ///< Additional extended dmv range at P/B frame-level
     int color_prim;       ///< 8bits, chroma coordinates of the color primaries
     int transfer_char;    ///< 8bits, Opto-electronic transfer characteristics
@@ -214,6 +214,8 @@ typedef struct VC1Context{
     int k_y;              ///< Number of bits for MVs (depends on MV range)
     int range_x, range_y; ///< MV range
     uint8_t pq, altpq;    ///< Current/alternate frame quantizer scale
+    const uint8_t* zz_8x4;///< Zigzag scan table for TT_8x4 coding mode
+    const uint8_t* zz_4x8;///< Zigzag scan table for TT_4x8 coding mode
     /** pquant parameters */
     //@{
     uint8_t dquantfrm;
@@ -302,6 +304,12 @@ typedef struct VC1Context{
 
     int p_frame_skipped;
     int bi_type;
+    int x8_type;
+
+    uint32_t *cbp_base, *cbp;
+    uint8_t bfraction_lut_index;///< Index for BFRACTION value (see Table 40, reproduced into ff_vc1_bfraction_lut[])
+    uint8_t broken_link;        ///< Broken link flag (BROKEN_LINK syntax element)
+    uint8_t closed_entry;       ///< Closed entry point flag (CLOSED_ENTRY syntax element)
 } VC1Context;
 
-#endif // AVCODEC_VC1_H
+#endif /* AVCODEC_VC1_H */

@@ -6,10 +6,10 @@ extern "C" {
 #include <limits.h>
 #include <math.h>
 #include "stheader.h"
-#include "base64.h"
+#include "libavutil/base64.h"
 }
 
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_LIBAVCODEC
 AVCodecParserContext * h264parserctx;
 #endif
 
@@ -116,7 +116,7 @@ void rtpCodecInitialize_video(demuxer_t* demuxer,
       = parseH264ConfigStr(subsession->fmtp_spropparametersets(), configLen);
     sh_video->bih = bih = insertVideoExtradata(bih, configData, configLen);
     delete[] configData;
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_LIBAVCODEC
     avcodec_register_all();
     h264parserctx = av_parser_init(CODEC_ID_H264);
 #endif
@@ -198,6 +198,7 @@ void rtpCodecInitialize_audio(demuxer_t* demuxer,
   sh_audio->wf = wf;
   demux_stream_t* d_audio = demuxer->audio;
   d_audio->sh = sh_audio; sh_audio->ds = d_audio;
+  d_audio->id = sh_audio->aid;
   
   wf->nChannels = subsession->numChannels();
 
@@ -327,7 +328,7 @@ static void needVideoFrameRate(demuxer_t* demuxer,
   // figure out the frame rate by itself, so (unless the user specifies
   // it manually, using "-fps") we figure it out ourselves here, using the
   // presentation timestamps in successive packets,
-  extern float force_fps; if (force_fps != 0.0) return; // user used "-fps"
+  extern double force_fps; if (force_fps != 0.0) return; // user used "-fps"
 
   demux_stream_t* d_video = demuxer->video;
   sh_video_t* sh_video = (sh_video_t*)(d_video->sh);

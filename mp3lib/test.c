@@ -1,21 +1,17 @@
 
 #define DUMP_PCM
 
-// gcc test.c -I.. -L. -lMP3 -lm -o test1 -O4
-
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <unistd.h>
 #include <sys/time.h>
 
-#include "mp3lib/mp3.h"
 #include "config.h"
-
+#include "mp3lib/mp3.h"
 #include "cpudetect.h"
-extern CpuCaps gCpuCaps;
 
-static inline unsigned int GetTimer(){
+static inline unsigned int GetTimer(void){
   struct timeval tv;
   struct timezone tz;
 //  float s;
@@ -49,7 +45,7 @@ int main(int argc,char* argv[]){
   GetCpuCaps(&gCpuCaps);
 
   // MPEG Audio:
-#ifdef USE_FAKE_MONO
+#ifdef CONFIG_FAKE_MONO
   MP3_Init(0);
 #else
   MP3_Init();
@@ -72,5 +68,5 @@ int main(int argc,char* argv[]){
   printf("CPU usage at normal playback: %5.2f %%\n",time1*0.0001f/length);
   
   fclose(mp3file);
-  
+  return 0;
 }

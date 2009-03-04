@@ -3,7 +3,7 @@
  *
  *  (was video_out_sdl.c from OMS project/mpeg2dec -> http://linuxvideo.org)
  *
- *  Copyright (C) Ryan C. Gordon <icculus@lokigames.com> - April 22, 2000.
+ *  Copyright (C) Ryan C. Gordon <icculus@lokigames.com> - April 22, 2000
  *
  *  Copyright (C) Felix Buenemann <atmosfear@users.sourceforge.net> - 2001
  *
@@ -13,8 +13,7 @@
  *    Felix Buenemann <atmosfear@users.sourceforge.net>
  *
  *  This file is a video out driver using the SDL library (http://libsdl.org/),
- *  to be used with MPlayer [The Movie Player for Linux] project, further info
- *  from http://www.mplayerhq.hu
+ *  to be used with MPlayer, further info from http://www.mplayerhq.hu
  *
  *  -- old disclaimer --
  *
@@ -24,69 +23,23 @@
  *  and BeOS support, too. Yay. SDL info, source, and binaries can be found
  *  at http://slouken.devolution.com/SDL/
  *
- *  This file is part of mpeg2dec, a free MPEG-2 video stream decoder.
- *	
- *  mpeg2dec is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2, or (at your option)
- *  any later version.
- *   
- *  mpeg2dec is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *   
- *  You should have received a copy of the GNU General Public License
- *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation.
- *
  *  -- end old disclaimer -- 
  *
- *  Changes:
- *    Dominik Schnitzer <dominik@schnitzer.at> - November 08, 2000.
- *    - Added resizing support, fullscreen: changed the sdlmodes selection
- *       routine.
- *    - SDL bugfixes: removed the atexit(SLD_Quit), SDL_Quit now resides in
- *       the plugin_exit routine.
- *    - Commented the source :)
- *    - Shortcuts: for switching between Fullscreen/Windowed mode and for
- *       cycling between the different Fullscreen modes.
- *    - Small bugfixes: proper width/height of movie
- *    Dominik Schnitzer <dominik@schnitzer.at> - November 11, 2000.
- *    - Cleanup code, more comments
- *    - Better error handling
- *    Bruno Barreyra <barreyra@ufl.edu> - December 10, 2000.
- *    - Eliminated memcpy's for entire frames
- *    Felix Buenemann <Atmosfear@users.sourceforge.net> - March 11, 2001
- *    - Added aspect-ratio awareness for fullscreen
- *    Felix Buenemann <Atmosfear@users.sourceforge.net> - March 11, 2001
- *    - Fixed aspect-ratio awareness, did only vertical scaling (black bars above
- *       and below), now also does horizontal scaling (black bars left and right),
- *       so you get the biggest possible picture with correct aspect-ratio.
- *    Felix Buenemann <Atmosfear@users.sourceforge.net> - March 12, 2001
- *    - Minor bugfix to aspect-ratio for non-4:3-resolutions (like 1280x1024)
- *    - Bugfix to check_events() to reveal mouse cursor after 'q'-quit in
- *       fullscreen-mode
- *    Felix Buenemann <Atmosfear@users.sourceforge.net> - April 10, 2001
- *    - Changed keypress-detection from keydown to keyup, seems to fix keyrepeat
- *       bug (key had to be pressed twice to be detected)
- *    - Changed key-handling: 'f' cycles fullscreen/windowed, ESC/RETURN/'q' quits
- *    - Bugfix which avoids exit, because return is passed to sdl-output on startup,
- *       which caused the player to exit (keyboard-buffer problem? better solution
- *       recommed)
- *    Felix Buenemann <Atmosfear@users.sourceforge.net> - April 11, 2001
- *    - OSD and subtitle support added
- *    - some minor code-changes
- *    - added code to comply with new fullscreen meaning
- *    - changed fullscreen-mode-cycling from '+' to 'c' (interferred with audiosync
- *       adjustment)
- *    Felix Buenemann <Atmosfear@users.sourceforge.net> - April 13, 2001
- *    - added keymapping to toggle OSD ('o' key) 
- *    - added some defines to modify some sdl-out internas (see comments)
+ * This file is part of MPlayer.
  *
- *    Felix Buenemann: further changes will be visible through cvs log, don't want
- *     to update this all the time (CVS info on http://mplayer.sourceforge.net)
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /* define to force software-surface (video surface stored in system memory)*/
@@ -105,8 +58,8 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include "mp_msg.h"
 #include "config.h"
+#include "mp_msg.h"
 #include "mp_msg.h"
 #include "help_mp.h"
 #include "video_out.h"
@@ -117,7 +70,7 @@
 #include "aspect.h"
 #include "libmpcodecs/vfcap.h"
 
-#ifdef HAVE_X11
+#ifdef CONFIG_X11
 #include <X11/Xlib.h>
 #include "x11_common.h"
 #endif
@@ -127,7 +80,7 @@
 #include "subopt-helper.h"
 #include "mp_fifo.h"
 
-static vo_info_t info = 
+static const vo_info_t info = 
 {
 	"SDL YUV/RGB/BGR renderer (SDL v1.1.7+ only!)",
 	"sdl",
@@ -135,7 +88,7 @@ static vo_info_t info =
 	""
 };
 
-LIBVO_EXTERN(sdl)
+const LIBVO_EXTERN(sdl)
 
 #include <SDL.h>
 //#include <SDL/SDL_syswm.h>
@@ -143,16 +96,14 @@ LIBVO_EXTERN(sdl)
 
 #ifdef SDL_ENABLE_LOCKS
 #define	SDL_OVR_LOCK(x)        if (SDL_LockYUVOverlay (priv->overlay)) { \
-				if( mp_msg_test(MSGT_VO,MSGL_V) ) { \
- 				  mp_msg(MSGT_VO,MSGL_V, "SDL: Couldn't lock YUV overlay\n"); } \
+ 				mp_msg(MSGT_VO,MSGL_V, "SDL: Couldn't lock YUV overlay\n"); \
 				return x; \
 	    		    }
 #define SDL_OVR_UNLOCK      SDL_UnlockYUVOverlay (priv->overlay);
 
 #define SDL_SRF_LOCK(srf, x)   if(SDL_MUSTLOCK(srf)) { \
 				if(SDL_LockSurface (srf)) { \
-					if( mp_msg_test(MSGT_VO,MSGL_V) ) { \
- 					  mp_msg(MSGT_VO,MSGL_V, "SDL: Couldn't lock RGB surface\n"); } \
+ 					mp_msg(MSGT_VO,MSGL_V, "SDL: Couldn't lock RGB surface\n"); \
 					return x; \
 				} \
 			    }
@@ -426,8 +377,7 @@ static int sdl_open (void *plugin, void *name)
 
 	/* other default values */
 	#ifdef SDL_NOHWSURFACE
-		if( mp_msg_test(MSGT_VO,MSGL_V) ) {
-			mp_msg(MSGT_VO,MSGL_V, "SDL: using software-surface\n"); }
+		mp_msg(MSGT_VO,MSGL_V, "SDL: using software-surface\n");
 		priv->sdlflags = SDL_SWSURFACE|SDL_RESIZABLE|SDL_ANYFORMAT;
 		priv->sdlfullflags = SDL_SWSURFACE|SDL_FULLSCREEN|SDL_ANYFORMAT;
 		// XXX:FIXME: ASYNCBLIT should be enabled for SMP systems
@@ -439,15 +389,14 @@ static int sdl_open (void *plugin, void *name)
 			priv->sdlfullflags = SDL_SWSURFACE|SDL_FULLSCREEN|SDL_ASYNCBLIT|SDL_HWACCEL|SDL_ANYFORMAT;
 		}	
 		else {	*/
-			if( mp_msg_test(MSGT_VO,MSGL_V) ) {
-	 			mp_msg(MSGT_VO,MSGL_V, "SDL: using hardware-surface\n"); }
+	 		mp_msg(MSGT_VO,MSGL_V, "SDL: using hardware-surface\n");
 			priv->sdlflags = SDL_HWSURFACE|SDL_RESIZABLE/*|SDL_ANYFORMAT*/;
 			priv->sdlfullflags = SDL_HWSURFACE|SDL_FULLSCREEN/*|SDL_ANYFORMAT*/;
 			// XXX:FIXME: ASYNCBLIT should be enabled for SMP systems
 		//}	
 	#endif	
 
-#if !defined( AMIGA ) && !defined( MACOSX ) 
+#if !defined( __AMIGAOS4__ ) && !defined( __APPLE__ ) 
 	priv->sdlfullflags |= SDL_DOUBLEBUF;	
 	if (vo_doublebuffering)
 	    priv->sdlflags |= SDL_DOUBLEBUF;
@@ -490,7 +439,6 @@ static int sdl_open (void *plugin, void *name)
 	priv->bpp = vidInfo->vfmt->BitsPerPixel;
 	if (priv->mode == YUV && priv->bpp < 16) {
 
-		if( mp_msg_test(MSGT_VO,MSGL_V) )
  		    mp_msg(MSGT_VO,MSGL_V, "SDL: Your SDL display target wants to be at a color "
                            "depth of (%d), but we need it to be at least 16 "
                            "bits, so we need to emulate 16-bit color. This is "
@@ -569,8 +517,7 @@ static int sdl_close (void)
 #if 0
 static SDL_Rect aspect(int srcw, int srch, int dstw, int dsth) {
 	SDL_Rect newres;
-	if( mp_msg_test(MSGT_VO,MSGL_V) ) {
-	 	mp_msg(MSGT_VO,MSGL_V, "SDL Aspect-Destinationres: %ix%i (x: %i, y: %i)\n", newres.w, newres.h, newres.x, newres.y); }
+	mp_msg(MSGT_VO,MSGL_V, "SDL Aspect-Destinationres: %ix%i (x: %i, y: %i)\n", newres.w, newres.h, newres.x, newres.y);
 	newres.h = ((float)dstw / (float)srcw * (float)srch) * ((float)dsth/((float)dstw/(MONITOR_ASPECT)));
 	if(newres.h > dsth) {
 		newres.w = ((float)dsth / (float)newres.h) * dstw;
@@ -584,8 +531,7 @@ static SDL_Rect aspect(int srcw, int srch, int dstw, int dsth) {
 		newres.y = (dsth - newres.h) / 2;
 	}
 	
-	if( mp_msg_test(MSGT_VO,MSGL_V) ) {
-		mp_msg(MSGT_VO,MSGL_V, "SDL Mode: %d:  %d x %d\n", i, priv->fullmodes[i]->w, priv->fullmodes[i]->h); }
+	mp_msg(MSGT_VO,MSGL_V, "SDL Mode: %d:  %d x %d\n", i, priv->fullmodes[i]->w, priv->fullmodes[i]->h);
 
 	return newres;
 }
@@ -622,7 +568,7 @@ static void set_fullmode (int mode)
 	/* change to given fullscreen mode and hide the mouse cursor */
 	newsurface = SDL_SetVideoMode(priv->fullmodes[mode]->w - waspect, priv->fullmodes[mode]->h - haspect, priv->bpp, priv->sdlfullflags);
 	
-	/* if we were successfull hide the mouse cursor and save the mode */
+	/* if we were successful hide the mouse cursor and save the mode */
 	if (newsurface) {
 		if (priv->surface)
 	    	    SDL_FreeSurface(priv->surface);
@@ -701,8 +647,7 @@ static void set_fullmode (int mode) {
 		      break;
 		    }
 		  }
-		if ( mp_msg_test(MSGT_VO,MSGL_V) ) {
-			mp_msg(MSGT_VO,MSGL_V, "SET SDL Mode: %d:  %d x %d\n", mode, priv->fullmodes[mode]->w, priv->fullmodes[mode]->h); }
+		mp_msg(MSGT_VO,MSGL_V, "SET SDL Mode: %d:  %d x %d\n", mode, priv->fullmodes[mode]->w, priv->fullmodes[mode]->h);
 		priv->fullmode = mode;
         screen_surface_h = priv->fullmodes[mode]->h;
         screen_surface_w = priv->fullmodes[mode]->w;
@@ -732,7 +677,7 @@ static void set_fullmode (int mode) {
 	 * re-assign it.  The comment in sdl_close() seems to imply that we 
 	 * should not free() anything.
 	 */
-	#ifdef SYS_DARWIN
+	#ifdef __APPLE__
 	{
 	const SDL_VideoInfo *vidInfo = NULL;
 	vidInfo = SDL_GetVideoInfo ();
@@ -749,7 +694,7 @@ static void set_fullmode (int mode) {
 
 
 	
-	/* if creation of new surface was successfull, save it and hide mouse cursor */
+	/* if creation of new surface was successful, save it and hide mouse cursor */
 	if(newsurface) {
 		if (priv->surface)
 	    	    SDL_FreeSurface(priv->surface);
@@ -811,8 +756,7 @@ config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uin
 
     if ( vo_config_count ) sdl_close();
 
-    if( mp_msg_test(MSGT_VO,MSGL_V) ) {
-      mp_msg(MSGT_VO,MSGL_V, "SDL: Using 0x%X (%s) image format\n", format, vo_format_name(format)); }
+    mp_msg(MSGT_VO,MSGL_V, "SDL: Using 0x%X (%s) image format\n", format, vo_format_name(format));
     
     if(priv->mode != YUV) {
 		priv->sdlflags |= SDL_ANYFORMAT;
@@ -859,13 +803,11 @@ config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uin
 //      printf("SDL: flags are set to: %i\n", flags);
 //	printf("SDL: Width: %i Height: %i D_Width %i D_Height: %i\n", width, height, d_width, d_height);
 	if(flags&VOFLAG_FLIPPING) {
-		if( mp_msg_test(MSGT_VO,MSGL_V) ) {
-			mp_msg(MSGT_VO,MSGL_V, "SDL: using flipped video (only with RGB/BGR/packed YUV)\n"); }
+		mp_msg(MSGT_VO,MSGL_V, "SDL: using flipped video (only with RGB/BGR/packed YUV)\n");
 		priv->flip = 1; 
 	}
 	if(flags&VOFLAG_FULLSCREEN) {
-	  	if( mp_msg_test(MSGT_VO,MSGL_V) ) {
- 	  	    mp_msg(MSGT_VO,MSGL_V, "SDL: setting zoomed fullscreen without modeswitching\n");}
+ 	  	mp_msg(MSGT_VO,MSGL_V, "SDL: setting zoomed fullscreen without modeswitching\n");
  		    mp_msg(MSGT_VO,MSGL_INFO, MSGTR_LIBVO_SDL_InfoPleaseUseVmOrZoom);
 		priv->fulltype = VOFLAG_FULLSCREEN;
 		set_fullmode(priv->fullmode);
@@ -873,16 +815,14 @@ config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uin
 			SDL_ShowCursor(0);*/
 	} else	
 	if(flags&VOFLAG_MODESWITCHING) {
-	 	if( mp_msg_test(MSGT_VO,MSGL_V) ) {
- 	 		mp_msg(MSGT_VO,MSGL_V, "SDL: setting zoomed fullscreen with modeswitching\n"); }
+ 	 	mp_msg(MSGT_VO,MSGL_V, "SDL: setting zoomed fullscreen with modeswitching\n");
 		priv->fulltype = VOFLAG_MODESWITCHING;
 		set_fullmode(priv->fullmode);
           	/*if((priv->surface = SDL_SetVideoMode (d_width ? d_width : width, d_height ? d_height : height, priv->bpp, priv->sdlfullflags)))
 			SDL_ShowCursor(0);*/
 	} else
 	if(flags&VOFLAG_SWSCALE) {
-	 	if( mp_msg_test(MSGT_VO,MSGL_V) ) {
-			mp_msg(MSGT_VO,MSGL_V, "SDL: setting zoomed fullscreen with modeswitching\n"); }
+		mp_msg(MSGT_VO,MSGL_V, "SDL: setting zoomed fullscreen with modeswitching\n");
 		priv->fulltype = VOFLAG_SWSCALE;
 		set_fullmode(priv->fullmode);
 	} 
@@ -894,13 +834,11 @@ config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uin
 		||(strcmp(priv->driver, "cgx") == 0)
 		||(strcmp(priv->driver, "os4video") == 0)
 		||((strcmp(priv->driver, "aalib") == 0) && priv->X)){
-			if( mp_msg_test(MSGT_VO,MSGL_V) ) {
- 				mp_msg(MSGT_VO,MSGL_V, "SDL: setting windowed mode\n"); }
+ 			mp_msg(MSGT_VO,MSGL_V, "SDL: setting windowed mode\n");
             set_video_mode(priv->dstwidth, priv->dstheight, priv->bpp, priv->sdlflags);
 		}
 		else {
-			if( mp_msg_test(MSGT_VO,MSGL_V) ) {
- 				mp_msg(MSGT_VO,MSGL_V, "SDL: setting zoomed fullscreen with modeswitching\n"); }
+ 			mp_msg(MSGT_VO,MSGL_V, "SDL: setting zoomed fullscreen with modeswitching\n");
 			priv->fulltype = VOFLAG_SWSCALE;
 			set_fullmode(priv->fullmode);
 		}	
@@ -1167,7 +1105,7 @@ static void check_events (void)
 {
 	struct sdl_priv_s *priv = &sdl_priv;
 	SDL_Event event;
-	SDLKey keypressed = 0;
+	SDLKey keypressed = SDLK_UNKNOWN;
 	
 	/* Poll the waiting SDL Events */
 	while ( SDL_PollEvent(&event) ) {
@@ -1183,8 +1121,7 @@ static void check_events (void)
 				    priv->windowsize.w = priv->surface->w;
 				    priv->windowsize.h = priv->surface->h;
 				//}
-				if( mp_msg_test(MSGT_VO,MSGL_DBG3) ) {
- 					mp_msg(MSGT_VO,MSGL_DBG3, "SDL: Window resize\n"); }
+ 				mp_msg(MSGT_VO,MSGL_DBG3, "SDL: Window resize\n");
 			break;
 			
 			case SDL_MOUSEBUTTONDOWN:
@@ -1221,8 +1158,7 @@ static void check_events (void)
 			case SDL_KEYDOWN:
 #endif			
 				keypressed = event.key.keysym.sym;
-				if( mp_msg_test(MSGT_VO,MSGL_DBG2) ) {
- 					mp_msg(MSGT_VO,MSGL_DBG2, "SDL: Key pressed: '%i'\n", keypressed); }
+ 				mp_msg(MSGT_VO,MSGL_DBG2, "SDL: Key pressed: '%i'\n", keypressed);
 
 				/* c key pressed. c cycles through available fullscreenmodes, if we have some */
 				if ( ((keypressed == SDLK_c)) && (priv->fullmodes) ) {
@@ -1231,27 +1167,24 @@ static void check_events (void)
 					if (priv->fullmode > (findArrayEnd(priv->fullmodes) - 1)) priv->fullmode = 0;
 					set_fullmode(priv->fullmode);
 	
-					if( mp_msg_test(MSGT_VO,MSGL_DBG2) ) {
- 						mp_msg(MSGT_VO,MSGL_DBG2, "SDL: Set next available fullscreen mode.\n"); }
+ 					mp_msg(MSGT_VO,MSGL_DBG2, "SDL: Set next available fullscreen mode.\n");
 				}
 
 				else if ( keypressed == SDLK_n ) {
-#ifdef HAVE_X11					
+#ifdef CONFIG_X11
 					aspect(&priv->dstwidth, &priv->dstheight,A_NOZOOM);
 #endif					
 					if (priv->surface->w != priv->dstwidth || priv->surface->h != priv->dstheight) {
                         set_video_mode(priv->dstwidth, priv->dstheight, priv->bpp, priv->sdlflags);
 					    	priv->windowsize.w = priv->surface->w;
 						priv->windowsize.h = priv->surface->h;
-						if( mp_msg_test(MSGT_VO,MSGL_DBG2) ) {
- 							mp_msg(MSGT_VO,MSGL_DBG2, "SDL: Normal size\n"); }
+ 						mp_msg(MSGT_VO,MSGL_DBG2, "SDL: Normal size\n");
 					} else
 					if (priv->surface->w != priv->dstwidth * 2 || priv->surface->h != priv->dstheight * 2) {
                         set_video_mode(priv->dstwidth * 2, priv->dstheight * 2, priv->bpp, priv->sdlflags);
 					    	priv->windowsize.w = priv->surface->w;
 						priv->windowsize.h = priv->surface->h;
-						if( mp_msg_test(MSGT_VO,MSGL_DBG2) ) {
- 							mp_msg(MSGT_VO,MSGL_DBG2, "SDL: Double size\n"); }
+ 						mp_msg(MSGT_VO,MSGL_DBG2, "SDL: Double size\n");
 					}
 				}	
 
@@ -1274,8 +1207,8 @@ static void check_events (void)
                                 /*case SDLK_o: mplayer_put_key('o');break;
                                 case SDLK_SPACE: mplayer_put_key(' ');break;
                                 case SDLK_p: mplayer_put_key('p');break;*/
-				case SDLK_7: mplayer_put_key(shift_key?'/':'7');
-                                case SDLK_PLUS: mplayer_put_key(shift_key?'*':'+');
+                                case SDLK_7: mplayer_put_key(shift_key?'/':'7');break;
+                                case SDLK_PLUS: mplayer_put_key(shift_key?'*':'+');break;
                                 case SDLK_KP_PLUS: mplayer_put_key('+');break;
                                 case SDLK_MINUS:
                                 case SDLK_KP_MINUS: mplayer_put_key('-');break;
@@ -1570,11 +1503,10 @@ query_format(uint32_t format)
 static void
 uninit(void)
 {
-#ifdef HAVE_X11
+#ifdef CONFIG_X11
     struct sdl_priv_s *priv = &sdl_priv;
     if(priv->X) {
-		if( mp_msg_test(MSGT_VO,MSGL_V) ) {
- 			mp_msg(MSGT_VO,MSGL_V, "SDL: activating XScreensaver/DPMS\n"); }
+ 		mp_msg(MSGT_VO,MSGL_V, "SDL: activating XScreensaver/DPMS\n");
 		vo_x11_uninit();
 	}
 #endif
@@ -1584,8 +1516,7 @@ uninit(void)
     if(SDL_WasInit(SDL_INIT_VIDEO))
         SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
-	if( mp_msg_test(MSGT_VO,MSGL_DBG3) ) {
- 		mp_msg(MSGT_VO,MSGL_DBG3, "SDL: Closed Plugin\n"); }
+ 	mp_msg(MSGT_VO,MSGL_DBG3, "SDL: Closed Plugin\n");
 
 }
 
@@ -1611,8 +1542,7 @@ static int preinit(const char *arg)
     priv->overlay = NULL;
     priv->surface = NULL;
 
-    if( mp_msg_test(MSGT_VO,MSGL_DBG3) ) {
-        mp_msg(MSGT_VO,MSGL_DBG3, "SDL: Opening Plugin\n"); }
+    mp_msg(MSGT_VO,MSGL_DBG3, "SDL: Opening Plugin\n");
 
     if(sdl_driver) {
         setenv("SDL_VIDEODRIVER", sdl_driver, 1);
@@ -1646,15 +1576,13 @@ static int preinit(const char *arg)
     mp_msg(MSGT_VO,MSGL_INFO, MSGTR_LIBVO_SDL_UsingDriver, priv->driver);
 
     priv->X = 0;
-#ifdef HAVE_X11
+#ifdef CONFIG_X11
     if(vo_init()) {
-		if( mp_msg_test(MSGT_VO,MSGL_V) ) {
-			mp_msg(MSGT_VO,MSGL_V, "SDL: deactivating XScreensaver/DPMS\n"); }
+		mp_msg(MSGT_VO,MSGL_V, "SDL: deactivating XScreensaver/DPMS\n");
 		priv->XWidth = vo_screenwidth;
 		priv->XHeight = vo_screenheight;
 		priv->X = 1;
-		if( mp_msg_test(MSGT_VO,MSGL_V) ) {
-			mp_msg(MSGT_VO,MSGL_V, "SDL: X11 Resolution %ix%i\n", priv->XWidth, priv->XHeight); }
+		mp_msg(MSGT_VO,MSGL_V, "SDL: X11 Resolution %ix%i\n", priv->XWidth, priv->XHeight);
 	}
 #endif
 
@@ -1719,12 +1647,10 @@ static int control(uint32_t request, void *data, ...)
     if (priv->surface->flags & SDL_FULLSCREEN) {
       set_video_mode(priv->windowsize.w, priv->windowsize.h, priv->bpp, priv->sdlflags);
       SDL_ShowCursor(1);
-      if( mp_msg_test(MSGT_VO,MSGL_DBG2) ) {
-	mp_msg(MSGT_VO,MSGL_DBG2, "SDL: Windowed mode\n"); }
+      mp_msg(MSGT_VO,MSGL_DBG2, "SDL: Windowed mode\n");
     } else if (priv->fullmodes) {
       set_fullmode(priv->fullmode);
-      if( mp_msg_test(MSGT_VO,MSGL_DBG2) ) {
-	mp_msg(MSGT_VO,MSGL_DBG2, "SDL: Set fullscreen mode\n"); }
+      mp_msg(MSGT_VO,MSGL_DBG2, "SDL: Set fullscreen mode\n");
     }
     return VO_TRUE;
   }

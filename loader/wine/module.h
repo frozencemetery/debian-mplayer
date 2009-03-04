@@ -4,8 +4,8 @@
  * Copyright 1995 Alexandre Julliard
  */
 
-#ifndef WINE_MODULE_H
-#define WINE_MODULE_H
+#ifndef MPLAYER_MODULE_H
+#define MPLAYER_MODULE_H
 
 #include "windef.h"
 #include "pe_image.h"
@@ -82,10 +82,10 @@ typedef enum {
 	MODULE32_ELFDLL
 } MODULE32_TYPE;
 
-typedef struct _wine_modref
+typedef struct wine_modref
 {
-	struct _wine_modref	*next;
-	struct _wine_modref	*prev;
+	struct wine_modref	*next;
+	struct wine_modref	*prev;
 	MODULE32_TYPE		type;
 	union {
 		PE_MODREF	pe;
@@ -95,7 +95,7 @@ typedef struct _wine_modref
 	HMODULE			module;
 
 	int			nDeps;
-	struct _wine_modref	**deps;
+	struct wine_modref	**deps;
 
 	int			flags;
 	int			refCount;
@@ -139,11 +139,11 @@ typedef struct modref_list_t
 
 
 /* module.c */
-extern FARPROC MODULE_GetProcAddress( HMODULE hModule, LPCSTR function, WIN_BOOL snoop );
-extern WINE_MODREF *MODULE32_LookupHMODULE( HMODULE hModule );
-extern WINE_MODREF *MODULE_FindModule( LPCSTR path );
+FARPROC MODULE_GetProcAddress( HMODULE hModule, LPCSTR function, WIN_BOOL snoop );
+WINE_MODREF *MODULE32_LookupHMODULE( HMODULE hModule );
+WINE_MODREF *MODULE_FindModule( LPCSTR path );
 
 /* resource.c */
-extern INT       WINAPI AccessResource(HMODULE,HRSRC); 
+INT WINAPI AccessResource( HMODULE, HRSRC );
 
-#endif  /* WINE_MODULE_H */
+#endif /* MPLAYER_MODULE_H */

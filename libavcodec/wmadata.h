@@ -20,7 +20,7 @@
  */
 
 /**
- * @file wmadata.h
+ * @file libavcodec/wmadata.h
  * Various WMA tables.
  */
 
@@ -1438,4 +1438,4 @@ static const CoefVLCTable coef_vlcs[6] = {
     },
 };
 
-#endif // AVCODEC_WMADATA_H
+#endif /* AVCODEC_WMADATA_H */

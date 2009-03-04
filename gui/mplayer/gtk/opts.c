@@ -1,3 +1,20 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdlib.h>
 #include <sys/types.h>
@@ -19,13 +36,13 @@
 #include "libmpdemux/stheader.h"
 #include "libmpcodecs/dec_video.h"
 
-#include "app.h"
-#include "cfg.h"
-#include "interface.h"
-#include "../widgets.h"
+#include "gui/app.h"
+#include "gui/cfg.h"
+#include "gui/interface.h"
+#include "gui/mplayer/widgets.h"
 #include "opts.h"
 #include "fs.h"
-#include "common.h"
+#include "gtk_common.h"
 
 // for mpcodecs_[av]d_drivers:
 #include "libmpcodecs/vd.h"
@@ -105,7 +122,7 @@ static GtkWidget * HSFPS;
 static GtkAdjustment * HSExtraStereoMuladj, * HSAudioDelayadj, * HSPanscanadj, * HSSubDelayadj;
 static GtkAdjustment * HSSubPositionadj, * HSSubFPSadj, * HSPPQualityadj, * HSFPSadj;
 
-#ifndef HAVE_FREETYPE
+#ifndef CONFIG_FREETYPE
 static GtkWidget     * HSFontFactor;
 static GtkAdjustment * HSFontFactoradj;
 #else
@@ -116,11 +133,11 @@ static GtkWidget     * RBFontNoAutoScale, * RBFontAutoScaleWidth, * RBFontAutoSc
 //static GtkWidget     * AutoScale;
 #endif
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 static GtkWidget     * CBSubEncoding, * ESubEncoding;
 #endif
 
-#if defined( HAVE_FREETYPE ) || defined( USE_ICONV )
+#if defined(CONFIG_FREETYPE) || defined(CONFIG_ICONV)
 static struct 
 {
  char * name;
@@ -137,6 +154,7 @@ static struct
   { "iso-8859-5",  MSGTR_PREFERENCES_FontEncoding7 },
   { "cp1251",      MSGTR_PREFERENCES_FontEncoding21},
   { "iso-8859-6",  MSGTR_PREFERENCES_FontEncoding8 },
+  { "cp1256",      MSGTR_PREFERENCES_FontEncoding23 },
   { "iso-8859-7",  MSGTR_PREFERENCES_FontEncoding9 },
   { "iso-8859-9",  MSGTR_PREFERENCES_FontEncoding10 },
   { "iso-8859-13", MSGTR_PREFERENCES_FontEncoding11 },
@@ -160,17 +178,17 @@ static char * ao_driver[3];
 static char * vo_driver[3];
 static int    old_video_driver = 0;
 
-#ifdef HAVE_DXR3
+#ifdef CONFIG_DXR3
  void ShowDXR3Config( void );
  void HideDXR3Config( void );
 #endif
- void ShowAudioConfig();
- void HideAudioConfig();
+ void ShowAudioConfig( void );
+ void HideAudioConfig( void );
 
 static gboolean prHScaler( GtkWidget * widget,GdkEventMotion  * event,gpointer user_data );
 static void prToggled( GtkToggleButton * togglebutton,gpointer user_data );
 static void prCListRow( GtkCList * clist,gint row,gint column,GdkEvent * event,gpointer user_data );
-#if defined( HAVE_FREETYPE ) || defined( USE_ICONV )
+#if defined(CONFIG_FREETYPE) || defined(CONFIG_ICONV)
 static void prEntry( GtkContainer * container,gpointer user_data );
 #endif
 
@@ -253,7 +271,7 @@ void ShowPreferences( void )
   gtk_clist_select_row( GTK_CLIST( CLVDrivers ),old_video_driver,0 );
   gtk_clist_get_text( GTK_CLIST( CLVDrivers ),old_video_driver,0,(char **)&vo_driver );
   gtk_widget_set_sensitive( VConfig,FALSE );
-#ifdef HAVE_DXR3
+#ifdef CONFIG_DXR3
   if ( !gstrcmp( vo_driver[0],"dxr3" ) ) gtk_widget_set_sensitive( VConfig,TRUE );
 #endif
  }
@@ -266,7 +284,7 @@ void ShowPreferences( void )
  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( CBDumpMPSub ),gtkSubDumpMPSub );
  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( CBDumpSrt ),gtkSubDumpSrt );
  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( CBSubUnicode ),sub_unicode );
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( CBUseASS ),gtkASS.enabled );
  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( CBASSUseMargins ),gtkASS.use_margins );
  gtk_spin_button_set_value( (GtkSpinButton *)SBASSTopMargin,(gdouble)gtkASS.top_margin );
@@ -294,7 +312,7 @@ void ShowPreferences( void )
  if ( guiIntfStruct.Subtitlename ) gtk_entry_set_text( GTK_ENTRY( ESubtitleName ),guiIntfStruct.Subtitlename );
 #endif
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
  if ( sub_cp )
   {
    int i;
@@ -308,7 +326,7 @@ void ShowPreferences( void )
 // --- 4. page
  // font ...
  if ( font_name ) gtk_entry_set_text( GTK_ENTRY( prEFontName ),font_name );
-#ifndef HAVE_FREETYPE
+#ifndef CONFIG_FREETYPE
  gtk_adjustment_set_value( HSFontFactoradj,font_factor );
 #else
  gtk_adjustment_set_value( HSFontBluradj,( subtitle_font_radius / 8.0f ) * 100.0f );
@@ -403,7 +421,7 @@ void ShowPreferences( void )
   else gtk_entry_set_text( GTK_ENTRY( prECDRomDevice ),DEFAULT_CDROM_DEVICE );
 
 // -- disables
-#ifndef USE_ASS
+#ifndef CONFIG_ASS
  gtk_widget_set_sensitive( CBUseASS,FALSE );
  gtk_widget_set_sensitive( CBASSUseMargins,FALSE );
  gtk_widget_set_sensitive( SBASSTopMargin,FALSE );
@@ -416,7 +434,7 @@ void ShowPreferences( void )
  gtk_signal_connect( GTK_OBJECT( CBSoftwareMixer ),"toggled",GTK_SIGNAL_FUNC( prToggled ),(void*)1 );
  gtk_signal_connect( GTK_OBJECT( CBAudioEqualizer ),"toggled",GTK_SIGNAL_FUNC( prToggled ),(void*)2 );
  gtk_signal_connect( GTK_OBJECT( CBShowVideoWindow ),"toggled",GTK_SIGNAL_FUNC( prToggled ), (void*)3 );
-#ifdef HAVE_FREETYPE
+#ifdef CONFIG_FREETYPE
  gtk_signal_connect( GTK_OBJECT( RBFontNoAutoScale ),"toggled",GTK_SIGNAL_FUNC( prToggled ),(void*)4 );
  gtk_signal_connect( GTK_OBJECT( RBFontAutoScaleHeight ),"toggled",GTK_SIGNAL_FUNC( prToggled ),(void*)5 );
  gtk_signal_connect( GTK_OBJECT( RBFontAutoScaleWidth ),"toggled",GTK_SIGNAL_FUNC( prToggled ),(void*)6 );
@@ -424,7 +442,7 @@ void ShowPreferences( void )
 #endif
  gtk_signal_connect( GTK_OBJECT( CBCache ),"toggled",GTK_SIGNAL_FUNC( prToggled ),(void*)8);
  gtk_signal_connect( GTK_OBJECT( CBAutoSync ),"toggled",GTK_SIGNAL_FUNC( prToggled ),(void*)9);
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
  gtk_signal_connect( GTK_OBJECT( CBUseASS ),"toggled",GTK_SIGNAL_FUNC( prToggled ),(void*)10);
 #endif
 
@@ -433,7 +451,7 @@ void ShowPreferences( void )
  gtk_signal_connect( GTK_OBJECT( HSPanscan ),"motion_notify_event",GTK_SIGNAL_FUNC( prHScaler ),(void*)2 );
  gtk_signal_connect( GTK_OBJECT( HSSubDelay ),"motion_notify_event",GTK_SIGNAL_FUNC( prHScaler ),(void*)3 );
  gtk_signal_connect( GTK_OBJECT( HSSubPosition ),"motion_notify_event",GTK_SIGNAL_FUNC( prHScaler ),(void*)4 );
-#ifndef HAVE_FREETYPE
+#ifndef CONFIG_FREETYPE
  gtk_signal_connect( GTK_OBJECT( HSFontFactor ),"motion_notify_event",GTK_SIGNAL_FUNC( prHScaler ),(void*)5 );
 #else
  gtk_signal_connect( GTK_OBJECT( HSFontBlur ),"motion_notify_event",GTK_SIGNAL_FUNC( prHScaler ),(void*)6 );
@@ -442,7 +460,7 @@ void ShowPreferences( void )
  gtk_signal_connect( GTK_OBJECT( HSFontOSDScale ),"motion_notify_event",GTK_SIGNAL_FUNC( prHScaler ),(void*)9 );
  gtk_signal_connect( GTK_OBJECT( EFontEncoding ),"changed",GTK_SIGNAL_FUNC( prEntry ),(void *)0 );
 #endif
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
  gtk_signal_connect( GTK_OBJECT( ESubEncoding ),"changed",GTK_SIGNAL_FUNC( prEntry ),(void *)1 );
 #endif
  gtk_signal_connect( GTK_OBJECT( HSPPQuality ),"motion_notify_event",GTK_SIGNAL_FUNC( prHScaler ),(void*)10 );
@@ -469,12 +487,12 @@ void HidePreferences( void )
  gtk_widget_destroy( Preferences );
  Preferences=NULL;
  HideAudioConfig();
-#ifdef HAVE_DXR3
+#ifdef CONFIG_DXR3
  HideDXR3Config();
 #endif
 }
 
-#if defined( HAVE_FREETYPE ) || defined( USE_ICONV )
+#if defined(CONFIG_FREETYPE) || defined(CONFIG_ICONV)
 static void prEntry( GtkContainer * container,gpointer user_data )
 {	
  const char * comment;
@@ -482,7 +500,7 @@ static void prEntry( GtkContainer * container,gpointer user_data )
 
  switch( (int)user_data )
   {
-#ifdef HAVE_FREETYPE
+#ifdef CONFIG_FREETYPE
    case 0: // font encoding
         comment=gtk_entry_get_text( GTK_ENTRY( EFontEncoding ) );
         for ( i=0;lEncoding[i].name;i++ )
@@ -490,7 +508,7 @@ static void prEntry( GtkContainer * container,gpointer user_data )
 	if ( lEncoding[i].comment ) gtkSet( gtkSetFontEncoding,0,lEncoding[i].name );
 	break;
 #endif
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
    case 1: // sub encoding
         comment=gtk_entry_get_text( GTK_ENTRY( ESubEncoding ) );
         for ( i=0;lEncoding[i].name;i++ )
@@ -545,7 +563,7 @@ void prButton( GtkButton * button,gpointer user_data )
 	gtkSubDumpMPSub=gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( CBDumpMPSub ) );
 	gtkSubDumpSrt=gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( CBDumpSrt ) );
 	sub_unicode=gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( CBSubUnicode ) );
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
 	gtkASS.enabled=gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( CBUseASS ) );
 	gtkASS.use_margins=gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( CBASSUseMargins ) );
 	gtkASS.top_margin=gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON( SBASSTopMargin ) );
@@ -562,7 +580,7 @@ void prButton( GtkButton * button,gpointer user_data )
 
         // --- 4. page
 	guiSetFilename( font_name,gtk_entry_get_text( GTK_ENTRY( prEFontName ) ) );
-#ifndef HAVE_FREETYPE
+#ifndef CONFIG_FREETYPE
 	gtkSet( gtkSetFontFactor,HSFontFactoradj->value,NULL );
 #else
 	gtkSet( gtkSetFontBlur,HSFontBluradj->value,NULL );
@@ -631,7 +649,7 @@ void prButton( GtkButton * button,gpointer user_data )
    case bVconfig:
 	if ( !vo_driver[0] ) break;
         gtk_widget_set_sensitive( VConfig,FALSE );
-#ifdef HAVE_DXR3
+#ifdef CONFIG_DXR3
 	if ( !gstrcmp( vo_driver[0],"dxr3" ) ) { ShowDXR3Config(); gtk_widget_set_sensitive( VConfig,TRUE ); }
 #endif
 	break;
@@ -666,7 +684,7 @@ static gboolean prHScaler( GtkWidget * widget,GdkEventMotion  * event,gpointer u
    case 4: // sub position
         sub_pos=(int)HSSubPositionadj->value;
 	break;
-#ifndef HAVE_FREETYPE
+#ifndef CONFIG_FREETYPE
    case 5: // font factor
         gtkSet( gtkSetFontFactor,HSFontFactoradj->value,NULL );
 	break;
@@ -733,7 +751,7 @@ static void prToggled( GtkToggleButton * togglebutton,gpointer user_data )
 	if ( gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( CBAutoSync ) ) ) gtk_widget_set_sensitive( SBAutoSync,TRUE );
 	 else gtk_widget_set_sensitive( SBAutoSync,FALSE );
 	break;
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
    case 10:
 	if ( gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( CBUseASS ) ) )
 	 {
@@ -764,7 +782,7 @@ static void prCListRow( GtkCList * clist,gint row,gint column,GdkEvent * event,g
 	     !strncmp( ao_driver[0],"esd",3 ) ||
 	     !strncmp( ao_driver[0],"sdl",3 ) )
 	  gtk_widget_set_sensitive( AConfig,TRUE );
-#ifndef HAVE_GTK2_GUI
+#ifndef CONFIG_GTK2
         if ( !strncmp( ao_driver[0],"arts",4 ) )
           gtkMessageBox(GTK_MB_WARNING|GTK_MB_SIMPLE, MSGTR_PREFERENCES_ArtsBroken);
 #endif
@@ -772,7 +790,7 @@ static void prCListRow( GtkCList * clist,gint row,gint column,GdkEvent * event,g
    case 1: // video driver 
 	gtk_clist_get_text( GTK_CLIST( CLVDrivers ),row,0,(char **)&vo_driver ); 
 	gtk_widget_set_sensitive( VConfig,FALSE );
-#ifdef HAVE_DXR3
+#ifdef CONFIG_DXR3
 	if ( !gstrcmp( vo_driver[0],"dxr3" ) ) gtk_widget_set_sensitive( VConfig,TRUE );
 #endif
 	break;
@@ -809,7 +827,7 @@ GtkWidget * create_Preferences( void )
   GtkWidget * vbox603;
   GtkWidget * hbox6;
   GtkWidget * hbuttonbox5;
-#ifndef HAVE_FREETYPE
+#ifndef CONFIG_FREETYPE
   GtkWidget * hbox7;
 #endif
   GtkWidget * vbox601;
@@ -1012,7 +1030,7 @@ GtkWidget * create_Preferences( void )
   label=AddLabel( MSGTR_PREFERENCES_SUB_FPS,NULL );
     gtk_table_attach( GTK_TABLE( table1 ),label,0,1,2,3,(GtkAttachOptions)( GTK_FILL ),(GtkAttachOptions)( 0 ),0,0 );
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
   label=AddLabel( MSGTR_PREFERENCES_FontEncoding,NULL );
     gtk_table_attach( GTK_TABLE( table1 ),label,0,1,3,4,(GtkAttachOptions)( GTK_FILL ),(GtkAttachOptions)( 0 ),0,0 );
 #endif
@@ -1033,7 +1051,7 @@ GtkWidget * create_Preferences( void )
     gtk_spin_button_set_numeric( GTK_SPIN_BUTTON( HSSubFPS ),TRUE );
     gtk_table_attach( GTK_TABLE( table1 ),HSSubFPS,1,2,2,3,(GtkAttachOptions)( GTK_EXPAND | GTK_FILL ),(GtkAttachOptions)( 0 ),0,0 );
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
   CBSubEncoding=gtk_combo_new();
   gtk_widget_set_name( CBSubEncoding,"CBSubEncoding" );
   gtk_widget_show( CBSubEncoding );
@@ -1099,7 +1117,7 @@ GtkWidget * create_Preferences( void )
     gtk_container_set_border_width( GTK_CONTAINER( hbuttonbox5 ),3 );
   BLoadFont=AddButton( MSGTR_Browse,hbuttonbox5 );
 
-#ifndef HAVE_FREETYPE
+#ifndef CONFIG_FREETYPE
   hbox7=AddHBox( vbox603,1 );
   AddLabel( MSGTR_PREFERENCES_FontFactor,hbox7 );
   HSFontFactoradj=GTK_ADJUSTMENT( gtk_adjustment_new( 0,0,10,0.05,0,0 ) );
@@ -1355,7 +1373,7 @@ GtkWidget * create_Preferences( void )
   return Preferences;
 }
 
-#ifdef USE_OSS_AUDIO
+#ifdef CONFIG_OSS_AUDIO
 GList *appendOSSDevices(GList *l) {
   // careful! the current implementation allows only string constants!
   l = g_list_append(l, (gpointer)"/dev/dsp");
@@ -1370,7 +1388,7 @@ GList *appendOSSDevices(GList *l) {
     l = g_list_append(l, (gpointer)"/dev/dsp2");
     l = g_list_append(l, (gpointer)"/dev/dsp3");
   }
-#ifdef HAVE_DXR3
+#ifdef CONFIG_DXR3
   l = g_list_append(l, (gpointer)"/dev/em8300_ma");
   l = g_list_append(l, (gpointer)"/dev/em8300_ma-0");
   l = g_list_append(l, (gpointer)"/dev/em8300_ma-1");
@@ -1405,7 +1423,7 @@ GList *appendOSSMixerChannels(GList *l) {
 }
 #endif
 
-#if defined(HAVE_ALSA9) || defined (HAVE_ALSA1X)
+#ifdef CONFIG_ALSA
 GList *appendALSADevices(GList *l) {
   l = g_list_append(l, (gpointer)"default");
   l = g_list_append(l, (gpointer)"hw=0.0");
@@ -1432,7 +1450,7 @@ GList *appendALSAMixerChannels(GList *l) {
 }
 #endif
 
-#ifdef HAVE_SDL
+#ifdef CONFIG_SDL
 GList *appendSDLDevices(GList *l) {
   l = g_list_append(l, (gpointer)"alsa");
   l = g_list_append(l, (gpointer)"arts");
@@ -1444,7 +1462,7 @@ GList *appendSDLDevices(GList *l) {
 }
 #endif
 
-#ifdef USE_ESD
+#ifdef CONFIG_ESD
 GList *appendESDDevices(GList *l) {
   l = g_list_append(l, (gpointer)"Enter Remote IP");
   l = g_list_append(l, (gpointer)"Use Software Mixer");
@@ -1454,7 +1472,7 @@ GList *appendESDDevices(GList *l) {
 
 // Gets text string from a gtk entry, interpreting 
 // MSGTR_PREFERENCES_DriverDefault as null string.
-char *getGtkEntryText(GtkWidget *from) {
+const char *getGtkEntryText(GtkWidget *from) {
   const char *tmp = gtk_entry_get_text(GTK_ENTRY(from));
   if (strcmp(tmp, MSGTR_PREFERENCES_DriverDefault) == 0) {
     tmp = NULL;
@@ -1481,30 +1499,30 @@ static GtkWidget *CBAudioMixerChannel;
 static GtkWidget *BAudioOk;
 static GtkWidget *BAudioCancel;
 
-void ShowAudioConfig() {
+void ShowAudioConfig( void ) {
   if (AudioConfig) gtkActive(AudioConfig);
   else AudioConfig = create_AudioConfig();
 
-#ifdef USE_OSS_AUDIO
+#ifdef CONFIG_OSS_AUDIO
   if (strncmp(ao_driver[0], "oss", 3) == 0) {
     setGtkEntryText(CEAudioDevice, gtkAOOSSDevice);
     setGtkEntryText(CEAudioMixer, gtkAOOSSMixer);
     setGtkEntryText(CEAudioMixerChannel, gtkAOOSSMixerChannel);
   }
 #endif
-#if defined(HAVE_ALSA9) || defined (HAVE_ALSA1X)
+#ifdef CONFIG_ALSA
   if (strncmp(ao_driver[0], "alsa", 4) == 0) {
     setGtkEntryText(CEAudioDevice, gtkAOALSADevice);
     setGtkEntryText(CEAudioMixer, gtkAOALSAMixer);
     setGtkEntryText(CEAudioMixerChannel, gtkAOALSAMixerChannel);
   }
 #endif
-#ifdef HAVE_SDL
+#ifdef CONFIG_SDL
   if (strncmp(ao_driver[0], "sdl", 3) == 0) {
     setGtkEntryText(CEAudioDevice, gtkAOSDLDriver);
   }
 #endif
-#ifdef USE_ESD
+#ifdef CONFIG_ESD
   if (strncmp(ao_driver[0], "esd", 3) == 0) {
     setGtkEntryText(CEAudioDevice, gtkAOESDDevice);
   }
@@ -1514,7 +1532,7 @@ void ShowAudioConfig() {
   gtkSetLayer(AudioConfig);
 }
 
-void HideAudioConfig() {
+void HideAudioConfig( void ) {
   if (!AudioConfig) return;
   gtk_widget_hide(AudioConfig);
   gtk_widget_destroy(AudioConfig); 
@@ -1524,7 +1542,7 @@ void HideAudioConfig() {
 static void audioButton(GtkButton *button, gpointer user_data) {
   switch( (int)user_data ) {
     case 1:
-#ifdef USE_OSS_AUDIO
+#ifdef CONFIG_OSS_AUDIO
       if (strncmp(ao_driver[0], "oss", 3) == 0) {
         gfree(&gtkAOOSSDevice);
         gtkAOOSSDevice = gstrdup(getGtkEntryText(CEAudioDevice));
@@ -1534,7 +1552,7 @@ static void audioButton(GtkButton *button, gpointer user_data) {
         gtkAOOSSMixerChannel = gstrdup(getGtkEntryText(CEAudioMixerChannel));
       }
 #endif
-#if defined(HAVE_ALSA9) || defined (HAVE_ALSA1X)
+#ifdef CONFIG_ALSA
       if (strncmp(ao_driver[0], "alsa", 4) == 0) {
         gfree(&gtkAOALSADevice);
         gtkAOALSADevice = gstrdup(getGtkEntryText(CEAudioDevice));
@@ -1544,13 +1562,13 @@ static void audioButton(GtkButton *button, gpointer user_data) {
         gtkAOALSAMixerChannel = gstrdup(getGtkEntryText(CEAudioMixerChannel));
       }
 #endif
-#ifdef HAVE_SDL
+#ifdef CONFIG_SDL
       if (strncmp(ao_driver[0], "sdl", 3) == 0) {
         gfree(&gtkAOSDLDriver);
         gtkAOSDLDriver = gstrdup(getGtkEntryText(CEAudioDevice));
       }
 #endif
-#ifdef USE_ESD
+#ifdef CONFIG_ESD
       if (strncmp(ao_driver[0], "esd", 3) == 0) {
         gfree(&gtkAOESDDevice);
         gtkAOESDDevice = gstrdup(getGtkEntryText(CEAudioDevice));
@@ -1562,7 +1580,7 @@ static void audioButton(GtkButton *button, gpointer user_data) {
   }
 }
 
-GtkWidget *create_AudioConfig() {
+GtkWidget *create_AudioConfig( void ) {
   GList *items = NULL;
   GtkWidget *vbox;
   GtkWidget *table;
@@ -1594,19 +1612,19 @@ GtkWidget *create_AudioConfig() {
   CBAudioDevice = AddComboBox(NULL);
   gtk_table_attach(GTK_TABLE(table), CBAudioDevice, 1, 2, 0, 1, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)(0), 0, 0);
   items = g_list_append(items,(gpointer)MSGTR_PREFERENCES_DriverDefault);
-#ifdef USE_OSS_AUDIO
+#ifdef CONFIG_OSS_AUDIO
   if (strncmp(ao_driver[0], "oss", 3) == 0)
     items = appendOSSDevices(items);
 #endif
-#if defined(HAVE_ALSA9) || defined (HAVE_ALSA1X)
+#ifdef CONFIG_ALSA
   if (strncmp(ao_driver[0], "alsa", 4) == 0)
     items = appendALSADevices(items);
 #endif
-#ifdef HAVE_SDL
+#ifdef CONFIG_SDL
   if (strncmp(ao_driver[0], "sdl", 3) == 0)
     items = appendSDLDevices(items);
 #endif
-#ifdef USE_ESD
+#ifdef CONFIG_ESD
   if (strncmp(ao_driver[0], "esd", 3) == 0)
     items = appendESDDevices(items);
 #endif
@@ -1624,11 +1642,11 @@ GtkWidget *create_AudioConfig() {
   CBAudioMixer = AddComboBox(NULL);
   gtk_table_attach(GTK_TABLE(table), CBAudioMixer, 1, 2, 1, 2, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)(0), 0, 0);
   items = g_list_append(items, (gpointer)MSGTR_PREFERENCES_DriverDefault);
-#ifdef USE_OSS_AUDIO
+#ifdef CONFIG_OSS_AUDIO
   if (strncmp(ao_driver[0], "oss", 3) == 0)
     items = appendOSSMixers(items);
 #endif
-#if defined(HAVE_ALSA9) || defined (HAVE_ALSA1X)
+#ifdef CONFIG_ALSA
   if (strncmp(ao_driver[0], "alsa", 4) == 0)
     items = appendALSAMixers(items);
 #endif
@@ -1646,11 +1664,11 @@ GtkWidget *create_AudioConfig() {
   CBAudioMixerChannel = AddComboBox(NULL);
   gtk_table_attach(GTK_TABLE(table), CBAudioMixerChannel, 1, 2, 2, 3, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)(0), 0, 0);
   items = g_list_append(items, (gpointer)MSGTR_PREFERENCES_DriverDefault);
-#ifdef USE_OSS_AUDIO
+#ifdef CONFIG_OSS_AUDIO
   if (strncmp(ao_driver[0], "oss", 3) == 0)
     items = appendOSSMixerChannels(items);
 #endif
-#if defined(HAVE_ALSA9) || defined (HAVE_ALSA1X)
+#ifdef CONFIG_ALSA
   if (strncmp(ao_driver[0], "alsa", 4) == 0)
     items = appendALSAMixerChannels(items);
 #endif
@@ -1682,14 +1700,14 @@ GtkWidget *create_AudioConfig() {
   return AudioConfig;
 }
 
-#ifdef HAVE_DXR3
+#ifdef CONFIG_DXR3
 // --- dxr3 config box
 
 static GtkWidget * DXR3Config;
 static GtkWidget * CBDevice;
 static GtkWidget * CEDXR3Device;
 static GtkWidget * RBVNone;
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_LIBAVCODEC
  static GtkWidget * RBVLavc;
 #endif
 static GtkWidget * dxr3BOk;
@@ -1705,7 +1723,7 @@ void ShowDXR3Config( void )
  gtk_entry_set_text( GTK_ENTRY( CEDXR3Device ),gtkDXR3Device );
 
  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( RBVNone ),TRUE );
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_LIBAVCODEC
  if ( gtkVfLAVC ) gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( RBVLavc ),TRUE );
 #endif
 
@@ -1727,7 +1745,7 @@ static void dxr3Button( GtkButton * button,gpointer user_data )
  {
   case 0: // Ok
        gfree( (void **)&gtkDXR3Device ); gtkDXR3Device=strdup( gtk_entry_get_text( GTK_ENTRY( CEDXR3Device ) ) );
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_LIBAVCODEC
        gtkVfLAVC=gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( RBVLavc ) );
 #endif
   case 1: // Cancel
@@ -1782,15 +1800,12 @@ GtkWidget * create_DXR3Config( void )
  gtk_widget_show( CEDXR3Device );
  gtk_entry_set_text( GTK_ENTRY( CEDXR3Device ),"/dev/em8300" );
 
-#if defined( USE_LIBAVCODEC )
+#ifdef CONFIG_LIBAVCODEC
  AddHSeparator( vbox2 );
  vbox3=AddVBox( vbox2,0 );
  AddLabel( MSGTR_PREFERENCES_DXR3_VENC,vbox3 );
  RBVNone=AddRadioButton( MSGTR_PREFERENCES_None,&VEncoder_group,vbox3 );
-#ifdef USE_LIBAVCODEC
  RBVLavc=AddRadioButton( MSGTR_PREFERENCES_DXR3_LAVC,&VEncoder_group,vbox3 );
-#endif
-
 #endif
 
  AddHSeparator( vbox1 );

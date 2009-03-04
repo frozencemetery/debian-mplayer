@@ -17,7 +17,7 @@ struct vf_priv_s {
 	int field;
 };
 
-#ifdef HAVE_MMX
+#if HAVE_MMX
 static void halfpack_MMX(unsigned char *dst, unsigned char *src[3],
 		     int dststride, int srcstride[3],
 		     int w, int h)
@@ -37,7 +37,7 @@ static void halfpack_MMX(unsigned char *dst, unsigned char *src[3],
 	vinc = srcstride[2] - w/2;
 
 	for (h/=2; h; h--) {
-		asm (
+		__asm__ (
 			"pxor %%mm0, %%mm0 \n\t"
 			ASMALIGN(4)
 			"1: \n\t"
@@ -99,7 +99,7 @@ static void halfpack_MMX(unsigned char *dst, unsigned char *src[3],
 		v += vinc;
 		dst += dstinc;
 	}
-	asm volatile ( "emms \n\t" ::: "memory" );
+	__asm__ volatile ( "emms \n\t" ::: "memory" );
 }
 #endif
 
@@ -204,13 +204,13 @@ static int open(vf_instance_t *vf, char* args)
 	if (args) sscanf(args, "%d", &vf->priv->field);
 	
 	halfpack = halfpack_C;
-#ifdef HAVE_MMX
+#if HAVE_MMX
 	if(gCpuCaps.hasMMX) halfpack = halfpack_MMX;
 #endif
 	return 1;
 }
 
-vf_info_t vf_info_halfpack = {
+const vf_info_t vf_info_halfpack = {
 	"yuv planar 4:2:0 -> packed 4:2:2, half height",
 	"halfpack",
 	"Richard Felker",

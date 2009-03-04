@@ -1,5 +1,5 @@
 /*
- * Id RoQ (.roq) File Demuxer
+ * id RoQ (.roq) File Demuxer
  * Copyright (c) 2003 The ffmpeg Project
  *
  * This file is part of FFmpeg.
@@ -20,13 +20,14 @@
  */
 
 /**
- * @file idroq.c
- * Id RoQ format file demuxer
+ * @file libavformat/idroq.c
+ * id RoQ format file demuxer
  * by Mike Melanson (melanson@pcisys.net)
  * for more information on the .roq file format, visit:
  *   http://www.csse.monash.edu.au/~timf/
  */
 
+#include "libavutil/intreadwrite.h"
 #include "avformat.h"
 
 #define RoQ_MAGIC_NUMBER 0x1084
@@ -69,7 +70,7 @@ static int roq_read_header(AVFormatContext *s,
                            AVFormatParameters *ap)
 {
     RoqDemuxContext *roq = s->priv_data;
-    ByteIOContext *pb = &s->pb;
+    ByteIOContext *pb = s->pb;
     AVStream *st;
     unsigned char preamble[RoQ_CHUNK_PREAMBLE_SIZE];
     int i;
@@ -161,10 +162,10 @@ static int roq_read_header(AVFormatContext *s,
         st->codec->codec_tag = 0;  /* no tag */
         st->codec->channels = roq->audio_channels;
         st->codec->sample_rate = RoQ_AUDIO_SAMPLE_RATE;
-        st->codec->bits_per_sample = 16;
+        st->codec->bits_per_coded_sample = 16;
         st->codec->bit_rate = st->codec->channels * st->codec->sample_rate *
-            st->codec->bits_per_sample;
-        st->codec->block_align = st->codec->channels * st->codec->bits_per_sample;
+            st->codec->bits_per_coded_sample;
+        st->codec->block_align = st->codec->channels * st->codec->bits_per_coded_sample;
     }
 
     return 0;
@@ -174,18 +175,18 @@ static int roq_read_packet(AVFormatContext *s,
                            AVPacket *pkt)
 {
     RoqDemuxContext *roq = s->priv_data;
-    ByteIOContext *pb = &s->pb;
+    ByteIOContext *pb = s->pb;
     int ret = 0;
     unsigned int chunk_size;
     unsigned int chunk_type;
     unsigned int codebook_size;
     unsigned char preamble[RoQ_CHUNK_PREAMBLE_SIZE];
     int packet_read = 0;
-    offset_t codebook_offset;
+    int64_t codebook_offset;
 
     while (!packet_read) {
 
-        if (url_feof(&s->pb))
+        if (url_feof(s->pb))
             return AVERROR(EIO);
 
         /* get the next chunk preamble */
@@ -270,19 +271,11 @@ static int roq_read_packet(AVFormatContext *s,
     return ret;
 }
 
-static int roq_read_close(AVFormatContext *s)
-{
-//    RoqDemuxContext *roq = s->priv_data;
-
-    return 0;
-}
-
 AVInputFormat roq_demuxer = {
     "RoQ",
-    "Id RoQ format",
+    NULL_IF_CONFIG_SMALL("id RoQ format"),
     sizeof(RoqDemuxContext),
     roq_probe,
     roq_read_header,
     roq_read_packet,
-    roq_read_close,
 };

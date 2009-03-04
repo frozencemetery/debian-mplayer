@@ -1,5 +1,9 @@
 /*
  * VIDIX driver for ATI Rage128 and Radeon chipsets.
+ *
+ * This file is based on radeonfb, X11, GATOS sources
+ * and partly compatible with Rage128 set (in OV0, CAP0, CAP1 parts)
+ *
  * Copyright (C) 2002 Nick Kurshev
  *
  * This file is part of MPlayer.
@@ -14,16 +18,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
- * This file is based on radeonfb, X11,	GATOS sources
- * and partly compatible with Rage128 set (in OV0, CAP0, CAP1 parts)
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef	RADEON_H
-#define	RADEON_H
+#ifndef	MPLAYER_RADEON_H
+#define	MPLAYER_RADEON_H
 
 #define	RADEON_REGSIZE			0x4000
 #define	MM_INDEX			0x0000
@@ -2235,4 +2236,4 @@
 
 /* End of field	default	values.	*/
 
-#endif	/* RADEON_H */
+#endif	/* MPLAYER_RADEON_H */

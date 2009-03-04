@@ -16,13 +16,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef GUI_GUI_H
-#define GUI_GUI_H
+#ifndef MPLAYER_GUI_GUI_H
+#define MPLAYER_GUI_GUI_H
 
 #include "config.h"
 #include "mplayer.h"
@@ -35,7 +35,8 @@ extern char *skinName;
 extern float sub_aspect;
 extern play_tree_t* playtree;
 extern m_config_t* mconfig;
-
+extern int sub_window;
+extern int console;
 extern NOTIFYICONDATA nid;
 
 typedef struct window_priv_t window_priv_t;
@@ -98,23 +99,23 @@ struct gui_t
 #define     wsMovable       2
 #define     wsSizeable      4
 
-extern gui_t *create_gui(char *skindir, char *skinName, void (*playercontrol)(int event));
-extern int destroy_window(gui_t *gui);
-extern int create_window(gui_t *gui, char *skindir);
-extern int create_subwindow(gui_t *gui, char *skindir);
-extern int parse_filename(char *file, play_tree_t *playtree, m_config_t *mconfig, int clear);
-extern void capitalize(char *filename);
-extern int import_playtree_playlist_into_gui(play_tree_t *my_playtree, m_config_t *config);
+gui_t *create_gui(char *skindir, char *skinName, void (*playercontrol)(int event));
+int destroy_window(gui_t *gui);
+int create_window(gui_t *gui, char *skindir);
+int create_subwindow(gui_t *gui, char *skindir);
+int parse_filename(char *file, play_tree_t *playtree, m_config_t *mconfig, int clear);
+void capitalize(char *filename);
+int import_playtree_playlist_into_gui(play_tree_t *my_playtree, m_config_t *config);
 
 /* Dialogs */
-extern void display_playlistwindow(gui_t *gui);
-extern void update_playlistwindow(void);
-extern int display_openfilewindow(gui_t *gui, int add);
-extern void display_openurlwindow(gui_t *gui, int add);
-extern void display_skinbrowser(gui_t *gui);
-extern void display_chapterselwindow(gui_t *gui);
-extern void display_eqwindow(gui_t *gui);
-extern void display_prefswindow(gui_t *gui);
-extern void display_opensubtitlewindow(gui_t *gui);
+void display_playlistwindow(gui_t *gui);
+void update_playlistwindow(void);
+int display_openfilewindow(gui_t *gui, int add);
+void display_openurlwindow(gui_t *gui, int add);
+void display_skinbrowser(gui_t *gui);
+void display_chapterselwindow(gui_t *gui);
+void display_eqwindow(gui_t *gui);
+void display_prefswindow(gui_t *gui);
+void display_opensubtitlewindow(gui_t *gui);
 
-#endif
+#endif /* MPLAYER_GUI_GUI_H */

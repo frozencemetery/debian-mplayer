@@ -1,7 +1,25 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #ifndef MPLAYER_FONT_LOAD_H
 #define MPLAYER_FONT_LOAD_H
 
-#ifdef HAVE_FREETYPE
+#ifdef CONFIG_FREETYPE
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #endif
@@ -10,14 +28,14 @@ typedef struct {
     unsigned char *bmp;
     unsigned char *pal;
     int w,h,c;
-#ifdef HAVE_FREETYPE
+#ifdef CONFIG_FREETYPE
     int charwidth,charheight,pen,baseline,padding;
     int current_count, current_alloc;
 #endif
 } raw_file;
 
-typedef struct {
-#ifdef HAVE_FREETYPE
+typedef struct font_desc {
+#ifdef CONFIG_FREETYPE
     int dynamic;
 #endif
     char *name;
@@ -34,7 +52,7 @@ typedef struct {
     short width[65536];
     int freetype;
 
-#ifdef HAVE_FREETYPE
+#ifdef CONFIG_FREETYPE
     int face_cnt;
     
     FT_Face faces[16];
@@ -64,8 +82,6 @@ typedef struct {
 extern font_desc_t* vo_font;
 extern font_desc_t* sub_font;
 
-#ifdef HAVE_FREETYPE
-
 extern char *subtitle_font_encoding;
 extern float text_font_scale_factor;
 extern float osd_font_scale_factor;
@@ -81,25 +97,18 @@ extern int force_load_font;
 int init_freetype(void);
 int done_freetype(void);
 
-font_desc_t* read_font_desc_ft(const char* fname,int movie_width, int movie_height);
+font_desc_t* read_font_desc_ft(const char* fname,int face_index,int movie_width, int movie_height, float font_scale_factor);
 void free_font_desc(font_desc_t *desc);
 
 void render_one_glyph(font_desc_t *desc, int c);
 int kerning(font_desc_t *desc, int prevc, int c);
 
-void load_font_ft(int width, int height, font_desc_t **desc, const char *name);
+void load_font_ft(int width, int height, font_desc_t **desc, const char *name, float font_scale_factor);
 
 void blur(unsigned char *buffer, unsigned short *tmp2, int width, int height,
           int stride, int *m2, int r, int mwidth);
 
-#else
-
-static void render_one_glyph(font_desc_t *desc, int c) {}
-static int kerning(font_desc_t *desc, int prevc, int c) { return 0; }
-
-#endif
-
 raw_file* load_raw(char *name,int verbose);
 font_desc_t* read_font_desc(const char* fname,float factor,int verbose);
 
-#endif /* ! MPLAYER_FONT_LOAD_H */
+#endif /* MPLAYER_FONT_LOAD_H */

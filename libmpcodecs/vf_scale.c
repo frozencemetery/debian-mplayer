@@ -11,7 +11,7 @@
 #include "mp_image.h"
 #include "vf.h"
 #include "fmt-conversion.h"
-#include "bswap.h"
+#include "mpbswap.h"
 
 #include "libswscale/swscale.h"
 #include "vf_scale.h"
@@ -116,6 +116,7 @@ static int config(struct vf_instance_s* vf,
     int vo_flags;
     int int_sws_flags=0;
     int round_w=0, round_h=0;
+    int i;
     SwsFilter *srcFilter, *dstFilter;
     enum PixelFormat dfmt, sfmt;
     
@@ -252,7 +253,6 @@ static int config(struct vf_instance_s* vf,
     switch(best){
     case IMGFMT_RGB8: {
       /* set 332 palette for 8 bpp */
-	int i;
 	vf->priv->palette=malloc(4*256);
 	for(i=0; i<256; i++){
 	    vf->priv->palette[4*i+0]=4*(i>>6)*21;
@@ -263,7 +263,6 @@ static int config(struct vf_instance_s* vf,
 	break; }
     case IMGFMT_BGR8: {
       /* set 332 palette for 8 bpp */
-	int i;
 	vf->priv->palette=malloc(4*256);
 	for(i=0; i<256; i++){
 	    vf->priv->palette[4*i+0]=4*(i&3)*21;
@@ -274,7 +273,6 @@ static int config(struct vf_instance_s* vf,
 	break; }
     case IMGFMT_BGR4: 
     case IMGFMT_BG4B: {
-	int i;
 	vf->priv->palette=malloc(4*16);
 	for(i=0; i<16; i++){
 	    vf->priv->palette[4*i+0]=4*(i&1)*63;
@@ -285,7 +283,6 @@ static int config(struct vf_instance_s* vf,
 	break; }
     case IMGFMT_RGB4: 
     case IMGFMT_RG4B: {
-	int i;
 	vf->priv->palette=malloc(4*16);
 	for(i=0; i<16; i++){
 	    vf->priv->palette[4*i+0]=4*(i>>3)*63;
@@ -559,9 +556,9 @@ void sws_getFlagsAndFilterFromCmdLine(int *flags, SwsFilter **srcFilterParam, Sw
 	static int firstTime=1;
 	*flags=0;
 
-#ifdef ARCH_X86
+#if ARCH_X86
 	if(gCpuCaps.hasMMX)
-		asm volatile("emms\n\t"::: "memory"); //FIXME this shouldnt be required but it IS (even for non mmx versions)
+		__asm__ volatile("emms\n\t"::: "memory"); //FIXME this should not be required but it IS (even for non-MMX versions)
 #endif
 	if(firstTime)
 	{
@@ -674,7 +671,7 @@ static m_struct_t vf_opts = {
   vf_opts_fields
 };
 
-vf_info_t vf_info_scale = {
+const vf_info_t vf_info_scale = {
     "software scaling",
     "scale",
     "A'rpi",

@@ -1,19 +1,39 @@
+/*
+ * common OpenGL routines
+ *
+ * copyleft (C) 2005 Reimar Döffinger <Reimar.Doeffinger@stud.uni-karlsruhe.de>
+ * Special thanks go to the xine team and Matthias Hopf, whose video_out_opengl.c
+ * gave me lots of good ideas.
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 /**
  * \file gl_common.c
  * \brief OpenGL helper functions used by vo_gl.c and vo_gl2.c
- *
- * Common OpenGL routines.
- * Copyleft (C) Reimar Döffinger <Reimar.Doeffinger@stud.uni-karlsruhe.de>, 2005
- * Licensend under the GNU GPL v2 or later.
- * Special thanks go to the xine team and Matthias Hopf, whose video_out_opengl.c
- * gave me lots of good ideas.
  */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
 #include "gl_common.h"
+#include "libavutil/common.h"
 
 /**
  * \defgroup glextfunctions OpenGL extension functions
@@ -57,6 +77,8 @@ void (APIENTRY *ProgramEnvParameter4f)(GLenum, GLuint, GLfloat, GLfloat,
 int (APIENTRY *SwapInterval)(int);
 void (APIENTRY *TexImage3D)(GLenum, GLint, GLenum, GLsizei, GLsizei, GLsizei,
                             GLint, GLenum, GLenum, const GLvoid *);
+void* (APIENTRY *AllocateMemoryMESA)(void *, int, size_t, float, float, float);
+void (APIENTRY *FreeMemoryMESA)(void *, int, void *);
 /** \} */ // end of glextfunctions group
 
 //! \defgroup glgeneral OpenGL general helper functions
@@ -166,10 +188,10 @@ int glFindFormat(uint32_t fmt, int *bpp, GLint *gl_texfmt,
   int dummy1;
   GLenum dummy2;
   GLint dummy3;
-  if (bpp == NULL) bpp = &dummy1;
-  if (gl_texfmt == NULL) gl_texfmt = &dummy3;
-  if (gl_format == NULL) gl_format = &dummy2;
-  if (gl_type == NULL) gl_type = &dummy2;
+  if (!bpp) bpp = &dummy1;
+  if (!gl_texfmt) gl_texfmt = &dummy3;
+  if (!gl_format) gl_format = &dummy2;
+  if (!gl_type) gl_type = &dummy2;
   
   *bpp = IMGFMT_IS_BGR(fmt)?IMGFMT_BGR_DEPTH(fmt):IMGFMT_RGB_DEPTH(fmt);
   *gl_texfmt = 3;
@@ -191,6 +213,13 @@ int glFindFormat(uint32_t fmt, int *bpp, GLint *gl_texfmt,
       *bpp = 8;
       *gl_format = GL_LUMINANCE;
       *gl_type = GL_UNSIGNED_BYTE;
+      break;
+    case IMGFMT_UYVY:
+    case IMGFMT_YUY2:
+      *gl_texfmt = GL_YCBCR_MESA;
+      *bpp = 16;
+      *gl_format = GL_YCBCR_MESA;
+      *gl_type = fmt == IMGFMT_UYVY ? GL_UNSIGNED_SHORT_8_8 : GL_UNSIGNED_SHORT_8_8_REV;
       break;
 #if 0
     // we do not support palettized formats, although the format the
@@ -252,39 +281,41 @@ static void *setNull(const GLubyte *s) {
 }
 
 typedef struct {
-  void **funcptr;
+  void *funcptr;
   const char *extstr;
   const char *funcnames[7];
 } extfunc_desc_t;
 
 static const extfunc_desc_t extfuncs[] = {
-  {(void **)&GenBuffers, NULL, {"glGenBuffers", "glGenBuffersARB", NULL}},
-  {(void **)&DeleteBuffers, NULL, {"glDeleteBuffers", "glDeleteBuffersARB", NULL}},
-  {(void **)&BindBuffer, NULL, {"glBindBuffer", "glBindBufferARB", NULL}},
-  {(void **)&MapBuffer, NULL, {"glMapBuffer", "glMapBufferARB", NULL}},
-  {(void **)&UnmapBuffer, NULL, {"glUnmapBuffer", "glUnmapBufferARB", NULL}},
-  {(void **)&BufferData, NULL, {"glBufferData", "glBufferDataARB", NULL}},
-  {(void **)&CombinerParameterfv, "NV_register_combiners", {"glCombinerParameterfv", "glCombinerParameterfvNV", NULL}},
-  {(void **)&CombinerParameteri, "NV_register_combiners", {"glCombinerParameteri", "glCombinerParameteriNV", NULL}},
-  {(void **)&CombinerInput, "NV_register_combiners", {"glCombinerInput", "glCombinerInputNV", NULL}},
-  {(void **)&CombinerOutput, "NV_register_combiners", {"glCombinerOutput", "glCombinerOutputNV", NULL}},
-  {(void **)&BeginFragmentShader, "ATI_fragment_shader", {"glBeginFragmentShaderATI", NULL}},
-  {(void **)&EndFragmentShader, "ATI_fragment_shader", {"glEndFragmentShaderATI", NULL}},
-  {(void **)&SampleMap, "ATI_fragment_shader", {"glSampleMapATI", NULL}},
-  {(void **)&ColorFragmentOp2, "ATI_fragment_shader", {"glColorFragmentOp2ATI", NULL}},
-  {(void **)&ColorFragmentOp3, "ATI_fragment_shader", {"glColorFragmentOp3ATI", NULL}},
-  {(void **)&SetFragmentShaderConstant, "ATI_fragment_shader", {"glSetFragmentShaderConstantATI", NULL}},
-  {(void **)&ActiveTexture, NULL, {"glActiveTexture", "glActiveTextureARB", NULL}},
-  {(void **)&BindTexture, NULL, {"glBindTexture", "glBindTextureARB", "glBindTextureEXT", NULL}},
-  {(void **)&MultiTexCoord2f, NULL, {"glMultiTexCoord2f", "glMultiTexCoord2fARB", NULL}},
-  {(void **)&GenPrograms, "_program", {"glGenProgramsARB", NULL}},
-  {(void **)&DeletePrograms, "_program", {"glDeleteProgramsARB", NULL}},
-  {(void **)&BindProgram, "_program", {"glBindProgramARB", NULL}},
-  {(void **)&ProgramString, "_program", {"glProgramStringARB", NULL}},
-  {(void **)&GetProgramiv, "_program", {"glGetProgramivARB", NULL}},
-  {(void **)&ProgramEnvParameter4f, "_program", {"glProgramEnvParameter4fARB", NULL}},
-  {(void **)&SwapInterval, "_swap_control", {"glXSwapInterval", "glXSwapIntervalEXT", "glXSwapIntervalSGI", "wglSwapInterval", "wglSwapIntervalEXT", "wglSwapIntervalSGI", NULL}},
-  {(void **)&TexImage3D, NULL, {"glTexImage3D", NULL}},
+  {&GenBuffers, NULL, {"glGenBuffers", "glGenBuffersARB", NULL}},
+  {&DeleteBuffers, NULL, {"glDeleteBuffers", "glDeleteBuffersARB", NULL}},
+  {&BindBuffer, NULL, {"glBindBuffer", "glBindBufferARB", NULL}},
+  {&MapBuffer, NULL, {"glMapBuffer", "glMapBufferARB", NULL}},
+  {&UnmapBuffer, NULL, {"glUnmapBuffer", "glUnmapBufferARB", NULL}},
+  {&BufferData, NULL, {"glBufferData", "glBufferDataARB", NULL}},
+  {&CombinerParameterfv, "NV_register_combiners", {"glCombinerParameterfv", "glCombinerParameterfvNV", NULL}},
+  {&CombinerParameteri, "NV_register_combiners", {"glCombinerParameteri", "glCombinerParameteriNV", NULL}},
+  {&CombinerInput, "NV_register_combiners", {"glCombinerInput", "glCombinerInputNV", NULL}},
+  {&CombinerOutput, "NV_register_combiners", {"glCombinerOutput", "glCombinerOutputNV", NULL}},
+  {&BeginFragmentShader, "ATI_fragment_shader", {"glBeginFragmentShaderATI", NULL}},
+  {&EndFragmentShader, "ATI_fragment_shader", {"glEndFragmentShaderATI", NULL}},
+  {&SampleMap, "ATI_fragment_shader", {"glSampleMapATI", NULL}},
+  {&ColorFragmentOp2, "ATI_fragment_shader", {"glColorFragmentOp2ATI", NULL}},
+  {&ColorFragmentOp3, "ATI_fragment_shader", {"glColorFragmentOp3ATI", NULL}},
+  {&SetFragmentShaderConstant, "ATI_fragment_shader", {"glSetFragmentShaderConstantATI", NULL}},
+  {&ActiveTexture, NULL, {"glActiveTexture", "glActiveTextureARB", NULL}},
+  {&BindTexture, NULL, {"glBindTexture", "glBindTextureARB", "glBindTextureEXT", NULL}},
+  {&MultiTexCoord2f, NULL, {"glMultiTexCoord2f", "glMultiTexCoord2fARB", NULL}},
+  {&GenPrograms, "_program", {"glGenProgramsARB", NULL}},
+  {&DeletePrograms, "_program", {"glDeleteProgramsARB", NULL}},
+  {&BindProgram, "_program", {"glBindProgramARB", NULL}},
+  {&ProgramString, "_program", {"glProgramStringARB", NULL}},
+  {&GetProgramiv, "_program", {"glGetProgramivARB", NULL}},
+  {&ProgramEnvParameter4f, "_program", {"glProgramEnvParameter4fARB", NULL}},
+  {&SwapInterval, "_swap_control", {"glXSwapInterval", "glXSwapIntervalEXT", "glXSwapIntervalSGI", "wglSwapInterval", "wglSwapIntervalEXT", "wglSwapIntervalSGI", NULL}},
+  {&TexImage3D, NULL, {"glTexImage3D", NULL}},
+  {&AllocateMemoryMESA, "GLX_MESA_allocate_memory", {"glXAllocateMemoryMESA", NULL}},
+  {&FreeMemoryMESA, "GLX_MESA_allocate_memory", {"glXFreeMemoryMESA", NULL}},
   {NULL}
 };
 
@@ -314,7 +345,7 @@ static void getFunctions(void *(*getProcAddress)(const GLubyte *),
       for (i = 0; !ptr && dsc->funcnames[i]; i++)
         ptr = getProcAddress((const GLubyte *)dsc->funcnames[i]);
     }
-    *(dsc->funcptr) = ptr;
+    *(void **)dsc->funcptr = ptr;
   }
   if (strstr(allexts, "_texture_float"))
     hqtexfmt = GL_RGB32F;
@@ -329,22 +360,26 @@ static void getFunctions(void *(*getProcAddress)(const GLubyte *),
  * \brief create a texture and set some defaults
  * \param target texture taget, usually GL_TEXTURE_2D
  * \param fmt internal texture format
+ * \param format texture host data format
+ * \param type texture host data type
  * \param filter filter used for scaling, e.g. GL_LINEAR
  * \param w texture width
  * \param h texture height
  * \param val luminance value to fill texture with
  * \ingroup gltexture
  */
-void glCreateClearTex(GLenum target, GLenum fmt, GLint filter,
+void glCreateClearTex(GLenum target, GLenum fmt, GLenum format, GLenum type, GLint filter,
                       int w, int h, unsigned char val) {
   GLfloat fval = (GLfloat)val / 255.0;
   GLfloat border[4] = {fval, fval, fval, fval};
-  GLenum clrfmt = (fmt == GL_ALPHA) ? GL_ALPHA : GL_LUMINANCE;
-  char *init = malloc(w * h);
-  memset(init, val, w * h);
-  glAdjustAlignment(w);
+  int stride = w * glFmt2bpp(format, type);
+  char *init;
+  if (!stride) return;
+  init = malloc(stride * h);
+  memset(init, val, stride * h);
+  glAdjustAlignment(stride);
   glPixelStorei(GL_UNPACK_ROW_LENGTH, w);
-  glTexImage2D(target, 0, fmt, w, h, 0, clrfmt, GL_UNSIGNED_BYTE, init);
+  glTexImage2D(target, 0, fmt, w, h, 0, format, type, init);
   glTexParameterf(target, GL_TEXTURE_PRIORITY, 1.0);
   glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
   glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
@@ -391,6 +426,7 @@ int glCreatePPMTex(GLenum target, GLenum fmt, GLint filter,
                    FILE *f, int *width, int *height, int *maxval) {
   unsigned w, h, m, val, bpp;
   char *data;
+  GLenum type;
   ppm_skip(f);
   if (fgetc(f) != 'P' || fgetc(f) != '6')
     return 0;
@@ -417,8 +453,9 @@ int glCreatePPMTex(GLenum target, GLenum fmt, GLint filter,
     if (fmt == GL_FLOAT_RGB32_NV && target != GL_TEXTURE_RECTANGLE)
       fmt = GL_RGB16;
   }
-  glCreateClearTex(target, fmt, filter, w, h, 0);
-  glUploadTex(target, GL_RGB, (m > 255) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE,
+  type = m > 255 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
+  glCreateClearTex(target, fmt, GL_RGB, type, filter, w, h, 0);
+  glUploadTex(target, GL_RGB, type,
               data, w * bpp, 0, 0, w, h, 0);
   free(data);
   if (width) *width = w;
@@ -458,6 +495,8 @@ int glFmt2bpp(GLenum format, GLenum type) {
     case GL_LUMINANCE:
     case GL_ALPHA:
       return component_size;
+    case GL_YCBCR_MESA:
+      return 2;
     case GL_RGB:
     case GL_BGR:
       return 3 * component_size;
@@ -545,7 +584,7 @@ static void glSetupYUVCombiners(float uvcos, float uvsin) {
   if (i < 2)
     mp_msg(MSGT_VO, MSGL_ERR,
            "[gl] 2 general combiners needed for YUV combiner support (found %i)\n", i);
-  glGetIntegerv (GL_MAX_TEXTURE_UNITS, &i);
+  glGetIntegerv(GL_MAX_TEXTURE_UNITS, &i);
   if (i < 3)
     mp_msg(MSGT_VO, MSGL_ERR,
            "[gl] 3 texture units needed for YUV combiner support (found %i)\n", i);
@@ -737,24 +776,62 @@ static const char *bicub_notex_filt_template_RECT =
   BICUB_FILT_MAIN("RECT");
 
 #define BICUB_X_FILT_MAIN(textype) \
-  "ADD coord, fragment.texcoord[%c].xyxy, cdelta.xyxw;" \
-  "ADD coord2, fragment.texcoord[%c].xyxy, cdelta.zyzw;" \
+  "ADD coord.xy, fragment.texcoord[%c].xyxy, cdelta.xyxy;" \
+  "ADD coord2.xy, fragment.texcoord[%c].xyxy, cdelta.zyzy;" \
   "TEX a.r, coord, texture[%c], "textype";" \
   "TEX b.r, coord2, texture[%c], "textype";" \
   /* x-interpolation */ \
   "LRP yuv.%c, parmx.b, a.rrrr, b.rrrr;"
 
 static const char *bicub_x_filt_template_2D =
-  "MAD coord.x, fragment.texcoord[%c], {%f, %f}, {0.5, 0.5};"
+  "MAD coord.x, fragment.texcoord[%c], {%f}, {0.5};"
   "TEX parmx, coord, texture[%c], 1D;"
-  "MUL cdelta.xz, parmx.rrgg, {-%f, 0, %f, 0};"
+  "MUL cdelta.xyz, parmx.rrgg, {-%f, 0, %f};"
   BICUB_X_FILT_MAIN("2D");
 
 static const char *bicub_x_filt_template_RECT =
-  "ADD coord.x, fragment.texcoord[%c], {0.5, 0.5};"
+  "ADD coord.x, fragment.texcoord[%c], {0.5};"
   "TEX parmx, coord, texture[%c], 1D;"
-  "MUL cdelta.xz, parmx.rrgg, {-1, 0, 1, 0};"
+  "MUL cdelta.xyz, parmx.rrgg, {-1, 0, 1};"
   BICUB_X_FILT_MAIN("RECT");
+
+static const char *unsharp_filt_template =
+  "PARAM dcoord%c = {%f, %f, %f, %f};"
+  "ADD coord, fragment.texcoord[%c].xyxy, dcoord%c;"
+  "SUB coord2, fragment.texcoord[%c].xyxy, dcoord%c;"
+  "TEX a.r, fragment.texcoord[%c], texture[%c], %s;"
+  "TEX b.r, coord.xyxy, texture[%c], %s;"
+  "TEX b.g, coord.zwzw, texture[%c], %s;"
+  "ADD b.r, b.r, b.g;"
+  "TEX b.b, coord2.xyxy, texture[%c], %s;"
+  "TEX b.g, coord2.zwzw, texture[%c], %s;"
+  "DP3 b, b, {0.25, 0.25, 0.25};"
+  "SUB b.r, a.r, b.r;"
+  "MAD yuv.%c, b.r, {%f}, a.r;";
+
+static const char *unsharp_filt_template2 =
+  "PARAM dcoord%c = {%f, %f, %f, %f};"
+  "PARAM dcoord2%c = {%f, 0, 0, %f};"
+  "ADD coord, fragment.texcoord[%c].xyxy, dcoord%c;"
+  "SUB coord2, fragment.texcoord[%c].xyxy, dcoord%c;"
+  "TEX a.r, fragment.texcoord[%c], texture[%c], %s;"
+  "TEX b.r, coord.xyxy, texture[%c], %s;"
+  "TEX b.g, coord.zwzw, texture[%c], %s;"
+  "ADD b.r, b.r, b.g;"
+  "TEX b.b, coord2.xyxy, texture[%c], %s;"
+  "TEX b.g, coord2.zwzw, texture[%c], %s;"
+  "ADD b.r, b.r, b.b;"
+  "ADD b.a, b.r, b.g;"
+  "ADD coord, fragment.texcoord[%c].xyxy, dcoord2%c;"
+  "SUB coord2, fragment.texcoord[%c].xyxy, dcoord2%c;"
+  "TEX b.r, coord.xyxy, texture[%c], %s;"
+  "TEX b.g, coord.zwzw, texture[%c], %s;"
+  "ADD b.r, b.r, b.g;"
+  "TEX b.b, coord2.xyxy, texture[%c], %s;"
+  "TEX b.g, coord2.zwzw, texture[%c], %s;"
+  "DP4 b.r, b, {-0.1171875, -0.1171875, -0.1171875, -0.09765625};"
+  "MAD b.r, a.r, {0.859375}, b.r;"
+  "MAD yuv.%c, b.r, {%f}, a.r;";
 
 static const char *yuv_prog_template =
   "PARAM ycoef = {%.4f, %.4f, %.4f};"
@@ -811,6 +888,9 @@ static const char *yuv_lookup3d_prog_template =
 static void create_scaler_textures(int scaler, int *texu, char *texs) {
   switch (scaler) {
     case YUV_SCALER_BILIN:
+    case YUV_SCALER_BICUB_NOTEX:
+    case YUV_SCALER_UNSHARP:
+    case YUV_SCALER_UNSHARP2:
       break;
     case YUV_SCALER_BICUB:
     case YUV_SCALER_BICUB_X:
@@ -825,80 +905,68 @@ static void create_scaler_textures(int scaler, int *texu, char *texs) {
 
 static void gen_gamma_map(unsigned char *map, int size, float gamma);
 
-static void get_yuv2rgb_coeffs(float brightness, float contrast, float uvcos, float uvsin,
-                               float *ry, float *ru, float *rv, float *rc,
-                               float *gy, float *gu, float *gv, float *gc,
-                               float *by, float *bu, float *bv, float *bc) {
-  *ry = 1.164 * contrast;
-  *gy = 1.164 * contrast;
-  *by = 1.164 * contrast;
-  *ru = 0 * uvcos + 1.596 * uvsin;
-  *rv = 0 * uvsin + 1.596 * uvcos;
-  *gu = -0.391 * uvcos + -0.813 * uvsin;
-  *gv = -0.391 * uvsin + -0.813 * uvcos;
-  *bu = 2.018 * uvcos + 0 * uvsin;
-  *bv = 2.018 * uvsin + 0 * uvcos;
-  *rc = (-16 * *ry + (-128) * *ru + (-128) * *rv) / 255.0 + brightness;
-  *gc = (-16 * *gy + (-128) * *gu + (-128) * *gv) / 255.0 + brightness;
-  *bc = (-16 * *by + (-128) * *bu + (-128) * *bv) / 255.0 + brightness;
-  // these "center" contrast control so that e.g. a contrast of 0
-  // leads to a grey image, not a black one
-  *rc += 0.5 - contrast / 2.0;
-  *gc += 0.5 - contrast / 2.0;
-  *bc += 0.5 - contrast / 2.0;
+#define ROW_R 0
+#define ROW_G 1
+#define ROW_B 2
+#define COL_Y 0
+#define COL_U 1
+#define COL_V 2
+#define COL_C 3
+
+static void get_yuv2rgb_coeffs(gl_conversion_params_t *params, float yuv2rgb[3][4]) {
+  float uvcos = params->saturation * cos(params->hue);
+  float uvsin = params->saturation * sin(params->hue);
+  int i;
+  float uv_coeffs[3][2] = {
+    { 0.000,  1.596},
+    {-0.391, -0.813},
+    { 2.018,  0.000}
+  };
+  for (i = 0; i < 3; i++) {
+    yuv2rgb[i][COL_C]  = params->brightness;
+    yuv2rgb[i][COL_Y]  = 1.164 * params->contrast;
+    yuv2rgb[i][COL_C] += (-16 / 255.0) * yuv2rgb[i][COL_Y];
+    yuv2rgb[i][COL_U]  = uv_coeffs[i][0] * uvcos + uv_coeffs[i][1] * uvsin;
+    yuv2rgb[i][COL_C] += (-128 / 255.0) * yuv2rgb[i][COL_U];
+    yuv2rgb[i][COL_V]  = uv_coeffs[i][0] * uvsin + uv_coeffs[i][1] * uvcos;
+    yuv2rgb[i][COL_C] += (-128 / 255.0) * yuv2rgb[i][COL_V];
+    // this "centers" contrast control so that e.g. a contrast of 0
+    // leads to a grey image, not a black one
+    yuv2rgb[i][COL_C] += 0.5 - params->contrast / 2.0;
+  }
 }
 
 //! size of gamma map use to avoid slow exp function in gen_yuv2rgb_map
 #define GMAP_SIZE (1024)
 /**
  * \brief generate a 3D YUV -> RGB map
+ * \param params struct containing parameters like brightness, gamma, ...
  * \param map where to store map. Must provide space for (size + 2)^3 elements
  * \param size size of the map, excluding border
- * \param brightness desired brightness adjustment for conversion
- * \param contrast desired contrast adjustment for conversion
- * \param uvcos desired hue/saturation adjustment for conversion
- * \param uvsin desired hue/saturation adjustment for conversion
- * \param rgamma desired red gamma adjustment for conversion
- * \param ggamma desired green gamma adjustment for conversion
- * \param bgamma desired blue gamma adjustment for conversion
  */
-static void gen_yuv2rgb_map(unsigned char *map, int size, float brightness,
-                            float contrast, float uvcos, float uvsin,
-                            float rgamma, float ggamma, float bgamma) {
-  int i, j, k;
+static void gen_yuv2rgb_map(gl_conversion_params_t *params, unsigned char *map, int size) {
+  int i, j, k, l;
   float step = 1.0 / size;
   float y, u, v;
-  float r, g, b;
-  float ry, ru, rv, rc;
-  float gy, gu, gv, gc;
-  float by, bu, bv, bc;
+  float yuv2rgb[3][4];
   unsigned char gmaps[3][GMAP_SIZE];
-  gen_gamma_map(gmaps[0], GMAP_SIZE, rgamma);
-  gen_gamma_map(gmaps[1], GMAP_SIZE, ggamma);
-  gen_gamma_map(gmaps[2], GMAP_SIZE, bgamma);
-  get_yuv2rgb_coeffs(brightness, contrast, uvcos, uvsin,
-          &ry, &ru, &rv, &rc, &gy, &gu, &gv, &gc, &by, &bu, &bv, &bc);
-  ry *= GMAP_SIZE - 1; ru *= GMAP_SIZE - 1; rv *= GMAP_SIZE - 1; rc *= GMAP_SIZE - 1;
-  gy *= GMAP_SIZE - 1; gu *= GMAP_SIZE - 1; gv *= GMAP_SIZE - 1; gc *= GMAP_SIZE - 1;
-  by *= GMAP_SIZE - 1; bu *= GMAP_SIZE - 1; bv *= GMAP_SIZE - 1; bc *= GMAP_SIZE - 1;
+  gen_gamma_map(gmaps[0], GMAP_SIZE, params->rgamma);
+  gen_gamma_map(gmaps[1], GMAP_SIZE, params->ggamma);
+  gen_gamma_map(gmaps[2], GMAP_SIZE, params->bgamma);
+  get_yuv2rgb_coeffs(params, yuv2rgb);
+  for (i = 0; i < 3; i++)
+    for (j = 0; j < 4; j++)
+      yuv2rgb[i][j] *= GMAP_SIZE - 1;
   v = 0;
   for (i = -1; i <= size; i++) {
     u = 0;
     for (j = -1; j <= size; j++) {
       y = 0;
       for (k = -1; k <= size; k++) {
-        r = ry * y + ru * u + rv * v + rc;
-        g = gy * y + gu * u + gv * v + gc;
-        b = by * y + bu * u + bv * v + bc;
-        if (r > GMAP_SIZE - 1) r = GMAP_SIZE - 1;
-        if (r < 0) r = 0;
-        if (g > GMAP_SIZE - 1) g = GMAP_SIZE - 1;
-        if (g < 0) g = 0;
-        if (b > GMAP_SIZE - 1) b = GMAP_SIZE - 1;
-        if (b < 0) b = 0;
-        *map++ = gmaps[0][(int)r];
-        *map++ = gmaps[1][(int)g];
-        *map++ = gmaps[2][(int)b];
+        for (l = 0; l < 3; l++) {
+          float rgb = yuv2rgb[l][COL_Y] * y + yuv2rgb[l][COL_U] * u + yuv2rgb[l][COL_V] * v + yuv2rgb[l][COL_C];
+          *map++ = gmaps[l][av_clip(rgb, 0, GMAP_SIZE - 1)];
+        }
         y += (k == -1 || k == size - 1) ? step / 2 : step;
       }
       u += (j == -1 || j == size - 1) ? step / 2 : step;
@@ -913,20 +981,13 @@ static void gen_yuv2rgb_map(unsigned char *map, int size, float brightness,
 #define LOOKUP_3DRES 32
 /**
  * \brief creates and initializes helper textures needed for yuv conversion
+ * \param params struct containing parameters like brightness, gamma, ...
  * \param texu contains next free texture unit number
  * \param texs texture unit ids for the conversion are stored in this array
- * \param brightness desired brightness adjustment for conversion
- * \param contrast desired contrast adjustment for conversion
- * \param uvcos desired hue/saturation adjustment for conversion
- * \param uvsin desired hue/saturation adjustment for conversion
- * \param rgamma desired red gamma adjustment for conversion
- * \param ggamma desired green gamma adjustment for conversion
- * \param bgamma desired blue gamma adjustment for conversion
  */
-static void create_conv_textures(int conv, int *texu, char *texs,
-              float brightness, float contrast, float uvcos, float uvsin,
-              float rgamma, float ggamma, float bgamma) {
+static void create_conv_textures(gl_conversion_params_t *params, int *texu, char *texs) {
   unsigned char *lookup_data = NULL;
+  int conv = YUV_CONVERSION(params->type);
   switch (conv) {
     case YUV_CONVERSION_FRAGMENT:
     case YUV_CONVERSION_FRAGMENT_POW:
@@ -935,10 +996,10 @@ static void create_conv_textures(int conv, int *texu, char *texs,
       texs[0] = (*texu)++;
       ActiveTexture(GL_TEXTURE0 + texs[0]);
       lookup_data = malloc(4 * LOOKUP_RES);
-      gen_gamma_map(lookup_data, LOOKUP_RES, rgamma);
-      gen_gamma_map(&lookup_data[LOOKUP_RES], LOOKUP_RES, ggamma);
-      gen_gamma_map(&lookup_data[2 * LOOKUP_RES], LOOKUP_RES, bgamma);
-      glCreateClearTex(GL_TEXTURE_2D, GL_LUMINANCE8, GL_LINEAR,
+      gen_gamma_map(lookup_data, LOOKUP_RES, params->rgamma);
+      gen_gamma_map(&lookup_data[LOOKUP_RES], LOOKUP_RES, params->ggamma);
+      gen_gamma_map(&lookup_data[2 * LOOKUP_RES], LOOKUP_RES, params->bgamma);
+      glCreateClearTex(GL_TEXTURE_2D, GL_LUMINANCE8, GL_LUMINANCE, GL_UNSIGNED_BYTE, GL_LINEAR,
                        LOOKUP_RES, 4, 0);
       glUploadTex(GL_TEXTURE_2D, GL_LUMINANCE, GL_UNSIGNED_BYTE, lookup_data,
                   LOOKUP_RES, 0, 0, LOOKUP_RES, 4, 0);
@@ -955,8 +1016,7 @@ static void create_conv_textures(int conv, int *texu, char *texs,
         texs[0] = (*texu)++;
         ActiveTexture(GL_TEXTURE0 + texs[0]);
         lookup_data = malloc(3 * sz * sz * sz);
-        gen_yuv2rgb_map(lookup_data, LOOKUP_3DRES, brightness, contrast,
-                        uvcos, uvsin, rgamma, ggamma, bgamma);
+        gen_yuv2rgb_map(params, lookup_data, LOOKUP_3DRES);
         glAdjustAlignment(sz);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
         TexImage3D(GL_TEXTURE_3D, 0, 3, sz, sz, sz, 1,
@@ -989,13 +1049,18 @@ static void create_conv_textures(int conv, int *texu, char *texs,
  * \param rect if rectangular (pixel) adressing should be used for in_tex
  * \param texw width of the in_tex texture
  * \param texh height of the in_tex texture
+ * \param strength strength of filter effect if the scaler does some kind of filtering
  */
 static void add_scaler(int scaler, char **prog_pos, int *remain, char *texs,
-                    char in_tex, char out_comp, int rect, int texw, int texh) {
+                    char in_tex, char out_comp, int rect, int texw, int texh,
+                    double strength) {
+  const char *ttype = rect ? "RECT" : "2D";
+  const float ptw = rect ? 1.0 : 1.0 / texw;
+  const float pth = rect ? 1.0 : 1.0 / texh;
   switch (scaler) {
     case YUV_SCALER_BILIN:
       snprintf(*prog_pos, *remain, bilin_filt_template, out_comp, in_tex,
-                 in_tex, rect ? "RECT" : "2D");
+                 in_tex, ttype);
       break;
     case YUV_SCALER_BICUB:
       if (rect)
@@ -1005,8 +1070,7 @@ static void add_scaler(int scaler, char **prog_pos, int *remain, char *texs,
       else
         snprintf(*prog_pos, *remain, bicub_filt_template_2D,
                  in_tex, (float)texw, (float)texh,
-                 texs[0], (float)1.0 / texw, (float)1.0 / texw,
-                 texs[0], (float)1.0 / texh, (float)1.0 / texh,
+                 texs[0], ptw, ptw, texs[0], pth, pth,
                  in_tex, in_tex, in_tex, in_tex, in_tex, in_tex, out_comp);
       break;
     case YUV_SCALER_BICUB_X:
@@ -1016,8 +1080,8 @@ static void add_scaler(int scaler, char **prog_pos, int *remain, char *texs,
                  in_tex, in_tex, in_tex, in_tex, out_comp);
       else
         snprintf(*prog_pos, *remain, bicub_x_filt_template_2D,
-                 in_tex, (float)texw, (float)texh,
-                 texs[0], (float)1.0 / texw, (float)1.0 / texw,
+                 in_tex, (float)texw,
+                 texs[0], ptw, ptw,
                  in_tex, in_tex, in_tex, in_tex, out_comp);
       break;
     case YUV_SCALER_BICUB_NOTEX:
@@ -1027,10 +1091,25 @@ static void add_scaler(int scaler, char **prog_pos, int *remain, char *texs,
                  in_tex, in_tex, in_tex, in_tex, in_tex, in_tex, out_comp);
       else
         snprintf(*prog_pos, *remain, bicub_notex_filt_template_2D,
-                 in_tex, (float)texw, (float)texh,
-                 (float)1.0 / texw, (float)1.0 / texw,
-                 (float)1.0 / texh, (float)1.0 / texh,
+                 in_tex, (float)texw, (float)texh, ptw, ptw, pth, pth,
                  in_tex, in_tex, in_tex, in_tex, in_tex, in_tex, out_comp);
+      break;
+    case YUV_SCALER_UNSHARP:
+      snprintf(*prog_pos, *remain, unsharp_filt_template,
+               out_comp, 0.5 * ptw, 0.5 * pth, 0.5 * ptw, -0.5 * pth,
+               in_tex, out_comp, in_tex, out_comp, in_tex,
+               in_tex, ttype, in_tex, ttype, in_tex, ttype, in_tex, ttype,
+               in_tex, ttype, out_comp, strength);
+      break;
+    case YUV_SCALER_UNSHARP2:
+      snprintf(*prog_pos, *remain, unsharp_filt_template2,
+               out_comp, 1.2 * ptw, 1.2 * pth, 1.2 * ptw, -1.2 * pth,
+               out_comp, 1.5 * ptw, 1.5 * pth,
+               in_tex, out_comp, in_tex, out_comp, in_tex,
+               in_tex, ttype, in_tex, ttype, in_tex, ttype, in_tex, ttype,
+               in_tex, ttype, in_tex, out_comp, in_tex, out_comp,
+               in_tex, ttype, in_tex, ttype, in_tex, ttype,
+               in_tex, ttype, out_comp, strength);
       break;
   }
   *remain -= strlen(*prog_pos);
@@ -1093,27 +1172,26 @@ int loadGPUProgram(GLenum target, char *prog) {
   return 1;
 }
 
+#define MAX_PROGSZ (1024*1024)
+
 /**
  * \brief setup a fragment program that will do YUV->RGB conversion
- * \param brightness brightness adjustment offset
- * \param contrast contrast adjustment factor
- * \param uvcos used for saturation and hue adjustment
- * \param uvsin used for saturation and hue adjustment
- * \param lookup use fragment program that uses texture unit 4 to
- *               do additional conversion via lookup.
+ * \param parms struct containing parameters like conversion and scaler type,
+ *              brightness, ...
  */
-static void glSetupYUVFragprog(float brightness, float contrast,
-                        float uvcos, float uvsin, float rgamma,
-                        float ggamma, float bgamma, int type, int rect,
-                        int texw, int texh) {
-  char yuv_prog[4000] =
+static void glSetupYUVFragprog(gl_conversion_params_t *params) {
+  int type = params->type;
+  int texw = params->texw;
+  int texh = params->texh;
+  int rect = params->target == GL_TEXTURE_RECTANGLE;
+  static const char prog_hdr[] =
     "!!ARBfp1.0\n"
     "OPTION ARB_precision_hint_fastest;"
     // all scaler variables must go here so they aren't defined
     // multiple times when the same scaler is used more than once
     "TEMP coord, coord2, cdelta, parmx, parmy, a, b, yuv;";
-  int prog_remain = sizeof(yuv_prog) - strlen(yuv_prog);
-  char *prog_pos = &yuv_prog[strlen(yuv_prog)];
+  int prog_remain;
+  char *yuv_prog, *prog_pos;
   int cur_texu = 3;
   char lum_scale_texs[1];
   char chrom_scale_texs[1];
@@ -1121,17 +1199,14 @@ static void glSetupYUVFragprog(float brightness, float contrast,
   GLint i;
   // this is the conversion matrix, with y, u, v factors
   // for red, green, blue and the constant offsets
-  float ry, ru, rv, rc;
-  float gy, gu, gv, gc;
-  float by, bu, bv, bc;
+  float yuv2rgb[3][4];
+  create_conv_textures(params, &cur_texu, conv_texs);
   create_scaler_textures(YUV_LUM_SCALER(type), &cur_texu, lum_scale_texs);
   if (YUV_CHROM_SCALER(type) == YUV_LUM_SCALER(type))
     memcpy(chrom_scale_texs, lum_scale_texs, sizeof(chrom_scale_texs));
   else
     create_scaler_textures(YUV_CHROM_SCALER(type), &cur_texu, chrom_scale_texs);
-  create_conv_textures(YUV_CONVERSION(type), &cur_texu, conv_texs,
-      brightness, contrast, uvcos, uvsin, rgamma, ggamma, bgamma);
-  glGetIntegerv(GL_MAX_TEXTURE_UNITS, &i);
+  glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &i);
   if (i < cur_texu)
     mp_msg(MSGT_VO, MSGL_ERR,
            "[gl] %i texture units needed for this type of YUV fragment support (found %i)\n",
@@ -1140,27 +1215,39 @@ static void glSetupYUVFragprog(float brightness, float contrast,
     mp_msg(MSGT_VO, MSGL_FATAL, "[gl] ProgramString function missing!\n");
     return;
   }
+  yuv_prog = malloc(MAX_PROGSZ);
+  strcpy(yuv_prog, prog_hdr);
+  prog_pos    = yuv_prog + sizeof(prog_hdr) - 1;
+  prog_remain = MAX_PROGSZ - sizeof(prog_hdr);
   add_scaler(YUV_LUM_SCALER(type), &prog_pos, &prog_remain, lum_scale_texs,
-             '0', 'r', rect, texw, texh);
+             '0', 'r', rect, texw, texh, params->filter_strength);
   add_scaler(YUV_CHROM_SCALER(type), &prog_pos, &prog_remain, chrom_scale_texs,
-             '1', 'g', rect, texw / 2, texh / 2);
+             '1', 'g', rect, texw / 2, texh / 2, params->filter_strength);
   add_scaler(YUV_CHROM_SCALER(type), &prog_pos, &prog_remain, chrom_scale_texs,
-             '2', 'b', rect, texw / 2, texh / 2);
-  get_yuv2rgb_coeffs(brightness, contrast, uvcos, uvsin,
-          &ry, &ru, &rv, &rc, &gy, &gu, &gv, &gc, &by, &bu, &bv, &bc);
+             '2', 'b', rect, texw / 2, texh / 2, params->filter_strength);
+  get_yuv2rgb_coeffs(params, yuv2rgb);
   switch (YUV_CONVERSION(type)) {
     case YUV_CONVERSION_FRAGMENT:
       snprintf(prog_pos, prog_remain, yuv_prog_template,
-               ry, gy, by, ru, gu, bu, rv, gv, bv, rc, gc, bc);
+               yuv2rgb[ROW_R][COL_Y], yuv2rgb[ROW_G][COL_Y], yuv2rgb[ROW_B][COL_Y],
+               yuv2rgb[ROW_R][COL_U], yuv2rgb[ROW_G][COL_U], yuv2rgb[ROW_B][COL_U],
+               yuv2rgb[ROW_R][COL_V], yuv2rgb[ROW_G][COL_V], yuv2rgb[ROW_B][COL_V],
+               yuv2rgb[ROW_R][COL_C], yuv2rgb[ROW_G][COL_C], yuv2rgb[ROW_B][COL_C]);
       break;
     case YUV_CONVERSION_FRAGMENT_POW:
       snprintf(prog_pos, prog_remain, yuv_pow_prog_template,
-               ry, gy, by, ru, gu, bu, rv, gv, bv, rc, gc, bc,
-               (float)1.0 / rgamma, (float)1.0 / bgamma, (float)1.0 / bgamma);
+               yuv2rgb[ROW_R][COL_Y], yuv2rgb[ROW_G][COL_Y], yuv2rgb[ROW_B][COL_Y],
+               yuv2rgb[ROW_R][COL_U], yuv2rgb[ROW_G][COL_U], yuv2rgb[ROW_B][COL_U],
+               yuv2rgb[ROW_R][COL_V], yuv2rgb[ROW_G][COL_V], yuv2rgb[ROW_B][COL_V],
+               yuv2rgb[ROW_R][COL_C], yuv2rgb[ROW_G][COL_C], yuv2rgb[ROW_B][COL_C],
+               (float)1.0 / params->rgamma, (float)1.0 / params->bgamma, (float)1.0 / params->bgamma);
       break;
     case YUV_CONVERSION_FRAGMENT_LOOKUP:
       snprintf(prog_pos, prog_remain, yuv_lookup_prog_template,
-               ry, gy, by, ru, gu, bu, rv, gv, bv, rc, gc, bc,
+               yuv2rgb[ROW_R][COL_Y], yuv2rgb[ROW_G][COL_Y], yuv2rgb[ROW_B][COL_Y],
+               yuv2rgb[ROW_R][COL_U], yuv2rgb[ROW_G][COL_U], yuv2rgb[ROW_B][COL_U],
+               yuv2rgb[ROW_R][COL_V], yuv2rgb[ROW_G][COL_V], yuv2rgb[ROW_B][COL_V],
+               yuv2rgb[ROW_R][COL_C], yuv2rgb[ROW_G][COL_C], yuv2rgb[ROW_B][COL_C],
                conv_texs[0], conv_texs[0], conv_texs[0]);
       break;
     case YUV_CONVERSION_FRAGMENT_LOOKUP3D:
@@ -1172,6 +1259,7 @@ static void glSetupYUVFragprog(float brightness, float contrast,
   }
   mp_msg(MSGT_VO, MSGL_V, "[gl] generated fragment program:\n%s\n", yuv_prog);
   loadGPUProgram(GL_FRAGMENT_PROGRAM, yuv_prog);
+  free(yuv_prog);
 }
 
 /**
@@ -1199,25 +1287,14 @@ static void gen_gamma_map(unsigned char *map, int size, float gamma) {
 
 /**
  * \brief setup YUV->RGB conversion
- * \param target texture target for Y, U and V textures (e.g. GL_TEXTURE_2D)
- * \param type YUV conversion type
- * \param brightness brightness adjustment offset
- * \param contrast contrast adjustment factor
- * \param hue hue adjustment angle
- * \param saturation saturation adjustment factor
- * \param rgamma gamma value for red channel
- * \param ggamma gamma value for green channel
- * \param bgamma gamma value for blue channel
+ * \param parms struct containing parameters like conversion and scaler type,
+ *              brightness, ...
  * \ingroup glconversion
  */
-void glSetupYUVConversion(GLenum target, int type,
-                          float brightness, float contrast,
-                          float hue, float saturation,
-                          float rgamma, float ggamma, float bgamma,
-                          int texw, int texh) {
-  float uvcos = saturation * cos(hue);
-  float uvsin = saturation * sin(hue);
-  switch (YUV_CONVERSION(type)) {
+void glSetupYUVConversion(gl_conversion_params_t *params) {
+  float uvcos = params->saturation * cos(params->hue);
+  float uvsin = params->saturation * sin(params->hue);
+  switch (YUV_CONVERSION(params->type)) {
     case YUV_CONVERSION_COMBINERS:
       glSetupYUVCombiners(uvcos, uvsin);
       break;
@@ -1228,13 +1305,10 @@ void glSetupYUVConversion(GLenum target, int type,
     case YUV_CONVERSION_FRAGMENT_LOOKUP3D:
     case YUV_CONVERSION_FRAGMENT:
     case YUV_CONVERSION_FRAGMENT_POW:
-      glSetupYUVFragprog(brightness, contrast, uvcos, uvsin,
-                         rgamma, ggamma, bgamma, type,
-                         target == GL_TEXTURE_RECTANGLE,
-                         texw, texh);
+      glSetupYUVFragprog(params);
       break;
     default:
-      mp_msg(MSGT_VO, MSGL_ERR, "[gl] unknown conversion type %i\n", YUV_CONVERSION(type));
+      mp_msg(MSGT_VO, MSGL_ERR, "[gl] unknown conversion type %i\n", YUV_CONVERSION(params->type));
   }
 }
 
@@ -1372,7 +1446,11 @@ void glDrawTex(GLfloat x, GLfloat y, GLfloat w, GLfloat h,
  * \return function pointer returned by wglGetProcAddress
  */
 static void *w32gpa(const GLubyte *procName) {
-  return wglGetProcAddress(procName);
+  HMODULE oglmod;
+  void *res = wglGetProcAddress(procName);
+  if (res) return res;
+  oglmod = GetModuleHandle("opengl32.dll");
+  return GetProcAddress(oglmod, procName);
 }
 
 int setGlWindow(int *vinfo, HGLRC *context, HWND win)
@@ -1403,7 +1481,7 @@ int setGlWindow(int *vinfo, HGLRC *context, HWND win)
 
   // set context
   if (!wglMakeCurrent(windc, new_context)) {
-    mp_msg (MSGT_VO, MSGL_FATAL, "[gl] Could not set GL context!\n");
+    mp_msg(MSGT_VO, MSGL_FATAL, "[gl] Could not set GL context!\n");
     if (!keep_context) {
       wglDeleteContext(new_context);
     }
@@ -1444,7 +1522,7 @@ void releaseGlContext(int *vinfo, HGLRC *context) {
   *context = 0;
 }
 
-void swapGlBuffers() {
+void swapGlBuffers(void) {
   HDC vo_hdc = GetDC(vo_w32_window);
   SwapBuffers(vo_hdc);
   ReleaseDC(vo_w32_window, vo_hdc);
@@ -1532,9 +1610,9 @@ int setGlWindow(XVisualInfo **vinfo, GLXContext *context, Window win)
 
   // set context
   if (!glXMakeCurrent(mDisplay, vo_window, new_context)) {
-    mp_msg (MSGT_VO, MSGL_FATAL, "[gl] Could not set GLX context!\n");
+    mp_msg(MSGT_VO, MSGL_FATAL, "[gl] Could not set GLX context!\n");
     if (!keep_context) {
-      glXDestroyContext (mDisplay, new_context);
+      glXDestroyContext(mDisplay, new_context);
       XFree(new_vinfo);
     }
     return SET_WINDOW_FAILED;
@@ -1542,13 +1620,7 @@ int setGlWindow(XVisualInfo **vinfo, GLXContext *context, Window win)
 
   // set new values
   vo_window = win;
-  {
-    Window root;
-    int tmp;
-    unsigned utmp;
-    XGetGeometry(mDisplay, vo_window, &root, &tmp, &tmp,
-        (unsigned *)&vo_dwidth, (unsigned *)&vo_dheight, &utmp, &utmp);
-  }
+  vo_x11_update_geometry();
   if (!keep_context) {
     void *(*getProcAddress)(const GLubyte *);
     const char *(*glXExtStr)(Display *, int);

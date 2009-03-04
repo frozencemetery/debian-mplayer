@@ -13,10 +13,10 @@ static char help_text[]=
 "Basale indstillinger (se manualen for en komplet liste):\n"
 " -vo <drv[:enhed]> vælg videodriver og enhed (detaljer, se '-vo help')\n"
 " -ao <drv[:enhed]> vælg lyddriver og enhed (detaljer, se '-ao help')\n"
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
 " vcd://<spor>  afspil et VCD (Video CD) spor fra et drev i stedet for en fil\n"
 #endif
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 " dvd://<titelnr> afspil DVD titel fra et drev i stedet for en fil\n"
 " -alang/-slang   vælg sprog til lyd og undertekster (vha. landekode på 2 tegn)\n"
 #endif
@@ -223,7 +223,7 @@ static char help_text[]=
 #define MSGTR_SMBFileNotFound "Kunne ikke åbne netværksadressen '%s'\n"
 #define MSGTR_SMBNotCompiled "MPlayer er ikke blevet kompileret med SMB læse-understøttelse\n"
 
-#define MSGTR_CantOpenDVD "Kunne ikke åbne DVD drev: %s\n"
+#define MSGTR_CantOpenDVD "Kunne ikke åbne DVD drev: %s (%s)\n"
 #define MSGTR_DVDnumTitles "Der er %d titler på denne DVD.\n"
 #define MSGTR_DVDinvalidTitle "Ugyldig DVD-titel: %d\n"
 #define MSGTR_DVDnumChapters "Der er %d kapitler i denne DVD-titel.\n"
@@ -332,7 +332,7 @@ static char help_text[]=
 
 // ====================== GUI messages/buttons ========================
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 
 // --- labels ---
 #define MSGTR_About "Om"

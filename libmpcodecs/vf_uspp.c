@@ -1,20 +1,22 @@
 /*
-    Copyright (C) 2005 Michael Niedermayer <michaelni@gmx.at>
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-*/
+ * Copyright (C) 2005 Michael Niedermayer <michaelni@gmx.at>
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,9 +31,8 @@
 #include "cpudetect.h"
 
 #include "libavcodec/avcodec.h"
-#include "libavcodec/dsputil.h"
 
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 
@@ -290,11 +291,11 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
         }
     }
 
-#ifdef HAVE_MMX
-    if(gCpuCaps.hasMMX) asm volatile ("emms\n\t");
+#if HAVE_MMX
+    if(gCpuCaps.hasMMX) __asm__ volatile ("emms\n\t");
 #endif
-#ifdef HAVE_MMX2
-    if(gCpuCaps.hasMMX2) asm volatile ("sfence\n\t");
+#if HAVE_MMX2
+    if(gCpuCaps.hasMMX2) __asm__ volatile ("sfence\n\t");
 #endif
 
     return vf_next_put_image(vf,dmpi, pts);
@@ -330,15 +331,6 @@ static int query_format(struct vf_instance_s* vf, unsigned int fmt){
     }
     return 0;
 }
-
-static unsigned int fmt_list[]={
-	IMGFMT_YV12,
-	IMGFMT_I420,
-	IMGFMT_IYUV,
-	IMGFMT_Y800,
-	IMGFMT_Y8,
-	0
-};
 
 static int control(struct vf_instance_s* vf, int request, void* data){
     switch(request){
@@ -378,7 +370,7 @@ static int open(vf_instance_t *vf, char* args){
     if(vf->priv->qp < 0)
         vf->priv->qp = 0;
 
-// #ifdef HAVE_MMX
+// #if HAVE_MMX
 //     if(gCpuCaps.hasMMX){
 // 	store_slice= store_slice_mmx;
 //     }
@@ -387,7 +379,7 @@ static int open(vf_instance_t *vf, char* args){
     return 1;
 }
 
-vf_info_t vf_info_uspp = {
+const vf_info_t vf_info_uspp = {
     "ultra simple/slow postprocess",
     "uspp",
     "Michael Niedermayer",

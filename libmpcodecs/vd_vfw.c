@@ -134,7 +134,7 @@ static int control(sh_video_t *sh,int cmd,void* arg,...){
     return CONTROL_UNKNOWN;
 }
 
-extern void print_video_header(BITMAPINFOHEADER *h, int verbose_level);
+void print_video_header(BITMAPINFOHEADER *h, int verbose_level);
 
 // init driver
 static int init(sh_video_t *sh){
@@ -172,6 +172,11 @@ static int init(sh_video_t *sh){
 
     o_bih_len = ICDecompressGetFormatSize(priv->handle, sh->bih);
   
+    if(o_bih_len < sizeof(BITMAPINFOHEADER)){
+       mp_msg(MSGT_WIN32,MSGL_ERR,"ICDecompressGetFormatSize returned a bogus value: %d\n", o_bih_len);
+       return 0;
+    }
+
     priv->o_bih = malloc(o_bih_len);
     memset(priv->o_bih, 0, o_bih_len);
 

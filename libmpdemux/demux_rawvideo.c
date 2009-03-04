@@ -14,7 +14,6 @@
 
 #include "libmpcodecs/img_format.h"
 
-extern int demuxer_type;
 static int format = IMGFMT_I420;
 static int size_id = 0;
 static int width = 0;
@@ -22,7 +21,7 @@ static int height = 0;
 static float fps = 25;
 static int imgsize=0;
 
-m_option_t demux_rawvideo_opts[] = {
+const m_option_t demux_rawvideo_opts[] = {
   // size:
   { "w", &width, CONF_TYPE_INT,CONF_RANGE,1,8192, NULL },
   { "h", &height, CONF_TYPE_INT,CONF_RANGE,1,8192, NULL },
@@ -77,8 +76,9 @@ static demuxer_t* demux_rawvideo_open(demuxer_t* demuxer) {
   case IMGFMT_NV12:
   case IMGFMT_HM12:
   case IMGFMT_YV12: imgsize=width*height+2*(width>>1)*(height>>1);break;
-  case IMGFMT_YUY2: imgsize=width*height*2;break;
+  case IMGFMT_YUY2:
   case IMGFMT_UYVY: imgsize=width*height*2;break;
+  case IMGFMT_Y800:
   case IMGFMT_Y8: imgsize=width*height;break;
   default:
       if (IMGFMT_IS_RGB(format))
@@ -123,8 +123,8 @@ static void demux_rawvideo_seek(demuxer_t *demuxer,float rel_seek_secs,float aud
   sh_video_t* sh_video = demuxer->video->sh;
   off_t pos;
 
-  pos = (flags & 1) ? demuxer->movi_start : stream_tell(s);
-  if(flags & 2)
+  pos = (flags & SEEK_ABSOLUTE) ? demuxer->movi_start : stream_tell(s);
+  if(flags & SEEK_FACTOR)
     pos += ((demuxer->movi_end - demuxer->movi_start)*rel_seek_secs);
   else
     pos += (rel_seek_secs*sh_video->i_bps);
@@ -138,7 +138,7 @@ static void demux_rawvideo_seek(demuxer_t *demuxer,float rel_seek_secs,float aud
 }
 
 
-demuxer_desc_t demuxer_desc_rawvideo = {
+const demuxer_desc_t demuxer_desc_rawvideo = {
   "Raw video demuxer",
   "rawvideo",
   "rawvideo",

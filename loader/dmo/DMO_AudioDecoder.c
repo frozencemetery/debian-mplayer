@@ -13,7 +13,7 @@
 #include "DMO_Filter.h"
 #include "DMO_AudioDecoder.h"
 
-struct _DMO_AudioDecoder
+struct DMO_AudioDecoder
 { 
     DMO_MEDIA_TYPE m_sOurType, m_sDestType;
     DMO_Filter* m_pDMO_Filter;
@@ -28,10 +28,10 @@ struct _DMO_AudioDecoder
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../../mp_msg.h"
+#include "mp_msg.h"
 
 typedef long STDCALL (*GETCLASS) (GUID*, GUID*, void**);
-extern void print_wave_header(WAVEFORMATEX *h, int verbose_level);
+void print_wave_header(WAVEFORMATEX *h, int verbose_level);
 
 DMO_AudioDecoder * DMO_AudioDecoder_Open(char* dllname, GUID* guid, WAVEFORMATEX* wf,int out_channels)
 //DMO_AudioDecoder * DMO_AudioDecoder_Create(const CodecInfo * info, const WAVEFORMATEX* wf)

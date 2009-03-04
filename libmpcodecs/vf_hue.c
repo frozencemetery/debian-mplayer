@@ -160,10 +160,6 @@ static int open(vf_instance_t *vf, char* args)
         vf->priv->hue *= M_PI / 180.0;
 
 	process = process_C;
-#ifdef HAVE_MMXX
-	if(gCpuCaps.hasMMX) process = process_MMX;
-#endif
-	
 	return 1;
 }
 
@@ -181,7 +177,7 @@ static m_struct_t vf_opts = {
   vf_opts_fields
 };
 
-vf_info_t vf_info_hue = {
+const vf_info_t vf_info_hue = {
 	"hue changer",
 	"hue",
 	"Michael Niedermayer",

@@ -14,11 +14,11 @@
 
 #include "aviheader.h"
 
-extern demuxer_t* init_avi_with_ogg(demuxer_t* demuxer);
-extern int demux_ogg_open(demuxer_t* demuxer);
+demuxer_t* init_avi_with_ogg(demuxer_t* demuxer);
+int demux_ogg_open(demuxer_t* demuxer);
 
-extern demuxer_desc_t demuxer_desc_avi_ni;
-extern demuxer_desc_t demuxer_desc_avi_nini;
+extern const demuxer_desc_t demuxer_desc_avi_ni;
+extern const demuxer_desc_t demuxer_desc_avi_nini;
 
 // PTS:  0=interleaved  1=BPS-based
 int pts_from_bps=1;
@@ -158,11 +158,26 @@ static int demux_avi_read_packet(demuxer_t *demux,demux_stream_t *ds,unsigned in
     ds_read_packet(ds,demux->stream,len,pts,idxpos,flags);
     skip-=len;
   }
+  skip = FFMAX(skip, 0);
+  if (avi_stream_id(id) > 99 && id != mmioFOURCC('J','U','N','K'))
+    skip = FFMIN(skip, 65536);
   if(skip){
     mp_dbg(MSGT_DEMUX,MSGL_DBG2,"DEMUX_AVI: Skipping %d bytes from packet %04X\n",skip,id);
     stream_skip(demux->stream,skip);
   }
   return ds?1:0;
+}
+
+static uint32_t avi_find_id(stream_t *stream) {
+  uint32_t id = stream_read_dword_le(stream);
+  if (!id) {
+    mp_msg(MSGT_DEMUX, MSGL_WARN, "Incomplete stream? Trying resync.\n");
+    do {
+      id = stream_read_dword_le(stream);
+      if (stream_eof(stream)) return 0;
+    } while (avi_stream_id(id) > 99);
+  }
+  return id;
 }
 
 // return value:
@@ -222,7 +237,7 @@ do{
           demux->stream->eof=1;
           return 0;
     }
-    id=stream_read_dword_le(demux->stream);
+    id=avi_find_id(demux->stream);
     len=stream_read_dword_le(demux->stream);
     if(stream_eof(demux->stream)) return 0; // EOF!
     
@@ -347,7 +362,7 @@ do{
           return 0;
   }
 
-  id=stream_read_dword_le(demux->stream);
+  id=avi_find_id(demux->stream);
   len=stream_read_dword_le(demux->stream);
 
   if(stream_eof(demux->stream)) return 0;
@@ -378,7 +393,7 @@ do{
 }
 
 // AVI demuxer parameters:
-int index_mode=-1;  // -1=untouched  0=don't use index  1=use (geneate) index
+int index_mode=-1;  // -1=untouched  0=don't use index  1=use (generate) index
 char *index_file_save = NULL, *index_file_load = NULL;
 int force_ni=0;     // force non-interleaved AVI parsing
 
@@ -571,12 +586,12 @@ void demux_seek_avi(demuxer_t *demuxer,float rel_seek_secs,float audio_delay,int
     int video_chunk_pos=d_video->pos;
     int i;
 
-      if(flags&1){
+      if(flags&SEEK_ABSOLUTE){
 	// seek absolute
 	video_chunk_pos=0;
       }
       
-      if(flags&2){
+      if(flags&SEEK_FACTOR){
 	rel_seek_frames=rel_seek_secs*priv->numberofframes;
       }
     
@@ -824,11 +839,11 @@ static demuxer_t* demux_open_hack_avi(demuxer_t *demuxer)
 {
    sh_audio_t* sh_a;
 
-   demuxer = (demuxer_t*) demux_open_avi(demuxer);
+   demuxer = demux_open_avi(demuxer);
    if(!demuxer) return NULL; // failed to open
-   sh_a = (sh_audio_t*)demuxer->audio->sh;
+   sh_a = demuxer->audio->sh;
    if(demuxer->audio->id != -2 && sh_a) {
-#ifdef HAVE_OGGVORBIS
+#ifdef CONFIG_OGGVORBIS
     // support for Ogg-in-AVI:
     if(sh_a->format == 0xFFFE)
       demuxer = init_avi_with_ogg(demuxer);
@@ -851,7 +866,7 @@ static demuxer_t* demux_open_hack_avi(demuxer_t *demuxer)
 }
 
 
-demuxer_desc_t demuxer_desc_avi = {
+const demuxer_desc_t demuxer_desc_avi = {
   "AVI demuxer",
   "avi",
   "AVI",
@@ -867,7 +882,7 @@ demuxer_desc_t demuxer_desc_avi = {
   demux_avi_control
 };
 
-demuxer_desc_t demuxer_desc_avi_ni = {
+const demuxer_desc_t demuxer_desc_avi_ni = {
   "AVI demuxer, non-interleaved",
   "avini",
   "AVI",
@@ -883,7 +898,7 @@ demuxer_desc_t demuxer_desc_avi_ni = {
   demux_avi_control
 };
 
-demuxer_desc_t demuxer_desc_avi_nini = {
+const demuxer_desc_t demuxer_desc_avi_nini = {
   "AVI demuxer, non-interleaved and no index",
   "avinini",
   "AVI",

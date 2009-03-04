@@ -21,12 +21,13 @@
 #include <errno.h>
 #include <unistd.h>
 #include <string.h>
-#ifdef WIN32
+#include <limits.h>
+#if defined(__MINGW32__) || defined(__CYGWIN__)
 #ifdef __MINGW32__
 #define mkdir(a,b) mkdir(a)
 #endif
 #include <windows.h>
-#ifdef HAVE_WINSOCK2
+#if HAVE_WINSOCK2_H
 #include <winsock2.h>
 #endif
 #else
@@ -43,16 +44,21 @@
 	#include <linux/cdrom.h>
 #elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
 	#include <sys/cdio.h>
-#elif defined(WIN32)
+#elif defined(__MINGW32__) || defined(__CYGWIN__)
         #include <ddk/ntddcdrm.h>
 #elif (__bsdi__)
         #include <dvd.h>
+#elif defined(__APPLE__) || defined(__DARWIN__)
+        #include <IOKit/storage/IOCDTypes.h>
+        #include <IOKit/storage/IOCDMediaBSDClient.h>
+	#include "mpbswap.h"
 #endif
 
 #include "cdd.h"
 #include "version.h"
 #include "stream.h"
 #include "network.h"
+#include "libavutil/common.h"
 
 #define DEFAULT_FREEDB_SERVER	"freedb.freedb.org"
 #define DEFAULT_CACHE_DIR	"/.cddb/"
@@ -64,9 +70,9 @@ static int cdtoc_last_track;
 
 int 
 read_toc(const char *dev) {
-	int first, last;
+	int first = 0, last = -1;
 	int i;
-#ifdef WIN32
+#if defined(__MINGW32__) || defined(__CYGWIN__)
         HANDLE drive;
         DWORD r;
         CDROM_TOC toc;
@@ -143,6 +149,52 @@ read_toc(const char *dev) {
 		cdtoc[i].sec = toc_buffer.addr.msf.second;
 		cdtoc[i].frame = toc_buffer.addr.msf.frame;
 	}
+#elif defined(__APPLE__) || defined(__DARWIN__)
+	{
+	dk_cd_read_toc_t tochdr;
+	uint8_t buf[4];
+	uint8_t buf2[100 * sizeof(CDTOCDescriptor) + sizeof(CDTOC)];
+	memset(&tochdr, 0, sizeof(tochdr));
+	tochdr.bufferLength = sizeof(buf);
+	tochdr.buffer = &buf;
+	if (!ioctl(drive, DKIOCCDREADTOC, &tochdr)
+			&& tochdr.bufferLength == sizeof(buf)) {
+		first = buf[2] - 1;
+		last = buf[3];
+	}
+	if (last >= 0) {
+		memset(&tochdr, 0, sizeof(tochdr));
+		tochdr.bufferLength = sizeof(buf2);
+		tochdr.buffer = &buf2;
+		tochdr.format = kCDTOCFormatTOC;
+		if (ioctl(drive, DKIOCCDREADTOC, &tochdr)
+				|| tochdr.bufferLength < sizeof(CDTOC))
+			last = -1;
+	}
+	if (last >= 0) {
+		CDTOC *cdToc = (CDTOC *)buf2;
+		CDTrackInfo lastTrack;
+		dk_cd_read_track_info_t trackInfoParams;
+		for (i = first; i < last; ++i) {
+			CDMSF msf = CDConvertTrackNumberToMSF(i + 1, cdToc);
+			cdtoc[i].min = msf.minute;
+			cdtoc[i].sec = msf.second;
+			cdtoc[i].frame = msf.frame;
+		}
+		memset(&trackInfoParams, 0, sizeof(trackInfoParams));
+		trackInfoParams.addressType = kCDTrackInfoAddressTypeTrackNumber;
+		trackInfoParams.bufferLength = sizeof(lastTrack);
+		trackInfoParams.address = last;
+		trackInfoParams.buffer = &lastTrack;
+		if (!ioctl(drive, DKIOCCDREADTRACKINFO, &trackInfoParams)) {
+			CDMSF msf = CDConvertLBAToMSF(be2me_32(lastTrack.trackStartAddress)
+			                              + be2me_32(lastTrack.trackSize));
+			cdtoc[last].min = msf.minute;
+			cdtoc[last].sec = msf.second;
+			cdtoc[last].frame = msf.frame;
+		}
+	}
+	}
 #endif
 	close(drive);
 #endif
@@ -207,7 +259,7 @@ cddb_discid(int tot_trks) {
 	}
 	t = ((cdtoc[tot_trks].min * 60) + cdtoc[tot_trks].sec) -
 		((cdtoc[0].min * 60) + cdtoc[0].sec);
-	return ((n % 0xff) << 24 | t << 8 | tot_trks);
+	return (n % 0xff) << 24 | t << 8 | tot_trks;
 }
 
 
@@ -274,7 +326,7 @@ cddb_read_cache(cddb_data_t *cddb_data) {
 	sprintf( file_name, "%s%08lx", cddb_data->cache_dir, cddb_data->disc_id);
 	
 	file_fd = open(file_name, O_RDONLY
-#ifdef WIN32
+#if defined(__MINGW32__) || defined(__CYGWIN__)
 	| O_BINARY
 #endif
 	);
@@ -288,10 +340,10 @@ cddb_read_cache(cddb_data_t *cddb_data) {
 		perror("fstat");
 		file_size = 4096;
 	} else {
-		file_size = stats.st_size;
+		file_size = stats.st_size < UINT_MAX ? stats.st_size : UINT_MAX - 1;
 	}
 	
-	cddb_data->xmcd_file = malloc(file_size);
+	cddb_data->xmcd_file = malloc(file_size+1);
 	if( cddb_data->xmcd_file==NULL ) {
 		mp_msg(MSGT_DEMUX, MSGL_ERR, MSGTR_MemAllocFailed);
 		close(file_fd);
@@ -303,6 +355,7 @@ cddb_read_cache(cddb_data_t *cddb_data) {
 		close(file_fd);
 		return -1;
 	}
+	cddb_data->xmcd_file[cddb_data->xmcd_file_size] = 0;
 	
 	close(file_fd);
 	
@@ -337,7 +390,7 @@ cddb_write_cache(cddb_data_t *cddb_data) {
 	
 	sprintf( file_name, "%s%08lx", cddb_data->cache_dir, cddb_data->disc_id );
 	
-	file_fd = creat(file_name, S_IREAD|S_IWRITE);
+	file_fd = creat(file_name, S_IRUSR|S_IWUSR);
 	if( file_fd<0 ) {
 		perror("create");
 		return -1;
@@ -388,15 +441,16 @@ cddb_read_parse(HTTP_header_t *http_hdr, cddb_data_t *cddb_data) {
 				mp_msg(MSGT_DEMUX, MSGL_ERR, MSGTR_MPDEMUX_CDDB_InvalidXMCDDatabaseReturned);
 				return -1;
 			}
+			ptr = strdup(ptr);
 			// Ok found the beginning of the file
 			// look for the end
-			ptr2 = strstr(ptr, "\r\n.\r\n");
-			if( ptr2==NULL ) {
+			ptr2 = strstr(ptr, "\n.\r\n");
+			if (!ptr2)
 				ptr2 = strstr(ptr, "\n.\n");
-				if( ptr2==NULL ) {
-					mp_msg(MSGT_DEMUX, MSGL_FIXME, "Unable to find '.'\n");
-					ptr2=ptr+strlen(ptr); //return -1;
-				}
+			if (ptr2) ptr2++;
+			else {
+				mp_msg(MSGT_DEMUX, MSGL_FIXME, "Unable to find '.'\n");
+				ptr2=ptr+strlen(ptr); //return -1;
 			}
 			// Ok found the end
 			// do a sanity check
@@ -405,11 +459,8 @@ cddb_read_parse(HTTP_header_t *http_hdr, cddb_data_t *cddb_data) {
 				return -1;
 			}
 			cddb_data->xmcd_file = ptr;
-			cddb_data->xmcd_file_size = ptr2-ptr+2;
+			cddb_data->xmcd_file_size = ptr2-ptr;
 			cddb_data->xmcd_file[cddb_data->xmcd_file_size] = '\0';
-			// Avoid the http_free function to free the xmcd file...save a mempcy...
-			http_hdr->body = NULL;
-			http_hdr->body_size = 0;
 			return cddb_write_cache(cddb_data);
 		default:
 			mp_msg(MSGT_DEMUX, MSGL_FIXME, MSGTR_MPDEMUX_CDDB_UnhandledCode);
@@ -453,8 +504,9 @@ cddb_parse_matches_list(HTTP_header_t *http_hdr, cddb_data_t *cddb_data) {
 		} else {
 			len = ptr2-ptr+1;
 		}
+		len = FFMIN(sizeof(album_title) - 1, len);
 		strncpy(album_title, ptr, len);
-		album_title[len-2]='\0';
+		album_title[len]='\0';
 	}
 	mp_msg(MSGT_DEMUX, MSGL_STATUS, MSGTR_MPDEMUX_CDDB_ParseOKFoundAlbumTitle, album_title);
 	return 0;
@@ -490,8 +542,9 @@ cddb_query_parse(HTTP_header_t *http_hdr, cddb_data_t *cddb_data) {
 				} else {
 					len = ptr2-ptr+1;
 				}
+				len = FFMIN(sizeof(album_title) - 1, len);
 				strncpy(album_title, ptr, len);
-				album_title[len-2]='\0';
+				album_title[len]='\0';
 			}
 			mp_msg(MSGT_DEMUX, MSGL_STATUS, MSGTR_MPDEMUX_CDDB_ParseOKFoundAlbumTitle, album_title);
 			return cddb_request_titles(cddb_data);
@@ -665,6 +718,8 @@ cddb_resolve(const char *dev, char **xmcd_file) {
 	cddb_data.tracks = cdtoc_last_track;
 	cddb_data.disc_id = cddb_discid(cddb_data.tracks);
 	cddb_data.anonymous = 1;	// Don't send user info by default
+
+	mp_msg(MSGT_IDENTIFY, MSGL_INFO, "ID_CDDB_DISCID=%08lx\n", cddb_data.disc_id);
 
 	// Check if there is a CD in the drive
 	// FIXME: That's not really a good way to check

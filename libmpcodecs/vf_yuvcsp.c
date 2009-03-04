@@ -63,9 +63,11 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
 
 //===========================================================================//
 
+/*
 static void uninit(struct vf_instance_s* vf){
 	free(vf->priv);
 }
+*/
 
 static int query_format(struct vf_instance_s* vf, unsigned int fmt){
     switch(fmt){
@@ -88,7 +90,7 @@ static int open(vf_instance_t *vf, char* args){
     return 1;
 }
 
-vf_info_t vf_info_yuvcsp = {
+const vf_info_t vf_info_yuvcsp = {
     "yuv colorspace converter",
     "yuvcsp",
     "Alex Beregszaszi",

@@ -16,9 +16,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <stdio.h>
@@ -39,9 +39,8 @@
 #include "osdep/keycodes.h"
 #include "stream/stream.h"
 #include "libvo/video_out.h"
-#include "interface.h"
+#include "gui/interface.h"
 #include "gui.h"
-#include "wincfg.h"
 #include "dialogs.h"
 
 // HACK around bug in old mingw
@@ -55,11 +54,9 @@
 #endif
 
 /* Globals / Externs */
-extern void renderinfobox(skin_t *skin, window_priv_t *priv);
-extern void renderwidget(skin_t *skin, image *dest, widget *item, int state);
-extern void mplayer_put_key(int code);
-extern void print_version(void);
-extern int WinID;
+void renderinfobox(skin_t *skin, window_priv_t *priv);
+void renderwidget(skin_t *skin, image *dest, widget *item, int state);
+void print_version(void);
 float sub_aspect;
 
 DWORD oldtime;
@@ -410,7 +407,7 @@ static LRESULT CALLBACK SubProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
                 case ID_NTRACK:
                     handlemsg(hWnd, evNext);
                     break;
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
                 case ID_CHAPTERSEL:
                     display_chapterselwindow(gui);
                     break;
@@ -807,7 +804,7 @@ static LRESULT CALLBACK EventProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
             char device[MAX_PATH];
             char searchpath[MAX_PATH];
             char searchpath2[MAX_PATH];
-#ifdef HAVE_LIBCDIO
+#ifdef CONFIG_LIBCDIO
             char searchpath3[MAX_PATH];
 #endif
             int len, pos = 0, cdromdrive = 0;
@@ -829,14 +826,14 @@ static LRESULT CALLBACK EventProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
                     mp_msg(MSGT_GPLAYER, MSGL_V, "[GUI] checking %s for CD/VCD/SVCD/DVDs\n", device + pos);
                     sprintf(searchpath, "%sVIDEO_TS", device + pos);
                     sprintf(searchpath2, "%sMpegav", device + pos);
-#ifdef HAVE_LIBCDIO
+#ifdef CONFIG_LIBCDIO
                     sprintf(searchpath3, "%sTrack01.cda", device + pos);
 #endif
                     if(GetFileAttributes(searchpath) != INVALID_FILE_ATTRIBUTES)
                         flags |= MF_ENABLED;
                     else if(GetFileAttributes(searchpath2) != INVALID_FILE_ATTRIBUTES)
                         flags |= MF_ENABLED;
-#ifdef HAVE_LIBCDIO
+#ifdef CONFIG_LIBCDIO
                     else if(GetFileAttributes(searchpath3) != INVALID_FILE_ATTRIBUTES)
                         flags |= MF_ENABLED;
 #endif
@@ -1008,7 +1005,7 @@ static LRESULT CALLBACK EventProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
                             sprintf(searchpath, "%sVIDEO_TS", device + pos);
                             if(GetFileAttributes(searchpath) != INVALID_FILE_ATTRIBUTES)
                             {
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
                                 if (dvd_device) free(dvd_device);
                                 dvd_device = strdup(device + pos);
                                 dvd_title = dvd_chapter = dvd_angle = 1;
@@ -1018,7 +1015,7 @@ static LRESULT CALLBACK EventProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
                             sprintf(searchpath, "%sTrack01.cda", device + pos);
                             if(GetFileAttributes(searchpath) != INVALID_FILE_ATTRIBUTES)
                             {
-#ifdef HAVE_LIBCDIO
+#ifdef CONFIG_LIBCDIO
                                 if (cdrom_device) free(cdrom_device);
                                 cdrom_device = strdup(device + pos);
                                 /* mplayer doesn't seem to like the trailing \ after the device name */
@@ -1072,7 +1069,7 @@ static LRESULT CALLBACK EventProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-inline void startplay(gui_t *gui)
+static void startplay(gui_t *gui)
 {
     handlemsg(gui->mainwindow, evDropFile);
 }
@@ -1089,7 +1086,7 @@ static int GetDesktopBitsPerPixel(void)
 }
 
 /* unloads a skin and destroys its windows */
-extern int destroy_window(gui_t *gui)
+int destroy_window(gui_t *gui)
 {
     RECT rd;
     unsigned int i;
@@ -1214,7 +1211,7 @@ static void create_submenu(gui_t *gui)
     AppendMenu(gui->submenu, MF_STRING | MF_POPUP, (UINT) gui->aspectmenu, "Aspect Ratio");
     AppendMenu(gui->submenu, MF_STRING | MF_POPUP, (UINT) gui->subtitlemenu, "Subtitle Options");
     AppendMenu(gui->submenu, MF_STRING | MF_POPUP, (UINT) gui->dvdmenu, "DVD Options");
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
     AppendMenu(gui->dvdmenu, MF_STRING | MF_GRAYED, ID_CHAPTERSEL, "Select Title/Chapter...");
 #endif
     AppendMenu(gui->subtitlemenu, MF_STRING, IDSUB_TOGGLE, "Subtitle Visibility On/Off");
@@ -1314,7 +1311,7 @@ static int window_render(gui_t *gui, HWND hWnd, HDC hdc, window_priv_t *priv, wi
 }
 
 /* creates the sub (AKA video) window,*/
-extern int create_subwindow(gui_t *gui, char *skindir)
+int create_subwindow(gui_t *gui, char *skindir)
 {
     HINSTANCE instance = GetModuleHandle(NULL);
     WNDCLASS wc;
@@ -1395,7 +1392,7 @@ extern int create_subwindow(gui_t *gui, char *skindir)
 }
 
 /* loads/updates a skin and creates windows for it */
-extern int create_window(gui_t *gui, char *skindir)
+int create_window(gui_t *gui, char *skindir)
 {
     HINSTANCE instance = GetModuleHandle(NULL);
     WNDCLASS wc;

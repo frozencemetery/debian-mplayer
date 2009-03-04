@@ -40,13 +40,13 @@ enum {
 	F_SHOW
 };
 
-#ifdef HAVE_MMX
+#if HAVE_MMX
 static void block_diffs_MMX(struct metrics *m, unsigned char *old, unsigned char *new, int os, int ns)
 {
 	int i;
 	short out[24]; // output buffer for the partial metrics from the mmx code
 	
-	asm (
+	__asm__ (
 		"movl $4, %%ecx \n\t"
 		"pxor %%mm4, %%mm4 \n\t" // 4 even difference sums
 		"pxor %%mm5, %%mm5 \n\t" // 4 odd difference sums
@@ -105,7 +105,7 @@ static void block_diffs_MMX(struct metrics *m, unsigned char *old, unsigned char
 	m->o = out[4]+out[5]+out[6]+out[7];
 	m->d = m->e + m->o;
 
-	asm (
+	__asm__ (
 		// First loop to measure first four columns
 		"movl $4, %%ecx \n\t"
 		"pxor %%mm4, %%mm4 \n\t" // Past spacial noise
@@ -516,13 +516,13 @@ static int open(vf_instance_t *vf, char* args)
 	p->first = 1;
 	if (args) sscanf(args, "%d", &p->drop);
 	block_diffs = block_diffs_C;
-#ifdef HAVE_MMX
+#if HAVE_MMX
 	if(gCpuCaps.hasMMX) block_diffs = block_diffs_MMX;
 #endif
 	return 1;
 }
 
-vf_info_t vf_info_ivtc = {
+const vf_info_t vf_info_ivtc = {
     "inverse telecine, take 2",
     "ivtc",
     "Rich Felker",

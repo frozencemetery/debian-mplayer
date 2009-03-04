@@ -1,24 +1,26 @@
-/* 
-   This is an libaf filter to do simple decoding of matrixed surround
-   sound.  This will provide a (basic) surround-sound effect from
-   audio encoded for Dolby Surround, Pro Logic etc.
-
- * This program is free software; you can redistribute it and/or modify
+/*
+ * Filter to do simple decoding of matrixed surround sound.
+ * This will provide a (basic) surround-sound effect from
+ * audio encoded for Dolby Surround, Pro Logic etc.
+ *
+ * original author: Steve Davies <steve@daviesfam.org>
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * MPlayer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
-   Original author: Steve Davies <steve@daviesfam.org>
-*/
+ */
 
 /* The principle:  Make rear channels by extracting anti-phase data
    from the front channels, delay by 20ms and feed to rear in anti-phase
@@ -243,7 +245,7 @@ static af_data_t* play(struct af_instance_s* af, af_data_t* data){
 
   // Set output data
   data->audio = af->data->audio;
-  data->len   = (data->len*af->mul.n)/af->mul.d;
+  data->len   *= 2;
   data->nch   = af->data->nch;
 
   return data;
@@ -253,8 +255,7 @@ static int af_open(af_instance_t* af){
   af->control=control;
   af->uninit=uninit;
   af->play=play;
-  af->mul.n=2;
-  af->mul.d=1;
+  af->mul=2;
   af->data=calloc(1,sizeof(af_data_t));
   af->setup=calloc(1,sizeof(af_surround_t));
   if(af->data == NULL || af->setup == NULL)

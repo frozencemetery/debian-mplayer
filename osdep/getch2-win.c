@@ -1,4 +1,23 @@
-/* windows TermIO for MPlayer          (C) 2003 Sascha Sommer */
+/* Windows TermIO
+ *
+ * copyright (C) 2003 Sascha Sommer
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 // See  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/WinUI/WindowsUserInterface/UserInput/VirtualKeyCodes.asp
 // for additional virtual keycodes
@@ -13,7 +32,7 @@
 // HACK, stdin is used as something else below
 #undef stdin
 
-int mp_input_win32_slave_cmd_func(int fd,char* dest,int size){
+int mp_input_slave_cmd_func(int fd,char* dest,int size){
   DWORD retval;
   HANDLE stdin = GetStdHandle(STD_INPUT_HANDLE);
   if(!PeekNamedPipe(stdin, NULL, size, &retval, NULL, NULL) || !retval){
@@ -29,7 +48,7 @@ int screen_width=80;
 int screen_height=24;
 char * erase_to_end_of_line = NULL;
 
-void get_screen_size(){
+void get_screen_size(void){
 }
 
 static HANDLE stdin;
@@ -99,7 +118,7 @@ static int getch2_internal(void)
 					}
 					/*check for function keys*/
         			if(0x87 >= eventbuffer[i].Event.KeyEvent.wVirtualKeyCode && eventbuffer[i].Event.KeyEvent.wVirtualKeyCode >= 0x70)
-						return (KEY_F + 1 + eventbuffer[i].Event.KeyEvent.wVirtualKeyCode - 0x70);
+						return KEY_F + 1 + eventbuffer[i].Event.KeyEvent.wVirtualKeyCode - 0x70;
  						
 					/*only characters should be remaining*/
 					//printf("getch2: YOU PRESSED \"%c\" \n",eventbuffer[i].Event.KeyEvent.uChar.AsciiChar); 
@@ -126,7 +145,8 @@ void getch2(void)
 	mplayer_put_key(r);
 }
 
-void getch2_enable(){
+void getch2_enable(void)
+{
 	DWORD retval;
     stdin = GetStdHandle(STD_INPUT_HANDLE);
    	if(!GetNumberOfConsoleInputEvents(stdin,&retval))
@@ -137,12 +157,13 @@ void getch2_enable(){
     else getch2_status=1;
 }
 
-void getch2_disable(){
+void getch2_disable(void)
+{
     if(!getch2_status) return; // already disabled / never enabled
     getch2_status=0;
 }
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 static const struct {
     unsigned cp;
     char* alias;

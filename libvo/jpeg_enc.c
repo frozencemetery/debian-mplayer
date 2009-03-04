@@ -1,25 +1,28 @@
-/* Straightforward (to be) optimized JPEG encoder for the YUV422 format 
- * based on mjpeg code from ffmpeg. 
+/*
+ * straightforward (to be) optimized JPEG encoder for the YUV422 format
+ * based on MJPEG code from FFmpeg
+ *
+ * For an excellent introduction to the JPEG format, see:
+ * http://www.ece.purdue.edu/~bouman/grad-labs/lab8/pdf/lab.pdf
  *
  * Copyright (c) 2002, Rik Snel
- * Parts from ffmpeg Copyright (c) 2000-2002 Fabrice Bellard
+ * parts from FFmpeg Copyright (c) 2000-2002 Fabrice Bellard
  *
- * This program is free software; you can redistribute it and/or modify
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * MPlayer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
- * For an excellent introduction to the JPEG format, see:
- * http://www.ece.purdue.edu/~bouman/grad-labs/lab8/pdf/lab.pdf
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 
@@ -27,6 +30,7 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "config.h"
 #include "mp_msg.h"
 /* We need this #define because we need ../libavcodec/common.h to #define 
@@ -35,24 +39,11 @@
 #include "libavcodec/avcodec.h"
 #include "libavcodec/dsputil.h"
 #include "libavcodec/mpegvideo.h"
+#include "libavcodec/mjpegenc.h"
 
 #include "jpeg_enc.h"
 
-extern int avcodec_inited;
-
-/* zr_mjpeg_encode_mb needs access to these tables for the black & white 
- * option */
-typedef struct MJpegContext {
-    uint8_t huff_size_dc_luminance[12];
-    uint16_t huff_code_dc_luminance[12];
-    uint8_t huff_size_dc_chrominance[12];
-    uint16_t huff_code_dc_chrominance[12];
-
-    uint8_t huff_size_ac_luminance[256];
-    uint16_t huff_code_ac_luminance[256];
-    uint8_t huff_size_ac_chrominance[256];
-    uint16_t huff_code_ac_chrominance[256];
-} MJpegContext;
+extern int avcodec_initialized;
 
 
 /* Begin excessive code duplication ************************************/
@@ -314,7 +305,7 @@ jpeg_enc_t *jpeg_enc_init(int w, int h, int y_psize, int y_rsize,
 	j->s->out_format = FMT_MJPEG;
 	j->s->intra_only = 1;
 	j->s->encoding = 1;
-	j->s->pict_type = I_TYPE;
+	j->s->pict_type = FF_I_TYPE;
 	j->s->y_dc_scale = 8;
 	j->s->c_dc_scale = 8;
 
@@ -332,11 +323,11 @@ jpeg_enc_t *jpeg_enc_init(int w, int h, int y_psize, int y_rsize,
 	/* if libavcodec is used by the decoder then we must not
 	 * initialize again, but if it is not initialized then we must
 	 * initialize it here. */
-	if (!avcodec_inited) {
+	if (!avcodec_initialized) {
 		/* we need to initialize libavcodec */
 		avcodec_init();
 		avcodec_register_all();
-		avcodec_inited=1;
+		avcodec_initialized=1;
 	}
 
 	if (ff_mjpeg_encode_init(j->s) < 0) {
@@ -501,29 +492,3 @@ void jpeg_enc_uninit(jpeg_enc_t *j) {
 	av_free(j->s);
 	av_free(j);
 }
-
-#if 0
-
-#define		W	32	
-#define		H	32
-
-int quant_store[MBR+1][MBC+1];
-unsigned char buf[W*H*3/2];
-char code[256*1024];
-
-
-main() {
-	int i, size;
-	FILE *fp;
-
-	memset(buf, 0, W*H);
-	memset(buf+W*H, 255, W*H/4);
-	memset(buf+5*W*H/4, 0, W*H/4);
-	mjpeg_encoder_init(W, H, 1, W, 1, W/2, 1, W/2, 1, 1, 0);
-
-	size = mjpeg_encode_frame(buf, buf+W*H, buf+5*W*H/4, code);
-	fp = fopen("test.jpg", "w");
-	fwrite(code, 1, size, fp);
-	fclose(fp);
-}
-#endif

@@ -328,6 +328,7 @@ url_escape_string(char *outbuf, const char *inbuf) {
 		}
 	}
 	
+	tmp = NULL;
 	while(i < len) {
 		// look for the next char that must be kept
 		for  (j=i;j<len;j++) {
@@ -367,7 +368,7 @@ url_escape_string(char *outbuf, const char *inbuf) {
 	if(unesc) free(unesc);
 }
 
-#ifdef __URL_DEBUG
+#ifdef URL_DEBUG
 void
 url_debug(const URL_t *url) {
 	if( url==NULL ) {
@@ -394,4 +395,4 @@ url_debug(const URL_t *url) {
 		printf("password=%s\n", url->password );
 	}
 }
-#endif //__URL_DEBUG
+#endif /* URL_DEBUG */

@@ -14,11 +14,11 @@ static char help_text[]=
 "                 ('-vo help' para listar)\n"
 " -ao <drv[:dev]> seleciona o driver de saída de audio & dispositivo\n"
 "                 ('-vo help' para listar)\n"
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
 " vcd://<numtrilha> reproduz trilha de VCD (Video CD) do dispositivo em vez de um\n"
 "                 arquivo\n"
 #endif
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 " dvd://<numtítilo> reproduz título de DVD do dispositivo em vez de um arquivo\n"
 " -alang/-slang   seleciona o idioma/legenda do DVD (pelo código país de duas\n"
 "                 letras)\n"
@@ -228,7 +228,7 @@ static char help_text[]=
 #define MSGTR_SMBFileNotFound "Impossível abrir da \"lan\": '%s'\n"
 #define MSGTR_SMBNotCompiled "MPlayer não foi compilado com suporte a leitura de SMB\n"
 
-#define MSGTR_CantOpenDVD "Impossível abrir dispositivo de DVD: %s\n"
+#define MSGTR_CantOpenDVD "Impossível abrir dispositivo de DVD: %s (%s)\n"
 #define MSGTR_DVDnumTitles "Existem %d títulos neste DVD.\n"
 #define MSGTR_DVDinvalidTitle "Número do título do DVD inválido: %d\n"
 #define MSGTR_DVDnumChapters "Existem %d capítulos neste título de DVD.\n"
@@ -337,7 +337,7 @@ static char help_text[]=
 
 // ====================== GUI messages/buttons ========================
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 
 // --- labels ---
 #define MSGTR_About "Sobre"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- synced with r24035 -->
+<!-- synced with r28707 -->
 <chapter id="faq" xreflabel="FAQ">
 <title>Gyakran ismételt kérdések</title>
 
@@ -111,7 +111,7 @@ Hogyan fordíthatok 32 bites <application>MPlayer</application>t egy 64 bites At
 <answer><para>
 Próbáld meg a következő configure kapcsolókkal:
 <screen>
-./configure --target=athlon_xp --cc="gcc -m32" --as="as --32" --with-extralibdir=/usr/lib
+./configure --target=i386-linux --cc="gcc -m32" --as="as --32" --with-extralibdir=/usr/lib
 </screen>
 </para></answer>
 </qandaentry>
@@ -229,13 +229,13 @@ Kérünk olvasd el a <link linkend="bugreports">hiba jelentési útmutatót</lin
 
 <qandaentry>
 <question><para>
-Problémám van a ... codec-kel történő lejátszással. Egyáltalán használható?
+Egy core dump-ot kapok, amikor folyamokat dump-olok, mi a baj?
 </para></question>
 <answer><para>
-Ellenőrizd a <ulink url="../../codecs-status.html">codec státusz</ulink>
-oldalt, ha nem tartalmazza a te codecedet, olvasd el a
-<link linkend="codecs">codec dokumentációt</link>, különösen a
-<link linkend="codec-importing">codec importálás HOGYAN</link>-t és keress meg minket.
+Ne pánikolj. Keresd meg a zsepidet.</para>
+<para>
+Na komolyan, vedd már észre a smiley-t és keresd meg a
+<filename>.dump</filename>-ra végződő fájlokat!
 </para></answer>
 </qandaentry>
 
@@ -380,27 +380,6 @@ Miután lefuttattad a <filename>./configure</filename>-t,
 írd át a <filename>config.h</filename> fájlt és
 cseréld ki az <systemitem>#undef FAST_OSD</systemitem> sort
 <systemitem>#define FAST_OSD</systemitem>-re. Aztán forgass újra.
-</para></answer>
-</qandaentry>
-
-<qandaentry>
-<question><para>
-Nem érem el a GUI menüt. Jobb gombbal kattintok, de semelyik menüelemet
-sem tudom elérni!
-</para></question>
-<answer><para>
-FVWM-et használsz? Próbáld ki ezt:
-<orderedlist>
-<listitem><para>
-  <menuchoice><guimenu>Start</guimenu><guisubmenu>Settings</guisubmenu>
-    <guisubmenu>Configuration</guisubmenu>
-    <guimenuitem>Base Configuration</guimenuitem></menuchoice>
-</para></listitem>
-<listitem><para>
-  Állítsd át a <systemitem>Use Applications position hints</systemitem>-et
-  <systemitem>Yes</systemitem>-re!
-</para></listitem>
-</orderedlist>
 </para></answer>
 </qandaentry>
 
@@ -611,7 +590,8 @@ Normálisan működik, ha felhasználóként futtatom.
 <answer><para>
 Ez megint csak az energia menedzsment hatása (lásd feljebb). Dugd be a
 külső áramkábelt <emphasis role="bold">mielőtt</emphasis> bekapcsolod
-a notebookodat vagy használd a <option>-nortc</option> kapcsolót.
+a notebookodat vagy bizonyosodj meg róla, hogy nem használod a
+<option>-rtc</option> kapcsolót.
 </para></answer>
 </qandaentry>
 
@@ -698,18 +678,6 @@ fel a fájlt az FTP-re.
 
 <qandaentry>
 <question><para>
-A számítógépem az MS DivX AVI-kat ~ 640x300-as felbontásban játssza le, sztereó MP3
-hanggal, és lassú.
-Ha használom a <option>-nosound</option> kapcsolót, minden rendben (csak nincs hang).
-</para></question>
-<answer><para>
-A géped túl lassú vagy a hangkártyád vezérlője hibás. Nézd végig a dokumentációt,
-hogy megtudd, hogyan javíthatsz a teljesítményen.
-</para></answer>
-</qandaentry>
-
-<qandaentry>
-<question><para>
 Hogy tudom használni a <application>dmix</application>-et az
 <application>MPlayer</application>rel?
 </para></question>
@@ -725,10 +693,10 @@ használd a <option>-ao alsa:device=dmix</option> kapcsolót.
 Nincs hang videó lejátszása közben, és egy ehhez hasonló üzenetet kapok:
 <screen>
 AO: [oss] 44100Hz 2ch Signed 16-bit (Little-Endian)
-audio_setup: Can't open audio device /dev/dsp: Device or resource busy
-couldn't open/init audio device -> NOSOUND
-Audio: no sound!!!
-Start playing...
+[AO OSS] audio_setup: Can't open audio device /dev/dsp: Device or resource busy
+Could not open/initialize audio device -> no sound.
+Audio: no sound
+Starting playback...
 </screen>
 </para></question>
 <answer><para>
@@ -776,7 +744,7 @@ Hibás hang kártyád/vezérlőd van. Legvalószínűbb, hogy rögzítve van 441
 Amikor filmet játszok le, szétesik a videó-audió szinkron
 és/vagy az <application>MPlayer</application> összeomlik ezzel az üzenettel:
 <screen>
-DEMUXER: Too many (945 in 8390980 bytes) video packets in the buffer!
+Too many (945 in 8390980 bytes) video packets in the buffer!
 </screen>
 </para></question>
 <answer><para>
@@ -801,7 +769,6 @@ Ennek több oka lehet.
 </para></listitem>
 <listitem><para>
   A hang vezérlőd hibás.
-  Lásd az <link linkend="audio">audió részt</link>.
 </para></listitem>
 </itemizedlist>
 </para></answer>
@@ -832,24 +799,9 @@ Az <application>MPlayer</application> nem támogatja a DVD menüket súlyos
 tervezési korlátok miatt, amik megakadályozzák a still images és az interaktív
 tartalom használatát. Ha szép menüket akarsz használni, másik lejátszót kell
 használnod, mint pl. a <application>xine</application>,
-a <application>vlc</application> vagy az <application>Ogle</application>.
+a <application>VLC</application> vagy az <application>Ogle</application>.
 Ha DVD navigációt akarsz látni az <application>MPlayer</application>ben,
 neked magadnak kell megcsinálnod, de vigyázz, nagy fába vágod a fejszédet.
-</para></answer>
-</qandaentry>
-
-<qandaentry>
-<question><para>
-Nem tudok egyetlen újabb DVD-t sem megnézni a Sony Pictures/BMG-től.
-</para></question>
-<answer><para>
-Ez normális; átvertek, egy szándékosan elrontott lemezt adtak el neked.
-Az egyetlen módszer ezen DVD-k lejátszására a hibás blokkok kikerülése
-az mpdvdkit2 helyett a DVDnav használatával.
-Ezt úgy teheted meg, hogy az <application>MPlayer</application> DVDnav
-támogatással fordítod le, majd a parancssori dvd:// dvdnav://-ra cseréled.
-A DVDnav nagyon nagy mértékben kizárja az mpdvdkit2-et, győződj meg róla, hogy
-a <option>--disable-mpdvdkit</option> opciót megadtad a configure-nak.
 </para></answer>
 </qandaentry>
 
@@ -991,7 +943,7 @@ fájlba.
 Hogy tudok automatikusan (S)VCD-t készíteni?
 </para></question>
 <answer><para>
-Használd a <filename>mencvcd</filename> szkriptet a
+Használd a <filename>mencvcd.sh</filename> szkriptet a
 <filename class="directory">TOOLS</filename> alkönyvtárból.
 Ezzel DVD-ket és más filmeket tudsz VCD vagy SVCD formátumba
 kódolni és még közvetlenül CD-re is írhatod őket.
@@ -1259,7 +1211,7 @@ funkcionalitásában és minden illedelmes lejátszó támogatja.
 Hogyan tudok elkódolni egy csak audiót tartalmazó fájlt?
 </para></question>
 <answer><para>
-Használd az <filename>aconvert</filename>-et a 
+Használd az <filename>aconvert.sh</filename>-et a
 <filename class="directory">TOOLS</filename>
 alkönyvtárból az MPlayer forrás fájában.
 </para></answer>
@@ -1278,7 +1230,7 @@ Használd az <filename>avisubdump.c</filename> fájlt a
 
 <qandaentry>
 <question><para>
-Az MPlayer nem...
+A MEncoder nem...
 </para></question>
 <answer><para>
 Nézz bele a <filename class="directory">TOOLS</filename>

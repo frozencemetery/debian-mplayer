@@ -1,21 +1,22 @@
 /*
-    Copyright (C) 2002 Remi Guyomarch <rguyom@pobox.com>
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-
-*/
+ * Copyright (C) 2002 Remi Guyomarch <rguyom@pobox.com>
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,7 +28,7 @@
 #include "mp_msg.h"
 #include "cpudetect.h"
 
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 
@@ -191,13 +192,13 @@ static int put_image( struct vf_instance_s* vf, mp_image_t *mpi, double pts) {
     
     vf_clone_mpi_attributes(dmpi, mpi);
     
-#ifdef HAVE_MMX
+#if HAVE_MMX
     if(gCpuCaps.hasMMX)
-	asm volatile ("emms\n\t");
+	__asm__ volatile ("emms\n\t");
 #endif
-#ifdef HAVE_MMX2
+#if HAVE_MMX2
     if(gCpuCaps.hasMMX2)
-	asm volatile ("sfence\n\t");
+	__asm__ volatile ("sfence\n\t");
 #endif
     
     return vf_next_put_image( vf, dmpi, pts);
@@ -311,7 +312,7 @@ static int open( vf_instance_t *vf, char* args ) {
     return 1;
 }
 
-vf_info_t vf_info_unsharp = {
+const vf_info_t vf_info_unsharp = {
     "unsharp mask & gaussian blur",
     "unsharp",
     "Remi Guyomarch",

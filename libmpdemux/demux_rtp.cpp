@@ -164,7 +164,7 @@ extern "C" demuxer_t* demux_open_rtp(demuxer_t* demuxer) {
     rtpState->firstSyncTime.tv_sec = rtpState->firstSyncTime.tv_usec = 0;
     demuxer->priv = rtpState;
 
-    int audiofound = 0;
+    int audiofound = 0, videofound = 0;
     // Create RTP receivers (sources) for each subsession:
     MediaSubsessionIterator iter(*mediaSession);
     MediaSubsession* subsession;
@@ -178,6 +178,10 @@ extern "C" demuxer_t* demux_open_rtp(demuxer_t* demuxer) {
 	}
 	desiredReceiveBufferSize = 100000;
       } else if (strcmp(subsession->mediumName(), "video") == 0) {
+	if (videofound) {
+	  fprintf(stderr, "Additional subsession \"video/%s\" skipped\n", subsession->codecName());
+	  continue;
+	}
 	desiredReceiveBufferSize = 2000000;
       } else {
 	continue;
@@ -210,6 +214,8 @@ extern "C" demuxer_t* demux_open_rtp(demuxer_t* demuxer) {
 						rtspStreamOverTCP)) break;
 	  if (!strcmp(subsession->mediumName(), "audio"))
 	    audiofound = 1;
+	  if (!strcmp(subsession->mediumName(), "video"))
+            videofound = 1;
 	}
       }
     }
@@ -365,7 +371,7 @@ extern "C" void demux_close_rtp(demuxer_t* demuxer) {
 
 ////////// Extra routines that help implement the above interface functions:
 
-#define MAX_RTP_FRAME_SIZE 50000
+#define MAX_RTP_FRAME_SIZE 5000000
     // >= the largest conceivable frame composed from one or more RTP packets
 
 static void afterReading(void* clientData, unsigned frameSize,
@@ -494,7 +500,7 @@ static demux_packet_t* getBuffer(demuxer_t* demuxer, demux_stream_t* ds,
   if (dp == NULL) return NULL;
     }
 
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_LIBAVCODEC
   extern AVCodecParserContext * h264parserctx;
   int consumed, poutbuf_size = 1;
   const uint8_t *poutbuf = NULL;
@@ -525,7 +531,7 @@ static demux_packet_t* getBuffer(demuxer_t* demuxer, demux_stream_t* ds,
   if (headersize == 1) // amr
     dp->buffer[0] =
         ((AMRAudioSource*)bufferQueue->readSource())->lastFrameHeader();
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_LIBAVCODEC
     } else {
       bufferQueue->dp = dp = bufferQueue->nextpacket;
       bufferQueue->nextpacket = NULL;
@@ -654,7 +660,7 @@ static int demux_rtp_control(struct demuxer_st *demuxer, int cmd, void *arg) {
 
 demuxer_desc_t demuxer_desc_rtp = {
   "LIVE555 RTP demuxer",
-  "rtp",
+  "live555",
   "",
   "Ross Finlayson",
   "requires LIVE555 Streaming Media library",

@@ -15,6 +15,8 @@
   <year>2005</year>
   <year>2006</year>
   <year>2007</year>
+  <year>2008</year>
+  <year>2009</year>	
   <holder>Załoga MPlayera</holder>
 </copyright>
 <legalnotice>
@@ -119,8 +121,7 @@ oraz audio <emphasis role="bold">PCM/MP3/VBR MP3</emphasis>.
 </para></listitem>
 <listitem><para>
   Kodowanie na wszystkie kodeki
-  <link linkend="ffmpeg"><systemitem class="library">libavcodec</systemitem></link>
-  z ffmpeg.
+  <systemitem class="library">libavcodec</systemitem> z ffmpeg.
 </para></listitem>
 <listitem><para>
   Kodowanie obrazu z <emphasis role="bold">tunerów kompatybilnych z V4L</emphasis>
@@ -188,19 +189,12 @@ mogą być rozprowadzane zgodnie z warunkami GNU General Public License Version 
 
 &usage.xml;
 &cd-dvd.xml;
-&faq.xml;
-
-&containers.xml;
-&codecs.xml;
-&video.xml;
-&audio.xml;
 &tvinput.xml;
 &radio.xml;
-
+&video.xml;
 &ports.xml;
 &mencoder.xml;
 &encoding-guide.xml;
+&faq.xml;
 &bugreports.xml;
-&bugs.xml;
 &skin.xml;
-&history.xml;

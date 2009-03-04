@@ -28,7 +28,7 @@
 
 #include "config.h"
 
-#ifndef HAVE_WINSOCK2
+#if !HAVE_WINSOCK2_H
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -42,8 +42,9 @@
 #include "rtsp.h"
 #include "rtsp_rtp.h"
 #include "rtsp_session.h"
-#include "../freesdp/common.h"
-#include "../freesdp/parser.h"
+#include "stream/network.h"
+#include "stream/freesdp/common.h"
+#include "stream/freesdp/parser.h"
 
 #define RTSP_DEFAULT_PORT 31336
 #define MAX_LENGTH 256
@@ -244,13 +245,14 @@ rtcp_connect (int client_port, int server_port, const char* server_hostname)
     return -1;
   }
 
+  memset(&sin, 0, sizeof(sin));
   sin.sin_family = AF_INET;
   sin.sin_addr.s_addr = INADDR_ANY;
   sin.sin_port = htons (client_port);
   
   if (bind (s, (struct sockaddr *) &sin, sizeof (sin)))
   {
-#ifndef HAVE_WINSOCK2
+#if !HAVE_WINSOCK2_H
     if (errno != EINPROGRESS)
 #else
     if (WSAGetLastError() != WSAEINPROGRESS)
@@ -292,17 +294,16 @@ rtp_connect (char *hostname, int port)
   if (s == -1)
     return -1;
 
+  memset(&sin, 0, sizeof(sin));
   sin.sin_family = AF_INET;
   if (!hostname || !strcmp (hostname, "0.0.0.0"))
     sin.sin_addr.s_addr = htonl (INADDR_ANY);
   else
-#ifndef HAVE_WINSOCK2
-#ifdef USE_ATON
-    inet_aton (hostname, &sin.sin_addr);
-#else
+#if HAVE_INET_PTON
     inet_pton (AF_INET, hostname, &sin.sin_addr);
-#endif
-#else
+#elif HAVE_INET_ATON
+    inet_aton (hostname, &sin.sin_addr);
+#elif HAVE_WINSOCK2_H
     sin.sin_addr.s_addr = htonl (INADDR_ANY);
 #endif
   sin.sin_port = htons (port);
@@ -331,7 +332,7 @@ rtp_connect (char *hostname, int port)
   /* datagram socket */
   if (bind (s, (struct sockaddr *) &sin, sizeof (sin)))
   {
-#ifndef HAVE_WINSOCK2
+#if !HAVE_WINSOCK2_H
     if (errno != EINPROGRESS)
 #else
     if (WSAGetLastError() != WSAEINPROGRESS)
@@ -343,8 +344,8 @@ rtp_connect (char *hostname, int port)
     }
   }
 
-  tv.tv_sec = 0;
-  tv.tv_usec = (1 * 1000000); /* 1 second timeout */
+  tv.tv_sec = 1; /* 1 second timeout */
+  tv.tv_usec = 0;
   
   FD_ZERO (&set);
   FD_SET (s, &set);
@@ -385,13 +386,11 @@ is_multicast_address (char *addr)
   
   sin.sin_family = AF_INET;
 
-#ifndef HAVE_WINSOCK2
-#ifdef USE_ATON
-    inet_aton (addr, &sin.sin_addr);
-#else
+#if HAVE_INET_PTON
     inet_pton (AF_INET, addr, &sin.sin_addr);
-#endif
-#else
+#elif HAVE_INET_ATON
+    inet_aton (addr, &sin.sin_addr);
+#elif HAVE_WINSOCK2_H
     sin.sin_addr.s_addr = htonl (INADDR_ANY);
 #endif
   

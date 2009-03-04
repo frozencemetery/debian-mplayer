@@ -1,11 +1,24 @@
-/* 
- * ao_jack.c - libao2 JACK Audio Output Driver for MPlayer
- *
- * This driver is under the same license as MPlayer.
- * (http://www.mplayerhq.hu)
+/*
+ * JACK audio output driver for MPlayer
  *
  * Copyleft 2001 by Felix Bünemann (atmosfear@users.sf.net)
  * and Reimar Döffinger (Reimar.Doeffinger@stud.uni-karlsruhe.de)
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * along with MPlayer; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <stdio.h>
@@ -120,6 +133,8 @@ static int write_buffer(unsigned char* data, int len) {
   return len;
 }
 
+static void silence(float **bufs, int cnt, int num_bufs);
+
 /**
  * \brief read data from buffer and splitting it into channels
  * \param bufs num_bufs float buffers, each will contain the data of one channel
@@ -136,18 +151,16 @@ static int write_buffer(unsigned char* data, int len) {
 static int read_buffer(float **bufs, int cnt, int num_bufs) {
   int buffered = buf_used();
   int i, j;
-  int orig_cnt = cnt;
-  if (cnt * sizeof(float) * num_bufs > buffered)
+  if (cnt * sizeof(float) * num_bufs > buffered) {
+    silence(bufs, cnt, num_bufs);
     cnt = buffered / sizeof(float) / num_bufs;
+  }
   for (i = 0; i < cnt; i++) {
     for (j = 0; j < num_bufs; j++) {
-      bufs[j][i] = *((float *)(&buffer[read_pos]));
+      bufs[j][i] = *(float *)&buffer[read_pos];
       read_pos = (read_pos + sizeof(float)) % BUFFSIZE;
     }
   }
-  for (i = cnt; i < orig_cnt; i++)
-    for (j = 0; j < num_bufs; j++)
-      bufs[j][i] = 0;
   return cnt;
 }
 
@@ -164,10 +177,9 @@ static int control(int cmd, void *arg) {
  * \param num_bufs number of buffers
  */
 static void silence(float **bufs, int cnt, int num_bufs) {
-  int i, j;
-  for (i = 0; i < cnt; i++)
-    for (j = 0; j < num_bufs; j++)
-      bufs[j][i] = 0;
+  int i;
+  for (i = 0; i < num_bufs; i++)
+    memset(bufs[i], 0, cnt * sizeof(float));
 }
 
 /**
@@ -215,19 +227,25 @@ static void print_help (void)
            "  name=<client name>\n"
            "    Client name to pass to JACK\n"
            "  estimate\n"
-           "    Estimates the amount of data in buffers (experimental)\n");
+           "    Estimates the amount of data in buffers (experimental)\n"
+           "  autostart\n"
+           "    Automatically start JACK server if necessary\n"
+         );
 }
 
 static int init(int rate, int channels, int format, int flags) {
   const char **matching_ports = NULL;
   char *port_name = NULL;
   char *client_name = NULL;
+  int autostart = 0;
   opt_t subopts[] = {
     {"port", OPT_ARG_MSTRZ, &port_name, NULL},
     {"name", OPT_ARG_MSTRZ, &client_name, NULL},
     {"estimate", OPT_ARG_BOOL, &estimate, NULL},
+    {"autostart", OPT_ARG_BOOL, &autostart, NULL},
     {NULL}
   };
+  jack_options_t open_options = JackUseExactName;
   int port_flags = JackPortIsInput;
   int i;
   estimate = 1;
@@ -241,9 +259,11 @@ static int init(int rate, int channels, int format, int flags) {
   }
   if (!client_name) {
     client_name = malloc(40);
-  sprintf(client_name, "MPlayer [%d]", getpid());
+    sprintf(client_name, "MPlayer [%d]", getpid());
   }
-  client = jack_client_new(client_name);
+  if (!autostart)
+    open_options |= JackNoStartServer;
+  client = jack_client_open(client_name, open_options, NULL);
   if (!client) {
     mp_msg(MSGT_AO, MSGL_FATAL, "[JACK] cannot open server\n");
     goto err_out;
@@ -255,12 +275,13 @@ static int init(int rate, int channels, int format, int flags) {
   if (!port_name)
     port_flags |= JackPortIsPhysical;
   matching_ports = jack_get_ports(client, port_name, NULL, port_flags);
-  for (num_ports = 0; matching_ports && matching_ports[num_ports]; num_ports++) ;
-  if (!num_ports) {
+  if (!matching_ports || !matching_ports[0]) {
     mp_msg(MSGT_AO, MSGL_FATAL, "[JACK] no physical ports available\n");
     goto err_out;
   }
-  if (channels > num_ports) channels = num_ports;
+  i = 1;
+  while (matching_ports[i]) i++;
+  if (channels > i) channels = i;
   num_ports = channels;
 
   // create out output ports
@@ -287,7 +308,7 @@ static int init(int rate, int channels, int format, int flags) {
   jack_latency = (float)(jack_port_get_total_latency(client, ports[0]) +
                          jack_get_buffer_size(client)) / (float)rate;
   callback_interval = 0;
-  buffer = (unsigned char *) malloc(BUFFSIZE);
+  buffer = malloc(BUFFSIZE);
 
   ao_data.channels = channels;
   ao_data.samplerate = rate;
@@ -356,7 +377,7 @@ static int get_space(void) {
  */
 static int play(void *data, int len, int flags) {
   if (!(flags & AOPLAY_FINAL_CHUNK))
-  len -= len % ao_data.outburst;
+    len -= len % ao_data.outburst;
   underrun = 0;
   return write_buffer(data, len);
 }

@@ -63,6 +63,9 @@
  *   Modified for readability by Nick Kurshev
 */
 
+#ifndef MPLAYER_ASMMACROS_H
+#define MPLAYER_ASMMACROS_H
+
 #if defined(__GNUC__)
 #if defined(__alpha__)
 #include "sysdep/AsmMacros_alpha.h"
@@ -74,6 +77,8 @@
 #include "sysdep/AsmMacros_arm32.h"
 #elif defined(__powerpc__)
 #include "sysdep/AsmMacros_powerpc.h"
+#elif defined(__sh__)
+#include <sys/io.h>
 #else
 #include "sysdep/AsmMacros_x86.h"
 #endif
@@ -94,11 +99,6 @@ void outl(U16_t, U32_t);
 
 #else /* not _MINIX and _ACK */
 
-# if defined(__STDC__) && (__STDC__ == 1)
-#  ifndef NCR
-#  define asm __asm
-#  endif
-# endif
 # ifdef SVR4
 #  include <sys/types.h>
 #  ifndef __USLC__
@@ -110,8 +110,10 @@ void outl(U16_t, U32_t);
 #else
 # include "../common/scoasm.h"
 #endif
-#define intr_disable() asm("cli")
-#define intr_enable()  asm("sti")
+#define intr_disable() __asm__("cli")
+#define intr_enable()  __asm__("sti")
 
 #endif /* _MINIX and _ACK */
 #endif /* __GNUC__ */
+
+#endif /* MPLAYER_ASMMACROS_H */

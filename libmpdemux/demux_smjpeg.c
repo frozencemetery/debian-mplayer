@@ -137,6 +137,7 @@ static demuxer_t* demux_open_smjpeg(demuxer_t* demuxer){
 	    break;
 	case mmioFOURCC('_','S','N','D'):
 	    sh_audio = new_sh_audio(demuxer, 0);
+	    demuxer->audio->id = 0;
 	    demuxer->audio->sh = sh_audio;
 	    sh_audio->ds = demuxer->audio;
 
@@ -172,7 +173,7 @@ static void demux_close_smjpeg(demuxer_t *demuxer)
 }
 
 
-demuxer_desc_t demuxer_desc_smjpeg = {
+const demuxer_desc_t demuxer_desc_smjpeg = {
   "smjpeg demuxer",
   "smjpeg",
   "SMJPEG",

@@ -3,19 +3,70 @@
    $XFree86: xc/programs/Xserver/hw/xfree86/drivers/chips/util/AsmMacros.h,v 1.1 2001/11/16 21:13:34 tsi Exp $
    Modified for readability by Nick Kurshev
 */
+/*
+ * (c) Copyright 1993,1994 by David Wexelblat <dwex@xfree86.org>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * DAVID WEXELBLAT BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
+ * OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Except as contained in this notice, the name of David Wexelblat shall not be
+ * used in advertising or otherwise to promote the sale, use or other dealings
+ * in this Software without prior written authorization from David Wexelblat.
+ */
+/*
+ * Copyright 1997
+ * Digital Equipment Corporation. All rights reserved.
+ * This software is furnished under license and may be used and copied only in
+ * accordance with the following terms and conditions.  Subject to these
+ * conditions, you may download, copy, install, use, modify and distribute
+ * this software in source and/or binary form. No title or ownership is
+ * transferred hereby.
+ *
+ * 1) Any source code used, modified or distributed must reproduce and retain
+ *    this copyright notice and list of conditions as they appear in the source
+ *    file.
+ *
+ * 2) No right is granted to use any trade name, trademark, or logo of Digital
+ *    Equipment Corporation. Neither the "Digital Equipment Corporation" name
+ *    nor any trademark or logo of Digital Equipment Corporation may be used
+ *    to endorse or promote products derived from this software without the
+ *    prior written permission of Digital Equipment Corporation.
+ *
+ * 3) This software is provided "AS-IS" and any express or implied warranties,
+ *    including but not limited to, any implied warranties of merchantability,
+ *    fitness for a particular purpose, or non-infringement are disclaimed. In
+ *    no event shall DIGITAL be liable for any damages whatsoever, and in
+ *    particular, DIGITAL shall not be liable for special, indirect,
+ *    consequential, or incidental damages or damages for
+ *    lost profits, loss of revenue or loss of use, whether such damages arise
+ *    in contract,
+ *    negligence, tort, under statute, in equity, at law or otherwise, even if
+ *    advised of the possibility of such damage.
+ */
 
-#ifndef ASMMACROS_X86_H
-#define ASMMACROS_X86_H
-
-//#if defined (WINNT)
-//#error This stuff is not ported on your system
-//#else
+#ifndef MPLAYER_ASMMACROS_X86_H
+#define MPLAYER_ASMMACROS_X86_H
 
 #include "config.h"
 
 #ifdef CONFIG_DHAHELPER
 #include <sys/ioctl.h>
-#include "../kernelhelper/dhahelper.h"
+#include "vidix/dhahelper/dhahelper.h"
 
 extern int dhahelper_fd;
 extern int dhahelper_initialized;
@@ -120,7 +171,7 @@ static __inline__ void outb(short port,char val)
     }
     else
 #endif
-   __asm__ __volatile__("outb %0,%1" : :"a" (val), "d" (port));
+   __asm__ volatile("outb %0,%1" : :"a" (val), "d" (port));
     return;
 }
 
@@ -148,7 +199,7 @@ static __inline__ void outw(short port,short val)
     }
     else
 #endif
-   __asm__ __volatile__("outw %0,%1" : :"a" (val), "d" (port));
+   __asm__ volatile("outw %0,%1" : :"a" (val), "d" (port));
     return;
 }
 
@@ -176,7 +227,7 @@ static __inline__ void outl(short port,unsigned int val)
     }
     else
 #endif
-   __asm__ __volatile__("outl %0,%1" : :"a" (val), "d" (port));
+   __asm__ volatile("outl %0,%1" : :"a" (val), "d" (port));
     return;
 }
 
@@ -204,7 +255,7 @@ static __inline__ unsigned int inb(short port)
     }
     else
 #endif
-   __asm__ __volatile__("inb %1,%0" :
+   __asm__ volatile("inb %1,%0" :
        "=a" (ret) :
        "d" (port));
    return ret;
@@ -234,7 +285,7 @@ static __inline__ unsigned int inw(short port)
     }
     else
 #endif
-   __asm__ __volatile__("inw %1,%0" :
+   __asm__ volatile("inw %1,%0" :
        "=a" (ret) :
        "d" (port));
    return ret;
@@ -264,7 +315,7 @@ static __inline__ unsigned int inl(short port)
     }
     else
 #endif
-   __asm__ __volatile__("inl %1,%0" :
+   __asm__ volatile("inl %1,%0" :
        "=a" (ret) :
        "d" (port));
    return ret;
@@ -276,7 +327,7 @@ static __inline__ void intr_disable()
     if (svgahelper_initialized == 1)
 	return;
 #endif
-  __asm__ __volatile__("cli");
+  __asm__ volatile("cli");
 }
 
 static __inline__ void intr_enable()
@@ -285,9 +336,7 @@ static __inline__ void intr_enable()
     if (svgahelper_initialized == 1)
 	return;
 #endif
-  __asm__ __volatile__("sti");
+  __asm__ volatile("sti");
 }
 
-#endif
-
-//#endif /* ASMMACROS_X86_H */
+#endif /* MPLAYER_ASMMACROS_X86_H */

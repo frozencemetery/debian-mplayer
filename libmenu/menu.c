@@ -1,3 +1,20 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include "config.h"
 #include "mp_msg.h"
@@ -15,6 +32,7 @@
 #include "osdep/keycodes.h"
 #include "asxparser.h"
 #include "stream/stream.h"
+#include "input/input.h"
 
 #include "libmpcodecs/img_format.h"
 #include "libmpcodecs/mp_image.h"
@@ -23,40 +41,66 @@
 #include "menu.h"
 
 extern menu_info_t menu_info_cmdlist;
+extern menu_info_t menu_info_chapsel;
 extern menu_info_t menu_info_pt;
 extern menu_info_t menu_info_filesel;
 extern menu_info_t menu_info_txt;
 extern menu_info_t menu_info_console;
 extern menu_info_t menu_info_pref;
-#ifdef HAS_DVBIN_SUPPORT
 extern menu_info_t menu_info_dvbsel;
-#endif
 
 
 menu_info_t* menu_info_list[] = {
   &menu_info_pt,
   &menu_info_cmdlist,
+  &menu_info_chapsel,
   &menu_info_filesel,
   &menu_info_txt,
   &menu_info_console,
-#ifdef HAS_DVBIN_SUPPORT
+#ifdef CONFIG_DVBIN
   &menu_info_dvbsel,
 #endif  
   &menu_info_pref,
   NULL
 };
 
-typedef struct menu_def_st {
+typedef struct key_cmd_s {
+  int key;
+  char *cmd;
+} key_cmd_t;
+
+typedef struct menu_cmd_bindings_s {
+  char *name;
+  key_cmd_t *bindings;
+  int binding_num;
+  struct menu_cmd_bindings_s *parent;
+} menu_cmd_bindings_t;
+
+struct menu_def_st {
   char* name;
   menu_info_t* type;
   void* cfg;
   char* args;
-} menu_def_t;
+};
+
+double menu_mouse_x = -1.0;
+double menu_mouse_y = -1.0;
+int menu_mouse_pos_updated = 0;
 
 static struct MPContext *menu_ctx = NULL;
 static menu_def_t* menu_list = NULL;
 static int menu_count = 0;
+static menu_cmd_bindings_t *cmd_bindings = NULL;
+static int cmd_bindings_num = 0;
 
+
+menu_cmd_bindings_t *get_cmd_bindings(const char *name) {
+  int i;
+  for (i = 0; i < cmd_bindings_num; ++i)
+    if (!strcasecmp(cmd_bindings[i].name, name))
+      return &cmd_bindings[i];
+  return NULL;
+}
 
 static int menu_parse_config(char* buffer) {
   char *element,*body, **attribs, *name;
@@ -84,6 +128,66 @@ static int menu_parse_config(char* buffer) {
       continue;
     }
 
+    if (!strcasecmp(element, "keybindings")) {
+      menu_cmd_bindings_t *bindings = cmd_bindings;
+      char *parent_bindings;
+      cmd_bindings = realloc(cmd_bindings,
+                             (cmd_bindings_num+1)*sizeof(menu_cmd_bindings_t));
+      for (i = 0; i < cmd_bindings_num; ++i)
+        if (cmd_bindings[i].parent)
+          cmd_bindings[i].parent = cmd_bindings[i].parent-bindings+cmd_bindings;
+      bindings = &cmd_bindings[cmd_bindings_num];
+      memset(bindings, 0, sizeof(menu_cmd_bindings_t));
+      bindings->name = name;
+      parent_bindings = asx_get_attrib("parent",attribs);
+      if (parent_bindings) {
+        bindings->parent = get_cmd_bindings(parent_bindings);
+        free(parent_bindings);
+      }
+      free(element);
+      asx_free_attribs(attribs);
+      if (body) {
+        char *bd = body;
+        char *b, *key, *cmd;
+        int keycode;
+        for(;;) {
+          r = asx_get_element(parser,&bd,&element,&b,&attribs);
+          if(r < 0) {
+            mp_msg(MSGT_GLOBAL,MSGL_WARN,MSGTR_LIBMENU_SyntaxErrorAtLine,
+                   parser->line);
+            free(body);
+            asx_parser_free(parser);
+            return 0;
+          }
+          if(r == 0)
+            break;
+          if (!strcasecmp(element, "binding")) {
+            key = asx_get_attrib("key",attribs);
+            cmd = asx_get_attrib("cmd",attribs);
+            if (key && (keycode = mp_input_get_key_from_name(key)) >= 0) {
+              keycode &= ~MP_NO_REPEAT_KEY;
+              mp_msg(MSGT_GLOBAL,MSGL_V,
+                     "[libmenu] got keybinding element %d %s=>[%s].\n",
+                     keycode, key, cmd ? cmd : "");
+              bindings->bindings = realloc(bindings->bindings,
+                                   (bindings->binding_num+1)*sizeof(key_cmd_t));
+              bindings->bindings[bindings->binding_num].key = keycode;
+              bindings->bindings[bindings->binding_num].cmd = cmd;
+              ++bindings->binding_num;
+            }
+            else
+              free(cmd);
+            free(key);
+          }
+          free(element);
+          asx_free_attribs(attribs);
+          free(b);
+        }
+        free(body);
+      }
+      ++cmd_bindings_num;
+      continue;
+    }
     // Try to find this menu type in our list
     for(i = 0, minfo = NULL ; menu_info_list[i] ; i++) {
       if(strcasecmp(element,menu_info_list[i]->name) == 0) {
@@ -128,7 +232,7 @@ int menu_init(struct MPContext *mpctx, char* cfg_file) {
   char* buffer = NULL;
   int bl = BUF_STEP, br = 0;
   int f, fd;
-#ifndef HAVE_FREETYPE
+#ifndef CONFIG_FREETYPE
   if(vo_font == NULL)
     return 0;
 #endif
@@ -169,7 +273,7 @@ int menu_init(struct MPContext *mpctx, char* cfg_file) {
 }
 
 // Destroy all this stuff
-void menu_unint(void) {
+void menu_uninit(void) {
   int i;
   for(i = 0 ; menu_list && menu_list[i].name ; i++) {
     free(menu_list[i].name);
@@ -178,30 +282,34 @@ void menu_unint(void) {
   }
   free(menu_list);
   menu_count = 0;
+  for (i = 0; i < cmd_bindings_num; ++i) {
+    free(cmd_bindings[i].name);
+    while(cmd_bindings[i].binding_num > 0)
+      free(cmd_bindings[i].bindings[--cmd_bindings[i].binding_num].cmd);
+    free(cmd_bindings[i].bindings);
+  }
+  free(cmd_bindings);
 }
 
 /// Default read_key function
-void menu_dflt_read_key(menu_t* menu,int cmd) {
-  switch(cmd) {
-  case KEY_UP:
-    menu->read_cmd(menu,MENU_CMD_UP);
-    break;
-  case KEY_DOWN:
-    menu->read_cmd(menu,MENU_CMD_DOWN);
-    break;
-  case KEY_LEFT:
-    menu->read_cmd(menu,MENU_CMD_LEFT);
-    break;
-  case KEY_ESC:
-    menu->read_cmd(menu,MENU_CMD_CANCEL);
-    break;
-  case KEY_RIGHT:
-    menu->read_cmd(menu,MENU_CMD_RIGHT);
-    break;
-  case KEY_ENTER:
-    menu->read_cmd(menu,MENU_CMD_OK);
-    break;
+int menu_dflt_read_key(menu_t* menu,int cmd) {
+  int i;
+  menu_cmd_bindings_t *bindings = get_cmd_bindings(menu->type->name);
+  if (!bindings)
+    bindings = get_cmd_bindings(menu->type->type->name);
+  if (!bindings)
+    bindings = get_cmd_bindings("default");
+  while (bindings) {
+    for (i = 0; i < bindings->binding_num; ++i) {
+      if (bindings->bindings[i].key == cmd) {
+        if (bindings->bindings[i].cmd)
+          mp_input_parse_and_queue_cmds(bindings->bindings[i].cmd);
+        return 1;
+      }
+    }
+    bindings = bindings->parent;
   }
+  return 0;
 }
 
 menu_t* menu_open(char *name) {
@@ -220,6 +328,7 @@ menu_t* menu_open(char *name) {
   m->priv_st = &(menu_list[i].type->priv_st);
   m->priv = m_struct_copy(m->priv_st,menu_list[i].cfg);
   m->ctx = menu_ctx;
+  m->type = &menu_list[i];
   if(menu_list[i].type->open(m,menu_list[i].args))
     return m;
   if(m->priv)
@@ -232,6 +341,12 @@ menu_t* menu_open(char *name) {
 void menu_draw(menu_t* menu,mp_image_t* mpi) {
   if(menu->show && menu->draw)
     menu->draw(menu,mpi);
+}
+
+void menu_update_mouse_pos(double x, double y) {
+  menu_mouse_x = x;
+  menu_mouse_y = y;
+  menu_mouse_pos_updated = 1;
 }
 
 void menu_read_cmd(menu_t* menu,int cmd) {
@@ -247,11 +362,11 @@ void menu_close(menu_t* menu) {
   free(menu);
 }
 
-void menu_read_key(menu_t* menu,int cmd) {
+int menu_read_key(menu_t* menu,int cmd) {
   if(menu->read_key)
-    menu->read_key(menu,cmd);
+    return menu->read_key(menu,cmd);
   else
-    menu_dflt_read_key(menu,cmd);
+    return menu_dflt_read_key(menu,cmd);
 }
 
 ///////////////////////////// Helpers ////////////////////////////////////
@@ -300,12 +415,12 @@ static inline int get_height(int c,int h){
 static void render_txt(char *txt)
 {
   while (*txt) {
-    int c = utf8_get_char(&txt);
+    int c = utf8_get_char((const char**)&txt);
     render_one_glyph(vo_font, c);
   }
 }
 
-#ifdef USE_FRIBIDI
+#ifdef CONFIG_FRIBIDI
 #include <fribidi/fribidi.h>
 #include "libavutil/common.h"
 char *menu_fribidi_charset = NULL;
@@ -361,13 +476,13 @@ void menu_draw_text(mp_image_t* mpi,char* txt, int x, int y) {
     return;
   }
 
-#ifdef USE_FRIBIDI
+#ifdef CONFIG_FRIBIDI
   txt = menu_fribidi(txt);
 #endif
   render_txt(txt);
 
   while (*txt) {
-    int c=utf8_get_char(&txt);
+    int c=utf8_get_char((const char**)&txt);
     if ((font=vo_font->font[c])>=0 && (x + vo_font->width[c] <= mpi->w) && (y + vo_font->pic_a[font]->h <= mpi->h))
       draw_alpha(vo_font->width[c], vo_font->pic_a[font]->h,
 		 vo_font->pic_b[font]->bmp+vo_font->start[c],
@@ -395,7 +510,7 @@ void menu_draw_text_full(mp_image_t* mpi,char* txt,
     return;
   }
 
-#ifdef USE_FRIBIDI
+#ifdef CONFIG_FRIBIDI
   txt = menu_fribidi(txt);
 #endif
   render_txt(txt);
@@ -460,7 +575,7 @@ void menu_draw_text_full(mp_image_t* mpi,char* txt,
   
   // Jump some the beginnig text if needed
   while(sy < ymin && *txt) {
-    int c=utf8_get_char(&txt);
+    int c=utf8_get_char((const char**)&txt);
     if(c == '\n' || (warp && ll + vo_font->width[c] > w)) {
       ll = 0;
       sy += vo_font->height + vspace;
@@ -534,11 +649,11 @@ void menu_draw_text_full(mp_image_t* mpi,char* txt,
     }
 
     while(sx < xmax && txt != line_end) {
-      int c=utf8_get_char(&txt);
+      int c=utf8_get_char((const char**)&txt);
       font = vo_font->font[c];
       if(font >= 0) {
  	int cs = (vo_font->pic_a[font]->h - vo_font->height) / 2;
-	if ((sx + vo_font->width[c] < xmax)  &&  (sy + vo_font->height < ymax) )
+	if ((sx + vo_font->width[c] <= xmax) && (sy + vo_font->height <= ymax) )
 	  draw_alpha(vo_font->width[c], vo_font->height,
 		     vo_font->pic_b[font]->bmp+vo_font->start[c] +
 		     cs * vo_font->pic_a[font]->w,
@@ -562,7 +677,7 @@ int menu_text_length(char* txt) {
   int l = 0;
   render_txt(txt);
   while (*txt) {
-    int c=utf8_get_char(&txt);
+    int c=utf8_get_char((const char**)&txt);
     l += vo_font->width[c]+vo_font->charspace;
   }
   return l - vo_font->charspace;
@@ -574,15 +689,20 @@ void menu_text_size(char* txt,int max_width, int vspace, int warp, int* _w, int*
 
   render_txt(txt);
   while (*txt) {
-    int c=utf8_get_char(&txt);
+    int c=utf8_get_char((const char**)&txt);
     if(c == '\n' || (warp && i + vo_font->width[c] >= max_width)) {
+      i -= vo_font->charspace;
+      if (i > w) w = i;
       if(*txt)
 	l++;
       i = 0;
       if(c == '\n') continue;
     }
     i += vo_font->width[c]+vo_font->charspace;
-    if(i > w) w = i;
+  }
+  if (i > 0) {
+    i -= vo_font->charspace;
+    if (i > w) w = i;
   }
   
   *_w = w;
@@ -594,7 +714,7 @@ int menu_text_num_lines(char* txt, int max_width) {
   int l = 1, i = 0;
   render_txt(txt);
   while (*txt) {
-    int c=utf8_get_char(&txt);
+    int c=utf8_get_char((const char**)&txt);
     if(c == '\n' || i + vo_font->width[c] > max_width) {
       l++;
       i = 0;
@@ -609,7 +729,7 @@ char* menu_text_get_next_line(char* txt, int max_width) {
   int i = 0;
   render_txt(txt);
   while (*txt) {
-    int c=utf8_get_char(&txt);
+    int c=utf8_get_char((const char**)&txt);
     if(c == '\n') {
       txt++;
       break;

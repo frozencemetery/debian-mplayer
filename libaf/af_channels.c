@@ -1,7 +1,25 @@
-/* Audio filter that adds and removes channels, according to the
-   command line parameter channels. It is stupid and can only add
-   silence or copy channels not mix or filter.
-*/
+/*
+ * Audio filter that adds and removes channels, according to the
+ * command line parameter channels. It is stupid and can only add
+ * silence or copy channels, not mix or filter.
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -148,9 +166,7 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
     af->data->rate   = ((af_data_t*)arg)->rate;
     af->data->format = ((af_data_t*)arg)->format;
     af->data->bps    = ((af_data_t*)arg)->bps;
-    af->mul.n        = af->data->nch;
-    af->mul.d	     = ((af_data_t*)arg)->nch;
-    af_frac_cancel(&af->mul);
+    af->mul          = (double)af->data->nch / ((af_data_t*)arg)->nch;
     return check_routes(s,((af_data_t*)arg)->nch,af->data->nch);
   case AF_CONTROL_COMMAND_LINE:{
     int nch = 0;
@@ -251,7 +267,7 @@ static af_data_t* play(struct af_instance_s* af, af_data_t* data)
     return NULL;
 
   // Reset unused channels
-  memset(l->audio,0,(c->len*af->mul.n)/af->mul.d);
+  memset(l->audio,0,c->len / c->nch * l->nch);
   
   if(AF_OK == check_routes(s,c->nch,l->nch))
     for(i=0;i<s->nr;i++)
@@ -260,7 +276,7 @@ static af_data_t* play(struct af_instance_s* af, af_data_t* data)
   
   // Set output data
   c->audio = l->audio;
-  c->len   = (c->len*af->mul.n)/af->mul.d;
+  c->len   = c->len / c->nch * l->nch;
   c->nch   = l->nch;
 
   return c;
@@ -271,8 +287,7 @@ static int af_open(af_instance_t* af){
   af->control=control;
   af->uninit=uninit;
   af->play=play;
-  af->mul.n=1;
-  af->mul.d=1;
+  af->mul=1;
   af->data=calloc(1,sizeof(af_data_t));
   af->setup=calloc(1,sizeof(af_channels_t));
   if((af->data == NULL) || (af->setup == NULL))

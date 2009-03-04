@@ -5,29 +5,24 @@
 #include <inttypes.h>
 #include <limits.h>
 #include "config.h"
-#include "version.h"
 #include "mp_msg.h"
 #include "help_mp.h"
 
 #include "aviheader.h"
 #include "ms_hdr.h"
+#include "av_opts.h"
 
 #include "stream/stream.h"
 #include "muxer.h"
 #include "demuxer.h"
 #include "stheader.h"
 #include "m_option.h"
-#ifdef USE_LIBAVFORMAT_SO
-#include <ffmpeg/avformat.h>
-#else
-#include "avformat.h"
-#endif
+#include "libavformat/avformat.h"
 #include "libavutil/avstring.h"
 
-enum PixelFormat imgfmt2pixfmt(int fmt);
+#include "mp_taglists.h"
 
-extern const struct AVCodecTag *mp_wav_taglists[];
-extern const struct AVCodecTag *mp_bmp_taglists[];
+enum PixelFormat imgfmt2pixfmt(int fmt);
 
 extern char *info_name;
 extern char *info_artist;
@@ -37,13 +32,16 @@ extern char *info_copyright;
 extern char *info_sourceform;
 extern char *info_comment;
 
+#define BIO_BUFFER_SIZE 32768
+
 typedef struct {
 	//AVInputFormat *avif;
 	AVFormatContext *oc;
-	ByteIOContext pb;
+	ByteIOContext *pb;
 	int audio_streams;
 	int video_streams;
 	int64_t last_pts;
+	uint8_t buffer[BIO_BUFFER_SIZE];
 } muxer_priv_t;
 
 typedef struct {
@@ -56,6 +54,7 @@ static int mux_rate= 0;
 static int mux_packet_size= 0;
 static float mux_preload= 0.5;
 static float mux_max_delay= 0.7;
+static char *mux_avopt = NULL;
 
 m_option_t lavfopts_conf[] = {
 	{"format", &(conf_format), CONF_TYPE_STRING, 0, 0, 0, NULL},
@@ -63,36 +62,20 @@ m_option_t lavfopts_conf[] = {
 	{"packetsize", &mux_packet_size, CONF_TYPE_INT, CONF_RANGE, 0, INT_MAX, NULL},
 	{"preload", &mux_preload, CONF_TYPE_FLOAT, CONF_RANGE, 0, INT_MAX, NULL},
 	{"delay", &mux_max_delay, CONF_TYPE_FLOAT, CONF_RANGE, 0, INT_MAX, NULL},
+        {"o", &mux_avopt, CONF_TYPE_STRING, 0, 0, 0, NULL},
 
 	{NULL, NULL, 0, 0, 0, 0, NULL}
 };
 
-static int mp_open(URLContext *h, const char *filename, int flags)
+static int mp_write(void *opaque, uint8_t *buf, int size)
 {
-	return 0;
-}
-
-static int mp_close(URLContext *h)
-{
-	return 0;
-}
-
-
-static int mp_read(URLContext *h, unsigned char *buf, int size)
-{
-	mp_msg(MSGT_MUXER, MSGL_WARN, "READ %d\n", size);
-	return -1;
-}
-
-static int mp_write(URLContext *h, unsigned char *buf, int size)
-{
-	muxer_t *muxer = (muxer_t*)h->priv_data;
+	muxer_t *muxer = opaque;
 	return stream_write_buffer(muxer->stream, buf, size);
 }
 
-static offset_t mp_seek(URLContext *h, offset_t pos, int whence)
+static int64_t mp_seek(void *opaque, int64_t pos, int whence)
 {
-	muxer_t *muxer = (muxer_t*)h->priv_data;
+	muxer_t *muxer = opaque;
 	if(whence == SEEK_CUR)
 	{
 		off_t cur = stream_tell(muxer->stream);
@@ -114,16 +97,6 @@ static offset_t mp_seek(URLContext *h, offset_t pos, int whence)
 }
 
 
-static URLProtocol mp_protocol = {
-	"menc",
-	mp_open,
-	mp_read,
-	mp_write,
-	mp_seek,
-	mp_close,
-	NULL
-};
-
 static muxer_stream_t* lavf_new_stream(muxer_t *muxer, int type)
 {
 	muxer_priv_t *priv = muxer->priv;
@@ -133,21 +106,21 @@ static muxer_stream_t* lavf_new_stream(muxer_t *muxer, int type)
 
 	if(!muxer || (type != MUXER_TYPE_VIDEO && type != MUXER_TYPE_AUDIO))
 	{
-		mp_msg(MSGT_MUXER, MSGL_ERR, "UNKNOW TYPE %d\n", type);
+		mp_msg(MSGT_MUXER, MSGL_ERR, "UNKNOWN TYPE %d\n", type);
 		return NULL;
 	}
 	
 	stream = calloc(1, sizeof(muxer_stream_t));
 	if(!stream)
 	{
-		mp_msg(MSGT_MUXER, MSGL_ERR, "Could not alloc muxer_stream, EXIT\n");
+		mp_msg(MSGT_MUXER, MSGL_ERR, "Could not allocate muxer_stream, EXIT.\n");
 		return NULL;
 	}
 	muxer->streams[muxer->avih.dwStreams] = stream;
 	stream->b_buffer = malloc(2048);
 	if(!stream->b_buffer)
 	{
-		mp_msg(MSGT_MUXER, MSGL_ERR, "Could not alloc b_buffer, EXIT\n");
+		mp_msg(MSGT_MUXER, MSGL_ERR, "Could not allocate b_buffer, EXIT.\n");
 		free(stream);
 		return NULL;
 	}
@@ -166,7 +139,7 @@ static muxer_stream_t* lavf_new_stream(muxer_t *muxer, int type)
 	spriv->avstream = av_new_stream(priv->oc, 1);
 	if(!spriv->avstream) 
 	{
-		mp_msg(MSGT_MUXER, MSGL_ERR, "Could not alloc avstream, EXIT\n");
+		mp_msg(MSGT_MUXER, MSGL_ERR, "Could not allocate avstream, EXIT.\n");
 		return NULL;
 	}
 	spriv->avstream->stream_copy = 1;
@@ -229,7 +202,7 @@ static void fix_parameters(muxer_stream_t *stream)
 				memcpy(ctx->extradata, stream->wf+1, ctx->extradata_size);
 			}
 			else
-				mp_msg(MSGT_MUXER, MSGL_ERR, "MUXER_LAVF(audio stream) error! couldn't allocate %d bytes for extradata\n",
+				mp_msg(MSGT_MUXER, MSGL_ERR, "MUXER_LAVF(audio stream) error! Could not allocate %d bytes for extradata.\n",
 					stream->wf->cbSize);
 		}
 	}
@@ -254,7 +227,7 @@ static void fix_parameters(muxer_stream_t *stream)
 				memcpy(ctx->extradata, stream->bih+1, ctx->extradata_size);
 			else
 			{
-				mp_msg(MSGT_MUXER, MSGL_ERR, "MUXER_LAVF(video stream) error! couldn't allocate %d bytes for extradata\n",
+				mp_msg(MSGT_MUXER, MSGL_ERR, "MUXER_LAVF(video stream) error! Could not allocate %d bytes for extradata.\n",
 					ctx->extradata_size);
 				ctx->extradata_size = 0;
 			}
@@ -287,7 +260,7 @@ static void write_chunk(muxer_stream_t *stream, size_t len, unsigned int flags, 
 	
 	if(av_interleaved_write_frame(priv->oc, &pkt) != 0) //av_write_frame(priv->oc, &pkt)
 	{
-		mp_msg(MSGT_MUXER, MSGL_ERR, "Error while writing frame\n");
+		mp_msg(MSGT_MUXER, MSGL_ERR, "Error while writing frame.\n");
 	}
 	}
 	
@@ -317,7 +290,7 @@ static void write_trailer(muxer_t *muxer)
 		av_freep(&(priv->oc->streams[i]));
 	}
 
-	url_fclose(&(priv->oc->pb));
+	av_freep(&priv->oc->pb);
 
 	av_free(priv->oc);
 }
@@ -334,7 +307,6 @@ int muxer_init_muxer_lavf(muxer_t *muxer)
 {
 	muxer_priv_t *priv;
 	AVOutputFormat *fmt = NULL;
-	char mp_filename[256] = "menc://stream.dummy";
 
 	av_register_all();
 
@@ -346,7 +318,7 @@ int muxer_init_muxer_lavf(muxer_t *muxer)
 	mp_msg(MSGT_MUXER, MSGL_WARN, "** MUXER_LAVF *****************************************************************\n");
 	mp_msg(MSGT_MUXER, MSGL_WARN,
 "REMEMBER: MEncoder's libavformat muxing is presently broken and can generate\n"
-"INCORRECT files in the presence of B frames. Moreover, due to bugs MPlayer\n"
+"INCORRECT files in the presence of B-frames. Moreover, due to bugs MPlayer\n"
 "will play these INCORRECT files as if nothing were wrong!\n"
 "*******************************************************************************\n");
 	
@@ -357,7 +329,7 @@ int muxer_init_muxer_lavf(muxer_t *muxer)
 	priv->oc = av_alloc_format_context();
 	if(!priv->oc) 
 	{
-		mp_msg(MSGT_MUXER, MSGL_FATAL, "Couldn't get format context\n");
+		mp_msg(MSGT_MUXER, MSGL_FATAL, "Could not get format context.\n");
 		goto fail;
 	}
 
@@ -367,7 +339,7 @@ int muxer_init_muxer_lavf(muxer_t *muxer)
 		fmt = guess_format(NULL, out_filename, NULL);
 	if(! fmt)
 	{
-		mp_msg(MSGT_MUXER, MSGL_FATAL, "CAN'T GET SPECIFIED FORMAT\n");
+		mp_msg(MSGT_MUXER, MSGL_FATAL, "Cannot get specified format.\n");
 		goto fail;
 	}
 	priv->oc->oformat = fmt;
@@ -375,7 +347,7 @@ int muxer_init_muxer_lavf(muxer_t *muxer)
 	
 	if(av_set_parameters(priv->oc, NULL) < 0) 
 	{
-		mp_msg(MSGT_MUXER, MSGL_FATAL, "Invalid output format parameters\n");
+		mp_msg(MSGT_MUXER, MSGL_FATAL, "invalid output format parameters\n");
 		goto fail;
 	}
 	priv->oc->packet_size= mux_packet_size;
@@ -392,15 +364,17 @@ int muxer_init_muxer_lavf(muxer_t *muxer)
             av_strlcpy(priv->oc->copyright, info_copyright, sizeof(priv->oc->copyright));
         if (info_comment)
             av_strlcpy(priv->oc->comment  , info_comment,   sizeof(priv->oc->comment  ));
-	register_protocol(&mp_protocol);
 
-	if(url_fopen(&priv->oc->pb, mp_filename, URL_WRONLY))
-	{
-		mp_msg(MSGT_MUXER, MSGL_FATAL, "Coulnd't open outfile\n");
-		goto fail;
+        if(mux_avopt){
+            if(parse_avopts(priv->oc, mux_avopt) < 0){
+                mp_msg(MSGT_MUXER,MSGL_ERR, "Your options /%s/ look like gibberish to me pal.\n", mux_avopt);
+                goto fail;
+            }
         }
-	
-	((URLContext*)(priv->oc->pb.opaque))->priv_data= muxer;
+
+	priv->oc->pb = av_alloc_put_byte(priv->buffer, BIO_BUFFER_SIZE, 1, muxer, NULL, mp_write, mp_seek);
+	if ((muxer->stream->flags & STREAM_SEEK) != STREAM_SEEK)
+            priv->oc->pb->is_streamed = 1;
 	
 	muxer->priv = (void *) priv;
 	muxer->cont_new_stream = &lavf_new_stream;
@@ -408,7 +382,7 @@ int muxer_init_muxer_lavf(muxer_t *muxer)
 	muxer->cont_write_header = &write_header;
 	muxer->cont_write_index = &write_trailer;
 	muxer->fix_stream_parameters = &fix_parameters;
-	mp_msg(MSGT_MUXER, MSGL_INFO, "OK, exit\n");
+	mp_msg(MSGT_MUXER, MSGL_INFO, "OK, exit.\n");
 	return 1;
 	
 fail:

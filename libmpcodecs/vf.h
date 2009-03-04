@@ -1,3 +1,7 @@
+#ifndef MPLAYER_VF_H
+#define MPLAYER_VF_H
+
+#include "mp_image.h"
 
 struct vf_instance_s;
 struct vf_priv_s;
@@ -9,13 +13,16 @@ typedef struct vf_info_s {
     const char *comment;
     int (*open)(struct vf_instance_s* vf,char* args);
     // Ptr to a struct dscribing the options
-    void* opts;
+    const void* opts;
 } vf_info_t;
+
+#define NUM_NUMBERED_MPI 50
 
 typedef struct vf_image_context_s {
     mp_image_t* static_images[2];
     mp_image_t* temp_images[1];
     mp_image_t* export_images[1];
+    mp_image_t* numbered_images[NUM_NUMBERED_MPI];
     int static_idx;
 } vf_image_context_t;
 
@@ -25,7 +32,7 @@ typedef struct vf_format_context_t {
 } vf_format_context_t;
 
 typedef struct vf_instance_s {
-    vf_info_t* info;
+    const vf_info_t* info;
     // funcs:
     int (*config)(struct vf_instance_s* vf,
         int width, int height, int d_width, int d_height,
@@ -62,7 +69,7 @@ typedef struct vf_instance_s {
 
 typedef struct vf_seteq_s 
 {
-    char *item;
+    const char *item;
     int value;
 } vf_equalizer_t;
 
@@ -93,12 +100,12 @@ typedef struct vf_seteq_s
 void vf_mpi_clear(mp_image_t* mpi,int x0,int y0,int w,int h);
 mp_image_t* vf_get_image(vf_instance_t* vf, unsigned int outfmt, int mp_imgtype, int mp_imgflag, int w, int h);
 
-vf_instance_t* vf_open_plugin(vf_info_t** filter_list, vf_instance_t* next, const char *name, char **args);
+vf_instance_t* vf_open_plugin(const vf_info_t* const* filter_list, vf_instance_t* next, const char *name, char **args);
 vf_instance_t* vf_open_filter(vf_instance_t* next, const char *name, char **args);
 vf_instance_t* vf_add_before_vo(vf_instance_t **vf, char *name, char **args);
 vf_instance_t* vf_open_encoder(vf_instance_t* next, const char *name, char *args);
 
-unsigned int vf_match_csp(vf_instance_t** vfp,unsigned int* list,unsigned int preferred);
+unsigned int vf_match_csp(vf_instance_t** vfp,const unsigned int* list,unsigned int preferred);
 void vf_clone_mpi_attributes(mp_image_t* dst, mp_image_t* src);
 void vf_queue_frame(vf_instance_t *vf, int (*)(vf_instance_t *));
 int vf_output_queued_frame(vf_instance_t *vf);
@@ -108,6 +115,7 @@ int vf_next_config(struct vf_instance_s* vf,
         int width, int height, int d_width, int d_height,
 	unsigned int flags, unsigned int outfmt);
 int vf_next_control(struct vf_instance_s* vf, int request, void* data);
+void vf_extra_flip(struct vf_instance_s* vf);
 int vf_next_query_format(struct vf_instance_s* vf, unsigned int fmt);
 int vf_next_put_image(struct vf_instance_s* vf,mp_image_t *mpi, double pts);
 void vf_next_draw_slice (struct vf_instance_s* vf, unsigned char** src, int* stride, int w,int h, int x, int y);
@@ -120,3 +128,5 @@ void vf_uninit_filter_chain(vf_instance_t* vf);
 int vf_config_wrapper(struct vf_instance_s* vf,
 		      int width, int height, int d_width, int d_height,
 		      unsigned int flags, unsigned int outfmt);
+
+#endif /* MPLAYER_VF_H */

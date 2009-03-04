@@ -1,20 +1,22 @@
 /*
-    Copyright (C) 2003 Michael Niedermayer <michaelni@gmx.at>
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-*/
+ * Copyright (C) 2003 Michael Niedermayer <michaelni@gmx.at>
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 /*
  * This implementation is based on an algorithm described in
@@ -35,10 +37,16 @@
 #include "mp_msg.h"
 #include "cpudetect.h"
 
+#include "libavutil/internal.h"
+#include "libavutil/intreadwrite.h"
 #include "libavcodec/avcodec.h"
 #include "libavcodec/dsputil.h"
 
-#ifdef HAVE_MALLOC_H
+#undef fprintf
+#undef free
+#undef malloc
+
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 
@@ -143,14 +151,14 @@ static void softthresh_c(DCTELEM dst[64], DCTELEM src[64], int qp, uint8_t *perm
 	}
 }
 
-#ifdef HAVE_MMX
+#if HAVE_MMX
 static void hardthresh_mmx(DCTELEM dst[64], DCTELEM src[64], int qp, uint8_t *permutation){
 	int bias= 0; //FIXME
 	unsigned int threshold1;
 	
 	threshold1= qp*((1<<4) - bias) - 1;
 	
-        asm volatile(
+        __asm__ volatile(
 #define REQUANT_CORE(dst0, dst1, dst2, dst3, src0, src1, src2, src3) \
 		"movq " #src0 ", %%mm0	\n\t"\
 		"movq " #src1 ", %%mm1	\n\t"\
@@ -218,7 +226,7 @@ static void softthresh_mmx(DCTELEM dst[64], DCTELEM src[64], int qp, uint8_t *pe
 
 	threshold1= qp*((1<<4) - bias) - 1;
 	
-        asm volatile(
+        __asm__ volatile(
 #undef REQUANT_CORE
 #define REQUANT_CORE(dst0, dst1, dst2, dst3, src0, src1, src2, src3) \
 		"movq " #src0 ", %%mm0	\n\t"\
@@ -324,14 +332,14 @@ static void store_slice_c(uint8_t *dst, int16_t *src, int dst_stride, int src_st
 	}
 }
 
-#ifdef HAVE_MMX
+#if HAVE_MMX
 static void store_slice_mmx(uint8_t *dst, int16_t *src, int dst_stride, int src_stride, int width, int height, int log2_scale){
 	int y;
 
 	for(y=0; y<height; y++){
 		uint8_t *dst1= dst;
 		int16_t *src1= src;
-		asm volatile(
+		__asm__ volatile(
 			"movq (%3), %%mm3	\n\t"
 			"movq (%3), %%mm4	\n\t"
 			"movd %4, %%mm2		\n\t"
@@ -496,11 +504,11 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
 	    }
 	}
 
-#ifdef HAVE_MMX
-	if(gCpuCaps.hasMMX) asm volatile ("emms\n\t");
+#if HAVE_MMX
+	if(gCpuCaps.hasMMX) __asm__ volatile ("emms\n\t");
 #endif
-#ifdef HAVE_MMX2
-	if(gCpuCaps.hasMMX2) asm volatile ("sfence\n\t");
+#if HAVE_MMX2
+	if(gCpuCaps.hasMMX2) __asm__ volatile ("sfence\n\t");
 #endif
 
 	return vf_next_put_image(vf,dmpi, pts);
@@ -540,21 +548,6 @@ static int query_format(struct vf_instance_s* vf, unsigned int fmt){
     }
     return 0;
 }
-
-static unsigned int fmt_list[]={
-	IMGFMT_YVU9,
-	IMGFMT_IF09,
-	IMGFMT_YV12,
-	IMGFMT_I420,
-	IMGFMT_IYUV,
-	IMGFMT_CLPL,
-	IMGFMT_Y800,
-	IMGFMT_Y8,
-	IMGFMT_444P,
-	IMGFMT_422P,
-	IMGFMT_411P,
-	0
-};
 
 static int control(struct vf_instance_s* vf, int request, void* data){
     switch(request){
@@ -601,7 +594,7 @@ static int open(vf_instance_t *vf, char* args){
 	case 1: requantize= softthresh_c; break;
     }
 
-#ifdef HAVE_MMX
+#if HAVE_MMX
     if(gCpuCaps.hasMMX){
 	store_slice= store_slice_mmx;
 	switch(vf->priv->mode&3){
@@ -614,7 +607,7 @@ static int open(vf_instance_t *vf, char* args){
     return 1;
 }
 
-vf_info_t vf_info_spp = {
+const vf_info_t vf_info_spp = {
     "simple postprocess",
     "spp",
     "Michael Niedermayer",

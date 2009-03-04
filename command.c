@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "config.h"
+#include "command.h"
 #include "input/input.h"
 #include "stream/stream.h"
 #include "libmpdemux/demuxer.h"
@@ -15,7 +16,6 @@
 #include "m_property.h"
 #include "help_mp.h"
 #include "metadata.h"
-#include "libmpcodecs/mp_image.h"
 #include "libmpcodecs/vf.h"
 #include "libmpcodecs/vd.h"
 #include "libvo/video_out.h"
@@ -24,41 +24,47 @@
 #include "libao2/audio_out.h"
 #include "mpcommon.h"
 #include "mixer.h"
-#include "libmpdemux/matroska.h"
 #include "libmpcodecs/dec_video.h"
 #include "vobsub.h"
 #include "spudec.h"
 #include "get_path.h"
-#ifdef USE_TV
+#ifdef CONFIG_TV
 #include "stream/tv.h"
 #endif
-#ifdef USE_RADIO
+#ifdef CONFIG_RADIO
 #include "stream/stream_radio.h"
 #endif
-#ifdef HAVE_PVR
+#ifdef CONFIG_PVR
 #include "stream/pvr.h"
 #endif
-#ifdef HAS_DVBIN_SUPPORT
+#ifdef CONFIG_DVBIN
 #include "stream/dvbin.h"
 #endif
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 #include "stream/stream_dvd.h"
 #endif
-#ifdef USE_DVDNAV
+#ifdef CONFIG_DVDNAV
 #include "stream/stream_dvdnav.h"
 #endif
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
 #include "libass/ass.h"
 #include "libass/ass_mp.h"
 #endif
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_MENU
+#include "m_struct.h"
+#include "libmenu/menu.h"
+#endif
+#ifdef CONFIG_GUI
 #include "gui/interface.h"
 #endif
 
 #include "mp_core.h"
 #include "mp_fifo.h"
+#include "libavutil/avstring.h"
 
 #define ROUND(x) ((int)((x)<0 ? (x)-0.5 : (x)+0.5))
+
+extern int use_menu;
 
 static void rescale_input_coordinates(int ix, int iy, double *dx, double *dy)
 {
@@ -88,19 +94,24 @@ static void rescale_input_coordinates(int ix, int iy, double *dx, double *dy)
 	   vo_dheight, vo_fs);
 }
 
-static int sub_source(MPContext * mpctx)
+static int sub_source_by_pos(MPContext * mpctx, int pos)
 {
     int source = -1;
     int top = -1;
     int i;
     for (i = 0; i < SUB_SOURCES; i++) {
 	int j = mpctx->global_sub_indices[i];
-	if ((j >= 0) && (j > top) && (mpctx->global_sub_pos >= j)) {
+	if ((j >= 0) && (j > top) && (pos >= j)) {
 	    source = i;
 	    top = j;
 	}
     }
     return source;
+}
+
+static int sub_source(MPContext * mpctx)
+{
+    return sub_source_by_pos(mpctx, mpctx->global_sub_pos);
 }
 
 /**
@@ -333,7 +344,7 @@ static int mp_property_percent_pos(m_option_t * prop, int action,
                                  demuxer_get_percent_pos(mpctx->demuxer));
     }
 
-    abs_seek_pos = 3;
+    abs_seek_pos = SEEK_ABSOLUTE | SEEK_FACTOR;
     rel_seek_secs = pos / 100.0;
     return M_PROPERTY_OK;
 }
@@ -348,7 +359,7 @@ static int mp_property_time_pos(m_option_t * prop, int action,
     case M_PROPERTY_SET:
         if(!arg) return M_PROPERTY_ERROR;
         M_PROPERTY_CLAMP(prop, *(double*)arg);
-        abs_seek_pos = 1;
+        abs_seek_pos = SEEK_ABSOLUTE;
         rel_seek_secs = *(double*)arg;
         return M_PROPERTY_OK;
     case M_PROPERTY_STEP_UP:
@@ -362,6 +373,151 @@ static int mp_property_time_pos(m_option_t * prop, int action,
                               playing_audio_pts(mpctx->sh_audio,
                                                 mpctx->d_audio,
                                                 mpctx->audio_out));
+}
+
+/// Current chapter (RW)
+static int mp_property_chapter(m_option_t *prop, int action, void *arg,
+                               MPContext *mpctx)
+{
+    int chapter = -1;
+    float next_pts = 0;
+    int chapter_num;
+    int step_all;
+    char *chapter_name = NULL;
+
+    if (mpctx->demuxer)
+        chapter = demuxer_get_current_chapter(mpctx->demuxer);
+    if (chapter < 0)
+        return M_PROPERTY_UNAVAILABLE;
+
+    switch (action) {
+    case M_PROPERTY_GET:
+        if (!arg)
+            return M_PROPERTY_ERROR;
+        *(int *) arg = chapter;
+        return M_PROPERTY_OK;
+    case M_PROPERTY_PRINT: {
+        if (!arg)
+            return M_PROPERTY_ERROR;
+        chapter_name = demuxer_chapter_display_name(mpctx->demuxer, chapter);
+        if (!chapter_name)
+            return M_PROPERTY_UNAVAILABLE;
+        *(char **) arg = chapter_name;
+        return M_PROPERTY_OK;
+    }
+    case M_PROPERTY_SET:
+        if (!arg)
+            return M_PROPERTY_ERROR;
+        M_PROPERTY_CLAMP(prop, *(int*)arg);
+        step_all = *(int *)arg - (chapter + 1);
+        chapter += step_all;
+        break;
+    case M_PROPERTY_STEP_UP:
+    case M_PROPERTY_STEP_DOWN: {
+        step_all = (arg && *(int*)arg != 0 ? *(int*)arg : 1)
+                   * (action == M_PROPERTY_STEP_UP ? 1 : -1);
+        chapter += step_all;
+        if (chapter < 0)
+            chapter = 0;
+        break;
+    }
+    default:
+        return M_PROPERTY_NOT_IMPLEMENTED;
+    }
+    rel_seek_secs = 0;
+    abs_seek_pos = 0;
+    chapter = demuxer_seek_chapter(mpctx->demuxer, chapter, 1,
+                                   &next_pts, &chapter_num, &chapter_name);
+    if (chapter >= 0) {
+        if (next_pts > -1.0) {
+            abs_seek_pos = SEEK_ABSOLUTE;
+            rel_seek_secs = next_pts;
+        }
+        if (chapter_name)
+            set_osd_msg(OSD_MSG_TEXT, 1, osd_duration,
+                        MSGTR_OSDChapter, chapter + 1, chapter_name);
+    }
+    else if (step_all > 0)
+        rel_seek_secs = 1000000000.;
+    else
+        set_osd_msg(OSD_MSG_TEXT, 1, osd_duration,
+                    MSGTR_OSDChapter, 0, MSGTR_Unknown);
+    if (chapter_name)
+        free(chapter_name);
+    return M_PROPERTY_OK;
+}
+
+/// Number of chapters in file
+static int mp_property_chapters(m_option_t *prop, int action, void *arg,
+                               MPContext *mpctx)
+{
+    if (!mpctx->demuxer)
+        return M_PROPERTY_UNAVAILABLE;
+    if (mpctx->demuxer->num_chapters == 0)
+        stream_control(mpctx->demuxer->stream, STREAM_CTRL_GET_NUM_CHAPTERS, &mpctx->demuxer->num_chapters);
+    return m_property_int_ro(prop, action, arg, mpctx->demuxer->num_chapters);
+}
+
+/// Current dvd angle (RW)
+static int mp_property_angle(m_option_t *prop, int action, void *arg,
+                               MPContext *mpctx)
+{
+    int angle = -1;
+    int angles;
+    char *angle_name = NULL;
+
+    if (mpctx->demuxer)
+        angle = demuxer_get_current_angle(mpctx->demuxer);
+    if (angle < 0)
+        return M_PROPERTY_UNAVAILABLE;
+    angles = demuxer_angles_count(mpctx->demuxer);
+    if (angles <= 1)
+        return M_PROPERTY_UNAVAILABLE;
+
+    switch (action) {
+    case M_PROPERTY_GET:
+        if (!arg)
+            return M_PROPERTY_ERROR;
+        *(int *) arg = angle;
+        return M_PROPERTY_OK;
+    case M_PROPERTY_PRINT: {
+        if (!arg)
+            return M_PROPERTY_ERROR;
+        angle_name = calloc(1, 64);
+        if (!angle_name)
+            return M_PROPERTY_UNAVAILABLE;
+        snprintf(angle_name, 64, "%d/%d", angle, angles);
+        *(char **) arg = angle_name;
+        return M_PROPERTY_OK;
+    }
+    case M_PROPERTY_SET:
+        if (!arg)
+            return M_PROPERTY_ERROR;
+        angle = *(int *)arg;
+        M_PROPERTY_CLAMP(prop, angle);
+        break;
+    case M_PROPERTY_STEP_UP:
+    case M_PROPERTY_STEP_DOWN: {
+        int step = 0;
+        if(arg)
+            step = *(int*)arg;
+        if(!step)
+            step = 1;
+        step *= (action == M_PROPERTY_STEP_UP ? 1 : -1);
+        angle += step;
+        if (angle < 1) //cycle
+            angle = angles;
+        break;
+    }
+    default:
+        return M_PROPERTY_NOT_IMPLEMENTED;
+    }
+    angle = demuxer_set_angle(mpctx->demuxer, angle);
+    set_osd_msg(OSD_MSG_TEXT, 1, osd_duration,
+                        MSGTR_OSDAngle, angle, angles);
+    if (angle_name)
+        free(angle_name);
+    return M_PROPERTY_OK;
 }
 
 /// Demuxer meta data
@@ -396,6 +552,12 @@ static int mp_property_metadata(m_option_t * prop, int action, void *arg,
         }
     }
     return M_PROPERTY_NOT_IMPLEMENTED;
+}
+
+static int mp_property_pause(m_option_t * prop, int action, void *arg,
+                             MPContext * mpctx)
+{
+    return m_property_flag_ro(prop, action, arg, mpctx->osd_function == OSD_PAUSE);
 }
 
 
@@ -508,12 +670,12 @@ static int mp_property_audio_delay(m_option_t * prop, int action,
     switch (action) {
     case M_PROPERTY_SET:
     case M_PROPERTY_STEP_UP:
-    case M_PROPERTY_STEP_DOWN:
-	if (!arg)
-	    return M_PROPERTY_ERROR;
-	else {
+    case M_PROPERTY_STEP_DOWN: {
+	    int ret;
 	    float delay = audio_delay;
-	    m_property_delay(prop, action, arg, &audio_delay);
+	    ret = m_property_delay(prop, action, arg, &audio_delay);
+	    if (ret != M_PROPERTY_OK)
+		return ret;
 	    if (mpctx->sh_audio)
 		mpctx->delay -= audio_delay - delay;
 	}
@@ -667,9 +829,10 @@ static int mp_property_audio(m_option_t * prop, int action, void *arg,
 	    *(char **) arg = strdup(MSGTR_Disabled);
 	else {
 	    char lang[40] = MSGTR_Unknown;
-	    if (mpctx->demuxer->type == DEMUXER_TYPE_MATROSKA)
-		demux_mkv_get_audio_lang(mpctx->demuxer, audio_id, lang, 9);
-#ifdef USE_DVDREAD
+            sh_audio_t* sh = mpctx->sh_audio;
+            if (sh && sh->lang)
+                av_strlcpy(lang, sh->lang, 40);
+#ifdef CONFIG_DVDREAD
 	    else if (mpctx->stream->type == STREAMTYPE_DVD) {
 		int code = dvd_lang_from_aid(mpctx->stream, audio_id);
 		if (code) {
@@ -680,9 +843,9 @@ static int mp_property_audio(m_option_t * prop, int action, void *arg,
 	    }
 #endif
 
-#ifdef USE_DVDNAV
+#ifdef CONFIG_DVDNAV
 	    else if (mpctx->stream->type == STREAMTYPE_DVDNAV)
-		dvdnav_lang_from_aid(mpctx->stream, audio_id, lang);
+		mp_dvdnav_lang_from_aid(mpctx->stream, audio_id, lang);
 #endif
 	    *(char **) arg = malloc(64);
 	    snprintf(*(char **) arg, 64, "(%d) %s", audio_id, lang);
@@ -691,6 +854,8 @@ static int mp_property_audio(m_option_t * prop, int action, void *arg,
 
     case M_PROPERTY_STEP_UP:
     case M_PROPERTY_SET:
+	if (!mpctx->demuxer)
+	    return M_PROPERTY_UNAVAILABLE;
 	if (action == M_PROPERTY_SET && arg)
 	    tmp = *((int *) arg);
 	else
@@ -700,7 +865,7 @@ static int mp_property_audio(m_option_t * prop, int action, void *arg,
 	if (audio_id == -2
 	    || (audio_id > -1
 		&& mpctx->demuxer->audio->id != current_id && current_id != -2))
-	    uninit_player(INITED_AO | INITED_ACODEC);
+	    uninit_player(INITIALIZED_AO | INITIALIZED_ACODEC);
 	if (audio_id > -1 && mpctx->demuxer->audio->id != current_id) {
 	    sh_audio_t *sh2;
 	    sh2 = mpctx->demuxer->a_streams[mpctx->demuxer->audio->id];
@@ -758,8 +923,8 @@ static int mp_property_video(m_option_t * prop, int action, void *arg,
 	if (video_id == -2
 	    || (video_id > -1 && mpctx->demuxer->video->id != current_id
 		&& current_id != -2))
-	    uninit_player(INITED_VCODEC |
-			  (fixed_vo && video_id != -2 ? 0 : INITED_VO));
+	    uninit_player(INITIALIZED_VCODEC |
+			  (fixed_vo && video_id != -2 ? 0 : INITIALIZED_VO));
 	if (video_id > -1 && mpctx->demuxer->video->id != current_id) {
 	    sh_video_t *sh2;
 	    sh2 = mpctx->demuxer->v_streams[mpctx->demuxer->video->id];
@@ -826,7 +991,7 @@ static int mp_property_fullscreen(m_option_t * prop, int action, void *arg,
 	    return M_PROPERTY_OK;
     case M_PROPERTY_STEP_UP:
     case M_PROPERTY_STEP_DOWN:
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 	if (use_gui)
 	    guiGetEvent(guiIEvent, (char *) MP_CMD_GUI_FULLSCREEN);
 	else
@@ -977,7 +1142,7 @@ static int mp_property_framedropping(m_option_t * prop, int action,
 static int mp_property_gamma(m_option_t * prop, int action, void *arg,
 			     MPContext * mpctx)
 {
-    int *gamma = prop->priv, r;
+    int *gamma = prop->priv, r, val;
 
     if (!mpctx->sh_video)
 	return M_PROPERTY_UNAVAILABLE;
@@ -998,12 +1163,13 @@ static int mp_property_gamma(m_option_t * prop, int action, void *arg,
 	    break;
 	return r;
     case M_PROPERTY_GET:
-	if (!arg)
-	    return M_PROPERTY_ERROR;
-	r = get_video_colors(mpctx->sh_video, prop->name, arg);
-	if (r <= 0)
-	    break;
-	return r;
+	if (get_video_colors(mpctx->sh_video, prop->name, &val) > 0) {
+	    if (!arg)
+		return M_PROPERTY_ERROR;
+	    *(int *)arg = val;
+	    return M_PROPERTY_OK;
+	}
+	break;
     case M_PROPERTY_STEP_UP:
     case M_PROPERTY_STEP_DOWN:
 	*gamma += (arg ? *(int *) arg : 1) *
@@ -1017,7 +1183,7 @@ static int mp_property_gamma(m_option_t * prop, int action, void *arg,
 	return M_PROPERTY_NOT_IMPLEMENTED;
     }
 
-#ifdef USE_TV
+#ifdef CONFIG_TV
     if (mpctx->demuxer->type == DEMUXER_TYPE_TV) {
 	int l = strlen(prop->name);
 	char tv_prop[3 + l + 1];
@@ -1151,8 +1317,6 @@ static int mp_property_sub_pos(m_option_t * prop, int action, void *arg,
     }
 }
 
-char *demux_lavf_sub_lang(demuxer_t *demuxer, int track_num);
-
 /// Selected subtitles (RW)
 static int mp_property_sub(m_option_t * prop, int action, void *arg,
 			   MPContext * mpctx)
@@ -1179,7 +1343,7 @@ static int mp_property_sub(m_option_t * prop, int action, void *arg,
 	sub_name = 0;
 	if (subdata)
 	    sub_name = subdata->filename;
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
 	if (ass_track && ass_track->name)
 	    sub_name = ass_track->name;
 #endif
@@ -1195,11 +1359,11 @@ static int mp_property_sub(m_option_t * prop, int action, void *arg,
 		     strlen(tmp) < 20 ? tmp : tmp + strlen(tmp) - 19);
 	    return M_PROPERTY_OK;
 	}
-#ifdef USE_DVDNAV
+#ifdef CONFIG_DVDNAV
 	if (mpctx->stream->type == STREAMTYPE_DVDNAV) {
 	    if (vo_spudec && dvdsub_id >= 0) {
 		unsigned char lang[3];
-		if (dvdnav_lang_from_sid(mpctx->stream, dvdsub_id, lang)) {
+		if (mp_dvdnav_lang_from_sid(mpctx->stream, dvdsub_id, lang)) {
 		    snprintf(*(char **) arg, 63, "(%d) %s", dvdsub_id, lang);
 		    return M_PROPERTY_OK;
 		}
@@ -1207,28 +1371,17 @@ static int mp_property_sub(m_option_t * prop, int action, void *arg,
 	}
 #endif
 
-#ifdef USE_LIBAVFORMAT
-	if (mpctx->demuxer->type == DEMUXER_TYPE_LAVF && dvdsub_id >= 0) {
-	    char *lang = demux_lavf_sub_lang(mpctx->demuxer, dvdsub_id);
+	if ((mpctx->demuxer->type == DEMUXER_TYPE_MATROSKA
+             || mpctx->demuxer->type == DEMUXER_TYPE_LAVF
+             || mpctx->demuxer->type == DEMUXER_TYPE_LAVF_PREFERRED
+             || mpctx->demuxer->type == DEMUXER_TYPE_OGG)
+             && d_sub && d_sub->sh && dvdsub_id >= 0) {
+            const char* lang = ((sh_sub_t*)d_sub->sh)->lang;
+            if (!lang) lang = MSGTR_Unknown;
 	    snprintf(*(char **) arg, 63, "(%d) %s", dvdsub_id, lang);
 	    return M_PROPERTY_OK;
 	}
-#endif
-	if (mpctx->demuxer->type == DEMUXER_TYPE_MATROSKA && dvdsub_id >= 0) {
-	    char lang[40] = MSGTR_Unknown;
-	    demux_mkv_get_sub_lang(mpctx->demuxer, dvdsub_id, lang, 9);
-	    snprintf(*(char **) arg, 63, "(%d) %s", dvdsub_id, lang);
-	    return M_PROPERTY_OK;
-	}
-#ifdef HAVE_OGGVORBIS
-	if (mpctx->demuxer->type == DEMUXER_TYPE_OGG && d_sub && dvdsub_id >= 0) {
-	    char *lang = demux_ogg_sub_lang(mpctx->demuxer, dvdsub_id);
-	    if (!lang)
-		lang = MSGTR_Unknown;
-	    snprintf(*(char **) arg, 63, "(%d) %s", dvdsub_id, lang);
-	    return M_PROPERTY_OK;
-	}
-#endif
+
 	if (vo_vobsub && vobsub_id >= 0) {
 	    const char *language = MSGTR_Unknown;
 	    language = vobsub_get_id(vo_vobsub, (unsigned int) vobsub_id);
@@ -1236,7 +1389,7 @@ static int mp_property_sub(m_option_t * prop, int action, void *arg,
 		     vobsub_id, language ? language : MSGTR_Unknown);
 	    return M_PROPERTY_OK;
 	}
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 	if (vo_spudec && mpctx->stream->type == STREAMTYPE_DVD
 	    && dvdsub_id >= 0) {
 	    char lang[3];
@@ -1299,18 +1452,16 @@ static int mp_property_sub(m_option_t * prop, int action, void *arg,
 	    reset_spu = 1;
 	d_sub->id = -2;
     }
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
     ass_track = 0;
 #endif
 
     if (source == SUB_SOURCE_VOBSUB) {
-	vobsub_id =
-	    mpctx->global_sub_pos -
-	    mpctx->global_sub_indices[SUB_SOURCE_VOBSUB];
+        vobsub_id = vobsub_get_id_by_index(vo_vobsub, mpctx->global_sub_pos - mpctx->global_sub_indices[SUB_SOURCE_VOBSUB]);
     } else if (source == SUB_SOURCE_SUBS) {
 	mpctx->set_of_sub_pos =
 	    mpctx->global_sub_pos - mpctx->global_sub_indices[SUB_SOURCE_SUBS];
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
 	if (ass_enabled && mpctx->set_of_ass_tracks[mpctx->set_of_sub_pos])
 	    ass_track = mpctx->set_of_ass_tracks[mpctx->set_of_sub_pos];
 	else
@@ -1327,6 +1478,7 @@ static int mp_property_sub(m_option_t * prop, int action, void *arg,
 	    // default: assume 1:1 mapping of sid and stream id
 	    d_sub->id = dvdsub_id;
 	    d_sub->sh = mpctx->demuxer->s_streams[d_sub->id];
+	    ds_free_packs(d_sub);
 	    for (i = 0; i < MAX_S_STREAMS; i++) {
 		sh_sub_t *sh = mpctx->demuxer->s_streams[i];
 		if (sh && sh->sid == dvdsub_id) {
@@ -1339,8 +1491,8 @@ static int mp_property_sub(m_option_t * prop, int action, void *arg,
 		sh_sub_t *sh = d_sub->sh;
 		if (sh->type == 'v')
 		    init_vo_spudec();
-#ifdef USE_ASS
-		else if (ass_enabled && sh->type == 'a')
+#ifdef CONFIG_ASS
+		else if (ass_enabled)
 		    ass_track = sh->ass_track;
 #endif
             } else {
@@ -1349,7 +1501,7 @@ static int mp_property_sub(m_option_t * prop, int action, void *arg,
 	    }
 	}
     }
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
     if (vo_spudec
 	&& (mpctx->stream->type == STREAMTYPE_DVD
 	    || mpctx->stream->type == STREAMTYPE_DVDNAV)
@@ -1361,6 +1513,184 @@ static int mp_property_sub(m_option_t * prop, int action, void *arg,
     update_subtitles(mpctx->sh_video, d_sub, 1);
 
     return M_PROPERTY_OK;
+}
+
+/// Selected sub source (RW)
+static int mp_property_sub_source(m_option_t * prop, int action, void *arg,
+                                  MPContext * mpctx)
+{
+    int source;
+    if (!mpctx->sh_video || mpctx->global_sub_size <= 0)
+        return M_PROPERTY_UNAVAILABLE;
+
+    switch (action) {
+    case M_PROPERTY_GET:
+        if (!arg)
+            return M_PROPERTY_ERROR;
+        *(int *) arg = sub_source(mpctx);
+        return M_PROPERTY_OK;
+    case M_PROPERTY_PRINT:
+        if (!arg)
+            return M_PROPERTY_ERROR;
+        *(char **) arg = malloc(64);
+        (*(char **) arg)[63] = 0;
+        switch (sub_source(mpctx))
+        {
+        case SUB_SOURCE_SUBS:
+            snprintf(*(char **) arg, 63, MSGTR_SubSourceFile);
+            break;
+        case SUB_SOURCE_VOBSUB:
+            snprintf(*(char **) arg, 63, MSGTR_SubSourceVobsub);
+            break;
+        case SUB_SOURCE_DEMUX:
+            snprintf(*(char **) arg, 63, MSGTR_SubSourceDemux);
+            break;
+        default:
+            snprintf(*(char **) arg, 63, MSGTR_Disabled);
+        }
+        return M_PROPERTY_OK;
+    case M_PROPERTY_SET:
+        if (!arg)
+            return M_PROPERTY_ERROR;
+        M_PROPERTY_CLAMP(prop, *(int*)arg);
+        if (*(int *) arg < 0)
+            mpctx->global_sub_pos = -1;
+        else if (*(int *) arg != sub_source(mpctx)) {
+            if (*(int *) arg != sub_source_by_pos(mpctx, mpctx->global_sub_indices[*(int *) arg]))
+                return M_PROPERTY_UNAVAILABLE;
+            mpctx->global_sub_pos = mpctx->global_sub_indices[*(int *) arg];
+        }
+        break;
+    case M_PROPERTY_STEP_UP:
+    case M_PROPERTY_STEP_DOWN: {
+        int step_all = (arg && *(int*)arg != 0 ? *(int*)arg : 1)
+                       * (action == M_PROPERTY_STEP_UP ? 1 : -1);
+        int step = (step_all > 0) ? 1 : -1;
+        int cur_source = sub_source(mpctx);
+        source = cur_source;
+        while (step_all) {
+            source += step;
+            if (source >= SUB_SOURCES)
+                source = -1;
+            else if (source < -1)
+                source = SUB_SOURCES - 1;
+            if (source == cur_source || source == -1 ||
+                    source == sub_source_by_pos(mpctx, mpctx->global_sub_indices[source]))
+                step_all -= step;
+        }
+        if (source == cur_source)
+            return M_PROPERTY_OK;
+        if (source == -1)
+            mpctx->global_sub_pos = -1;
+        else
+            mpctx->global_sub_pos = mpctx->global_sub_indices[source];
+        break;
+    }
+    default:
+        return M_PROPERTY_NOT_IMPLEMENTED;
+    }
+    --mpctx->global_sub_pos;
+    return mp_property_sub(prop, M_PROPERTY_STEP_UP, NULL, mpctx);
+}
+
+/// Selected subtitles from specific source (RW)
+static int mp_property_sub_by_type(m_option_t * prop, int action, void *arg,
+                                   MPContext * mpctx)
+{
+    int source, is_cur_source, offset;
+    if (!mpctx->sh_video || mpctx->global_sub_size <= 0)
+        return M_PROPERTY_UNAVAILABLE;
+
+    if (!strcmp(prop->name, "sub_file"))
+        source = SUB_SOURCE_SUBS;
+    else if (!strcmp(prop->name, "sub_vob"))
+        source = SUB_SOURCE_VOBSUB;
+    else if (!strcmp(prop->name, "sub_demux"))
+        source = SUB_SOURCE_DEMUX;
+    else
+        return M_PROPERTY_ERROR;
+
+    offset = mpctx->global_sub_indices[source];
+    if (offset < 0 || source != sub_source_by_pos(mpctx, offset))
+        return M_PROPERTY_UNAVAILABLE;
+
+    is_cur_source = sub_source(mpctx) == source;
+    switch (action) {
+    case M_PROPERTY_GET:
+        if (!arg)
+            return M_PROPERTY_ERROR;
+        if (is_cur_source) {
+            *(int *) arg = mpctx->global_sub_pos - offset;
+            if (source == SUB_SOURCE_VOBSUB)
+                *(int *) arg = vobsub_get_id_by_index(vo_vobsub, *(int *) arg);
+        }
+        else
+            *(int *) arg = -1;
+        return M_PROPERTY_OK;
+    case M_PROPERTY_PRINT:
+        if (!arg)
+            return M_PROPERTY_ERROR;
+        if (is_cur_source)
+            return mp_property_sub(prop, M_PROPERTY_PRINT, arg, mpctx);
+        *(char **) arg = malloc(64);
+        (*(char **) arg)[63] = 0;
+        snprintf(*(char **) arg, 63, MSGTR_Disabled);
+        return M_PROPERTY_OK;
+    case M_PROPERTY_SET:
+        if (!arg)
+            return M_PROPERTY_ERROR;
+        if (*(int *) arg >= 0) {
+            int index = *(int *)arg;
+            if (source == SUB_SOURCE_VOBSUB)
+                index = vobsub_get_index_by_id(vo_vobsub, index);
+            mpctx->global_sub_pos = offset + index;
+            if (index < 0 || mpctx->global_sub_pos >= mpctx->global_sub_size
+                    || sub_source(mpctx) != source) {
+                mpctx->global_sub_pos = -1;
+                *(int *) arg = -1;
+            }
+        }
+        else
+            mpctx->global_sub_pos = -1;
+        break;
+    case M_PROPERTY_STEP_UP:
+    case M_PROPERTY_STEP_DOWN: {
+        int step_all = (arg && *(int*)arg != 0 ? *(int*)arg : 1)
+                       * (action == M_PROPERTY_STEP_UP ? 1 : -1);
+        int step = (step_all > 0) ? 1 : -1;
+        int max_sub_pos_for_source = -1;
+        if (!is_cur_source)
+            mpctx->global_sub_pos = -1;
+        while (step_all) {
+            if (mpctx->global_sub_pos == -1) {
+                if (step > 0)
+                    mpctx->global_sub_pos = offset;
+                else if (max_sub_pos_for_source == -1) {
+                    // Find max pos for specific source
+                    mpctx->global_sub_pos = mpctx->global_sub_size - 1;
+                    while (mpctx->global_sub_pos >= 0
+                            && sub_source(mpctx) != source)
+                        --mpctx->global_sub_pos;
+                }
+                else
+                    mpctx->global_sub_pos = max_sub_pos_for_source;
+            }
+            else {
+                mpctx->global_sub_pos += step;
+                if (mpctx->global_sub_pos < offset ||
+                        mpctx->global_sub_pos >= mpctx->global_sub_size ||
+                        sub_source(mpctx) != source)
+                    mpctx->global_sub_pos = -1;
+            }
+            step_all -= step;
+        }
+        break;
+    }
+    default:
+        return M_PROPERTY_NOT_IMPLEMENTED;
+    }
+    --mpctx->global_sub_pos;
+    return mp_property_sub(prop, M_PROPERTY_STEP_UP, NULL, mpctx);
 }
 
 /// Subtitle delay (RW)
@@ -1421,6 +1751,27 @@ static int mp_property_sub_visibility(m_option_t * prop, int action,
     }
 }
 
+#ifdef CONFIG_ASS
+/// Use margins for libass subtitles (RW)
+static int mp_property_ass_use_margins(m_option_t * prop, int action,
+				      void *arg, MPContext * mpctx)
+{
+    if (!mpctx->sh_video)
+	return M_PROPERTY_UNAVAILABLE;
+
+    switch (action) {
+    case M_PROPERTY_SET:
+	if (!arg)
+	    return M_PROPERTY_ERROR;
+    case M_PROPERTY_STEP_UP:
+    case M_PROPERTY_STEP_DOWN:
+	ass_force_reload = 1;
+    default:
+	return m_property_flag(prop, action, arg, &ass_use_margins);
+    }
+}
+#endif
+
 /// Show only forced subtitles (RW)
 static int mp_property_sub_forced_only(m_option_t * prop, int action,
 				       void *arg, MPContext * mpctx)
@@ -1443,7 +1794,7 @@ static int mp_property_sub_forced_only(m_option_t * prop, int action,
 
 }
 
-#ifdef HAVE_FREETYPE
+#ifdef CONFIG_FREETYPE
 /// Subtitle scale (RW)
 static int mp_property_sub_scale(m_option_t * prop, int action, void *arg,
 			      MPContext * mpctx)
@@ -1454,18 +1805,37 @@ static int mp_property_sub_scale(m_option_t * prop, int action, void *arg,
             if (!arg)
                 return M_PROPERTY_ERROR;
             M_PROPERTY_CLAMP(prop, *(float *) arg);
+#ifdef CONFIG_ASS
+            if (ass_enabled) {
+                ass_font_scale = *(float *) arg;
+                ass_force_reload = 1;
+            }
+#endif
             text_font_scale_factor = *(float *) arg;
             force_load_font = 1;
             return M_PROPERTY_OK;
         case M_PROPERTY_STEP_UP:
         case M_PROPERTY_STEP_DOWN:
+#ifdef CONFIG_ASS
+            if (ass_enabled) {
+                ass_font_scale += (arg ? *(float *) arg : 0.1)*
+                  (action == M_PROPERTY_STEP_UP ? 1.0 : -1.0);
+                M_PROPERTY_CLAMP(prop, ass_font_scale);
+                ass_force_reload = 1;
+            }
+#endif
             text_font_scale_factor += (arg ? *(float *) arg : 0.1)*
-                (action == M_PROPERTY_STEP_UP ? 1.0 : -1.0);
+              (action == M_PROPERTY_STEP_UP ? 1.0 : -1.0);
             M_PROPERTY_CLAMP(prop, text_font_scale_factor);
             force_load_font = 1;
             return M_PROPERTY_OK;
         default:
-            return m_property_float_ro(prop, action, arg, text_font_scale_factor);
+#ifdef CONFIG_ASS
+            if (ass_enabled)
+                return m_property_float_ro(prop, action, arg, ass_font_scale);
+            else
+#endif
+                return m_property_float_ro(prop, action, arg, text_font_scale_factor);
     }
 }
 #endif
@@ -1476,7 +1846,7 @@ static int mp_property_sub_scale(m_option_t * prop, int action, void *arg,
 /// \ingroup Properties
 ///@{
 
-#ifdef USE_TV
+#ifdef CONFIG_TV
 
 /// TV color settings (RW)
 static int mp_property_tv_color(m_option_t * prop, int action, void *arg,
@@ -1512,7 +1882,7 @@ static int mp_property_tv_color(m_option_t * prop, int action, void *arg,
 
 #endif
 
-#ifdef HAVE_TV_TELETEXT
+#ifdef CONFIG_TV_TELETEXT
 static int mp_property_teletext_common(m_option_t * prop, int action, void *arg,
                   MPContext * mpctx)
 {
@@ -1551,7 +1921,7 @@ static int mp_property_teletext_common(m_option_t * prop, int action, void *arg,
         return M_PROPERTY_NOT_IMPLEMENTED;
     }
 
-    return (result==TVI_CONTROL_TRUE?M_PROPERTY_OK:M_PROPERTY_ERROR);
+    return result == TVI_CONTROL_TRUE ? M_PROPERTY_OK : M_PROPERTY_ERROR;
 }
 
 static int mp_property_teletext_mode(m_option_t * prop, int action, void *arg,
@@ -1579,6 +1949,8 @@ static int mp_property_teletext_page(m_option_t * prop, int action, void *arg,
     tvi_handle_t *tvh = mpctx->demuxer->priv;
     int result;
     int val;
+    if (mpctx->demuxer->type != DEMUXER_TYPE_TV || !tvh)
+        return M_PROPERTY_UNAVAILABLE;
     switch(action){
     case M_PROPERTY_STEP_UP:
     case M_PROPERTY_STEP_DOWN:
@@ -1593,14 +1965,14 @@ static int mp_property_teletext_page(m_option_t * prop, int action, void *arg,
 }
 
 
-#endif /* HAVE_TV_TELETEXT */
+#endif /* CONFIG_TV_TELETEXT */
 
 ///@}
 
 /// All properties available in MPlayer.
 /** \ingroup Properties
  */
-static m_option_t mp_properties[] = {
+static const m_option_t mp_properties[] = {
     // General
     { "osdlevel", mp_property_osdlevel, CONF_TYPE_INT,
      M_OPT_RANGE, 0, 3, NULL },
@@ -1628,8 +2000,16 @@ static m_option_t mp_properties[] = {
      M_OPT_RANGE, 0, 100, NULL },
     { "time_pos", mp_property_time_pos, CONF_TYPE_TIME,
      M_OPT_MIN, 0, 0, NULL },
+    { "chapter", mp_property_chapter, CONF_TYPE_INT,
+     M_OPT_MIN, 1, 0, NULL },
+    { "chapters", mp_property_chapters, CONF_TYPE_INT,
+     0, 0, 0, NULL },
+    { "angle", mp_property_angle, CONF_TYPE_INT,
+     CONF_RANGE, -2, 10, NULL },
     { "metadata", mp_property_metadata, CONF_TYPE_STRING_LIST,
      0, 0, 0, NULL },
+    { "pause", mp_property_pause, CONF_TYPE_FLAG,
+     M_OPT_RANGE, 0, 1, NULL },
 
     // Audio
     { "volume", mp_property_volume, CONF_TYPE_FLOAT,
@@ -1702,6 +2082,14 @@ static m_option_t mp_properties[] = {
     // Subs
     { "sub", mp_property_sub, CONF_TYPE_INT,
      M_OPT_MIN, -1, 0, NULL },
+    { "sub_source", mp_property_sub_source, CONF_TYPE_INT,
+     M_OPT_RANGE, -1, SUB_SOURCES - 1, NULL },
+    { "sub_vob", mp_property_sub_by_type, CONF_TYPE_INT,
+     M_OPT_MIN, -1, 0, NULL },
+    { "sub_demux", mp_property_sub_by_type, CONF_TYPE_INT,
+     M_OPT_MIN, -1, 0, NULL },
+    { "sub_file", mp_property_sub_by_type, CONF_TYPE_INT,
+     M_OPT_MIN, -1, 0, NULL },
     { "sub_delay", mp_property_sub_delay, CONF_TYPE_FLOAT,
      0, 0, 0, NULL },
     { "sub_pos", mp_property_sub_pos, CONF_TYPE_INT,
@@ -1712,12 +2100,16 @@ static m_option_t mp_properties[] = {
      M_OPT_RANGE, 0, 1, NULL },
     { "sub_forced_only", mp_property_sub_forced_only, CONF_TYPE_FLAG,
      M_OPT_RANGE, 0, 1, NULL },
-#ifdef HAVE_FREETYPE
+#ifdef CONFIG_FREETYPE
     { "sub_scale", mp_property_sub_scale, CONF_TYPE_FLOAT,
      M_OPT_RANGE, 0, 100, NULL },
 #endif
+#ifdef CONFIG_ASS
+    { "ass_use_margins", mp_property_ass_use_margins, CONF_TYPE_FLAG,
+     M_OPT_RANGE, 0, 1, NULL },
+#endif
 
-#ifdef USE_TV
+#ifdef CONFIG_TV
     { "tv_brightness", mp_property_tv_color, CONF_TYPE_INT,
      M_OPT_RANGE, -100, 100, (void *) TV_COLOR_BRIGHTNESS },
     { "tv_contrast", mp_property_tv_color, CONF_TYPE_INT,
@@ -1728,7 +2120,7 @@ static m_option_t mp_properties[] = {
      M_OPT_RANGE, -100, 100, (void *) TV_COLOR_HUE },
 #endif
 
-#ifdef HAVE_TV_TELETEXT
+#ifdef CONFIG_TV_TELETEXT
     { "teletext_page", mp_property_teletext_page, CONF_TYPE_INT,
      M_OPT_RANGE, 100, 899,  (void*)TV_VBI_CONTROL_GET_PAGE },
     { "teletext_subpage", mp_property_teletext_common, CONF_TYPE_INT,
@@ -1809,6 +2201,8 @@ static struct {
 } set_prop_cmd[] = {
     // general
     { "loop", MP_CMD_LOOP, 0, 0, -1, MSGTR_LoopStatus },
+    { "chapter", MP_CMD_SEEK_CHAPTER, 0, 0, -1, NULL },
+    { "angle", MP_CMD_SWITCH_ANGLE, 0, 0, -1, NULL },
     // audio
     { "volume", MP_CMD_VOLUME, 0, OSD_VOLUME, -1, MSGTR_Volume },
     { "mute", MP_CMD_MUTE, 1, 0, -1, MSGTR_MuteStatus },
@@ -1830,15 +2224,22 @@ static struct {
     { "vsync", MP_CMD_SWITCH_VSYNC, 1, 0, -1, MSGTR_VSyncStatus },
 	// subs
     { "sub", MP_CMD_SUB_SELECT, 1, 0, -1, MSGTR_SubSelectStatus },
+    { "sub_source", MP_CMD_SUB_SOURCE, 1, 0, -1, MSGTR_SubSourceStatus },
+    { "sub_vob", MP_CMD_SUB_VOB, 1, 0, -1, MSGTR_SubSelectStatus },
+    { "sub_demux", MP_CMD_SUB_DEMUX, 1, 0, -1, MSGTR_SubSelectStatus },
+    { "sub_file", MP_CMD_SUB_FILE, 1, 0, -1, MSGTR_SubSelectStatus },
     { "sub_pos", MP_CMD_SUB_POS, 0, 0, -1, MSGTR_SubPosStatus },
     { "sub_alignment", MP_CMD_SUB_ALIGNMENT, 1, 0, -1, MSGTR_SubAlignStatus },
     { "sub_delay", MP_CMD_SUB_DELAY, 0, 0, OSD_MSG_SUB_DELAY, MSGTR_SubDelayStatus },
     { "sub_visibility", MP_CMD_SUB_VISIBILITY, 1, 0, -1, MSGTR_SubVisibleStatus },
     { "sub_forced_only", MP_CMD_SUB_FORCED_ONLY, 1, 0, -1, MSGTR_SubForcedOnlyStatus },
-#ifdef HAVE_FREETYPE
+#ifdef CONFIG_FREETYPE
     { "sub_scale", MP_CMD_SUB_SCALE, 0, 0, -1, MSGTR_SubScale},
 #endif
-#ifdef USE_TV
+#ifdef CONFIG_ASS
+    { "ass_use_margins", MP_CMD_ASS_USE_MARGINS, 1, 0, -1, NULL },
+#endif
+#ifdef CONFIG_TV
     { "tv_brightness", MP_CMD_TV_SET_BRIGHTNESS, 0, OSD_BRIGHTNESS, -1, MSGTR_Brightness },
     { "tv_hue", MP_CMD_TV_SET_HUE, 0, OSD_HUE, -1, MSGTR_Hue },
     { "tv_saturation", MP_CMD_TV_SET_SATURATION, 0, OSD_SATURATION, -1, MSGTR_Saturation },
@@ -1908,6 +2309,35 @@ static int set_property_command(MPContext * mpctx, mp_cmd_t * cmd)
     return 1;
 }
 
+#ifdef CONFIG_DVDNAV
+static const struct {
+  const char *name;
+  const mp_command_type cmd;
+} mp_dvdnav_bindings[] = {
+  { "up",       MP_CMD_DVDNAV_UP              },
+  { "down",     MP_CMD_DVDNAV_DOWN            },
+  { "left",     MP_CMD_DVDNAV_LEFT            },
+  { "right",    MP_CMD_DVDNAV_RIGHT           },
+  { "menu",     MP_CMD_DVDNAV_MENU            },
+  { "select",   MP_CMD_DVDNAV_SELECT          },
+  { "prev",     MP_CMD_DVDNAV_PREVMENU        },
+  { "mouse",    MP_CMD_DVDNAV_MOUSECLICK      },
+
+  /*
+   * keep old dvdnav sub-command options for a while in order not to
+   *  break slave-mode API too suddenly.
+   */
+  { "1",        MP_CMD_DVDNAV_UP              },
+  { "2",        MP_CMD_DVDNAV_DOWN            },
+  { "3",        MP_CMD_DVDNAV_LEFT            },
+  { "4",        MP_CMD_DVDNAV_RIGHT           },
+  { "5",        MP_CMD_DVDNAV_MENU            },
+  { "6",        MP_CMD_DVDNAV_SELECT          },
+  { "7",        MP_CMD_DVDNAV_PREVMENU        },
+  { "8",        MP_CMD_DVDNAV_MOUSECLICK      },
+  { NULL,       0                             }
+};
+#endif
 
 int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 {
@@ -1924,13 +2354,13 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 		v = cmd->args[0].v.f;
 		abs = (cmd->nargs > 1) ? cmd->args[1].v.i : 0;
 		if (abs == 2) {	/* Absolute seek to a specific timestamp in seconds */
-		    abs_seek_pos = 1;
+		    abs_seek_pos = SEEK_ABSOLUTE;
 		    if (sh_video)
 			mpctx->osd_function =
 			    (v > sh_video->pts) ? OSD_FFW : OSD_REW;
 		    rel_seek_secs = v;
 		} else if (abs) {	/* Absolute seek by percentage */
-		    abs_seek_pos = 3;
+		    abs_seek_pos = SEEK_ABSOLUTE | SEEK_FACTOR;
 		    if (sh_video)
 			mpctx->osd_function = OSD_FFW;	// Direction isn't set correctly
 		    rel_seek_secs = v / 100.0;
@@ -2033,6 +2463,8 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 	    break;
 
 	case MP_CMD_SWITCH_RATIO:
+            if (!sh_video)
+                break;
 	    if (cmd->nargs == 0 || cmd->args[0].v.f == -1)
 		movie_aspect = (float) sh_video->disp_w / sh_video->disp_h;
 	    else
@@ -2075,14 +2507,14 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 	    break;
 
 	case MP_CMD_QUIT:
-	    exit_player_with_rc(MSGTR_Exit_quit,
+	    exit_player_with_rc(EXIT_QUIT,
 				(cmd->nargs > 0) ? cmd->args[0].v.i : 0);
 
 	case MP_CMD_PLAY_TREE_STEP:{
 		int n = cmd->args[0].v.i == 0 ? 1 : cmd->args[0].v.i;
 		int force = cmd->args[1].v.i;
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 		if (use_gui) {
 		    int i = 0;
 		    if (n > 0)
@@ -2144,7 +2576,7 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 	    if (sh_video) {
 		int movement = cmd->args[0].v.i;
 		step_sub(subdata, sh_video->pts, movement);
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
 		if (ass_track)
 		    sub_delay +=
 			ass_step_sub(ass_track,
@@ -2209,7 +2641,7 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 		play_tree_add_file(e, cmd->args[0].v.s);
 
 		if (cmd->args[1].v.i)	// append
-		    play_tree_append_entry(mpctx->playtree, e);
+		    play_tree_append_entry(mpctx->playtree->child, e);
 		else {
 		    // Go back to the starting point.
 		    while (play_tree_iter_up_step
@@ -2217,7 +2649,7 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 			/* NOP */ ;
 		    play_tree_free_list(mpctx->playtree->child, 1);
 		    play_tree_set_child(mpctx->playtree, e);
-		    play_tree_iter_step(mpctx->playtree_iter, 0, 0);
+		    pt_iter_goto_head(mpctx->playtree_iter);
 		    mpctx->eof = PT_NEXT_SRC;
 		}
 		brk_cmd = 1;
@@ -2231,7 +2663,7 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 			   MSGTR_PlaylistLoadUnable, cmd->args[0].v.s);
 		else {
 		    if (cmd->args[1].v.i)	// append
-			play_tree_append_entry(mpctx->playtree, e);
+			play_tree_append_entry(mpctx->playtree->child, e);
 		    else {
 			// Go back to the starting point.
 			while (play_tree_iter_up_step
@@ -2240,7 +2672,7 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 			    /* NOP */ ;
 			play_tree_free_list(mpctx->playtree->child, 1);
 			play_tree_set_child(mpctx->playtree, e);
-			play_tree_iter_step(mpctx->playtree_iter, 0, 0);
+			pt_iter_goto_head(mpctx->playtree_iter);
 			mpctx->eof = PT_NEXT_SRC;
 		    }
 		}
@@ -2248,7 +2680,16 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 	    }
 	    break;
 
-#ifdef USE_RADIO
+	case MP_CMD_STOP:
+	    // Go back to the starting point.
+	    while (play_tree_iter_up_step
+		   (mpctx->playtree_iter, 0, 1) != PLAY_TREE_ITER_END)
+		/* NOP */ ;
+	    mpctx->eof = PT_STOP;
+	    brk_cmd = 1;
+	    break;
+
+#ifdef CONFIG_RADIO
 	case MP_CMD_RADIO_STEP_CHANNEL:
 	    if (mpctx->demuxer->stream->type == STREAMTYPE_RADIO) {
 		int v = cmd->args[0].v.i;
@@ -2288,7 +2729,7 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 	    break;
 #endif
 
-#ifdef USE_TV
+#ifdef CONFIG_TV
 	case MP_CMD_TV_START_SCAN:
 	    if (mpctx->file_format == DEMUXER_TYPE_TV)
 		tv_start_scan((tvi_handle_t *) (mpctx->demuxer->priv),1);
@@ -2297,28 +2738,28 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 	    if (mpctx->file_format == DEMUXER_TYPE_TV)
 		tv_set_freq((tvi_handle_t *) (mpctx->demuxer->priv),
 			    cmd->args[0].v.f * 16.0);
-#ifdef HAVE_PVR
+#ifdef CONFIG_PVR
             else if (mpctx->stream && mpctx->stream->type == STREAMTYPE_PVR) {
               pvr_set_freq (mpctx->stream, ROUND (cmd->args[0].v.f));
               set_osd_msg (OSD_MSG_TV_CHANNEL, 1, osd_duration, "%s: %s",
                            pvr_get_current_channelname (mpctx->stream),
                            pvr_get_current_stationname (mpctx->stream));
             }
-#endif /* HAVE_PVR */
+#endif /* CONFIG_PVR */
 	    break;
 
 	case MP_CMD_TV_STEP_FREQ:
 	    if (mpctx->file_format == DEMUXER_TYPE_TV)
 		tv_step_freq((tvi_handle_t *) (mpctx->demuxer->priv),
 			    cmd->args[0].v.f * 16.0);
-#ifdef HAVE_PVR
+#ifdef CONFIG_PVR
             else if (mpctx->stream && mpctx->stream->type == STREAMTYPE_PVR) {
               pvr_force_freq_step (mpctx->stream, ROUND (cmd->args[0].v.f));
               set_osd_msg (OSD_MSG_TV_CHANNEL, 1, osd_duration, "%s: f %d",
                            pvr_get_current_channelname (mpctx->stream),
                            pvr_get_current_frequency (mpctx->stream));
             }
-#endif /* HAVE_PVR */
+#endif /* CONFIG_PVR */
 	    break;
 
 	case MP_CMD_TV_SET_NORM:
@@ -2345,7 +2786,7 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 			//vo_osd_changed(OSDTYPE_SUBTITLE);
 		    }
 		}
-#ifdef HAVE_PVR
+#ifdef CONFIG_PVR
                 else if (mpctx->stream &&
                          mpctx->stream->type == STREAMTYPE_PVR) {
                   pvr_set_channel_step (mpctx->stream, cmd->args[0].v.i);
@@ -2353,13 +2794,10 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
                                pvr_get_current_channelname (mpctx->stream),
                                pvr_get_current_stationname (mpctx->stream));
                 }
-#endif /* HAVE_PVR */
+#endif /* CONFIG_PVR */
 	    }
-#ifdef HAS_DVBIN_SUPPORT
-	    if ((mpctx->stream->type == STREAMTYPE_DVB)
-		&& mpctx->stream->priv) {
-		dvb_priv_t *priv = (dvb_priv_t *) mpctx->stream->priv;
-		if (priv->is_on) {
+#ifdef CONFIG_DVBIN
+	    if (mpctx->stream->type == STREAMTYPE_DVB) {
 		    int dir;
 		    int v = cmd->args[0].v.i;
 
@@ -2370,11 +2808,10 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 			dir = DVB_CHANNEL_LOWER;
 
 
-		    if (dvb_step_channel(priv, dir))
+		    if (dvb_step_channel(mpctx->stream, dir))
 			mpctx->eof = mpctx->dvbin_reopen = 1;
-		}
 	    }
-#endif				/* HAS_DVBIN_SUPPORT */
+#endif /* CONFIG_DVBIN */
 	    break;
 
 	case MP_CMD_TV_SET_CHANNEL:
@@ -2387,34 +2824,27 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 		    //vo_osd_changed(OSDTYPE_SUBTITLE);
 		}
 	    }
-#ifdef HAVE_PVR
+#ifdef CONFIG_PVR
             else if (mpctx->stream && mpctx->stream->type == STREAMTYPE_PVR) {
               pvr_set_channel (mpctx->stream, cmd->args[0].v.s);
               set_osd_msg (OSD_MSG_TV_CHANNEL, 1, osd_duration, "%s: %s",
                            pvr_get_current_channelname (mpctx->stream),
                            pvr_get_current_stationname (mpctx->stream));
             }
-#endif /* HAVE_PVR */
+#endif /* CONFIG_PVR */
 	    break;
 
-#ifdef HAS_DVBIN_SUPPORT
+#ifdef CONFIG_DVBIN
 	case MP_CMD_DVB_SET_CHANNEL:
-	    if ((mpctx->stream->type == STREAMTYPE_DVB)
-		&& mpctx->stream->priv) {
-		dvb_priv_t *priv = (dvb_priv_t *) mpctx->stream->priv;
-		if (priv->is_on) {
-		    if (priv->list->current <= cmd->args[0].v.i)
+	    if (mpctx->stream->type == STREAMTYPE_DVB) {
 			mpctx->last_dvb_step = 1;
-		    else
-			mpctx->last_dvb_step = -1;
 
 		    if (dvb_set_channel
-			(priv, cmd->args[1].v.i, cmd->args[0].v.i))
+			(mpctx->stream, cmd->args[1].v.i, cmd->args[0].v.i))
 			mpctx->eof = mpctx->dvbin_reopen = 1;
-		}
 	    }
 	    break;
-#endif				/* HAS_DVBIN_SUPPORT     */
+#endif /* CONFIG_DVBIN */
 
 	case MP_CMD_TV_LAST_CHANNEL:
 	    if (mpctx->file_format == DEMUXER_TYPE_TV) {
@@ -2425,14 +2855,14 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 		    //vo_osd_changed(OSDTYPE_SUBTITLE);
 		}
 	    }
-#ifdef HAVE_PVR
+#ifdef CONFIG_PVR
             else if (mpctx->stream && mpctx->stream->type == STREAMTYPE_PVR) {
               pvr_set_lastchannel (mpctx->stream);
               set_osd_msg (OSD_MSG_TV_CHANNEL, 1, osd_duration, "%s: %s",
                            pvr_get_current_channelname (mpctx->stream),
                            pvr_get_current_stationname (mpctx->stream));
             }
-#endif /* HAVE_PVR */
+#endif /* CONFIG_PVR */
 	    break;
 
 	case MP_CMD_TV_STEP_NORM:
@@ -2444,7 +2874,7 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 	    if (mpctx->file_format == DEMUXER_TYPE_TV)
 		tv_step_chanlist((tvi_handle_t *) (mpctx->demuxer->priv));
 	    break;
-#ifdef HAVE_TV_TELETEXT
+#ifdef CONFIG_TV_TELETEXT
 	case MP_CMD_TV_TELETEXT_ADD_DEC:
 	{
 	    tvi_handle_t* tvh=(tvi_handle_t *)(mpctx->demuxer->priv);
@@ -2459,8 +2889,8 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 		tvh->functions->control(tvh->priv,TV_VBI_CONTROL_GO_LINK,&(cmd->args[0].v.i));
 	    break;
 	}
-#endif /* HAVE_TV_TELETEXT */
-#endif				/* USE_TV */
+#endif /* CONFIG_TV_TELETEXT */
+#endif /* CONFIG_TV */
 
 	case MP_CMD_SUB_LOAD:
 	    if (sh_video) {
@@ -2536,11 +2966,13 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 		    ((vf_instance_t *) sh_video->vfilter)->
 		    control(sh_video->vfilter, VFCTRL_SCREENSHOT,
 			    &cmd->args[0].v.i))
-		    mpctx->video_out->control(VOCTRL_SCREENSHOT, NULL);
+		    mp_msg(MSGT_CPLAYER, MSGL_INFO, "failed (forgot -vf screenshot?)\n");
 	    }
 	    break;
 
 	case MP_CMD_VF_CHANGE_RECTANGLE:
+            if (!sh_video)
+                break;
 	    set_rectangle(sh_video, cmd->args[0].v.i, cmd->args[1].v.i);
 	    break;
 
@@ -2709,48 +3141,13 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 	    mplayer_put_key(cmd->args[0].v.i);
 	    break;
 
-	case MP_CMD_SEEK_CHAPTER:{
-		int seek = cmd->args[0].v.i;
-		int abs = (cmd->nargs > 1) ? cmd->args[1].v.i : 0;
-		int chap;
-		float next_pts = 0;
-		int num_chapters;
-		char *chapter_name;
-
-		rel_seek_secs = 0;
-		abs_seek_pos = 0;
-		chap =
-		    demuxer_seek_chapter(mpctx->demuxer, seek, abs,
-					 &next_pts, &num_chapters,
-					 &chapter_name);
-		if (chap != -1) {
-		    if (next_pts > -1.0) {
-			abs_seek_pos = 1;
-			rel_seek_secs = next_pts;
-		    }
-		    if (chapter_name) {
-			set_osd_msg(OSD_MSG_TEXT, 1, osd_duration,
-				    MSGTR_OSDChapter, chap + 1, chapter_name);
-			free(chapter_name);
-		    }
-		} else {
-		    if (seek > 0)
-			rel_seek_secs = 1000000000.;
-		    else
-			set_osd_msg(OSD_MSG_TEXT, 1, osd_duration,
-				    MSGTR_OSDChapter, 0, MSGTR_Unknown);
-		}
-		break;
-	    }
-	    break;
-
 	case MP_CMD_SET_MOUSE_POS:{
 		int pointer_x, pointer_y;
 		double dx, dy;
 		pointer_x = cmd->args[0].v.i;
 		pointer_y = cmd->args[1].v.i;
 		rescale_input_coordinates(pointer_x, pointer_y, &dx, &dy);
-#ifdef USE_DVDNAV
+#ifdef CONFIG_DVDNAV
 		if (mpctx->stream->type == STREAMTYPE_DVDNAV
 		    && dx > 0.0 && dy > 0.0) {
 		    int button = -1;
@@ -2758,34 +3155,48 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 		    pointer_y = (int) (dy * (double) sh_video->disp_h);
 		    mp_dvdnav_update_mouse_pos(mpctx->stream,
 					       pointer_x, pointer_y, &button);
-		    if (button > 0)
+		    if (osd_level > 1 && button > 0)
 			set_osd_msg(OSD_MSG_TEXT, 1, osd_duration,
 				    "Selected button number %d", button);
 		}
 #endif
+#ifdef CONFIG_MENU
+		if (use_menu && dx >= 0.0 && dy >= 0.0)
+		    menu_update_mouse_pos(dx, dy);
+#endif
 	    }
 	    break;
 
-#ifdef USE_DVDNAV
+#ifdef CONFIG_DVDNAV
 	case MP_CMD_DVDNAV:{
 		int button = -1;
+		int i;
+		mp_command_type command = 0;
 		if (mpctx->stream->type != STREAMTYPE_DVDNAV)
 		    break;
 
-		if (mp_dvdnav_handle_input
-		    (mpctx->stream, cmd->args[0].v.i, &button)) {
-		    uninit_player(INITED_ALL - (INITED_STREAM | INITED_INPUT |
-				   (fixed_vo ? INITED_VO : 0)));
-		    brk_cmd = 2;
-		} else if (button > 0)
+		for (i = 0; mp_dvdnav_bindings[i].name; i++)
+		  if (cmd->args[0].v.s &&
+		      !strcasecmp (cmd->args[0].v.s,
+		                   mp_dvdnav_bindings[i].name))
+		    command = mp_dvdnav_bindings[i].cmd;
+
+		mp_dvdnav_handle_input(mpctx->stream,command,&button);
+		if (osd_level > 1 && button > 0)
 		    set_osd_msg(OSD_MSG_TEXT, 1, osd_duration,
 				"Selected button number %d", button);
 	    }
 	    break;
+
+	case MP_CMD_SWITCH_TITLE:
+	    if (mpctx->stream->type == STREAMTYPE_DVDNAV)
+	        mp_dvdnav_switch_title(mpctx->stream, cmd->args[0].v.i);
+	    break;
+
 #endif
 
 	default:
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 	    if ((use_gui) && (cmd->id > MP_CMD_GUI_EVENTS))
 		guiGetEvent(guiIEvent, (char *) cmd->id);
 	    else
@@ -2800,7 +3211,11 @@ int run_command(MPContext * mpctx, mp_cmd_t * cmd)
 	break;
     case 3:	// "pausing_toggle"
 	mpctx->was_paused = !mpctx->was_paused;
-	// fall through
+	if (mpctx->was_paused)
+	    mpctx->osd_function = OSD_PAUSE;
+	else if (mpctx->osd_function == OSD_PAUSE)
+	    mpctx->osd_function = OSD_PLAY;
+	break;
     case 2:	// "pausing_keep"
 	if (mpctx->was_paused)
 	    mpctx->osd_function = OSD_PAUSE;

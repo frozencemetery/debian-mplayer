@@ -11,10 +11,10 @@ static char help_text[]=
 "Основни Опции: (комплетна листа на man страницата)\n"
 " -vo <drv[:dev]>  избира излезен видео драјвер и уред ('-vo help' за листа)\n"
 " -ao <drv[:dev]>  избира излезен аудио драјвер и уред ('-ao help' за листа)\n"
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
 " vcd://<trackno>   пушта VCD (Video CD) од уред наместо од датотека\n"
 #endif
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 " dvd://<titleno>   пушта DVD наслови од уред наместо од датотека\n"
 " -alang/-slang    избира јазик на DVD аудио/превод (од 2-char код на државата)\n"
 #endif
@@ -222,7 +222,7 @@ static char help_text[]=
 #define MSGTR_SMBFileNotFound "Не може да отвори од локалната мрежа: '%s'\n"
 #define MSGTR_SMBNotCompiled "MPlayer не е компајлиран со подршка за SMB читање\n"
 
-#define MSGTR_CantOpenDVD "Не можеше да се отвори DVD уредот: %s\n"
+#define MSGTR_CantOpenDVD "Не можеше да се отвори DVD уредот: %s (%s)\n"
 #define MSGTR_DVDnumTitles "Има %d наслови на ова DVD.\n"
 #define MSGTR_DVDinvalidTitle "Невалиден DVD број на насловот: %d\n"
 #define MSGTR_DVDnumChapters "Има %d поглавја на овој DVD наслов.\n"
@@ -333,7 +333,7 @@ static char help_text[]=
 
 // ====================== GUI пораки/копчиња ========================
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 
 // --- лабели ---
 #define MSGTR_About "За"

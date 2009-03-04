@@ -1,12 +1,22 @@
-/*=============================================================================
-//	
-//  This software has been released under the terms of the GNU General Public
-//  license. See http://www.gnu.org/copyleft/gpl.html for details.
-//
-//  Copyright 2001 Anders Johansson ajh@atri.curtin.edu.au
-//
-//=============================================================================
-*/
+/*
+ * Copyright (C) 2001 Anders Johansson ajh@atri.curtin.edu.au
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 /* Calculates a number of window functions. The following window
    functions are currently implemented: Boxcar, Triang, Hanning,
@@ -24,7 +34,7 @@
 // n window length
 // w buffer for the window parameters
 */
-void af_window_boxcar(int n, _ftype_t* w)
+void af_window_boxcar(int n, FLOAT_TYPE* w)
 {
   int i;
   // Calculate window coefficients
@@ -44,16 +54,16 @@ void af_window_boxcar(int n, _ftype_t* w)
 // n window length
 // w buffer for the window parameters
 */
-void af_window_triang(int n, _ftype_t* w)
+void af_window_triang(int n, FLOAT_TYPE* w)
 {
-  _ftype_t k1  = (_ftype_t)(n & 1);
-  _ftype_t k2  = 1/((_ftype_t)n + k1);
+  FLOAT_TYPE k1  = (FLOAT_TYPE)(n & 1);
+  FLOAT_TYPE k2  = 1/((FLOAT_TYPE)n + k1);
   int      end = (n + 1) >> 1;
   int	   i;
   
   // Calculate window coefficients
   for (i=0 ; i<end ; i++)
-    w[i] = w[n-i-1] = (2.0*((_ftype_t)(i+1))-(1.0-k1))*k2;
+    w[i] = w[n-i-1] = (2.0*((FLOAT_TYPE)(i+1))-(1.0-k1))*k2;
 }
 
 
@@ -65,14 +75,14 @@ void af_window_triang(int n, _ftype_t* w)
 // n window length
 // w buffer for the window parameters
 */
-void af_window_hanning(int n, _ftype_t* w)
+void af_window_hanning(int n, FLOAT_TYPE* w)
 {
   int	   i;
-  _ftype_t k = 2*M_PI/((_ftype_t)(n+1)); // 2*pi/(N+1)
+  FLOAT_TYPE k = 2*M_PI/((FLOAT_TYPE)(n+1)); // 2*pi/(N+1)
   
   // Calculate window coefficients
   for (i=0; i<n; i++)
-    *w++ = 0.5*(1.0 - cos(k*(_ftype_t)(i+1)));
+    *w++ = 0.5*(1.0 - cos(k*(FLOAT_TYPE)(i+1)));
 }
 
 /*
@@ -84,14 +94,14 @@ void af_window_hanning(int n, _ftype_t* w)
 // n window length
 // w buffer for the window parameters
 */
-void af_window_hamming(int n,_ftype_t* w)
+void af_window_hamming(int n,FLOAT_TYPE* w)
 {
   int      i;
-  _ftype_t k = 2*M_PI/((_ftype_t)(n-1)); // 2*pi/(N-1)
+  FLOAT_TYPE k = 2*M_PI/((FLOAT_TYPE)(n-1)); // 2*pi/(N-1)
 
   // Calculate window coefficients
   for (i=0; i<n; i++)
-    *w++ = 0.54 - 0.46*cos(k*(_ftype_t)i);
+    *w++ = 0.54 - 0.46*cos(k*(FLOAT_TYPE)i);
 }
 
 /*
@@ -103,15 +113,15 @@ void af_window_hamming(int n,_ftype_t* w)
 // n window length
 // w buffer for the window parameters
 */
-void af_window_blackman(int n,_ftype_t* w)
+void af_window_blackman(int n,FLOAT_TYPE* w)
 {
   int      i;
-  _ftype_t k1 = 2*M_PI/((_ftype_t)(n-1)); // 2*pi/(N-1)
-  _ftype_t k2 = 2*k1; // 4*pi/(N-1)
+  FLOAT_TYPE k1 = 2*M_PI/((FLOAT_TYPE)(n-1)); // 2*pi/(N-1)
+  FLOAT_TYPE k2 = 2*k1; // 4*pi/(N-1)
 
   // Calculate window coefficients
   for (i=0; i<n; i++)
-    *w++ = 0.42 - 0.50*cos(k1*(_ftype_t)i) + 0.08*cos(k2*(_ftype_t)i);
+    *w++ = 0.42 - 0.50*cos(k1*(FLOAT_TYPE)i) + 0.08*cos(k2*(FLOAT_TYPE)i);
 }
 
 /*
@@ -123,15 +133,16 @@ void af_window_blackman(int n,_ftype_t* w)
 // n window length
 // w buffer for the window parameters
 */
-void af_window_flattop(int n,_ftype_t* w)
+void af_window_flattop(int n,FLOAT_TYPE* w)
 {
   int      i;
-  _ftype_t k1 = 2*M_PI/((_ftype_t)(n-1)); // 2*pi/(N-1)
-  _ftype_t k2 = 2*k1;                   // 4*pi/(N-1)
+  FLOAT_TYPE k1 = 2*M_PI/((FLOAT_TYPE)(n-1)); // 2*pi/(N-1)
+  FLOAT_TYPE k2 = 2*k1;                   // 4*pi/(N-1)
   
   // Calculate window coefficients
   for (i=0; i<n; i++)
-    *w++ = 0.2810638602 - 0.5208971735*cos(k1*(_ftype_t)i) + 0.1980389663*cos(k2*(_ftype_t)i);
+    *w++ = 0.2810638602 - 0.5208971735*cos(k1*(FLOAT_TYPE)i)
+                        + 0.1980389663*cos(k2*(FLOAT_TYPE)i);
 }
 
 /* Computes the 0th order modified Bessel function of the first kind.  
@@ -142,21 +153,21 @@ void af_window_flattop(int n,_ftype_t* w)
 */
 #define BIZ_EPSILON 1E-21 // Max error acceptable 
 
-static _ftype_t besselizero(_ftype_t x)
+static FLOAT_TYPE besselizero(FLOAT_TYPE x)
 { 
-  _ftype_t temp;
-  _ftype_t sum   = 1.0;
-  _ftype_t u     = 1.0;
-  _ftype_t halfx = x/2.0;
+  FLOAT_TYPE temp;
+  FLOAT_TYPE sum   = 1.0;
+  FLOAT_TYPE u     = 1.0;
+  FLOAT_TYPE halfx = x/2.0;
   int      n     = 1;
 
   do {
-    temp = halfx/(_ftype_t)n;
+    temp = halfx/(FLOAT_TYPE)n;
     u *=temp * temp;
     sum += u;
     n++;
   } while (u >= BIZ_EPSILON * sum);
-  return(sum);
+  return sum;
 }
 
 /*
@@ -186,17 +197,17 @@ static _ftype_t besselizero(_ftype_t x)
 // 8.960   5.7     0.000275  -90
 // 10.056  6.4     0.000087  -100
 */
-void af_window_kaiser(int n, _ftype_t* w, _ftype_t b)
+void af_window_kaiser(int n, FLOAT_TYPE* w, FLOAT_TYPE b)
 {
-  _ftype_t tmp;
-  _ftype_t k1  = 1.0/besselizero(b);
+  FLOAT_TYPE tmp;
+  FLOAT_TYPE k1  = 1.0/besselizero(b);
   int	   k2  = 1 - (n & 1);
   int      end = (n + 1) >> 1;
   int      i; 
   
   // Calculate window coefficients
   for (i=0 ; i<end ; i++){
-    tmp = (_ftype_t)(2*i + k2) / ((_ftype_t)n - 1.0);
+    tmp = (FLOAT_TYPE)(2*i + k2) / ((FLOAT_TYPE)n - 1.0);
     w[end-(1&(!k2))+i] = w[end-1-i] = k1 * besselizero(b*sqrt(1.0 - tmp*tmp));
   }
 }

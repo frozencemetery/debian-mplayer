@@ -18,29 +18,36 @@ extern vf_info_t ve_info_qtvideo;
 extern vf_info_t ve_info_nuv;
 extern vf_info_t ve_info_x264;
 
+/* Please do not add any new encoders here. If you want to implement a new
+ * encoder, add it to libavcodec, except for wrappers around external
+ * libraries and encoders requiring binary support. */
+
 static vf_info_t* encoder_list[]={
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_LIBAVCODEC
     &ve_info_lavc,
 #endif
-#ifdef USE_WIN32DLL
+#ifdef CONFIG_WIN32DLL
     &ve_info_vfw,
-#ifdef USE_QTX_CODECS
+#ifdef CONFIG_QTX_CODECS_WIN32
     &ve_info_qtvideo,
 #endif
 #endif
-#ifdef HAVE_LIBDV095
+#ifdef CONFIG_LIBDV095
     &ve_info_libdv,
 #endif
     &ve_info_raw,
-#ifdef HAVE_XVID4
+#ifdef CONFIG_XVID4
     &ve_info_xvid,
 #endif
-#ifdef USE_LIBLZO
+#ifdef CONFIG_LIBLZO
     &ve_info_nuv,
 #endif
-#ifdef HAVE_X264
+#ifdef CONFIG_X264
     &ve_info_x264,
 #endif
+    /* Please do not add any new encoders here. If you want to implement a new
+     * encoder, add it to libavcodec, except for wrappers around external
+     * libraries and encoders requiring binary support. */
     NULL
 };
 

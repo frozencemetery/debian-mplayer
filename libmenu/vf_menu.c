@@ -1,3 +1,20 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include "config.h"
 #include "mp_msg.h"
@@ -7,7 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 
@@ -21,6 +38,7 @@
 #include "libvo/fastmemcpy.h"
 #include "libvo/video_out.h"
 #include "libvo/font_load.h"
+#include "libvo/sub.h"
 #include "input/input.h"
 #include "m_struct.h"
 #include "menu.h"
@@ -32,7 +50,7 @@ static struct vf_priv_s* st_priv = NULL;
 static mp_image_t* pause_mpi = NULL;
 static int go2pause = 0;
 /// if nonzero display menu at startup
-int attribute_used menu_startup = 0;
+int menu_startup = 0;
 
 struct vf_priv_s {
   menu_t* root;
@@ -43,7 +61,7 @@ struct vf_priv_s {
 static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts);
 
 void vf_menu_pause_update(struct vf_instance_s* vf) {
-  vo_functions_t *video_out = mpctx_get_video_out(vf->priv->current->ctx);
+  const vo_functions_t *video_out = mpctx_get_video_out(vf->priv->current->ctx);
   if(pause_mpi) {
     put_image(vf,pause_mpi, MP_NOPTS_VALUE);
     // Don't draw the osd atm
@@ -55,20 +73,10 @@ void vf_menu_pause_update(struct vf_instance_s* vf) {
 static int cmd_filter(mp_cmd_t* cmd, int paused, struct vf_priv_s * priv) {
 
   switch(cmd->id) {
-  case MP_CMD_PAUSE :
-#if 0 // http://lists.mplayerhq.hu/pipermail/mplayer-dev-eng/2003-March/017286.html
-    if(!paused && !go2pause) { // Initial pause cmd -> wait the next put_image
-      go2pause = 1;
-      return 1;
-    }
-#endif
-    if(go2pause == 2) // Msg resent by put_image after saving the image
-      go2pause = 0;
-    break;
   case MP_CMD_MENU : {  // Convert txt cmd from the users into libmenu stuff
     char* arg = cmd->args[0].v.s;
     
-    if(!priv->current->show && !(strcmp(arg,"hide") == 0) )
+    if (!priv->current->show && strcmp(arg,"hide"))
       priv->current->show = 1;
     else if(strcmp(arg,"up") == 0)
       menu_read_cmd(priv->current,MENU_CMD_UP);
@@ -82,6 +90,16 @@ static int cmd_filter(mp_cmd_t* cmd, int paused, struct vf_priv_s * priv) {
       menu_read_cmd(priv->current,MENU_CMD_OK);
     else if(strcmp(arg,"cancel") == 0)
       menu_read_cmd(priv->current,MENU_CMD_CANCEL);
+    else if(strcmp(arg,"home") == 0)
+      menu_read_cmd(priv->current,MENU_CMD_HOME);
+    else if(strcmp(arg,"end") == 0)
+      menu_read_cmd(priv->current,MENU_CMD_END);
+    else if(strcmp(arg,"pageup") == 0)
+      menu_read_cmd(priv->current,MENU_CMD_PAGE_UP);
+    else if(strcmp(arg,"pagedown") == 0)
+      menu_read_cmd(priv->current,MENU_CMD_PAGE_DOWN);
+    else if(strcmp(arg,"click") == 0)
+      menu_read_cmd(priv->current,MENU_CMD_CLICK);
     else if(strcmp(arg,"hide") == 0 || strcmp(arg,"toggle") == 0)
       priv->current->show = 0;
     else
@@ -119,8 +137,8 @@ static void get_image(struct vf_instance_s* vf, mp_image_t *mpi){
   }
 }
   
-static void key_cb(int code) {
-  menu_read_key(st_priv->current,code);
+static int key_cb(int code) {
+  return menu_read_key(st_priv->current,code);
 }
 
 static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
@@ -133,8 +151,6 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
     return vf_next_put_image(vf,dmpi, pts);
   }
 
-  if(vf->priv->current->show 
-  || (vf->priv->current->parent && vf->priv->current->parent->show)) {
   // Close all menu who requested it
   while(vf->priv->current->cl && vf->priv->current != vf->priv->root) {
     menu_t* m = vf->priv->current;
@@ -142,30 +158,23 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
     menu_close(m);
   }
 
-  // Step 1 : save the picture
-  while(go2pause == 1) {
-    static char delay = 0; // Hack : wait the 2 frame to be sure to show the right picture
-    delay ^= 1; // after a seek
-    if(!delay) break;
-
+    // Try to capture the last frame before pause, or fallback to use
+    // last captured frame.
     if(pause_mpi && (mpi->w != pause_mpi->w || mpi->h != pause_mpi->h ||
 		     mpi->imgfmt != pause_mpi->imgfmt)) {
       free_mp_image(pause_mpi);
       pause_mpi = NULL;
     }
-    if(!pause_mpi)
-      pause_mpi = alloc_mpi(mpi->w,mpi->h,mpi->imgfmt);
+  if (!pause_mpi) {
+    pause_mpi = alloc_mpi(mpi->w,mpi->h,mpi->imgfmt);
     copy_mpi(pause_mpi,mpi);
-    mp_input_queue_cmd(mp_input_parse_cmd("pause"));
-    go2pause = 2;
-    break;
   }
+  else if (mpctx_get_osd_function(vf->priv->root->ctx) == OSD_PAUSE)
+    copy_mpi(pause_mpi,mpi);
 
-  // Grab // Ungrab the keys
-  if(!mp_input_key_cb && vf->priv->current->show)
-    mp_input_key_cb = key_cb;
-  if(mp_input_key_cb && !vf->priv->current->show)
-    mp_input_key_cb = NULL;
+  if (vf->priv->current->show) {
+    if (!mp_input_key_cb)
+      mp_input_key_cb = key_cb;
 
   if(mpi->flags&MP_IMGFLAG_DIRECT)
     dmpi = mpi->priv;
@@ -210,11 +219,11 @@ static void uninit(vf_instance_t *vf) {
 
 static int config(struct vf_instance_s* vf, int width, int height, int d_width, int d_height,
 		  unsigned int flags, unsigned int outfmt) { 
-#ifdef HAVE_FREETYPE    
+#ifdef CONFIG_FREETYPE
   // here is the right place to get screen dimensions
   if (force_load_font) {
     force_load_font = 0;
-    load_font_ft(width,height,&vo_font,font_name);
+    load_font_ft(width,height,&vo_font,font_name,osd_font_scale_factor);
   }
 #endif
   if(outfmt == IMGFMT_MPEGPES)
@@ -223,7 +232,7 @@ static int config(struct vf_instance_s* vf, int width, int height, int d_width, 
 }
 
 static int query_format(struct vf_instance_s* vf, unsigned int fmt){
-  return (vf_next_query_format(vf,fmt));
+  return vf_next_query_format(vf,fmt);
 }
 
 static int open_vf(vf_instance_t *vf, char* args){

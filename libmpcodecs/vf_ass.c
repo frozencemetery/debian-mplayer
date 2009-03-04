@@ -1,22 +1,24 @@
 // -*- c-basic-offset: 8; indent-tabs-mode: t -*-
 // vim:ts=8:sw=8:noet:ai:
 /*
-  Copyright (C) 2006 Evgeniy Stepanov <eugeni.stepanov@gmail.com>
-
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-*/
+ * Copyright (C) 2006 Evgeniy Stepanov <eugeni.stepanov@gmail.com>
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include "config.h"
 
@@ -51,7 +53,7 @@
 #define rgba2v(c)  ( (( 450*_r(c) - 376*_g(c) -  73*_b(c)) >> 10) + 128 )
 
 
-static struct vf_priv_s {
+static const struct vf_priv_s {
 	int outh, outw;
 
 	unsigned int outfmt;
@@ -64,7 +66,7 @@ static struct vf_priv_s {
 
 	unsigned char* planes[3];
 	unsigned char* dirty_rows;
-} const vf_priv_dflt;
+} vf_priv_dflt;
 
 extern int opt_screen_size_x;
 extern int opt_screen_size_y;
@@ -326,7 +328,7 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts)
 {
 	ass_image_t* images = 0;
 	if (sub_visibility && vf->priv->ass_priv && ass_track && (pts != MP_NOPTS_VALUE))
-		images = ass_render_frame(vf->priv->ass_priv, ass_track, (pts+sub_delay) * 1000 + .5, NULL);
+		images = ass_mp_render_frame(vf->priv->ass_priv, ass_track, (pts+sub_delay) * 1000 + .5, NULL);
 	
 	prepare_image(vf, mpi);
 	if (images) render_frame(vf, mpi, images);
@@ -372,7 +374,7 @@ static void uninit(struct vf_instance_s* vf)
 		free(vf->priv->dirty_rows);
 }
 
-static unsigned int fmt_list[]={
+static const unsigned int fmt_list[]={
 	IMGFMT_YV12,
 	IMGFMT_I420,
 	IMGFMT_IYUV,
@@ -405,19 +407,19 @@ static int open(vf_instance_t *vf, char* args)
 }
 
 #define ST_OFF(f) M_ST_OFF(struct vf_priv_s,f)
-static m_option_t vf_opts_fields[] = {
+static const m_option_t vf_opts_fields[] = {
 	{"auto", ST_OFF(auto_insert), CONF_TYPE_FLAG, 0 , 0, 1, NULL},
 	{ NULL, NULL, 0, 0, 0, 0,  NULL }
 };
 
-static m_struct_t vf_opts = {
+static const m_struct_t vf_opts = {
 	"ass",
 	sizeof(struct vf_priv_s),
 	&vf_priv_dflt,
 	vf_opts_fields
 };
 
-vf_info_t vf_info_ass = {
+const vf_info_t vf_info_ass = {
 	"Render ASS/SSA subtitles",
 	"ass",
 	"Evgeniy Stepanov",

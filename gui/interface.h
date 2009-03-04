@@ -1,13 +1,30 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
-#ifndef GUI_INTERFACE_H
-#define GUI_INTERFACE_H
+#ifndef MPLAYER_GUI_INTERFACE_H
+#define MPLAYER_GUI_INTERFACE_H
 
-#include "../config.h"
+#include "config.h"
 #include "mplayer/play.h"
 #include "libvo/font_load.h"
 #include "cfg.h"
 
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
  #include "stream/stream.h"
 #endif
 
@@ -34,7 +51,7 @@ typedef struct
  char codecdll[128];
 } guiVideoStruct;
 
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 typedef struct
 {
  int titles;
@@ -66,14 +83,14 @@ typedef struct
    int    DiskChanged;
    int    NewPlay;
 
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
    guiDVDStruct         DVD;
    int			Title;
    int			Angle;
    int			Chapter;
 #endif
 
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
    int    VCDTracks;
 #endif
 
@@ -145,25 +162,25 @@ extern guiInterface_t guiIntfStruct;
 
 extern int use_gui;
 
-extern void guiInit( void );
-extern void guiDone( void );
-extern int  guiGetEvent( int type,char * arg );
-extern void guiEventHandling( void );
-extern void guiLoadFont( void );
-extern void guiLoadSubtitle( char * name );
-extern void guiMessageBox(int level, char * str);
+void guiInit( void );
+void guiDone( void );
+int  guiGetEvent( int type,char * arg );
+void guiEventHandling( void );
+void guiLoadFont( void );
+void guiLoadSubtitle( char * name );
+void guiMessageBox(int level, char * str);
 
-typedef struct _plItem 
+typedef struct plItem
 {
- struct _plItem * prev,* next;
+ struct plItem * prev,* next;
  int       played;
  char    * path;
  char    * name;
 } plItem;
 
-typedef struct _urlItem
+typedef struct urlItem
 {
- struct _urlItem *next;
+ struct urlItem *next;
  char    * url;
 } URLItem;
 
@@ -206,13 +223,13 @@ extern char * fsHistory[fsPersistant_MaxPos];
 
 extern float gtkEquChannels[6][10];
 
-extern void * gtkSet( int cmd,float param, void * vparam );
+void * gtkSet( int cmd, float param, void * vparam );
 
-extern char * gstrdup( const char * str );
-extern int    gstrcmp( const char * a,const char * b );
-extern void   gfree( void ** p );
-extern void   gaddlist( char *** list,const char * entry );
-extern char * gstrchr( char * str,int c );
+char * gstrdup( const char * str );
+int    gstrcmp( const char * a, const char * b );
+void   gfree( void ** p );
+void   gaddlist( char *** list, const char * entry );
+char * gstrchr( char * str, int c );
 
 #define guiSetFilename( s,n ) { gfree( (void **)&s ); s=gstrdup( n ); }
 
@@ -223,4 +240,4 @@ extern char * gstrchr( char * str,int c );
   sprintf( s,"%s/%s",d,n );                     \
  }
 
-#endif
+#endif /* MPLAYER_GUI_INTERFACE_H */

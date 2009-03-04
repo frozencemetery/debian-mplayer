@@ -1,11 +1,32 @@
+/*
+ * resample_mmx.c
+ * Copyright (C) 2001 Michael Niedermayer (michaelni@gmx.at)
+ *
+ * This file is part of a52dec, a free ATSC A-52 stream decoder.
+ * See http://liba52.sourceforge.net/ for updates.
+ *
+ * File added for use with MPlayer and not part of original a52dec.
+ *
+ * a52dec is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * a52dec is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-// MMX optimizations from Michael Niedermayer (michaelni@gmx.at) (under GPL)
-
-/* optimization TODO / NOTES 
-    movntq is slightly faster (0.5% with the current test.c benchmark) 
-	(but thats just test.c so that needs to be testd in reallity)
-	and it would mean (C / MMX2 / MMX / 3DNOW) versions 
-*/
+/* optimization TODO / NOTES
+ * movntq is slightly faster (0.5% with the current test.c benchmark)
+ * (but that is just test.c so that needs to be tested in reality)
+ * and it would mean (C / MMX2 / MMX / 3DNOW) versions.
+ */
 
 #include "a52_internal.h"
 
@@ -17,7 +38,7 @@ static uint64_t attribute_used __attribute__((aligned(8))) wm1100= 0xFFFFFFFF000
 
 static int a52_resample_MONO_to_5_MMX(float * _f, int16_t * s16){
     int32_t * f = (int32_t *) _f;
-	asm volatile(
+	__asm__ volatile(
 		"mov $-512, %%"REG_S"		\n\t"
 		"movq "MANGLE(magicF2W)", %%mm7	\n\t"
 		"movq "MANGLE(wm1100)", %%mm3	\n\t"
@@ -55,8 +76,8 @@ static int a52_resample_MONO_to_5_MMX(float * _f, int16_t * s16){
 static int a52_resample_STEREO_to_2_MMX(float * _f, int16_t * s16){
     int32_t * f = (int32_t *) _f;
 /* benchmark scores are 0.3% better with SSE but we would need to set bias=0 and premultiply it
-#ifdef HAVE_SSE
-	asm volatile(
+#if HAVE_SSE
+	__asm__ volatile(
 		"mov $-1024, %%"REG_S"		\n\t"
 		"1:				\n\t"
 		"cvtps2pi (%1, %%"REG_S"), %%mm0\n\t"
@@ -72,7 +93,7 @@ static int a52_resample_STEREO_to_2_MMX(float * _f, int16_t * s16){
 		:: "r" (s16+512), "r" (f+256)
 		:"%"REG_S, "memory"
 	);*/
-	asm volatile(
+	__asm__ volatile(
 		"mov $-1024, %%"REG_S"		\n\t"
 		"movq "MANGLE(magicF2W)", %%mm7	\n\t"
 		"1:				\n\t"
@@ -102,7 +123,7 @@ static int a52_resample_STEREO_to_2_MMX(float * _f, int16_t * s16){
 
 static int a52_resample_3F_to_5_MMX(float * _f, int16_t * s16){
     int32_t * f = (int32_t *) _f;
-	asm volatile(
+	__asm__ volatile(
 		"mov $-1024, %%"REG_S"		\n\t"
 		"movq "MANGLE(magicF2W)", %%mm7	\n\t"
 		"pxor %%mm6, %%mm6		\n\t"
@@ -144,7 +165,7 @@ static int a52_resample_3F_to_5_MMX(float * _f, int16_t * s16){
 		"packssdw %%mm3, %%mm2		\n\t"
 		"movq %%mm0, 24(%0, %%"REG_D")	\n\t"
 		"movq %%mm2, 32(%0, %%"REG_D")	\n\t"
-				
+
 		"add $16, %%"REG_S"		\n\t"
 		" jnz 1b			\n\t"
 		"emms				\n\t"
@@ -156,7 +177,7 @@ static int a52_resample_3F_to_5_MMX(float * _f, int16_t * s16){
 
 static int a52_resample_2F_2R_to_4_MMX(float * _f, int16_t * s16){
     int32_t * f = (int32_t *) _f;
-	asm volatile(
+	__asm__ volatile(
 		"mov $-1024, %%"REG_S"		\n\t"
 		"movq "MANGLE(magicF2W)", %%mm7	\n\t"
 		"1:				\n\t"
@@ -207,7 +228,7 @@ static int a52_resample_2F_2R_to_4_MMX(float * _f, int16_t * s16){
 
 static int a52_resample_3F_2R_to_5_MMX(float * _f, int16_t * s16){
     int32_t * f = (int32_t *) _f;
-	asm volatile(
+	__asm__ volatile(
 		"mov $-1024, %%"REG_S"		\n\t"
 		"movq "MANGLE(magicF2W)", %%mm7	\n\t"
 		"1:				\n\t"
@@ -237,7 +258,7 @@ static int a52_resample_3F_2R_to_5_MMX(float * _f, int16_t * s16){
 		"movq %%mm0, (%0, %%"REG_D")	\n\t"
 		"movq %%mm2, 8(%0, %%"REG_D")	\n\t"
 		"movq %%mm4, 16(%0, %%"REG_D")	\n\t"
-		
+
 		"movd 3080(%1, %%"REG_S"), %%mm0\n\t"
 		"punpckldq 4104(%1, %%"REG_S"), %%mm0\n\t"
 		"movd 1032(%1, %%"REG_S"), %%mm1\n\t"
@@ -254,7 +275,7 @@ static int a52_resample_3F_2R_to_5_MMX(float * _f, int16_t * s16){
 		"packssdw %%mm3, %%mm2		\n\t"
 		"movq %%mm0, 24(%0, %%"REG_D")	\n\t"
 		"movq %%mm2, 32(%0, %%"REG_D")	\n\t"
-				
+
 		"add $16, %%"REG_S"		\n\t"
 		" jnz 1b			\n\t"
 		"emms				\n\t"
@@ -266,7 +287,7 @@ static int a52_resample_3F_2R_to_5_MMX(float * _f, int16_t * s16){
 
 static int a52_resample_MONO_LFE_to_6_MMX(float * _f, int16_t * s16){
     int32_t * f = (int32_t *) _f;
-	asm volatile(
+	__asm__ volatile(
 		"mov $-1024, %%"REG_S"		\n\t"
 		"movq "MANGLE(magicF2W)", %%mm7	\n\t"
 		"pxor %%mm6, %%mm6		\n\t"
@@ -306,19 +327,19 @@ static int a52_resample_MONO_LFE_to_6_MMX(float * _f, int16_t * s16){
 
 static int a52_resample_STEREO_LFE_to_6_MMX(float * _f, int16_t * s16){
     int32_t * f = (int32_t *) _f;
-	asm volatile(
+	__asm__ volatile(
 		"mov $-1024, %%"REG_S"		\n\t"
 		"movq "MANGLE(magicF2W)", %%mm7	\n\t"
 		"pxor %%mm6, %%mm6		\n\t"
 		"1:				\n\t"
 		"movq 1024(%1, %%"REG_S"), %%mm0\n\t"
 		"movq 2048(%1, %%"REG_S"), %%mm1\n\t"
-		"movq (%1, %%"REG_S"), %%mm5	\n\t" 
+		"movq (%1, %%"REG_S"), %%mm5	\n\t"
 		"psubd %%mm7, %%mm0		\n\t"
 		"psubd %%mm7, %%mm1		\n\t"
 		"psubd %%mm7, %%mm5		\n\t"
 		"lea (%%"REG_S", %%"REG_S", 2), %%"REG_D"\n\t"
-		
+
 		"pxor %%mm4, %%mm4		\n\t"
 		"packssdw %%mm5, %%mm0		\n\t" // FfAa
 		"packssdw %%mm4, %%mm1		\n\t" // 00Bb
@@ -328,7 +349,7 @@ static int a52_resample_STEREO_LFE_to_6_MMX(float * _f, int16_t * s16){
 		"punpckldq %%mm4, %%mm3		\n\t" // f0XX
 		"punpckldq %%mm6, %%mm0		\n\t" // 00ba
 		"punpckhdq %%mm1, %%mm3		\n\t" // BAf0
-		
+
 		"movq %%mm0, (%0, %%"REG_D")	\n\t" // 00ba
 		"punpckhdq %%mm4, %%mm0		\n\t" // F000
 		"movq %%mm3, 8(%0, %%"REG_D")	\n\t" // BAf0
@@ -344,7 +365,7 @@ static int a52_resample_STEREO_LFE_to_6_MMX(float * _f, int16_t * s16){
 
 static int a52_resample_3F_LFE_to_6_MMX(float * _f, int16_t * s16){
     int32_t * f = (int32_t *) _f;
-	asm volatile(
+	__asm__ volatile(
 		"mov $-1024, %%"REG_S"		\n\t"
 		"movq "MANGLE(magicF2W)", %%mm7	\n\t"
 		"pxor %%mm6, %%mm6		\n\t"
@@ -352,13 +373,13 @@ static int a52_resample_3F_LFE_to_6_MMX(float * _f, int16_t * s16){
 		"movq 1024(%1, %%"REG_S"), %%mm0\n\t"
 		"movq 3072(%1, %%"REG_S"), %%mm1\n\t"
 		"movq 2048(%1, %%"REG_S"), %%mm4\n\t"
-		"movq (%1, %%"REG_S"), %%mm5	\n\t" 
+		"movq (%1, %%"REG_S"), %%mm5	\n\t"
 		"psubd %%mm7, %%mm0		\n\t"
 		"psubd %%mm7, %%mm1		\n\t"
 		"psubd %%mm7, %%mm4		\n\t"
 		"psubd %%mm7, %%mm5		\n\t"
 		"lea (%%"REG_S", %%"REG_S", 2), %%"REG_D"\n\t"
-		
+
 		"packssdw %%mm4, %%mm0		\n\t" // EeAa
 		"packssdw %%mm5, %%mm1		\n\t" // FfBb
 		"movq %%mm0, %%mm2		\n\t" // EeAa
@@ -367,7 +388,7 @@ static int a52_resample_3F_LFE_to_6_MMX(float * _f, int16_t * s16){
 		"movq %%mm0, %%mm1		\n\t" // BAba
 		"punpckldq %%mm6, %%mm0		\n\t" // 00ba
 		"punpckhdq %%mm1, %%mm1		\n\t" // BABA
-		
+
 		"movq %%mm0, (%0, %%"REG_D")	\n\t"
 		"punpckhdq %%mm2, %%mm0		\n\t" // FE00
 		"punpckldq %%mm1, %%mm2		\n\t" // BAfe
@@ -384,7 +405,7 @@ static int a52_resample_3F_LFE_to_6_MMX(float * _f, int16_t * s16){
 
 static int a52_resample_2F_2R_LFE_to_6_MMX(float * _f, int16_t * s16){
     int32_t * f = (int32_t *) _f;
-	asm volatile(
+	__asm__ volatile(
 		"mov $-1024, %%"REG_S"		\n\t"
 		"movq "MANGLE(magicF2W)", %%mm7	\n\t"
 //		"pxor %%mm6, %%mm6		\n\t"
@@ -393,14 +414,14 @@ static int a52_resample_2F_2R_LFE_to_6_MMX(float * _f, int16_t * s16){
 		"movq 2048(%1, %%"REG_S"), %%mm1\n\t"
 		"movq 3072(%1, %%"REG_S"), %%mm2\n\t"
 		"movq 4096(%1, %%"REG_S"), %%mm3\n\t"
-		"movq (%1, %%"REG_S"), %%mm5	\n\t" 
+		"movq (%1, %%"REG_S"), %%mm5	\n\t"
 		"psubd %%mm7, %%mm0		\n\t"
 		"psubd %%mm7, %%mm1		\n\t"
 		"psubd %%mm7, %%mm2		\n\t"
 		"psubd %%mm7, %%mm3		\n\t"
 		"psubd %%mm7, %%mm5		\n\t"
 		"lea (%%"REG_S", %%"REG_S", 2), %%"REG_D"\n\t"
-		
+
 		"packssdw %%mm2, %%mm0		\n\t" // CcAa
 		"packssdw %%mm3, %%mm1		\n\t" // DdBb
 		"packssdw %%mm5, %%mm5		\n\t" // FfFf
@@ -415,7 +436,7 @@ static int a52_resample_2F_2R_LFE_to_6_MMX(float * _f, int16_t * s16){
 		"punpckhdq %%mm1, %%mm1		\n\t" // BABA
 		"punpckldq %%mm1, %%mm4		\n\t" // BAf0
 		"punpckhdq %%mm3, %%mm2		\n\t" // F0DC
-		
+
 		"movq %%mm0, (%0, %%"REG_D")	\n\t"
 		"movq %%mm4, 8(%0, %%"REG_D")	\n\t"
 		"movq %%mm2, 16(%0, %%"REG_D")	\n\t"
@@ -430,7 +451,7 @@ static int a52_resample_2F_2R_LFE_to_6_MMX(float * _f, int16_t * s16){
 
 static int a52_resample_3F_2R_LFE_to_6_MMX(float * _f, int16_t * s16){
     int32_t * f = (int32_t *) _f;
-	asm volatile(
+	__asm__ volatile(
 		"mov $-1024, %%"REG_S"		\n\t"
 		"movq "MANGLE(magicF2W)", %%mm7	\n\t"
 //		"pxor %%mm6, %%mm6		\n\t"
@@ -440,7 +461,7 @@ static int a52_resample_3F_2R_LFE_to_6_MMX(float * _f, int16_t * s16){
 		"movq 4096(%1, %%"REG_S"), %%mm2\n\t"
 		"movq 5120(%1, %%"REG_S"), %%mm3\n\t"
 		"movq 2048(%1, %%"REG_S"), %%mm4\n\t"
-		"movq (%1, %%"REG_S"), %%mm5	\n\t" 
+		"movq (%1, %%"REG_S"), %%mm5	\n\t"
 		"psubd %%mm7, %%mm0		\n\t"
 		"psubd %%mm7, %%mm1		\n\t"
 		"psubd %%mm7, %%mm2		\n\t"
@@ -448,7 +469,7 @@ static int a52_resample_3F_2R_LFE_to_6_MMX(float * _f, int16_t * s16){
 		"psubd %%mm7, %%mm4		\n\t"
 		"psubd %%mm7, %%mm5		\n\t"
 		"lea (%%"REG_S", %%"REG_S", 2), %%"REG_D"\n\t"
-		
+
 		"packssdw %%mm2, %%mm0		\n\t" // CcAa
 		"packssdw %%mm3, %%mm1		\n\t" // DdBb
 		"packssdw %%mm4, %%mm4		\n\t" // EeEe
@@ -463,7 +484,7 @@ static int a52_resample_3F_2R_LFE_to_6_MMX(float * _f, int16_t * s16){
 		"punpckhdq %%mm1, %%mm1		\n\t" // BABA
 		"punpckldq %%mm1, %%mm4		\n\t" // BAfe
 		"punpckhdq %%mm3, %%mm2		\n\t" // FEDC
-		
+
 		"movq %%mm0, (%0, %%"REG_D")	\n\t"
 		"movq %%mm4, 8(%0, %%"REG_D")	\n\t"
 		"movq %%mm2, 16(%0, %%"REG_D")	\n\t"

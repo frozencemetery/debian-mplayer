@@ -2,13 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define USE_THEORA
-
 #include "config.h"
 #include "mp_msg.h"
 #include "help_mp.h"
 
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 
@@ -51,15 +49,19 @@ extern vd_functions_t mpcodecs_vd_libdv;
 extern vd_functions_t mpcodecs_vd_lzo;
 extern vd_functions_t mpcodecs_vd_qtvideo;
 
+/* Please do not add any new decoders here. If you want to implement a new
+ * decoder, add it to libavcodec, except for wrappers around external
+ * libraries and decoders requiring binary support. */
+
 vd_functions_t* mpcodecs_vd_drivers[] = {
         &mpcodecs_vd_null,
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_LIBAVCODEC
         &mpcodecs_vd_ffmpeg,
 #endif
-#ifdef HAVE_OGGTHEORA
+#ifdef CONFIG_OGGTHEORA
 	&mpcodecs_vd_theora,
 #endif
-#ifdef USE_WIN32DLL
+#ifdef CONFIG_WIN32DLL
         &mpcodecs_vd_dshow,
         &mpcodecs_vd_dmo,
         &mpcodecs_vd_vfw,
@@ -69,36 +71,39 @@ vd_functions_t* mpcodecs_vd_drivers[] = {
         &mpcodecs_vd_raw,
         &mpcodecs_vd_hmblck,
         &mpcodecs_vd_nuv,
-#ifdef USE_XANIM
+#ifdef CONFIG_XANIM
         &mpcodecs_vd_xanim,
 #endif
-#ifdef HAVE_PNG
+#ifdef CONFIG_PNG
         &mpcodecs_vd_mpng,
 #endif
-#ifdef HAVE_JPEG
+#ifdef CONFIG_JPEG
 	&mpcodecs_vd_ijpg,
 #endif
 	&mpcodecs_vd_mtga,
 	&mpcodecs_vd_sgi,
-#ifdef USE_LIBMPEG2
+#ifdef CONFIG_LIBMPEG2
         &mpcodecs_vd_libmpeg2,
 #endif
         &mpcodecs_vd_mpegpes,
-#ifdef HAVE_ZR
+#ifdef CONFIG_ZR
         &mpcodecs_vd_zrmjpeg,
 #endif
-#ifdef USE_REALCODECS
+#ifdef CONFIG_REALCODECS
 	&mpcodecs_vd_realvid,
 #endif
-#ifdef HAVE_XVID4
+#ifdef CONFIG_XVID4
 	&mpcodecs_vd_xvid,
 #endif
-#ifdef HAVE_LIBDV095
+#ifdef CONFIG_LIBDV095
 	&mpcodecs_vd_libdv,
 #endif
-#if defined(USE_QTX_CODECS) || defined(MACOSX)
+#ifdef CONFIG_QTX_CODECS
 	&mpcodecs_vd_qtvideo,
 #endif
+    /* Please do not add any new decoders here. If you want to implement a new
+     * decoder, add it to libavcodec, except for wrappers around external
+     * libraries and decoders requiring binary support. */
 	NULL
 };
 
@@ -129,12 +134,14 @@ int vo_gamma_hue = 1000;
 
 extern vd_functions_t* mpvdec; // FIXME!
 
+#define SCREEN_SIZE_X 1
+#define SCREEN_SIZE_Y 1
+
 int mpcodecs_config_vo(sh_video_t *sh, int w, int h, unsigned int preferred_outfmt){
     int i,j;
     unsigned int out_fmt=0;
     int screen_size_x=0;//SCREEN_SIZE_X;
     int screen_size_y=0;//SCREEN_SIZE_Y;
-//    vo_functions_t* video_out=sh->video_out;
     vf_instance_t* vf=sh->vfilter,*sc=NULL;
     int palette=0;
     int vocfg_flags=0;
@@ -221,7 +228,7 @@ csp_again:
 	     }
 	}
 	mp_msg(MSGT_CPLAYER,MSGL_WARN,MSGTR_VOincompCodec);
-	sh->vf_inited=-1;
+	sh->vf_initialized=-1;
 	return 0;	// failed
     }
     out_fmt=sh->codec->outfmt[j];
@@ -308,11 +315,11 @@ csp_again:
 			 out_fmt)==0){
 //                      "MPlayer",out_fmt)){
 	mp_msg(MSGT_CPLAYER,MSGL_WARN,MSGTR_CannotInitVO);
-	sh->vf_inited=-1;
+	sh->vf_initialized=-1;
 	return 0;
     }
 
-    sh->vf_inited=1;
+    sh->vf_initialized=1;
 
     if (vo_gamma_gamma != 1000)
         set_video_colors(sh, "gamma", vo_gamma_gamma);
@@ -334,7 +341,7 @@ csp_again:
 // Note: buffer allocation may be moved to mpcodecs_config_vo() later...
 mp_image_t* mpcodecs_get_image(sh_video_t *sh, int mp_imgtype, int mp_imgflag, int w, int h){
   mp_image_t* mpi=vf_get_image(sh->vfilter,sh->codec->outfmt[sh->outfmtidx],mp_imgtype,mp_imgflag,w,h);
-  mpi->x=mpi->y=0;
+  if (mpi) mpi->x=mpi->y=0;
   return mpi;
 }
 

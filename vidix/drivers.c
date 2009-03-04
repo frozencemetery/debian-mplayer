@@ -14,9 +14,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <stdlib.h>
@@ -24,8 +24,8 @@
 #include <errno.h>
 #include <string.h>
 
-#include "vidixlib.h"
 #include "config.h"
+#include "vidix.h"
 #include "libavutil/common.h"
 #include "mpbswap.h"
 #include "config.h"
@@ -42,7 +42,8 @@ extern VDXDriver pm2_drv;
 extern VDXDriver pm3_drv;
 extern VDXDriver radeon_drv;
 extern VDXDriver rage128_drv;
-extern VDXDriver savage_drv;
+extern VDXDriver s3_drv;
+extern VDXDriver sh_veu_drv;
 extern VDXDriver sis_drv;
 extern VDXDriver unichrome_drv;
 
@@ -89,8 +90,11 @@ void vidix_register_all_drivers (void)
 #ifdef CONFIG_VIDIX_DRV_RAGE128
   vidix_register_driver (&rage128_drv);
 #endif
-#ifdef CONFIG_VIDIX_DRV_SAVAGE
-  vidix_register_driver (&savage_drv);
+#ifdef CONFIG_VIDIX_DRV_S3
+  vidix_register_driver (&s3_drv);
+#endif
+#ifdef CONFIG_VIDIX_DRV_SH_VEU
+  vidix_register_driver (&sh_veu_drv);
 #endif
 #ifdef CONFIG_VIDIX_DRV_SIS
   vidix_register_driver (&sis_drv);

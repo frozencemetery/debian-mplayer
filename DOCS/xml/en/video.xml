@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision: 24710 $ -->
+<!-- $Revision: 27770 $ -->
 <chapter id="video">
 <title>Video output devices</title>
 
@@ -193,9 +193,9 @@ xv support, but the card itself is very slow, so you better sell it.
 </para>
 
 <para>
-There is now a native framebuffer driver for S3 Virge cards similiar to 
+There is now a native framebuffer driver for S3 Virge cards similar to
 tdfxfb. Set up your framebuffer (e.g. append
-"<option>vga=792 video=vesa:mtrr</option>" to your kernel comand line) and use
+"<option>vga=792 video=vesa:mtrr</option>" to your kernel command line) and use
 <option>-vo s3fb</option> (<option>-vf yuy2</option> and <option>-dr</option>
 will also help).
 </para>
@@ -838,7 +838,7 @@ framebuffer, and don't ask for it, since it's not an
 
 <para>
 <systemitem>mga_vid</systemitem> is a combination of a video output driver and
-a Linux kernel module that utilitizes the Matrox G200/G400/G450/G550 video
+a Linux kernel module that utilizes the Matrox G200/G400/G450/G550 video
 scaler/overlay unit to perform YUV->RGB colorspace conversion and arbitrary
 video scaling.
 <systemitem>mga_vid</systemitem> has hardware VSYNC support with triple
@@ -848,21 +848,25 @@ with Linux 2.4.x.
 
 <para>
 For a Linux 2.6.x version of this driver check out
-<ulink url="http://attila.kinali.ch/mga/"/>.
+<ulink url="http://attila.kinali.ch/mga/"/> or have a look at the external
+Subversion repository of mga_vid which can be checked out via
+
+<screen>
+svn checkout svn://svn.mplayerhq.hu/mga_vid
+</screen>
 </para>
 
 <procedure>
 <title>Installation:</title>
 <step><para>
-  To use it, you first have to compile <filename>mga_vid.o</filename>:
+  To use it, you first have to compile <filename>drivers/mga_vid.o</filename>:
   <screen>
-cd drivers
-make<!--
+make drivers<!--
 --></screen>
 </para></step>
 <step><para>
   Then run (as <systemitem class="username">root</systemitem>)
-  <screen>make install</screen>
+  <screen>make install-drivers</screen>
   which should install the module and create the device node for you.
   Load the driver with
   <screen>insmod mga_vid.o</screen>
@@ -941,14 +945,13 @@ the following instructions.
 <procedure>
 <title>Installing the tdfx_vid.o kernel module:</title>
 <step><para>
-  Compile <filename>tdfx_vid.o</filename>:
+  Compile <filename>drivers/tdfx_vid.o</filename>:
   <screen>
-cd drivers
-make</screen>
+make drivers</screen>
 </para></step>
 <step><para>
   Then run (as <systemitem class="username">root</systemitem>)
-  <screen>make install</screen>
+  <screen>make install-drivers</screen>
   which should install the module and create the device node for you.
   Load the driver with
   <screen>insmod tdfx_vid.o</screen>
@@ -1538,6 +1541,10 @@ about it to the developers. The right way is to use VIDIX without arguments
 to enable driver autodetection.
 </para>
 
+
+<sect2 id="svgalib_helper">
+<title>svgalib_helper</title>
+
 <para>
 Since VIDIX requires direct hardware access you can either run it as root
 or set the SUID bit on the <application>MPlayer</application> binary
@@ -1549,11 +1556,7 @@ Alternatively, you can use a special kernel module, like this:
 <step><para>
   Download the
   <ulink url="http://www.arava.co.il/matan/svgalib/">development version</ulink>
-  of svgalib (for example 1.9.17), <emphasis role="bold">OR</emphasis>
-  download a version made by Alex especially for usage with
-  <application>MPlayer</application> (it doesn't need the svgalib source to
-  compile) from
-  <ulink url="http://www.mplayerhq.hu/MPlayer/contrib/svgalib/svgalib_helper-1.9.17-mplayer.tar.bz2">here</ulink>.
+  of svgalib (1.9.x).
 </para></step>
 <step><para>
   Compile the module in the
@@ -1569,18 +1572,17 @@ Alternatively, you can use a special kernel module, like this:
   <filename class="directory">svgalib_helper</filename> dir, as root.
 </para></step>
 <step><para>
-  Move the <filename class="directory">svgalib_helper</filename> directory to
-  the <filename class="directory">vidix</filename> subdirectory of the
-  <application>MPlayer</application> source tree.
-</para></step>
-<step><para>
-  Remove the comment before the CFLAGS line containing the "svgalib_helper"
-  string from <filename class="directory">vidix/Makefile</filename>.
+  Then run <filename>configure</filename> again and pass the parameter
+  <option>--enable-svgalib_helper</option> as well as
+  <option>--with-extraincdir=<replaceable>/path/to/svgalib_helper/sources/</replaceable>kernel/svgalib_helper</option>,
+  where <replaceable>/path/to/svgalib_helper/sources/</replaceable> has to be
+  adjusted to wherever you extracted svgalib_helper sources.
 </para></step>
 <step><para>
   Recompile.
 </para></step>
 </procedure>
+</sect2>
 
 
 <sect2 id="vidix-ati">
@@ -1859,7 +1861,7 @@ have <command>scan</command> compile it for you.
 </para>
 
 <para>
-If you have more than one card type (e.g. Satellitar, Terrestrial, Cable and ATSC)
+If you have more than one card type (e.g. Satellite, Terrestrial, Cable and ATSC)
 you can save your channels files as
 <filename>~/.mplayer/channels.conf.sat</filename>,
 <filename>~/.mplayer/channels.conf.ter</filename>,
@@ -1881,8 +1883,8 @@ In your audio and video fields you can use an extended syntax:
 <option>...:pid[+pid]:...</option> (for a maximum of 6 pids each);
 in this case <application>MPlayer</application> will include in the
 stream all the indicated pids, plus pid 0 (that contains the PAT).
-You are encouraged to include in each row the PMT pid for the
-corresponding channel (if you know it).
+You should always include in each row the PMT and PCR pids for the
+corresponding channel (if you know them).
 You can also specify 8192, this will select all pids on this frequency
 and you can then switch between the programs with TAB.
 This might need more bandwidth, though cheap cards always transfer all
@@ -1895,7 +1897,9 @@ Other possible uses are: televideo pid, second audio track, etc.
 If <application>MPlayer</application> complains frequently about
 <screen>Too many video/audio packets in the buffer</screen> or
 if you notice a growing desynchronization between audio and
-video try to use the libavformat MPEG-TS demuxer by adding
+video verify the presence of the PCR pid in your stream
+(needed to comply with the buffering model of the transmitter)
+and/or try to use the libavformat MPEG-TS demuxer by adding
 <option>-demuxer lavf -lavfdopts probesize=128</option>
 to your command line.
 </para>
@@ -1920,6 +1924,31 @@ where the channel is visible (e.g. 2) with the syntax:
 To change channels press the <keycap>h</keycap> (next) and
 <keycap>k</keycap> (previous) keys, or use the
 <link linkend="osdmenu">OSD menu</link>.
+</para>
+
+<para>
+To temporarily disable the audio or the video stream copy the
+following to <filename>~/.mplayer/input.conf</filename>:
+<screen>
+% set_property  switch_video -2
+&amp; step_property switch_video
+? set_property  switch_audio -2
+^ step_property switch_audio
+</screen>
+(Overriding the action keys as preferred.) When pressing the key
+corresponding to switch_x -2 the associated stream will be closed;
+when pressing the key corresponding to step_x the stream will be reopened.
+Notice that this switching mechanism will not work as expected when there
+are multiple audio and video streams in the multiplex.
+</para>
+
+<para>
+During playback (not during recording), in order to prevent stuttering
+and error messages such as 'Your system is too slow' it is advisable to add
+<screen>
+-mc 10 -speed 0.97 -af scaletempo
+</screen>
+to your command line, adjusting the scaletempo parameters as preferred.
 </para>
 
 <para>
@@ -1965,9 +1994,7 @@ mailing list. Please remember that the list language is English.
 
 <para>
 In the future you may expect the ability to display OSD and subtitles using
-the native OSD feature of DVB cards, as well as more fluent playback of
-non-25fps movies and realtime transcoding between MPEG-2 and MPEG-4 (partial
-decompression).
+the native OSD feature of DVB cards.
 </para>
 </sect2>
 
@@ -2041,7 +2068,7 @@ compilation should go without problems.
 <varlistentry>
 <term><option>-vo dxr3:prebuf:sync:norm=x:<replaceable>device</replaceable></option></term>
 <listitem><para>
-<option>overlay</option> activates the overlay instead of TVOut. It requires
+<option>overlay</option> activates the overlay instead of TV-out. It requires
 that you have a properly configured overlay setup to work right. The easiest
 way to configure the overlay is to first run autocal. Then run mplayer with
 dxr3 output and without overlay turned on, run dxr3view. In dxr3view you can
@@ -2222,7 +2249,7 @@ mplayer -vo zr -vf crop=720:320:80:0 <replaceable>benhur.avi</replaceable>
 <para>
 Extra occurrences of <option>-zrcrop</option> invoke
 <emphasis>cinerama</emphasis> mode, i.e. you can distribute the movie over
-several TV's or beamers to create a larger screen.
+several TVs or beamers to create a larger screen.
 Suppose you have two beamers. The left one is connected to your
 Buz at <filename>/dev/video1</filename> and the right one is connected to
 your DC10+ at <filename>/dev/video0</filename>. The movie has a resolution
@@ -2314,7 +2341,7 @@ for Matrox G450/G550 TV-out instructions, please see the next section!
     <emphasis role="bold">SLOW</emphasis>, and has
     <emphasis role="bold">Macrovision</emphasis> copy protection enabled
     (you can "workaround" Macrovision using this
-    <ulink url="http://avifile.sf.net/mgamacro.pl">perl script</ulink>).
+    <ulink url="http://avifile.sf.net/mgamacro.pl">Perl script</ulink>).
     </para>
   </listitem>
 </varlistentry>
@@ -2323,44 +2350,23 @@ for Matrox G450/G550 TV-out instructions, please see the next section!
   <listitem>
     <para>
     Using the <emphasis role="bold">matroxfb modules</emphasis> in the 2.4
-    kernels. 2.2 kernels don't have the TVout feature in them, thus unusable
-    for this. You have to enable ALL matroxfb-specific feature during
+    kernels. 2.2 kernels don't have the TV-out feature in them, thus unusable
+    for this. You have to enable ALL matroxfb-specific features during
     compilation (except MultiHead), and compile them into
     <emphasis role="bold">modules</emphasis>!
-    You'll also need I2C enabled.
+    You'll also need to enable I2C and put the tools
+    <application>matroxset</application>, <application>fbset</application>
+    and <application>con2fb</application> in your path.
     </para>
 
     <procedure>
     <step><para>
-      Enter <filename class="directory">TVout</filename> and type
-      <command>./compile.sh</command>. Install
-      <filename>TVout/matroxset/matroxset</filename>
-      somewhere into your <envar>PATH</envar>.
+      Then load the <systemitem>matroxfb_Ti3026, matroxfb_maven, i2c-matroxfb,
+      matroxfb_crtc2</systemitem> modules into your kernel. Your text-mode
+      console will enter into framebuffer mode (no way back!).
     </para></step>
     <step><para>
-      If you don't have <command>fbset</command> installed, put
-      <filename>TVout/fbset/fbset</filename>
-      somewhere into your <envar>PATH</envar>.
-    </para></step>
-    <step><para>
-      If you don't have <command>con2fb</command> installed, put
-      <filename>TVout/con2fb/con2fb</filename>
-      somewhere into your <envar>PATH</envar>.
-    </para></step>
-    <step><para>
-      Then enter into the <filename class="directory">TVout/</filename>
-      directory in the <application>MPlayer</application> source, and execute
-      <filename>./modules</filename> as root. Your text-mode console will
-      enter into framebuffer mode (no way back!).
-    </para></step>
-    <step><para>
-      Next, EDIT and run the <filename>./matroxtv</filename> script. This will
-      present you to a very simple menu. Press <keycap>2</keycap> and
-      <keycap>Enter</keycap>. Now you should have the same picture on your
-      monitor, and TV. If the TV (PAL by default)
-      picture has some weird stripes on it, the script wasn't able to set the
-      resolution correctly (to 640x512 by default). Try other resolutions
-      from the menu and/or experiment with fbset.
+      Next, set up your monitor and TV to your liking using the above tools.
     </para></step>
     <step><para>
       Yoh. Next task is to make the cursor on tty1 (or whatever) to
@@ -2401,29 +2407,6 @@ mplayer -vo mga -fs -screenw 640 -screenh 512 <replaceable>filename</replaceable
   </listitem>
 </varlistentry>
 </variablelist>
-
-<formalpara><title>Building a Matrox TV-out cable</title>
-<para>
-No one takes any responsibility, nor guarantee for any damage caused
-by this documentation.
-</para>
-</formalpara>
-
-<formalpara><title>Cable for G400</title>
-<para>
-The CRTC2 connector's fourth pin is the composite video signal. The
-ground are the sixth, seventh and eighth pins. (info contributed
-from Balázs Rácz)
-</para>
-</formalpara>
-
-<formalpara><title>Cable for G450</title>
-<para>
-The CRTC2 connector's first pin is the composite video signal. The
-ground are the fifth, sixth, seventh, and fifteenth (5, 6, 7, 15)
-pins. (info contributed from Balázs Kerekes)
-</para>
-</formalpara>
 </sect2>
 
 <!-- ********** -->
@@ -2454,6 +2437,32 @@ recommended for G400, see the section above.
 The necessary kernel patch and the detailed HOWTO is downloadable from
 <ulink url="http://www.bglug.ca/matrox_tvout/"/>
 </para>
+</sect2>
+
+<!-- ********** -->
+
+<sect2 id="tv-out_matrox_cable">
+<title>Building a Matrox TV-out cable</title>
+<para>
+No one takes any responsibility, nor guarantee for any damage caused
+by this documentation.
+</para>
+
+<formalpara><title>Cable for G400</title>
+<para>
+The CRTC2 connector's fourth pin is the composite video signal. The
+ground are the sixth, seventh and eighth pins. (info contributed
+from Balázs Rácz)
+</para>
+</formalpara>
+
+<formalpara><title>Cable for G450</title>
+<para>
+The CRTC2 connector's first pin is the composite video signal. The
+ground are the fifth, sixth, seventh, and fifteenth (5, 6, 7, 15)
+pins. (info contributed from Balázs Kerekes)
+</para>
+</formalpara>
 </sect2>
 
 <!-- ********** -->

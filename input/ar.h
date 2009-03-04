@@ -15,13 +15,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef INPUT_AR_H
-#define INPUT_AR_H
+#ifndef MPLAYER_AR_H
+#define MPLAYER_AR_H
 
 #define AR_BASE      0x500
 #define AR_PLAY      (AR_BASE + 0)
@@ -35,8 +35,13 @@
 #define AR_VUP       (AR_BASE + 8)
 #define AR_VDOWN     (AR_BASE + 9)
 
+/* MacOSX Driver */
 int mp_input_ar_init(void);
 int mp_input_ar_read(int fd);
 void mp_input_ar_close(int fd);
 
-#endif /* INPUT_AR_H */
+/* Linux Driver */
+int mp_input_appleir_init(char* dev);
+int mp_input_appleir_read(int fd);
+
+#endif /* MPLAYER_AR_H */

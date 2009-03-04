@@ -1,3 +1,23 @@
+/*
+ * SUN audio output driver
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -478,8 +498,6 @@ static int init(int rate,int channels,int format,int flags){
 	return 0;
     }
 
-    ioctl(audio_fd, AUDIO_DRAIN, 0);
-
     if (af2sunfmt(format) == AUDIO_ENCODING_NONE)
       format = AF_FORMAT_S16_NE;
 
@@ -566,14 +584,7 @@ static int init(int rate,int channels,int format,int flags){
     ao_data.bps = byte_per_sec = bytes_per_sample * ao_data.samplerate;
     ao_data.outburst = byte_per_sec > 100000 ? 16384 : 8192;
 
-    AUDIO_INITINFO(&info);
-    info.play.samples = 0;
-    info.play.eof = 0;
-    info.play.error = 0;
-    ioctl (audio_fd, AUDIO_SETINFO, &info);
-
-    queued_bursts = 0;
-    queued_samples = 0;
+    reset();
 
     return 1;
 }
@@ -583,34 +594,22 @@ static void uninit(int immed){
     // throw away buffered data in the audio driver's STREAMS queue
     if (immed)
 	flush_audio(audio_fd);
+    else
+	ioctl(audio_fd, AUDIO_DRAIN, 0);
     close(audio_fd);
 }
 
 // stop playing and empty buffers (for seeking/pause)
 static void reset(void){
     audio_info_t info;
-
-    uninit(1);
-    audio_fd=open(audio_dev, O_WRONLY);
-    if(audio_fd<0){
-	mp_msg(MSGT_AO, MSGL_FATAL, MSGTR_AO_SUN_CantReopenReset, strerror(errno));
-	return;
-    }
-
-    ioctl(audio_fd, AUDIO_DRAIN, 0);
+    flush_audio(audio_fd);
 
     AUDIO_INITINFO(&info);
-    info.play.encoding = af2sunfmt(ao_data.format);
-    info.play.precision =
-	(ao_data.format==AF_FORMAT_S16_NE 
-	 ? AUDIO_PRECISION_16
-	 : AUDIO_PRECISION_8);
-    info.play.channels = ao_data.channels;
-    info.play.sample_rate = ao_data.samplerate;
     info.play.samples = 0;
     info.play.eof = 0;
     info.play.error = 0;
-    ioctl (audio_fd, AUDIO_SETINFO, &info);
+    ioctl(audio_fd, AUDIO_SETINFO, &info);
+
     queued_bursts = 0;
     queued_samples = 0;
 }

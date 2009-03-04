@@ -1,7 +1,25 @@
-/* Experimental audio filter that mixes 5.1 and 5.1 with matrix
-   encoded rear channels into headphone signal using FIR filtering
-   with HRTF.
-*/
+/*
+ * Experimental audio filter that mixes 5.1 and 5.1 with matrix
+ * encoded rear channels into headphone signal using FIR filtering
+ * with HRTF.
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 //#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,7 +38,7 @@ typedef struct af_hrtf_s {
     int dlbuflen, hrflen, basslen;
     /* L, C, R, Ls, Rs channels */
     float *lf, *rf, *lr, *rr, *cf, *cr;
-    float *cf_ir, *af_ir, *of_ir, *ar_ir, *or_ir, *cr_ir;
+    const float *cf_ir, *af_ir, *of_ir, *ar_ir, *or_ir, *cr_ir;
     int cf_o, af_o, of_o, ar_o, or_o, cr_o;
     /* Bass */
     float *ba_l, *ba_r;
@@ -59,7 +77,7 @@ typedef struct af_hrtf_s {
  *    sk:	convolution kernel
  *    offset:	offset on the ring buffer, can be 
  */
-static float conv(const int nx, const int nk, float *sx, float *sk,
+static float conv(const int nx, const int nk, const float *sx, const float *sk,
 		  const int offset)
 {
     /* k = reminder of offset / nx */
@@ -73,7 +91,7 @@ static float conv(const int nx, const int nk, float *sx, float *sk,
 }
 
 /* Detect when the impulse response starts (significantly) */
-static int pulse_detect(float *sx)
+static int pulse_detect(const float *sx)
 {
     /* nmax must be the reference impulse response length (128) minus
        s->hrflen */
@@ -293,8 +311,7 @@ static int control(struct af_instance_s *af, int cmd, void* arg)
 	af->data->format = AF_FORMAT_S16_NE;
 	af->data->bps    = 2;
 	test_output_res = af_test_output(af, (af_data_t*)arg);
-	af->mul.n = 2;
-	af->mul.d = af->data->nch;
+	af->mul = 2.0 / af->data->nch;
 	// after testing input set the real output format
 	af->data->nch = 2;
 	s->print_flag = 1;
@@ -560,7 +577,7 @@ static af_data_t* play(struct af_instance_s *af, af_data_t *data)
 
     /* Set output data */
     data->audio = af->data->audio;
-    data->len   = (data->len * af->mul.n) / af->mul.d;
+    data->len   = data->len / data->nch * 2;
     data->nch   = 2;
 
     return data;
@@ -597,8 +614,7 @@ static int af_open(af_instance_t* af)
     af->control = control;
     af->uninit = uninit;
     af->play = play;
-    af->mul.n = 1;
-    af->mul.d = 1;
+    af->mul = 1;
     af->data = calloc(1, sizeof(af_data_t));
     af->setup = calloc(1, sizeof(af_hrtf_t));
     if((af->data == NULL) || (af->setup == NULL))

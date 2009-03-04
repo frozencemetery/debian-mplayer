@@ -16,9 +16,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <windows.h>
@@ -30,12 +30,11 @@
 #include "libvo/video_out.h"
 #include "libao2/audio_out.h"
 #include "mixer.h"
-#include "interface.h"
+#include "gui/interface.h"
 #include "gui.h"
 #include "mp_msg.h"
 #include "help_mp.h"
 #include "dialogs.h"
-#include "wincfg.h"
 
 extern char  *proc_priority;
 
@@ -656,9 +655,6 @@ static LRESULT CALLBACK PrefsWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM
             }
             return 0;
         }
-        case WM_DESTROY:
-            PostQuitMessage (0);
-            return 0;
     }
     return DefWindowProc(hwnd, iMsg, wParam, lParam);
 }

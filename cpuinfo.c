@@ -8,7 +8,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#if defined(__MINGW32__) && (__MINGW32_MAJOR_VERSION <= 3) && (__MINGW32_MINOR_VERSION < 10)
+#if defined(__MINGW32__) && (__MINGW32_MAJOR_VERSION <= 3) && (__MINGW32_MINOR_VERSION < 10) && !defined(MINGW64)
 #include <sys/timeb.h>
 void gettimeofday(struct timeval* t,void* timezone) {
   struct timeb timebuffer;
@@ -49,9 +49,9 @@ cpuid(int func) {
   cpuid_regs_t regs;
 #define CPUID   ".byte 0x0f, 0xa2; "
 #ifdef __x86_64__
-  asm("mov %%rbx, %%rsi\n\t"
+  __asm__("mov %%rbx, %%rsi\n\t"
 #else
-  asm("mov %%ebx, %%esi\n\t"
+  __asm__("mov %%ebx, %%esi\n\t"
 #endif
       CPUID"\n\t"
 #ifdef __x86_64__
@@ -70,14 +70,14 @@ rdtsc(void)
 {
   uint64_t i;
 #define RDTSC   ".byte 0x0f, 0x31; "
-  asm volatile (RDTSC : "=A"(i) : );
+  __asm__ volatile (RDTSC : "=A"(i) : );
   return i;
 }
 
 static const char*
 brandname(int i)
 {
-  const static char* brandmap[] = {
+  static const char* brandmap[] = {
     NULL,
     "Intel(R) Celeron(R) processor",
     "Intel(R) Pentium(R) III processor",
@@ -105,7 +105,7 @@ store32(char *d, unsigned int v)
 
 
 int
-main(int argc, char **argv)
+main(void)
 {
   cpuid_regs_t regs, regs_ext;
   char idstr[13];
@@ -207,8 +207,8 @@ main(int argc, char **argv)
       CPUID_FEATURE_DEF(14, "xtpr", "xTPR Disable"),
       CPUID_FEATURE_DEF(15, "pdcm", "Perf/Debug Capability MSR"),
       CPUID_FEATURE_DEF(18, "dca", "Direct Cache Access"),
-      CPUID_FEATURE_DEF(19, "sse41", "SSE4.1 Extensions"),
-      CPUID_FEATURE_DEF(20, "sse42", "SSE4.2 Extensions"),
+      CPUID_FEATURE_DEF(19, "sse4_1", "SSE4.1 Extensions"),
+      CPUID_FEATURE_DEF(20, "sse4_2", "SSE4.2 Extensions"),
       CPUID_FEATURE_DEF(23, "popcnt", "Pop Count Instruction"),
       { -1 }
     };
@@ -243,6 +243,9 @@ main(int argc, char **argv)
       CPUID_FEATURE_DEF(8, "3dnowprefetch", "3DNow! Prefetch/PrefetchW"),
       CPUID_FEATURE_DEF(9, "osvw", "OS Visible Workaround"),
       CPUID_FEATURE_DEF(10, "ibs", "Instruction Based Sampling"),
+      CPUID_FEATURE_DEF(11, "sse5", "SSE5 Extensions"),
+      CPUID_FEATURE_DEF(12, "skinit", "SKINIT, STGI, and DEV Support"),
+      CPUID_FEATURE_DEF(13, "wdt", "Watchdog Timer Support"),
       { -1 }
     };
     unsigned int family, model, stepping;

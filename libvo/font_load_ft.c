@@ -4,9 +4,23 @@
  *
  * Artur Zaprzala <zybi@fanthom.irc.pl>
  *
- * ported inside mplayer by Jindrich Makovicka 
- * <makovick@gmail.com>
+ * ported inside MPlayer by Jindrich Makovicka <makovick@gmail.com>
  *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include "config.h"
@@ -16,7 +30,7 @@
 #include <math.h>
 #include <string.h>
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 #include <iconv.h>
 #endif
 
@@ -24,7 +38,7 @@
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 
-#ifdef HAVE_FONTCONFIG
+#ifdef CONFIG_FONTCONFIG
 #include <fontconfig/fontconfig.h>
 #endif
 
@@ -32,6 +46,7 @@
 #include "mpbswap.h"
 #include "font_load.h"
 #include "mp_msg.h"
+#include "help_mp.h"
 #include "mplayer.h"
 #include "get_path.h"
 #include "osd_font.h"
@@ -715,7 +730,7 @@ static int generate_tables(font_desc_t *desc, double thickness, double radius)
     return 0;
 }
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 /* decode from 'encoding' to unicode */
 static FT_ULong decode_char(iconv_t *cd, char c) {
     FT_ULong o;
@@ -839,6 +854,7 @@ static font_desc_t* init_font_desc(void)
     desc->height = 0;
     desc->max_width = 0;
     desc->max_height = 0;
+    desc->freetype = 1;
 
     desc->tables.g = NULL;
     desc->tables.gt2 = NULL;
@@ -891,11 +907,11 @@ void free_font_desc(font_desc_t *desc)
     free(desc);
 }
 
-static int load_sub_face(const char *name, FT_Face *face)
+static int load_sub_face(const char *name, int face_index, FT_Face *face)
 {
     int err = -1;
     
-    if (name) err = FT_New_Face(library, name, 0, face);
+    if (name) err = FT_New_Face(library, name, face_index, face);
 
     if (err) {
 	char *font_file = get_path("subfont.ttf");
@@ -904,7 +920,7 @@ static int load_sub_face(const char *name, FT_Face *face)
 	if (err) {
 	    err = FT_New_Face(library, MPLAYER_DATADIR "/subfont.ttf", 0, face);
 	    if (err) {
-	        mp_msg(MSGT_OSD, MSGL_ERR, "New_Face failed. Maybe the font path is wrong.\nPlease supply the text font file (~/.mplayer/subfont.ttf).\n" );
+	        mp_msg(MSGT_OSD, MSGL_ERR, MSGTR_LIBVO_FONT_LOAD_FT_NewFaceFailed);
 		return -1;
 	    }
 	}
@@ -915,7 +931,7 @@ static int load_sub_face(const char *name, FT_Face *face)
 static int load_osd_face(FT_Face *face)
 {
     if ( FT_New_Memory_Face(library, osd_font_pfb, sizeof(osd_font_pfb), 0, face) ) {
-	mp_msg(MSGT_OSD, MSGL_ERR, "New_Memory_Face failed..\n");
+	mp_msg(MSGT_OSD, MSGL_ERR, MSGTR_LIBVO_FONT_LOAD_FT_NewMemoryFaceFailed);
 	return -1;
     }
     return 0;
@@ -938,7 +954,7 @@ int kerning(font_desc_t *desc, int prevc, int c)
     return f266ToInt(kern.x);
 }
 
-font_desc_t* read_font_desc_ft(const char *fname, int movie_width, int movie_height)
+font_desc_t* read_font_desc_ft(const char *fname, int face_index, int movie_width, int movie_height, float font_scale_factor)
 {
     font_desc_t *desc = NULL;
 
@@ -978,8 +994,8 @@ font_desc_t* read_font_desc_ft(const char *fname, int movie_width, int movie_hei
 	break;
     }
 
-    subtitle_font_ppem = movie_size*text_font_scale_factor/100.0;
-    osd_font_ppem = movie_size*osd_font_scale_factor/100.0;
+    subtitle_font_ppem = movie_size*font_scale_factor/100.0;
+    osd_font_ppem = movie_size*(font_scale_factor+1)/100.0;
 
     if (subtitle_font_ppem < 5) subtitle_font_ppem = 5;
     if (osd_font_ppem < 5) osd_font_ppem = 5;
@@ -1000,14 +1016,14 @@ font_desc_t* read_font_desc_ft(const char *fname, int movie_width, int movie_hei
 //    t=GetTimer();
 
     /* generate the subtitle font */
-    err = load_sub_face(fname, &face);
+    err = load_sub_face(fname, face_index, &face);
     if (err) {
-	mp_msg(MSGT_OSD, MSGL_WARN, "subtitle font: load_sub_face failed.\n");
+	mp_msg(MSGT_OSD, MSGL_WARN, MSGTR_LIBVO_FONT_LOAD_FT_SubFaceFailed);
 	goto gen_osd;
     }
     desc->face_cnt++;
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
     if (unicode) {
 	charset_size = prepare_charset_unicode(face, my_charset, my_charcodes);
     } else {
@@ -1019,7 +1035,7 @@ font_desc_t* read_font_desc_ft(const char *fname, int movie_width, int movie_hei
     }
 
     if (charset_size < 0) {
-	mp_msg(MSGT_OSD, MSGL_ERR, "subtitle font: prepare_charset failed.\n");
+	mp_msg(MSGT_OSD, MSGL_ERR, MSGTR_LIBVO_FONT_LOAD_FT_SubFontCharsetFailed);
 	goto err_out;
     }
 #else
@@ -1033,7 +1049,7 @@ font_desc_t* read_font_desc_ft(const char *fname, int movie_width, int movie_hei
 		       subtitle_font_thickness, subtitle_font_radius);
 
     if (err) {
-	mp_msg(MSGT_OSD, MSGL_ERR, "Cannot prepare subtitle font.\n");
+	mp_msg(MSGT_OSD, MSGL_ERR, MSGTR_LIBVO_FONT_LOAD_FT_CannotPrepareSubtitleFont);
 	goto err_out;
     }
 
@@ -1051,14 +1067,14 @@ gen_osd:
 		       subtitle_font_thickness, subtitle_font_radius);
     
     if (err) {
-	mp_msg(MSGT_OSD, MSGL_ERR, "Cannot prepare OSD font.\n");
+	mp_msg(MSGT_OSD, MSGL_ERR, MSGTR_LIBVO_FONT_LOAD_FT_CannotPrepareOSDFont);
 	goto err_out;
     }
 
     err = generate_tables(desc, subtitle_font_thickness, subtitle_font_radius);
     
     if (err) {
-	mp_msg(MSGT_OSD, MSGL_ERR, "Cannot generate tables.\n");
+	mp_msg(MSGT_OSD, MSGL_ERR, MSGTR_LIBVO_FONT_LOAD_FT_CannotGenerateTables);
 	goto err_out;
     }
 
@@ -1113,19 +1129,20 @@ int done_freetype(void)
     
     err = FT_Done_FreeType(library);
     if (err) {
-	mp_msg(MSGT_OSD, MSGL_ERR, "FT_Done_FreeType failed.\n");
+	mp_msg(MSGT_OSD, MSGL_ERR, MSGTR_LIBVO_FONT_LOAD_FT_DoneFreeTypeFailed);
 	return -1;
     }
 
     return 0;
 }
 
-void load_font_ft(int width, int height, font_desc_t** fontp, const char *font_name) 
+void load_font_ft(int width, int height, font_desc_t** fontp, const char *font_name, float font_scale_factor)
 {
-#ifdef HAVE_FONTCONFIG
+#ifdef CONFIG_FONTCONFIG
     FcPattern *fc_pattern;
     FcPattern *fc_pattern2;
     FcChar8 *s;
+    int face_index;
     FcBool scalable;
 #endif
     font_desc_t *vo_font = *fontp;
@@ -1137,8 +1154,8 @@ void load_font_ft(int width, int height, font_desc_t** fontp, const char *font_n
 
     if (vo_font) free_font_desc(vo_font);
 
-#ifdef HAVE_FONTCONFIG
-    if (font_fontconfig)
+#ifdef CONFIG_FONTCONFIG
+    if (font_fontconfig > 0)
     {
 	if (!font_name)
 	    font_name = strdup("sans-serif");
@@ -1161,10 +1178,11 @@ void load_font_ft(int width, int height, font_desc_t** fontp, const char *font_n
 	}
 	// s doesn't need to be freed according to fontconfig docs
 	FcPatternGetString(fc_pattern, FC_FILE, 0, &s);
-	*fontp=read_font_desc_ft(s, width, height);
+	FcPatternGetInteger(fc_pattern, FC_INDEX, 0, &face_index);
+	*fontp=read_font_desc_ft(s, face_index, width, height, font_scale_factor);
 	FcPatternDestroy(fc_pattern);
     }
     else
 #endif
-    *fontp=read_font_desc_ft(font_name, width, height);
+    *fontp=read_font_desc_ft(font_name, 0, width, height, font_scale_factor);
 }

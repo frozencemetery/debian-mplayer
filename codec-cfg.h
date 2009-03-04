@@ -1,16 +1,15 @@
-#ifndef CODEC_CFG_H
-#define CODEC_CFG_H
+#ifndef MPLAYER_CODEC_CFG_H
+#define MPLAYER_CODEC_CFG_H
 
-#define CODEC_CFG_MIN	20071007
+#define CODEC_CFG_MIN	20070407
 
-#define CODECS_MAX_FOURCC	32
+#define CODECS_MAX_FOURCC	92
 #define CODECS_MAX_OUTFMT	16
 #define CODECS_MAX_INFMT	16
 
 // Global flags:
 #define CODECS_FLAG_SEEKABLE	(1<<0)
 #define CODECS_FLAG_ALIGN16	(1<<1)
-#define CODECS_FLAG_SELECTED	(1<<15)  /* for internal use */
 
 // Outfmt flags:
 #define CODECS_FLAG_FLIP	(1<<0)
@@ -65,9 +64,13 @@ codecs_t* find_audio_codec(unsigned int fourcc, unsigned int *fourccmap,
                            codecs_t *start, int force);
 codecs_t* find_codec(unsigned int fourcc, unsigned int *fourccmap,
                      codecs_t *start, int audioflag, int force);
-void select_codec(char* codecname,int audioflag);
 void list_codecs(int audioflag);
-void codecs_reset_selection(int audioflag);
 void codecs_uninit_free(void);
 
-#endif /* CODEC_CFG_H */
+typedef char ** stringset_t;
+void stringset_init(stringset_t *set);
+void stringset_free(stringset_t *set);
+void stringset_add(stringset_t *set, const char *str);
+int stringset_test(stringset_t *set, const char *str);
+
+#endif /* MPLAYER_CODEC_CFG_H */

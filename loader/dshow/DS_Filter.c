@@ -1,12 +1,11 @@
 /*
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: DS_Filter.c 24425 2007-09-10 18:27:45Z voroshil $
  */
 
 #include "config.h"
 #include "DS_Filter.h"
-#include "driver.h"
+#include "drv.h"
 #include "com.h"
 #include <stdio.h>
 #include <string.h>
@@ -98,9 +97,9 @@ void DS_Filter_Destroy(DS_Filter* This)
 static HRESULT STDCALL DS_Filter_CopySample(void* pUserData,IMediaSample* pSample){
     BYTE* pointer;
     int len;
-    SampleProcUserData* pData=(SampleProcUserData*)pUserData;
+    SampleProcUserData* pData=pUserData;
     Debug printf("CopySample called(%p,%p)\n",pSample,pUserData);
-    if (pSample->vt->GetPointer(pSample, (BYTE**) &pointer))
+    if (pSample->vt->GetPointer(pSample, &pointer))
 	return 1;
     len = pSample->vt->GetActualDataLength(pSample);
     if (len == 0)
@@ -129,8 +128,7 @@ DS_Filter* DS_FilterCreate(const char* dllname, const GUID* id,
     const char* em = NULL;
     MemAllocator* tempAll;
     ALLOCATOR_PROPERTIES props,props1;
-    HRESULT result;
-    DS_Filter* This = (DS_Filter*) malloc(sizeof(DS_Filter));
+    DS_Filter* This = malloc(sizeof(DS_Filter));
     if (!This)
 	return NULL;
 
@@ -168,6 +166,7 @@ DS_Filter* DS_FilterCreate(const char* dllname, const GUID* id,
 	IEnumPins* enum_pins = 0;
 	IPin* array[256];
 	ULONG fetched;
+        HRESULT result;
         unsigned int i;
 
 	This->m_iHandle = LoadLibraryA(dllname);
@@ -217,7 +216,7 @@ DS_Filter* DS_FilterCreate(const char* dllname, const GUID* id,
 	for (i = 0; i < fetched; i++)
 	{
 	    PIN_DIRECTION direction = -1;
-	    array[i]->vt->QueryDirection(array[i], (PIN_DIRECTION*)&direction);
+	    array[i]->vt->QueryDirection(array[i], &direction);
 	    if (!This->m_pInputPin && direction == PINDIR_INPUT)
 	    {
 		This->m_pInputPin = array[i];
@@ -306,7 +305,7 @@ DS_Filter* DS_FilterCreate(const char* dllname, const GUID* id,
     if (!init)
     {
 	DS_Filter_Destroy(This);
-	printf("Warning: DS_Filter() %s.  (DLL=%.200s, r=0x%x)\n", em, dllname, result);
+	printf("Warning: DS_Filter() %s.  (DLL=%.200s)\n", em, dllname);
         This = 0;
     }
     return This;

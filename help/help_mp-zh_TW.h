@@ -15,10 +15,10 @@ static char help_text[]=
 "基本選項: (完整列表參見手册頁)\n"
 " -vo <drv>        選擇視頻輸出驅動 (查看驅動列表用“-vo help”)\n"
 " -ao <drv>        選擇音頻輸出驅動 (查看驅動列表用“-ao help”)\n"
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
 " vcd://<trackno>  播放 (S)VCD 軌迹號 (原始設備, 無需安挂)\n"
 #endif
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 " dvd://<titleno>  從設備而不是普通文件上播放 DVD 標題號\n"
 " -alang/-slang    選擇 DVD 音軌/字幕的語言(使用兩字符的國家代號)\n"
 #endif
@@ -162,7 +162,6 @@ static char help_text[]=
 #define MSGTR_MenuInitFailed "菜單初始化失敗。\n"
 #define MSGTR_Getch2InitializedTwice "警告: getch2_init 被調用兩次!\n"
 #define MSGTR_DumpstreamFdUnavailable "無法轉儲此流 - 没有可用的文件描述符。\n"
-#define MSGTR_FallingBackOnPlaylist "回退到試着解析播放列表 %s...\n"
 #define MSGTR_CantOpenLibmenuFilterWithThisRootMenu "不能用根菜單 %s 打開 libmenu 視頻過濾器。\n"
 #define MSGTR_AudioFilterChainPreinitError "音頻過濾器鏈預啟動錯誤!\n"
 #define MSGTR_LinuxRTCReadError "Linux RTC 讀取錯誤: %s\n"
@@ -389,7 +388,7 @@ static char help_text[]=
 #define MSGTR_ConfigFileError "配置文件錯誤"
 #define MSGTR_ErrorParsingCommandLine "解析命令行錯誤"
 #define MSGTR_VideoStreamRequired "視頻流是必須的!\n"
-#define MSGTR_ForcingInputFPS "輸入幀率將被替換為 %5.2f。\n"
+#define MSGTR_ForcingInputFPS "輸入幀率將被替換為 %5.3f。\n"
 #define MSGTR_RawvideoDoesNotSupportAudio "RAWVIDEO 輸出文件格式不支持音頻 - 停用音頻。\n"
 #define MSGTR_DemuxerDoesntSupportNosound "目前此分路器還不支持 -nosound。\n"
 #define MSGTR_MemAllocFailed "内存分配失敗。\n"
@@ -522,7 +521,7 @@ static char help_text[]=
 #define MSGTR_SMBFileNotFound "打不開局域網内的: '%s'\n"
 #define MSGTR_SMBNotCompiled "MPlayer 没有編譯成支持 SMB 的讀取。\n"
 
-#define MSGTR_CantOpenDVD "打不開 DVD 設備: %s\n"
+#define MSGTR_CantOpenDVD "打不開 DVD 設備: %s (%s)\n"
 
 // stream_dvd.c
 #define MSGTR_DVDspeedCantOpen "不能以寫方式打開DVD設備, 改變DVD速度需要寫方式。\n"
@@ -582,7 +581,7 @@ static char help_text[]=
 #define MSGTR_FormatNotRecognized "============= 抱歉, 此文件格式無法辨認或支持 ===============\n"\
 				  "===     如果此文件是一個 AVI, ASF 或 MPEG 流, 請聯係作者!    ===\n"
 #define MSGTR_SettingProcessPriority "設置進程優先級: %s\n"
-#define MSGTR_FilefmtFourccSizeFpsFtime "[V] 文件格式:%d  fourcc:0x%X  大小:%dx%d  幀速:%5.2f  幀時間:=%6.4f\n"
+#define MSGTR_FilefmtFourccSizeFpsFtime "[V] 文件格式:%d  fourcc:0x%X  大小:%dx%d  幀速:%5.3f  幀時間:=%6.4f\n"
 #define MSGTR_CannotInitializeMuxer "不能初始化muxer。"
 #define MSGTR_MissingVideoStream "未找到視頻流。\n"
 #define MSGTR_MissingAudioStream "未找到音頻流...  -> 没聲音。\n"
@@ -693,7 +692,7 @@ static char help_text[]=
 
 // ====================== GUI messages/buttons ========================
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 
 // --- labels ---
 #define MSGTR_About "關于"
@@ -1189,8 +1188,6 @@ static char help_text[]=
 "[AO_ALSA]   device=<device-name>\n"\
 "[AO_ALSA]     設置設備 (change , to . and : to =)\n"
 #define MSGTR_AO_ALSA_ChannelsNotSupported "[AO_ALSA] %d 聲道不被支持。\n"
-#define MSGTR_AO_ALSA_CannotReadAlsaConfiguration "[AO_ALSA] 不能讀取 ALSA 配置: %s\n"
-#define MSGTR_AO_ALSA_CannotCopyConfiguration "[AO_ALSA] 不能拷貝配置: %s\n"
 #define MSGTR_AO_ALSA_OpenInNonblockModeFailed "[AO_ALSA] 打開 nonblock-模式 失敗, 試着打開 block-模式。\n"
 #define MSGTR_AO_ALSA_PlaybackOpenError "[AO_ALSA] 回放打開錯誤: %s\n"
 #define MSGTR_AO_ALSA_ErrorSetBlockMode "[AL_ALSA] 錯誤設置 block-模式 %s。\n"
@@ -1672,7 +1669,7 @@ static char help_text[]=
 #define MSGTR_LIBVO_MGA_InvalidOutputFormat "[MGA] 無效的輸出格式 %0X\n"
 #define MSGTR_LIBVO_MGA_IncompatibleDriverVersion "[MGA] 你的 mga_vid 驅動版本與 MPlayer 的版本不兼容!\n"
 #define MSGTR_LIBVO_MGA_CouldntOpen "[MGA] 打不開: %s\n"
-#define MGSTR_LIBVO_MGA_ResolutionTooHigh "[MGA] 原分辨率至少有一維大于 1023x1023。請用軟件或用 -lavdopts lowres=1 重新縮放\n"
+#define MSGTR_LIBVO_MGA_ResolutionTooHigh "[MGA] 原分辨率至少有一維大于 1023x1023。請用軟件或用 -lavdopts lowres=1 重新縮放\n"
 
 // libvo/vesa_lvo.c
 
@@ -1793,8 +1790,6 @@ static char help_text[]=
 #define MSGTR_LIBVO_SUB_VIDIX_YouHaveWrongVersionOfVidixLibrary "[VO_SUB_VIDIX] VIDIX 庫版本錯誤。\n"
 #define MSGTR_LIBVO_SUB_VIDIX_CouldntFindWorkingVidixDriver "[VO_SUB_VIDIX] 無法找到能工作的 VIDIX 驅動。\n"
 #define MSGTR_LIBVO_SUB_VIDIX_CouldntGetCapability "[VO_SUB_VIDIX] 無法獲得兼容性: %s。\n"
-#define MSGTR_LIBVO_SUB_VIDIX_Description "[VO_SUB_VIDIX] 描述: %s。\n"
-#define MSGTR_LIBVO_SUB_VIDIX_Author "[VO_SUB_VIDIX] 作者: %s。\n"
 
 // libvo/vo_svga.c
 
@@ -1955,7 +1950,6 @@ static char help_text[]=
 #define MSGTR_RADIO_CaptureStarting "[radio] 開始捕獲。\n"
 #define MSGTR_RADIO_ClearBufferFailed "[radio] 清空緩衝失敗: %s\n"
 #define MSGTR_RADIO_StreamEnableCacheFailed "[radio] 調用 stream_enable_cache 失敗: %s\n"
-#define MSGTR_RADIO_DriverUnknownId "[radio] 未知驅動號: %d\n"
 #define MSGTR_RADIO_DriverUnknownStr "[radio] 未知驅動名: %s\n"
 #define MSGTR_RADIO_DriverV4L2 "[radio] 使用 V4Lv2 廣播接口。\n"
 #define MSGTR_RADIO_DriverV4L "[radio] 使用 V4Lv1 廣播接口。\n"
@@ -2018,7 +2012,6 @@ static char help_text[]=
 #define MSGTR_LIBASS_EmptyEvent "[ass] 空事件!\n"
 #define MSGTR_LIBASS_MAX_GLYPHS_Reached "[ass] 達到了字形最大值: 事件 %d, 開始 = %llu, 時長 = %llu\n 文本 = %s\n"
 #define MSGTR_LIBASS_EventHeightHasChanged "[ass] 警告! 事件高度(height) 已改變!  \n"
-#define MSGTR_LIBASS_TooManySimultaneousEvents "[ass] 過多同時的事件!\n"
 
 // ass_font.c
 #define MSGTR_LIBASS_GlyphNotFoundReselectingFont "[ass] 字形 0x%X 未找到, 重新選擇字體 (%s, %d, %d)\n"

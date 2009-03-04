@@ -1,6 +1,7 @@
-/******************************************************************************
- * dhahelper.c: direct hardware access under Windows NT/2000/XP
- * Copyright (c) 2004 Sascha Sommer <saschasommer@freenet.de>.
+/*
+ * direct hardware access under Windows NT/2000/XP
+ *
+ * Copyright (c) 2004 Sascha Sommer <saschasommer@freenet.de>
  *
  * This file is part of MPlayer.
  *
@@ -14,13 +15,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
-#ifndef _DHAHELPER_H
-#define _DHAHELPER_H 1
+#ifndef MPLAYER_DHAHELPER_H
+#define MPLAYER_DHAHELPER_H
 
 // Define the various device type values.  Note that values used by Microsoft
 // Corporation are in the range 0-32767, and 32768-65535 are reserved for use
@@ -68,4 +69,4 @@ struct __attribute__((__packed__)) dhahelper_t {
 
 typedef struct dhahelper_t dhahelper_t;
 
-#endif
+#endif /* MPLAYER_DHAHELPER_H */

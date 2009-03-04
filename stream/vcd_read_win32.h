@@ -1,4 +1,8 @@
+#ifndef MPLAYER_VCD_READ_WIN32_H
+#define MPLAYER_VCD_READ_WIN32_H
+
 #include <ddk/ntddcdrm.h>
+#include "mp_msg.h"
 
 typedef struct mp_vcd_priv_st mp_vcd_priv_t;
 
@@ -21,7 +25,7 @@ static inline void vcd_set_msf(mp_vcd_priv_t* vcd, unsigned sect)
 }
 
 static inline unsigned vcd_get_msf(mp_vcd_priv_t* vcd, int track){
-    int index = track + vcd->toc.FirstTrack - 1;
+    int index = track - vcd->toc.FirstTrack;
     /* -150 to compensate the 2-second pregap */
     return vcd->toc.TrackData[index].Address[3] +
 	(vcd->toc.TrackData[index].Address[2] +
@@ -57,7 +61,7 @@ mp_vcd_priv_t* vcd_read_toc(int fd)
     hd = (HANDLE)_get_osfhandle(fd);
     if (!DeviceIoControl(hd, IOCTL_CDROM_READ_TOC, NULL, 0, &vcd->toc,
 		sizeof(CDROM_TOC), &dwBytesReturned, NULL)) {
-	mp_msg(MSGT_OPEN, MSGL_ERR, "read CDROM toc header: %u\n",
+	mp_msg(MSGT_OPEN, MSGL_ERR, "read CDROM toc header: %lu\n",
 		GetLastError());
 	free(vcd);
 	return NULL;
@@ -84,6 +88,8 @@ mp_vcd_priv_t* vcd_read_toc(int fd)
 	if (mp_msg_test(MSGT_IDENTIFY, MSGL_INFO)) {
 	    if (i > vcd->toc.FirstTrack) {
 		min = vcd->toc.TrackData[index].Address[1] - min;
+		sec = vcd->toc.TrackData[index].Address[2] - sec;
+		frame = vcd->toc.TrackData[index].Address[3] - frame;
 		if (frame < 0) {
 		    frame += 75;
 		    sec--;
@@ -124,6 +130,8 @@ static int vcd_read(mp_vcd_priv_t* vcd, char *mem)
     memcpy(mem, &vcd->buf[VCD_SECTOR_OFFS], VCD_SECTOR_DATA);
     return VCD_SECTOR_DATA;
 }
+
+#endif /* MPLAYER_VCD_READ_WIN32_H */
 
 /*
 vim:noet:sw=4:cino=\:0,g0

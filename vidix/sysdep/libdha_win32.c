@@ -6,14 +6,14 @@
 
 #include <windows.h>
 #include <ddk/ntddk.h>
-#include "../dhahelperwin/dhahelper.h"
+#include "vidix/dhahelperwin/dhahelper.h"
 
 /*
   This is the request structure that applications use
   to request services from the MAPDEV VxD.
 */
 
-typedef struct _MapDevRequest
+typedef struct MapDevRequest
 {
 	DWORD	mdr_ServiceID;		/* supplied by caller */
 	LPVOID	mdr_PhysicalAddress;	/* supplied by caller */
@@ -31,12 +31,9 @@ typedef struct _MapDevRequest
 /*#include "winioctl.h"*/
 #define FILE_DEVICE_UNKNOWN             0x00000022
 #define METHOD_NEITHER                  3
-#define FILE_ANY_ACCESS                 0
-#define CTL_CODE( DeviceType, Function, Method, Access ) ( \
-    ((DeviceType)<<16) | ((Access)<<14) | ((Function)<<2) | (Method) )
 
     
-int IsWinNT(){
+int IsWinNT(void) {
   OSVERSIONINFO OSVersionInfo;
   OSVersionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
   GetVersionEx(&OSVersionInfo);
@@ -51,10 +48,8 @@ void *map_phys_mem(unsigned long base, unsigned long size) {
   if(!IsWinNT()){
   HANDLE hDevice ;
   PVOID inBuf[1] ;		/* buffer for struct pointer to VxD */
-  DWORD RetInfo[2] ;		/* buffer to receive data from VxD */
   DWORD cbBytesReturned ;	/* count of bytes returned from VxD */
   MAPDEVREQUEST req ;		/* map device request structure */
-  DWORD *pNicstar, Status, Time ; int i ; char *endptr ;
   const PCHAR VxDName = "\\\\.\\MAPDEV.VXD" ;
   const PCHAR VxDNameAlreadyLoaded = "\\\\.\\MAPDEV" ;
 

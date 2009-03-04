@@ -9,17 +9,20 @@
 /*
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: ext.c 24404 2007-09-10 12:54:32Z diego $
  */
 
 #include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 #include <unistd.h>
+#ifdef HAVE_SYS_MMAN_H
 #include <sys/mman.h>
+#else
+#include "osdep/mmap.h"
+#endif
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>

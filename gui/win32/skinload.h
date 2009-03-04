@@ -16,13 +16,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef GUI_SKINLOAD_H
-#define GUI_SKINLOAD_H
+#ifndef MPLAYER_GUI_SKINLOAD_H
+#define MPLAYER_GUI_SKINLOAD_H
 
 typedef struct
 {
@@ -110,7 +110,7 @@ struct skin_t
     image *(*pngRead)(skin_t *skin, unsigned char *fname);
 };
 
-extern skin_t *loadskin(char *skindir, int desktopbpp);
+skin_t *loadskin(char *skindir, int desktopbpp);
 
 // --- Widget types ---
 
@@ -212,4 +212,4 @@ extern skin_t *loadskin(char *skindir, int desktopbpp);
 #define evShowWindow      7004
 #define evFirstLoad       7005
 
-#endif
+#endif /* MPLAYER_GUI_SKINLOAD_H */

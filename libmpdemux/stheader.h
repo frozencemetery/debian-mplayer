@@ -1,6 +1,7 @@
-#ifndef STHEADER_H
-#define STHEADER_H
+#ifndef MPLAYER_STHEADER_H
+#define MPLAYER_STHEADER_H
 
+#include "demuxer.h"
 #include "aviheader.h"
 #include "ms_hdr.h"
 
@@ -11,7 +12,7 @@ typedef struct {
   demux_stream_t *ds;
   struct codecs_st *codec;
   unsigned int format;
-  int inited;
+  int initialized;
   float stream_delay; // number of seconds stream should be delayed (according to dwStart or similar)
   // output format:
   int sample_format;
@@ -35,9 +36,9 @@ typedef struct {
   int a_out_buffer_len;
   int a_out_buffer_size;
 //  void* audio_out;        // the audio_out handle, used for this audio stream
-  void* afilter;          // the audio filter stream
+  struct af_stream_s *afilter;          // the audio filter stream
   struct ad_functions_s* ad_driver;
-#ifdef DYNAMIC_PLUGINS
+#ifdef CONFIG_DYNAMIC_PLUGINS
   void *dec_handle;
 #endif
   // win32-compatible codec parameters:
@@ -49,6 +50,8 @@ typedef struct {
   int codecdata_len;
   double pts;  // last known pts value in output from decoder
   int pts_bytes; // bytes output by decoder after last known pts
+  char* lang; // track language
+  int default_track;
 } sh_audio_t;
 
 typedef struct {
@@ -56,7 +59,7 @@ typedef struct {
   demux_stream_t *ds;
   struct codecs_st *codec;
   unsigned int format;
-  int inited;
+  int initialized;
   float timer;		  // absolute time in video stream, since last start/seek
   float stream_delay; // number of seconds stream should be delayed (according to dwStart or similar)
   // frame counters:
@@ -78,10 +81,9 @@ typedef struct {
   int disp_w,disp_h;      // display size (filled by fileformat parser)
   // output driver/filters: (set by libmpcodecs core)
   unsigned int outfmtidx;
-  void* video_out;        // the video_out handle, used for this video stream
-  void* vfilter;          // the video filter chain, used for this video stream
-  int vf_inited;
-#ifdef DYNAMIC_PLUGINS
+  struct vf_instance_s *vfilter;          // the video filter chain, used for this video stream
+  int vf_initialized;
+#ifdef CONFIG_DYNAMIC_PLUGINS
   void *dec_handle;
 #endif
   // win32-compatible codec parameters:
@@ -95,15 +97,13 @@ typedef struct {
 typedef struct {
   int sid;
   char type;                    // t = text, v = VobSub, a = SSA/ASS
-  int has_palette;              // If we have a valid palette
-  unsigned int palette[16];     // for VobSubs
-  int width, height;            // for VobSubs
-  int custom_colors;
-  unsigned int colors[4];
-  int forced_subs_only;
-#ifdef USE_ASS
+  unsigned char* extradata; // extra header data passed from demuxer
+  int extradata_len;
+#ifdef CONFIG_ASS
   ass_track_t* ass_track;  // for SSA/ASS streams (type == 'a')
 #endif
+  char* lang; // track language
+  int default_track;
 } sh_sub_t;
 
 // demuxer.c:
@@ -120,4 +120,4 @@ void free_sh_video(sh_video_t *sh);
 int video_read_properties(sh_video_t *sh_video);
 int video_read_frame(sh_video_t* sh_video,float* frame_time_ptr,unsigned char** start,int force_fps);
 
-#endif
+#endif /* MPLAYER_STHEADER_H */

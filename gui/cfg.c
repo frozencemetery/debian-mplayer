@@ -1,3 +1,20 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -28,7 +45,7 @@
 int    gtkEnableAudioEqualizer = 0;
 
 int    gtkVfPP = 0;
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_LIBAVCODEC
  int    gtkVfLAVC = 0;
 #endif
 
@@ -36,20 +53,20 @@ int    gtkAONorm = 0;
 int    gtkAOSurround = 0;
 int    gtkAOExtraStereo = 0;
 float  gtkAOExtraStereoMul = 1.0;
-#ifdef USE_OSS_AUDIO
+#ifdef CONFIG_OSS_AUDIO
 char * gtkAOOSSMixer;
 char * gtkAOOSSMixerChannel;
 char * gtkAOOSSDevice;
 #endif
-#if defined(HAVE_ALSA9) || defined (HAVE_ALSA1X)
+#ifdef CONFIG_ALSA
 char * gtkAOALSAMixer;
 char * gtkAOALSAMixerChannel;
 char * gtkAOALSADevice;
 #endif
-#ifdef HAVE_SDL
+#ifdef CONFIG_SDL
 char * gtkAOSDLDriver;
 #endif
-#ifdef USE_ESD
+#ifdef CONFIG_ESD
 char * gtkAOESDDevice;
 #endif
 
@@ -59,7 +76,7 @@ int    gtkCacheSize = 2048;
 int    gtkAutoSyncOn = 0;
 int    gtkAutoSync = 0;
 
-#ifdef HAVE_DXR3
+#ifdef CONFIG_DXR3
  char * gtkDXR3Device;
 #endif
 
@@ -76,16 +93,17 @@ int    gui_main_pos_y = -2;
 int    gui_sub_pos_x = -1;
 int    gui_sub_pos_y = -1;
 
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
 gtkASS_t gtkASS;
 #endif
 // ---
 
 extern int    stop_xscreensaver;
-extern int    m_config_parse_config_file(m_config_t* config, char *conffile);
+extern int    disable_gui_conf;
+int m_config_parse_config_file(m_config_t* config, char *conffile);
 
 static m_config_t * gui_conf;
-static m_option_t gui_opts[] =
+static const m_option_t gui_opts[] =
 {
  { "enable_audio_equ",&gtkEnableAudioEqualizer,CONF_TYPE_FLAG,0,0,1,NULL },
  
@@ -93,7 +111,7 @@ static m_option_t gui_opts[] =
  { "vo_panscan",&vo_panscan,CONF_TYPE_FLOAT,CONF_RANGE,0.0,1.0,NULL },
  { "vo_doublebuffering",&vo_doublebuffering,CONF_TYPE_FLAG,0,0,1,NULL },
  { "vo_direct_render",&vo_directrendering,CONF_TYPE_FLAG,0,0,1,NULL },
-#ifdef HAVE_DXR3
+#ifdef CONFIG_DXR3
  { "vo_dxr3_device",&gtkDXR3Device,CONF_TYPE_STRING,0,0,0,NULL },
 #endif
 
@@ -106,7 +124,7 @@ static m_option_t gui_opts[] =
 
  { "vf_pp",&gtkVfPP,CONF_TYPE_FLAG,0,0,1,NULL },
  { "vf_autoq",&auto_quality,CONF_TYPE_INT,CONF_RANGE,0,100,NULL },
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_LIBAVCODEC
  { "vf_lavc",&gtkVfLAVC,CONF_TYPE_FLAG,0,0,1,NULL },
 #endif
 
@@ -116,20 +134,20 @@ static m_option_t gui_opts[] =
  { "ao_surround",&gtkAOSurround,CONF_TYPE_FLAG,0,0,1,NULL },
  { "ao_extra_stereo",&gtkAOExtraStereo,CONF_TYPE_FLAG,0,0,1,NULL },
  { "ao_extra_stereo_coefficient",&gtkAOExtraStereoMul,CONF_TYPE_FLOAT,CONF_RANGE,-10,10,NULL },
-#ifdef USE_OSS_AUDIO
+#ifdef CONFIG_OSS_AUDIO
  { "ao_oss_mixer",&gtkAOOSSMixer,CONF_TYPE_STRING,0,0,0,NULL },
  { "ao_oss_mixer_channel",&gtkAOOSSMixerChannel,CONF_TYPE_STRING,0,0,0,NULL },
  { "ao_oss_device",&gtkAOOSSDevice,CONF_TYPE_STRING,0,0,0,NULL },
 #endif
-#if defined(HAVE_ALSA9) || defined (HAVE_ALSA1X)
+#ifdef CONFIG_ALSA
  { "ao_alsa_mixer",&gtkAOALSAMixer,CONF_TYPE_STRING,0,0,0,NULL },
  { "ao_alsa_mixer_channel",&gtkAOALSAMixerChannel,CONF_TYPE_STRING,0,0,0,NULL },
  { "ao_alsa_device",&gtkAOALSADevice,CONF_TYPE_STRING,0,0,0,NULL },
 #endif
-#ifdef HAVE_SDL
+#ifdef CONFIG_SDL
  { "ao_sdl_subdriver",&gtkAOSDLDriver,CONF_TYPE_STRING,0,0,0,NULL },
 #endif
-#ifdef USE_ESD
+#ifdef CONFIG_ESD
  { "ao_esd_device",&gtkAOESDDevice,CONF_TYPE_STRING,0,0,0,NULL },
 #endif
 
@@ -139,7 +157,7 @@ static m_option_t gui_opts[] =
  { "osd_level",&osd_level,CONF_TYPE_INT,CONF_RANGE,0,3,NULL },
  { "sub_auto_load",&sub_auto,CONF_TYPE_FLAG,0,0,1,NULL },
  { "sub_unicode",&sub_unicode,CONF_TYPE_FLAG,0,0,1,NULL },
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
  { "ass_enabled",&ass_enabled,CONF_TYPE_FLAG,0,0,1,NULL },
  { "ass_use_margins",&ass_use_margins,CONF_TYPE_FLAG,0,0,1,NULL },
  { "ass_top_margin",&ass_top_margin,CONF_TYPE_INT,CONF_RANGE,0,512,NULL },
@@ -147,12 +165,12 @@ static m_option_t gui_opts[] =
 #endif
  { "sub_pos",&sub_pos,CONF_TYPE_INT,CONF_RANGE,0,200,NULL },
  { "sub_overlap",&suboverlap_enabled,CONF_TYPE_FLAG,0,0,0,NULL },
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
  { "sub_cp",&sub_cp,CONF_TYPE_STRING,0,0,0,NULL },
 #endif
  { "font_factor",&font_factor,CONF_TYPE_FLOAT,CONF_RANGE,0.0,10.0,NULL },
  { "font_name",&font_name,CONF_TYPE_STRING,0,0,0,NULL },
-#ifdef HAVE_FREETYPE 
+#ifdef CONFIG_FREETYPE
  { "font_encoding",&subtitle_font_encoding,CONF_TYPE_STRING,0,0,0,NULL },
  { "font_text_scale",&text_font_scale_factor,CONF_TYPE_FLOAT,CONF_RANGE,0,100,NULL },
  { "font_osd_scale",&osd_font_scale_factor,CONF_TYPE_FLOAT,CONF_RANGE,0,100,NULL },
@@ -222,7 +240,7 @@ int cfg_read( void )
  mp_msg( MSGT_GPLAYER,MSGL_V,"[cfg] reading config file: %s\n",cfg );
  gui_conf=m_config_new();
  m_config_register_options( gui_conf,gui_opts );
- if ( m_config_parse_config_file( gui_conf,cfg ) < 0 ) 
+ if ( !disable_gui_conf && m_config_parse_config_file( gui_conf,cfg ) < 0 ) 
   {
    mp_msg( MSGT_GPLAYER,MSGL_FATAL,MSGTR_ConfigFileError );
 //   exit( 1 );
@@ -293,11 +311,14 @@ int cfg_write( void )
    for ( i=0;gui_opts[i].name;i++ )
     {
       char* v = m_option_print(&gui_opts[i],gui_opts[i].p);
+      if(v == (char *)-1) {
+        mp_msg(MSGT_GPLAYER,MSGL_WARN,MSGTR_UnableToSaveOption, gui_opts[i].name);
+        v = NULL;
+      }
       if(v) {
 	fprintf( f,"%s = \"%s\"\n",gui_opts[i].name, v);
 	free(v);
-      } else if((int)v == -1)
-	mp_msg(MSGT_GPLAYER,MSGL_WARN,MSGTR_UnableToSaveOption, gui_opts[i].name);
+      }
     }
    fclose( f );
   }

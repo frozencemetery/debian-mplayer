@@ -19,9 +19,7 @@
 #include "mp_msg.h"
 #include "help_mp.h"
 
-#ifndef HAVE_WINSOCK2
-#define closesocket close
-#else
+#if HAVE_WINSOCK2_H
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #endif
@@ -53,7 +51,7 @@ char *network_useragent=NULL;
 int   network_ipv4_only_proxy = 0;
 
 
-mime_struct_t mime_type_table[] = {
+const mime_struct_t mime_type_table[] = {
 	// MP3 streaming, some MP3 streaming server answer with audio/mpeg
 	{ "audio/mpeg", DEMUXER_TYPE_AUDIO },
 	// MPEG streaming
@@ -87,7 +85,7 @@ mime_struct_t mime_type_table[] = {
 	// NullSoft Streaming Video
 	{ "video/nsv", DEMUXER_TYPE_NSV},
 	{ "misc/ultravox", DEMUXER_TYPE_NSV},
-#ifdef USE_LIBAVFORMAT
+#ifdef CONFIG_LIBAVFORMAT
 	// Flash Video
 	{ "video/x-flv", DEMUXER_TYPE_LAVF},
 #endif
@@ -207,7 +205,8 @@ http_send_request( URL_t *url, off_t pos ) {
 	else
 	    http_set_field( http_hdr, "User-Agent: MPlayer/"VERSION);
 
-	http_set_field(http_hdr, "Icy-MetaData: 1");
+	if( strcasecmp(url->protocol, "noicyx") )
+	    http_set_field(http_hdr, "Icy-MetaData: 1");
 
 	if(pos>0) { 
 	// Extend http_send_request with possibility to do partial content retrieval

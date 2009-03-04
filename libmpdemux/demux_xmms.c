@@ -1,20 +1,21 @@
 /*
  * Copyright (C) 2002-2004 Balatoni Denes and A'rpi
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This file is part of MPlayer.
  *
- * This program is distributed in the hope that it will be useful,
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 // This is not reentrant because of global static variables, but most of
@@ -74,8 +75,8 @@ static void disk_flush(int time) {
 }
 
 static int disk_free(void) { // vqf plugin sends more than it should
-    return (XMMS_PACKETSIZE-xmms_audiopos<XMMS_PACKETSIZE/4 ?
-                            0:XMMS_PACKETSIZE-xmms_audiopos-XMMS_PACKETSIZE/4);
+    return XMMS_PACKETSIZE - xmms_audiopos < XMMS_PACKETSIZE / 4 ?
+               0 : XMMS_PACKETSIZE - xmms_audiopos - XMMS_PACKETSIZE / 4;
 }
 
 static int disk_playing(void) {
@@ -100,7 +101,7 @@ static int disk_open(AFormat fmt, int rate, int nch) {
             xmms_afmt=AF_FORMAT_U16_LE;
             break;
         case FMT_U16_NE:
-#if WORDS_BIGENDIAN
+#ifdef WORDS_BIGENDIAN
             xmms_afmt=AF_FORMAT_U16_BE;
 #else
             xmms_afmt=AF_FORMAT_U16_LE;
@@ -165,11 +166,11 @@ static InputPlugin* input_plugins[100];
 static int no_plugins=0;
 
 /* Dummy functions  */
-static InputVisType input_get_vis_type(){return 0;}
+static InputVisType input_get_vis_type(void){return 0;}
 static void input_add_vis_pcm(int time, AFormat fmt, int nch, int length,
                                                                 void *ptr){}
 static void input_set_info_text(char * text){}
-char *xmms_get_gentitle_format(){ return ""; }
+char *xmms_get_gentitle_format(void){ return ""; }
 /* Dummy functions  END*/
 
 static void input_set_info(char* title,int length, int rate, int freq, int nch)
@@ -211,7 +212,7 @@ static void init_plugins_from_dir(const char *plugin_dir){
     closedir(dir);
 }
 
-static void init_plugins(){
+static void init_plugins(void) {
     char *home;
 
     no_plugins=0;
@@ -226,7 +227,7 @@ static void init_plugins(){
     init_plugins_from_dir(XMMS_INPUT_PLUGIN_DIR);
 }
 
-static void cleanup_plugins(){
+static void cleanup_plugins(void) {
     while(no_plugins>0){
         --no_plugins;
         mp_msg(MSGT_DEMUX, MSGL_INFO, MSGTR_MPDEMUX_XMMS_ClosingPlugin,
@@ -350,8 +351,8 @@ static void demux_xmms_seek(demuxer_t *demuxer,float rel_seek_secs,
 
     if(priv->ip->get_time()<0) return;
 
-    pos = (flags & 1) ? 0 : priv->spos / sh_audio->wf->nAvgBytesPerSec;
-    if (flags & 2)
+    pos = (flags & SEEK_ABSOLUTE) ? 0 : priv->spos / sh_audio->wf->nAvgBytesPerSec;
+    if (flags & SEEK_FACTOR)
         pos+= rel_seek_secs*xmms_length;
     else
         pos+= rel_seek_secs;
@@ -399,7 +400,7 @@ static int demux_xmms_control(demuxer_t *demuxer,int cmd, void *arg){
 }
 
 
-demuxer_desc_t demuxer_desc_xmms = {
+const demuxer_desc_t demuxer_desc_xmms = {
     "XMMS demuxer",
     "xmms",
     "XMMS",

@@ -1,18 +1,35 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
-#ifndef GUI_WIDGETS_H
-#define GUI_WIDGETS_H
+#ifndef MPLAYER_GUI_WIDGETS_H
+#define MPLAYER_GUI_WIDGETS_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
-#include "../config.h"
-#include "../osdep/shmem.h"
+#include "config.h"
+#include "osdep/shmem.h"
 #include "play.h"
 #include "mplayer.h"
-#include "interface.h"
-#include "wm/ws.h"
+#include "gui/interface.h"
+#include "gui/wm/ws.h"
 
 #define GTK_MB_SIMPLE 0
 #define GTK_MB_MODAL 1
@@ -43,21 +60,21 @@ extern GdkBitmap * gtkIconMask;
 extern Pixmap      guiIcon;
 extern Pixmap	   guiIconMask;
 
-extern void widgetsCreate( void );
+void widgetsCreate( void );
 
-extern void gtkInit( void );
-extern void gtkAddIcon( GtkWidget * window );
+void gtkInit( void );
+void gtkAddIcon( GtkWidget * window );
 
-extern int  gtkFillSkinList( gchar * dir );
-extern void gtkClearList( GtkWidget * list );
-extern void gtkSetDefaultToCList( GtkWidget * list,char * item );
-extern int  gtkFindCList( GtkWidget * list,char * item );
+int  gtkFillSkinList( gchar * dir );
+void gtkClearList( GtkWidget * list );
+void gtkSetDefaultToCList( GtkWidget * list, char * item );
+int  gtkFindCList( GtkWidget * list, char * item );
 
-extern void gtkEventHandling( void );
+void gtkEventHandling( void );
 
-extern void gtkShow( int type,char * param );
-extern void gtkMessageBox( int type,const gchar * str );
-extern void gtkSetLayer( GtkWidget * wdg );
-extern void gtkActive( GtkWidget * wdg );
+void gtkShow( int type, char * param );
+void gtkMessageBox( int type, const gchar * str );
+void gtkSetLayer( GtkWidget * wdg );
+void gtkActive( GtkWidget * wdg );
 
-#endif
+#endif /* MPLAYER_GUI_WIDGETS_H */

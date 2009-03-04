@@ -1,6 +1,20 @@
 /***********************************
  * Copyright (C) 2001  Jason Carter
- * See the file "LICENSE" for details
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
  ***********************************
  * FILE: GENRES.H
  * NAME: ID3EDIT - ID3 tag v 1.1 editor
@@ -9,16 +23,15 @@
  ***********************************
  *
  * Initially modified for use with MPlayer by Diego Biurrun on 2004-08-22
- * $Id: genres.h 23709 2007-07-02 22:34:45Z diego $
+ * $Id: genres.h 28283 2009-01-09 10:14:03Z diego $
  * detailed changelog at http://svn.mplayerhq.hu/mplayer/trunk/
  */
 
+#ifndef MPLAYER_GENRES_H
+#define MPLAYER_GENRES_H
 
-#ifndef GENRES_H
-#define GENRES_H
 
-
-char *genres[] = {
+const char * const genres[] = {
 "Blues",					/* 0 */
 "Classic Rock",				/* 1 */
 "Country",					/* 2 */
@@ -72,17 +85,17 @@ char *genres[] = {
 "Darkwave",					/* 50 */
 "Techno-Industrial",		/* 51 */
 "Electronic",				/* 52 */
-"Jungle",					/* 53 */
-"Pop-Folk",					/* 54 */
-"Eurodance",				/* 55 */
-"Dream",					/* 56 */
-"Southern Rock",			/* 57 */
-"Comedy",					/* 58 */
-"Cult",						/* 59 */
-"Gangsta",					/* 60 */
-"Top 40",					/* 61 */
-"Christian Rap",			/* 62 */
-"Pop/Funk",					/* 63 */
+"Pop-Folk",					/* 53 */
+"Eurodance",				/* 54 */
+"Dream",					/* 55 */
+"Southern Rock",			/* 56 */
+"Comedy",					/* 57 */
+"Cult",						/* 58 */
+"Gangsta",					/* 59 */
+"Top 40",					/* 60 */
+"Christian Rap",			/* 61 */
+"Pop/Funk",					/* 62 */
+"Jungle",					/* 63 */
 "Native American",			/* 64 */
 "Cabaret",					/* 65 */
 "New Wave",					/* 66 */
@@ -277,5 +290,4 @@ char *genres[] = {
 "Unknown",					/* 255 */
 };
 
-
-#endif /* GENRES_H */
+#endif /* MPLAYER_GENRES_H */

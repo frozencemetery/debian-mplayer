@@ -14,23 +14,23 @@
 
 #include "ae_pcm.h"
 
-#ifdef HAVE_TOOLAME
+#ifdef CONFIG_TOOLAME
 #include "ae_toolame.h"
 #endif
 
-#ifdef HAVE_MP3LAME
+#ifdef CONFIG_MP3LAME
 #include "ae_lame.h"
 #endif
 
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_LIBAVCODEC
 #include "ae_lavc.h"
 #endif
 
-#ifdef HAVE_FAAC
+#ifdef CONFIG_FAAC
 #include "ae_faac.h"
 #endif
 
-#ifdef HAVE_TWOLAME
+#ifdef CONFIG_TWOLAME
 #include "ae_twolame.h"
 #endif
 
@@ -50,27 +50,27 @@ audio_encoder_t *new_audio_encoder(muxer_stream_t *stream, audio_encoding_params
 		case ACODEC_PCM:
 			ris = mpae_init_pcm(encoder);
 			break;
-#ifdef HAVE_TOOLAME
+#ifdef CONFIG_TOOLAME
 		case ACODEC_TOOLAME:
 			ris = mpae_init_toolame(encoder);
 			break;
 #endif
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_LIBAVCODEC
 		case ACODEC_LAVC:
 			ris = mpae_init_lavc(encoder);
 			break;
 #endif
-#ifdef HAVE_MP3LAME
+#ifdef CONFIG_MP3LAME
 		case ACODEC_VBRMP3:
 			ris = mpae_init_lame(encoder);
 			break;
 #endif
-#ifdef HAVE_FAAC
+#ifdef CONFIG_FAAC
 		case ACODEC_FAAC:
 			ris = mpae_init_faac(encoder);
 			break;
 #endif
-#ifdef HAVE_TWOLAME
+#ifdef CONFIG_TWOLAME
 		case ACODEC_TWOLAME:
 			ris = mpae_init_twolame(encoder);
 			break;

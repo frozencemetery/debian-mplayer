@@ -19,10 +19,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * Modified for use with MPlayer, see libmpeg-0.4.1.diff for the exact changes.
- * detailed changelog at http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: cpu_state.c 21587 2006-12-11 08:35:49Z henry $
  */
 
 #include "config.h"
@@ -33,28 +29,28 @@
 #include "mpeg2.h"
 #include "attributes.h"
 #include "mpeg2_internal.h"
-#if defined(ARCH_X86) || defined(ARCH_X86_64)
+#if ARCH_X86 || ARCH_X86_64
 #include "mmx.h"
 #endif
 
 void (* mpeg2_cpu_state_save) (cpu_state_t * state) = NULL;
 void (* mpeg2_cpu_state_restore) (cpu_state_t * state) = NULL;
 
-#if defined(ARCH_X86) || defined(ARCH_X86_64)
+#if ARCH_X86 || ARCH_X86_64
 static void state_restore_mmx (cpu_state_t * state)
 {
     emms ();
 }
 #endif
 
-#if defined(ARCH_PPC) && defined(HAVE_ALTIVEC)
-#if defined( __APPLE_CC__ ) && defined( __APPLE_ALTIVEC__ )	/* apple */
+#if ARCH_PPC
+#if defined(__APPLE_CC__)	/* apple */
 #define LI(a,b) "li r" #a "," #b "\n\t"
 #define STVX0(a,b,c) "stvx v" #a ",0,r" #c "\n\t"
 #define STVX(a,b,c) "stvx v" #a ",r" #b ",r" #c "\n\t"
 #define LVX0(a,b,c) "lvx v" #a ",0,r" #c "\n\t"
 #define LVX(a,b,c) "lvx v" #a ",r" #b ",r" #c "\n\t"
-#else			/* gnu */
+#else				/* gnu */
 #define LI(a,b) "li " #a "," #b "\n\t"
 #define STVX0(a,b,c) "stvx " #a ",0," #c "\n\t"
 #define STVX(a,b,c) "stvx " #a "," #b "," #c "\n\t"
@@ -119,12 +115,12 @@ static void state_restore_altivec (cpu_state_t * state)
 
 void mpeg2_cpu_state_init (uint32_t accel)
 {
-#if defined(ARCH_X86) || defined(ARCH_X86_64)
+#if ARCH_X86 || ARCH_X86_64
     if (accel & MPEG2_ACCEL_X86_MMX) {
 	mpeg2_cpu_state_restore = state_restore_mmx;
     }
 #endif
-#if defined(ARCH_PPC) && defined(HAVE_ALTIVEC)
+#if ARCH_PPC
     if (accel & MPEG2_ACCEL_PPC_ALTIVEC) {
 	mpeg2_cpu_state_save = state_save_altivec;
 	mpeg2_cpu_state_restore = state_restore_altivec;

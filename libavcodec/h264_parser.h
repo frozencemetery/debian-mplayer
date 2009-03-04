@@ -20,13 +20,13 @@
  */
 
 /**
- * @file h264_parser.h
+ * @file libavcodec/h264_parser.h
  * H.264 / AVC / MPEG4 part10 parser.
  * @author Michael Niedermayer <michaelni@gmx.at>
  */
 
-#ifndef H264_PARSER_H
-#define H264_PARSER_H
+#ifndef AVCODEC_H264_PARSER_H
+#define AVCODEC_H264_PARSER_H
 
 #include "h264.h"
 
@@ -36,4 +36,4 @@
  */
 int ff_h264_find_frame_end(H264Context *h, const uint8_t *buf, int buf_size);
 
-#endif /* H264_PARSER_H */
+#endif /* AVCODEC_H264_PARSER_H */

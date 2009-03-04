@@ -1,3 +1,20 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include "config.h"
 
@@ -24,8 +41,6 @@
 #define JS_DEV "/dev/input/js0"
 #endif
 
-#ifdef TARGET_LINUX
-
 #include <linux/joystick.h>
 
 int axis[256];
@@ -33,7 +48,7 @@ int btns = 0;
 
 int mp_input_joystick_init(char* dev) {
   int fd,l=0;
-  int inited = 0;
+  int initialized = 0;
   struct js_event ev;
   
   mp_msg(MSGT_INPUT,MSGL_V,MSGTR_INPUT_JOYSTICK_Opening,dev ? dev : JS_DEV);
@@ -44,7 +59,7 @@ int mp_input_joystick_init(char* dev) {
     return -1;
   }
   
-  while(! inited) {
+  while(! initialized) {
     l = 0;
     while((unsigned int)l < sizeof(struct js_event)) {
       int r = read(fd,((char*)&ev)+l,sizeof(struct js_event)-l);
@@ -52,7 +67,7 @@ int mp_input_joystick_init(char* dev) {
 	if(errno == EINTR)
 	  continue;
 	else if(errno == EAGAIN) {
-	  inited = 1;
+	  initialized = 1;
 	  break;
 	}
 	mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_JOYSTICK_ErrReading,strerror(errno));
@@ -122,9 +137,9 @@ int mp_input_joystick_read(int fd) {
     btns &= ~(1 << ev.number);
     btns |= (ev.value << ev.number);
     if(ev.value == 1)
-      return ((JOY_BTN0+ev.number) | MP_KEY_DOWN);
+      return (JOY_BTN0 + ev.number) | MP_KEY_DOWN;
     else
-      return (JOY_BTN0+ev.number); 
+      return JOY_BTN0 + ev.number;
   } else if(ev.type & JS_EVENT_AXIS) {
     if(ev.value < -JOY_AXIS_DELTA && axis[ev.number] != -1) {
       axis[ev.number] = -1;
@@ -145,18 +160,3 @@ int mp_input_joystick_read(int fd) {
 
   return MP_INPUT_NOTHING;
 }
-
-#else /* TARGET_LINUX */
-
-// dummy function
-
-int mp_input_joystick_init(char* dev) {
-  return -1;
-}
-
-int mp_input_joystick_read(int fd) {
-  
-  return MP_INPUT_NOTHING;
-}
-
-#endif /* TARGET_LINUX */

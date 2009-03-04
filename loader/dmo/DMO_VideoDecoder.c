@@ -9,7 +9,7 @@
 #include "dshow/interfaces.h"
 #include "registry.h"
 #ifdef WIN32_LOADER
-#include "../ldt_keeper.h"
+#include "ldt_keeper.h"
 #endif
 
 #include "dshow/libwin32.h"
@@ -17,7 +17,7 @@
 
 #include "DMO_VideoDecoder.h"
 
-struct _DMO_VideoDecoder
+struct DMO_VideoDecoder
 {
     IVideoDecoder iv;
     
@@ -33,13 +33,13 @@ struct _DMO_VideoDecoder
 
 //#include "DMO_VideoDecoder.h"
 
-#include "../wine/winerror.h"
+#include "wine/winerror.h"
 
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/types.h>
-#ifndef __MINGW32__
+#ifdef HAVE_SYS_MMAN_H
 #include <sys/mman.h>
 #endif
 #include <stdio.h>
@@ -54,9 +54,9 @@ struct _DMO_VideoDecoder
 
 //int DMO_VideoDecoder_GetCapabilities(DMO_VideoDecoder *this){return this->m_Caps;}
 
-typedef struct _ct ct;
+typedef struct ct ct;
 
-struct _ct {
+struct ct {
     fourcc_t fcc;
     unsigned int bits;
     const GUID* subtype;

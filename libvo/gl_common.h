@@ -1,17 +1,38 @@
-#ifndef GL_COMMON_H
-#define GL_COMMON_H
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
-#include "mp_msg.h"
+#ifndef MPLAYER_GL_COMMON_H
+#define MPLAYER_GL_COMMON_H
+
+#include <stdio.h>
+#include <stdint.h>
+
 #include "config.h"
+#include "mp_msg.h"
 
-#include <GL/gl.h>
 #include "video_out.h"
 
 #ifdef GL_WIN32
 #include <windows.h>
-#include <GL/glext.h>
+#include <GL/gl.h>
 #include "w32_common.h"
 #else
+#include <GL/gl.h>
 #include <X11/Xlib.h>
 #include <GL/glx.h>
 #include "x11_common.h"
@@ -36,6 +57,15 @@
  * (e.g. _NV), _ARB is not used to ease readability.
  * \{
  */
+#ifndef GL_TEXTURE_3D
+#define GL_TEXTURE_3D 0x806F
+#endif
+#ifndef GL_TEXTURE_WRAP_R
+#define GL_TEXTURE_WRAP_R 0x8072
+#endif
+#ifndef GL_CLAMP_TO_EDGE
+#define GL_CLAMP_TO_EDGE 0x812F
+#endif
 #ifndef GL_REGISTER_COMBINERS_NV
 #define GL_REGISTER_COMBINERS_NV 0x8522
 #endif
@@ -168,11 +198,29 @@
 #ifndef GL_UNSIGNED_BYTE_2_3_3_REV
 #define GL_UNSIGNED_BYTE_2_3_3_REV 0x8362
 #endif
+#ifndef GL_UNSIGNED_SHORT_4_4_4_4
+#define GL_UNSIGNED_SHORT_4_4_4_4 0x8033
+#endif
+#ifndef GL_UNSIGNED_SHORT_4_4_4_4_REV
+#define GL_UNSIGNED_SHORT_4_4_4_4_REV 0x8365
+#endif
 #ifndef GL_UNSIGNED_SHORT_5_6_5
 #define GL_UNSIGNED_SHORT_5_6_5 0x8363
 #endif
+#ifndef GL_UNSIGNED_INT_8_8_8_8
+#define GL_UNSIGNED_INT_8_8_8_8 0x8035
+#endif
+#ifndef GL_UNSIGNED_INT_8_8_8_8_REV
+#define GL_UNSIGNED_INT_8_8_8_8_REV 0x8367
+#endif
 #ifndef GL_UNSIGNED_SHORT_5_6_5_REV
 #define GL_UNSIGNED_SHORT_5_6_5_REV 0x8364
+#endif
+#ifndef GL_UNSIGNED_INT_10_10_10_2
+#define GL_UNSIGNED_INT_10_10_10_2 0x8036
+#endif
+#ifndef GL_UNSIGNED_INT_2_10_10_10_REV
+#define GL_UNSIGNED_INT_2_10_10_10_REV 0x8368
 #endif
 #ifndef GL_UNSIGNED_SHORT_5_5_5_1
 #define GL_UNSIGNED_SHORT_5_5_5_1 0x8034
@@ -180,11 +228,23 @@
 #ifndef GL_UNSIGNED_SHORT_1_5_5_5_REV
 #define GL_UNSIGNED_SHORT_1_5_5_5_REV 0x8366
 #endif
+#ifndef GL_UNSIGNED_SHORT_8_8
+#define GL_UNSIGNED_SHORT_8_8 0x85BA
+#endif
+#ifndef GL_UNSIGNED_SHORT_8_8_REV
+#define GL_UNSIGNED_SHORT_8_8_REV 0x85BB
+#endif
+#ifndef GL_YCBCR_MESA
+#define GL_YCBCR_MESA 0x8757
+#endif
 #ifndef GL_RGB32F
 #define GL_RGB32F 0x8815
 #endif
 #ifndef GL_FLOAT_RGB32_NV
 #define GL_FLOAT_RGB32_NV 0x8889
+#endif
+#ifndef GL_UNPACK_CLIENT_STORAGE_APPLE
+#define GL_UNPACK_CLIENT_STORAGE_APPLE 0x85B2
 #endif
 #ifndef GL_FRAGMENT_PROGRAM
 #define GL_FRAGMENT_PROGRAM 0x8804
@@ -194,6 +254,9 @@
 #endif
 #ifndef GL_PROGRAM_ERROR_POSITION
 #define GL_PROGRAM_ERROR_POSITION 0x864B
+#endif
+#ifndef GL_MAX_TEXTURE_IMAGE_UNITS
+#define GL_MAX_TEXTURE_IMAGE_UNITS 0x8872
 #endif
 #ifndef GL_PROGRAM_ERROR_STRING
 #define GL_PROGRAM_ERROR_STRING 0x8874
@@ -207,7 +270,7 @@ const char *glValName(GLint value);
 int glFindFormat(uint32_t format, int *bpp, GLint *gl_texfmt,
                   GLenum *gl_format, GLenum *gl_type);
 int glFmt2bpp(GLenum format, GLenum type);
-void glCreateClearTex(GLenum target, GLenum fmt, GLint filter,
+void glCreateClearTex(GLenum target, GLenum fmt, GLenum format, GLenum type, GLint filter,
                       int w, int h, unsigned char val);
 int glCreatePPMTex(GLenum target, GLenum fmt, GLint filter,
                    FILE *f, int *width, int *height, int *maxval);
@@ -243,6 +306,8 @@ int loadGPUProgram(GLenum target, char *prog);
 #define YUV_SCALER_BICUB_X 2
 //! use cubic scaling without additional lookup texture
 #define YUV_SCALER_BICUB_NOTEX 3
+#define YUV_SCALER_UNSHARP 4
+#define YUV_SCALER_UNSHARP2 5
 //! mask for conversion type
 #define YUV_CONVERSION_MASK 0xF
 //! mask for scaler type
@@ -258,11 +323,22 @@ int loadGPUProgram(GLenum target, char *prog);
 //! extract chrominance scaler out of type
 #define YUV_CHROM_SCALER(t) ((t >> YUV_CHROM_SCALER_SHIFT) & YUV_SCALER_MASK)
 /** \} */
-void glSetupYUVConversion(GLenum target, int type,
-                          float brightness, float contrast,
-                          float hue, float saturation,
-                          float rgamma, float ggamma, float bgamma,
-                          int texw, int texh);
+typedef struct {
+  GLenum target;
+  int type;
+  float brightness;
+  float contrast;
+  float hue;
+  float saturation;
+  float rgamma;
+  float ggamma;
+  float bgamma;
+  int texw;
+  int texh;
+  float filter_strength;
+} gl_conversion_params_t;
+
+void glSetupYUVConversion(gl_conversion_params_t *params);
 void glEnableYUVConversion(GLenum target, int type);
 void glDisableYUVConversion(GLenum target, int type);
 
@@ -277,6 +353,7 @@ void glDisableYUVConversion(GLenum target, int type);
 /** \} */
 
 #ifdef GL_WIN32
+#define vo_border() vo_w32_border()
 #define vo_check_events() vo_w32_check_events()
 #define vo_fullscreen() vo_w32_fullscreen()
 #define vo_ontop() vo_w32_ontop()
@@ -284,6 +361,7 @@ void glDisableYUVConversion(GLenum target, int type);
 int setGlWindow(int *vinfo, HGLRC *context, HWND win);
 void releaseGlContext(int *vinfo, HGLRC *context);
 #else
+#define vo_border() vo_x11_border()
 #define vo_check_events() vo_x11_check_events(mDisplay)
 #define vo_fullscreen() vo_x11_fullscreen()
 #define vo_ontop() vo_x11_ontop()
@@ -327,5 +405,7 @@ extern void (APIENTRY *ProgramEnvParameter4f)(GLenum, GLuint, GLfloat, GLfloat,
 extern int (APIENTRY *SwapInterval)(int);
 extern void (APIENTRY *TexImage3D)(GLenum, GLint, GLenum, GLsizei, GLsizei,
                              GLsizei, GLint, GLenum, GLenum, const GLvoid *);
+extern void* (APIENTRY *AllocateMemoryMESA)(void *, int, size_t, float, float, float);
+extern void (APIENTRY *FreeMemoryMESA)(void *, int, void *);
 
-#endif
+#endif /* MPLAYER_GL_COMMON_H */

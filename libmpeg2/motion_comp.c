@@ -20,9 +20,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * Modified for use with MPlayer, see libmpeg-0.4.1.diff for the exact changes.
+ * Modified for use with MPlayer, see libmpeg2_changes.diff for the exact changes.
  * detailed changelog at http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: motion_comp.c 23258 2007-05-07 22:22:27Z gpoirier $
+ * $Id: motion_comp.c 28370 2009-01-26 09:29:53Z diego $
  */
 
 #include "config.h"
@@ -37,45 +37,40 @@ mpeg2_mc_t mpeg2_mc;
 
 void mpeg2_mc_init (uint32_t accel)
 {
-#ifdef HAVE_MMX2
+#if HAVE_MMX2
     if (accel & MPEG2_ACCEL_X86_MMXEXT)
 	mpeg2_mc = mpeg2_mc_mmxext;
     else
 #endif
-#ifdef HAVE_3DNOW
+#if HAVE_AMD3DNOW
     if (accel & MPEG2_ACCEL_X86_3DNOW)
 	mpeg2_mc = mpeg2_mc_3dnow;
     else
 #endif
-#ifdef HAVE_MMX
+#if HAVE_MMX
     if (accel & MPEG2_ACCEL_X86_MMX)
 	mpeg2_mc = mpeg2_mc_mmx;
     else
 #endif
-#if defined(ARCH_PPC) && defined(HAVE_ALTIVEC)
+#if HAVE_ALTIVEC
     if (accel & MPEG2_ACCEL_PPC_ALTIVEC)
 	mpeg2_mc = mpeg2_mc_altivec;
     else
 #endif
-#ifdef ARCH_ALPHA
+#if ARCH_ALPHA
     if (accel & MPEG2_ACCEL_ALPHA)
 	mpeg2_mc = mpeg2_mc_alpha;
     else
 #endif
-#if defined(ARCH_SPARC) && defined(HAVE_VIS)
+#if HAVE_VIS
     if (accel & MPEG2_ACCEL_SPARC_VIS)
 	mpeg2_mc = mpeg2_mc_vis;
     else
 #endif
-#ifdef ARCH_ARM
-    if (1 /*accel & MPEG2_ACCEL_ARM*/) {
-#ifdef HAVE_IWMMXT
-	if (1 /*accel & MPEG2_ACCEL_ARM_IWMMXT*/)
-	    mpeg2_mc = mpeg2_mc_iwmmxt;
-	else
-#endif
-	    mpeg2_mc = mpeg2_mc_arm;
-    } else
+#if ARCH_ARM
+    if (accel & MPEG2_ACCEL_ARM)
+	mpeg2_mc = mpeg2_mc_arm;
+    else
 #endif
 	mpeg2_mc = mpeg2_mc_c;
 }

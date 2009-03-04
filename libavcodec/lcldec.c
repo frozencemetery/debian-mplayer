@@ -20,7 +20,7 @@
  */
 
 /**
- * @file lcl.c
+ * @file libavcodec/lcldec.c
  * LCL (LossLess Codec Library) Video Codec
  * Decoder for MSZH and ZLIB codecs
  * Experimental encoder for ZLIB RGB24
@@ -45,7 +45,7 @@
 #include "bitstream.h"
 #include "lcl.h"
 
-#ifdef CONFIG_ZLIB
+#if CONFIG_ZLIB
 #include <zlib.h>
 #endif
 
@@ -65,7 +65,7 @@ typedef struct LclDecContext {
     unsigned int decomp_size;
     // Decompression buffer
     unsigned char* decomp_buf;
-#ifdef CONFIG_ZLIB
+#if CONFIG_ZLIB
     z_stream zstream;
 #endif
 } LclDecContext;
@@ -136,7 +136,7 @@ static unsigned int mszh_decomp(unsigned char * srcptr, int srclen, unsigned cha
         } else {
             ofs = *(srcptr++);
             cnt = *(srcptr++);
-            ofs += cnt * 256;;
+            ofs += cnt * 256;
             cnt = ((cnt >> 3) & 0x1f) + 1;
             ofs &= 0x7ff;
             srclen -= 2;
@@ -161,7 +161,7 @@ static unsigned int mszh_decomp(unsigned char * srcptr, int srclen, unsigned cha
  * Decode a frame
  *
  */
-static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, uint8_t *buf, int buf_size)
+static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, const uint8_t *buf, int buf_size)
 {
     LclDecContext * const c = avctx->priv_data;
     unsigned char *encoded = (unsigned char *)buf;
@@ -174,7 +174,7 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, uint8
     unsigned char yq, y1q, uq, vq;
     int uqvq;
     unsigned int mthread_inlen, mthread_outlen;
-#ifdef CONFIG_ZLIB
+#if CONFIG_ZLIB
     int zret; // Zlib return code
 #endif
     unsigned int len = buf_size;
@@ -235,7 +235,7 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, uint8
         }
         break;
     case CODEC_ID_ZLIB:
-#ifdef CONFIG_ZLIB
+#if CONFIG_ZLIB
         /* Using the original dll with normal compression (-1) and RGB format
          * gives a file with ZLIB fourcc, but frame is really uncompressed.
          * To be sure that's true check also frame size */
@@ -302,7 +302,7 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, uint8
             }
         }
         encoded = c->decomp_buf;
-        len = c->decomp_size;;
+        len = c->decomp_size;
 #else
         av_log(avctx, AV_LOG_ERROR, "BUG! Zlib support not compiled in frame decoder.\n");
         return -1;
@@ -514,7 +514,7 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, uint8
  * Init lcl decoder
  *
  */
-static int decode_init(AVCodecContext *avctx)
+static av_cold int decode_init(AVCodecContext *avctx)
 {
     LclDecContext * const c = avctx->priv_data;
     unsigned int basesize = avctx->width * avctx->height;
@@ -524,7 +524,7 @@ static int decode_init(AVCodecContext *avctx)
 
     c->pic.data[0] = NULL;
 
-#ifdef CONFIG_ZLIB
+#if CONFIG_ZLIB
     // Needed if zlib unused or init aborted before inflateInit
     memset(&(c->zstream), 0, sizeof(z_stream));
 #endif
@@ -599,7 +599,7 @@ static int decode_init(AVCodecContext *avctx)
         }
         break;
     case CODEC_ID_ZLIB:
-#ifdef CONFIG_ZLIB
+#if CONFIG_ZLIB
         switch (c->compression) {
         case COMP_ZLIB_HISPEED:
             av_log(avctx, AV_LOG_INFO, "High speed compression.\n");
@@ -648,7 +648,7 @@ static int decode_init(AVCodecContext *avctx)
 
     /* If needed init zlib */
     if (avctx->codec_id == CODEC_ID_ZLIB) {
-#ifdef CONFIG_ZLIB
+#if CONFIG_ZLIB
         c->zstream.zalloc = Z_NULL;
         c->zstream.zfree = Z_NULL;
         c->zstream.opaque = Z_NULL;
@@ -673,20 +673,20 @@ static int decode_init(AVCodecContext *avctx)
  * Uninit lcl decoder
  *
  */
-static int decode_end(AVCodecContext *avctx)
+static av_cold int decode_end(AVCodecContext *avctx)
 {
     LclDecContext * const c = avctx->priv_data;
 
     if (c->pic.data[0])
         avctx->release_buffer(avctx, &c->pic);
-#ifdef CONFIG_ZLIB
+#if CONFIG_ZLIB
     inflateEnd(&(c->zstream));
 #endif
 
     return 0;
 }
 
-#ifdef CONFIG_MSZH_DECODER
+#if CONFIG_MSZH_DECODER
 AVCodec mszh_decoder = {
     "mszh",
     CODEC_TYPE_VIDEO,
@@ -697,10 +697,11 @@ AVCodec mszh_decoder = {
     decode_end,
     decode_frame,
     CODEC_CAP_DR1,
+    .long_name = NULL_IF_CONFIG_SMALL("LCL (LossLess Codec Library) MSZH"),
 };
 #endif
 
-#ifdef CONFIG_ZLIB_DECODER
+#if CONFIG_ZLIB_DECODER
 AVCodec zlib_decoder = {
     "zlib",
     CODEC_TYPE_VIDEO,
@@ -711,5 +712,6 @@ AVCodec zlib_decoder = {
     decode_end,
     decode_frame,
     CODEC_CAP_DR1,
+    .long_name = NULL_IF_CONFIG_SMALL("LCL (LossLess Codec Library) ZLIB"),
 };
 #endif

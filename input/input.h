@@ -1,133 +1,165 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+#ifndef MPLAYER_INPUT_H
+#define MPLAYER_INPUT_H
+
 // All command IDs
-#define MP_CMD_SEEK   0
-#define MP_CMD_AUDIO_DELAY 1
-#define MP_CMD_QUIT 2
-#define MP_CMD_PAUSE 3
-// #define MP_CMD_GRAB_FRAMES 4  // was a no-op command for years
-#define MP_CMD_PLAY_TREE_STEP 5
-#define MP_CMD_PLAY_TREE_UP_STEP 6
-#define MP_CMD_PLAY_ALT_SRC_STEP 7
-#define MP_CMD_SUB_DELAY 8
-#define MP_CMD_OSD 9
-#define MP_CMD_VOLUME 10
-#define MP_CMD_MIXER_USEMASTER 11
-#define MP_CMD_CONTRAST 12
-#define MP_CMD_BRIGHTNESS 13
-#define MP_CMD_HUE 14
-#define MP_CMD_SATURATION 15
-#define MP_CMD_FRAMEDROPPING 16
-#define MP_CMD_TV_STEP_CHANNEL 17
-#define MP_CMD_TV_STEP_NORM 18
-#define MP_CMD_TV_STEP_CHANNEL_LIST 19
-#define MP_CMD_VO_FULLSCREEN 20
-#define MP_CMD_SUB_POS 21
-#define MP_CMD_DVDNAV 22
-#define MP_CMD_SCREENSHOT 23
-#define MP_CMD_PANSCAN 24
-#define MP_CMD_MUTE 25
-#define MP_CMD_LOADFILE 26
-#define MP_CMD_LOADLIST 27
-#define MP_CMD_VF_CHANGE_RECTANGLE 28
-#define MP_CMD_GAMMA 29
-#define MP_CMD_SUB_VISIBILITY 30
-// #define MP_CMD_VOBSUB_LANG 31 // combined with SUB_SELECT
-#define MP_CMD_MENU 32
-#define MP_CMD_SET_MENU 33
-#define MP_CMD_GET_TIME_LENGTH 34
-#define MP_CMD_GET_PERCENT_POS 35
-#define MP_CMD_SUB_STEP 36
-#define MP_CMD_TV_SET_CHANNEL 37
-#define MP_CMD_EDL_MARK 38
-#define MP_CMD_SUB_ALIGNMENT 39
-#define MP_CMD_TV_LAST_CHANNEL 40
-#define MP_CMD_OSD_SHOW_TEXT 41
-#define MP_CMD_TV_SET_FREQ 42
-#define MP_CMD_TV_SET_NORM 43
-#define MP_CMD_TV_SET_BRIGHTNESS 44
-#define MP_CMD_TV_SET_CONTRAST 45
-#define MP_CMD_TV_SET_HUE 46
-#define MP_CMD_TV_SET_SATURATION 47
-#define MP_CMD_GET_VO_FULLSCREEN 48
-#define MP_CMD_GET_SUB_VISIBILITY 49
-#define MP_CMD_SUB_FORCED_ONLY 50
-#define MP_CMD_VO_ONTOP 51
-#define MP_CMD_SUB_SELECT 52
-#define MP_CMD_VO_ROOTWIN 53
-#define MP_CMD_SWITCH_VSYNC 54
-#define MP_CMD_SWITCH_RATIO 55
-#define MP_CMD_FRAME_STEP 56
-#define MP_CMD_SPEED_INCR 57
-#define MP_CMD_SPEED_MULT 58
-#define MP_CMD_SPEED_SET 59
-#define MP_CMD_RUN 60
-#define MP_CMD_SUB_LOG 61
-#define MP_CMD_SWITCH_AUDIO 62
-#define MP_CMD_GET_TIME_POS 63
-#define MP_CMD_SUB_LOAD 64
-#define MP_CMD_SUB_REMOVE 65
-#define MP_CMD_KEYDOWN_EVENTS 66
-#define MP_CMD_VO_BORDER 67
-#define MP_CMD_SET_PROPERTY 68
-#define MP_CMD_GET_PROPERTY 69
-#define MP_CMD_OSD_SHOW_PROPERTY_TEXT 70
-#define MP_CMD_SEEK_CHAPTER 71
-#define MP_CMD_FILE_FILTER 72
-#define MP_CMD_GET_FILENAME 73
-#define MP_CMD_GET_VIDEO_CODEC 74
-#define MP_CMD_GET_VIDEO_BITRATE 75
-#define MP_CMD_GET_VIDEO_RESOLUTION 76
-#define MP_CMD_GET_AUDIO_CODEC 77
-#define MP_CMD_GET_AUDIO_BITRATE 78
-#define MP_CMD_GET_AUDIO_SAMPLES 79
-#define MP_CMD_GET_META_TITLE 80
-#define MP_CMD_GET_META_ARTIST 81
-#define MP_CMD_GET_META_ALBUM 82
-#define MP_CMD_GET_META_YEAR 83
-#define MP_CMD_GET_META_COMMENT 84
-#define MP_CMD_GET_META_TRACK 85
-#define MP_CMD_GET_META_GENRE 86
-#define MP_CMD_RADIO_STEP_CHANNEL 87
-#define MP_CMD_RADIO_SET_CHANNEL 88
-#define MP_CMD_RADIO_SET_FREQ 89
-#define MP_CMD_SET_MOUSE_POS 90
-#define MP_CMD_STEP_PROPERTY 91
-#define MP_CMD_RADIO_STEP_FREQ 92
-#define MP_CMD_TV_STEP_FREQ 93
-#define MP_CMD_LOOP 94
-#define MP_CMD_BALANCE 96
-#define MP_CMD_SUB_SCALE 97
-#define MP_CMD_TV_TELETEXT_ADD_DEC 98
-#define MP_CMD_TV_TELETEXT_GO_LINK 99
-#define MP_CMD_TV_START_SCAN 100
+typedef enum {
+  MP_CMD_SEEK,
+  MP_CMD_AUDIO_DELAY,
+  MP_CMD_QUIT,
+  MP_CMD_PAUSE,
+  MP_CMD_GRAB_FRAMES, // deprecated: was a no-op command for years
+  MP_CMD_PLAY_TREE_STEP,
+  MP_CMD_PLAY_TREE_UP_STEP,
+  MP_CMD_PLAY_ALT_SRC_STEP,
+  MP_CMD_SUB_DELAY,
+  MP_CMD_OSD,
+  MP_CMD_VOLUME,
+  MP_CMD_MIXER_USEMASTER,
+  MP_CMD_CONTRAST,
+  MP_CMD_BRIGHTNESS,
+  MP_CMD_HUE,
+  MP_CMD_SATURATION,
+  MP_CMD_FRAMEDROPPING,
+  MP_CMD_TV_STEP_CHANNEL,
+  MP_CMD_TV_STEP_NORM,
+  MP_CMD_TV_STEP_CHANNEL_LIST,
+  MP_CMD_VO_FULLSCREEN,
+  MP_CMD_SUB_POS,
+  MP_CMD_DVDNAV,
+  MP_CMD_SCREENSHOT,
+  MP_CMD_PANSCAN,
+  MP_CMD_MUTE,
+  MP_CMD_LOADFILE,
+  MP_CMD_LOADLIST,
+  MP_CMD_VF_CHANGE_RECTANGLE,
+  MP_CMD_GAMMA,
+  MP_CMD_SUB_VISIBILITY,
+  MP_CMD_VOBSUB_LANG, // deprecated: combined with SUB_SELECT
+  MP_CMD_MENU,
+  MP_CMD_SET_MENU,
+  MP_CMD_GET_TIME_LENGTH,
+  MP_CMD_GET_PERCENT_POS,
+  MP_CMD_SUB_STEP,
+  MP_CMD_TV_SET_CHANNEL,
+  MP_CMD_EDL_MARK,
+  MP_CMD_SUB_ALIGNMENT,
+  MP_CMD_TV_LAST_CHANNEL,
+  MP_CMD_OSD_SHOW_TEXT,
+  MP_CMD_TV_SET_FREQ,
+  MP_CMD_TV_SET_NORM,
+  MP_CMD_TV_SET_BRIGHTNESS,
+  MP_CMD_TV_SET_CONTRAST,
+  MP_CMD_TV_SET_HUE,
+  MP_CMD_TV_SET_SATURATION,
+  MP_CMD_GET_VO_FULLSCREEN,
+  MP_CMD_GET_SUB_VISIBILITY,
+  MP_CMD_SUB_FORCED_ONLY,
+  MP_CMD_VO_ONTOP,
+  MP_CMD_SUB_SELECT,
+  MP_CMD_VO_ROOTWIN,
+  MP_CMD_SWITCH_VSYNC,
+  MP_CMD_SWITCH_RATIO,
+  MP_CMD_FRAME_STEP,
+  MP_CMD_SPEED_INCR,
+  MP_CMD_SPEED_MULT,
+  MP_CMD_SPEED_SET,
+  MP_CMD_RUN,
+  MP_CMD_SUB_LOG,
+  MP_CMD_SWITCH_AUDIO,
+  MP_CMD_GET_TIME_POS,
+  MP_CMD_SUB_LOAD,
+  MP_CMD_SUB_REMOVE,
+  MP_CMD_KEYDOWN_EVENTS,
+  MP_CMD_VO_BORDER,
+  MP_CMD_SET_PROPERTY,
+  MP_CMD_GET_PROPERTY,
+  MP_CMD_OSD_SHOW_PROPERTY_TEXT,
+  MP_CMD_SEEK_CHAPTER,
+  MP_CMD_FILE_FILTER,
+  MP_CMD_GET_FILENAME,
+  MP_CMD_GET_VIDEO_CODEC,
+  MP_CMD_GET_VIDEO_BITRATE,
+  MP_CMD_GET_VIDEO_RESOLUTION,
+  MP_CMD_GET_AUDIO_CODEC,
+  MP_CMD_GET_AUDIO_BITRATE,
+  MP_CMD_GET_AUDIO_SAMPLES,
+  MP_CMD_GET_META_TITLE,
+  MP_CMD_GET_META_ARTIST,
+  MP_CMD_GET_META_ALBUM,
+  MP_CMD_GET_META_YEAR,
+  MP_CMD_GET_META_COMMENT,
+  MP_CMD_GET_META_TRACK,
+  MP_CMD_GET_META_GENRE,
+  MP_CMD_RADIO_STEP_CHANNEL,
+  MP_CMD_RADIO_SET_CHANNEL,
+  MP_CMD_RADIO_SET_FREQ,
+  MP_CMD_SET_MOUSE_POS,
+  MP_CMD_STEP_PROPERTY,
+  MP_CMD_RADIO_STEP_FREQ,
+  MP_CMD_TV_STEP_FREQ,
+  MP_CMD_LOOP,
+  MP_CMD_BALANCE,
+  MP_CMD_SUB_SCALE,
+  MP_CMD_TV_TELETEXT_ADD_DEC,
+  MP_CMD_TV_TELETEXT_GO_LINK,
+  MP_CMD_TV_START_SCAN,
+  MP_CMD_SUB_SOURCE,
+  MP_CMD_SUB_FILE,
+  MP_CMD_SUB_VOB,
+  MP_CMD_SUB_DEMUX,
+  MP_CMD_SWITCH_ANGLE,
+  MP_CMD_ASS_USE_MARGINS,
+  MP_CMD_SWITCH_TITLE,
+  MP_CMD_STOP,
 
-#define MP_CMD_GUI_EVENTS       5000
-#define MP_CMD_GUI_LOADFILE     5001
-#define MP_CMD_GUI_LOADSUBTITLE 5002
-#define MP_CMD_GUI_ABOUT        5003
-#define MP_CMD_GUI_PLAY         5004
-#define MP_CMD_GUI_STOP         5005
-#define MP_CMD_GUI_PLAYLIST     5006
-#define MP_CMD_GUI_PREFERENCES  5007
-#define MP_CMD_GUI_FULLSCREEN   5008
-#define MP_CMD_GUI_SKINBROWSER  5009
+  /// DVDNAV commands
+  MP_CMD_DVDNAV_UP = 1000,
+  MP_CMD_DVDNAV_DOWN,
+  MP_CMD_DVDNAV_LEFT,
+  MP_CMD_DVDNAV_RIGHT,
+  MP_CMD_DVDNAV_MENU,
+  MP_CMD_DVDNAV_SELECT,
+  MP_CMD_DVDNAV_PREVMENU,
+  MP_CMD_DVDNAV_MOUSECLICK,
+  
+  /// GUI commands
+  MP_CMD_GUI_EVENTS = 5000,
+  MP_CMD_GUI_LOADFILE,
+  MP_CMD_GUI_LOADSUBTITLE,
+  MP_CMD_GUI_ABOUT,
+  MP_CMD_GUI_PLAY,
+  MP_CMD_GUI_STOP,
+  MP_CMD_GUI_PLAYLIST,
+  MP_CMD_GUI_PREFERENCES,
+  MP_CMD_GUI_FULLSCREEN,
+  MP_CMD_GUI_SKINBROWSER,
 
-#ifdef HAS_DVBIN_SUPPORT
-#define MP_CMD_DVB_SET_CHANNEL 5101
-#endif
+  /// DVB commands
+  MP_CMD_DVB_SET_CHANNEL = 5101,
 
-#define MP_CMD_DVDNAV_UP        1
-#define MP_CMD_DVDNAV_DOWN      2
-#define MP_CMD_DVDNAV_LEFT      3
-#define MP_CMD_DVDNAV_RIGHT     4
-#define MP_CMD_DVDNAV_MENU      5
-#define MP_CMD_DVDNAV_SELECT    6
-#define MP_CMD_DVDNAV_PREVMENU  7
-#define MP_CMD_DVDNAV_MOUSECLICK  8
-
-/// Console commands
-#define MP_CMD_CHELP 7000
-#define MP_CMD_CEXIT 7001
-#define MP_CMD_CHIDE 7002
+  /// Console commands
+  MP_CMD_CHELP = 7000,
+  MP_CMD_CEXIT,
+  MP_CMD_CHIDE,
+} mp_command_type;
 
 // The arg types
 #define MP_CMD_ARG_INT 0
@@ -203,7 +235,7 @@ typedef int (*mp_cmd_func_t)(int fd,char* dest,int size);
 typedef void (*mp_close_func_t)(int fd);
 
 // Set this to grab all incoming key codes
-extern void (*mp_input_key_cb)(int code);
+extern int (*mp_input_key_cb)(int code);
 // Should return 1 if the command was processed
 typedef int (*mp_input_cmd_filter)(mp_cmd_t* cmd, int paused, void* ctx);
 
@@ -234,6 +266,9 @@ int mp_input_add_event_fd(int fd, void (*read_func)(void));
 
 void mp_input_rm_event_fd(int fd);
 
+/// Get input key from its name.
+int mp_input_get_key_from_name(const char *name);
+
 // This function can be used to put a command in the system again. It's used by libmpdemux
 // when it performs a blocking operation to resend the command it received to the main
 // loop.
@@ -247,6 +282,12 @@ mp_input_get_cmd(int time, int paused, int peek_only);
 
 mp_cmd_t*
 mp_input_parse_cmd(char* str);
+
+/**
+ * Parse and queue commands separated by '\n'.
+ * @return count of commands new queued.
+ */
+int mp_input_parse_and_queue_cmds(const char *str);
 
 /// These filters allow you to process the command before MPlayer.
 /// If a filter returns a true value mp_input_get_cmd will return NULL.
@@ -281,3 +322,6 @@ mp_input_uninit(void);
 int
 mp_input_check_interrupt(int time);
 
+extern int async_quit_request;
+
+#endif /* MPLAYER_INPUT_H */

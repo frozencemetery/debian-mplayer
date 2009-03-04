@@ -1,22 +1,25 @@
 /* ------------------------------------------------------------------------- */
 
-/* 
- * vo_md5sum.c, md5sum Video Output Driver for MPlayer
+/*
+ * md5sum video output driver
  *
- * 
- * Written by Ivo van Poorten. (C) Copyright 2004, 2005.
- * Licensed under GNU General Public License version 2.
+ * Copyright (C) 2004, 2005, 2006 Ivo van Poorten
  *
+ * This file is part of MPlayer.
  *
- * Changelog
- * 
- * 2006-07-02   Removed imported md5sum code and rely on libavutil now
- * 2005-01-16   Replaced suboption parser by call to subopt-helper.
- * 2004-09-16   Second draft. It now acts on VOCTRL_DRAW_IMAGE and does not
- *              maintain a local copy of the image if the format is YV12.
- *              Speed improvement and uses less memory.
- * 2004-09-13   First draft.
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /* ------------------------------------------------------------------------- */
@@ -39,11 +42,7 @@
 #include "video_out_internal.h"
 #include "mplayer.h"			/* for exit_player() */
 #include "help_mp.h"
-#ifdef USE_LIBAVUTIL_SO
-#include "ffmpeg/md5.h"
-#else
 #include "libavutil/md5.h"
-#endif
 
 /* ------------------------------------------------------------------------- */
 
@@ -56,7 +55,7 @@
 
 /* Info */
 
-static vo_info_t info=
+static const vo_info_t info=
 {
 	"md5sum of each frame",
 	"md5sum",
@@ -64,7 +63,7 @@ static vo_info_t info=
 	""
 };
 
-LIBVO_EXTERN (md5sum)
+const LIBVO_EXTERN (md5sum)
 
 /* ------------------------------------------------------------------------- */
 

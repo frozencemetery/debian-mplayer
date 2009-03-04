@@ -20,7 +20,7 @@
  *******************************************************************************************************************/
 
 cd_info_t*
-cd_info_new() {
+cd_info_new(void) {
 	cd_info_t *cd_info = NULL;
 	
 	cd_info = malloc(sizeof(cd_info_t));
@@ -114,20 +114,29 @@ cd_info_get_track(cd_info_t *cd_info, unsigned int track_nb) {
 void
 cd_info_debug(cd_info_t *cd_info) {
 	cd_track_t *current_track;
-	printf("================ CD INFO === start =========\n");
+	mp_msg(MSGT_DEMUX, MSGL_INFO, "================ CD INFO === start =========\n");
 	if( cd_info==NULL ) {
-		printf("cd_info is NULL\n");
+		mp_msg(MSGT_DEMUX, MSGL_INFO, "cd_info is NULL\n");
 		return;
 	}
-	printf(" artist=[%s]\n", cd_info->artist);
-	printf(" album=[%s]\n", cd_info->album);
-	printf(" genre=[%s]\n", cd_info->genre);
-	printf(" nb_tracks=%d\n", cd_info->nb_tracks);
-	printf(" length= %2d:%02d.%02d\n", cd_info->min, cd_info->sec, cd_info->msec);
+	mp_msg(MSGT_DEMUX, MSGL_INFO, " artist=[%s]\n", cd_info->artist);
+	mp_msg(MSGT_DEMUX, MSGL_INFO, " album=[%s]\n", cd_info->album);
+	mp_msg(MSGT_DEMUX, MSGL_INFO, " genre=[%s]\n", cd_info->genre);
+	mp_msg(MSGT_DEMUX, MSGL_INFO, " nb_tracks=%d\n", cd_info->nb_tracks);
+	mp_msg(MSGT_DEMUX, MSGL_INFO, " length= %2d:%02d.%02d\n", cd_info->min, cd_info->sec, cd_info->msec);
+
+	mp_msg(MSGT_IDENTIFY, MSGL_INFO, "ID_CDDB_INFO_ARTIST=%s\n", cd_info->artist);
+	mp_msg(MSGT_IDENTIFY, MSGL_INFO, "ID_CDDB_INFO_ALBUM=%s\n", cd_info->album);
+	mp_msg(MSGT_IDENTIFY, MSGL_INFO, "ID_CDDB_INFO_GENRE=%s\n", cd_info->genre);
+	mp_msg(MSGT_IDENTIFY, MSGL_INFO, "ID_CDDB_INFO_LENGTH_MSF=%02d:%02d.%02d\n", cd_info->min, cd_info->sec, cd_info->msec);
+	mp_msg(MSGT_IDENTIFY, MSGL_INFO, "ID_CDDB_INFO_TRACKS=%d\n", cd_info->nb_tracks);
+
 	current_track = cd_info->first;
 	while( current_track!=NULL ) {
-		printf("  #%2d %2d:%02d.%02d @ %7ld\t[%s] \n", current_track->track_nb, current_track->min, current_track->sec, current_track->msec, current_track->frame_begin, current_track->name);
+		mp_msg(MSGT_DEMUX, MSGL_INFO, "  #%2d %2d:%02d.%02d @ %7ld\t[%s] \n", current_track->track_nb, current_track->min, current_track->sec, current_track->msec, current_track->frame_begin, current_track->name);
+		mp_msg(MSGT_IDENTIFY, MSGL_INFO, "ID_CDDB_INFO_TRACK_%d_NAME=%s\n", current_track->track_nb, current_track->name);
+		mp_msg(MSGT_IDENTIFY, MSGL_INFO, "ID_CDDB_INFO_TRACK_%d_MSF=%02d:%02d.%02d\n", current_track->track_nb, current_track->min, current_track->sec, current_track->msec);
 		current_track = current_track->next;
 	}
-	printf("================ CD INFO ===  end  =========\n");
+	mp_msg(MSGT_DEMUX, MSGL_INFO, "================ CD INFO ===  end  =========\n");
 }

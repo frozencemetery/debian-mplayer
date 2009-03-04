@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision: 21612 $ -->
+<!-- $Revision: 26990 $ -->
 <appendix id="skin">
 <title><application>MPlayer</application> skin format</title>
 
@@ -1107,14 +1107,14 @@ menu entries.
 <varlistentry>
   <term><emphasis role="bold">evLoadSubtitle</emphasis></term>
   <listitem><para>
-  Loads a subtitle file (with the fileselector)
+  Loads a subtitle file (with the file selector).
   </para></listitem>
 </varlistentry>
 
 <varlistentry>
   <term><emphasis role="bold">evLoadAudioFile</emphasis></term>
   <listitem><para>
-  Loads an audio file (with the fileselector)
+  Loads an audio file (with the file selector).
   </para></listitem>
 </varlistentry>
 

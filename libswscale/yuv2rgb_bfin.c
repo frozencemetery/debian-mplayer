@@ -1,9 +1,8 @@
 /*
  * Copyright (C) 2007 Marc Hoffman <marc.hoffman@analog.com>
- *                    April 20, 2007
  *
- * Blackfin Video Color Space Converters Operations
- *  convert I420 YV12 to RGB in various formats,
+ * Blackfin video color space converter operations
+ * convert I420 YV12 to RGB in various formats
  *
  * This file is part of FFmpeg.
  *
@@ -28,28 +27,28 @@
 #include <inttypes.h>
 #include <assert.h>
 #include "config.h"
-#ifdef HAVE_MALLOC_H
-#include <malloc.h>
-#endif
 #include <unistd.h>
 #include "rgb2rgb.h"
 #include "swscale.h"
 #include "swscale_internal.h"
 
-
+#ifdef __FDPIC__
 #define L1CODE __attribute__ ((l1_text))
+#else
+#define L1CODE
+#endif
 
-extern void ff_bfin_yuv2rgb555_line (uint8_t *Y, uint8_t *U, uint8_t *V, uint8_t *out,
-                                     int w, uint32_t *coeffs) L1CODE;
+void ff_bfin_yuv2rgb555_line (uint8_t *Y, uint8_t *U, uint8_t *V, uint8_t *out,
+                              int w, uint32_t *coeffs) L1CODE;
 
-extern void ff_bfin_yuv2rgb565_line (uint8_t *Y, uint8_t *U, uint8_t *V, uint8_t *out,
-                                     int w, uint32_t *coeffs) L1CODE;
+void ff_bfin_yuv2rgb565_line (uint8_t *Y, uint8_t *U, uint8_t *V, uint8_t *out,
+                              int w, uint32_t *coeffs) L1CODE;
 
-extern void ff_bfin_yuv2rgb24_line (uint8_t *Y, uint8_t *U, uint8_t *V, uint8_t *out,
-                                    int w, uint32_t *coeffs) L1CODE;
+void ff_bfin_yuv2rgb24_line (uint8_t *Y, uint8_t *U, uint8_t *V, uint8_t *out,
+                             int w, uint32_t *coeffs) L1CODE;
 
-typedef void (* ltransform_t)(uint8_t *Y, uint8_t *U, uint8_t *V, uint8_t *out,
-                              int w, uint32_t *coeffs);
+typedef void (* ltransform)(uint8_t *Y, uint8_t *U, uint8_t *V, uint8_t *out,
+                            int w, uint32_t *coeffs);
 
 
 static void bfin_prepare_coefficients (SwsContext *c, int rgb, int masks)
@@ -93,7 +92,7 @@ static int core_yuv420_rgb (SwsContext *c,
                             uint8_t **in, int *instrides,
                             int srcSliceY, int srcSliceH,
                             uint8_t **oplanes, int *outstrides,
-                            ltransform_t lcscf, int rgb, int masks)
+                            ltransform lcscf, int rgb, int masks)
 {
     uint8_t *py,*pu,*pv,*op;
     int w  = instrides[0];
@@ -110,12 +109,12 @@ static int core_yuv420_rgb (SwsContext *c,
 
     for (i=0;i<h2;i++) {
 
-        lcscf (py,pu,pv,op,w,&c->oy);
+        lcscf (py, pu, pv, op, w, &c->oy);
 
         py += instrides[0];
         op += outstrides[0];
 
-        lcscf (py,pu,pv,op,w,&c->oy);
+        lcscf (py, pu, pv, op, w, &c->oy);
 
         py += instrides[0];
         pu += instrides[1];
@@ -132,7 +131,7 @@ static int bfin_yuv420_rgb555 (SwsContext *c,
                                int srcSliceY, int srcSliceH,
                                uint8_t **oplanes, int *outstrides)
 {
-    return core_yuv420_rgb (c,in,instrides,srcSliceY,srcSliceH,oplanes,outstrides,
+    return core_yuv420_rgb (c, in, instrides, srcSliceY, srcSliceH, oplanes, outstrides,
                             ff_bfin_yuv2rgb555_line, 1, 555);
 }
 
@@ -141,7 +140,7 @@ static int bfin_yuv420_bgr555 (SwsContext *c,
                                int srcSliceY, int srcSliceH,
                                uint8_t **oplanes, int *outstrides)
 {
-    return core_yuv420_rgb (c,in,instrides,srcSliceY,srcSliceH,oplanes,outstrides,
+    return core_yuv420_rgb (c, in, instrides, srcSliceY, srcSliceH, oplanes, outstrides,
                             ff_bfin_yuv2rgb555_line, 0, 555);
 }
 
@@ -150,7 +149,7 @@ static int bfin_yuv420_rgb24 (SwsContext *c,
                               int srcSliceY, int srcSliceH,
                               uint8_t **oplanes, int *outstrides)
 {
-    return core_yuv420_rgb (c,in,instrides,srcSliceY,srcSliceH,oplanes,outstrides,
+    return core_yuv420_rgb (c, in, instrides, srcSliceY, srcSliceH, oplanes, outstrides,
                             ff_bfin_yuv2rgb24_line, 1, 888);
 }
 
@@ -159,7 +158,7 @@ static int bfin_yuv420_bgr24 (SwsContext *c,
                               int srcSliceY, int srcSliceH,
                               uint8_t **oplanes, int *outstrides)
 {
-    return core_yuv420_rgb (c,in,instrides,srcSliceY,srcSliceH,oplanes,outstrides,
+    return core_yuv420_rgb (c, in, instrides, srcSliceY, srcSliceH, oplanes, outstrides,
                             ff_bfin_yuv2rgb24_line, 0, 888);
 }
 
@@ -168,7 +167,7 @@ static int bfin_yuv420_rgb565 (SwsContext *c,
                                int srcSliceY, int srcSliceH,
                                uint8_t **oplanes, int *outstrides)
 {
-    return core_yuv420_rgb (c,in,instrides,srcSliceY,srcSliceH,oplanes,outstrides,
+    return core_yuv420_rgb (c, in, instrides, srcSliceY, srcSliceH, oplanes, outstrides,
                             ff_bfin_yuv2rgb565_line, 1, 565);
 }
 
@@ -177,7 +176,7 @@ static int bfin_yuv420_bgr565 (SwsContext *c,
                                int srcSliceY, int srcSliceH,
                                uint8_t **oplanes, int *outstrides)
 {
-    return core_yuv420_rgb (c,in,instrides,srcSliceY,srcSliceH,oplanes,outstrides,
+    return core_yuv420_rgb (c, in, instrides, srcSliceY, srcSliceH, oplanes, outstrides,
                             ff_bfin_yuv2rgb565_line, 0, 565);
 }
 
@@ -197,7 +196,7 @@ SwsFunc ff_bfin_yuv2rgb_get_func_ptr (SwsContext *c)
         return 0;
     }
 
-    av_log(c, AV_LOG_INFO, "BlackFin Accelerated Color Space Converter %s\n",
+    av_log(c, AV_LOG_INFO, "BlackFin accelerated color space converter %s\n",
            sws_format_name (c->dstFormat));
 
     return f;

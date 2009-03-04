@@ -4,12 +4,12 @@
 
 CpuCaps gCpuCaps;
 
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 #include <stdlib.h>
 
-#ifdef ARCH_X86
+#if ARCH_X86
 
 #include <stdio.h>
 #include <string.h>
@@ -18,22 +18,17 @@ CpuCaps gCpuCaps;
 #include <sys/param.h>
 #include <sys/sysctl.h>
 #include <machine/cpu.h>
-#endif
-
-#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__DragonFly__)
+#elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__DragonFly__) || defined(__APPLE__)
 #include <sys/types.h>
 #include <sys/sysctl.h>
-#endif
-
-#ifdef __linux__
+#elif defined(__linux__)
 #include <signal.h>
-#endif
-
-#ifdef WIN32
+#elif defined(__MINGW32__) || defined(__CYGWIN__)
 #include <windows.h>
-#endif
-
-#ifdef __AMIGAOS4__
+#elif defined(__OS2__)
+#define INCL_DOS
+#include <os2.h>
+#elif defined(__AMIGAOS4__)
 #include <proto/exec.h>
 #endif
 
@@ -46,17 +41,23 @@ CpuCaps gCpuCaps;
 
 static void check_os_katmai_support( void );
 
-#if 1
 // return TRUE if cpuid supported
 static int has_cpuid(void)
 {
 	long a, c;
 
 // code from libavcodec:
-    __asm__ __volatile__ (
+#if ARCH_X86_64
+#define PUSHF "pushfq\n\t"
+#define POPF "popfq\n\t"
+#else
+#define PUSHF "pushfl\n\t"
+#define POPF "popfl\n\t"
+#endif
+    __asm__ volatile (
                           /* See if CPUID instruction is supported ... */
                           /* ... Get copies of EFLAGS into eax and ecx */
-                          "pushf\n\t"
+                          PUSHF
                           "pop %0\n\t"
                           "mov %0, %1\n\t"
                           
@@ -64,32 +65,33 @@ static int has_cpuid(void)
                           /*     to the EFLAGS reg */
                           "xor $0x200000, %0\n\t"
                           "push %0\n\t"
-                          "popf\n\t"
+                          POPF
                           
                           /* ... Get the (hopefully modified) EFLAGS */
-                          "pushf\n\t"
+                          PUSHF
                           "pop %0\n\t"
                           : "=a" (a), "=c" (c)
                           :
                           : "cc" 
                           );
+#undef PUSHF
+#undef POPF
 
-	return (a!=c);
+	return a != c;
 }
-#endif
 
 static void
 do_cpuid(unsigned int ax, unsigned int *p)
 {
 #if 0
-	__asm __volatile(
+	__asm__ volatile(
 	"cpuid;"
 	: "=a" (p[0]), "=b" (p[1]), "=c" (p[2]), "=d" (p[3])
 	:  "0" (ax)
 	);
 #else
 // code from libavcodec:
-    __asm __volatile
+    __asm__ volatile
 	("mov %%"REG_b", %%"REG_S"\n\t"
          "cpuid\n\t"
          "xchg %%"REG_b", %%"REG_S
@@ -141,6 +143,7 @@ void GetCpuCaps( CpuCaps *caps)
 		caps->hasMMX  = (regs2[3] & (1 << 23 )) >> 23; // 0x0800000
 		caps->hasSSE  = (regs2[3] & (1 << 25 )) >> 25; // 0x2000000
 		caps->hasSSE2 = (regs2[3] & (1 << 26 )) >> 26; // 0x4000000
+		caps->hasSSSE3 = (regs2[2] & (1 << 9 )) >>  9; // 0x0000200
 		caps->hasMMX2 = caps->hasSSE; // SSE cpus supports mmxext too
 		cl_size = ((regs2[1] >> 8) & 0xFF)*8;
 		if(cl_size) caps->cl_size = cl_size;
@@ -148,9 +151,9 @@ void GetCpuCaps( CpuCaps *caps)
 		ptmpstr=tmpstr=GetCpuFriendlyName(regs, regs2);
 		while(*ptmpstr == ' ')        // strip leading spaces
 		    ptmpstr++;
-		mp_msg(MSGT_CPUDETECT,MSGL_INFO,"CPU: %s ", ptmpstr);
+		mp_msg(MSGT_CPUDETECT,MSGL_V,"CPU: %s ", ptmpstr);
 		free(tmpstr);
-		mp_msg(MSGT_CPUDETECT,MSGL_INFO,"(Family: %d, Model: %d, Stepping: %d)\n",
+		mp_msg(MSGT_CPUDETECT,MSGL_V,"(Family: %d, Model: %d, Stepping: %d)\n",
 		    caps->cpuType, caps->cpuModel, caps->cpuStepping);
 
 	}
@@ -162,6 +165,7 @@ void GetCpuCaps( CpuCaps *caps)
 		caps->hasMMX2 |= (regs2[3] & (1 << 22 )) >> 22; // 0x400000
 		caps->has3DNow    = (regs2[3] & (1 << 31 )) >> 31; //0x80000000
 		caps->has3DNowExt = (regs2[3] & (1 << 30 )) >> 30;
+		caps->hasSSE4a = (regs2[2] & (1 << 6 )) >>  6; // 0x0000040
 	}
 	if(regs[0]>=0x80000006)
 	{
@@ -181,7 +185,10 @@ void GetCpuCaps( CpuCaps *caps)
 #endif
 
 		/* FIXME: Does SSE2 need more OS support, too? */
-#if defined(__linux__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__NetBSD__) || defined(__CYGWIN__) || defined(__OpenBSD__) || defined(__DragonFly__) || defined(__APPLE__) || defined(__MINGW32__)
+#if defined(__linux__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__) \
+  || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__) \
+  || defined(__APPLE__) || defined(__CYGWIN__) || defined(__MINGW32__) \
+  || defined(__OS2__)
 		if (caps->hasSSE)
 			check_os_katmai_support();
 		if (!caps->hasSSE)
@@ -194,42 +201,35 @@ void GetCpuCaps( CpuCaps *caps)
 //		caps->hasMMX2 = 0;
 //		caps->hasMMX = 0;
 
-#ifndef HAVE_MMX
+#ifndef RUNTIME_CPUDETECT
+#if !HAVE_MMX
 	if(caps->hasMMX) mp_msg(MSGT_CPUDETECT,MSGL_WARN,"MMX supported but disabled\n");
 	caps->hasMMX=0;
 #endif
-#ifndef HAVE_MMX2
+#if !HAVE_MMX2
 	if(caps->hasMMX2) mp_msg(MSGT_CPUDETECT,MSGL_WARN,"MMX2 supported but disabled\n");
 	caps->hasMMX2=0;
 #endif
-#ifndef HAVE_SSE
+#if !HAVE_SSE
 	if(caps->hasSSE) mp_msg(MSGT_CPUDETECT,MSGL_WARN,"SSE supported but disabled\n");
 	caps->hasSSE=0;
 #endif
-#ifndef HAVE_SSE2
+#if !HAVE_SSE2
 	if(caps->hasSSE2) mp_msg(MSGT_CPUDETECT,MSGL_WARN,"SSE2 supported but disabled\n");
 	caps->hasSSE2=0;
 #endif
-#ifndef HAVE_3DNOW
+#if !HAVE_AMD3DNOW
 	if(caps->has3DNow) mp_msg(MSGT_CPUDETECT,MSGL_WARN,"3DNow supported but disabled\n");
 	caps->has3DNow=0;
 #endif
-#ifndef HAVE_3DNOWEX
+#if !HAVE_AMD3DNOWEXT
 	if(caps->has3DNowExt) mp_msg(MSGT_CPUDETECT,MSGL_WARN,"3DNowExt supported but disabled\n");
 	caps->has3DNowExt=0;
 #endif
+#endif  // RUNTIME_CPUDETECT
 }
 
-
-#define CPUID_EXTFAMILY	((regs2[0] >> 20)&0xFF) /* 27..20 */
-#define CPUID_EXTMODEL	((regs2[0] >> 16)&0x0F) /* 19..16 */
-#define CPUID_TYPE		((regs2[0] >> 12)&0x04) /* 13..12 */
-#define CPUID_FAMILY	((regs2[0] >>  8)&0x0F) /* 11..08 */
-#define CPUID_MODEL		((regs2[0] >>  4)&0x0F) /* 07..04 */
-#define CPUID_STEPPING	((regs2[0] >>  0)&0x0F) /* 03..00 */
-
 char *GetCpuFriendlyName(unsigned int regs[], unsigned int regs2[]){
-#include "cputable.h" /* get cpuname and cpuvendors */
 	char vendor[13];
 	char *retname;
 	int i;
@@ -238,6 +238,7 @@ char *GetCpuFriendlyName(unsigned int regs[], unsigned int regs2[]){
 		mp_msg(MSGT_CPUDETECT,MSGL_FATAL,"Error: GetCpuFriendlyName() not enough memory\n");
 		exit(1);
 	}
+	retname[0] = '\0';
 
 	sprintf(vendor,"%.4s%.4s%.4s",(char*)(regs+1),(char*)(regs+3),(char*)(regs+2));
 
@@ -245,47 +246,16 @@ char *GetCpuFriendlyName(unsigned int regs[], unsigned int regs2[]){
 	if (regs[0] >= 0x80000004)
 	{
 		// CPU has built-in namestring
-		retname[0] = '\0';
 		for (i = 0x80000002; i <= 0x80000004; i++)
 		{
 			do_cpuid(i, regs);
 			strncat(retname, (char*)regs, 16);
 		}
-		return retname;
 	}
-
-	for(i=0; i<MAX_VENDORS; i++){
-		if(!strcmp(cpuvendors[i].string,vendor)){
-			if(cpuname[i][CPUID_FAMILY][CPUID_MODEL]){
-				snprintf(retname,255,"%s %s",cpuvendors[i].name,cpuname[i][CPUID_FAMILY][CPUID_MODEL]);
-			} else {
-				snprintf(retname,255,"unknown %s %d. Generation CPU",cpuvendors[i].name,CPUID_FAMILY); 
-				mp_msg(MSGT_CPUDETECT,MSGL_WARN,"unknown %s CPU:\n",cpuvendors[i].name);
-				mp_msg(MSGT_CPUDETECT,MSGL_WARN,"Vendor:   %s\n",cpuvendors[i].string);
-				mp_msg(MSGT_CPUDETECT,MSGL_WARN,"Type:     %d\n",CPUID_TYPE);
-				mp_msg(MSGT_CPUDETECT,MSGL_WARN,"Family:   %d (ext: %d)\n",CPUID_FAMILY,CPUID_EXTFAMILY);
-				mp_msg(MSGT_CPUDETECT,MSGL_WARN,"Model:    %d (ext: %d)\n",CPUID_MODEL,CPUID_EXTMODEL);
-				mp_msg(MSGT_CPUDETECT,MSGL_WARN,"Stepping: %d\n",CPUID_STEPPING);
-				mp_msg(MSGT_CPUDETECT,MSGL_WARN,"Please send the above info along with the exact CPU name"
-				       "to the MPlayer-Developers, so we can add it to the list!\n");
-			}
-		}
-	}
-	retname[255] = 0;
-
-	//printf("Detected CPU: %s\n", retname);
 	return retname;
 }
 
-#undef CPUID_EXTFAMILY
-#undef CPUID_EXTMODEL
-#undef CPUID_TYPE
-#undef CPUID_FAMILY
-#undef CPUID_MODEL
-#undef CPUID_STEPPING
-
-
-#if defined(__linux__) && defined(_POSIX_SOURCE) && !defined(ARCH_X86_64)
+#if defined(__linux__) && defined(_POSIX_SOURCE) && !ARCH_X86_64
 static void sigill_handler_sse( int signal, struct sigcontext sc )
 {
    mp_msg(MSGT_CPUDETECT,MSGL_V, "SIGILL, " );
@@ -306,7 +276,7 @@ static void sigill_handler_sse( int signal, struct sigcontext sc )
 }
 #endif /* __linux__ && _POSIX_SOURCE */
 
-#ifdef WIN32
+#if defined(__MINGW32__) || defined(__CYGWIN__)
 LONG CALLBACK win32_sig_handler_sse(EXCEPTION_POINTERS* ep)
 {
    if(ep->ExceptionRecord->ExceptionCode==EXCEPTION_ILLEGAL_INSTRUCTION){
@@ -317,7 +287,25 @@ LONG CALLBACK win32_sig_handler_sse(EXCEPTION_POINTERS* ep)
    }
    return EXCEPTION_CONTINUE_SEARCH;
 }
-#endif /* WIN32 */
+#endif /* defined(__MINGW32__) || defined(__CYGWIN__) */
+
+#ifdef __OS2__
+ULONG _System os2_sig_handler_sse( PEXCEPTIONREPORTRECORD       p1,
+                                   PEXCEPTIONREGISTRATIONRECORD p2,
+                                   PCONTEXTRECORD               p3,
+                                   PVOID                        p4 )
+{
+   if(p1->ExceptionNum == XCPT_ILLEGAL_INSTRUCTION){
+      mp_msg(MSGT_CPUDETECT, MSGL_V, "SIGILL, ");
+
+      p3->ctx_RegEip += 3;
+      gCpuCaps.hasSSE = 0;
+
+      return XCPT_CONTINUE_EXECUTION;
+   }
+   return XCPT_CONTINUE_SEARCH;
+}
+#endif
 
 /* If we're running on a processor that can do SSE, let's see if we
  * are allowed to or not.  This will catch 2.4.0 or later kernels that
@@ -334,7 +322,7 @@ LONG CALLBACK win32_sig_handler_sse(EXCEPTION_POINTERS* ep)
 
 static void check_os_katmai_support( void )
 {
-#ifdef ARCH_X86_64
+#if ARCH_X86_64
    gCpuCaps.hasSSE=1;
    gCpuCaps.hasSSE2=1;
 #elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__DragonFly__) || defined(__APPLE__)
@@ -356,38 +344,36 @@ static void check_os_katmai_support( void )
 
    mp_msg(MSGT_CPUDETECT,MSGL_V, "Testing OS support for SSE... " );
    ret = sysctl(mib, 2, &has_sse, &varlen, NULL, 0);
-   if (ret < 0 || !has_sse) {
-      gCpuCaps.hasSSE=0;
-      mp_msg(MSGT_CPUDETECT,MSGL_V, "no!\n" );
-   } else {
-      gCpuCaps.hasSSE=1;
-      mp_msg(MSGT_CPUDETECT,MSGL_V, "yes!\n" );
-   }
+   gCpuCaps.hasSSE = ret >= 0 && has_sse;
+   mp_msg(MSGT_CPUDETECT,MSGL_V, gCpuCaps.hasSSE ? "yes.\n" : "no!\n" );
 
    mib[1] = CPU_SSE2;
    varlen = sizeof(has_sse2);
    mp_msg(MSGT_CPUDETECT,MSGL_V, "Testing OS support for SSE2... " );
    ret = sysctl(mib, 2, &has_sse2, &varlen, NULL, 0);
-   if (ret < 0 || !has_sse2) {
-      gCpuCaps.hasSSE2=0;
-      mp_msg(MSGT_CPUDETECT,MSGL_V, "no!\n" );
-   } else {
-      gCpuCaps.hasSSE2=1;
-      mp_msg(MSGT_CPUDETECT,MSGL_V, "yes!\n" );
-   }
+   gCpuCaps.hasSSE2 = ret >= 0 && has_sse2;
+   mp_msg(MSGT_CPUDETECT,MSGL_V, gCpuCaps.hasSSE2 ? "yes.\n" : "no!\n" );
 #else
    gCpuCaps.hasSSE = 0;
    mp_msg(MSGT_CPUDETECT,MSGL_WARN, "No OS support for SSE, disabling to be safe.\n" );
 #endif
-#elif defined(WIN32)
+#elif defined(__MINGW32__) || defined(__CYGWIN__)
    LPTOP_LEVEL_EXCEPTION_FILTER exc_fil;
    if ( gCpuCaps.hasSSE ) {
       mp_msg(MSGT_CPUDETECT,MSGL_V, "Testing OS support for SSE... " );
       exc_fil = SetUnhandledExceptionFilter(win32_sig_handler_sse);
-      __asm __volatile ("xorps %xmm0, %xmm0");
+      __asm__ volatile ("xorps %xmm0, %xmm0");
       SetUnhandledExceptionFilter(exc_fil);
-      if ( gCpuCaps.hasSSE ) mp_msg(MSGT_CPUDETECT,MSGL_V, "yes.\n" );
-      else mp_msg(MSGT_CPUDETECT,MSGL_V, "no!\n" );
+      mp_msg(MSGT_CPUDETECT,MSGL_V, gCpuCaps.hasSSE ? "yes.\n" : "no!\n" );
+   }
+#elif defined(__OS2__)
+   EXCEPTIONREGISTRATIONRECORD RegRec = { 0, &os2_sig_handler_sse };
+   if ( gCpuCaps.hasSSE ) {
+      mp_msg(MSGT_CPUDETECT,MSGL_V, "Testing OS support for SSE... " );
+      DosSetExceptionHandler( &RegRec );
+      __asm__ volatile ("xorps %xmm0, %xmm0");
+      DosUnsetExceptionHandler( &RegRec );
+      mp_msg(MSGT_CPUDETECT,MSGL_V, gCpuCaps.hasSSE ? "yes.\n" : "no!\n" );
    }
 #elif defined(__linux__)
 #if defined(_POSIX_SOURCE)
@@ -408,14 +394,10 @@ static void check_os_katmai_support( void )
    if ( gCpuCaps.hasSSE ) {
       mp_msg(MSGT_CPUDETECT,MSGL_V, "Testing OS support for SSE... " );
 
-//      __asm __volatile ("xorps %%xmm0, %%xmm0");
-      __asm __volatile ("xorps %xmm0, %xmm0");
+//      __asm__ volatile ("xorps %%xmm0, %%xmm0");
+      __asm__ volatile ("xorps %xmm0, %xmm0");
 
-      if ( gCpuCaps.hasSSE ) {
-	 mp_msg(MSGT_CPUDETECT,MSGL_V, "yes.\n" );
-      } else {
-	 mp_msg(MSGT_CPUDETECT,MSGL_V, "no!\n" );
-      }
+      mp_msg(MSGT_CPUDETECT,MSGL_V, gCpuCaps.hasSSE ? "yes.\n" : "no!\n" );
    }
 
    /* Restore the original signal handlers.
@@ -425,11 +407,7 @@ static void check_os_katmai_support( void )
    /* If we've gotten to here and the XMM CPUID bit is still set, we're
     * safe to go ahead and hook out the SSE code throughout Mesa.
     */
-   if ( gCpuCaps.hasSSE ) {
-      mp_msg(MSGT_CPUDETECT,MSGL_V, "Tests of OS support for SSE passed.\n" );
-   } else {
-      mp_msg(MSGT_CPUDETECT,MSGL_V, "Tests of OS support for SSE failed!\n" );
-   }
+   mp_msg(MSGT_CPUDETECT,MSGL_V, "Tests of OS support for SSE %s\n", gCpuCaps.hasSSE ? "passed." : "failed!" );
 #else
    /* We can't use POSIX signal handling to test the availability of
     * SSE, so we disable it by default.
@@ -446,10 +424,11 @@ static void check_os_katmai_support( void )
 }
 #else /* ARCH_X86 */
 
-#ifdef SYS_DARWIN
+#ifdef __APPLE__
 #include <sys/sysctl.h>
+#elif defined(__AMIGAOS4__)
+/* nothing */
 #else
-#ifndef __AMIGAOS4__
 #include <signal.h>
 #include <setjmp.h>
 
@@ -466,8 +445,7 @@ static void sigill_handler (int sig)
     canjump = 0;
     siglongjmp (jmpbuf, 1);
 }
-#endif //__AMIGAOS4__
-#endif
+#endif /* __APPLE__ */
 
 void GetCpuCaps( CpuCaps *caps)
 {
@@ -480,10 +458,12 @@ void GetCpuCaps( CpuCaps *caps)
 	caps->has3DNowExt=0;
 	caps->hasSSE=0;
 	caps->hasSSE2=0;
+	caps->hasSSSE3=0;
+	caps->hasSSE4a=0;
 	caps->isX86=0;
 	caps->hasAltiVec = 0;
-#ifdef HAVE_ALTIVEC   
-#ifdef SYS_DARWIN   
+#if HAVE_ALTIVEC   
+#ifdef __APPLE__
 /*
   rip-off from ffmpeg altivec detection code.
   this code also appears on Apple's AltiVec pages.
@@ -500,8 +480,7 @@ void GetCpuCaps( CpuCaps *caps)
                         if (has_vu != 0)
                                 caps->hasAltiVec = 1;
         }
-#else /* SYS_DARWIN */
-#ifdef __AMIGAOS4__
+#elif defined(__AMIGAOS4__)
         ULONG result = 0;
 
         GetCPUInfoTags(GCIT_VectorUnit, &result, TAG_DONE);
@@ -517,7 +496,7 @@ void GetCpuCaps( CpuCaps *caps)
           } else {
             canjump = 1;
             
-            asm volatile ("mtspr 256, %0\n\t"
+            __asm__ volatile ("mtspr 256, %0\n\t"
                           "vand %%v0, %%v0, %%v0"
                           :
                           : "r" (-1));
@@ -526,49 +505,41 @@ void GetCpuCaps( CpuCaps *caps)
             caps->hasAltiVec = 1;
           }
         }
-#endif //__AMIGAOS4__
-#endif /* SYS_DARWIN */
-        mp_msg(MSGT_CPUDETECT,MSGL_INFO,"AltiVec %sfound\n", (caps->hasAltiVec ? "" : "not "));
+#endif /* __APPLE__ */
+        mp_msg(MSGT_CPUDETECT,MSGL_V,"AltiVec %sfound\n", (caps->hasAltiVec ? "" : "not "));
 #endif /* HAVE_ALTIVEC */
 
-#ifdef ARCH_IA64
-	mp_msg(MSGT_CPUDETECT,MSGL_INFO,"CPU: Intel Itanium\n");
-#endif
+if (ARCH_IA64)
+	mp_msg(MSGT_CPUDETECT,MSGL_V,"CPU: Intel Itanium\n");
 
-#ifdef ARCH_SPARC
-	mp_msg(MSGT_CPUDETECT,MSGL_INFO,"CPU: Sun Sparc\n");
-#endif
+if (ARCH_SPARC)
+	mp_msg(MSGT_CPUDETECT,MSGL_V,"CPU: Sun Sparc\n");
 
-#ifdef ARCH_ARMV4L
-	mp_msg(MSGT_CPUDETECT,MSGL_INFO,"CPU: ARM\n");
-#endif
+if (ARCH_ARM)
+	mp_msg(MSGT_CPUDETECT,MSGL_V,"CPU: ARM\n");
 
-#ifdef ARCH_POWERPC
-	mp_msg(MSGT_CPUDETECT,MSGL_INFO,"CPU: PowerPC\n");
-#endif
+if (ARCH_PPC)
+	mp_msg(MSGT_CPUDETECT,MSGL_V,"CPU: PowerPC\n");
 
-#ifdef ARCH_ALPHA
-	mp_msg(MSGT_CPUDETECT,MSGL_INFO,"CPU: Digital Alpha\n");
-#endif
+if (ARCH_ALPHA)
+	mp_msg(MSGT_CPUDETECT,MSGL_V,"CPU: Digital Alpha\n");
 
-#ifdef ARCH_SGI_MIPS
-	mp_msg(MSGT_CPUDETECT,MSGL_INFO,"CPU: SGI MIPS\n");
-#endif
+if (ARCH_SGI_MIPS)
+	mp_msg(MSGT_CPUDETECT,MSGL_V,"CPU: SGI MIPS\n");
 
-#ifdef ARCH_PA_RISC
-	mp_msg(MSGT_CPUDETECT,MSGL_INFO,"CPU: Hewlett-Packard PA-RISC\n");
-#endif
+if (ARCH_PA_RISC)
+	mp_msg(MSGT_CPUDETECT,MSGL_V,"CPU: Hewlett-Packard PA-RISC\n");
 
-#ifdef ARCH_S390
-	mp_msg(MSGT_CPUDETECT,MSGL_INFO,"CPU: IBM S/390\n");
-#endif
+if (ARCH_S390)
+	mp_msg(MSGT_CPUDETECT,MSGL_V,"CPU: IBM S/390\n");
 
-#ifdef ARCH_S390X
-	mp_msg(MSGT_CPUDETECT,MSGL_INFO,"CPU: IBM S/390X\n");
-#endif
+if (ARCH_S390X)
+	mp_msg(MSGT_CPUDETECT,MSGL_V,"CPU: IBM S/390X\n");
 
-#ifdef ARCH_VAX
-	mp_msg(MSGT_CPUDETECT,MSGL_INFO, "CPU: Digital VAX\n" );
-#endif
+if (ARCH_VAX)
+	mp_msg(MSGT_CPUDETECT,MSGL_V, "CPU: Digital VAX\n" );
+
+if (ARCH_XTENSA)
+	mp_msg(MSGT_CPUDETECT,MSGL_V, "CPU: Tensilica Xtensa\n" );
 }
 #endif /* !ARCH_X86 */

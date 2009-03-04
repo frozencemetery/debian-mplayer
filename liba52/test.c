@@ -1,8 +1,25 @@
-
-// liba52 sample by A'rpi/ESP-team
-// reads ac3 stream form stdin, decodes and downmix to s16 stereo pcm and
-// writes it to stdout.  resulting stream playbackable with sox:
-//   play -c 2 -r 48000 out.sw
+/*
+ * liba52 sample by A'rpi/ESP-team
+ * Reads an AC-3 stream from stdin, decodes and downmixes to s16 stereo PCM
+ * and writes it to stdout. The resulting stream is playable with sox:
+ *   play -c2 -r48000 -sw -fs out.sw
+ *
+ * Copyright (C) 2001 Árpád Gereöffy
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 //#define TIMING //needs Pentium or newer 
 
@@ -13,16 +30,15 @@
 
 #include "a52.h"
 #include "mm_accel.h"
-#include "../cpudetect.h"
+#include "cpudetect.h"
 
-static sample_t * samples;
-static a52_state_t state;
+static a52_state_t *state;
 static uint8_t buf[3840];
 static int buf_size=0;
 
 static int16_t out_buf[6*256*6];
 
-void mp_msg_c( int x, const char *format, ... ) // stub for cpudetect.c
+void mp_msg( int x, const char *format, ... ) // stub for cpudetect.c
 {
 }
 
@@ -30,7 +46,7 @@ void mp_msg_c( int x, const char *format, ... ) // stub for cpudetect.c
 static inline long long rdtsc()
 {
 	long long l;
-	asm volatile(	"rdtsc\n\t"
+	__asm__ volatile("rdtsc\n\t"
 		: "=A" (l)
 	);
 //	printf("%d\n", int(l/1000));
@@ -45,7 +61,7 @@ static inline long long rdtsc()
 #endif
 
 
-int main(){
+int main(void){
 int accel=0;
 int sample_rate=0;
 int bit_rate=0;
@@ -65,8 +81,8 @@ long long t, sum=0, min=256*256*256*64;
     if(gCpuCaps.has3DNow) 	accel |= MM_ACCEL_X86_3DNOW;
 //    if(gCpuCaps.has3DNowExt) 	accel |= MM_ACCEL_X86_3DNOWEXT;
     
-    samples = a52_init (accel);
-    if (samples == NULL) {
+    state = a52_init (accel);
+    if (state == NULL) {
 	fprintf (stderr, "A52 init failed\n");
 	return 1;
     }
@@ -105,20 +121,20 @@ ENDTIMING
     
     flags |= A52_ADJUST_LEVEL;
 STARTTIMING
-    if (a52_frame (&state, buf, &flags, &level, bias))
+    if (a52_frame (state, buf, &flags, &level, bias))
 	{ fprintf(stderr,"error at decoding\n"); continue; }
 ENDTIMING
 
-    // a52_dynrng (&state, NULL, NULL); // disable dynamic range compensation
+    // a52_dynrng (state, NULL, NULL); // disable dynamic range compensation
 
 STARTTIMING
     a52_resample_init(accel,flags,channels);
     s16 = out_buf;
     for (i = 0; i < 6; i++) {
-	if (a52_block (&state, samples))
+	if (a52_block (state))
 	    { fprintf(stderr,"error at sampling\n"); break; }
 	// float->int + channels interleaving:
-	s16+=a52_resample(samples,s16);
+	s16+=a52_resample(a52_samples(state),s16);
 ENDTIMING
     }
 #ifdef TIMING
@@ -131,7 +147,8 @@ sum=0;
 
 eof:
 #ifdef TIMING
-fprintf(stderr, "%4.4fk cycles ",min/1000.0);
+fprintf(stderr, "%4.4fk cycles\n",min/1000.0);
 sum=0;
 #endif
+return 0;
 }

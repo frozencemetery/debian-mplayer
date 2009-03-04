@@ -1,22 +1,24 @@
 // -*- c-basic-offset: 8; indent-tabs-mode: t -*-
 // vim:ts=8:sw=8:noet:ai:
 /*
-  Copyright (C) 2006 Evgeniy Stepanov <eugeni.stepanov@gmail.com>
-
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-*/
+ * Copyright (C) 2006 Evgeniy Stepanov <eugeni.stepanov@gmail.com>
+ *
+ * This file is part of libass.
+ *
+ * libass is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * libass is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with libass; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <inttypes.h>
 #include <string.h>
@@ -30,7 +32,7 @@
 #include "ass_mp.h"
 #include "ass_library.h"
 
-#ifdef HAVE_FONTCONFIG
+#ifdef CONFIG_FONTCONFIG
 #include <fontconfig/fontconfig.h>
 #endif
 
@@ -53,22 +55,23 @@ char* ass_border_color = NULL;
 char* ass_styles_file = NULL;
 int ass_hinting = ASS_HINTING_NATIVE + 4; // native hinting for unscaled osd
 
-#ifdef HAVE_FONTCONFIG
+#ifdef CONFIG_FONTCONFIG
 extern int font_fontconfig;
 #else
-static int font_fontconfig = 0;
+static int font_fontconfig = -1;
 #endif
 extern char* font_name;
+extern char* sub_font_name;
 extern float text_font_scale_factor;
 extern int subtitle_autoscale;
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 extern char* sub_cp;
 #else
 static char* sub_cp = 0;
 #endif
 
-extern void process_force_style(ass_track_t* track);
+void process_force_style(ass_track_t* track);
 
 ass_track_t* ass_default_track(ass_library_t* library) {
 	ass_track_t* track = ass_new_track(library);
@@ -90,7 +93,7 @@ ass_track_t* ass_default_track(ass_library_t* library) {
 		sid = ass_alloc_style(track);
 		style = track->styles + sid;
 		style->Name = strdup("Default");
-		style->FontName = (font_fontconfig && font_name) ? strdup(font_name) : strdup("Sans");
+		style->FontName = (font_fontconfig >= 0 && sub_font_name) ? strdup(sub_font_name) : (font_fontconfig >= 0 && font_name) ? strdup(font_name) : strdup("Sans");
 
 		fs = track->PlayResY * text_font_scale_factor / 100.;
 		// approximate autoscale coefficients
@@ -234,12 +237,17 @@ void ass_configure(ass_renderer_t* priv, int w, int h, int unscaled) {
 void ass_configure_fonts(ass_renderer_t* priv) {
 	char *dir, *path, *family;
 	dir = get_path("fonts");
-	if (!font_fontconfig && font_name) path = strdup(font_name);
+	if (font_fontconfig < 0 && sub_font_name) path = strdup(sub_font_name);
+	else if (font_fontconfig < 0 && font_name) path = strdup(font_name);
 	else path = get_path("subfont.ttf");
-	if (font_fontconfig && font_name) family = strdup(font_name);
+	if (font_fontconfig >= 0 && sub_font_name) family = strdup(sub_font_name);
+	else if (font_fontconfig >= 0 && font_name) family = strdup(font_name);
 	else family = 0;
 
-	ass_set_fonts(priv, path, family);
+	if (font_fontconfig >= 0)
+		ass_set_fonts(priv, path, family);
+	else
+		ass_set_fonts_nofc(priv, path, family);
 
 	free(dir);
 	free(path);
@@ -255,4 +263,16 @@ ass_library_t* ass_init(void) {
 	ass_set_style_overrides(priv, ass_force_style_list);
 	free(path);
 	return priv;
+}
+
+int ass_force_reload = 0; // flag set if global ass-related settings were changed
+
+ass_image_t* ass_mp_render_frame(ass_renderer_t *priv, ass_track_t* track, long long now, int* detect_change) {
+	if (ass_force_reload) {
+		ass_set_margins(priv, ass_top_margin, ass_bottom_margin, 0, 0);
+		ass_set_use_margins(priv, ass_use_margins);
+		ass_set_font_scale(priv, ass_font_scale);
+		ass_force_reload = 0;
+	}
+	return ass_render_frame(priv, track, now, detect_change);
 }

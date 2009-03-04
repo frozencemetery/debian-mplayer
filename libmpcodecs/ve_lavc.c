@@ -14,6 +14,7 @@
 
 #include "mp_msg.h"
 #include "help_mp.h"
+#include "av_opts.h"
 
 #include "codec-cfg.h"
 #include "stream/stream.h"
@@ -30,13 +31,9 @@ extern char* passtmpfile;
 
 //===========================================================================//
 
-#ifdef USE_LIBAVCODEC_SO
-#include <ffmpeg/avcodec.h>
-#else
 #include "libavcodec/avcodec.h"
-#endif
 
-extern int avcodec_inited;
+extern int avcodec_initialized;
 
 /* video options */
 static char *lavc_param_vcodec = "mpeg4";
@@ -116,6 +113,7 @@ static int lavc_param_bit_exact = 0;
 static int lavc_param_aic= 0;
 static int lavc_param_aiv= 0;
 static int lavc_param_umv= 0;
+static int lavc_param_gmc= 0;
 static int lavc_param_obmc= 0;
 static int lavc_param_loop= 0;
 static int lavc_param_last_pred= 0;
@@ -161,10 +159,11 @@ char *lavc_param_acodec = "mp2";
 int lavc_param_atag = 0;
 int lavc_param_abitrate = 224;
 int lavc_param_audio_global_header= 0;
+static char *lavc_param_avopt = NULL;
 
 #include "m_option.h"
 
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_LIBAVCODEC
 m_option_t lavcopts_conf[]={
 	{"acodec", &lavc_param_acodec, CONF_TYPE_STRING, 0, 0, 0, NULL},
 	{"abitrate", &lavc_param_abitrate, CONF_TYPE_INT, CONF_RANGE, 1, 1000000, NULL},
@@ -242,14 +241,14 @@ m_option_t lavcopts_conf[]={
         {"predia", &lavc_param_pre_dia_size, CONF_TYPE_INT, CONF_RANGE, -2000, 2000, NULL},
         {"dia", &lavc_param_dia_size, CONF_TYPE_INT, CONF_RANGE, -2000, 2000, NULL},
 	{"qpel", &lavc_param_qpel, CONF_TYPE_FLAG, 0, 0, CODEC_FLAG_QPEL, NULL},
-	{"trell", &lavc_param_trell, CONF_TYPE_FLAG, 0, 0, CODEC_FLAG_TRELLIS_QUANT, NULL},
+	{"trell", &lavc_param_trell, CONF_TYPE_FLAG, 0, 0, 1, NULL},
 	{"lowdelay", &lavc_param_lowdelay, CONF_TYPE_FLAG, 0, 0, CODEC_FLAG_LOW_DELAY, NULL},
 	{"last_pred", &lavc_param_last_pred, CONF_TYPE_INT, CONF_RANGE, 0, 2000, NULL},
 	{"preme", &lavc_param_pre_me, CONF_TYPE_INT, CONF_RANGE, 0, 2000, NULL},
 	{"subq", &lavc_param_me_subpel_quality, CONF_TYPE_INT, CONF_RANGE, 0, 8, NULL},
 	{"me_range", &lavc_param_me_range, CONF_TYPE_INT, CONF_RANGE, 0, 16000, NULL},
-#ifdef CODEC_FLAG_H263P_AIC
-	{"aic", &lavc_param_aic, CONF_TYPE_FLAG, 0, 0, CODEC_FLAG_H263P_AIC, NULL},
+#ifdef CODEC_FLAG_AC_PRED
+	{"aic", &lavc_param_aic, CONF_TYPE_FLAG, 0, 0, CODEC_FLAG_AC_PRED, NULL},
 	{"umv", &lavc_param_umv, CONF_TYPE_FLAG, 0, 0, CODEC_FLAG_H263P_UMV, NULL},
 #endif
 #ifdef CODEC_FLAG_H263P_AIV
@@ -285,6 +284,9 @@ m_option_t lavcopts_conf[]={
 #ifdef CODEC_FLAG_CLOSED_GOP
 	{"cgop", &lavc_param_closed_gop, CONF_TYPE_FLAG, 0, 0, CODEC_FLAG_CLOSED_GOP, NULL},
 #endif
+#ifdef CODEC_FLAG_GMC
+	{"gmc", &lavc_param_gmc, CONF_TYPE_FLAG, 0, 0, CODEC_FLAG_GMC, NULL},
+#endif
 	{"dc", &lavc_param_dc_precision, CONF_TYPE_INT, CONF_RANGE, 8, 11, NULL},
 	{"border_mask", &lavc_param_border_masking, CONF_TYPE_FLOAT, CONF_RANGE, 0.0, 1.0, NULL},
 	{"inter_threshold", &lavc_param_inter_threshold, CONF_TYPE_INT, CONF_RANGE, -1000000, 1000000, NULL},
@@ -306,6 +308,7 @@ m_option_t lavcopts_conf[]={
 	{"refs", &lavc_param_refs, CONF_TYPE_INT, CONF_RANGE, 1, 16, NULL},
         {"b_sensitivity", &lavc_param_b_sensitivity, CONF_TYPE_INT, CONF_RANGE, 1, INT_MAX, NULL},
 	{"level", &lavc_param_level, CONF_TYPE_INT, CONF_RANGE, INT_MIN, INT_MAX, NULL},
+        {"o", &lavc_param_avopt, CONF_TYPE_STRING, 0, 0, 0, NULL},
 	{NULL, NULL, 0, 0, 0, 0, NULL}
 };
 #endif
@@ -370,7 +373,6 @@ static int config(struct vf_instance_s* vf,
     lavc_venc_context->luma_elim_threshold= lavc_param_luma_elim_threshold;
     lavc_venc_context->chroma_elim_threshold= lavc_param_chroma_elim_threshold;
     lavc_venc_context->rtp_payload_size= lavc_param_packet_size;
-    if(lavc_param_packet_size )lavc_venc_context->rtp_mode=1;
     lavc_venc_context->strict_std_compliance= lavc_param_strict;
     lavc_venc_context->i_quant_factor= lavc_param_vi_qfactor;
     lavc_venc_context->i_quant_offset= (int)(FF_QP2LAMBDA * lavc_param_vi_qoffset + 0.5);
@@ -541,7 +543,7 @@ static int config(struct vf_instance_s* vf,
 #endif    
     lavc_venc_context->dia_size= lavc_param_dia_size;
     lavc_venc_context->flags|= lavc_param_qpel;
-    lavc_venc_context->flags|= lavc_param_trell;
+    lavc_venc_context->trellis = lavc_param_trell;
     lavc_venc_context->flags|= lavc_param_lowdelay;
     lavc_venc_context->flags|= lavc_param_bit_exact;
     lavc_venc_context->flags|= lavc_param_aic;
@@ -557,6 +559,7 @@ static int config(struct vf_instance_s* vf,
     lavc_venc_context->flags|= lavc_param_ss;
     lavc_venc_context->flags|= lavc_param_alt;
     lavc_venc_context->flags|= lavc_param_ilme;
+    lavc_venc_context->flags|= lavc_param_gmc;
 #ifdef CODEC_FLAG_CLOSED_GOP
     lavc_venc_context->flags|= lavc_param_closed_gop;
 #endif    
@@ -581,6 +584,13 @@ static int config(struct vf_instance_s* vf,
     lavc_venc_context->refs = lavc_param_refs;
     lavc_venc_context->b_sensitivity = lavc_param_b_sensitivity;
     lavc_venc_context->level = lavc_param_level;
+
+    if(lavc_param_avopt){
+        if(parse_avopts(lavc_venc_context, lavc_param_avopt) < 0){
+            mp_msg(MSGT_MENCODER,MSGL_ERR, "Your options /%s/ look like gibberish to me pal\n", lavc_param_avopt);
+            return 0;
+        }
+    }
 
     mux_v->imgfmt = lavc_param_format;
     switch(lavc_param_format)
@@ -659,7 +669,7 @@ static int config(struct vf_instance_s* vf,
 
 	  lavc_venc_context->flags &= ~CODEC_FLAG_QPEL;
 	  lavc_venc_context->flags &= ~CODEC_FLAG_4MV;
-	  lavc_venc_context->flags &= ~CODEC_FLAG_TRELLIS_QUANT;
+	  lavc_venc_context->trellis = 0;
 	  lavc_venc_context->flags &= ~CODEC_FLAG_CBP_RD;
 	  lavc_venc_context->flags &= ~CODEC_FLAG_QP_RD;
 	  lavc_venc_context->flags &= ~CODEC_FLAG_MV0;
@@ -694,8 +704,8 @@ static int config(struct vf_instance_s* vf,
     
     /* free second pass buffer, its not needed anymore */
     av_freep(&lavc_venc_context->stats_in);
-    if(lavc_venc_context->bits_per_sample)
-        mux_v->bih->biBitCount= lavc_venc_context->bits_per_sample;
+    if(lavc_venc_context->bits_per_coded_sample)
+        mux_v->bih->biBitCount= lavc_venc_context->bits_per_coded_sample;
     if(lavc_venc_context->extradata_size){
         mux_v->bih= realloc(mux_v->bih, sizeof(BITMAPINFOHEADER) + lavc_venc_context->extradata_size);
         memcpy(mux_v->bih + 1, lavc_venc_context->extradata, lavc_venc_context->extradata_size);
@@ -776,7 +786,7 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
             pic->top_field_first= lavc_param_top;
     }
 
-    return (encode_frame(vf, pic, pts) >= 0);
+    return encode_frame(vf, pic, pts) >= 0;
 }
 
 static int encode_frame(struct vf_instance_s* vf, AVFrame *pic, double pts){
@@ -1015,14 +1025,18 @@ static int vf_open(vf_instance_t *vf, char* args){
 	mux_v->bih->biCompression = mmioFOURCC('d', 'v', 's', 'd');
     else if (!strcasecmp(lavc_param_vcodec, "libx264"))
 	mux_v->bih->biCompression = mmioFOURCC('h', '2', '6', '4');
+    else if (!strcasecmp(lavc_param_vcodec, "libschroedinger"))
+	mux_v->bih->biCompression = mmioFOURCC('d', 'r', 'a', 'c');
+    else if (!strcasecmp(lavc_param_vcodec, "libdirac"))
+	mux_v->bih->biCompression = mmioFOURCC('d', 'r', 'a', 'c');
     else
 	mux_v->bih->biCompression = mmioFOURCC(lavc_param_vcodec[0],
 		lavc_param_vcodec[1], lavc_param_vcodec[2], lavc_param_vcodec[3]); /* FIXME!!! */
 
-    if (!avcodec_inited){
+    if (!avcodec_initialized){
 	avcodec_init();
 	avcodec_register_all();
-	avcodec_inited=1;
+	avcodec_initialized=1;
     }
 
     vf->priv->codec = (AVCodec *)avcodec_find_encoder_by_name(lavc_param_vcodec);

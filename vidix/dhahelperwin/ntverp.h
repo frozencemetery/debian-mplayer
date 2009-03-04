@@ -13,6 +13,9 @@
  * PROGRAMMERS:     Alex Ionescu (alex.ionescu@reactos.org)
  */
 
+#ifndef MPLAYER_NTVERP_H
+#define MPLAYER_NTVERP_H
+
 //
 // Windows NT Build 3790.1830
 //
@@ -149,3 +152,5 @@
     "ReactOS(R) Operating System"
 #define VER_LEGALTRADEMARKS_STR             \
     "ReactOS(R) is a registered trademark of the ReactOS Foundation."
+
+#endif /* MPLAYER_NTVERP_H */

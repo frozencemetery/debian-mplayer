@@ -1021,7 +1021,7 @@ static const uint8_t bitalloc_129_bits_g[129] =
 
 static const uint8_t bitalloc_sizes[10] = { 3, 5, 7, 9, 13, 17, 25, 33, 65, 129 };
 
-static const uint8_t bitalloc_offsets[10] =
+static const int8_t bitalloc_offsets[10] =
     { -1, -2, -3, -4, -6, -8, -12, -16, -32, -64 };
 
 static const uint8_t bitalloc_maxbits[10][7] = {
@@ -1037,7 +1037,7 @@ static const uint8_t bitalloc_maxbits[10][7] = {
     { 9, 9, 9, 9, 9, 9, 9 }
 };
 
-static const uint16_t* bitalloc_codes[10][8] = {
+static const uint16_t* const bitalloc_codes[10][8] = {
   { bitalloc_3_codes, NULL },
   { bitalloc_5_codes_a,  bitalloc_5_codes_b,  bitalloc_5_codes_c,  NULL },
   { bitalloc_7_codes_a,  bitalloc_7_codes_b,  bitalloc_7_codes_c,  NULL },
@@ -1055,7 +1055,7 @@ static const uint16_t* bitalloc_codes[10][8] = {
     bitalloc_129_codes_e, bitalloc_129_codes_f, bitalloc_129_codes_g, NULL }
 };
 
-static const uint8_t* bitalloc_bits[10][8] = {
+static const uint8_t* const bitalloc_bits[10][8] = {
   { bitalloc_3_bits, NULL },
   { bitalloc_5_bits_a,  bitalloc_5_bits_b,  bitalloc_5_bits_c,  NULL },
   { bitalloc_7_bits_a,  bitalloc_7_bits_b,  bitalloc_7_bits_c,  NULL },
@@ -1073,4 +1073,4 @@ static const uint8_t* bitalloc_bits[10][8] = {
     bitalloc_129_bits_e, bitalloc_129_bits_f, bitalloc_129_bits_g, NULL }
 };
 
-#endif // AVCODEC_DCAHUFF_H
+#endif /* AVCODEC_DCAHUFF_H */
