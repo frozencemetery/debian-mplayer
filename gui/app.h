@@ -1,6 +1,23 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
-#ifndef GUI_APP_H
-#define GUI_APP_H
+#ifndef MPLAYER_GUI_APP_H
+#define MPLAYER_GUI_APP_H
 
 #include "bitmap.h"
 #include "wm/ws.h"
@@ -97,9 +114,6 @@ typedef struct
  const char * name;
 } evName;
 
-extern int evBoxs;
-extern evName evNames[];
-
 #define itNULL      0
 #define itButton    101 // button
 #define itHPotmeter 102 // horizontal potmeter
@@ -177,14 +191,14 @@ extern char      * skinMPlayerDir;
 extern char      * skinMPlayerDir_obsolete;
 extern char      * skinName;
 
-extern void appInitStruct( listItems * item );
-extern void appClearItem( wItem * item );
-extern void appCopy( listItems * item1,listItems * item2 );
-extern int appFindMessage( unsigned char * str );
-extern int appFindKey( unsigned char * name );
+void appInitStruct( listItems * item );
+void appClearItem( wItem * item );
+void appCopy( listItems * item1, listItems * item2 );
+int appFindMessage( unsigned char * str );
+int appFindKey( unsigned char * name );
 
-extern void btnModify( int event,float state );
-extern float btnGetValue( int event );
-extern void btnSet( int event,int set );
+void btnModify( int event, float state );
+float btnGetValue( int event );
+void btnSet( int event, int set );
 
-#endif
+#endif /* MPLAYER_GUI_APP_H */

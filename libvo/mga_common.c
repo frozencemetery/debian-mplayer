@@ -1,3 +1,20 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include "fastmemcpy.h"
 #include "cpudetect.h"
@@ -208,7 +225,7 @@ query_format(uint32_t format)
 }
 
 #ifndef VO_XMGA
-static void mga_fullscreen()
+static void mga_fullscreen(void)
 {
 	uint32_t w,h;
 	if ( !vo_fs ) {
@@ -317,7 +334,7 @@ static int control(uint32_t request, void *data, ...)
       return VO_TRUE;
 #endif
 
-#if defined( VO_XMGA ) && defined( HAVE_NEW_GUI )
+#if defined(VO_XMGA) && defined(CONFIG_GUI)
   case VOCTRL_GUISUPPORT:
     return VO_TRUE;
 #endif
@@ -327,7 +344,7 @@ static int control(uint32_t request, void *data, ...)
       vo_x11_ontop();
       return VO_TRUE;
   case VOCTRL_GET_PANSCAN:
-      if ( !inited || !vo_fs ) return VO_FALSE;
+      if ( !initialized || !vo_fs ) return VO_FALSE;
       return VO_TRUE;
   case VOCTRL_FULLSCREEN:
       vo_x11_fullscreen();
@@ -368,7 +385,7 @@ static int mga_init(int width,int height,unsigned int format){
             mga_vid_config.format=MGA_VID_FORMAT_UYVY; break;
         default: 
             mp_msg(MSGT_VO,MSGL_WARN, MSGTR_LIBVO_MGA_InvalidOutputFormat,format);
-            return (-1);
+            return -1;
         }
 
 	mga_vid_config.src_width = width;
@@ -385,8 +402,8 @@ static int mga_init(int width,int height,unsigned int format){
 
 	if(width > 1024 && height > 1024)
 	{
-		mp_msg(MSGT_VO,MSGL_ERR, MGSTR_LIBVO_MGA_ResolutionTooHigh);
-		return (-1);
+		mp_msg(MSGT_VO,MSGL_ERR, MSGTR_LIBVO_MGA_ResolutionTooHigh);
+		return -1;
 	} else if(height <= 1024)
 	{
 		// try whether we have a G550
@@ -396,8 +413,8 @@ static int mga_init(int width,int height,unsigned int format){
 			if(mga_vid_config.card_type != MGA_G550)
 			{
 				// we don't have a G550, so our resolution is too high
-				mp_msg(MSGT_VO,MSGL_ERR, MGSTR_LIBVO_MGA_ResolutionTooHigh);
-				return (-1);
+				mp_msg(MSGT_VO,MSGL_ERR, MSGTR_LIBVO_MGA_ResolutionTooHigh);
+				return -1;
 			} else {
 				// there is a deeper problem
 				// we have a G550, but still couldn't configure mga_vid
@@ -449,6 +466,7 @@ static int mga_uninit(){
 
 static int preinit(const char *vo_subdevice)
 {
+	uint32_t ver;
   const char *devname=vo_subdevice?vo_subdevice:"/dev/mga_vid";
 	sws_rgb2rgb_init(get_sws_cpuflags());
 
@@ -457,7 +475,17 @@ static int preinit(const char *vo_subdevice)
 	{
 		perror("open");
 		mp_msg(MSGT_VO,MSGL_WARN, MSGTR_LIBVO_MGA_CouldntOpen,devname);
-		return(-1);
+		return -1;
+	}
+	
+	// check whether the mga_vid driver has the same
+	// version as we expect
+	
+	ioctl(f,MGA_VID_GET_VERSION,&ver);
+	if(MGA_VID_VERSION != ver)
+	{
+		mp_msg(MSGT_VO, MSGL_ERR, MSGTR_LIBVO_MGA_mgavidVersionMismatch, ver, MGA_VID_VERSION);
+		return -1;
 	}
 
 #ifdef VO_XMGA
@@ -501,7 +529,7 @@ static void set_window( void ){
 	 vo_dwidth=drwWidth; vo_dheight=drwHeight;
 
 #ifdef VO_XMGA
-#ifdef HAVE_XINERAMA
+#ifdef CONFIG_XINERAMA
 		 if(XineramaIsActive(mDisplay))
 		 {
 		 	XineramaScreenInfo *screens;

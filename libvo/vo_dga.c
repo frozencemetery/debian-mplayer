@@ -1,13 +1,24 @@
 /*
- *
  * X11 DGA Interface
  *
- * Copyright ( C ) 2001, Andreas Ackermann. All Rights Reserved.
- *
- * <acki@acki-netz.de>
- *
+ * Copyright (C) 2001 Andreas Ackermann <acki@acki-netz.de>
  * Sourceforge username: acki2
- * 
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <stdio.h>
@@ -26,15 +37,15 @@
 #include <X11/Xlib.h>
 #include <X11/extensions/xf86dga.h>
 
-#ifdef HAVE_XF86VM
+#ifdef CONFIG_XF86VM
 #include <X11/extensions/xf86vmode.h>
 #endif
 
-static vo_info_t info = {
-#ifdef HAVE_DGA2
+static const vo_info_t info = {
+#ifdef CONFIG_DGA2
     "DGA ( Direct Graphic Access V2.0 )",
 #else
-#ifdef HAVE_XF86VM
+#ifdef CONFIG_XF86VM
     "DGA ( Direct Graphic Access V1.0+XF86VidModeExt. )",
 #else
     "DGA ( Direct Graphic Access V1.0 )",
@@ -45,7 +56,7 @@ static vo_info_t info = {
     ""
 };
 
-LIBVO_EXTERN(dga)
+const LIBVO_EXTERN(dga)
 //------------------------------------------------------------------
 //#define BITSPP (vo_dga_modes[vo_dga_active_mode].vdm_bitspp)
 //#define BYTESPP (vo_dga_modes[vo_dga_active_mode].vdm_bytespp)
@@ -108,11 +119,11 @@ static int vd_EnableMode(int depth, int bitspp,
 static int vd_ModeEqual(int depth, int bitspp,
                         int rmask, int gmask, int bmask, int index)
 {
-    return ((vo_dga_modes[index].vdm_depth == depth &&
+    return  (vo_dga_modes[index].vdm_depth == depth &&
              vo_dga_modes[index].vdm_bitspp == bitspp &&
              vo_dga_modes[index].vdm_rmask == rmask &&
              vo_dga_modes[index].vdm_gmask == gmask &&
-             vo_dga_modes[index].vdm_bmask == bmask) ? 1 : 0);
+             vo_dga_modes[index].vdm_bmask == bmask) ? 1 : 0;
 }
 
 
@@ -175,7 +186,7 @@ static char *vd_GetModeString(int index)
 
 //-----------------------------------------------------------------
 
-#if defined(HAVE_XF86VM) && !defined(HAVE_DGA2)
+#if defined(CONFIG_XF86VM) && !defined(CONFIG_DGA2)
 static XF86VidModeModeInfo **vo_dga_vidmodes = NULL;
 #endif
 
@@ -202,7 +213,7 @@ static int vo_dga_src_mode = 0; // index in mode list that is used by
                                          // codec
 static int vo_dga_XServer_mode = 0;     // index in mode list for resolution
 
-#ifdef HAVE_DGA2
+#ifdef CONFIG_DGA2
 static XDGAMode *vo_modelines;
 static int vo_modecount;
 #endif
@@ -339,7 +350,7 @@ static void flip_page(void)
 {
     if (1 < vo_dga_nr_video_buffers)
     {
-#ifdef HAVE_DGA2
+#ifdef CONFIG_DGA2
         XDGASetViewport(mDisplay, mScreen,
                         0, CURRENT_VIDEO_BUFFER.y, XDGAFlipRetrace);
 #else
@@ -376,7 +387,7 @@ static int query_format(uint32_t format)
 static void uninit(void)
 {
 
-#ifdef HAVE_DGA2
+#ifdef CONFIG_DGA2
     XDGADevice *dgadevice;
 #endif
 
@@ -390,7 +401,7 @@ static void uninit(void)
         if (vo_grabpointer)
             XUngrabPointer(mDisplay, CurrentTime);
         XUngrabKeyboard(mDisplay, CurrentTime);
-#ifdef HAVE_DGA2
+#ifdef CONFIG_DGA2
         XDGACloseFramebuffer(mDisplay, mScreen);
         dgadevice = XDGASetMode(mDisplay, mScreen, 0);
         if (dgadevice != NULL)
@@ -400,7 +411,7 @@ static void uninit(void)
 #else
         XF86DGADirectVideo(mDisplay, mScreen, 0);
         // first disable DirectVideo and then switch mode back!     
-#ifdef HAVE_XF86VM
+#ifdef CONFIG_XF86VM
         if (vo_dga_vidmodes != NULL)
         {
             int screen;
@@ -526,7 +537,7 @@ static int config(uint32_t width, uint32_t height,
     static unsigned char *vo_dga_base;
     static int prev_width, prev_height;
 
-#ifdef HAVE_DGA2
+#ifdef CONFIG_DGA2
     // needed to change DGA video mode
     int mX = VO_DGA_INVALID_RES, mY = VO_DGA_INVALID_RES, mVBI =
         100000, mMaxY = 0, i, j = 0;
@@ -534,7 +545,7 @@ static int config(uint32_t width, uint32_t height,
     XDGAMode *modeline;
     XDGADevice *dgadevice;
 #else
-#ifdef HAVE_XF86VM
+#ifdef CONFIG_XF86VM
     unsigned int vm_event, vm_error;
     unsigned int vm_ver, vm_rev;
     int i, j = 0, have_vm = 0;
@@ -580,7 +591,7 @@ static int config(uint32_t width, uint32_t height,
 
 // choose a suitable mode ...
 
-#ifdef HAVE_DGA2
+#ifdef CONFIG_DGA2
 // Code to change the video mode added by Michael Graffam
 // mgraffam@idsi.net
 
@@ -653,7 +664,7 @@ static int config(uint32_t width, uint32_t height,
 
 #else
 
-#ifdef HAVE_XF86VM
+#ifdef CONFIG_XF86VM
 
     mp_msg(MSGT_VO, MSGL_INFO,
            "vo_dga: DGA 1.0 compatibility code: Using XF86VidMode for mode switching!\n");
@@ -727,8 +738,8 @@ static int config(uint32_t width, uint32_t height,
         mp_msg(MSGT_VO, MSGL_ERR,
                "vo_dga: Sorry, video larger than viewport is not yet supported!\n");
         // ugly, do something nicer in the future ...
-#ifndef HAVE_DGA2
-#ifdef HAVE_XF86VM
+#ifndef CONFIG_DGA2
+#ifdef CONFIG_XF86VM
         if (vo_dga_vidmodes)
         {
             XFree(vo_dga_vidmodes);
@@ -745,8 +756,8 @@ static int config(uint32_t width, uint32_t height,
                "vo_dga: Something is wrong with your DGA. There doesn't seem to be a\n"
                "         single suitable mode!\n"
                "         Please file a bug report (see DOCS/HTML/en/bugreports.html)\n");
-#ifndef HAVE_DGA2
-#ifdef HAVE_XF86VM
+#ifndef CONFIG_DGA2
+#ifdef CONFIG_XF86VM
         if (vo_dga_vidmodes)
         {
             XFree(vo_dga_vidmodes);
@@ -760,7 +771,7 @@ static int config(uint32_t width, uint32_t height,
 
     if (!vo_config_count || width != prev_width || height != prev_height)
     {
-#ifdef HAVE_DGA2
+#ifdef CONFIG_DGA2
 
         if (!XDGAOpenFramebuffer(mDisplay, mScreen))
         {
@@ -779,7 +790,7 @@ static int config(uint32_t width, uint32_t height,
 
 #else
 
-#ifdef HAVE_XF86VM
+#ifdef CONFIG_XF86VM
         if (have_vm)
         {
             XF86VidModeLockModeSwitch(mDisplay, mScreen, 0);
@@ -842,7 +853,7 @@ static int config(uint32_t width, uint32_t height,
         init_video_buffers(vo_dga_base,
                            vo_dga_vp_height,
                            vo_dga_width * HW_MODE.vdm_bytespp,
-#ifdef HAVE_DGA2
+#ifdef CONFIG_DGA2
                            modeline->maxViewportY,
 #else
                            vo_dga_vp_height,
@@ -881,7 +892,7 @@ static int preinit(const char *arg)
 
         if (vo_dga_XServer_mode == 0)
         {
-#ifndef HAVE_DGA2
+#ifndef CONFIG_DGA2
             mp_msg(MSGT_VO, MSGL_ERR,
                    "vo_dga: Your X-Server is not running in a ");
             mp_msg(MSGT_VO, MSGL_ERR,
@@ -892,7 +903,7 @@ static int preinit(const char *arg)
         //            vd_GetModeString(vo_dga_XServer_mode));
         //}                                
 
-#ifdef HAVE_DGA2
+#ifdef CONFIG_DGA2
         vo_modelines = XDGAQueryModes(mDisplay, mScreen, &vo_modecount);
         if (vo_modelines)
         {
@@ -953,7 +964,7 @@ static uint32_t get_image(mp_image_t * mpi)
         || (mpi->type == MP_IMGTYPE_STATIC && vo_dga_nr_video_buffers > 1)
         || (mpi->type == MP_IMGTYPE_IP && vo_dga_nr_video_buffers < 2)
         || (mpi->type == MP_IMGTYPE_IPB))
-        return (VO_FALSE);
+        return VO_FALSE;
 
     if ((mpi->flags & MP_IMGFLAG_ACCEPT_STRIDE) ||
         (mpi->flags & MP_IMGFLAG_ACCEPT_WIDTH &&
@@ -967,10 +978,10 @@ static uint32_t get_image(mp_image_t * mpi)
         mpi->width =
             (vo_dga_bytes_per_line + vo_dga_vp_skip) / (mpi->bpp / 8);
         mpi->flags |= MP_IMGFLAG_DIRECT;
-        return (VO_TRUE);
+        return VO_TRUE;
     }
 
-    return (VO_FALSE);
+    return VO_FALSE;
 }
 
 static int control(uint32_t request, void *data, ...)

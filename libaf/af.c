@@ -1,8 +1,27 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 
@@ -24,6 +43,7 @@ extern af_info_t af_info_sub;
 extern af_info_t af_info_export;
 extern af_info_t af_info_volnorm;
 extern af_info_t af_info_extrastereo;
+extern af_info_t af_info_lavcac3enc;
 extern af_info_t af_info_lavcresample;
 extern af_info_t af_info_sweep;
 extern af_info_t af_info_hrtf;
@@ -31,6 +51,8 @@ extern af_info_t af_info_ladspa;
 extern af_info_t af_info_center;
 extern af_info_t af_info_sinesuppress;
 extern af_info_t af_info_karaoke;
+extern af_info_t af_info_scaletempo;
+extern af_info_t af_info_stats;
 
 static af_info_t* filter_list[]={ 
    &af_info_dummy,
@@ -50,17 +72,22 @@ static af_info_t* filter_list[]={
 #endif
    &af_info_volnorm,
    &af_info_extrastereo,
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_LIBAVCODEC_A
+   &af_info_lavcac3enc,
+#endif
+#ifdef CONFIG_LIBAVCODEC
    &af_info_lavcresample,
 #endif
    &af_info_sweep,
    &af_info_hrtf,
-#ifdef HAVE_LADSPA
+#ifdef CONFIG_LADSPA
    &af_info_ladspa,
 #endif
    &af_info_center,
    &af_info_sinesuppress,
    &af_info_karaoke,
+   &af_info_scaletempo,
+   &af_info_stats,
    NULL 
 };
 
@@ -100,13 +127,14 @@ af_instance_t* af_get(af_stream_t* s, char* name)
 
 /*/ Function for creating a new filter of type name. The name may
   contain the commandline parameters for the filter */
-static af_instance_t* af_create(af_stream_t* s, char* name)
+static af_instance_t* af_create(af_stream_t* s, const char* name_with_cmd)
 {
+  char* name = strdup(name_with_cmd);
   char* cmdline = name;
 
   // Allocate space for the new filter and reset all pointers
   af_instance_t* new=malloc(sizeof(af_instance_t));
-  if(!new){
+  if (!name || !new) {
     af_msg(AF_MSG_ERROR,"[libaf] Could not allocate memory\n");
     goto err_out;
   }  
@@ -135,17 +163,18 @@ static af_instance_t* af_create(af_stream_t* s, char* name)
   if(AF_OK == new->info->open(new) && 
      AF_ERROR < new->control(new,AF_CONTROL_POST_CREATE,&s->cfg)){
     if(cmdline){
-      if(AF_ERROR<new->control(new,AF_CONTROL_COMMAND_LINE,cmdline))
-	return new;
+      if(AF_ERROR>=new->control(new,AF_CONTROL_COMMAND_LINE,cmdline))
+        goto err_out;
     }
-    else
-      return new; 
+    free(name);
+    return new; 
   }
   
 err_out:
   free(new);
   af_msg(AF_MSG_ERROR,"[libaf] Couldn't create or open audio filter '%s'\n",
 	 name);  
+  free(name);
   return NULL;
 }
 
@@ -391,7 +420,7 @@ int af_init(af_stream_t* s)
                &(s->output.rate));
       if (!af) {
         char *resampler = "resample";
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_LIBAVCODEC
         if ((AF_INIT_TYPE_MASK & s->cfg.force) == AF_INIT_SLOW)
           resampler = "lavcresample";
 #endif
@@ -415,7 +444,7 @@ int af_init(af_stream_t* s)
       if ((AF_INIT_TYPE_MASK & s->cfg.force) == AF_INIT_FAST) {
         char args[32];
 	sprintf(args, "%d", s->output.rate);
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_LIBAVCODEC
 	if (strcmp(resampler, "lavcresample") == 0)
 	  strcat(args, ":1");
 	else
@@ -512,96 +541,35 @@ af_data_t* af_play(af_stream_t* s, af_data_t* data)
     if (data->len <= 0) break;
     data=af->play(af,data);
     af=af->next;
-  }while(af);
+  }while(af && data);
   return data;
 }
 
-/* Helper function used to calculate the exact buffer length needed
-   when buffers are resized. The returned length is >= than what is
-   needed */
-inline int af_lencalc(frac_t mul, af_data_t* d){
-  register int t = d->bps*d->nch;
-  return t*(((d->len/t)*mul.n)/mul.d + 1);
+/* Calculate the minimum output buffer size for given input data d
+ * when using the RESIZE_LOCAL_BUFFER macro. The +t+1 part ensures the
+ * value is >= len*mul rounded upwards to whole samples even if the
+ * double 'mul' is inexact. */
+int af_lencalc(double mul, af_data_t* d)
+{
+  int t = d->bps * d->nch;
+  return d->len * mul + t + 1;
 }
 
-/* Calculate how long the output from the filters will be given the
-   input length "len". The calculated length is >= the actual
-   length. */
-int af_outputlen(af_stream_t* s, int len)
+// Calculate average ratio of filter output size to input size
+double af_calc_filter_multiplier(af_stream_t* s)
 {
-  int t = s->input.bps*s->input.nch;
   af_instance_t* af=s->first; 
-  frac_t mul = {1,1};
-  // Iterate through all filters 
-  do{
-    af_frac_mul(&mul, &af->mul);
-    af=af->next;
-  }while(af);
-  return t * (((len/t)*mul.n + 1)/mul.d);
-}
-
-/* Calculate how long the input to the filters should be to produce a
-   certain output length, i.e. the return value of this function is
-   the input length required to produce the output length "len". The
-   calculated length is <= the actual length */
-int af_inputlen(af_stream_t* s, int len)
-{
-  int t = s->input.bps*s->input.nch;
-  af_instance_t* af=s->first; 
-  frac_t mul = {1,1};
-  // Iterate through all filters 
-  do{
-    af_frac_mul(&mul, &af->mul);
-    af=af->next;
-  }while(af);
-  return t * (((len/t) * mul.d - 1)/mul.n);
-}
-
-/* Calculate how long the input IN to the filters should be to produce
-   a certain output length OUT but with the following three constraints:
-   1. IN <= max_insize, where max_insize is the maximum possible input
-      block length
-   2. OUT <= max_outsize, where max_outsize is the maximum possible
-      output block length
-   3. If possible OUT >= len. 
-   Return -1 in case of error */ 
-int af_calc_insize_constrained(af_stream_t* s, int len,
-			       int max_outsize,int max_insize)
-{
-  int t   = s->input.bps*s->input.nch;
-  int in  = 0;
-  int out = 0;
-  af_instance_t* af=s->first; 
-  frac_t mul = {1,1};
+  double mul = 1;
   // Iterate through all filters and calculate total multiplication factor
   do{
-    af_frac_mul(&mul, &af->mul);
-    af=af->next;
+      mul *= af->mul;
+      af=af->next;
   }while(af);
-  // Sanity check 
-  if(!mul.n || !mul.d) 
-    return -1;
 
-  in = t * (((len/t) * mul.d - 1)/mul.n);
-  
-  if(in>max_insize) in=t*(max_insize/t);
-
-  // Try to meet constraint nr 3. 
-  while((out=t * (((in/t+1)*mul.n - 1)/mul.d)) <= max_outsize && in<=max_insize){
-    if( (t * (((in/t)*mul.n))/mul.d) >= len) return in;
-    in+=t;
-  }
-  
-  // Could no meet constraint nr 3.
-  while(out > max_outsize || in > max_insize){
-    in-=t;
-    if(in<t) return -1; // Input parameters are probably incorrect
-    out = t * (((in/t)*mul.n + 1)/mul.d);
-  }
-  return in;
+  return mul;
 }
 
-/* Calculate the total delay [ms] caused by the filters */
+/* Calculate the total delay [bytes output] caused by the filters */
 double af_calc_delay(af_stream_t* s)
 {
   af_instance_t* af=s->first; 
@@ -609,6 +577,7 @@ double af_calc_delay(af_stream_t* s)
   // Iterate through all filters 
   while(af){
     delay += af->delay;
+    delay *= af->mul;
     af=af->next;
   }
   return delay;
@@ -616,7 +585,7 @@ double af_calc_delay(af_stream_t* s)
 
 /* Helper function called by the macro with the same name this
    function should not be called directly */
-inline int af_resize_local_buffer(af_instance_t* af, af_data_t* data)
+int af_resize_local_buffer(af_instance_t* af, af_data_t* data)
 {
   // Calculate new length
   register int len = af_lencalc(af->mul,data);
@@ -646,53 +615,6 @@ af_instance_t *af_control_any_rev (af_stream_t* s, int cmd, void* arg) {
     filt = filt->prev;
   }
   return NULL;
-}
-
-/**
- * \brief calculate greatest common divisior of a and b.
- * \ingroup af_filter
- *
- *   If both are 0 the result is 1.
- */
-int af_gcd(register int a, register int b) {
-  while (b != 0) {
-    a %= b;
-    if (a == 0)
-      break;
-    b %= a;
-  }
-  // the result is either in a or b. As the other one is 0 just add them.
-  a += b;
-  if (!a)
-    return 1;
-  return a;
-}
-
-/**
- * \brief cancel down a fraction f
- * \param f fraction to cancel down
- * \ingroup af_filter
- */
-void af_frac_cancel(frac_t *f) {
-  int gcd = af_gcd(f->n, f->d);
-  f->n /= gcd;
-  f->d /= gcd;
-}
-
-/**
- * \brief multiply out by in and store result in out.
- * \param out [inout] fraction to multiply by in
- * \param in [in] fraction to multiply out by
- * \ingroup af_filter
- *
- *        the resulting fraction will be cancelled down
- *        if in and out were.
- */
-void af_frac_mul(frac_t *out, const frac_t *in) {
-  int gcd1 = af_gcd(out->n, in->d);
-  int gcd2 = af_gcd(in->n, out->d);
-  out->n = (out->n / gcd1) * (in->n / gcd2);
-  out->d = (out->d / gcd2) * (in->d / gcd1);
 }
 
 void af_help (void) {

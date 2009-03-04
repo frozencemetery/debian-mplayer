@@ -16,14 +16,15 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <windows.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <get_path.h>
 #include "mplayer.h"
 #include "mp_msg.h"
 #include "help_mp.h"
@@ -31,8 +32,8 @@
 #include "m_option.h"
 #include "libvo/video_out.h"
 #include "mixer.h"
-#include "wincfg.h"
-#include "interface.h"
+#include "gui/interface.h"
+#include "gui.h"
 
 /* params */
 int   gtkAONorm = 0;
@@ -53,12 +54,11 @@ int gui_sub_pos_x = -1;
 int gui_sub_pos_y = -1;
 
 /* External functions */
-extern int frame_dropping;
 extern char *proc_priority;
-extern int m_config_parse_config_file(m_config_t *config, char *conffile);
+int m_config_parse_config_file(m_config_t *config, char *conffile);
 
 static m_config_t *gui_conf;
-static m_option_t gui_opts[] =
+static const m_option_t gui_opts[] =
 {
     {   "priority", &proc_priority, CONF_TYPE_STRING, 0, 0, 0, NULL},
     {   "vo_driver", &video_driver_list, CONF_TYPE_STRING_LIST, 0, 0, 0, NULL },
@@ -130,13 +130,15 @@ int cfg_write(void)
         for (i=0; gui_opts[i].name; i++)
         {
             char *v = m_option_print(&gui_opts[i], gui_opts[i].p);
+            if(v == (char *)-1) {
+                mp_msg(MSGT_GPLAYER, MSGL_WARN, MSGTR_UnableToSaveOption, gui_opts[i].name);
+                v = NULL;
+            }
             if(v)
             {
                 fprintf(f, "%s = \"%s\"\n", gui_opts[i].name, v);
                 free(v);
             }
-            else if((int) v == -1)
-                mp_msg(MSGT_GPLAYER, MSGL_WARN, MSGTR_UnableToSaveOption, gui_opts[i].name);
         }
         fclose(f);
     }

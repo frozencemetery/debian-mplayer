@@ -20,23 +20,24 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with MPlayer; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+# You should have received a copy of the GNU General Public License along
+# with MPlayer; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 BEGIN {
 
-    if(ARGC != 2) {
+    if(ARGC != 3) {
 # check for arguments:
 	print "Usage awk -f pci_db2c.awk pci.db (and make sure pci.db file exists first)";
 	exit(1);
     }
     in_file = ARGV[1];
-    vendor_file = "pci_vendors.h";
-    ids_file = "pci_ids.h"
-    name_file = "pci_names.c"
-    name_h_file = "pci_names.h"
-    dev_ids_file = "pci_dev_ids.c"
+    with_pci_db = ARGV[2];
+    vendor_file = "vidix/pci_vendors.h";
+    ids_file = "vidix/pci_ids.h"
+    name_file = "vidix/pci_names.c"
+    name_h_file = "vidix/pci_names.h"
+    dev_ids_file = "vidix/pci_dev_ids.c"
     line=0;
 # print out head lines
     print_head(vendor_file);
@@ -45,24 +46,26 @@ BEGIN {
     print_head(name_h_file);
     print_head(dev_ids_file);
     print_includes(dev_ids_file);
-    print "#ifndef PCI_VENDORS_INCLUDED" >vendor_file
-    print "#define PCI_VENDORS_INCLUDED 1">vendor_file
+    print "#ifndef MPLAYER_PCI_VENDORS_H" >vendor_file
+    print "#define MPLAYER_PCI_VENDORS_H">vendor_file
     print "" >vendor_file
-    print "#ifndef PCI_IDS_INCLUDED" >ids_file
-    print "#define PCI_IDS_INCLUDED 1">ids_file
+    print "#ifndef MPLAYER_PCI_IDS_H" >ids_file
+    print "#define MPLAYER_PCI_IDS_H">ids_file
     print "" >ids_file
     print "#include \"pci_vendors.h\"">ids_file
     print "" >ids_file
 
-    print "#ifndef PCI_NAMES_INCLUDED" >name_h_file
-    print "#define PCI_NAMES_INCLUDED 1">name_h_file
+    print "#ifndef MPLAYER_PCI_NAMES_H" >name_h_file
+    print "#define MPLAYER_PCI_NAMES_H">name_h_file
     print "" >name_h_file
     print_name_struct(name_h_file);
     print "#include <stddef.h>">name_file
     print "#include \"pci_names.h\"">name_file
+    if (with_pci_db) {
     print "#include \"pci_dev_ids.c\"">name_file
     print "">name_file
     print "static struct vendor_id_s vendor_ids[] = {">name_file
+    }
     first_pass=1;
     init_name_db();
     while(getline <in_file) 
@@ -78,7 +81,7 @@ BEGIN {
 		printf("#define VENDOR_%s\t", svend_name) >vendor_file;
 		if(length(svend_name) < 9) printf("\t") >vendor_file;
 		printf("0x%s /*%s*/\n",field[2], name_field) >vendor_file;
-		printf("{ 0x%s, \"%s\", dev_lst_%s },\n",field[2], name_field, field[2]) >name_file;
+		if (with_pci_db) printf("{ 0x%s, \"%s\", dev_lst_%s },\n",field[2], name_field, field[2]) >name_file;
 		printf("/* Vendor: %s: %s */\n", field[2], name_field) > ids_file
 		if(first_pass == 1) { first_pass=0; }
 		else	{ print "{ 0xFFFF,  NULL }\n};" >dev_ids_file; }
@@ -111,14 +114,14 @@ BEGIN {
 		printf("0x%s /*%s*/\n", substr(field[2], 9), name_field) >ids_file
 	}
     }
-    print "Total lines parsed:", line;
+    #print "Total lines parsed:", line;
     print "">vendor_file
-    print "#endif/*PCI_VENDORS_INCLUDED*/">vendor_file
+    print "#endif /* MPLAYER_PCI_VENDORS_H */">vendor_file
     print "">ids_file
-    print "#endif/*PCI_IDS_INCLUDED*/">ids_file
+    print "#endif /* MPLAYER_PCI_IDS_H */">ids_file
     print "">name_h_file
-    print "#endif/*PCI_NAMES_INCLUDED*/">name_h_file
-    print "};">name_file
+    print "#endif /* MPLAYER_PCI_NAMES_H */">name_h_file
+    if (with_pci_db) print "};">name_file
     print "{ 0xFFFF,  NULL }" >dev_ids_file;
     print "};">dev_ids_file
     print_func_bodies(name_file);
@@ -142,9 +145,6 @@ function print_head( out_file)
 
 function print_name_struct(out_file)
 {
-   print "#ifdef __cplusplus" >out_file
-   print "extern \"C\" {" >out_file
-   print "#endif" >out_file
    print "">out_file
    print "struct device_id_s" >out_file
    print "{" >out_file
@@ -158,12 +158,9 @@ function print_name_struct(out_file)
    print "\tconst char *\tname;" >out_file
    print "\tconst struct device_id_s *\tdev_list;" >out_file
    print "};" >out_file
-   print "extern const char *pci_vendor_name(unsigned short id);">out_file
-   print "extern const char *pci_device_name(unsigned short vendor_id, unsigned short device_id);">out_file
+   print "const char *pci_vendor_name(unsigned short id);">out_file
+   print "const char *pci_device_name(unsigned short vendor_id, unsigned short device_id);">out_file
    print "">out_file
-   print "#ifdef __cplusplus" >out_file
-   print "}" >out_file
-   print "#endif" >out_file
    return
 }
 
@@ -172,16 +169,19 @@ function print_func_bodies(out_file)
    print "">out_file
    print "const char *pci_vendor_name(unsigned short id)" >out_file
    print "{" >out_file
+   if (with_pci_db) {
    print "  unsigned i;" >out_file
    print "  for(i=0;i<sizeof(vendor_ids)/sizeof(struct vendor_id_s);i++)">out_file
    print "  {" >out_file
    print "\tif(vendor_ids[i].id == id) return vendor_ids[i].name;" >out_file
    print "  }" >out_file
+   }
    print "  return NULL;" >out_file
    print "}">out_file
    print "" >out_file
    print "const char *pci_device_name(unsigned short vendor_id, unsigned short device_id)" >out_file
    print "{" >out_file
+   if (with_pci_db) {
    print "  unsigned i, j;" >out_file
    print "  for(i=0;i<sizeof(vendor_ids)/sizeof(struct vendor_id_s);i++)">out_file
    print "  {" >out_file
@@ -196,6 +196,7 @@ function print_func_bodies(out_file)
    print "\t  break;" >out_file
    print "\t}" >out_file
    print "  }" >out_file
+   }
    print "  return NULL;">out_file
    print "}">out_file
    return

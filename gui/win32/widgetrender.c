@@ -16,16 +16,16 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <stdio.h>
 #include <ctype.h>
 #include <windows.h>
 
-#include "interface.h"
+#include "gui/interface.h"
 #include "gui.h"
 
 extern char *codecname;
@@ -162,7 +162,7 @@ static char *generatetextfromlabel(widget *item)
 
     if(guiIntfStruct.StreamType == 0)
         stringreplace(text, "$T", "f");
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
     else if(guiIntfStruct.StreamType == STREAMTYPE_DVD || guiIntfStruct.StreamType == STREAMTYPE_DVDNAV)
         stringreplace(text, "$T", "d");
 #endif

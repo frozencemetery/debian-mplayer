@@ -20,7 +20,7 @@
  */
 
 /**
- * @file h261data.h
+ * @file libavcodec/h261data.h
  * H.261 tables.
  */
 
@@ -161,4 +161,4 @@ static RLTable h261_rl_tcoeff = {
     h261_tcoeff_level,
 };
 
-#endif // AVCODEC_H261DATA_H
+#endif /* AVCODEC_H261DATA_H */

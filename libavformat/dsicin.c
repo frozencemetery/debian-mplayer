@@ -20,10 +20,11 @@
  */
 
 /**
- * @file dsicin.c
+ * @file libavformat/dsicin.c
  * Delphine Software International CIN file demuxer
  */
 
+#include "libavutil/intreadwrite.h"
 #include "avformat.h"
 
 
@@ -94,7 +95,7 @@ static int cin_read_header(AVFormatContext *s, AVFormatParameters *ap)
     int rc;
     CinDemuxContext *cin = s->priv_data;
     CinFileHeader *hdr = &cin->file_header;
-    ByteIOContext *pb = &s->pb;
+    ByteIOContext *pb = s->pb;
     AVStream *st;
 
     rc = cin_read_file_header(cin, pb);
@@ -130,9 +131,9 @@ static int cin_read_header(AVFormatContext *s, AVFormatParameters *ap)
     st->codec->codec_tag = 0;  /* no tag */
     st->codec->channels = 1;
     st->codec->sample_rate = 22050;
-    st->codec->bits_per_sample = 16;
-    st->codec->bit_rate = st->codec->sample_rate * st->codec->bits_per_sample * st->codec->channels;
-    st->codec->block_align = st->codec->channels * st->codec->bits_per_sample;
+    st->codec->bits_per_coded_sample = 16;
+    st->codec->bit_rate = st->codec->sample_rate * st->codec->bits_per_coded_sample * st->codec->channels;
+    st->codec->block_align = st->codec->channels * st->codec->bits_per_coded_sample;
 
     return 0;
 }
@@ -158,7 +159,7 @@ static int cin_read_frame_header(CinDemuxContext *cin, ByteIOContext *pb) {
 static int cin_read_packet(AVFormatContext *s, AVPacket *pkt)
 {
     CinDemuxContext *cin = s->priv_data;
-    ByteIOContext *pb = &s->pb;
+    ByteIOContext *pb = s->pb;
     CinFrameHeader *hdr = &cin->frame_header;
     int rc, palette_type, pkt_size;
 
@@ -213,7 +214,7 @@ static int cin_read_packet(AVFormatContext *s, AVPacket *pkt)
 
 AVInputFormat dsicin_demuxer = {
     "dsicin",
-    "Delphine Software International CIN format",
+    NULL_IF_CONFIG_SMALL("Delphine Software International CIN format"),
     sizeof(CinDemuxContext),
     cin_probe,
     cin_read_header,

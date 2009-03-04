@@ -22,6 +22,9 @@
  *
  ********************************************************************/
 
+#ifndef MPLAYER_XA_GSM_INT_H
+#define MPLAYER_XA_GSM_INT_H
+
 #include "xa_gsm.h"
 
 
@@ -128,3 +131,4 @@ typedef struct {
 
 */
 
+#endif /* MPLAYER_XA_GSM_INT_H */

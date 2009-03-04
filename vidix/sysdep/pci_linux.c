@@ -3,6 +3,29 @@
    $XFree86: xc/programs/Xserver/hw/xfree86/etc/scanpci.c,v 3.34.2.17 1998/11/10 11:55:40 dawes Exp $
    Modified for readability by Nick Kurshev
 */
+/*
+ * Copyright 1995 by Robin Cutshaw <robin@XFree86.Org>
+ *
+ * Permission to use, copy, modify, distribute, and sell this software and its
+ * documentation for any purpose is hereby granted without fee, provided that
+ * the above copyright notice appear in all copies and that both that
+ * copyright notice and this permission notice appear in supporting
+ * documentation, and that the names of the above listed copyright holder(s)
+ * not be used in advertising or publicity pertaining to distribution of
+ * the software without specific, written prior permission.  The above listed
+ * copyright holder(s) make(s) no representations about the suitability of this
+ * software for any purpose.  It is provided "as is" without express or
+ * implied warranty.
+ *
+ * THE ABOVE LISTED COPYRIGHT HOLDER(S) DISCLAIM(S) ALL WARRANTIES WITH REGARD
+ * TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+ * AND FITNESS, IN NO EVENT SHALL THE ABOVE LISTED COPYRIGHT HOLDER(S) BE
+ * LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY
+ * DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
+ * IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
+ * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
 #include <errno.h>
 #ifdef __i386__
 //#include <sys/perm.h> doesn't exist on libc5 systems
@@ -11,6 +34,10 @@ int iopl();
 #if !defined(__sparc__) && !defined(__powerpc__) && !defined(__x86_64__)
 #include <sys/io.h>
 #endif
+#endif
+
+#ifdef __sh__
+#define iopl(x) 1
 #endif
 
 #include "config.h"
@@ -45,7 +72,6 @@ static long pci_config_read_long(
           int func, 
           unsigned cmd)
 {
-    unsigned long config_cmd;
     pcic_t p;
     
     p.address = cmd;
@@ -64,7 +90,7 @@ static int pci_get_vendor(
 {
     return pci_config_read_long(bus, dev, func, 0);
 }
-#endif
+#endif /* CONFIG_SVGAHELPER */
 
 static __inline__ int enable_os_io(void)
 {
@@ -73,7 +99,7 @@ static __inline__ int enable_os_io(void)
     if (svgahelper_fd > 0)
     {
 	svgahelper_initialized = 1;
-	return(0);
+	return 0;
     }
     svgahelper_initialized = -1;
 #endif
@@ -83,7 +109,7 @@ static __inline__ int enable_os_io(void)
     if (dhahelper_fd > 0)
     {
 	dhahelper_initialized = 1;
-	return(0);
+	return 0;
     }
     dhahelper_initialized = -1;
 #endif
@@ -92,9 +118,9 @@ static __inline__ int enable_os_io(void)
 /* should be fixed? */
 #else    
     if (iopl(3) != 0)
-	return(errno);
+	return errno;
 #endif    
-    return(0);
+    return 0;
 }
 
 static __inline__ int disable_os_io(void)
@@ -113,13 +139,13 @@ static __inline__ int disable_os_io(void)
 /* should be fixed? */
 #else    
     if (iopl(0) != 0)
-	return(errno);
+	return errno;
 #endif    
-    return(0);
+    return 0;
 }
 
 #if (defined(__powerpc__) || defined(__sparc__) || defined(__sparc64__) \
-    || defined(__x86_64__)) && defined(__linux__) && !defined(CONFIG_SVGAHELPER)
+    || defined(__x86_64__) || defined(__sh__)) && defined(__linux__) && !defined(CONFIG_SVGAHELPER)
 #define CONFIG_PCI_LINUX_PROC
 #endif
 
@@ -188,4 +214,4 @@ static long pci_config_read_long(
     }
     return retval;
 }
-#endif
+#endif /* defined(CONFIG_PCI_LINUX_PROC) */

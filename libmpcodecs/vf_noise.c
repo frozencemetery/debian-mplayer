@@ -1,20 +1,22 @@
 /*
-    Copyright (C) 2002 Michael Niedermayer <michaelni@gmx.at>
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-*/
+ * Copyright (C) 2002 Michael Niedermayer <michaelni@gmx.at>
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,7 +28,7 @@
 #include "mp_msg.h"
 #include "cpudetect.h"
 
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 
@@ -143,12 +145,12 @@ static int8_t *initNoise(FilterParam *fp){
 
 /***************************************************************************/
 
-#ifdef HAVE_MMX
+#if HAVE_MMX
 static inline void lineNoise_MMX(uint8_t *dst, uint8_t *src, int8_t *noise, int len, int shift){
 	long mmx_len= len&(~7);
 	noise+=shift;
 
-	asm volatile(
+	__asm__ volatile(
 		"mov %3, %%"REG_a"		\n\t"
 		"pcmpeqb %%mm7, %%mm7		\n\t"
 		"psllw $15, %%mm7		\n\t"
@@ -172,12 +174,12 @@ static inline void lineNoise_MMX(uint8_t *dst, uint8_t *src, int8_t *noise, int 
 #endif
 
 //duplicate of previous except movntq
-#ifdef HAVE_MMX2
+#if HAVE_MMX2
 static inline void lineNoise_MMX2(uint8_t *dst, uint8_t *src, int8_t *noise, int len, int shift){
 	long mmx_len= len&(~7);
 	noise+=shift;
 
-	asm volatile(
+	__asm__ volatile(
 		"mov %3, %%"REG_a"		\n\t"
 		"pcmpeqb %%mm7, %%mm7		\n\t"
 		"psllw $15, %%mm7		\n\t"
@@ -214,11 +216,11 @@ static inline void lineNoise_C(uint8_t *dst, uint8_t *src, int8_t *noise, int le
 
 /***************************************************************************/
 
-#ifdef HAVE_MMX
+#if HAVE_MMX
 static inline void lineNoiseAvg_MMX(uint8_t *dst, uint8_t *src, int len, int8_t **shift){
 	long mmx_len= len&(~7);
 
-	asm volatile(
+	__asm__ volatile(
 		"mov %5, %%"REG_a"		\n\t"
 		ASMALIGN(4)
 		"1:				\n\t"
@@ -354,11 +356,11 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
 
         vf_clone_mpi_attributes(dmpi, mpi);
 
-#ifdef HAVE_MMX
-	if(gCpuCaps.hasMMX) asm volatile ("emms\n\t");
+#if HAVE_MMX
+	if(gCpuCaps.hasMMX) __asm__ volatile ("emms\n\t");
 #endif
-#ifdef HAVE_MMX2
-	if(gCpuCaps.hasMMX2) asm volatile ("sfence\n\t");
+#if HAVE_MMX2
+	if(gCpuCaps.hasMMX2) __asm__ volatile ("sfence\n\t");
 #endif
 
 	return vf_next_put_image(vf,dmpi, pts);
@@ -445,13 +447,13 @@ static int open(vf_instance_t *vf, char* args){
     }
 
  
-#ifdef HAVE_MMX
+#if HAVE_MMX
     if(gCpuCaps.hasMMX){
         lineNoise= lineNoise_MMX;
         lineNoiseAvg= lineNoiseAvg_MMX;
     }
 #endif
-#ifdef HAVE_MMX2
+#if HAVE_MMX2
     if(gCpuCaps.hasMMX2) lineNoise= lineNoise_MMX2;
 //    if(gCpuCaps.hasMMX) lineNoiseAvg= lineNoiseAvg_MMX2;
 #endif
@@ -459,7 +461,7 @@ static int open(vf_instance_t *vf, char* args){
     return 1;
 }
 
-vf_info_t vf_info_noise = {
+const vf_info_t vf_info_noise = {
     "noise generator",
     "noise",
     "Michael Niedermayer",

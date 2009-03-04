@@ -4,15 +4,15 @@
  * (C) 2001, MPlayer team.
  */
 
-#ifndef NETWORK_H
-#define NETWORK_H
+#ifndef MPLAYER_NETWORK_H
+#define MPLAYER_NETWORK_H
 
 #include <fcntl.h>
 #include <sys/time.h>
 #include <sys/types.h>
 
 #include "config.h"
-#ifndef HAVE_WINSOCK2
+#if !HAVE_WINSOCK2_H
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -21,7 +21,13 @@
 
 #include "url.h"
 #include "http.h"
-#include "stream.h"
+
+#if !HAVE_CLOSESOCKET
+#define closesocket close
+#endif
+#if !HAVE_SOCKLEN_T
+typedef int socklen_t;
+#endif
 
 #define BUFFER_SIZE		2048
 
@@ -63,4 +69,4 @@ HTTP_header_t *http_read_response(int fd);
 int http_authenticate(HTTP_header_t *http_hdr, URL_t *url, int *auth_retry);
 URL_t* check4proxies(URL_t *url);
 
-#endif
+#endif /* MPLAYER_NETWORK_H */

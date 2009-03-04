@@ -1,6 +1,9 @@
-#ifndef _parser_mpcmd_h
-#define _parser_mpcmd_h
+#ifndef MPLAYER_PARSER_MPCMD_H
+#define MPLAYER_PARSER_MPCMD_H
 
-extern play_tree_t* m_config_parse_mp_command_line(m_config_t *config, int argc, char **argv);
+#include "playtree.h"
+#include "m_config.h"
 
-#endif
+play_tree_t* m_config_parse_mp_command_line(m_config_t *config, int argc, char **argv);
+
+#endif /* MPLAYER_PARSER_MPCMD_H */

@@ -1,3 +1,20 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -5,12 +22,12 @@
 
 #include "cut.h"
 #include "font.h"
-#include "app.h"
+#include "gui/app.h"
 
-#include "../config.h"
-#include "../mp_msg.h"
-#include "../help_mp.h"
-#include "mplayer/widgets.h"
+#include "config.h"
+#include "mp_msg.h"
+#include "help_mp.h"
+#include "gui/mplayer/widgets.h"
 #include "libavutil/avstring.h"
 
 //#define MSGL_DBG2 MSGL_STATUS
@@ -152,7 +169,7 @@ int cmd_base( char * in )
    if ( skinBPRead( tmp,&defList->main.Bitmap ) ) return 1;
    defList->main.width=defList->main.Bitmap.Width;
    defList->main.height=defList->main.Bitmap.Height;
-#ifdef HAVE_XSHAPE
+#ifdef CONFIG_XSHAPE
     Convert32to1( &defList->main.Bitmap,&defList->main.Mask,0x00ff00ff );
     mp_dbg( MSGT_GPLAYER,MSGL_DBG2,"[skin]  mask: %dx%d\n",defList->main.Mask.Width,defList->main.Mask.Height );
 #else
@@ -184,7 +201,7 @@ int cmd_base( char * in )
    if ( skinBPRead( tmp,&defList->menuBase.Bitmap ) ) return 1;
    defList->menuBase.width=defList->menuBase.Bitmap.Width;
    defList->menuBase.height=defList->menuBase.Bitmap.Height;
-#ifdef HAVE_XSHAPE
+#ifdef CONFIG_XSHAPE
     Convert32to1( &defList->menuBase.Bitmap,&defList->menuBase.Mask,0x00ff00ff );
     mp_dbg( MSGT_GPLAYER,MSGL_DBG2,"[skin]  mask: %dx%d\n",defList->menuBase.Mask.Width,defList->menuBase.Mask.Height );
 #else
@@ -202,7 +219,7 @@ int cmd_base( char * in )
    if ( skinBPRead( tmp,&defList->bar.Bitmap ) ) return 1;
    defList->bar.width=defList->bar.Bitmap.Width;
    defList->bar.height=defList->bar.Bitmap.Height;
-#ifdef HAVE_XSHAPE
+#ifdef CONFIG_XSHAPE
     Convert32to1( &defList->bar.Bitmap,&defList->bar.Mask,0x00ff00ff );
     mp_dbg( MSGT_GPLAYER,MSGL_DBG2,"[skin]  mask: %dx%d\n",defList->bar.Mask.Width,defList->bar.Mask.Height );
 #else

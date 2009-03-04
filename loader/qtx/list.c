@@ -1,7 +1,5 @@
 /* to compile:
    edit ../win32.c, change the #if 0 to 1 at line 1326 to enabel quicktime fix!
-   (cd ..;make distclean;make)
-   gcc -o list list.c ../libloader.a -lpthread -ldl -lm -ggdb ../../cpudetect.o
  */
 
 #include <stdio.h>
@@ -10,6 +8,7 @@
 
 #include "qtxsdk/components.h"
 #include "qtxsdk/select.h"
+#include "ldt_keeper.h"
 
 char* get_path(const char* x){  return strdup(x);}
 void* LoadLibraryA(char* name);
@@ -19,9 +18,7 @@ void* GetProcAddress(void* handle,char* func);
 #define __cdecl   __attribute__((__cdecl__))
 #define APIENTRY 
 
-typedef long OSErr;
-
-int main(int argc, char *argv[]){
+int main(void) {
     void *handler;
     ComponentDescription desc;
     Component (*FindNextComponent)(Component prev,ComponentDescription* desc);
@@ -31,7 +28,7 @@ int main(int argc, char *argv[]){
     OSErr ret;
 
     Setup_LDT_Keeper();
-    handler = LoadLibraryA("/usr/lib/win32/qtmlClient.dll");
+    handler = LoadLibraryA("/usr/local/lib/codecs/qtmlClient.dll");
     printf("***************************\n");
     InitializeQTML = 0x1000c870; //GetProcAddress(handler, "InitializeQTML");
     EnterMovies = 0x10003ac0; //GetProcAddress(handler, "EnterMovies");
@@ -55,8 +52,7 @@ int main(int argc, char *argv[]){
     desc.componentFlags=0;
     desc.componentFlagsMask=0;
     
-    printf("Count = %d\n",CountComponents(&desc));
-    
-    Restore_LDT_Keeper();
+    printf("Count = %ld\n",CountComponents(&desc));
+
     exit(0);
 }

@@ -3,7 +3,7 @@
  *
  *  Copyright (C) 2001 Matthew J. Marjanovic <maddog@mir.com>
  *
- *  This file is ripped from the lavtools package (mjpeg.sourceforge.net)
+ *  This file is part of the MJPEG Tools package (mjpeg.sourceforge.net).
  *  Ported to mplayer by Rik Snel <rsnel@cube.dyndns.org>
  *
  *  This program is free software; you can redistribute it and/or
@@ -143,6 +143,7 @@ void y4m_copy_xtag_list(y4m_xtag_list_t *dest, const y4m_xtag_list_t *src)
 
 
 
+#if 0
 static int y4m_snprint_xtags(char *s, int maxn, y4m_xtag_list_t *xtags)
 {
   int i, room;
@@ -157,6 +158,7 @@ static int y4m_snprint_xtags(char *s, int maxn, y4m_xtag_list_t *xtags)
   s[1] = '\0';  /* ...and end-of-string           */
   return Y4M_OK;
 }
+#endif
 
 
 int y4m_xtag_count(const y4m_xtag_list_t *xtags)

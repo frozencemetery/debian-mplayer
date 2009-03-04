@@ -1,5 +1,6 @@
 /*
  * Teletext support
+ *
  * Copyright (C) 2007 Vladimir Voroshilov <voroshil@gmail.com>
  *
  * This file is part of MPlayer.
@@ -14,9 +15,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *
  * Based on Attila Otvos' teletext patch, Michael Niedermayer's
@@ -158,8 +159,8 @@ typedef struct {
 
 static unsigned char fixParity[256];
 
-static tt_char tt_space={0x20,7,0,0,0,0,0,0,0x20};
-static tt_char tt_error={'?',1,0,0,0,0,0,0,'?'}; // Red '?' on black background
+static const tt_char tt_space={0x20,7,0,0,0,0,0,0,0x20};
+static const tt_char tt_error={'?',1,0,0,0,0,0,0,'?'}; // Red '?' on black background
 static double si[12];
 static double co[12];
 
@@ -216,7 +217,7 @@ enum {
 
 // conversion table for chars 0x20-0x7F (UTF8)
 // TODO: add another languages
-static unsigned int lang_chars[LANGS][0x60]={
+static const unsigned int lang_chars[LANGS][0x60]={
  {
   //Latin
   0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,
@@ -301,13 +302,13 @@ static unsigned int lang_chars[LANGS][0x60]={
  * 00:  £ $ @ « ½ » ¬ # ­ ¼ ¦ ¾ ÷  English
  * 01:  é ï à ë ê ù î # è â ô û ç  French
  * 02:  # ¤ É Ä Ö Å Ü _ é ä ö å ü  Swedish/Finnish/Hungarian
- * 03:  # u c t z ý í r é á e ú s  Czech/Slovak
+ * 03:  # ů č ť ž ý í ř é á ě ú š  Czech/Slovak
  * 04:  # $ § Ä Ö Ü ^ _ ° ä ö ü ß  German
  * 05:  ç $ ¡ á é í ó ú ¿ ü ñ è à  Portuguese/Spanish
  * 06:  £ $ é ° ç » ¬ # ù à ò è ì  Italian
  *
  */
-static unsigned int latin_subchars[8][13]={
+static const unsigned int latin_subchars[8][13]={
   // English
   {0xa3,0x24,0x40,0xab,0xbd,0xbb,0xac,0x23,0xad,0xbc,0xa6,0xbe,0xf7},
   // French
@@ -315,7 +316,7 @@ static unsigned int latin_subchars[8][13]={
   // Swedish/Finnish/Hungarian
   {0x23,0xa4,0xc9,0xc4,0xd6,0xc5,0xdc,0x5f,0xe9,0xe4,0xf6,0xe5,0xfc},
   // Czech/Slovak
-  {0x23,0x75,0x63,0x74,0x7a,0xfd,0xed,0x72,0xe9,0xe1,0x65,0xfa,0x73},
+  {0x23,0x16f,0x10d,0x165,0x17e,0xfd,0xed,0x159,0xe9,0xe1,0x11b,0xfa,0x161},
   // German
   {0x23,0x24,0xa7,0xc4,0xd6,0xdc,0x5e,0x5f,0xb0,0xe4,0xf6,0xfc,0xdf},
   // Portuguese/Spanish
@@ -343,8 +344,8 @@ static unsigned int latin_subchars[8][13]={
 struct {
     unsigned char lang_code;
     unsigned char charset;
-    char* lang_name;
-} tt_languages[]=
+    const char* lang_name;
+} const tt_languages[]=
 {
   { 0x01, LATIN,     "French"},
   { 0x02, LATIN,     "Swedish/Finnish/Hungarian"},
@@ -399,7 +400,7 @@ struct {
  * \note Bits must be correctly ordered, that is for 24/18 (lowest bit first)
  * P1 P2 D1 P3 D2 D3 D4 P4  D5 D6 D7 D8 D9 DA DB P5  DC DD DE DF DG DH DI P6
  */
-int corrHamm24(unsigned char *data){
+static int corrHamm24(unsigned char *data){
     unsigned char syndrom=0;
     int cw=data[0] | (data[1]<<8) | (data[2]<<16);
     int i;

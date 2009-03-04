@@ -12,7 +12,7 @@
  ********************************************************************
 
  function: single-block PCM synthesis
- last mod: $Id: synthesis.c 19256 2006-07-30 01:41:58Z uau $
+ last mod: $Id: synthesis.c 24824 2007-10-20 22:41:24Z diego $
 
  ********************************************************************/
 
@@ -23,6 +23,7 @@
 #include "registry.h"
 #include "misc.h"
 #include "os.h"
+#include "block.h"
 
 int vorbis_synthesis(vorbis_block *vb,ogg_packet *op){
   vorbis_dsp_state     *vd=vb->vd;

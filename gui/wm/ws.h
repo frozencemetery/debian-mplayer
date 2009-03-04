@@ -1,18 +1,33 @@
+/*
+ * AutoSpace Window System for Linux/Win32 v0.61
+ * written by pontscho/fresh!mindworkz
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
-// ----------------------------------------------------------------------------------------------
-//  AutoSpace Window System for Linux/Win32 v0.61
-//   Writed by pontscho / fresh!mindworkz
-// ----------------------------------------------------------------------------------------------
-
-#ifndef GUI_WS_H
-#define GUI_WS_H
+#ifndef MPLAYER_GUI_WS_H
+#define MPLAYER_GUI_WS_H
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
 #include <X11/extensions/XShm.h>
-#ifdef HAVE_XDPMS
+#ifdef CONFIG_XDPMS
 #include <X11/extensions/dpms.h>
 #endif
 
@@ -193,15 +208,15 @@ extern int                  wsUseXShm;
 // ----------------------------------------------------------------------------------------------
 extern unsigned long        wsKeyTable[512];
 
-extern void wsXDone( void );
-extern void wsXInit( void* disp );
+void wsXDone( void );
+void wsXInit( void* disp );
 
-extern int wsGetDepthOnScreen( void );
+int wsGetDepthOnScreen( void );
 
-extern void wsDoExit( void );
-extern void wsMainLoop( void );
-extern Bool wsEvents( Display * display,XEvent * Event,XPointer arg );
-extern void wsHandleEvents( void );
+void wsDoExit( void );
+void wsMainLoop( void );
+Bool wsEvents( Display * display, XEvent * Event, XPointer arg );
+void wsHandleEvents( void );
 
 // ----------------------------------------------------------------------------------------------
 //  wsCrateWindow: create a new window on the screen.
@@ -211,51 +226,50 @@ extern void wsHandleEvents( void );
 //   cV    : mouse cursor visible
 //   D     : "decoration", visible titlebar, etc ...
 // ----------------------------------------------------------------------------------------------
-extern void wsCreateWindow( wsTWindow * win,int X,int Y,int wX,int hY,int bW,int cV,unsigned char D,char * label );
-extern void wsDestroyWindow( wsTWindow * win );
-extern void wsMoveWindow( wsTWindow * win,int b,int x, int y );
-extern void wsResizeWindow( wsTWindow * win,int sx, int sy );
-extern void wsIconify( wsTWindow win );
-extern void wsMoveTopWindow( Display * wsDisplay,Window win );
-extern void wsSetBackground( wsTWindow * win,int color );
-extern void wsSetForegroundRGB( wsTWindow * win,int r,int g,int b );
-extern void wsSetBackgroundRGB( wsTWindow * win,int r,int g,int b );
-#define wsClearWindow( win ) XClearWindow( wsDisplay,win.WindowID )
-extern void wsSetTitle( wsTWindow * win,char * name );
-extern void wsVisibleWindow( wsTWindow * win,int show );
-extern void wsWindowDecoration( wsTWindow * win,long d );
-extern void wsSetLayer( Display * wsDisplay,Window win, int layer );
-extern void wsFullScreen( wsTWindow * win );
-extern void wsPostRedisplay( wsTWindow * win );
-extern void wsSetShape( wsTWindow * win,char * data );
-extern void wsSetIcon( Display * dsp,Window win,Pixmap icon,Pixmap mask );
+void wsCreateWindow( wsTWindow * win, int X, int Y, int wX, int hY, int bW, int cV, unsigned char D, char * label );
+void wsDestroyWindow( wsTWindow * win );
+void wsMoveWindow( wsTWindow * win, int b, int x, int y );
+void wsResizeWindow( wsTWindow * win, int sx, int sy );
+void wsIconify( wsTWindow win );
+void wsMoveTopWindow( Display * wsDisplay, Window win );
+void wsSetBackground( wsTWindow * win, int color );
+void wsSetForegroundRGB( wsTWindow * win, int r, int g, int b );
+void wsSetBackgroundRGB( wsTWindow * win, int r, int g, int b );
+#define wsClearWindow( win ) XClearWindow( wsDisplay, win.WindowID )
+void wsSetTitle( wsTWindow * win, char * name );
+void wsVisibleWindow( wsTWindow * win, int show );
+void wsWindowDecoration( wsTWindow * win, long d );
+void wsSetLayer( Display * wsDisplay, Window win, int layer );
+void wsFullScreen( wsTWindow * win );
+void wsPostRedisplay( wsTWindow * win );
+void wsSetShape( wsTWindow * win, char * data );
+void wsSetIcon( Display * dsp, Window win, Pixmap icon, Pixmap mask );
 
 // ----------------------------------------------------------------------------------------------
 //    Draw string at x,y with fc ( foreground color ) and bc ( background color ).
 // ----------------------------------------------------------------------------------------------
-extern void wsDrawString( wsTWindow win,int x,int y,char * str,int fc,int bc );
-extern int  wsTextWidth( wsTWindow win,char * str );
+void wsDrawString( wsTWindow win, int x, int y, char * str, int fc, int bc );
+int  wsTextWidth( wsTWindow win, char * str );
 
 // ----------------------------------------------------------------------------------------------
 //    Show / hide mouse cursor.
 // ----------------------------------------------------------------------------------------------
-extern void wsVisibleMouse( wsTWindow * win,int m );
-extern void wsSetMousePosition( wsTWindow * win,int x, int y );
+void wsVisibleMouse( wsTWindow * win, int m );
+void wsSetMousePosition( wsTWindow * win, int x, int y );
 
 // ----------------------------------------------------------------------------------------------
 // Image handling
 // ----------------------------------------------------------------------------------------------
-extern void wsCreateImage( wsTWindow * win,int Width,int Height );
-extern void wsConvert( wsTWindow * win,unsigned char * Image,unsigned int Size );
-extern void wsPutImage( wsTWindow * win );
-extern void wsResizeImage( wsTWindow * win,int Width,int Height );
-extern void wsDestroyImage( wsTWindow * win );
-extern int  wsGetOutMask( void );
+void wsCreateImage( wsTWindow * win, int Width, int Height );
+void wsConvert( wsTWindow * win, unsigned char * Image, unsigned int Size );
+void wsPutImage( wsTWindow * win );
+void wsResizeImage( wsTWindow * win, int Width, int Height );
+void wsDestroyImage( wsTWindow * win );
+int  wsGetOutMask( void );
 
-extern void wsScreenSaverOn( Display *mDisplay );
-extern void wsScreenSaverOff( Display * mDisplay );
+void wsScreenSaverOn( Display *mDisplay );
+void wsScreenSaverOff( Display * mDisplay );
 
 #define wgIsRect( X,Y,tX,tY,bX,bY ) ( ( (X) > (tX) )&&( (Y) > (tY) )&&( (X) < (bX) )&&( (Y) < (bY) ) )
 
-#endif
-
+#endif /* MPLAYER_GUI_WS_H */

@@ -1,3 +1,6 @@
+#ifndef MPLAYER_CFG_MPLAYER_H
+#define MPLAYER_CFG_MPLAYER_H
+
 /*
  * config for cfgparser
  */
@@ -7,20 +10,11 @@
 extern int key_fifo_size;
 extern unsigned doubleclick_time;
 
-#ifdef HAVE_FBDEV
 extern char *fb_mode_cfgfile;
 extern char *fb_mode_name;
-#endif
-#ifdef HAVE_DIRECTFB
 extern char *dfb_params;
-#endif
-#ifdef USE_FAKE_MONO
-extern int fakemono; // defined in dec_audio.c
-#endif
 
-#ifdef HAVE_LIRC
 extern char *lirc_configfile;
-#endif
 
 extern float vo_panscanrange;
 /* only used at startup (setting these values from configfile) */
@@ -34,36 +28,25 @@ extern int vidmode;
 extern char *ao_outputfilename;
 extern int ao_pcm_waveheader;
 
-#ifdef HAVE_X11
 extern int fs_layer;
 extern int stop_xscreensaver;
-#endif
 
-#ifdef HAVE_MENU
 extern int menu_startup;
 extern int menu_keepdir;
 extern char *menu_chroot;
-#ifdef  USE_FRIBIDI
 extern char *menu_fribidi_charset;
 extern int menu_flip_hebrew;
 extern int menu_fribidi_flip_commas;
-#endif
-#endif /* HAVE_MENU */
 
-#ifdef HAVE_ZR
-extern int vo_zr_parseoption(m_option_t* conf, char *opt, char * param);
-extern void vo_zr_revertoption(m_option_t* opt,char* pram);
-#endif
+extern char *unrar_executable;
 
-#ifdef HAVE_DXR2
+int vo_zr_parseoption(const m_option_t* conf, char *opt, char * param);
+void vo_zr_revertoption(const m_option_t* opt,char* pram);
+
 extern m_option_t dxr2_opts[];
-#endif
 
-#ifdef HAVE_NEW_GUI
 extern char * skinName;
-extern int enqueue;
 extern int guiWinID;
-#endif
 
 
 /* from libvo/aspect.c */
@@ -71,17 +54,17 @@ extern float force_monitor_aspect;
 extern float monitor_pixel_aspect;
 
 extern int sws_flags;
-extern int readPPOpt(void *conf, char *arg);
-extern void revertPPOpt(void *conf, char* opt);
+int readPPOpt(void *conf, char *arg);
+void revertPPOpt(void *conf, char* opt);
 extern char* pp_help;
 
-m_option_t vd_conf[]={
+const m_option_t vd_conf[]={
 	{"help", "Use MPlayer with an appropriate video file instead of live partners to avoid vd.\n", CONF_TYPE_PRINT, CONF_NOCFG|CONF_GLOBAL, 0, 0, NULL},
 	{NULL, NULL, 0, 0, 0, 0, NULL}
 };
 
-#ifdef USE_TV
-m_option_t tvscan_conf[]={
+#ifdef CONFIG_TV
+const m_option_t tvscan_conf[]={
 	{"autostart", &stream_tv_defaults.scan, CONF_TYPE_FLAG, 0, 0, 1, NULL},
 	{"threshold", &stream_tv_defaults.scan_threshold, CONF_TYPE_INT, CONF_RANGE, 1, 100, NULL},
 	{"period", &stream_tv_defaults.scan_period, CONF_TYPE_FLOAT, CONF_RANGE, 0.1, 2.0, NULL},
@@ -101,7 +84,7 @@ m_option_t tvscan_conf[]={
  * by Folke
  */
 
-m_option_t mplayer_opts[]={
+const m_option_t mplayer_opts[]={
 	/* name, pointer, type, flags, min, max */
 
 //---------------------- libao/libvo options ------------------------
@@ -125,6 +108,7 @@ m_option_t mplayer_opts[]={
         {"nosoftvol", &soft_vol, CONF_TYPE_FLAG, 0, 1, 0, NULL},
         {"softvol-max", &soft_vol_max, CONF_TYPE_FLOAT, CONF_RANGE, 10, 10000, NULL},
 	{"volstep", &volstep, CONF_TYPE_INT, CONF_RANGE, 0, 100, NULL},
+	{"volume", &start_volume, CONF_TYPE_FLOAT, CONF_RANGE, -1, 10000, NULL},
 	{"master", "Option -master has been removed, use -af volume instead.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
 	// override audio buffer size (used only by -ao oss, anyway obsolete...)
 	{"abs", &ao_data.buffersize, CONF_TYPE_INT, CONF_MIN, 0, 0, NULL},
@@ -140,16 +124,16 @@ m_option_t mplayer_opts[]={
             CONF_TYPE_PRINT, 0, 0, 0, NULL},
 	{"edlout", &edl_output_filename,  CONF_TYPE_STRING, 0, 0, 0, NULL}, 
 
-#ifdef HAVE_X11
+#ifdef CONFIG_X11
 	{"display", &mDisplayName, CONF_TYPE_STRING, 0, 0, 0, NULL},
 #endif
 
 	// -vo png only:
-#ifdef HAVE_PNG
+#ifdef CONFIG_PNG
 	{"z", "-z has been removed. Use -vo png:z=<0-9> instead.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
 #endif
 	// -vo jpeg only:
-#ifdef HAVE_JPEG
+#ifdef CONFIG_JPEG
 	{"jpeg", "-jpeg has been removed. Use -vo jpeg:<options> instead.\n",
 	    CONF_TYPE_PRINT, 0, 0, 0, NULL},
 #endif
@@ -162,17 +146,17 @@ m_option_t mplayer_opts[]={
 	{"sdla", "Use -ao sdl:driver instead of -ao sdl -sdla driver.\n",
 	    CONF_TYPE_PRINT, 0, 0, 0, NULL},
 
-#if defined(HAVE_FBDEV)||defined(HAVE_VESA) 
+#if defined(CONFIG_FBDEV) || defined(CONFIG_VESA)
        {"monitor-hfreq", &monitor_hfreq_str, CONF_TYPE_STRING, 0, 0, 0, NULL}, 
        {"monitor-vfreq", &monitor_vfreq_str, CONF_TYPE_STRING, 0, 0, 0, NULL}, 
        {"monitor-dotclock", &monitor_dotclock_str, CONF_TYPE_STRING, 0, 0, 0, NULL}, 
 #endif 
 
-#ifdef HAVE_FBDEV
+#ifdef CONFIG_FBDEV
 	{"fbmode", &fb_mode_name, CONF_TYPE_STRING, 0, 0, 0, NULL},
 	{"fbmodeconfig", &fb_mode_cfgfile, CONF_TYPE_STRING, 0, 0, 0, NULL},
 #endif
-#ifdef HAVE_DIRECTFB
+#ifdef CONFIG_DIRECTFB
 #if DIRECTFBVERSION > 912
 	{"dfbopts", "-dfbopts has been removed. Use -vf directfb:dfbopts=... instead.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
 #endif
@@ -186,7 +170,7 @@ m_option_t mplayer_opts[]={
 	{"screenh", &vo_screenheight, CONF_TYPE_INT, CONF_RANGE|CONF_OLD, 0, 4096, NULL},
 	// Geometry string
 	{"geometry", &vo_geometry, CONF_TYPE_STRING, 0, 0, 0, NULL},
-	// set aspect ratio of monitor - useful for 16:9 TVout
+	// set aspect ratio of monitor - useful for 16:9 TV-out
 	{"monitoraspect", &force_monitor_aspect, CONF_TYPE_FLOAT, CONF_RANGE, 0.0, 9.0, NULL},
 	{"monitorpixelaspect", &monitor_pixel_aspect, CONF_TYPE_FLOAT, CONF_RANGE, 0.2, 9.0, NULL},
 	// video mode switching: (x11,xv,dga)
@@ -215,8 +199,8 @@ m_option_t mplayer_opts[]={
 	
     {"adapter", &vo_adapter_num, CONF_TYPE_INT, CONF_RANGE, 0, 5, NULL},
     {"refreshrate",&vo_refresh_rate,CONF_TYPE_INT,CONF_RANGE, 0,100, NULL},
-	{"wid", &WinID, CONF_TYPE_INT, 0, 0, 0, NULL},
-#ifdef HAVE_X11
+	{"wid", &WinID, CONF_TYPE_INT64, 0, 0, 0, NULL},
+#ifdef CONFIG_X11
 	// x11,xv,xmga,xvidix
 	{"icelayer", "-icelayer has been removed. Use -fstype layer:<number> instead.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
 	{"stop-xscreensaver", &stop_xscreensaver, CONF_TYPE_FLAG, 0, 0, 1, NULL},
@@ -224,6 +208,7 @@ m_option_t mplayer_opts[]={
 	{"stop_xscreensaver", "Use -stop-xscreensaver instead, options with _ have been obsoleted.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
 	{"fstype", &vo_fstype_list, CONF_TYPE_STRING_LIST, 0, 0, 0, NULL},
 #endif
+	{"heartbeat-cmd", &heartbeat_cmd, CONF_TYPE_STRING, 0, 0, 0, NULL},
 	{"mouseinput", &vo_nomouse_input, CONF_TYPE_FLAG, 0, 1, 0, NULL},
 	{"nomouseinput", &vo_nomouse_input, CONF_TYPE_FLAG,0, 0, 1, NULL},
 
@@ -242,17 +227,17 @@ m_option_t mplayer_opts[]={
 	{"vaa_dr", "-vaa_dr has been removed, use -dr.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
 	{"vaa_nodr", "-vaa_nodr has been removed, use -nodr.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
 
-#ifdef HAVE_AA
+#ifdef CONFIG_AA
 	// -vo aa
 	{"aa*", "-aa* has been removed. Use -vo aa:suboption instead.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
 #endif
 
-#ifdef HAVE_ZR
+#ifdef CONFIG_ZR
 	// -vo zr
 	{"zr*", vo_zr_parseoption, CONF_TYPE_FUNC_FULL, 0, 0, 0, &vo_zr_revertoption },
 #endif
 
-#ifdef HAVE_DXR2
+#ifdef CONFIG_DXR2
 	{"dxr2", &dxr2_opts, CONF_TYPE_SUBCONFIG, 0, 0, 0, NULL},
 #endif
 
@@ -261,13 +246,13 @@ m_option_t mplayer_opts[]={
 
 	{"use-filedir-conf", &use_filedir_conf, CONF_TYPE_FLAG, CONF_GLOBAL, 0, 1, NULL},
 	{"nouse-filedir-conf", &use_filedir_conf, CONF_TYPE_FLAG, CONF_GLOBAL, 1, 0, NULL},
-#ifdef CRASH_DEBUG
+#ifdef CONFIG_CRASH_DEBUG
 	{"crash-debug", &crash_debug, CONF_TYPE_FLAG, CONF_GLOBAL, 0, 1, NULL},
 	{"nocrash-debug", &crash_debug, CONF_TYPE_FLAG, CONF_GLOBAL, 1, 0, NULL},
 #endif
 	{"osdlevel", &osd_level, CONF_TYPE_INT, CONF_RANGE, 0, 3, NULL},
 	{"osd-duration", &osd_duration, CONF_TYPE_INT, CONF_MIN, 0, 0, NULL},
-#ifdef HAVE_MENU
+#ifdef CONFIG_MENU
 	{"menu", &use_menu, CONF_TYPE_FLAG, CONF_GLOBAL, 0, 1, NULL},
 	{"nomenu", &use_menu, CONF_TYPE_FLAG, CONF_GLOBAL, 1, 0, NULL},
 	{"menu-root", &menu_root, CONF_TYPE_STRING, CONF_GLOBAL, 0, 0, NULL},
@@ -275,20 +260,23 @@ m_option_t mplayer_opts[]={
 	{"menu-startup", &menu_startup, CONF_TYPE_FLAG, CONF_GLOBAL, 0, 1, NULL},
 	{"menu-keepdir", &menu_keepdir, CONF_TYPE_FLAG, CONF_GLOBAL, 0, 1, NULL},
 	{"menu-chroot", &menu_chroot, CONF_TYPE_STRING, 0, 0, 0, NULL},
-#ifdef USE_FRIBIDI
+#ifdef CONFIG_FRIBIDI
 	{"menu-fribidi-charset", &menu_fribidi_charset, CONF_TYPE_STRING, 0, 0, 0, NULL},
 	{"menu-flip-hebrew", &menu_flip_hebrew, CONF_TYPE_FLAG, 0, 0, 1, NULL},
 	{"menu-noflip-hebrew", &menu_flip_hebrew, CONF_TYPE_FLAG, 0, 1, 0, NULL},
 	{"menu-flip-hebrew-commas", &menu_fribidi_flip_commas, CONF_TYPE_FLAG, 0, 1, 0, NULL},
 	{"menu-noflip-hebrew-commas", &menu_fribidi_flip_commas, CONF_TYPE_FLAG, 0, 0, 1, NULL},
-#endif /* USE_FRIBIDI */
+#endif /* CONFIG_FRIBIDI */
 #else
 	{"menu", "OSD menu support was not compiled in.\n", CONF_TYPE_PRINT,0, 0, 0, NULL},
-#endif /* HAVE_MENU */
+#endif /* CONFIG_MENU */
 
 	// these should be moved to -common, and supported in MEncoder
 	{"vobsub", &vobsub_name, CONF_TYPE_STRING, 0, 0, 0, NULL},
 	{"vobsubid", &vobsub_id, CONF_TYPE_INT, CONF_RANGE, 0, 31, NULL},
+#ifdef CONFIG_UNRAR_EXEC
+	{"unrarexec", &unrar_executable, CONF_TYPE_STRING, 0, 0, 0, NULL},
+#endif
 
 	{"sstep", &step_sec, CONF_TYPE_INT, CONF_MIN, 0, 0, NULL},
 
@@ -313,14 +301,14 @@ m_option_t mplayer_opts[]={
 	{"dumpjacosub", &stream_dump_type, CONF_TYPE_FLAG, 0, 0, 8, NULL},
 	{"dumpsami", &stream_dump_type, CONF_TYPE_FLAG, 0, 0, 9, NULL},
 
-#ifdef HAVE_LIRC
+#ifdef CONFIG_LIRC
 	{"lircconf", &lirc_configfile, CONF_TYPE_STRING, CONF_GLOBAL, 0, 0, NULL},
 #endif
 
 	{"gui", "The -gui option will only work as the first command line argument.\n", CONF_TYPE_PRINT, 0, 0, 0, (void *)1},
 	{"nogui", "The -nogui option will only work as the first command line argument.\n", CONF_TYPE_PRINT, 0, 0, 0, (void *)1},
       
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 	{"skin", &skinName, CONF_TYPE_STRING, CONF_GLOBAL, 0, 0, NULL},
 	{"enqueue", &enqueue, CONF_TYPE_FLAG, 0, 0, 1, NULL},
 	{"noenqueue", &enqueue, CONF_TYPE_FLAG, 0, 1, 0, NULL},
@@ -332,8 +320,8 @@ m_option_t mplayer_opts[]={
 	{"playlist", NULL, CONF_TYPE_STRING, 0, 0, 0, NULL},
 
 	// a-v sync stuff:
-        {"correct-pts", &correct_pts, CONF_TYPE_FLAG, 0, 0, 1, NULL},
-        {"no-correct-pts", &correct_pts, CONF_TYPE_FLAG, 0, 1, 0, NULL},
+        {"correct-pts", &user_correct_pts, CONF_TYPE_FLAG, 0, 0, 1, NULL},
+        {"nocorrect-pts", &user_correct_pts, CONF_TYPE_FLAG, 0, 1, 0, NULL},
 	{"noautosync", &autosync, CONF_TYPE_FLAG, 0, 0, -1, NULL},
 	{"autosync", &autosync, CONF_TYPE_INT, CONF_RANGE, 0, 10000, NULL},
 //	{"dapsync", &dapsync, CONF_TYPE_FLAG, 0, 0, 1, NULL},
@@ -361,16 +349,14 @@ m_option_t mplayer_opts[]={
 	{"mouse-movements", &enable_mouse_movements, CONF_TYPE_FLAG, CONF_GLOBAL, 0, 1, NULL},
 	{"nomouse-movements", &enable_mouse_movements, CONF_TYPE_FLAG, CONF_GLOBAL, 1, 0, NULL},
 	{"doubleclick-time", &doubleclick_time, CONF_TYPE_INT, CONF_RANGE, 0, 1000, NULL},
-#ifdef USE_TV
+#ifdef CONFIG_TV
 	{"tvscan", tvscan_conf, CONF_TYPE_SUBCONFIG, 0, 0, 0, NULL},
 #else
 	{"tvscan", "MPlayer was compiled without TV interface support.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
-#endif
+#endif /* CONFIG_TV */
 
-#define MAIN_CONF
-#include "cfg-common.h"
-#undef MAIN_CONF
-        
+#include "cfg-common-opts.h"
+
 	{"list-properties", &list_properties, CONF_TYPE_FLAG, CONF_GLOBAL, 0, 1, NULL},
 	{"identify", &mp_msg_levels[MSGT_IDENTIFY], CONF_TYPE_FLAG, CONF_GLOBAL, 0, MSGL_V, NULL},
 	{"-help", help_text, CONF_TYPE_PRINT, CONF_NOCFG|CONF_GLOBAL, 0, 0, NULL},
@@ -380,3 +366,6 @@ m_option_t mplayer_opts[]={
 	{"vd", vd_conf, CONF_TYPE_SUBCONFIG, 0, 0, 0, NULL},
 	{NULL, NULL, 0, 0, 0, 0, NULL}
 };
+
+#endif /* MPLAYER_CFG_MPLAYER_H */
+

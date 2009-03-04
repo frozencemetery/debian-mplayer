@@ -11,7 +11,6 @@
  *
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: pe_image.c 24418 2007-09-10 15:27:23Z diego $
  *
  */
 /* Notes:
@@ -52,6 +51,8 @@
 #include <fcntl.h>
 #ifdef HAVE_SYS_MMAN_H
 #include <sys/mman.h>
+#else
+#include "osdep/mmap.h"
 #endif
 #include "wine/windef.h"
 #include "wine/winbase.h"
@@ -71,9 +72,9 @@ static void dump_exports( HMODULE hModule )
 { 
   char		*Module;
   unsigned int i, j;
-  u_short	*ordinal;
-  u_long	*function,*functions;
-  u_char	**name;
+  unsigned short	*ordinal;
+  unsigned long	*function,*functions;
+  unsigned char	**name;
   unsigned int load_addr = hModule;
 
   DWORD rva_start = PE_HEADER(hModule)->OptionalHeader
@@ -87,9 +88,9 @@ static void dump_exports( HMODULE hModule )
   TRACE("Module name is %s, %ld functions, %ld names\n", 
         Module, pe_exports->NumberOfFunctions, pe_exports->NumberOfNames);
 
-  ordinal=(u_short*) RVA(pe_exports->AddressOfNameOrdinals);
-  functions=function=(u_long*) RVA(pe_exports->AddressOfFunctions);
-  name=(u_char**) RVA(pe_exports->AddressOfNames);
+  ordinal=(unsigned short*) RVA(pe_exports->AddressOfNameOrdinals);
+  functions=function=(unsigned long*) RVA(pe_exports->AddressOfFunctions);
+  name=(unsigned char**) RVA(pe_exports->AddressOfNames);
 
   TRACE(" Ord    RVA     Addr   Name\n" );
   for (i=0;i<pe_exports->NumberOfFunctions;i++, function++)
@@ -97,17 +98,17 @@ static void dump_exports( HMODULE hModule )
       if (!*function) continue;  
       if (TRACE_ON(win32))
       {
-	DPRINTF( "%4ld %08lx %p", i + pe_exports->Base, *function, RVA(*function) );
+	dbg_printf( "%4ld %08lx %p", i + pe_exports->Base, *function, RVA(*function) );
 	
 	for (j = 0; j < pe_exports->NumberOfNames; j++)
           if (ordinal[j] == i)
           {
-              DPRINTF( "  %s", (char*)RVA(name[j]) );
+              dbg_printf( "  %s", (char*)RVA(name[j]) );
               break;
           }
 	if ((*function >= rva_start) && (*function <= rva_end))
-	  DPRINTF(" (forwarded -> %s)", (char *)RVA(*function));
-	DPRINTF("\n");
+	  dbg_printf(" (forwarded -> %s)", (char *)RVA(*function));
+	dbg_printf("\n");
       }
   }
 }
@@ -125,15 +126,15 @@ FARPROC PE_FindExportedFunction(
 	LPCSTR funcName,	
         WIN_BOOL snoop )
 {
-	u_short				* ordinals;
-	u_long				* function;
-	u_char				** name;
+	unsigned short			* ordinals;
+	unsigned long			* function;
+	unsigned char			** name;
 	const char *ename = NULL;
 	int				i, ordinal;
 	PE_MODREF			*pem = &(wm->binfmt.pe);
 	IMAGE_EXPORT_DIRECTORY 		*exports = pem->pe_export;
 	unsigned int			load_addr = wm->module;
-	u_long				rva_start, rva_end, addr;
+	unsigned long			rva_start, rva_end, addr;
 	char				* forward;
 
 	if (HIWORD(funcName))
@@ -148,9 +149,9 @@ FARPROC PE_FindExportedFunction(
 		WARN("Module %08x(%s)/MODREF %p doesn't have a exports table.\n",wm->module,wm->modname,pem);
 		return NULL;
 	}
-	ordinals= (u_short*)  RVA(exports->AddressOfNameOrdinals);
-	function= (u_long*)   RVA(exports->AddressOfFunctions);
-	name	= (u_char **) RVA(exports->AddressOfNames);
+	ordinals= (unsigned short*)  RVA(exports->AddressOfNameOrdinals);
+	function= (unsigned long*)   RVA(exports->AddressOfFunctions);
+	name	= (unsigned char **) RVA(exports->AddressOfNames);
 	forward = NULL;
 	rva_start = PE_HEADER(wm->module)->OptionalHeader
 		.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
@@ -485,19 +486,19 @@ HMODULE PE_LoadImage( int handle, LPCSTR filename, WORD *version )
     
     if ( nt->FileHeader.Machine != IMAGE_FILE_MACHINE_I386 )
     {
-        MESSAGE("Trying to load PE image for unsupported architecture (");
+        dbg_printf("Trying to load PE image for unsupported architecture (");
         switch (nt->FileHeader.Machine)
         {
-        case IMAGE_FILE_MACHINE_UNKNOWN: MESSAGE("Unknown"); break;
-        case IMAGE_FILE_MACHINE_I860:    MESSAGE("I860"); break;
-        case IMAGE_FILE_MACHINE_R3000:   MESSAGE("R3000"); break;
-        case IMAGE_FILE_MACHINE_R4000:   MESSAGE("R4000"); break;
-        case IMAGE_FILE_MACHINE_R10000:  MESSAGE("R10000"); break;
-        case IMAGE_FILE_MACHINE_ALPHA:   MESSAGE("Alpha"); break;
-        case IMAGE_FILE_MACHINE_POWERPC: MESSAGE("PowerPC"); break;
-        default: MESSAGE("Unknown-%04x", nt->FileHeader.Machine); break;
+        case IMAGE_FILE_MACHINE_UNKNOWN: dbg_printf("Unknown"); break;
+        case IMAGE_FILE_MACHINE_I860:    dbg_printf("I860"); break;
+        case IMAGE_FILE_MACHINE_R3000:   dbg_printf("R3000"); break;
+        case IMAGE_FILE_MACHINE_R4000:   dbg_printf("R4000"); break;
+        case IMAGE_FILE_MACHINE_R10000:  dbg_printf("R10000"); break;
+        case IMAGE_FILE_MACHINE_ALPHA:   dbg_printf("Alpha"); break;
+        case IMAGE_FILE_MACHINE_POWERPC: dbg_printf("PowerPC"); break;
+        default: dbg_printf("Unknown-%04x", nt->FileHeader.Machine); break;
         }
-        MESSAGE(")\n");
+        dbg_printf(")\n");
         goto error;
     }
 
@@ -951,16 +952,4 @@ WIN_BOOL PE_InitDLL( WINE_MODREF *wm, DWORD type, LPVOID lpReserved )
     }
 
     return retv;
-}
-
-static LPVOID
-_fixup_address(PIMAGE_OPTIONAL_HEADER opt,int delta,LPVOID addr) {
-	if (	((DWORD)addr>opt->ImageBase) &&
-		((DWORD)addr<opt->ImageBase+opt->SizeOfImage)
-	)
-		
-		return (LPVOID)(((DWORD)addr)+delta);
-	else
-		
-		return addr;
 }

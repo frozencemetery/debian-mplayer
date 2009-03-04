@@ -1,7 +1,6 @@
 /*
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: outputpin.c 22416 2007-03-02 18:52:10Z voroshil $
  */
 
 #include "wine/winerror.h"
@@ -33,7 +32,7 @@ typedef struct CEnumMediaTypes
 /**
    IMemOutput interface implementation
 */
-struct _COutputMemPin
+struct COutputMemPin
 {
     IMemInputPin_vt* vt;
     DECLARE_IUNKNOWN();
@@ -160,12 +159,12 @@ IMPLEMENT_IUNKNOWN(CEnumMediaTypes)
  */
 static CEnumMediaTypes* CEnumMediaTypesCreate(const AM_MEDIA_TYPE* amt)
 {
-    CEnumMediaTypes *This = (CEnumMediaTypes*) malloc(sizeof(CEnumMediaTypes)) ;
+    CEnumMediaTypes *This = malloc(sizeof(CEnumMediaTypes)) ;
 
     if (!This)
         return NULL;
 
-    This->vt = (IEnumMediaTypes_vt*) malloc(sizeof(IEnumMediaTypes_vt));
+    This->vt = malloc(sizeof(IEnumMediaTypes_vt));
     if (!This->vt)
     {
 	free(This);
@@ -751,7 +750,7 @@ static HRESULT STDCALL COutputMemPin_ReceiveMultiple(IMemInputPin * This,
 					    /* [out] */ long *nSamplesProcessed)
 {
     HRESULT hr;
-    Debug printf("COutputMemPin_ReceiveMultiple(%p) %d\n", This,nSamples);
+    Debug printf("COutputMemPin_ReceiveMultiple(%p) %ld\n", This,nSamples);
     for(*nSamplesProcessed=0; *nSamplesProcessed < nSamples; *nSamplesProcessed++) {
          hr = This->vt->Receive(This,pSamples[*nSamplesProcessed]);
          if (hr != S_OK) break;
@@ -894,19 +893,20 @@ static HRESULT STDCALL COutputMemPin_Release(IUnknown* This)
  */
 COutputPin* COutputPinCreate(const AM_MEDIA_TYPE* amt,SAMPLEPROC SampleProc,void* pUserData)
 {
-    COutputPin* This = (COutputPin*) malloc(sizeof(COutputPin));
+    COutputPin* This = malloc(sizeof(COutputPin));
     IMemInputPin_vt* ivt;
 
     if (!This)
         return NULL;
 
-    This->vt = (IPin_vt*) malloc(sizeof(IPin_vt));
-    This->mempin = (COutputMemPin*) malloc(sizeof(COutputMemPin));
-    ivt = (IMemInputPin_vt*) malloc(sizeof(IMemInputPin_vt));
+    This->vt = malloc(sizeof(IPin_vt));
+    This->mempin = malloc(sizeof(COutputMemPin));
+    ivt = malloc(sizeof(IMemInputPin_vt));
 
     if (!This->vt || !This->mempin || !ivt)
     {
         COutputPin_Destroy(This);
+        free(ivt);
 	return NULL;
     }
 

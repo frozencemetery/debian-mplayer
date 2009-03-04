@@ -1,23 +1,36 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "config.h"
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 
-#ifdef USE_DVDNAV
 #include "stream/stream.h"
 #include "stream/stream_dvdnav.h"
 #define OSD_NAV_BOX_ALPHA 0x7f
-#endif
 
-#ifdef HAVE_TV_TELETEXT
 #include "stream/tv.h"
 #include "osdep/timer.h"
-#endif
 
 #include "mplayer.h"
 #include "mp_msg.h"
@@ -73,7 +86,7 @@ font_desc_t* vo_font=NULL;
 font_desc_t* sub_font=NULL;
 
 unsigned char* vo_osd_text=NULL;
-#ifdef HAVE_TV_TELETEXT
+#ifdef CONFIG_TV_TELETEXT
 void* vo_osd_teletext_page=NULL;
 int vo_osd_teletext_half = 0;
 int vo_osd_teletext_mode=0;
@@ -89,7 +102,7 @@ int sub_visibility=1;
 int sub_bg_color=0; /* subtitles background color */
 int sub_bg_alpha=0;
 int sub_justify=0;
-#ifdef USE_DVDNAV
+#ifdef CONFIG_DVDNAV
 static nav_highlight_t nav_hl;
 #endif
 
@@ -216,7 +229,7 @@ inline static void vo_update_text_osd(mp_osd_obj_t* obj,int dxs,int dys){
         }
 }
 
-#ifdef USE_DVDNAV
+#ifdef CONFIG_DVDNAV
 void osd_set_nav_box (uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey) {
   nav_hl.sx = sx;
   nav_hl.sy = sy;
@@ -224,13 +237,32 @@ void osd_set_nav_box (uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey) {
   nav_hl.ey = ey;
 }
 
-inline static void vo_update_nav (mp_osd_obj_t *obj, int dxs, int dys) {
+inline static void vo_update_nav (mp_osd_obj_t *obj, int dxs, int dys, int left_border, int top_border,
+                      int right_border, int bottom_border, int orig_w, int orig_h) {
   int len;
+  int sx = nav_hl.sx, sy = nav_hl.sy;
+  int ex = nav_hl.ex, ey = nav_hl.ey;
+  int scaled_w = dxs - left_border - right_border;
+  int scaled_h = dys - top_border - bottom_border;
+  if (scaled_w != orig_w) {
+    sx = sx * scaled_w / orig_w;
+    ex = ex * scaled_w / orig_w;
+  }
+  if (scaled_h != orig_h) {
+    sy = sy * scaled_h / orig_h;
+    ey = ey * scaled_h / orig_h;
+  }
+  sx += left_border; ex += left_border;
+  sy += top_border;  ey += top_border;
+  sx = FFMIN(FFMAX(sx, 0), dxs);
+  ex = FFMIN(FFMAX(ex, 0), dxs);
+  sy = FFMIN(FFMAX(sy, 0), dys);
+  ey = FFMIN(FFMAX(ey, 0), dys);
 
-  obj->bbox.x1 = obj->x = nav_hl.sx;
-  obj->bbox.y1 = obj->y = nav_hl.sy;
-  obj->bbox.x2 = nav_hl.ex;
-  obj->bbox.y2 = nav_hl.ey;
+  obj->bbox.x1 = obj->x = sx;
+  obj->bbox.y1 = obj->y = sy;
+  obj->bbox.x2 = ex;
+  obj->bbox.y2 = ey;
   
   alloc_buf (obj);
   len = obj->stride * (obj->bbox.y2 - obj->bbox.y1);
@@ -242,7 +274,7 @@ inline static void vo_update_nav (mp_osd_obj_t *obj, int dxs, int dys) {
 }
 #endif
 
-#ifdef HAVE_TV_TELETEXT
+#ifdef CONFIG_TV_TELETEXT
 // renders char to a big per-object buffer where alpha and bitmap are separated
 static void tt_draw_alpha_buf(mp_osd_obj_t* obj, int x0,int y0, int w,int h, unsigned char* src, int stride,int fg,int bg,int alpha)
 {
@@ -637,8 +669,6 @@ inline static void vo_update_text_progbar(mp_osd_obj_t* obj,int dxs,int dys){
 
 subtitle* vo_sub=NULL;
 
-// vo_draw_text_sub(int dxs,int dys,void (*draw_alpha)(int x0,int y0, int w,int h, unsigned char* src, unsigned char *srca, int stride))
-
 inline static void vo_update_text_sub(mp_osd_obj_t* obj,int dxs,int dys){
    unsigned char *t;
    int c,i,j,l,x,y,font,prevc,counter;
@@ -1032,7 +1062,7 @@ void *vo_vobsub=NULL;
 
 static int draw_alpha_init_flag=0;
 
-extern void vo_draw_alpha_init(void);
+void vo_draw_alpha_init(void);
 
        mp_osd_obj_t* vo_osd_list=NULL;
 
@@ -1062,14 +1092,15 @@ void free_osd_list(void){
 
 #define FONT_LOAD_DEFER 6
 
-int vo_update_osd(int dxs,int dys){
+int vo_update_osd_ext(int dxs,int dys, int left_border, int top_border,
+                      int right_border, int bottom_border, int orig_w, int orig_h){
     mp_osd_obj_t* obj=vo_osd_list;
     int chg=0;
-#ifdef HAVE_FREETYPE    
+#ifdef CONFIG_FREETYPE
     static int defer_counter = 0, prev_dxs = 0, prev_dys = 0;
 #endif
 
-#ifdef HAVE_FREETYPE    
+#ifdef CONFIG_FREETYPE
     // here is the right place to get screen dimensions
     if (((dxs != vo_image_width)
 	   && (subtitle_autoscale == 2 || subtitle_autoscale == 3))
@@ -1090,22 +1121,22 @@ int vo_update_osd(int dxs,int dys){
 
     if (force_load_font) {
 	force_load_font = 0;
-        load_font_ft(dxs, dys, &vo_font, font_name);
+        load_font_ft(dxs, dys, &vo_font, font_name, osd_font_scale_factor);
 	if (sub_font_name)
-	    load_font_ft(dxs, dys, &sub_font, sub_font_name);
+	    load_font_ft(dxs, dys, &sub_font, sub_font_name, text_font_scale_factor);
 	else
-	    sub_font = vo_font;
+	    load_font_ft(dxs, dys, &sub_font, font_name, text_font_scale_factor);
 	prev_dxs = dxs;
 	prev_dys = dys;
 	defer_counter = 0;
     } else {
        if (!vo_font) 
-           load_font_ft(dxs, dys, &vo_font, font_name);
+           load_font_ft(dxs, dys, &vo_font, font_name, osd_font_scale_factor);
        if (!sub_font) {
            if (sub_font_name)
-               load_font_ft(dxs, dys, &sub_font, sub_font_name);
+               load_font_ft(dxs, dys, &sub_font, sub_font_name, text_font_scale_factor);
            else
-               sub_font = vo_font;
+               load_font_ft(dxs, dys, &sub_font, font_name, text_font_scale_factor);
        }
     }
 #endif
@@ -1115,15 +1146,15 @@ int vo_update_osd(int dxs,int dys){
         int vis=obj->flags&OSDFLAG_VISIBLE;
 	obj->flags&=~OSDFLAG_BBOX;
 	switch(obj->type){
-#ifdef USE_DVDNAV
+#ifdef CONFIG_DVDNAV
         case OSDTYPE_DVDNAV:
-           vo_update_nav(obj,dxs,dys);
+           vo_update_nav(obj,dxs,dys, left_border, top_border, right_border, bottom_border, orig_w, orig_h);
            break;
 #endif
 	case OSDTYPE_SUBTITLE:
 	    vo_update_text_sub(obj,dxs,dys);
 	    break;
-#ifdef HAVE_TV_TELETEXT
+#ifdef CONFIG_TV_TELETEXT
 	case OSDTYPE_TELETEXT:
 	    vo_update_text_teletext(obj,dxs,dys);
 	    break;
@@ -1181,6 +1212,10 @@ int vo_update_osd(int dxs,int dys){
     return chg;
 }
 
+int vo_update_osd(int dxs, int dys) {
+    return vo_update_osd_ext(dxs, dys, 0, 0, 0, 0, dxs, dys);
+}
+
 void vo_init_osd(void){
     if(!draw_alpha_init_flag){
 	draw_alpha_init_flag=1;
@@ -1192,13 +1227,13 @@ void vo_init_osd(void){
     new_osd_obj(OSDTYPE_SUBTITLE);
     new_osd_obj(OSDTYPE_PROGBAR);
     new_osd_obj(OSDTYPE_SPU);
-#ifdef USE_DVDNAV
+#ifdef CONFIG_DVDNAV
     new_osd_obj(OSDTYPE_DVDNAV);
 #endif
-#if HAVE_TV_TELETEXT
+#ifdef CONFIG_TV_TELETEXT
     new_osd_obj(OSDTYPE_TELETEXT);
 #endif
-#ifdef HAVE_FREETYPE
+#ifdef CONFIG_FREETYPE
     force_load_font = 1;
 #endif
 }
@@ -1223,9 +1258,11 @@ void vo_remove_text(int dxs,int dys,void (*remove)(int x0,int y0, int w,int h)){
     }
 }
 
-void vo_draw_text(int dxs,int dys,void (*draw_alpha)(int x0,int y0, int w,int h, unsigned char* src, unsigned char *srca, int stride)){
+void vo_draw_text_ext(int dxs, int dys, int left_border, int top_border,
+                      int right_border, int bottom_border, int orig_w, int orig_h,
+                      void (*draw_alpha)(int x0, int y0, int w,int h, unsigned char* src, unsigned char *srca, int stride)) {
     mp_osd_obj_t* obj=vo_osd_list;
-    vo_update_osd(dxs,dys);
+    vo_update_osd_ext(dxs, dys, left_border, top_border, right_border, bottom_border, orig_w, orig_h);
     while(obj){
       if(obj->flags&OSDFLAG_VISIBLE){
 	vo_osd_changed_flag=obj->flags&OSDFLAG_CHANGED;	// temp hack
@@ -1233,10 +1270,10 @@ void vo_draw_text(int dxs,int dys,void (*draw_alpha)(int x0,int y0, int w,int h,
 	case OSDTYPE_SPU:
 	    vo_draw_spudec_sub(obj, draw_alpha); // FIXME
 	    break;
-#ifdef USE_DVDNAV
+#ifdef CONFIG_DVDNAV
         case OSDTYPE_DVDNAV:
 #endif
-#ifdef HAVE_TV_TELETEXT
+#ifdef CONFIG_TV_TELETEXT
 	case OSDTYPE_TELETEXT:
 #endif
 	case OSDTYPE_OSD:
@@ -1251,6 +1288,10 @@ void vo_draw_text(int dxs,int dys,void (*draw_alpha)(int x0,int y0, int w,int h,
       obj->flags&=~OSDFLAG_CHANGED;
       obj=obj->next;
     }
+}
+
+void vo_draw_text(int dxs, int dys, void (*draw_alpha)(int x0, int y0, int w,int h, unsigned char* src, unsigned char *srca, int stride)) {
+  vo_draw_text_ext(dxs, dys, 0, 0, 0, 0, dxs, dys, draw_alpha);
 }
 
 static int vo_osd_changed_status = 0;

@@ -11,8 +11,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#ifndef HAVE_WINSOCK2
-#define closesocket close
+#if !HAVE_WINSOCK2_H
 #else
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -28,11 +27,11 @@
 #include "help_mp.h"
 
 
-extern mime_struct_t mime_type_table[];
+extern const mime_struct_t mime_type_table[];
 extern int stream_cache_size;
 extern int network_bandwidth;
 
-extern int http_seek(stream_t *stream, off_t pos);
+int http_seek(stream_t *stream, off_t pos);
 
 typedef struct {
   unsigned metaint;
@@ -551,6 +550,7 @@ http_set_field( HTTP_header_t *http_hdr, const char *field_name ) {
 	new_field->field_name = malloc(strlen(field_name)+1);
 	if( new_field->field_name==NULL ) {
 		mp_msg(MSGT_NETWORK,MSGL_FATAL,"Memory allocation failed\n");
+		free(new_field);
 		return;
 	}
 	strcpy( new_field->field_name, field_name );
@@ -716,12 +716,29 @@ base64_encode(const void *enc, int encLen, char *out, int outMax) {
 	}
 }
 
+static void print_icy_metadata(HTTP_header_t *http_hdr) {
+	const char *field_data;
+	// note: I skip icy-notice1 and 2, as they contain html <BR>
+	// and are IMHO useless info ::atmos
+	if( (field_data = http_get_field(http_hdr, "icy-name")) != NULL )
+		mp_msg(MSGT_NETWORK,MSGL_INFO,"Name   : %s\n", field_data);
+	if( (field_data = http_get_field(http_hdr, "icy-genre")) != NULL )
+		mp_msg(MSGT_NETWORK,MSGL_INFO,"Genre  : %s\n", field_data);
+	if( (field_data = http_get_field(http_hdr, "icy-url")) != NULL )
+		mp_msg(MSGT_NETWORK,MSGL_INFO,"Website: %s\n", field_data);
+	// XXX: does this really mean public server? ::atmos
+	if( (field_data = http_get_field(http_hdr, "icy-pub")) != NULL )
+		mp_msg(MSGT_NETWORK,MSGL_INFO,"Public : %s\n", atoi(field_data)?"yes":"no");
+	if( (field_data = http_get_field(http_hdr, "icy-br")) != NULL )
+		mp_msg(MSGT_NETWORK,MSGL_INFO,"Bitrate: %skbit/s\n", field_data);
+}
+
 //! If this function succeeds you must closesocket stream->fd
 static int http_streaming_start(stream_t *stream, int* file_format) {
 	HTTP_header_t *http_hdr = NULL;
 	unsigned int i;
 	int fd = stream->fd;
-	int res = 0;
+	int res = STREAM_UNSUPPORTED;
 	int redirect = 0;
 	int auth_retry=0;
 	int seekable=0;
@@ -755,25 +772,14 @@ static int http_streaming_start(stream_t *stream, int* file_format) {
 			seekable = strncmp(accept_ranges,"bytes",5)==0;
 		}
 
+		print_icy_metadata(http_hdr);
+
 		// Check if the response is an ICY status_code reason_phrase
-		if( !strcasecmp(http_hdr->protocol, "ICY") ) {
+		if( !strcasecmp(http_hdr->protocol, "ICY") ||
+		     http_get_field(http_hdr, "Icy-MetaInt") ) {
 			switch( http_hdr->status_code ) {
 				case 200: { // OK
-					char *field_data = NULL;
-					// note: I skip icy-notice1 and 2, as they contain html <BR>
-					// and are IMHO useless info ::atmos
-					if( (field_data = http_get_field(http_hdr, "icy-name")) != NULL )
-						mp_msg(MSGT_NETWORK,MSGL_INFO,"Name   : %s\n", field_data); field_data = NULL;
-					if( (field_data = http_get_field(http_hdr, "icy-genre")) != NULL )
-						mp_msg(MSGT_NETWORK,MSGL_INFO,"Genre  : %s\n", field_data); field_data = NULL;
-					if( (field_data = http_get_field(http_hdr, "icy-url")) != NULL )
-						mp_msg(MSGT_NETWORK,MSGL_INFO,"Website: %s\n", field_data); field_data = NULL;
-					// XXX: does this really mean public server? ::atmos
-					if( (field_data = http_get_field(http_hdr, "icy-pub")) != NULL )
-						mp_msg(MSGT_NETWORK,MSGL_INFO,"Public : %s\n", atoi(field_data)?"yes":"no"); field_data = NULL;
-					if( (field_data = http_get_field(http_hdr, "icy-br")) != NULL )
-						mp_msg(MSGT_NETWORK,MSGL_INFO,"Bitrate: %skbit/s\n", field_data); field_data = NULL;
-					
+					char *field_data;
 					// If content-type == video/nsv we most likely have a winamp video stream 
 					// otherwise it should be mp3. if there are more types consider adding mime type 
 					// handling like later
@@ -783,6 +789,7 @@ static int http_streaming_start(stream_t *stream, int* file_format) {
 						*file_format = DEMUXER_TYPE_AAC;
 					else
 						*file_format = DEMUXER_TYPE_AUDIO;
+					res = STREAM_ERROR;
 					goto out;
 				}
 				case 400: // Server Full
@@ -811,8 +818,10 @@ static int http_streaming_start(stream_t *stream, int* file_format) {
 				if( content_type!=NULL ) {
 					char *content_length = NULL;
 					mp_msg(MSGT_NETWORK,MSGL_V,"Content-Type: [%s]\n", content_type );
-					if( (content_length = http_get_field(http_hdr, "Content-Length")) != NULL)
+					if( (content_length = http_get_field(http_hdr, "Content-Length")) != NULL) {
 						mp_msg(MSGT_NETWORK,MSGL_V,"Content-Length: [%s]\n", http_get_field(http_hdr, "Content-Length"));
+						stream->end_pos = atoi(content_length);
+					}
 					// Check in the mime type table for a demuxer type
 					i = 0;
 					while(mime_type_table[i].mime_type != NULL) {
@@ -835,7 +844,20 @@ static int http_streaming_start(stream_t *stream, int* file_format) {
 				// TODO: RFC 2616, recommand to detect infinite redirection loops
 				next_url = http_get_field( http_hdr, "Location" );
 				if( next_url!=NULL ) {
+					int is_ultravox = strcasecmp(stream->streaming_ctrl->url->protocol, "unsv") == 0;
 					stream->streaming_ctrl->url = url_redirect( &url, next_url );
+					if (!strcasecmp(url->protocol, "mms")) {
+						res = STREAM_REDIRECTED;
+						goto err_out;
+					}
+					if (strcasecmp(url->protocol, "http")) {
+						mp_msg(MSGT_NETWORK,MSGL_ERR,"Unsupported http %d redirect to %s protocol\n", http_hdr->status_code, url->protocol);
+						goto err_out;
+					}
+					if (is_ultravox)  {
+						free(url->protocol);
+						url->protocol = strdup("unsv");
+					}
 					redirect = 1;	
 				}
 				break;
@@ -853,7 +875,6 @@ static int http_streaming_start(stream_t *stream, int* file_format) {
 err_out:
 	if (fd > 0) closesocket( fd );
 	fd = -1;
-	res = STREAM_UNSUPPORTED;
 	http_free( http_hdr );
 	http_hdr = NULL;
 out:
@@ -908,6 +929,8 @@ static int open_s1(stream_t *stream,int mode, void* opts, int* file_format) {
 		if (stream->fd >= 0)
 			closesocket(stream->fd);
 		stream->fd = -1;
+		if (seekable == STREAM_REDIRECTED)
+			return seekable;
 		streaming_ctrl_free(stream->streaming_ctrl);
 		stream->streaming_ctrl = NULL;
 		return STREAM_UNSUPPORTED;
@@ -944,18 +967,18 @@ static int open_s2(stream_t *stream,int mode, void* opts, int* file_format) {
 }
 
 
-stream_info_t stream_info_http1 = {
+const stream_info_t stream_info_http1 = {
   "http streaming",
   "null",
   "Bertrand, Albeau, Reimar Doeffinger, Arpi?",
   "plain http",
   open_s1,
-  {"http", "http_proxy", "unsv", NULL},
+  {"http", "http_proxy", "unsv", "icyx", "noicyx", NULL},
   NULL,
   0 // Urls are an option string
 };
 
-stream_info_t stream_info_http2 = {
+const stream_info_t stream_info_http2 = {
   "http streaming",
   "null",
   "Bertrand, Albeu, Arpi? who?",

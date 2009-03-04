@@ -1,3 +1,23 @@
+/*
+ * null audio output driver
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -50,14 +70,14 @@ static int control(int cmd,void *arg){
 // return: 1=success 0=fail
 static int init(int rate,int channels,int format,int flags){
 
-    ao_data.buffersize= 65536;
-    ao_data.outburst=1024;
+    int samplesize = af_fmt2bits(format) / 8;
+    ao_data.outburst = 256 * channels * samplesize;
+    // A "buffer" for about 0.2 seconds of audio
+    ao_data.buffersize = (int)(rate * 0.2 / 256 + 1) * ao_data.outburst;
     ao_data.channels=channels;
     ao_data.samplerate=rate;
     ao_data.format=format;
-    ao_data.bps=channels*rate;
-    if (format != AF_FORMAT_U8 && format != AF_FORMAT_S8)
-	ao_data.bps*=2; 
+    ao_data.bps=channels*rate*samplesize;
     buffer=0;
     gettimeofday(&last_tv, 0);
 

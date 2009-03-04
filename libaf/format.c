@@ -1,12 +1,22 @@
-/*=============================================================================
-//	
-//  This software has been released under the terms of the GNU General Public
-//  license. See http://www.gnu.org/copyleft/gpl.html for details.
-//
-//  Copyright 2005 Alex Beregszaszi
-//
-//=============================================================================
-*/
+/*
+ * Copyright (C) 2005 Alex Beregszaszi
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,7 +72,7 @@ int af_str2fmt(const char* str)
   return format;
 }
 
-inline int af_fmt2bits(int format)
+int af_fmt2bits(int format)
 {
     return (format & AF_FORMAT_BITS_MASK)+8;
 //    return (((format & AF_FORMAT_BITS_MASK)>>3)+1) * 8;
@@ -79,7 +89,7 @@ inline int af_fmt2bits(int format)
     return -1;
 }
 
-inline int af_bits2fmt(int bits)
+int af_bits2fmt(int bits)
 {
     return (bits/8 - 1) << 3;
 }

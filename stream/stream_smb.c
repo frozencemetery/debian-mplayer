@@ -16,11 +16,11 @@ static struct stream_priv_s {
 
 #define ST_OFF(f) M_ST_OFF(struct stream_priv_s,f)
 // URL definition
-static m_option_t stream_opts_fields[] = {
+static const m_option_t stream_opts_fields[] = {
   { NULL, NULL, 0, 0, 0, 0,  NULL }
 };
 
-static struct m_struct_st stream_opts = {
+static const struct m_struct_st stream_opts = {
   "smb",
   sizeof(struct stream_priv_s),
   &stream_priv_dflts,
@@ -153,7 +153,7 @@ static int open_f (stream_t *stream, int mode, void *opts, int* file_format) {
   return STREAM_OK;
 }
 
-stream_info_t stream_info_smb = {
+const stream_info_t stream_info_smb = {
   "Server Message Block",
   "smb",
   "M. Tourne",

@@ -10,14 +10,9 @@
 #include "img_format.h"
 #include "mp_image.h"
 #include "vf.h"
-
-#ifdef USE_LIBAVCODEC_SO
-#include <ffmpeg/avcodec.h>
-#else
 #include "libavcodec/avcodec.h"
-#endif
 
-extern int avcodec_inited;
+extern int avcodec_initialized;
 
 struct vf_priv_s {
     unsigned char* outbuf;
@@ -112,7 +107,7 @@ static int query_format(struct vf_instance_s* vf, unsigned int fmt){
     case IMGFMT_YV12:
     case IMGFMT_I420:
     case IMGFMT_IYUV:
-	return (vf_next_query_format(vf,IMGFMT_MPEGPES) & (~(VFCAP_CSP_SUPPORTED_BY_HW|VFCAP_ACCEPT_STRIDE)));
+	return vf_next_query_format(vf, IMGFMT_MPEGPES) & (~(VFCAP_CSP_SUPPORTED_BY_HW | VFCAP_ACCEPT_STRIDE));
     }
     return 0;
 }
@@ -127,10 +122,10 @@ static int open(vf_instance_t *vf, char* args){
     vf->priv=malloc(sizeof(struct vf_priv_s));
     memset(vf->priv,0,sizeof(struct vf_priv_s));
 
-    if (!avcodec_inited){
+    if (!avcodec_initialized){
 	avcodec_init();
 	avcodec_register_all();
-	avcodec_inited=1;
+	avcodec_initialized=1;
     }
 
     vf->priv->codec = (AVCodec *)avcodec_find_encoder_by_name("mpeg1video");
@@ -162,7 +157,7 @@ static int open(vf_instance_t *vf, char* args){
     return 1;
 }
 
-vf_info_t vf_info_lavc = {
+const vf_info_t vf_info_lavc = {
     "realtime mpeg1 encoding with libavcodec",
     "lavc",
     "A'rpi",

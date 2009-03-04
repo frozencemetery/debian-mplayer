@@ -1,24 +1,27 @@
 /*
- *  Copyright (C) 2006 Benjamin Zores
- *  Copyright (C) 2007 Sven Gothel (Channel Navigation)
- *   Stream layer for hardware MPEG 1/2/4 encoders a.k.a PVR
- *    (such as WinTV PVR-150/250/350/500 (a.k.a IVTV), pvrusb2 and cx88).
- *   See http://ivtvdriver.org/index.php/Main_Page for more details on the
- *    cards supported by the ivtv driver.
+ * stream layer for hardware MPEG 1/2/4 encoders a.k.a PVR
+ *  (such as WinTV PVR-150/250/350/500 (a.k.a IVTV), pvrusb2 and cx88)
+ * See http://ivtvdriver.org/index.php/Main_Page for more details on the
+ *  cards supported by the ivtv driver.
  *
- *   This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * Copyright (C) 2006 Benjamin Zores
+ * Copyright (C) 2007 Sven Gothel (channel navigation)
  *
- *   This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This file is part of MPlayer.
  *
- *   You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software Foundation,
- *  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include "config.h"
@@ -33,7 +36,7 @@
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>
 #include <inttypes.h>
-#include <sys/poll.h>
+#include <poll.h>
 #include <linux/types.h>
 #include <linux/videodev2.h>
 
@@ -1766,7 +1769,7 @@ pvr_force_freq_step (stream_t *stream, int step)
   return force_freq_step (pvr, step);
 }
 
-stream_info_t stream_info_pvr = {
+const stream_info_t stream_info_pvr = {
   "V4L2 MPEG Input (a.k.a PVR)",
   "pvr",
   "Benjamin Zores",

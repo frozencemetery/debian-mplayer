@@ -19,19 +19,19 @@
 
 #include "mp_msg.h"
 #include "help_mp.h"
-#include "input/input.h"
 
-#ifndef HAVE_WINSOCK2
+#if !HAVE_WINSOCK2_H
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#define closesocket close
 #else
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #endif
 
+#include "network.h"
+#include "stream.h"
 #include "tcp.h"
 
 /* IPv6 options */
@@ -39,7 +39,7 @@ int   network_prefer_ipv4 = 0;
 
 // Converts an address family constant to a string
 
-const char *af2String(int af) {
+static const char *af2String(int af) {
 	switch (af) {
 		case AF_INET:	return "AF_INET";
 		
@@ -56,7 +56,7 @@ const char *af2String(int af) {
 // return -2 for fatal error, like unable to resolve name, connection timeout...
 // return -1 is unable to connect to a particular port
 
-int
+static int
 connect2Server_with_af(char *host, int port, int af,int verb) {
 	int socket_server_fd;
 	int err;
@@ -75,8 +75,8 @@ connect2Server_with_af(char *host, int port, int af,int verb) {
 	struct hostent *hp=NULL;
 	char buf[255];
 	
-#ifdef HAVE_WINSOCK2
-	u_long val;
+#if HAVE_WINSOCK2_H
+	unsigned long val;
 	int to;
 #else
 	struct timeval to;
@@ -91,7 +91,7 @@ connect2Server_with_af(char *host, int port, int af,int verb) {
 	}
 
 #if defined(SO_RCVTIMEO) && defined(SO_SNDTIMEO)
-#ifdef HAVE_WINSOCK2
+#if HAVE_WINSOCK2_H
 	/* timeout in milliseconds */
 	to = 10 * 1000;
 #else
@@ -115,13 +115,11 @@ connect2Server_with_af(char *host, int port, int af,int verb) {
 	
 	memset(&server_address, 0, sizeof(server_address));
 	
-#ifndef HAVE_WINSOCK2
-#ifdef USE_ATON
-	if (inet_aton(host, our_s_addr)!=1)
-#else
+#if HAVE_INET_PTON
 	if (inet_pton(af, host, our_s_addr)!=1)
-#endif
-#else
+#elif HAVE_INET_ATON
+	if (inet_aton(host, our_s_addr)!=1)
+#elif HAVE_WINSOCK2_H
 	if ( inet_addr(host)==INADDR_NONE )
 #endif
 	{
@@ -139,7 +137,7 @@ connect2Server_with_af(char *host, int port, int af,int verb) {
 		
 		memcpy( our_s_addr, (void*)hp->h_addr_list[0], hp->h_length );
 	}
-#ifdef HAVE_WINSOCK2
+#if HAVE_WINSOCK2_H
 	else {
 		unsigned long addr = inet_addr(host);
 		memcpy( our_s_addr, (void*)&addr, sizeof(addr) );
@@ -164,7 +162,7 @@ connect2Server_with_af(char *host, int port, int af,int verb) {
 			return TCP_ERROR_FATAL;
 	}
 
-#if defined(USE_ATON) || defined(HAVE_WINSOCK2)
+#if HAVE_INET_ATON || defined(HAVE_WINSOCK2_H)
 	strncpy( buf, inet_ntoa( *((struct in_addr*)our_s_addr) ), 255);
 #else
 	inet_ntop(af, our_s_addr, buf, 255);
@@ -172,14 +170,14 @@ connect2Server_with_af(char *host, int port, int af,int verb) {
 	if(verb) mp_msg(MSGT_NETWORK,MSGL_STATUS,MSGTR_MPDEMUX_NW_ConnectingToServer, host, buf , port );
 
 	// Turn the socket as non blocking so we can timeout on the connection
-#ifndef HAVE_WINSOCK2
+#if !HAVE_WINSOCK2_H
 	fcntl( socket_server_fd, F_SETFL, fcntl(socket_server_fd, F_GETFL) | O_NONBLOCK );
 #else
 	val = 1;
 	ioctlsocket( socket_server_fd, FIONBIO, &val );
 #endif
 	if( connect( socket_server_fd, (struct sockaddr*)&server_address, server_address_size )==-1 ) {
-#ifndef HAVE_WINSOCK2
+#if !HAVE_WINSOCK2_H
 		if( errno!=EINPROGRESS ) {
 #else
 		if( (WSAGetLastError() != WSAEINPROGRESS) && (WSAGetLastError() != WSAEWOULDBLOCK) ) {
@@ -195,7 +193,7 @@ connect2Server_with_af(char *host, int port, int af,int verb) {
 	FD_SET( socket_server_fd, &set );
 	// When the connection will be made, we will have a writeable fd
 	while((ret = select(socket_server_fd+1, NULL, &set, NULL, &tv)) == 0) {
-	      if(count > 30 || mp_input_check_interrupt(500)) {
+	      if(count > 30 || stream_check_interrupt(500)) {
 		if(count > 30)
 		  mp_msg(MSGT_NETWORK,MSGL_ERR,MSGTR_MPDEMUX_NW_ConnTimeout);
 		else
@@ -211,7 +209,7 @@ connect2Server_with_af(char *host, int port, int af,int verb) {
 	if (ret < 0) mp_msg(MSGT_NETWORK,MSGL_ERR,MSGTR_MPDEMUX_NW_SelectFailed);
 
 	// Turn back the socket as blocking
-#ifndef HAVE_WINSOCK2
+#if !HAVE_WINSOCK2_H
 	fcntl( socket_server_fd, F_SETFL, fcntl(socket_server_fd, F_GETFL) & ~O_NONBLOCK );
 #else
 	val = 0;

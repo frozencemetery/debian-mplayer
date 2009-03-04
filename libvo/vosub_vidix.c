@@ -1,14 +1,25 @@
 /*
- *  vosub_vidix.c
+ * vidix interface to any mplayer vo driver
+ * (partly based on vesa_lvo.c)
  *
- *	Copyright (C) Nick Kurshev <nickols_k@mail.ru> - 2002
- *	Copyright (C) Alex Beregszaszi
+ * copyright (C) 2002 Nick Kurshev <nickols_k@mail.ru>
+ * copyright (C) Alex Beregszaszi
  *
- *  You can redistribute this file under terms and conditions
- *  of GNU General Public licence v2.
+ * This file is part of MPlayer.
  *
- * This file contains vidix interface to any mplayer's VO plugin.
- * (Partly based on vesa_lvo.c from mplayer's package)
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <inttypes.h>
@@ -27,19 +38,19 @@
 #include "mp_msg.h"
 #include "help_mp.h"
 
-#include "vosub_vidix.h"
-#include "vidix/vidixlib.h"
+#include "vidix/vidix.h"
 #include "fastmemcpy.h"
 #include "osd.h"
 #include "video_out.h"
 #include "sub.h"
+#include "vosub_vidix.h"
 
 #include "libmpcodecs/vfcap.h"
 #include "libmpcodecs/mp_image.h"
 
 #define NUM_FRAMES VID_PLAY_MAXFRAMES /* Temporary: driver will overwrite it */
 
-static VDL_HANDLE vidix_handler = NULL;
+static VDXContext *vidix_handler = NULL;
 static uint8_t *vidix_mem = NULL;
 static uint8_t next_frame;
 static unsigned image_Bpp,image_height,image_width,src_format,forced_fourcc=0;
@@ -82,7 +93,7 @@ void vidix_term( void )
     mp_msg(MSGT_VO,MSGL_DBG2, "vosub_vidix: vidix_term() was called\n"); }
 	vidix_stop();
 	vdlClose(vidix_handler);
-//  ((vo_functions_t *)vo_server)->control=server_control;
+//  vo_server->control=server_control;
 }
 
 static uint32_t vidix_draw_slice_420(uint8_t *image[], int stride[], int w,int h,int x,int y)
@@ -195,35 +206,6 @@ static uint32_t vidix_draw_slice_410(uint8_t *image[], int stride[], int w,int h
     return -1;
 }
 
-static uint32_t vidix_draw_slice_410_fast(uint8_t *image[], int stride[], int w, int h, int x, int y)
-{
-    uint8_t *src;
-    uint8_t *dest;
-
-    dest = vidix_mem + vidix_play.offsets[next_frame] + vidix_play.offset.y;
-    dest += dstrides.y*y + x;
-    src = image[0];
-    memcpy(dest, src, dstrides.y*h*9/8);
-    return 0;
-}
-
-static uint32_t vidix_draw_slice_400(uint8_t *image[], int stride[], int w,int h,int x,int y)
-{
-    uint8_t *src;
-    uint8_t *dest;
-    int i;
-
-    dest = vidix_mem + vidix_play.offsets[next_frame] + vidix_play.offset.y;
-    dest += dstrides.y*y + x;
-    src = image[0];
-    for(i=0;i<h;i++){
-        memcpy(dest,src,w);
-        src+=stride[0];
-        dest += dstrides.y;
-    }
-    return 0;
-}
-
 static uint32_t vidix_draw_slice_packed(uint8_t *image[], int stride[], int w,int h,int x,int y)
 {
     uint8_t *src;
@@ -241,7 +223,35 @@ static uint32_t vidix_draw_slice_packed(uint8_t *image[], int stride[], int w,in
     return 0;
 }
 
-uint32_t vidix_draw_slice(uint8_t *image[], int stride[], int w,int h,int x,int y)
+static uint32_t vidix_draw_slice_nv12(uint8_t *image[], int stride[], int w,int h,int x,int y)
+{
+    uint8_t *src;
+    uint8_t *dest;
+    int i;
+
+    /* Plane Y */
+    dest = vidix_mem + vidix_play.offsets[next_frame] + vidix_play.offset.y;
+    dest += dstrides.y*y + x;
+    src = image[0];
+    for(i=0;i<h;i++){
+        memcpy(dest,src,w);
+        src+=stride[0];
+        dest += dstrides.y;
+    }
+
+    /* Plane UV */
+    dest = vidix_mem + vidix_play.offsets[next_frame] + vidix_play.offset.u;
+    dest += dstrides.u*y/2 + x;
+    src = image[1];
+    for(i=0;i<h/2;i++){
+        memcpy(dest,src,w);
+        src+=stride[1];
+        dest+=dstrides.u;
+    }
+    return 0;
+}
+
+static uint32_t vidix_draw_slice(uint8_t *image[], int stride[], int w,int h,int x,int y)
 {
     mp_msg(MSGT_VO,MSGL_WARN, MSGTR_LIBVO_SUB_VIDIX_DummyVidixdrawsliceWasCalled);
     return -1;
@@ -259,13 +269,13 @@ static uint32_t  vidix_draw_image(mp_image_t *mpi){
     return VO_TRUE;
 }
 
-uint32_t vidix_draw_frame(uint8_t *image[])
+static uint32_t vidix_draw_frame(uint8_t *image[])
 {
   mp_msg(MSGT_VO,MSGL_WARN, MSGTR_LIBVO_SUB_VIDIX_DummyVidixdrawframeWasCalled);
   return -1;
 }
 
-void     vidix_flip_page(void)
+static void     vidix_flip_page(void)
 {
   if( mp_msg_test(MSGT_VO,MSGL_DBG2) ) {
     mp_msg(MSGT_VO,MSGL_DBG2, "vosub_vidix: vidix_flip_page() was called\n"); }
@@ -279,10 +289,11 @@ void     vidix_flip_page(void)
 static void draw_alpha(int x0,int y0, int w,int h, unsigned char* src, unsigned char *srca, int stride)
 {
     uint32_t apitch,bespitch;
-    void *lvo_mem;
+    char *lvo_mem;
     lvo_mem = vidix_mem + vidix_play.offsets[next_frame] + vidix_play.offset.y;
     apitch = vidix_play.dest.pitch.y-1;
     switch(vidix_play.fourcc){
+    case IMGFMT_NV12:
     case IMGFMT_YV12:
     case IMGFMT_IYUV:
     case IMGFMT_I420:
@@ -326,7 +337,7 @@ static void draw_alpha(int x0,int y0, int w,int h, unsigned char* src, unsigned 
     }
 }
 
-void     vidix_draw_osd(void)
+static void     vidix_draw_osd(void)
 {
   if( mp_msg_test(MSGT_VO,MSGL_DBG2) ) {
     mp_msg(MSGT_VO,MSGL_DBG2, "vosub_vidix: vidix_draw_osd() was called\n"); }
@@ -347,55 +358,19 @@ uint32_t vidix_query_fourcc(uint32_t format)
 
 int vidix_grkey_support(void)
 {
-    return(vidix_fourcc.flags & VID_CAP_COLORKEY);
+    return vidix_fourcc.flags & VID_CAP_COLORKEY;
 }
 
 int vidix_grkey_get(vidix_grkey_t *gr_key)
 {
-    return(vdlGetGrKeys(vidix_handler, gr_key));
+    return vdlGetGrKeys(vidix_handler, gr_key);
 }
 
 int vidix_grkey_set(const vidix_grkey_t *gr_key)
 {
-    return(vdlSetGrKeys(vidix_handler, gr_key));
+    return vdlSetGrKeys(vidix_handler, gr_key);
 }
 
-
-static int  vidix_get_video_eq(vidix_video_eq_t *info)
-{
-  if(!video_on) return EPERM;
-  return vdlPlaybackGetEq(vidix_handler, info);
-}
-
-static int  vidix_set_video_eq(const vidix_video_eq_t *info)
-{
-  if(!video_on) return EPERM;
-  return vdlPlaybackSetEq(vidix_handler, info);
-}
-
-static int  vidix_get_num_fx(unsigned *info)
-{
-  if(!video_on) return EPERM;
-  return vdlQueryNumOemEffects(vidix_handler, info);
-}
-
-static int  vidix_get_oem_fx(vidix_oem_fx_t *info)
-{
-  if(!video_on) return EPERM;
-  return vdlGetOemEffect(vidix_handler, info);
-}
-
-static int  vidix_set_oem_fx(const vidix_oem_fx_t *info)
-{
-  if(!video_on) return EPERM;
-  return vdlSetOemEffect(vidix_handler, info);
-}
-
-static int  vidix_set_deint(const vidix_deinterlace_t *info)
-{
-  if(!video_on) return EPERM;
-  return vdlPlaybackSetDeint(vidix_handler, info);
-}
 
 static int is_422_planes_eq=0;
 int      vidix_init(unsigned src_width,unsigned src_height,
@@ -514,6 +489,7 @@ int      vidix_init(unsigned src_width,unsigned src_height,
 
 	switch(format)
 	{
+	    case IMGFMT_NV12:
 	    case IMGFMT_YV12:
 	    case IMGFMT_I420:
 	    case IMGFMT_IYUV:
@@ -560,6 +536,8 @@ int      vidix_init(unsigned src_width,unsigned src_height,
 		 vo_server->draw_slice = vidix_draw_slice_420;
 	    else if (src_format == IMGFMT_YVU9 || src_format == IMGFMT_IF09)
 		 vo_server->draw_slice = vidix_draw_slice_410;
+	    else if (src_format == IMGFMT_NV12)
+		 vo_server->draw_slice = vidix_draw_slice_nv12;
 	    else vo_server->draw_slice = vidix_draw_slice_packed;
 	}
 	return 0;
@@ -699,27 +677,15 @@ uint32_t vidix_control(uint32_t request, void *data, ...)
 //  return server_control(request,data); //VO_NOTIMPL;
 }
 
-int vidix_preinit(const char *drvname,void *server)
+int vidix_preinit(const char *drvname,vo_functions_t *server)
 {
   int err;
   if( mp_msg_test(MSGT_VO,MSGL_DBG2) ) {
     mp_msg(MSGT_VO,MSGL_DBG2, "vosub_vidix: vidix_preinit(%s) was called\n",drvname); }
-	if(vdlGetVersion() != VIDIX_VERSION)
-	{
-	  mp_msg(MSGT_VO,MSGL_ERR, MSGTR_LIBVO_SUB_VIDIX_YouHaveWrongVersionOfVidixLibrary);
-	  return -1;
-	}
-#ifndef __MINGW32__
-	vidix_handler = vdlOpen(MP_VIDIX_PFX,
-				drvname ? drvname[0] == ':' ? &drvname[1] : drvname[0] ? drvname : NULL : NULL,
+
+	vidix_handler = vdlOpen(drvname ? drvname[0] == ':' ? &drvname[1] : drvname[0] ? drvname : NULL : NULL,
 				TYPE_OUTPUT,
 				verbose);
-#else
-	vidix_handler = vdlOpen(get_path("vidix/"),
-				drvname ? drvname[0] == ':' ? &drvname[1] : drvname[0] ? drvname : NULL : NULL,
-				TYPE_OUTPUT,
-				verbose);
-#endif              
               
 	if(vidix_handler == NULL)
 	{
@@ -731,15 +697,15 @@ int vidix_preinit(const char *drvname,void *server)
 		mp_msg(MSGT_VO,MSGL_ERR, MSGTR_LIBVO_SUB_VIDIX_CouldntGetCapability,strerror(err));
 		return -1;
 	}
-	mp_msg(MSGT_VO,MSGL_INFO, MSGTR_LIBVO_SUB_VIDIX_Description, vidix_cap.name);
-	mp_msg(MSGT_VO,MSGL_INFO, MSGTR_LIBVO_SUB_VIDIX_Author, vidix_cap.author);
+	mp_msg(MSGT_VO,MSGL_V, "[VO_SUB_VIDIX] Description: %s.\n", vidix_cap.name);
+	mp_msg(MSGT_VO,MSGL_V, "[VO_SUB_VIDIX] Author: %s.\n", vidix_cap.author);
 	/* we are able to tune up this stuff depend on fourcc format */
-	((vo_functions_t *)server)->draw_slice=vidix_draw_slice;
-	((vo_functions_t *)server)->draw_frame=vidix_draw_frame;
-	((vo_functions_t *)server)->flip_page=vidix_flip_page;
-	((vo_functions_t *)server)->draw_osd=vidix_draw_osd;
-//	server_control = ((vo_functions_t *)server)->control;
-//	((vo_functions_t *)server)->control=vidix_control;
+	server->draw_slice=vidix_draw_slice;
+	server->draw_frame=vidix_draw_frame;
+	server->flip_page=vidix_flip_page;
+	server->draw_osd=vidix_draw_osd;
+//	server_control = server->control;
+//	server->control=vidix_control;
 	vo_server = server;
 	return 0;
 }

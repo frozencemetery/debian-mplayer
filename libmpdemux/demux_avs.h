@@ -5,21 +5,28 @@
  * Avisynth C Interface Version 0.20
  * Copyright 2003 Kevin Atkinson
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * This file is part of MPlayer.
  *
- * This library is distributed in the hope that it will be useful,
+ * MPlayer is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
+#ifndef MPLAYER_DEMUX_AVS_H
+#define MPLAYER_DEMUX_AVS_H
+
+#include <stdint.h>
+#include "loader/wine/windef.h"
 
 enum { AVISYNTH_INTERFACE_VERSION = 2 };
 
@@ -126,15 +133,15 @@ static inline AVS_Value avs_new_value_array(AVS_Value * v0, int size)
 static inline int avs_is_error(AVS_Value v) { return v.type == 'e'; }
 static inline int avs_is_clip(AVS_Value v) { return v.type == 'c'; }
 static inline int avs_is_string(AVS_Value v) { return v.type == 's'; }
-static inline int avs_has_video(const AVS_VideoInfo * p) { return (p->width!=0); }
-static inline int avs_has_audio(const AVS_VideoInfo * p) { return (p->audio_samples_per_second!=0); }
+static inline int avs_has_video(const AVS_VideoInfo * p) { return p->width != 0; }
+static inline int avs_has_audio(const AVS_VideoInfo * p) { return p->audio_samples_per_second != 0; }
 
 static inline const char * avs_as_string(AVS_Value v)
 { return avs_is_error(v) || avs_is_string(v) ? v.d.string : 0; }
 
 /* Color spaces */
 static inline int avs_is_rgb(const AVS_VideoInfo * p)
-{ return (p->pixel_type&AVS_CS_BGR); }
+{ return p->pixel_type & AVS_CS_BGR; }
 
 static inline int avs_is_rgb24(const AVS_VideoInfo * p)
 { return (p->pixel_type&AVS_CS_BGR24)==AVS_CS_BGR24; } // Clear out additional properties
@@ -143,7 +150,7 @@ static inline int avs_is_rgb32(const AVS_VideoInfo * p)
 { return (p->pixel_type & AVS_CS_BGR32) == AVS_CS_BGR32 ; }
 
 static inline int avs_is_yuy(const AVS_VideoInfo * p)
-{ return (p->pixel_type&AVS_CS_YUV ); }
+{ return p->pixel_type & AVS_CS_YUV; }
 
 static inline int avs_is_yuy2(const AVS_VideoInfo * p)
 { return (p->pixel_type & AVS_CS_YUY2) == AVS_CS_YUY2; }  
@@ -162,3 +169,5 @@ static inline int avs_bits_per_pixel(const AVS_VideoInfo * p)
       default:           return 0;
     }
 }
+
+#endif /* MPLAYER_DEMUX_AVS_H */

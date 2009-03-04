@@ -11,21 +11,21 @@
  * However, no code in the following subsection is directly copied from
  * either author.
  *
+ * This file is part of MPlayer.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * MPlayer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 
@@ -47,7 +47,7 @@
 #include "libavutil/avstring.h"
 #include "libavutil/intreadwrite.h"
 
-extern void skip_audio_frame( sh_audio_t *sh_audio );
+void skip_audio_frame( sh_audio_t *sh_audio );
 extern int sub_justify;
 
 // 2/c0: audio data
@@ -760,9 +760,9 @@ static void demux_seek_ty( demuxer_t *demuxer, float rel_seek_secs, float audio_
    //================= seek in MPEG ==========================
    demuxer->filepos = stream_tell( demuxer->stream );
 
-   newpos = ( flags & 1 ) ? demuxer->movi_start : demuxer->filepos;
+   newpos = ( flags & SEEK_ABSOLUTE ) ? demuxer->movi_start : demuxer->filepos;
 
-   if( flags & 2 )
+   if( flags & SEEK_FACTOR )
       // float seek 0..1
       newpos += ( demuxer->movi_end - demuxer->movi_start ) * rel_seek_secs;
    else
@@ -881,7 +881,7 @@ static demuxer_t* demux_open_ty(demuxer_t* demuxer)
 }
 
 
-demuxer_desc_t demuxer_desc_mpeg_ty = {
+const demuxer_desc_t demuxer_desc_mpeg_ty = {
   "TiVo demuxer",
   "tivo",
   "TiVo",

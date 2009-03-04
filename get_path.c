@@ -11,16 +11,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include "mp_msg.h"
+#include "get_path.h"
 
-#ifdef MACOSX_BUNDLE
+#ifdef CONFIG_MACOSX_BUNDLE
 #include <CoreFoundation/CoreFoundation.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#endif
-
-#ifdef WIN32
+#elif defined(__MINGW32__)
 #include <windows.h>
+#elif defined(__CYGWIN__)
+#include <windows.h>
+#include <sys/cygwin.h>
+#elif defined(__OS2__)
+#define INCL_DOS
+#include <os2.h>
 #endif
 
 char *get_path(const char *filename){
@@ -32,7 +37,7 @@ char *get_path(const char *filename){
 	static char *config_dir = "/.mplayer";
 #endif
 	int len;
-#ifdef MACOSX_BUNDLE
+#ifdef CONFIG_MACOSX_BUNDLE
 	struct stat dummy;
 	CFIndex maxlen=256;
 	CFURLRef res_url_ref=NULL;
@@ -56,6 +61,25 @@ char *get_path(const char *filename){
 		exedir[imax]='\0';
 		homedir = exedir;
 	}
+#elif defined(__OS2__)
+    {
+        PPIB ppib;
+        char path[260];
+
+        // Get process info blocks
+        DosGetInfoBlocks(NULL, &ppib);
+
+        // Get full path of the executable
+        DosQueryModuleName(ppib->pib_hmte, sizeof( path ), path);
+
+        // Truncate name part including last backslash
+        *strrchr(path, '\\') = 0;
+
+        // Convert backslash to slash
+        _fnslashify(path);
+
+        homedir = path;
+    }
 #else
 	return NULL;
 #endif
@@ -71,7 +95,7 @@ char *get_path(const char *filename){
 		sprintf(buff, "%s%s/%s", homedir, config_dir, filename);
 	}
 
-#ifdef MACOSX_BUNDLE
+#ifdef CONFIG_MACOSX_BUNDLE
 	if (stat(buff, &dummy)) {
 
 		res_url_ref=CFBundleCopyResourcesDirectoryURL(CFBundleGetMainBundle());
@@ -115,7 +139,7 @@ char *get_path(const char *filename){
 	return buff;
 }
 
-#if defined(WIN32) && defined(USE_WIN32DLL)
+#if (defined(__MINGW32__) || defined(__CYGWIN__)) && defined(CONFIG_WIN32DLL)
 void set_path_env()
 {
 	/*make our codec dirs available for LoadLibraryA()*/
@@ -125,10 +149,10 @@ void set_path_env()
 #ifdef __CYGWIN__
 	cygwin_conv_to_full_win32_path(WIN32_PATH,win32path);
 	strcpy(tmppath,win32path);
-#ifdef USE_REALCODECS
+#ifdef CONFIG_REALCODECS
 	cygwin_conv_to_full_win32_path(REALCODEC_PATH,realpath);
 	sprintf(tmppath,"%s;%s",win32path,realpath);
-#endif /*USE_REALCODECS*/
+#endif /*CONFIG_REALCODECS*/
 #else /*__CYGWIN__*/
 	/* Expand to absolute path unless it's already absolute */
 	if (!strstr(WIN32_PATH,":") && WIN32_PATH[0] != '\\'){
@@ -137,7 +161,7 @@ void set_path_env()
 	}
 	else strcpy(win32path,WIN32_PATH);
 	strcpy(tmppath,win32path);
-#ifdef USE_REALCODECS
+#ifdef CONFIG_REALCODECS
 	/* Expand to absolute path unless it's already absolute */
 	if (!strstr(REALCODEC_PATH,":") && REALCODEC_PATH[0] != '\\'){
 		GetModuleFileNameA(NULL, realpath, MAX_PATH);
@@ -145,10 +169,10 @@ void set_path_env()
 	}
 	else strcpy(realpath,REALCODEC_PATH);
 	sprintf(tmppath,"%s;%s",win32path,realpath);
-#endif /*USE_REALCODECS*/
+#endif /*CONFIG_REALCODECS*/
 #endif /*__CYGWIN__*/
 	mp_msg(MSGT_WIN32, MSGL_V,"Setting PATH to %s\n",tmppath);
 	if (!SetEnvironmentVariableA("PATH", tmppath))
 		mp_msg(MSGT_WIN32, MSGL_WARN, "Cannot set PATH!");
 }
-#endif /*WIN32 && USE_WIN32DLL*/
+#endif /* (defined(__MINGW32__) || defined(__CYGWIN__)) && defined(CONFIG_WIN32DLL) */

@@ -26,9 +26,12 @@
  * adopted from joschkas real tools
  */
 
+#ifndef MPLAYER_RMFF_H
+#define MPLAYER_RMFF_H
+
 #include <sys/types.h>
 #include "config.h"
-#ifndef HAVE_WINSOCK2
+#if !HAVE_WINSOCK2_H
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
@@ -41,10 +44,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
-
-
-#ifndef HAVE_RMFF_H
-#define HAVE_RMFF_H
 
 
 #define RMFF_HEADER_SIZE 0x12
@@ -273,4 +272,4 @@ void rmff_dump_pheader(rmff_pheader_t *h, char *data);
  */
 void rmff_free_header(rmff_header_t *h);
 
-#endif
+#endif /* MPLAYER_RMFF_H */

@@ -1,11 +1,10 @@
 /*
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: win32.h 24439 2007-09-12 23:16:39Z diego $
  */
 
-#ifndef LOADER_WIN32_H
-#define LOADER_WIN32_H
+#ifndef MPLAYER_WIN32_H
+#define MPLAYER_WIN32_H
 
 #include <time.h>
 
@@ -22,7 +21,7 @@
 #endif
 #endif
 
-extern void my_garbagecollection(void);
+void my_garbagecollection(void);
 
 typedef struct {
     UINT             uDriverSignature;
@@ -38,7 +37,7 @@ typedef DRVR  *LPDRVR;
 typedef struct tls_s tls_t;
 
 
-extern void* LookupExternal(const char* library, int ordinal);
-extern void* LookupExternalByName(const char* library, const char* name);
+void* LookupExternal(const char* library, int ordinal);
+void* LookupExternalByName(const char* library, const char* name);
 
-#endif /* LOADER_WIN32_H */
+#endif /* MPLAYER_WIN32_H */

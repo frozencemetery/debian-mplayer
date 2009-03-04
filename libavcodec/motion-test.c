@@ -19,7 +19,7 @@
  */
 
 /**
- * @file motion_test.c
+ * @file libavcodec/motion-test.c
  * motion test.
  */
 
@@ -30,8 +30,6 @@
 #include <unistd.h>
 
 #include "dsputil.h"
-
-#include "i386/mmx.h"
 
 #undef exit
 #undef printf
@@ -112,7 +110,7 @@ void test_motion(const char *name,
         }
     }
     emms_c();
-    dummy = d1; /* avoid optimisation */
+    dummy = d1; /* avoid optimization */
     ti = gettime() - ti;
 
     printf("  %0.0f kop/s\n",

@@ -3,11 +3,7 @@
 
 /* 1 frame = 4608 byte PCM */
 
-#ifdef __GNUC__
 #define LOCAL static inline
-#else
-#define LOCAL static _inline
-#endif
 
 //#undef LOCAL
 //#define LOCAL
@@ -15,7 +11,6 @@
 #include        <stdlib.h>
 #include        <stdio.h>
 #include        <string.h>
-#include        <signal.h>
 #include        <math.h>
 
 #define real float
@@ -24,7 +19,6 @@
 #include "mpg123.h"
 #include "huffman.h"
 #include "mp3.h"
-#include "libavutil/common.h"
 #include "mpbswap.h"
 #include "cpudetect.h"
 //#include "liba52/mm_accel.h"
@@ -32,10 +26,18 @@
 
 #include "libvo/fastmemcpy.h"
 
-#ifdef ARCH_X86_64
+#include "libavutil/common.h"
+#include "libavutil/internal.h"
+
+#undef fprintf
+#undef printf
+
+#if ARCH_X86_64
 // 3DNow! and 3DNow!Ext routines don't compile under AMD64
-#undef HAVE_3DNOW
-#undef HAVE_3DNOWEX
+#undef HAVE_AMD3DNOW
+#undef HAVE_AMD3DNOWEXT
+#define HAVE_AMD3DNOW 0
+#define HAVE_AMD3DNOWEXT 0
 #endif
 
 //static FILE* mp3_file=NULL;
@@ -56,7 +58,7 @@ static long outscale = 32768;
 #include "tabinit.c"
 
 #if 1
-extern int mplayer_audio_read(char *buf,int size);
+int mplayer_audio_read(char *buf,int size);
 
 LOCAL int mp3_read(char *buf,int size){
 //  int len=fread(buf,1,size,mp3_file);
@@ -66,12 +68,12 @@ LOCAL int mp3_read(char *buf,int size){
   return len;
 }
 #else
-extern int mp3_read(char *buf,int size);
+int mp3_read(char *buf,int size);
 #endif
 /*
  * Modified for use with MPlayer, for details see the changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: sr1.c 23515 2007-06-08 14:38:25Z zuxy $
+ * $Id: sr1.c 28622 2009-02-17 03:08:56Z diego $
  */
 
 
@@ -139,7 +141,7 @@ LOCAL unsigned int getbits_fast(short number_of_bits)
 //  if(MP3_frames>=7741) printf("getbits_fast: bits=%d  bitsleft=%d  wordptr=%x\n",number_of_bits,bitsleft,wordpointer);
   if((bitsleft-=number_of_bits)<0) return 0;
   if(!number_of_bits) return 0;
-#ifdef ARCH_X86
+#if ARCH_X86
   rval = bswap_16(*((uint16_t *)wordpointer));
 #else
   /*
@@ -182,7 +184,7 @@ LOCAL void set_pointer(int backstep)
 
 LOCAL int stream_head_read(unsigned char *hbuf,uint32_t *newhead){
   if(mp3_read(hbuf,4) != 4) return FALSE;
-#ifdef ARCH_X86
+#if ARCH_X86
   *newhead = bswap_32(*((uint32_t*)hbuf));
 #else
   /*
@@ -386,28 +388,29 @@ retry1:
 
 static int _has_mmx = 0;  // used by layer2.c, layer3.c to pre-scale coeffs
 
-#include "layer2.c"
-#include "layer3.c"
-#include "layer1.c"
-
 /******************************************************************************/
 /*           PUBLIC FUNCTIONS                  */
 /******************************************************************************/
 
 /* It's hidden from gcc in assembler */
-extern void dct64_MMX(short *, short *, real *);
-extern void dct64_MMX_3dnow(short *, short *, real *);
-extern void dct64_MMX_3dnowex(short *, short *, real *);
-extern void dct64_sse(short *, short *, real *);
+void dct64_MMX(short *, short *, real *);
+void dct64_MMX_3dnow(short *, short *, real *);
+void dct64_MMX_3dnowex(short *, short *, real *);
+void dct64_sse(short *, short *, real *);
+void dct64_altivec(real *, real *, real *);
 void (*dct64_MMX_func)(short *, short *, real *);
+
+#include "layer2.c"
+#include "layer3.c"
+#include "layer1.c"
 
 #include "cpudetect.h"
 
 // Init decoder tables.  Call first, once!
-#ifdef USE_FAKE_MONO
+#ifdef CONFIG_FAKE_MONO
 void MP3_Init(int fakemono){
 #else
-void MP3_Init(){
+void MP3_Init(void){
 #endif
 
 //gCpuCaps.hasMMX=gCpuCaps.hasMMX2=gCpuCaps.hasSSE=0; // for testing!
@@ -417,7 +420,7 @@ void MP3_Init(){
 
     make_decode_tables(outscale);
 
-#ifdef HAVE_MMX
+#if HAVE_MMX
     if (gCpuCaps.hasMMX)
     {
 	_has_mmx = 1;
@@ -425,7 +428,7 @@ void MP3_Init(){
     }
 #endif
 
-#ifdef HAVE_3DNOWEX
+#if HAVE_AMD3DNOWEXT
     if (gCpuCaps.has3DNowExt)
     {
 	dct36_func=dct36_3dnowex;
@@ -434,7 +437,7 @@ void MP3_Init(){
     }
     else
 #endif
-#ifdef HAVE_3DNOW
+#if HAVE_AMD3DNOW
     if (gCpuCaps.has3DNow)
     {
 	dct36_func = dct36_3dnow;
@@ -443,7 +446,7 @@ void MP3_Init(){
     }
     else
 #endif
-#ifdef HAVE_SSE
+#if HAVE_SSE
     if (gCpuCaps.hasSSE)
     {
 	dct64_MMX_func = dct64_sse;
@@ -451,8 +454,8 @@ void MP3_Init(){
     }
     else
 #endif
-#ifdef ARCH_X86_32
-#ifdef HAVE_MMX
+#if ARCH_X86_32
+#if HAVE_MMX
     if (gCpuCaps.hasMMX)
     {
 	dct64_MMX_func = dct64_MMX;
@@ -467,7 +470,7 @@ void MP3_Init(){
     }
     else
 #endif /* ARCH_X86_32 */
-#ifdef HAVE_ALTIVEC
+#if HAVE_ALTIVEC
     if (gCpuCaps.hasAltiVec)
     {
 	mp_msg(MSGT_DECAUDIO,MSGL_V,"mp3lib: using AltiVec optimized decore!\n");
@@ -479,7 +482,7 @@ void MP3_Init(){
 	mp_msg(MSGT_DECAUDIO,MSGL_V,"mp3lib: using generic C decore!\n");
     }
 
-#ifdef USE_FAKE_MONO
+#ifdef CONFIG_FAKE_MONO
     if (fakemono == 1)
         fr.synth=synth_1to1_l;
     else if (fakemono == 2)
@@ -500,7 +503,7 @@ void MP3_Init(){
 
 #if 0
 
-void MP3_Close(){
+void MP3_Close(void){
   MP3_eof=1;
   if(mp3_file) fclose(mp3_file);
   mp3_file=NULL;
@@ -569,7 +572,7 @@ void MP3_PrintHeader(void){
 #include "genre.h"
 
 // Read & print ID3 TAG. Do not call when playing!!!  returns filesize.
-int MP3_PrintTAG(){
+int MP3_PrintTAG(void){
         struct id3tag {
                 char tag[3];
                 char title[30];

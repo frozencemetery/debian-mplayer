@@ -1,5 +1,10 @@
+#ifndef MPLAYER_TVI_DEF_H
+#define MPLAYER_TVI_DEF_H
+
 #include <stdlib.h> /* malloc */
 #include <string.h> /* memset */
+#include "libmpcodecs/img_format.h"
+#include "tv.h"
 
 static int init(priv_t *priv);
 static int uninit(priv_t *priv);
@@ -12,7 +17,7 @@ static int get_audio_framesize(priv_t *priv);
 
 int teletext_control(void* p, int cmd, void *arg);
 
-static tvi_functions_t functions =
+static const tvi_functions_t functions =
 {
     init,
     uninit,
@@ -29,12 +34,12 @@ static tvi_handle_t *new_handle(void)
     tvi_handle_t *h = (tvi_handle_t *)malloc(sizeof(tvi_handle_t));
 
     if (!h)
-	return(NULL);
+	return NULL;
     h->priv = (priv_t *)malloc(sizeof(priv_t));
     if (!h->priv)
     {
 	free(h);
-	return(NULL);
+	return NULL;
     }
     memset(h->priv, 0, sizeof(priv_t));
     h->functions = &functions;
@@ -44,7 +49,7 @@ static tvi_handle_t *new_handle(void)
     h->norm = -1;
     h->channel = -1;
     h->scan = NULL;
-    return(h);
+    return h;
 }
 
 static void free_handle(tvi_handle_t *h)
@@ -103,3 +108,5 @@ static inline void fill_blank_frame(char* buffer,int len,int fmt){
         memset(buffer,0xC0,len);
     }
 }
+
+#endif /* MPLAYER_TVI_DEF_H */

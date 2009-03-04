@@ -10,14 +10,9 @@
 #include "img_format.h"
 #include "mp_image.h"
 #include "vf.h"
-
-#ifdef USE_LIBAVCODEC_SO
-#include <ffmpeg/avcodec.h>
-#else
 #include "libavcodec/avcodec.h"
-#endif
 
-extern int avcodec_inited;
+extern int avcodec_initialized;
 
 struct vf_priv_s 
 {
@@ -162,18 +157,18 @@ open (vf_instance_t *vf, char* args)
   /* This may not technically be necessary just for a deinterlace,
    * but it seems like a good idea.
    */
-  if(!avcodec_inited)
+  if(!avcodec_initialized)
     {
       avcodec_init();
       avcodec_register_all();
-      avcodec_inited=1;
+      avcodec_initialized=1;
     }
 
   return 1;
 }
 
 
-vf_info_t vf_info_lavcdeint = {
+const vf_info_t vf_info_lavcdeint = {
     "libavcodec's deinterlacing filter",
     "lavcdeint",
     "Joe Rabinoff",

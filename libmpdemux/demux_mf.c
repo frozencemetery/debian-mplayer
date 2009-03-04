@@ -18,9 +18,9 @@
 static void demux_seek_mf(demuxer_t *demuxer,float rel_seek_secs,float audio_delay,int flags){
   mf_t * mf = (mf_t *)demuxer->priv;
   sh_video_t   * sh_video = demuxer->video->sh;
-  int newpos = (flags & 1)?0:mf->curr_frame - 1;
+  int newpos = (flags & SEEK_ABSOLUTE)?0:mf->curr_frame - 1;
   
-  if ( flags & 2 ) newpos+=rel_seek_secs*(mf->nr_of_files - 1);
+  if ( flags & SEEK_FACTOR ) newpos+=rel_seek_secs*(mf->nr_of_files - 1);
    else newpos+=rel_seek_secs * sh_video->fps;
   if ( newpos < 0 ) newpos=0;
   if( newpos >= mf->nr_of_files) newpos=mf->nr_of_files - 1;
@@ -41,11 +41,7 @@ static int demux_mf_fill_buffer(demuxer_t *demuxer, demux_stream_t *ds){
   stat( mf->names[mf->curr_frame],&fs );
 //  printf( "[demux_mf] frame: %d (%s,%d)\n",mf->curr_frame,mf->names[mf->curr_frame],fs.st_size );
 
-#ifdef WIN32
   if ( !( f=fopen( mf->names[mf->curr_frame],"rb" ) ) ) return 0;
-#else
-  if ( !( f=fopen( mf->names[mf->curr_frame],"r" ) ) ) return 0;
-#endif
   {
    sh_video_t     * sh_video = demuxer->video->sh;
    demux_packet_t * dp = new_demux_packet( fs.st_size );
@@ -62,9 +58,33 @@ static int demux_mf_fill_buffer(demuxer_t *demuxer, demux_stream_t *ds){
   return 1;
 }
 
+static const struct {
+  const char *type;
+  uint32_t format;
+} type2format[] = {
+  { "bmp",  mmioFOURCC('b', 'm', 'p', ' ') },
+  { "jpeg", mmioFOURCC('I', 'J', 'P', 'G') },
+  { "jpg",  mmioFOURCC('I', 'J', 'P', 'G') },
+  { "pcx",  mmioFOURCC('p', 'c', 'x', ' ') },
+  { "png",  mmioFOURCC('M', 'P', 'N', 'G') },
+  { "ptx",  mmioFOURCC('p', 't', 'x', ' ') },
+  { "tga",  mmioFOURCC('M', 'T', 'G', 'A') },
+  { "tif",  mmioFOURCC('t', 'i', 'f', 'f') },
+  { "sgi",  mmioFOURCC('S', 'G', 'I', '1') },
+  { "sun",  mmioFOURCC('s', 'u', 'n', ' ') },
+  { "ras",  mmioFOURCC('s', 'u', 'n', ' ') },
+  { "ra",  mmioFOURCC('s', 'u', 'n', ' ') },
+  { "im1",  mmioFOURCC('s', 'u', 'n', ' ') },
+  { "im8",  mmioFOURCC('s', 'u', 'n', ' ') },
+  { "im24",  mmioFOURCC('s', 'u', 'n', ' ') },
+  { "sunras",  mmioFOURCC('s', 'u', 'n', ' ') },
+  { NULL,   0 }
+};
+
 static demuxer_t* demux_open_mf(demuxer_t* demuxer){
   sh_video_t   *sh_video = NULL;
   mf_t         *mf = NULL;
+  int i;
   
   if(!demuxer->stream->url) return NULL;
   if(strncmp(demuxer->stream->url, "mf://", 5)) return NULL;
@@ -99,17 +119,15 @@ static demuxer_t* demux_open_mf(demuxer_t* demuxer){
   // video_read_properties() will choke
   sh_video->ds = demuxer->video;
   
-  if ( !strcasecmp( mf_type,"jpg" ) || 
-        !(strcasecmp(mf_type, "jpeg"))) sh_video->format = mmioFOURCC('I', 'J', 'P', 'G');
-  else 
-     if ( !strcasecmp( mf_type,"png" )) sh_video->format = mmioFOURCC('M', 'P', 'N', 'G' );
-  else
-     if ( !strcasecmp( mf_type,"tga" )) sh_video->format = mmioFOURCC('M', 'T', 'G', 'A' );
-  else
-     if ( !strcasecmp( mf_type,"bmp" )) sh_video->format = mmioFOURCC('b', 'm', 'p', ' ' );
-   else
-     if (!strcasecmp( mf_type,"sgi" )) sh_video->format = mmioFOURCC('S', 'G', 'I', '1');
-  else { mp_msg(MSGT_DEMUX, MSGL_INFO, "[demux_mf] unknown input file type.\n" ); free( mf ); return NULL; }
+  for (i = 0; type2format[i].type; i++)
+    if (strcasecmp(mf_type, type2format[i].type) == 0)
+      break;
+  if (!type2format[i].type) {
+    mp_msg(MSGT_DEMUX, MSGL_INFO, "[demux_mf] unknown input file type.\n" );
+    free(mf);
+    return NULL;
+  }
+  sh_video->format = type2format[i].format;
 
   sh_video->disp_w = mf_w;
   sh_video->disp_h = mf_h;
@@ -163,7 +181,7 @@ static int demux_control_mf(demuxer_t *demuxer, int cmd, void *arg) {
   }
 }
 
-demuxer_desc_t demuxer_desc_mf = {
+const demuxer_desc_t demuxer_desc_mf = {
   "mf demuxer",
   "mf",
   "MF",

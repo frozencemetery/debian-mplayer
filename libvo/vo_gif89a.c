@@ -1,26 +1,25 @@
 /*
-   MPlayer video driver for animated gif output
-  
-   (C) 2002
-   
-   Written by Joey Parrish <joey@nicewarrior.org>
-   Based on vo_directfb2.c
-
-   This library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2 of the License, or (at your option) any later version.
-
-   This library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public
-   License along with this library; if not, write to the
-   Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-   Boston, MA 02110-1301 USA.
-*/
+ * MPlayer video driver for animated GIF output
+ *
+ * copyright (C) 2002 Joey Parrish <joey@nicewarrior.org>
+ * based on vo_directfb2.c
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 /* Notes:
  * when setting output framerate, frames will be ignored as needed
@@ -61,14 +60,14 @@
 #define MPLAYER_VERSION 0.90
 #define VO_GIF_REVISION 6
 
-static vo_info_t info = {
+static const vo_info_t info = {
 	"animated GIF output",
 	"gif89a",
 	"Joey Parrish joey@nicewarrior.org",
 	""
 };
 
-LIBVO_EXTERN(gif89a)
+const LIBVO_EXTERN(gif89a)
 
 
 // how many frames per second we are aiming for during output.
@@ -157,7 +156,7 @@ static int config(uint32_t s_width, uint32_t s_height, uint32_t d_width,
 		uint32_t d_height, uint32_t flags, char *title,
 		uint32_t format)
 {
-#ifdef HAVE_GIF_4
+#ifdef CONFIG_GIF_4
 	// these are control blocks for the gif looping extension.
 	char LB1[] = "NETSCAPE2.0";
 	char LB2[] = { 1, 0, 0 };
@@ -190,7 +189,7 @@ static int config(uint32_t s_width, uint32_t s_height, uint32_t d_width,
 	// earlier versions of libungif.  i don't know exactly which,
 	// but certainly in all those before v4.  if you have problems,
 	// you need to upgrade your gif library.
-#ifdef HAVE_GIF_4
+#ifdef CONFIG_GIF_4
 	EGifSetGifVersion("89a");
 #else
 	mp_msg(MSGT_VO, MSGL_ERR, "GIF89a: Your version of libungif needs to be upgraded.\n");
@@ -232,7 +231,7 @@ static int config(uint32_t s_width, uint32_t s_height, uint32_t d_width,
 
 	// set the initial width and height info.
 	EGifPutScreenDesc(new_gif, s_width, s_height, 256, 0, reduce_cmap);
-#ifdef HAVE_GIF_4
+#ifdef CONFIG_GIF_4
 	// version 3 of libungif does not support multiple control blocks.
 	// looping requires multiple control blocks.
 	// therefore, looping is only enabled for v4 and up.
@@ -245,7 +244,7 @@ static int config(uint32_t s_width, uint32_t s_height, uint32_t d_width,
 }
 
 // we do not draw osd.
-void draw_osd() {}
+void draw_osd(void) {}
 
 // we do not handle events.
 static void check_events(void) {}

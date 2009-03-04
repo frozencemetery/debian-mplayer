@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <limits.h>
 
 #include "config.h"
 #include "mp_msg.h"
@@ -13,39 +14,49 @@
 #include "demuxer.h"
 
 #include "libvo/fastmemcpy.h"
-
-/*
- * Load 16/32-bit values in little endian byte order
- * from an unaligned address
- */
-#ifdef ARCH_X86
-#define	LOAD_LE32(p)	(*(unsigned int*)(p))
-#define	LOAD_LE16(p)	(*(unsigned short*)(p))
-#define	LOAD_BE32(p)	(((unsigned char*)(p))[3]     | \
- 			 ((unsigned char*)(p))[2]<< 8 | \
- 			 ((unsigned char*)(p))[1]<<16 | \
- 			 ((unsigned char*)(p))[0]<<24 )
-#else
-#define	LOAD_LE32(p)	(((unsigned char*)(p))[0]     | \
- 			 ((unsigned char*)(p))[1]<< 8 | \
- 			 ((unsigned char*)(p))[2]<<16 | \
- 			 ((unsigned char*)(p))[3]<<24 )
-#define	LOAD_LE16(p)	(((unsigned char*)(p))[0]     | \
-			 ((unsigned char*)(p))[1]<<8)
-#define	LOAD_BE32(p)	(*(unsigned int*)(p))
-#endif
+#include "libavutil/intreadwrite.h"
 
 // defined at asfheader.c:
 
-extern int asf_check_header(demuxer_t *demuxer);
-extern int read_asf_header(demuxer_t *demuxer,struct asf_priv* asf);
+int asf_check_header(demuxer_t *demuxer);
+int read_asf_header(demuxer_t *demuxer,struct asf_priv* asf);
 
 // based on asf file-format doc by Eugene [http://divx.euro.ru]
 
+/**
+ * \brief reads int stored in number of bytes given by len
+ * \param ptr pointer to read from, is incremented appropriately
+ * \param len lowest 2 bits indicate number of bytes to read
+ * \param def default value to return if len is invalid
+ */
+static inline unsigned read_varlen(uint8_t **ptr, int len, int def) {
+    const uint8_t *p = *ptr;
+    len &= 3;
+    switch (len) {
+      case 1: *ptr += 1; return *p;
+      case 2: *ptr += 2; return AV_RL16(p);
+      case 3: *ptr += 4; return AV_RL32(p);
+    }
+    return def;
+}
+
+/**
+ * \brief checks if there is enough data to read the bytes given by len
+ * \param ptr pointer to read from
+ * \param endptr pointer to the end of the buffer
+ * \param len lowest 2 bits indicate number of bytes to read
+ */
+static inline int check_varlen(uint8_t *ptr, uint8_t *endptr, int len) {
+    return len&3 ? ptr + (1<<((len&3) - 1)) <= endptr : 1;
+}
+
 static void asf_descrambling(unsigned char **src,unsigned len, struct asf_priv* asf){
-  unsigned char *dst=malloc(len);
+  unsigned char *dst;
   unsigned char *s2=*src;
   unsigned i=0,x,y;
+  if (len > UINT_MAX - MP_INPUT_BUFFER_PADDING_SIZE)
+	return;
+  dst = malloc(len + MP_INPUT_BUFFER_PADDING_SIZE);
   while(len>=asf->scrambling_h*asf->scrambling_w*asf->scrambling_b+i){
 //    mp_msg(MSGT_DEMUX,MSGL_DBG4,"descrambling! (w=%d  b=%d)\n",w,asf_scrambling_b);
 	//i+=asf_scrambling_h*asf_scrambling_w;
@@ -72,21 +83,12 @@ static void init_priv (struct asf_priv* asf){
   asf->vid_ext_frame_index=-1;
 }
 
-#ifdef USE_LIBAVCODEC_SO
-#include <ffmpeg/avcodec.h>
-#elif defined(USE_LIBAVCODEC)
-#include "libavcodec/avcodec.h"
-#else
-#define FF_INPUT_BUFFER_PADDING_SIZE 8
-#endif
-
-
 static void demux_asf_append_to_packet(demux_packet_t* dp,unsigned char *data,int len,int offs)
 {
   if(dp->len!=offs && offs!=-1) mp_msg(MSGT_DEMUX,MSGL_V,"warning! fragment.len=%d BUT next fragment offset=%d  \n",dp->len,offs);
-  dp->buffer=realloc(dp->buffer,dp->len+len+FF_INPUT_BUFFER_PADDING_SIZE);
+  dp->buffer=realloc(dp->buffer,dp->len+len+MP_INPUT_BUFFER_PADDING_SIZE);
   fast_memcpy(dp->buffer+dp->len,data,len);
-  memset(dp->buffer+dp->len+len, 0, FF_INPUT_BUFFER_PADDING_SIZE);
+  memset(dp->buffer+dp->len+len, 0, MP_INPUT_BUFFER_PADDING_SIZE);
   mp_dbg(MSGT_DEMUX,MSGL_DBG4,"data appended! %d+%d\n",dp->len,len);
   dp->len+=len;
 }
@@ -219,13 +221,13 @@ static void get_payload_extension_data(demuxer_t *demux, unsigned char** pp, uns
             payextsize = asf->aud_repdata_sizes[i];
 
         if (payextsize == 65535) {
-            payextsize = LOAD_LE16(pi);
+            payextsize = AV_RL16(pi);
             pi+=2;
         }
        
         // if this is the timing info extension then read the payload time
         if (i == ext_timing_index)
-            payload_time =  (uint64_t) LOAD_LE32(pi+8) | (uint64_t)LOAD_LE32(pi+8 + 4) << 32;
+            payload_time = AV_RL64(pi+8);
         
         // if this is the video frame info extension then 
         // set the keyframe indicator, the 'new frame segment' indicator
@@ -337,6 +339,7 @@ static int demux_asf_fill_buffer(demuxer_t *demux, demux_stream_t *ds){
 
     stream_read(demux->stream,asf->packet,asf->packetsize);
     if(demux->stream->eof) return 0; // EOF
+    if(asf->packetsize < 2) return 0; // Packet too short
     
     {
 	    unsigned char* p=asf->packet;
@@ -355,7 +358,7 @@ static int demux_asf_fill_buffer(demuxer_t *demux, demux_stream_t *ds){
             
             if( mp_msg_test(MSGT_DEMUX,MSGL_DBG2) ){
                 int i;
-                for(i=0;i<16;i++) printf(" %02X",asf->packet[i]);
+                for(i=0;i<FFMIN(16, asf->packetsize);i++) printf(" %02X",asf->packet[i]);
                 printf("\n");
             }
             
@@ -365,6 +368,7 @@ static int demux_asf_fill_buffer(demuxer_t *demux, demux_stream_t *ds){
 	    if (flags & 0x80)
 	    {
 		p += (flags & 0x0f)+1;
+		if (p+1 >= p_end) return 0; // Packet too short
 		flags = p[0];
 		segtype = p[1];
 	    }
@@ -374,30 +378,16 @@ static int demux_asf_fill_buffer(demuxer_t *demux, demux_stream_t *ds){
 	    p+=2; // skip flags & segtype
 
             // Read packet size (plen):
-	    switch((flags>>5)&3){
-	    case 3: plen=LOAD_LE32(p);p+=4;break;	// dword
-	    case 2: plen=LOAD_LE16(p);p+=2;break;	// word
-	    case 1: plen=p[0];p++;break;		// byte
-	    default: plen=0;
-		//plen==0 is handled later
-		//mp_msg(MSGT_DEMUX,MSGL_V,"Invalid plen type! assuming plen=0\n");
-	    }
+	    if(!check_varlen(p, p_end, flags>> 5)) return 0; // Not enough data
+	    plen = read_varlen(&p, flags >> 5, 0);
 
             // Read sequence:
-	    switch((flags>>1)&3){
-	    case 3: sequence=LOAD_LE32(p);p+=4;break;	// dword
-	    case 2: sequence=LOAD_LE16(p);p+=2;break;	// word
-	    case 1: sequence=p[0];p++;break;		// byte
-	    default: sequence=0;
-	    }
+	    if(!check_varlen(p, p_end, flags>> 1)) return 0; // Not enough data
+	    sequence = read_varlen(&p, flags >> 1, 0);
 
             // Read padding size (padding):
-	    switch((flags>>3)&3){
-	    case 3: padding=LOAD_LE32(p);p+=4;break;	// dword
-	    case 2: padding=LOAD_LE16(p);p+=2;break;	// word
-	    case 1: padding=p[0];p++;break;		// byte
-	    default: padding=0;
-	    }
+	    if(!check_varlen(p, p_end, flags>> 3)) return 0; // Not enough data
+	    padding = read_varlen(&p, flags >> 3, 0);
 	    
 	    if(((flags>>5)&3)!=0){
               // Explicit (absoulte) packet size
@@ -409,12 +399,14 @@ static int demux_asf_fill_buffer(demuxer_t *demux, demux_stream_t *ds){
 	    }
 
 	    // Read time & duration:
-	    time = LOAD_LE32(p); p+=4;
-	    duration = LOAD_LE16(p); p+=2;
+	    if (p+5 >= p_end) return 0; // Packet too short
+	    time = AV_RL32(p); p+=4;
+	    duration = AV_RL16(p); p+=2;
 
 	    // Read payload flags:
             if(flags&1){
 	      // multiple sub-packets
+              if (p >= p_end) return 0; // Packet too short
               segsizetype=p[0]>>6;
               segs=p[0] & 0x3F;
               ++p;
@@ -441,7 +433,7 @@ static int demux_asf_fill_buffer(demuxer_t *demux, demux_stream_t *ds){
               if( mp_msg_test(MSGT_DEMUX,MSGL_DBG2) ){
                 int i;
                 printf("seg %d:",seg);
-                for(i=0;i<16;i++) printf(" %02X",p[i]);
+                for(i=0;i<FFMIN(16, p_end - p);i++) printf(" %02X",p[i]);
                 printf("\n");
               }
 
@@ -450,28 +442,16 @@ static int demux_asf_fill_buffer(demuxer_t *demux, demux_stream_t *ds){
 	      p++;
 
               // Read media object number (seq):
-	      switch((segtype>>4)&3){
-	      case 3: seq=LOAD_LE32(p);p+=4;break;	// dword
-	      case 2: seq=LOAD_LE16(p);p+=2;break;	// word
-	      case 1: seq=p[0];p++;break;		// byte
-	      default: seq=0;
-	      }
+	      if(!check_varlen(p, p_end, segtype >> 4)) break; // Not enough data
+	      seq = read_varlen(&p, segtype >> 4, 0);
 	      
               // Read offset or timestamp:
-	      switch((segtype>>2)&3){
-	      case 3: x=LOAD_LE32(p);p+=4;break;	// dword
-	      case 2: x=LOAD_LE16(p);p+=2;break;	// word
-	      case 1: x=p[0];p++;break;		// byte
-	      default: x=0;
-	      }
+	      if(!check_varlen(p, p_end, segtype >> 2)) break; // Not enough data
+	      x = read_varlen(&p, segtype >> 2, 0);
 
               // Read replic.data len:
-	      switch((segtype)&3){
-	      case 3: rlen=LOAD_LE32(p);p+=4;break;	// dword
-	      case 2: rlen=LOAD_LE16(p);p+=2;break;	// word
-	      case 1: rlen=p[0];p++;break;		// byte
-	      default: rlen=0;
-	      }
+	      if(!check_varlen(p, p_end, segtype)) break; // Not enough data
+	      rlen = read_varlen(&p, segtype, 0);
 	      
 //	      printf("### rlen=%d   \n",rlen);
       
@@ -483,7 +463,8 @@ static int demux_asf_fill_buffer(demuxer_t *demux, demux_stream_t *ds){
               default:
 	        if(rlen>=8){
             	    p+=4;	// skip object size
-            	    time2=LOAD_LE32(p); // read PTS
+            	    if (p+3 >= p_end) break; // Packet too short
+            	    time2=AV_RL32(p); // read PTS
             	    if (asf->asf_is_dvr_ms)
             	        get_payload_extension_data(demux, &p, streamno, seq, &keyframe, &time2);
 		    p+=rlen-4;
@@ -496,18 +477,15 @@ static int demux_asf_fill_buffer(demuxer_t *demux, demux_stream_t *ds){
 
               if(flags&1){
                 // multiple segments
-		switch(segsizetype){
-	          case 3: len=LOAD_LE32(p);p+=4;break;	// dword
-	          case 2: len=LOAD_LE16(p);p+=2;break;	// word
-	          case 1: len=p[0];p++;break;		// byte
-	          default: len=plen-(p-asf->packet); // ???
-		}
+		if(!check_varlen(p, p_end, segsizetype)) break; // Not enough data
+		len = read_varlen(&p, segsizetype, plen-(p-asf->packet));
               } else {
                 // single segment
                 len=plen-(p-asf->packet);
               }
               if(len<0 || (p+len)>p_end){
                 mp_msg(MSGT_DEMUX,MSGL_V,"ASF_parser: warning! segment len=%d\n",len);
+                len = p_end - p;
               }
               mp_dbg(MSGT_DEMUX,MSGL_DBG4,"  seg #%d: streamno=%d  seq=%d  type=%02X  len=%d\n",seg,streamno,seq,rlen,len);
 
@@ -520,6 +498,8 @@ static int demux_asf_fill_buffer(demuxer_t *demux, demux_stream_t *ds){
 		  int len2=p[0];
 		  p++;
                   //printf("  group part: %d bytes\n",len2);
+                  if(len2 > len - 1 || len2 < 0) break; // Not enough data
+                  len2 = FFMIN(len2, asf->packetsize);
                   demux_asf_read_packet(demux,p,len2,streamno,seq,x,duration,-1,keyframe);
                   p+=len2;
 		  len-=len2+1;
@@ -532,8 +512,11 @@ static int demux_asf_fill_buffer(demuxer_t *demux, demux_stream_t *ds){
               default:
                 // NO GROUPING:
                 //printf("fragment offset: %d  \n",sh->x);
-                if (!asf->asf_is_dvr_ms || asf->found_first_key_frame)
+                if (len <= 0) break;
+                if (!asf->asf_is_dvr_ms || asf->found_first_key_frame) {
+                    len = FFMIN(len, asf->packetsize);
                     demux_asf_read_packet(demux,p,len,streamno,seq,time2,duration,x,keyframe);
+                }
                 p+=len;
                 break;
 	      }
@@ -548,7 +531,7 @@ static int demux_asf_fill_buffer(demuxer_t *demux, demux_stream_t *ds){
 
 #include "stheader.h"
 
-extern void skip_audio_frame(sh_audio_t *sh_audio);
+void skip_audio_frame(sh_audio_t *sh_audio);
 
 static void demux_seek_asf(demuxer_t *demuxer,float rel_seek_secs,float audio_delay,int flags){
     struct asf_priv* asf = demuxer->priv;
@@ -562,7 +545,7 @@ static void demux_seek_asf(demuxer_t *demuxer,float rel_seek_secs,float audio_de
 
   //================= seek in ASF ==========================
     float p_rate=asf->packetrate; // packets / sec
-    off_t rel_seek_packs=(flags&2)?	 // FIXME: int may be enough?
+    off_t rel_seek_packs=(flags&SEEK_FACTOR)?	 // FIXME: int may be enough?
 	(rel_seek_secs*(demuxer->movi_end-demuxer->movi_start)/asf->packetsize):
 	(rel_seek_secs*p_rate);
     off_t rel_seek_bytes=rel_seek_packs*asf->packetsize;
@@ -570,7 +553,7 @@ static void demux_seek_asf(demuxer_t *demuxer,float rel_seek_secs,float audio_de
     //printf("ASF: packs: %d  duration: %d  \n",(int)fileh.packets,*((int*)&fileh.duration));
 //    printf("ASF_seek: %d secs -> %d packs -> %d bytes  \n",
 //       rel_seek_secs,rel_seek_packs,rel_seek_bytes);
-    newpos=((flags&1)?demuxer->movi_start:demuxer->filepos)+rel_seek_bytes;
+    newpos=((flags&SEEK_ABSOLUTE)?demuxer->movi_start:demuxer->filepos)+rel_seek_bytes;
     if(newpos<0 || newpos<demuxer->movi_start) newpos=demuxer->movi_start;
 //    printf("\r -- asf: newpos=%d -- \n",newpos);
     stream_seek(demuxer->stream,newpos);
@@ -685,7 +668,7 @@ static void demux_close_asf(demuxer_t *demuxer) {
     free(asf);
 }
 
-demuxer_desc_t demuxer_desc_asf = {
+const demuxer_desc_t demuxer_desc_asf = {
   "ASF demuxer",
   "asf",
   "ASF",

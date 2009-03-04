@@ -1,58 +1,24 @@
-/* ------------------------------------------------------------------------- */
-
 /*
  * af_ladspa.c, LADSPA plugin loader
  *
  * Written by Ivo van Poorten <ivop@euronet.nl>
  * Copyright (C) 2004, 2005
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This file is part of MPlayer.
  *
- * This program is distributed in the hope that it will be useful,
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
- *
- * Changelog
- *
- * 2005-06-21   Replaced erroneous use of mp_msg by af_msg
- * 2005-05-30   Removed int16 to float conversion; leave that to af_format
- * 2004-12-23   Added to CVS
- * 2004-12-22   Cleaned up cosmetics
- *              Made conversion loops in play() more cache-friendly
- * 2004-12-20   Fixed bug for stereo effect on mono signal
- *                  (trivial >1 to >=1 change; would segfault otherwise :-) )
- *              Removed trailing whitespace and fixed warn/err messages
- *              Have CONTROL_REINIT return a proper value
- * 2004-12-13   More Doxygen comments
- * 2004-12-12   Made af_ladspa optional (updated configure, af.c, etc.)
- * 2004-12-11   Added deactivate and cleanup to uninit.
- *              Finished Doxygen comments.
- *              Moved translatable messages to help_mp-en.h
- * 2004-12-10   Added ranges to list of controls for ease of use.
- *              Fixed sig11 bug. Implemented (dummy) outputcontrols. Some
- *              perfectly normal audio processing filters also have output
- *              controls.
- * 2004-12-08   Added support for generators (no input, one output)
- *              Added support for stereo effects
- *              Added LADSPA_PATH support!
- * 2004-12-07   Fixed changing buffersize. Now it's really working, also in
- *              real-time.
- * 2004-12-06   First working version, mono-effects (1 input --> 1 output) only
- * 2004-12-05   Started, Loading of plugin/label, Check inputs/outputs/controls
- *              Due to lack of documentation, I studied the ladspa_sdk source
- *              code and the loader code of Audacity (by Dominic Mazzoni). So,
- *              certain similarities in (small) pieces of code are not
- *              coincidental :-) No C&P jobs though!
- *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /* ------------------------------------------------------------------------- */
@@ -330,16 +296,15 @@ static void* mydlopen(const char *filename, int flag) {
     size_t filenamelen;
     void *result = NULL;
 
-#   ifdef WIN32         /* for windows there's only absolute path support.
-                         * if you have a windows machine, feel free to fix
-                         * this. (path separator, shared objects extension,
-                         * et cetera).
-                         */
+#if defined(__MINGW32__) || defined(__CYGWIN__)
+    /* For Windows there's only absolute path support.
+     * If you have a Windows machine, feel free to fix this.
+     * (path separator, shared objects extension, et cetera). */
         af_msg(AF_MSG_VERBOSE, "\ton windows, only absolute pathnames "
                 "are supported\n");
         af_msg(AF_MSG_VERBOSE, "\ttrying %s\n", filename);
         return dlopen(filename, flag);
-#   endif
+#endif
 
     filenamelen = strlen(filename);
 
@@ -940,8 +905,7 @@ static int af_open(af_instance_t *af) {
     af->control=control;
     af->uninit=uninit;
     af->play=play;
-    af->mul.n=1;
-    af->mul.d=1;
+    af->mul=1;
 
     af->data = calloc(1, sizeof(af_data_t));
     if (af->data == NULL)

@@ -48,7 +48,7 @@ Requirements
 ~~~~~~~~~~~~
 The requirements for any (official) mirror are:
 1) rsync installed and some way to run the sync script periodicaly (eg cron)
-2) subscribing to the mplayer-mirror mailinglist (see below)
+2) subscribing to the mplayer-mirror mailing list (see below)
 
 The requirements for a full website mirror are:
 1) 500MB of free disk space (for the ftp and homepage directories).
@@ -78,7 +78,7 @@ Using a lock file is recommended but not necessary. The temporary file
 generation is handled by `mktemp` which is available from
 http://www.mktemp.org/mktemp/ .
 
-The script contains a few configuration variables at the begining that
+The script contains a few configuration variables at the beginning that
 can and should be set:
 PATH: The $PATH to be used within the script (recommended).
 LOCK: The full path to the lock file to be used (/var/lock/mplayer-mirror-lock
@@ -137,7 +137,7 @@ DO NOT send the private key to the mirror mailing list.
 
 The public key should be placed in the ~/.ssh/authorized_keys file of the
 user running the updates. To restrict the ssh key to only one command place
-the following directives at the begining of the line with the key:
+the following directives at the beginning of the line with the key:
 from="*.mplayerhq.hu",command="<path_to_update_mplayer_rsync>"
 e.g.:
 ---
@@ -160,15 +160,13 @@ Setting up a webserver
 Set up Apache or whatever web server you prefer. We just have static pages,
 so no fancy configuration is necessary. However, we need a few aliases so that
 links on our pages work correctly. /MPlayer and /DOCS should redirect to the
-directory with the downloadable files and /homepage should redirect to the
-directory with the HTML pages.
+directory with the downloadable files.
 
 Here is an example stanza to paste into your Apache configuration:
 
 <VirtualHost www#.mplayerhq.hu>
         DocumentRoot /path/to/htdocs
         Options FollowSymLinks Indexes
-        Alias /homepage /path/to/htdocs
         Alias /MPlayer  /path/to/MPlayer
         Alias /DOCS     /path/to/MPlayer/DOCS
         AddDefaultCharset off
@@ -177,7 +175,6 @@ Here is an example stanza to paste into your Apache configuration:
 <VirtualHost www.mplayerhq.hu>
         DocumentRoot /path/to/htdocs
         Options FollowSymLinks Indexes
-        Alias /homepage /path/to/htdocs
         Alias /MPlayer  /path/to/MPlayer
         Alias /DOCS     /path/to/MPlayer/DOCS
         AddDefaultCharset off
@@ -188,21 +185,46 @@ appear to default to defining a standard charset. This breaks our documentation
 translations, which are written in different encodings.
 
 The second VirtualHost is necessary for the DNS round-robin address.
+To check whether this VirtualHost works, you can add a temporary entry into
+your /etc/hosts file:
+
+1.2.3.4 www.mplayerhq.hu
+
+Replace the IP address by the real IP address of your mirror. Do not forget to
+remove the entry after you finish testing.
+
+
+Webserver checklist
+~~~~~~~~~~~~~~~~~~~
+
+After setting up the web server, please verify that the following things work
+both for your mirror address (www#.mplayerhq.hu) and the DNS round-robin
+address (www.mplayerhq.hu):
+
+- The virtual host is reachable by its address.
+- The MPlayer and DOCS subdirectories work.
+- The man pages and documentation are served with the correct content-type.
+  Try Russian or Chinese, you will notice breakage immediately.
 
 
 Setting up an FTP server
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Any FTP server will do. We use vsftpd, it's fast and secure. You should have
-the same directory layout as we do on our server, so there should be a
-subdirectory named 'MPlayer' (notice the capitals) that contains the
-downloadable files.
+Any FTP server will do. We use vsftpd, it is fast and secure. The setup is
+similar to the web server setup. The FTP server should listen on both its mirror
+address (ftp#.mplayerhq.hu) and the DNS round-robin address (ftp.mplayerhq.hu).
+All our mirrors are public, so you should allow anonymous access.
+
+You should have the same directory layout as we do on our server, so there
+should be a subdirectory named 'MPlayer' (notice the capitals) that contains
+the downloadable files.
 
 
-Mailinglist
-~~~~~~~~~~~
+Mailing list
+~~~~~~~~~~~~
 
 All official mirror admins are required to subscribe to the mplayer-mirror
-mailinglist. It's used to coordinate the efforts and distribute information
+mailing list. It's used to coordinate the efforts and distribute information
 among all admins. It is also very low traffic. Please use the webinterface
 on http://lists.mplayerhq.hu/mailman/listinfo/mplayer-mirror to subscribe.
+Please do not top-post on this mailing list.

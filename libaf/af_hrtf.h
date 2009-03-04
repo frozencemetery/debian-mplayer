@@ -1,3 +1,24 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+#ifndef MPLAYER_AF_HRTF_H
+#define MPLAYER_AF_HRTF_H
+
 #define HRTF_MIX_51 0
 #define HRTF_MIX_STEREO 1
 #define HRTF_MIX_MATRIX2CH 2
@@ -85,7 +106,7 @@ How to generate these data:
 
 /* Center front (-5 degree) - not 0 degree in order to create a clear
    front image from a finite distance */
-float cf_filt[128] = {
+static const float cf_filt[128] = {
    -0.00008638082319075036, 0.0003198059946385229,
    -0.0005010631339162132, 0.0011424741331126876,
    -0.001584220794688753, 0.001742715363246275,
@@ -152,7 +173,7 @@ float cf_filt[128] = {
    -0.005469203016468759, -0.004355784273189485
 };
 /* Front,   same side (30 degree) */
-float af_filt[128] = {
+static const float af_filt[128] = {
    -0.004140580614755493, 0.005790934614385445,
    0.003318916682081112, 0.014257145544366063,
    0.007328442487127339, -0.06550381777876194,
@@ -219,7 +240,7 @@ float af_filt[128] = {
    -0.0005083025643192044, 0.00035096963769606926
 };
 /* Front,   opposite (-30 degree) */
-float of_filt[128] = {
+static const float of_filt[128] = {
    -0.000013472538374193126, -0.00008048061877079751,
    0.000043927265781258155, -0.000017931700794858892,
    -0.000034774602476112886, -0.00009576223008735474,
@@ -286,7 +307,7 @@ float of_filt[128] = {
    -0.0013726264946164232, -0.0020075119315034313
 };
 /* Rear,   same side (135 degree) */
-float ar_filt[128] = {
+static const float ar_filt[128] = {
    0.004573315040810066, 0.0013592578059426913,
    0.01553271930902704, -0.0002356117224941317,
    -0.05746098219774702, 0.03430688963370445,
@@ -353,7 +374,7 @@ float ar_filt[128] = {
    -0.0026884314856593368, -0.004084181815125924
 };
 /* Rear,   opposite (-135 degree) */
-float or_filt[128] = {
+static const float or_filt[128] = {
    0.0001220944028243897, -0.000021785381808441314,
    5.823057988603169e-6, -0.00001217768176447613,
    -0.00006123604397345513, 5.574117262531134e-6,
@@ -420,7 +441,7 @@ float or_filt[128] = {
    -0.001852908777923165, -0.002540339553144362
 };
 /* Center rear (180 degree) */
-float cr_filt[128] = {
+static const float cr_filt[128] = {
    -0.00005989110716536726, -0.00022790291829128702,
    0.0002659166098971966, -0.0003774772716776257,
    0.0004540309551867803, -0.000420238187386368,
@@ -486,3 +507,5 @@ float cr_filt[128] = {
    -0.00255615052036616, -0.0017721562881944813,
    -0.0002379619297227554, 0.0007130120121089036
 };
+
+#endif /* MPLAYER_AF_HRTF_H */

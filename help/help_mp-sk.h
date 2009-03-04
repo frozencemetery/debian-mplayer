@@ -13,10 +13,10 @@ static char help_text[]=
 "Základné prepínače: (Kompletný zoznam nájdete v man stránke)\n"
 " -vo <drv[:dev]> výber výstup. video ovládača&zariadenia (-vo help pre zoznam)\n"
 " -ao <drv[:dev]> výber výstup. audio ovládača&zariadenia (-ao help pre zoznam)\n"
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
 " vcd://<trackno>  prehrať VCD (video cd) stopu zo zariadenia namiesto zo súboru\n"
 #endif
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 " dvd://<titleno>  prehrať DVD titul/stopu zo zariadenia (mechaniky) namiesto súboru\n"
 " -alang/-slang   vybrať jazyk DVD zvuku/titulkov(pomocou 2-miest. kódu krajiny)\n"
 #endif
@@ -158,7 +158,6 @@ static char help_text[]=
 #define MSGTR_MenuInitFailed "Zlyhala inicializácia menu.\n"
 #define MSGTR_Getch2InitializedTwice "VAROVANIE: getch2_init je volaná dvakrát!\n"
 #define MSGTR_DumpstreamFdUnavailable "Nemôžem uložiť (dump) tento prúd - nie je dostupný žiaden deskriptor súboru.\n"
-#define MSGTR_FallingBackOnPlaylist "Ustupujem od pokusu o spracovanie playlistu %s...\n"
 #define MSGTR_CantOpenLibmenuFilterWithThisRootMenu "Nemôžem otvoriť video filter libmenu s koreňovým menu %s.\n"
 #define MSGTR_AudioFilterChainPreinitError "Chyba pri predinicializácii reťazca audio filtrov!\n"
 #define MSGTR_LinuxRTCReadError "Chyba pri čítaní z Linuxových RTC: %s\n"
@@ -382,7 +381,7 @@ static char help_text[]=
 #define MSGTR_ConfigFileError "chyba konfiguračného súboru"
 #define MSGTR_ErrorParsingCommandLine "chyba pri spracovávaní príkazového riadku"
 #define MSGTR_VideoStreamRequired "Video prúd je povinný!\n"
-#define MSGTR_ForcingInputFPS "vstupné fps bude interpretované ako %5.2f\n"
+#define MSGTR_ForcingInputFPS "vstupné fps bude interpretované ako %5.3f\n"
 #define MSGTR_RawvideoDoesNotSupportAudio "Výstupný formát súboru RAWVIDEO nepodporuje zvuk - vypínam ho\n"
 #define MSGTR_DemuxerDoesntSupportNosound "Tento demuxer zatiaľ nepodporuje -nosound.\n"
 #define MSGTR_MemAllocFailed "Alokácia pamäte zlyhala\n"
@@ -506,7 +505,7 @@ static char help_text[]=
 #define MSGTR_SMBFileNotFound "Nemôžem otvoriť z LAN: '%s'\n"
 #define MSGTR_SMBNotCompiled "MPlayer mebol skompilovaný s podporou čítania z SMB\n"
 
-#define MSGTR_CantOpenDVD "Nejde otvoriť DVD zariadenie: %s\n"
+#define MSGTR_CantOpenDVD "Nejde otvoriť DVD zariadenie: %s (%s)\n"
 #define MSGTR_NoDVDSupport "MPlayer bol skompilovaný bez podpory DVD, koniec\n"
 #define MSGTR_DVDnumTitles "Na tomto DVD je %d titulov.\n"
 #define MSGTR_DVDinvalidTitle "Neplatné číslo DVD titulu: %d\n"
@@ -657,7 +656,7 @@ static char help_text[]=
 
 // ====================== GUI messages/buttons ========================
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 
 // --- labels ---
 #define MSGTR_About "O aplikácii"

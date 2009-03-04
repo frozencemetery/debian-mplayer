@@ -304,7 +304,7 @@ This way it apeared that the minimum bits per block is ~40, very
 good results are with ~50, and everything above 60 is a waste of bandwidth.
 And what's actually funny is that it was independent of codec used. The
 results were exactly the same, whether I used DIV3 (with tricky nandub's
-magick), ffmpeg odivx, DivX5 on Windows or XviD.
+magick), ffmpeg odivx, DivX5 on Windows or Xvid.
 
 Surprisingly there is one advantage of using nandub-DIV3 for bitrate
 starved encoding: ringing almost never apears this way.
@@ -612,7 +612,7 @@ TIPS FOR SMOKE & CLOUDS
 
 Q: I'm trying  to encode Dante's Peak and I'm  having problems with clouds,
 fog and  smoke: They don't  look fine  (they look very  bad if I  watch the
-movie  in TVout).  There are  some artifacts,  white clouds  looks as  snow
+movie  in TV-out).  There are  some artifacts,  white clouds  looks as  snow
 mountains, there are things likes hip in the colors so one can see frontier
 curves between white and light gray and  dark gray ... (I don't know if you
 can understand me, I want to mean that the colors don't change smoothly)

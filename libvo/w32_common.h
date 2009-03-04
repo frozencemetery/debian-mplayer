@@ -1,19 +1,38 @@
-extern int vo_depthonscreen;
-extern int vo_screenwidth;
-extern int vo_screenheight;
-extern uint32_t o_dwidth;
-extern uint32_t o_dheight;
-extern HWND vo_w32_window;
-extern HDC vo_hdc;
-extern int vo_fs;
-extern int vo_vm;
-extern int vo_ontop;
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
-extern int vo_w32_init(void);
-extern void vo_w32_uninit(void);
-extern void vo_w32_ontop(void);
-extern void vo_w32_fullscreen(void);
-extern int vo_w32_check_events(void);
-extern int vo_w32_config(uint32_t, uint32_t, uint32_t);
-extern void destroyRenderingContext(void);
-extern void w32_update_xinerama_info(void);
+#ifndef MPLAYER_W32_COMMON_H
+#define MPLAYER_W32_COMMON_H
+
+#include <stdint.h>
+#include <windows.h>
+
+extern HWND vo_w32_window;
+extern int vo_vm;
+
+int vo_w32_init(void);
+void vo_w32_uninit(void);
+void vo_w32_ontop(void);
+void vo_w32_border(void);
+void vo_w32_fullscreen(void);
+int vo_w32_check_events(void);
+int vo_w32_config(uint32_t, uint32_t, uint32_t);
+void destroyRenderingContext(void);
+void w32_update_xinerama_info(void);
+
+#endif /* MPLAYER_W32_COMMON_H */

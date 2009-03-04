@@ -182,6 +182,12 @@ static int add_to_format(char *s, char *alias,unsigned int *fourcc, unsigned int
 		{"IDCT_MPEG2",IMGFMT_XVMC_IDCT_MPEG2},
 		{"MOCO_MPEG2",IMGFMT_XVMC_MOCO_MPEG2},
 
+		{"VDPAU_MPEG1",IMGFMT_VDPAU_MPEG1},
+		{"VDPAU_MPEG2",IMGFMT_VDPAU_MPEG2},
+		{"VDPAU_H264",IMGFMT_VDPAU_H264},
+		{"VDPAU_WMV3",IMGFMT_VDPAU_WMV3},
+		{"VDPAU_VC1",IMGFMT_VDPAU_VC1},
+
 		{NULL,    0}
 	};
 
@@ -349,14 +355,14 @@ static int validate_codec(codecs_t *c, int type)
 	}
 
 #if 0
-#warning codec->driver == 4;... <- ezt nem kellene belehegeszteni...
-#warning HOL VANNAK DEFINIALVA????????????
+#warning codec->driver == 4;... <- this should not be put in here...
+#warning Where are they defined ????????????
 	if (!c->dll && (c->driver == 4 ||
 				(c->driver == 2 && type == TYPE_VIDEO))) {
 		mp_msg(MSGT_CODECCFG,MSGL_ERR,MSGTR_CodecNeedsDLL, c->name);
 		return 0;
 	}
-#warning guid.f1 lehet 0? honnan lehet tudni, hogy nem adtak meg?
+#warning Can guid.f1 be 0? How does one know that it was not given?
 //	if (!(codec->flags & CODECS_FLAG_AUDIO) && codec->driver == 4)
 
 	if (type == TYPE_VIDEO)
@@ -737,17 +743,17 @@ err_out_release_num:
 static void codecs_free(codecs_t* codecs,int count) {
 	int i;
 		for ( i = 0; i < count; i++)
-			if ( (codecs[i]).name ) {
-				if( (codecs[i]).name )
-					free((codecs[i]).name);
-				if( (codecs[i]).info )
-					free((codecs[i]).info);
-				if( (codecs[i]).comment )
-					free((codecs[i]).comment);
-				if( (codecs[i]).dll )
-					free((codecs[i]).dll);
-				if( (codecs[i]).drv )
-					free((codecs[i]).drv);
+			if ( codecs[i].name ) {
+				if( codecs[i].name )
+					free(codecs[i].name);
+				if( codecs[i].info )
+					free(codecs[i].info);
+				if( codecs[i].comment )
+					free(codecs[i].comment);
+				if( codecs[i].dll )
+					free(codecs[i].dll);
+				if( codecs[i].drv )
+					free(codecs[i].drv);
 			}
 		if (codecs)
 			free(codecs);
@@ -818,36 +824,32 @@ codecs_t* find_codec(unsigned int fourcc,unsigned int *fourccmap,
 	return NULL;
 }
 
-void select_codec(char* codecname,int audioflag){
-	int i;
-	codecs_t *c;
-//	printf("select_codec('%s')\n",codecname);
-	if (audioflag) {
-		i = nr_acodecs;
-		c = audio_codecs;
-	} else {
-		i = nr_vcodecs;
-		c = video_codecs;
-	}
-	if(i)
-	for (/* NOTHING */; i--; c++)
-	    if(!strcmp(c->name,codecname))
-		c->flags|=CODECS_FLAG_SELECTED;
+void stringset_init(stringset_t *set) {
+  *set = calloc(1, sizeof(char *));
 }
 
-void codecs_reset_selection(int audioflag){
-	int i;
-	codecs_t *c;
-	if (audioflag) {
-		i = nr_acodecs;
-		c = audio_codecs;
-	} else {
-		i = nr_vcodecs;
-		c = video_codecs;
-	}
-	if(i)
-	for (/* NOTHING */; i--; c++)
-		c->flags&=(~CODECS_FLAG_SELECTED);
+void stringset_free(stringset_t *set) {
+  int count = 0;
+  while ((*set)[count]) free((*set)[count++]);
+  free(*set);
+  *set = NULL;
+}
+
+void stringset_add(stringset_t *set, const char *str) {
+  int count = 0;
+  while ((*set)[count]) count++;
+  count++;
+  *set = realloc(*set, sizeof(char *) * (count + 1));
+  (*set)[count - 1] = strdup(str);
+  (*set)[count] = NULL;
+}
+
+int stringset_test(stringset_t *set, const char *str) {
+  stringset_t s;
+  for (s = *set; *s; s++)
+    if (strcmp(*s, str) == 0)
+      return 1;
+  return 0;
 }
 
 void list_codecs(int audioflag){
@@ -884,14 +886,6 @@ void list_codecs(int audioflag){
 
 
 #ifdef CODECS2HTML
-/*
- * Fake out GUI references when building the codecs2html utility.
- */
-#ifdef HAVE_NEW_GUI
-void gtkMessageBox( int type,char * str ) { return; }
-int use_gui = 0;
-#endif
-
 void wrapline(FILE *f2,char *s){
     int c;
     if(!s){
@@ -1026,9 +1020,11 @@ int main(int argc, char* argv[])
 		nr[1] = nr_acodecs;
 		
 		printf("/* GENERATED FROM %s, DO NOT EDIT! */\n\n",argv[1]);
+		printf("#include <stddef.h>\n",argv[1]);
+		printf("#include \"codec-cfg.h\"\n\n",argv[1]);
 		
 		for (i=0; i<2; i++) {
-		  	printf("codecs_t %s[] = {\n", nm[i]);
+		  	printf("const codecs_t %s[] = {\n", nm[i]);
 			for (j = 0; j < nr[i]; j++) {
 			  	printf("{");
 
@@ -1179,8 +1175,10 @@ next:
 		    printf("info='%s'\n",c->info);
 		    printf("comment='%s'\n",c->comment);
 		    printf("dll='%s'\n",c->dll);
-		    printf("flags=%X  driver=%d status=%d cpuflags=%d\n",
-				    c->flags, c->driver, c->status, c->cpuflags);
+		    /* printf("flags=%X  driver=%d status=%d cpuflags=%d\n",
+		              c->flags, c->driver, c->status, c->cpuflags); */
+		    printf("flags=%X status=%d cpuflags=%d\n",
+				    c->flags, c->status, c->cpuflags);
 
 		    for(j=0;j<CODECS_MAX_FOURCC;j++){
 		      if(c->fourcc[j]!=0xFFFFFFFF){

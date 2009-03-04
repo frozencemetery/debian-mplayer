@@ -1,9 +1,38 @@
-//#define CRTC2
+/*
+ * Matrox MGA G200/G400 YUV Video Interface module Version 0.1.0
+ * BES == Back End Scaler
+ *
+ * Copyright (C) 1999 Aaron Holtzman
+ *
+ * Module skeleton based on gutted agpgart module by
+ * Jeff Hartmann <slicer@ionet.net>
+ * YUY2 support (see config.format) added by A'rpi/ESP-team
+ * double buffering added by A'rpi/ESP-team
+ * brightness/contrast introduced by eyck
+ * multiple card support by Attila Kinali <attila@kinali.ch>
+ *
+ * This file is part of mga_vid.
+ *
+ * mga_vid is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * mga_vid is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with mga_vid; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
-// YUY2 support (see config.format) added by A'rpi/ESP-team
-// double buffering added by A'rpi/ESP-team
-// brightness/contrast introduced by eyck
-// multiple card support by Attila Kinali <attila@kinali.ch>
+//It's entirely possible this major conflicts with something else
+//use the 'major' parameter to override the default major number (178)
+/* mknod /dev/mga_vid c 178 0 */
+
+//#define CRTC2
 
 // Set this value, if autodetection fails! (video ram size in megabytes)
 // #define MGA_MEMORY_SIZE 16
@@ -11,27 +40,6 @@
 //#define MGA_ALLOW_IRQ
 
 #define MGA_VSYNC_POS 2
-
-/*
- *
- * mga_vid.c
- *
- * Copyright (C) 1999 Aaron Holtzman
- * 
- * Module skeleton based on gutted agpgart module by Jeff Hartmann 
- * <slicer@ionet.net>
- *
- * Matrox MGA G200/G400 YUV Video Interface module Version 0.1.0
- * 
- * BES == Back End Scaler
- * 
- * This software has been released under the terms of the GNU Public
- * license. See http://www.gnu.org/copyleft/gpl.html for details.
- */
-
-//It's entirely possible this major conflicts with something else
-//use the 'major' parameter to override the default major number (178)
-/* mknod /dev/mga_vid c 178 0 */
 
 #include <linux/config.h>
 #include <linux/version.h>
@@ -1185,6 +1193,14 @@ static int mga_vid_ioctl(struct inode *inode, struct file *file, unsigned int cm
 
 	switch(cmd) 
 	{
+		case MGA_VID_GET_VERSION:
+			tmp = MGA_VID_VERSION;
+			if (copy_to_user((uint32_t *) arg, &tmp, sizeof(uint32_t))) {
+				printk(KERN_ERR "mga_vid: failed copy %p to userspace %p\n", &tmp, (uint32_t *) arg);
+				return (-EFAULT);
+			}
+			break;
+
 		case MGA_VID_CONFIG:
 			//FIXME remove
 //			printk(KERN_DEBUG "mga_vid: vcount = %d\n",readl(card->mmio_base + VCOUNT));
@@ -1199,27 +1215,27 @@ static int mga_vid_ioctl(struct inode *inode, struct file *file, unsigned int cm
  			if(copy_from_user(&card->config,(mga_vid_config_t*) arg,sizeof(mga_vid_config_t)))
 			{
 				printk(KERN_ERR "mga_vid: failed copy from userspace\n");
-				return(-EFAULT);
+				return -EFAULT;
 			}
 			if(card->config.version != MGA_VID_VERSION){
 				printk(KERN_ERR "mga_vid: incompatible version! driver: %X  requested: %X\n",MGA_VID_VERSION,card->config.version);
-				return(-EFAULT);
+				return -EFAULT;
 			}
 
 			if(card->config.frame_size==0 || card->config.frame_size>1024*768*2){
 				printk(KERN_ERR "mga_vid: illegal frame_size: %d\n",card->config.frame_size);
-				return(-EFAULT);
+				return -EFAULT;
 			}
 
 			if(card->config.num_frames<1 || card->config.num_frames>4){
 				printk(KERN_ERR "mga_vid: illegal num_frames: %d\n",card->config.num_frames);
-				return(-EFAULT);
+				return -EFAULT;
 			}
 			
 			card->src_base = (card->ram_size * 0x100000 - card->config.num_frames * card->config.frame_size - card->top_reserved);
 			if(card->src_base<0){
 				printk(KERN_ERR "mga_vid: not enough memory for frames!\n");
-				return(-EFAULT);
+				return -EFAULT;
 			}
 			card->src_base &= (~0xFFFF); // 64k boundary
 #ifdef MP_DEBUG
@@ -1236,7 +1252,7 @@ static int mga_vid_ioctl(struct inode *inode, struct file *file, unsigned int cm
 			if (copy_to_user((mga_vid_config_t *) arg, &card->config, sizeof(mga_vid_config_t)))
 			{
 				printk(KERN_ERR "mga_vid: failed copy to userspace\n");
-				return(-EFAULT);
+				return -EFAULT;
 			}
 
 			result = mga_vid_set_config(card);	
@@ -1277,7 +1293,7 @@ static int mga_vid_ioctl(struct inode *inode, struct file *file, unsigned int cm
 			if(copy_from_user(&frame,(int *) arg,sizeof(int)))
 			{
 				printk(KERN_ERR "mga_vid: FSEL failed copy from userspace\n");
-				return(-EFAULT);
+				return -EFAULT;
 			}
 
 			mga_vid_frame_sel(card, frame);
@@ -1292,7 +1308,7 @@ static int mga_vid_ioctl(struct inode *inode, struct file *file, unsigned int cm
 			{
 				printk(KERN_ERR "mga_vid: failed copy %p to userspace %p\n",
 					   &tmp, (uint32_t *) arg);
-				return(-EFAULT);
+				return -EFAULT;
 			}
 		break;
 			
@@ -1306,7 +1322,7 @@ static int mga_vid_ioctl(struct inode *inode, struct file *file, unsigned int cm
 			
 	        default:
 			printk(KERN_ERR "mga_vid: Invalid ioctl\n");
-			return (-EINVAL);
+			return -EINVAL;
 	}
        
 	return 0;
@@ -1456,17 +1472,17 @@ static int mga_vid_mmap(struct file *file, struct vm_area_struct *vma)
 	if(!card->configured)
 	{
 		printk(KERN_ERR "mga_vid: card is not configured, cannot mmap\n");
-		return(-EAGAIN);
+		return -EAGAIN;
 	}
 
 	if(remap_page_range(vma->vm_start, card->mem_base + card->src_base,
 		 vma->vm_end - vma->vm_start, vma->vm_page_prot)) 
 	{
 		printk(KERN_ERR "mga_vid: error mapping video memory\n");
-		return(-EAGAIN);
+		return -EAGAIN;
 	}
 
-	return(0);
+	return 0;
 }
 
 static int mga_vid_release(struct inode *inode, struct file *file)
@@ -1509,7 +1525,7 @@ static int mga_vid_open(struct inode *inode, struct file *file)
 
 		// we don't have that many cards
 		if(minor >= mga_cards_num)
-		 return(-ENXIO);
+		 return -ENXIO;
 
 		file->private_data = mga_cards[minor];
 #ifdef MP_DEBUG
@@ -1525,11 +1541,11 @@ static int mga_vid_open(struct inode *inode, struct file *file)
 	card = (mga_card_t *) file->private_data;
 
 	if(card->vid_in_use == 1) 
-		return(-EBUSY);
+		return -EBUSY;
 
 	card->vid_in_use = 1;
 	MOD_INC_USE_COUNT;
-	return(0);
+	return 0;
 }
 
 #if LINUX_VERSION_CODE >= 0x020400
@@ -1727,7 +1743,7 @@ static int mga_vid_initialize(void)
 	}
 #endif
 
-	return(0);
+	return 0;
 }
 
 int init_module(void)

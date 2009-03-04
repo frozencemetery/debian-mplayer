@@ -23,7 +23,7 @@
 ** For more info contact Ahead Software through Mpeg4AAClicense@nero.com.
 **
 ** Initially modified for use with MPlayer by Arpad Gereöffy on 2003/08/30
-** $Id: common.h 24043 2007-08-09 11:35:41Z diego $
+** $Id: common.h 28613 2009-02-16 17:05:58Z diego $
 ** detailed changelog at http://svn.mplayerhq.hu/mplayer/trunk/
 ** local_changes.diff contains the exact changes to this file.
 **/
@@ -69,7 +69,7 @@ extern "C" {
 /* Use if target platform has address generators with autoincrement */
 //#define PREFER_POINTERS
 
-#if defined(_WIN32_WCE) || defined(__arm__)
+#if defined(_WIN32_WCE) || defined(__arm__) || defined(__avr32__)
 #define FIXED_POINT
 #endif
 
@@ -305,7 +305,7 @@ char *strchr(), *strrchr();
   }
 
 
-  #if defined(_WIN32) && !defined(__MINGW32__) && !defined(HAVE_LRINTF)
+  #if defined(_WIN32) && !defined(__MINGW32__) && !HAVE_LRINTF
     #define HAS_LRINTF
     static INLINE int lrintf(float f)
     {
@@ -317,7 +317,7 @@ char *strchr(), *strrchr();
         }
         return i;
     }
-  #elif (defined(__i386__) && defined(__GNUC__)) && !defined(HAVE_LRINTF)
+  #elif (defined(__i386__) && defined(__GNUC__)) && !HAVE_LRINTF
     #define HAS_LRINTF
     // from http://www.stereopsis.com/FPU.html
     static INLINE int lrintf(float f)
@@ -348,7 +348,7 @@ char *strchr(), *strrchr();
 
 #include <math.h>
 
-#ifdef HAVE_LRINTF
+#if HAVE_LRINTF
 #  define HAS_LRINTF
 #  define _ISOC9X_SOURCE 1
 #  define _ISOC99_SOURCE 1

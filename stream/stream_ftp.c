@@ -9,14 +9,14 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
-#ifndef HAVE_WINSOCK2
+#if !HAVE_WINSOCK2_H
 #include <sys/socket.h>
-#define closesocket close
 #else
 #include <winsock2.h>
 #endif
 
 #include "mp_msg.h"
+#include "network.h"
 #include "stream.h"
 #include "help_mp.h"
 #include "m_option.h"
@@ -51,7 +51,7 @@ static struct stream_priv_s {
 
 #define ST_OFF(f) M_ST_OFF(struct stream_priv_s,f)
 /// URL definition
-static m_option_t stream_opts_fields[] = {
+static const m_option_t stream_opts_fields[] = {
   {"username", ST_OFF(user), CONF_TYPE_STRING, 0, 0 ,0, NULL},
   {"password", ST_OFF(pass), CONF_TYPE_STRING, 0, 0 ,0, NULL},
   {"hostname", ST_OFF(host), CONF_TYPE_STRING, 0, 0 ,0, NULL},
@@ -59,7 +59,7 @@ static m_option_t stream_opts_fields[] = {
   {"filename", ST_OFF(filename), CONF_TYPE_STRING, 0, 0 ,0, NULL},
   { NULL, NULL, 0, 0, 0, 0,  NULL }
 };
-static struct m_struct_st stream_opts = {
+static const struct m_struct_st stream_opts = {
   "ftp",
   sizeof(struct stream_priv_s),
   &stream_priv_dflts,
@@ -81,7 +81,7 @@ static int fd_can_read(int fd,int timeout) {
   tv.tv_sec = timeout;
   tv.tv_usec = 0;
   
-  return (select(fd+1, &fds, NULL, NULL, &tv) > 0);
+  return select(fd+1, &fds, NULL, NULL, &tv) > 0;
 }
 
 /*
@@ -458,7 +458,7 @@ static int open_f(stream_t *stream,int mode, void* opts, int* file_format) {
   return STREAM_OK;
 }
 
-stream_info_t stream_info_ftp = {
+const stream_info_t stream_info_ftp = {
   "File Transfer Protocol",
   "ftp",
   "Albeu",

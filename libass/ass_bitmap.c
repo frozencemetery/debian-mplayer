@@ -1,22 +1,24 @@
 // -*- c-basic-offset: 8; indent-tabs-mode: t -*-
 // vim:ts=8:sw=8:noet:ai:
 /*
-  Copyright (C) 2006 Evgeniy Stepanov <eugeni.stepanov@gmail.com>
-
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-*/
+ * Copyright (C) 2006 Evgeniy Stepanov <eugeni.stepanov@gmail.com>
+ *
+ * This file is part of libass.
+ *
+ * libass is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * libass is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with libass; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdlib.h>
 #include <string.h>
@@ -37,11 +39,12 @@ struct ass_synth_priv_s {
 
 	unsigned *g;
 	unsigned *gt2;
+
+	double radius;
 };
 
 static const unsigned int maxcolor = 255;
 static const unsigned base = 256;
-static const double blur_radius = 1.5;
 
 static int generate_tables(ass_synth_priv_t* priv, double radius)
 {
@@ -50,12 +53,17 @@ static int generate_tables(ass_synth_priv_t* priv, double radius)
 	double volume_diff, volume_factor = 0;
 	unsigned volume;
 
+	if (priv->radius == radius)
+		return 0;
+	else
+		priv->radius = radius;
+
 	priv->g_r = ceil(radius);
 	priv->g_w = 2*priv->g_r+1;
 
 	if (priv->g_r) {
-		priv->g = malloc(priv->g_w * sizeof(unsigned));
-		priv->gt2 = malloc(256 * priv->g_w * sizeof(unsigned));
+		priv->g = realloc(priv->g, priv->g_w * sizeof(unsigned));
+		priv->gt2 = realloc(priv->gt2, 256 * priv->g_w * sizeof(unsigned));
 		if (priv->g==NULL || priv->gt2==NULL) {
 			return -1;
 		}
@@ -104,10 +112,10 @@ static void resize_tmp(ass_synth_priv_t* priv, int w, int h)
 	priv->tmp = malloc((priv->tmp_w + 1) * priv->tmp_h * sizeof(short));
 }
 
-ass_synth_priv_t* ass_synth_init(void)
+ass_synth_priv_t* ass_synth_init(double radius)
 {
 	ass_synth_priv_t* priv = calloc(1, sizeof(ass_synth_priv_t));
-	generate_tables(priv, blur_radius);
+	generate_tables(priv, radius);
 	return priv;
 }
 
@@ -150,6 +158,20 @@ static bitmap_t* copy_bitmap(const bitmap_t* src)
 	return dst;
 }
 
+static int check_glyph_area(FT_Glyph glyph)
+{
+	FT_BBox bbox;
+	long long dx, dy;
+	FT_Glyph_Get_CBox(glyph, FT_GLYPH_BBOX_TRUNCATE, &bbox);
+	dx = bbox.xMax - bbox.xMin;
+	dy = bbox.yMax - bbox.yMin;
+	if (dx * dy > 8000000) {
+		mp_msg(MSGT_ASS, MSGL_WARN, MSGTR_LIBASS_GlyphBBoxTooLarge, (int)dx, (int)dy);
+		return 1;
+	} else
+		return 0;
+}
+
 static bitmap_t* glyph_to_bitmap_internal(FT_Glyph glyph, int bord)
 {
 	FT_BitmapGlyph bg;
@@ -161,6 +183,8 @@ static bitmap_t* glyph_to_bitmap_internal(FT_Glyph glyph, int bord)
 	int i;
 	int error;
 
+	if (check_glyph_area(glyph))
+		return 0;
 	error = FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, 0, 0);
 	if (error) {
 		mp_msg(MSGT_ASS, MSGL_WARN, MSGTR_LIBASS_FT_Glyph_To_BitmapError, error);
@@ -190,6 +214,7 @@ static bitmap_t* glyph_to_bitmap_internal(FT_Glyph glyph, int bord)
 		dst += bm->w;
 	}
 
+	FT_Done_Glyph(glyph);
 	return bm;
 }
 
@@ -230,10 +255,13 @@ static bitmap_t* fix_outline_and_shadow(bitmap_t* bm_g, bitmap_t* bm_o)
 	return bm_s;
 }
 
-int glyph_to_bitmap(ass_synth_priv_t* priv, FT_Glyph glyph, FT_Glyph outline_glyph,
-		bitmap_t** bm_g, bitmap_t** bm_o, bitmap_t** bm_s, int be)
+int glyph_to_bitmap(ass_synth_priv_t* priv, ass_synth_priv_t* priv_blur,
+		FT_Glyph glyph, FT_Glyph outline_glyph, bitmap_t** bm_g,
+		bitmap_t** bm_o, bitmap_t** bm_s, int be, double blur_radius)
 {
-	const int bord = be ? ceil(blur_radius) : 0;
+	int bord = be ? (be+1) : 0;
+	blur_radius *= 2;
+	bord = (blur_radius > 0.0) ? blur_radius : bord;
 
 	assert(bm_g && bm_o && bm_s);
 
@@ -251,16 +279,29 @@ int glyph_to_bitmap(ass_synth_priv_t* priv, FT_Glyph glyph, FT_Glyph outline_gly
 			return 1;
 		}
 	}
-	if (*bm_o)
+	if (*bm_o) {
 		resize_tmp(priv, (*bm_o)->w, (*bm_o)->h);
+		resize_tmp(priv_blur, (*bm_o)->w, (*bm_o)->h);
+	}
 	resize_tmp(priv, (*bm_g)->w, (*bm_g)->h);
+	resize_tmp(priv_blur, (*bm_g)->w, (*bm_g)->h);
 	
 	if (be) {
-		blur((*bm_g)->buffer, priv->tmp, (*bm_g)->w, (*bm_g)->h, (*bm_g)->w, (int*)priv->gt2, priv->g_r, priv->g_w);
-		if (*bm_o)
-			blur((*bm_o)->buffer, priv->tmp, (*bm_o)->w, (*bm_o)->h, (*bm_o)->w, (int*)priv->gt2, priv->g_r, priv->g_w);
+		while (be--) {
+			if (*bm_o)
+				blur((*bm_o)->buffer, priv->tmp, (*bm_o)->w, (*bm_o)->h, (*bm_o)->w, (int*)priv->gt2, priv->g_r, priv->g_w);
+			else
+				blur((*bm_g)->buffer, priv->tmp, (*bm_g)->w, (*bm_g)->h, (*bm_g)->w, (int*)priv->gt2, priv->g_r, priv->g_w);
+		}
+	} else {
+		if (blur_radius > 0.0) {
+			generate_tables(priv_blur, blur_radius);
+			if (*bm_o)
+				blur((*bm_o)->buffer, priv_blur->tmp, (*bm_o)->w, (*bm_o)->h, (*bm_o)->w, (int*)priv_blur->gt2, priv_blur->g_r, priv_blur->g_w);
+			else
+				blur((*bm_g)->buffer, priv_blur->tmp, (*bm_g)->w, (*bm_g)->h, (*bm_g)->w, (int*)priv_blur->gt2, priv_blur->g_r, priv_blur->g_w);
+		}
 	}
-
 	if (*bm_o)
 		*bm_s = fix_outline_and_shadow(*bm_g, *bm_o);
 	else

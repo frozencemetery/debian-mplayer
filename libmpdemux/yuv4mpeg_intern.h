@@ -3,7 +3,7 @@
  *
  *  Copyright (C) 2001 Andrew Stevens <andrew.stevens@philips.com>
  *
- *  This file is part of the lavtools package (mjpeg.sourceforge.net).  
+ *  This file is part of the MJPEG Tools package (mjpeg.sourceforge.net).
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of version 2 of the GNU General Public License
@@ -19,8 +19,8 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef YUV4MPEG_INTERN_H
-#define YUV4MPEG_INTERN_H
+#ifndef MPLAYER_YUV4MPEG_INTERN_H
+#define MPLAYER_YUV4MPEG_INTERN_H
 
 
 #define Y4M_MAGIC "YUV4MPEG2"
@@ -75,4 +75,4 @@
 #define Y4M_DAR_MPEG2_3 { 16, 9 }
 #define Y4M_DAR_MPEG2_4 { 221, 100 }
 
-#endif /* YUV4MPEG_INTERN_H */
+#endif /* MPLAYER_YUV4MPEG_INTERN_H */

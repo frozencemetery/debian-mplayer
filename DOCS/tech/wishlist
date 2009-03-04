@@ -23,6 +23,8 @@ Documentation:
 
  * document channels.conf syntax
 
+ * ability for multiple languages/locales in one binary
+
 Small improvements:
 
  * vo_mga should completely blank the screen like fbdev and tdfxfb
@@ -44,6 +46,10 @@ Small improvements:
 
  * ability to set mplayer default/startup volume
 
+ * ability to cycle switch_aspect
+
+ * ability to rename vo_jpeg,vo_gif,vo_png output filename
+
 Cleanup:
 
  * integrate dvdnav into mplayer structure
@@ -55,6 +61,16 @@ Cleanup:
 
  * Restructure configure and fix CPU flags supported but not shown.
 
+ * Port libmpdemux demuxers to libavformat or write your own from scratch.
+   libmpdemux is considered deprecated and should eventually be removed.
+   As of 2008-01-28, the following demuxers are missing from libavformat:
+
+   - TiVo (ty streams, not TiVo To Go)
+   - VIVO
+   - VQF
+   - XMMS
+   - libnemesi
+   - SL support for MPEG-TS
 
 
 Filters:
@@ -63,8 +79,6 @@ Filters:
 
  * eq filter should support RGB in addition to YUV
 
- * pitch audio filter
- 
  * move filters into ffmpeg
 
  * autocrop filter
@@ -75,7 +89,7 @@ Filters:
 
  * xinerama video filter that splits movie to 2 screens (like zr)
 
- * mixing of multiple videos (picture in picture, ...)
+ * mixing of multiple videos (picture in picture, review shmem patch)
 
  * video watermark/logo filter (apply vf_overlay patch?)
 
@@ -123,7 +137,7 @@ Enhancements:
 
  * rotate/position osd
 
- * support all image formats in mf:// (tiff)
+ * support all image formats in mf:// (psd, jpeg2000)
 
  * make -noborder work with all video outputs
 
@@ -131,7 +145,7 @@ Enhancements:
 
 Difficult stuff:
 
- * RE all closed source codecs (QDMC, WMA9, RV30, RV40, sipr, ...)
+ * RE all closed source codecs (QDMC, WMA9, Indeo 4/5, ...)
 
  * support for Bink codec
 
@@ -143,8 +157,6 @@ Difficult stuff:
 
  * real mmsu:// support
 
- * MEncoder output support for OGM, MKV, NUT
-
  * top notch DVD navigation like a hardware player
 
  * write mpdump application to handle all -dump* options
@@ -155,9 +167,7 @@ Difficult stuff:
 
  * support for pausing/resuming of encoding in MEncoder
 
- * finish TV support under Windows
-
- * DRM support (divx.com, WMV, WMA, iTunes)
+ * DRM support (divx.com, Real.com, iTunes)
 
  * variable-fps output support for MEncoder
 

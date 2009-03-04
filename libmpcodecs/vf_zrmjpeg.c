@@ -1,20 +1,38 @@
+/*
+ * This files includes a straightforward (to be) optimized JPEG encoder for
+ * the YUV422 format, based on mjpeg code from ffmpeg.
+ *
+ * For an excellent introduction to the JPEG format, see:
+ * http://www.ece.purdue.edu/~bouman/grad-labs/lab8/pdf/lab.pdf
+ *
+ * Copyright (C) 2005 Rik Snel <rsnel@cube.dyndns.org>
+ * - based on vd_lavc.c by A'rpi (C) 2002-2003
+ * - parts from ffmpeg Copyright (c) 2000-2003 Fabrice Bellard
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 /**
  * \file vf_zrmjpeg.c
  *
  * \brief Does mjpeg encoding as required by the zrmjpeg filter as well
  * as by the zr video driver.
  */
-/*
- * Copyright (C) 2005 Rik Snel <rsnel@cube.dyndns.org>, license GPL v2
- * - based on vd_lavc.c by A'rpi (C) 2002-2003
- * - parts from ffmpeg Copyright (c) 2000-2003 Fabrice Bellard
- *
- * This files includes a straightforward (to be) optimized JPEG encoder for
- * the YUV422 format, based on mjpeg code from ffmpeg.
- *
- * For an excellent introduction to the JPEG format, see:
- * http://www.ece.purdue.edu/~bouman/grad-labs/lab8/pdf/lab.pdf
- */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,15 +49,11 @@
  * be2me_32, otherwise the linker will complain that it doesn't exist */
 #define HAVE_AV_CONFIG_H
 #include "libavcodec/avcodec.h"
-#include "libavcodec/dsputil.h"
-#include "libavcodec/mpegvideo.h"
+#include "libavcodec/mjpegenc.h"
 //#include "jpeg_enc.h" /* this file is not present yet */
 
 #undef malloc
 #undef free
-#undef realloc
-
-extern int avcodec_inited;
 
 /* some convenient #define's, is this portable enough? */
 /// Printout  with vf_zrmjpeg: prefix at VERBOSE level
@@ -52,22 +66,7 @@ extern int avcodec_inited;
 
 // "local" flag in vd_ffmpeg.c. If not set, avcodec_init() et. al. need to be called
 // set when init is done, so that initialization is not done twice.
-extern int avcodec_inited;
-
-/// structure copied from mjpeg.c
-/* zrmjpeg_encode_mb needs access to these tables for the black & white
- * option */
-typedef struct MJpegContext {
-	uint8_t huff_size_dc_luminance[12];
-	uint16_t huff_code_dc_luminance[12];
-	uint8_t huff_size_dc_chrominance[12];
-	uint16_t huff_code_dc_chrominance[12];
-
-	uint8_t huff_size_ac_luminance[256];
-	uint16_t huff_code_ac_luminance[256];
-	uint8_t huff_size_ac_chrominance[256];
-	uint16_t huff_code_ac_chrominance[256];
-} MJpegContext;
+extern int avcodec_initialized;
 
 /// The get_pixels() routine to use. The real routine comes from dsputil
 static void (*get_pixels)(DCTELEM *restrict block, const uint8_t *pixels, int line_size);
@@ -452,7 +451,7 @@ static jpeg_enc_t *jpeg_enc_init(int w, int h, int y_rsize,
 	j->s->out_format = FMT_MJPEG;
 	j->s->intra_only = 1;		// Generate only intra pictures for jpeg
 	j->s->encoding = 1;		// Set mode to encode
-	j->s->pict_type = I_TYPE;
+	j->s->pict_type = FF_I_TYPE;
 	j->s->y_dc_scale = 8;
 	j->s->c_dc_scale = 8;
 
@@ -479,10 +478,10 @@ static jpeg_enc_t *jpeg_enc_init(int w, int h, int y_rsize,
 	/* if libavcodec is used by the decoder then we must not
 	 * initialize again, but if it is not initialized then we must
 	 * initialize it here. */
-	if (!avcodec_inited) {
+	if (!avcodec_initialized) {
 		avcodec_init();
 		avcodec_register_all();
-		avcodec_inited=1;
+		avcodec_initialized=1;
 	}
 
 	// Build mjpeg huffman code tables, setting up j->s->mjpeg_ctx
@@ -921,11 +920,11 @@ static int open(vf_instance_t *vf, char* args){
 
 	/* if libavcodec is already initialized, we must not initialize it
 	 * again, but if it is not initialized then we mustinitialize it now. */
-	if (!avcodec_inited) {
+	if (!avcodec_initialized) {
 		/* we need to initialize libavcodec */
 		avcodec_init();
 		avcodec_register_all();
-		avcodec_inited=1;
+		avcodec_initialized=1;
 	}
 
 	if (args) {
@@ -1057,7 +1056,7 @@ static int open(vf_instance_t *vf, char* args){
 	return 1;
 }
 
-vf_info_t vf_info_zrmjpeg = {
+const vf_info_t vf_info_zrmjpeg = {
     "realtime zoran MJPEG encoding",
     "zrmjpeg",
     "Rik Snel",

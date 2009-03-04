@@ -9,11 +9,10 @@
 
 #define real float
 
+#include <stdio.h>
 #include "mpg123.h"
 
-#ifdef HAVE_ALTIVEC
-
-#ifndef SYS_DARWIN
+#ifdef HAVE_ALTIVEC_H
 #include <altivec.h>
 #endif
 
@@ -28,11 +27,10 @@
 #define WORD_s2 0x18,0x19,0x1a,0x1b
 #define WORD_s3 0x1c,0x1d,0x1e,0x1f
 
-#ifdef SYS_DARWIN
-#define vcprm(a,b,c,d) (const vector unsigned char)(WORD_ ## a, WORD_ ## b, WORD_ ## c, WORD_ ## d)
-#else
 #define vcprm(a,b,c,d) (const vector unsigned char){WORD_ ## a, WORD_ ## b, WORD_ ## c, WORD_ ## d}
-#endif
+#define vcii(a,b,c,d) (const vector float){FLOAT_ ## a, FLOAT_ ## b, FLOAT_ ## c, FLOAT_ ## d}
+
+#define FOUROF(a) {a,a,a,a}
 
 // vcprmle is used to keep the same index as in the SSE version.
 // it's the same as vcprm, with the index inversed
@@ -43,18 +41,6 @@
 // n is _n_egative, p is _p_ositive
 #define FLOAT_n -1.
 #define FLOAT_p 1.
-
-#ifdef SYS_DARWIN
-#define vcii(a,b,c,d) (const vector float)(FLOAT_ ## a, FLOAT_ ## b, FLOAT_ ## c, FLOAT_ ## d)
-#else
-#define vcii(a,b,c,d) (const vector float){FLOAT_ ## a, FLOAT_ ## b, FLOAT_ ## c, FLOAT_ ## d}
-#endif
-
-#ifdef SYS_DARWIN
-#define FOUROF(a) (a)
-#else
-#define FOUROF(a) {a,a,a,a}
-#endif
 
 void dct64_altivec(real *a,real *b,real *c)
 {
@@ -538,6 +524,3 @@ void dct64_altivec(real *a,real *b,real *c)
   out1[0x10*13] = b1[0x17] + b1[0x1F];
   out1[0x10*15] = b1[0x1F];
 }
-
-#endif /* HAVE_ALTIVEC */
-

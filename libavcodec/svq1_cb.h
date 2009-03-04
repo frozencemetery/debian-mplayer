@@ -24,7 +24,7 @@
  */
 
 /**
- * @file svq1_cb.h
+ * @file libavcodec/svq1_cb.h
  * svq1 code books.
  */
 
@@ -1520,4 +1520,4 @@ const int8_t* const ff_svq1_intra_codebooks[6] = {
     NULL, NULL,
 };
 
-#endif // AVCODEC_SVQ1_CB_H
+#endif /* AVCODEC_SVQ1_CB_H */

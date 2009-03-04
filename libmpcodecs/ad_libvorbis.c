@@ -7,11 +7,16 @@
 
 #include "config.h"
 #include "ad_internal.h"
+#include "libaf/reorder_ch.h"
 
 static ad_info_t info = 
 {
 	"Ogg/Vorbis audio decoder",
+#ifdef CONFIG_TREMOR
+	"tremor",
+#else
 	"libvorbis",
+#endif
 	"Felix Buenemann, A'rpi",
 	"libvorbis",
 	""
@@ -19,7 +24,7 @@ static ad_info_t info =
 
 LIBAD_EXTERN(libvorbis)
 
-#ifdef TREMOR
+#ifdef CONFIG_TREMOR
 #include <tremor/ivorbiscodec.h>
 #else
 #include <vorbis/codec.h>
@@ -33,7 +38,7 @@ typedef struct ov_struct_st {
   vorbis_dsp_state vd; /* central working state for the packet->PCM decoder */
   vorbis_block     vb; /* local working space for packet->PCM decode */
   float            rg_scale; /* replaygain scale */
-#ifdef TREMOR
+#ifdef CONFIG_TREMOR
   int              rg_scale_int;
 #endif
 } ov_struct_t;
@@ -159,7 +164,7 @@ static int init(sh_audio_t *sh)
     /* replaygain: security */
     if(ov->rg_scale > 15.) 
       ov->rg_scale = 15.;
-#ifdef TREMOR
+#ifdef CONFIG_TREMOR
     ov->rg_scale_int = (int)(ov->rg_scale*64.f);
 #endif
     mp_msg(MSGT_DECAUDIO,MSGL_V,"OggVorbis: Bitstream is %d channel%s, %dHz, %dbit/s %cBR\n",(int)ov->vi.channels,ov->vi.channels>1?"s":"",(int)ov->vi.rate,(int)ov->vi.bitrate_nominal,
@@ -217,7 +222,7 @@ static int decode_audio(sh_audio_t *sh,unsigned char *buf,int minlen,int maxlen)
 {
         int len = 0;
         int samples;
-#ifdef TREMOR
+#ifdef CONFIG_TREMOR
         ogg_int32_t **pcm;
 #else
         float scale;
@@ -249,7 +254,7 @@ static int decode_audio(sh_audio_t *sh,unsigned char *buf,int minlen,int maxlen)
 
 	    /* convert floats to 16 bit signed ints (host order) and
 	       interleave */
-#ifdef TREMOR
+#ifdef CONFIG_TREMOR
            if (ov->rg_scale_int == 64) {
 	    for(i=0;i<ov->vi.channels;i++){
 	      ogg_int16_t *convbuffer=(ogg_int16_t *)(&buf[len]);
@@ -271,15 +276,15 @@ static int decode_audio(sh_audio_t *sh,unsigned char *buf,int minlen,int maxlen)
 	      }
 	    }
 	   } else
-#endif /* TREMOR */
+#endif /* CONFIG_TREMOR */
 	   {
-#ifndef TREMOR
+#ifndef CONFIG_TREMOR
             scale = 32767.f * ov->rg_scale;
 #endif
 	    for(i=0;i<ov->vi.channels;i++){
 	      ogg_int16_t *convbuffer=(ogg_int16_t *)(&buf[len]);
 	      ogg_int16_t *ptr=convbuffer+i;
-#ifdef TREMOR
+#ifdef CONFIG_TREMOR
 	      ogg_int32_t  *mono=pcm[i];
 	      for(j=0;j<bout;j++){
 		int val=(mono[j]*ov->rg_scale_int)>>(9+6);
@@ -296,7 +301,7 @@ static int decode_audio(sh_audio_t *sh,unsigned char *buf,int minlen,int maxlen)
 		  val=-32768;
 		  clipflag=1;
 		}
-#endif    /* TREMOR */
+#endif /* CONFIG_TREMOR */
 		*ptr=val;
 		ptr+=ov->vi.channels;
 	      }
@@ -316,6 +321,12 @@ static int decode_audio(sh_audio_t *sh,unsigned char *buf,int minlen,int maxlen)
 //          if (!samples) break; // why? how?
 	}
 
+	if (len > 0 && ov->vi.channels >= 5) {
+	  reorder_channel_nch(buf, AF_CHANNEL_LAYOUT_VORBIS_DEFAULT,
+	                      AF_CHANNEL_LAYOUT_MPLAYER_DEFAULT,
+	                      ov->vi.channels, len / sh->samplesize,
+	                      sh->samplesize);
+	}
 
 
   return len;

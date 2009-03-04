@@ -16,22 +16,21 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <windows.h>
 #include <commctrl.h>
-
-#include "interface.h"
+#include <get_path.h>
+#include "gui/interface.h"
 #include "mp_msg.h"
 #include "help_mp.h"
 #include "stream/stream.h"
 #include "libmpdemux/demuxer.h"
 #include "libmpdemux/stheader.h"
 #include "gui.h"
-#include "wincfg.h"
 #include "dialogs.h"
 #include "libvo/sub.h"
 
@@ -41,8 +40,8 @@ extern int vo_gamma_brightness;
 extern int vo_gamma_saturation;
 extern int vo_gamma_contrast;
 extern int vo_gamma_hue;
-extern int set_video_colors(sh_video_t *sh_video, char *item, int value);
-extern int get_video_colors(sh_video_t *sh_video, char *item, int *value);
+int set_video_colors(sh_video_t *sh_video, const char *item, int value);
+int get_video_colors(sh_video_t *sh_video, const char *item, int *value);
 
 guiInterface_t guiIntfStruct;
 int addurl = 0;
@@ -350,7 +349,6 @@ static LRESULT CALLBACK OpenUrlWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPAR
         return 0;
         case WM_DESTROY:
         {
-            PostQuitMessage (0);
             addurl = 0;
             return 0;
         }
@@ -610,9 +608,6 @@ static LRESULT CALLBACK PlayListWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPA
             updatetracklist(hwnd);
         }
             break;
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            return 0;
     }
     return DefWindowProc(hwnd, iMsg, wParam, lParam);
 }
@@ -737,9 +732,6 @@ static LRESULT CALLBACK SkinBrowserWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, 
             }
         }
             return 0;
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            return 0;
     }
     return DefWindowProc(hwnd, iMsg, wParam, lParam);
 }
@@ -786,7 +778,7 @@ void display_skinbrowser(gui_t* gui)
    UpdateWindow(hWnd);
 }
 
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 static LRESULT CALLBACK TitleChapterWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
     static HWND title;
@@ -872,9 +864,6 @@ static LRESULT CALLBACK TitleChapterWndProc(HWND hwnd, UINT iMsg, WPARAM wParam,
             }
         }
         return 0;
-        case WM_DESTROY:
-            PostQuitMessage (0);
-            return 0;
     }
     return DefWindowProc(hwnd, iMsg, wParam, lParam);
 }
@@ -1090,9 +1079,6 @@ static LRESULT CALLBACK EqWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lP
             }
         }
         return 0;
-        case WM_DESTROY:
-            PostQuitMessage (0);
-            return 0;
     }
     return DefWindowProc(hwnd, iMsg, wParam, lParam);
 }

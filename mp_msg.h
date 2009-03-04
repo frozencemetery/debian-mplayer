@@ -1,6 +1,5 @@
-
-#ifndef MP_MSG_H
-#define MP_MSG_H
+#ifndef MPLAYER_MP_MSG_H
+#define MPLAYER_MP_MSG_H
 
 // defined in mplayer.c and mencoder.c
 extern int verbose;
@@ -112,12 +111,6 @@ int mp_msg_test(int mod, int lev);
 
 #include "config.h"
 
-#ifdef TARGET_OS2
-// va_start/vsnprintf seems to be broken under OS2 :(
-#define mp_msg(mod,lev, fmt, args... ) do{if((lev)<=mp_msg_levels[mod]) printf( fmt, ## args );}while(0)
-#define mp_dbg(mod,lev, args... ) 
-#else
-
 #ifdef __GNUC__
 void mp_msg(int mod, int lev, const char *format, ... ) __attribute__ ((format (printf, 3, 4)));
 #   ifdef MP_DEBUG
@@ -132,9 +125,8 @@ void mp_msg(int mod, int lev, const char *format, ... );
 #   else
 #      define mp_dbg(mod,lev, ... ) /* only useful for developers */
 #   endif
-#endif
+#endif /* __GNUC__ */
 
 const char* filename_recode(const char* filename);
 
-#endif
-#endif
+#endif /* MPLAYER_MP_MSG_H */

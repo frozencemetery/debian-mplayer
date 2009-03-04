@@ -1,10 +1,26 @@
-/* 
- * vo_zr2.c - playback on zoran cards 
- * Based on vo_zr.c,v 1.27
- * Copyright (C) Rik Snel 2001-2005, License GNU GPL v2
+/*
+ * playback on Zoran cards, based on vo_zr.c
+ *
+ * copyright (C) 2001-2005 Rik Snel
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* $Id: vo_zr2.c 23476 2007-06-05 15:09:49Z reimar $ */
+/* $Id: vo_zr2.c 27541 2008-09-07 14:09:51Z diego $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,24 +35,22 @@
 #include <sys/ioctl.h>
 #include <linux/types.h>
 #include <linux/videodev.h>
-#include "videodev_mjpeg.h"
-
 #include "config.h"
-
+#include "videodev_mjpeg.h"
 #include "video_out.h"
 #include "video_out_internal.h"
 #include "mp_msg.h"
 #include "subopt-helper.h"
 #include "fastmemcpy.h"
 
-static vo_info_t info = {
+static const vo_info_t info = {
 	"Zoran ZR360[56]7/ZR36060 Driver (DC10(+)/buz/lml33/MatroxRR)",
 	"zr2",
 	"Rik Snel <rsnel@cube.dyndns.org>",
 	""
 };
 
-LIBVO_EXTERN(zr2)
+const LIBVO_EXTERN(zr2)
 
 typedef struct {
 	/* options */
@@ -81,7 +95,7 @@ static void stop_playing(vo_zr2_priv_t *p) {
 static const char *guess_device(const char *suggestion, int inform) {
 	struct stat vstat;
 	int res;
-	char *devs[] = {
+	static const char * const devs[] = {
 		"/dev/video",
 		"/dev/video0",
 		"/dev/v4l/video0",
@@ -89,7 +103,7 @@ static const char *guess_device(const char *suggestion, int inform) {
 		"/dev/v4l",
 		NULL
 	};
-	char **dev = devs;
+	const char * const *dev = devs;
 
 	if (suggestion) {
 		if (!*suggestion) {

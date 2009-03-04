@@ -1,5 +1,198 @@
 MPlayer (1.0)
 
+  rc3: "StillAlive" March 1, 2009
+    Decoders:
+    * support for X8 frame (fixes "J-type picture is not supported" for WMV2)
+    * support for DTS WAV/DTS-CD passthrough by ad_hwac3
+    * Apple's raw YUV2 in MOV
+    * LATM over LOAS AAC decoding via internal libfaad2
+    * video game codecs: BFI video, Playstation MDEC video, ADPCM XA audio,
+      EA Maxis XA ADPCM audio, RL2 video, Beam Software SIFF video, V.Flash PTX video
+    * AVOption support for libavcodec-based decoders
+    * use lavc ADPCM codecs by default
+    * support for progressive jpeg in ffmjpeg
+    * ACDSystems mjpeg (ACDV) via binary DLL and lavc
+    * SIF1 via binary DLL
+    * wincam screen capture (WCMV) via binary DLL
+    * Creative Labs Video Blaster Webcam mjpeg (CJPG) via binary DLL and ijpg library
+    * kensington webcam (AJPG,ABYR) via binary DLL
+    * centre for wavelets (wavc) via binary DLL
+    * GeoVision Advanced MPEG-4 (GMP4,GM40) via binary DLL
+    * Xiricam jpg from Veo PC Camera (XJPG) via binary DLL
+    * WorldConnect Wavelet Video (SMSV) via binary DLL
+    * VDOWave 3 advanced (VDO3,VDOM,VDOW) via binary DLL
+    * VoxWare MetaVoice (format 0x0074) via binary DLL
+    * Ulead DV Audio (0x215,0x216) via binary DLL
+    * GoToMeeting codec (G2M2,G2M3) via binary DLL
+    * SP4x codec - used by Aiptek MegaCam (SP4x) via binary DLL
+    * Broadway MPEG Capture Codec (BW10) via binary DLL
+    * ZDSoft screen recorder (ZDSV) via binary DLL
+    * WebTrain Communication lossless screen recorder (WTVC) via binary DLL
+    * xfire video (XFR1) via binary DLL
+    * VFAPI rgb transcode (vifp) via binary DLL
+    * ETI CamCorder EYECON (NUB0,NUB1,NUB2) via binary DLL
+    * fox motion (FMVC) via binary DLL
+    * Trident video (TY2C,TY2N,TY0N) via binary DLL
+    * 10-bit video (v210) via Cinewave binary DLL
+    * Brooktree YUV 4:1:1 Raw (Y41P) via binary DLL
+    * many rare/obscure fourccs for known formats added
+    * lower priority for binary Linux rv3040 codecs due to bugs
+
+    Demuxers:
+    * -lavfdopts cryptokey allows decrypting MXF and ASF files
+    * support for wavpack in Matroska
+    * AVOption support for lavf demuxing
+    * prefer lavf musepack demuxer over libmpdemux
+    * prefer lavf MOV demuxer over libmpdemux (use -demuxer mov for old behavior)
+    * support program switching in lavf demuxer
+    * support -slang in lavf demuxer
+    * support nosound switching in lavf demuxer
+    * support libass in lavf demuxer
+    * support VOBsub in lavf demuxer
+    * support MOV subtitle format
+    * support for attachments in lavf demuxer
+    * support for chapters in lavf demuxer
+    * support seeking in multirate RealMedia files
+    * FLAC speedup in lavf demuxer
+    * MNG demuxer
+
+    Filters:
+    * vf_ow new overcomplete wavelet denoiser
+    * change vf_screenshot dependency from libpng to lavc
+    * add af_scaletempo which maintains audio pitch when changing playback speed
+    * fix multi-channel reordering
+    * af_stats, filter to print information about the audio stream
+
+    Streaming:
+    * tv:// support for Windows
+    * fix teletext on some systems
+    * DVD streams can switch angles
+    * DVD still menus are now supported via dvdnav://
+    * allow specifying the TV standard for each channel
+    * switch internal dvdread to libdvdread SVN external
+
+    FFmpeg/libavcodec:
+    * DNxHD encoder
+    * H.264 PAFF decoding
+    * Nellymoser ASAO decoder
+    * Beam Software SIFF demuxer and decoder
+    * libvorbis Vorbis decoding removed in favor of native decoder
+    * IntraX8 (J-Frame) subdecoder for WMV2 and VC-1
+    * Ogg (Vorbis only) muxer
+    * PC Paintbrush PCX decoder
+    * Sun Rasterfile decoder
+    * TechnoTrend PVA demuxer
+    * Linux Media Labs MPEG-4 (LMLM4) demuxer
+    * AVM2 (Flash 9) SWF muxer
+    * QT variant of IMA ADPCM encoder
+    * Ipod/Iphone compatible mp4 muxer
+    * Mimic decoder
+    * MSN TCP Webcam stream demuxer
+    * RL2 demuxer / decoder
+    * IFF demuxer
+    * 8SVX audio decoder
+    * BFI demuxer
+    * MAXIS EA XA (.xa) demuxer / decoder
+    * BFI video decoder
+    * OMA demuxer
+    * MLP/TrueHD decoder
+    * Electronic Arts CMV decoder
+    * Motion Pixels Video decoder
+    * Motion Pixels MVI demuxer
+    * removed animated GIF decoder/demuxer
+    * D-Cinema audio muxer
+    * Electronic Arts TGV decoder
+    * Apple Lossless Audio Codec (ALAC) encoder
+    * AAC decoder
+    * floating point PCM encoder/decoder
+    * MXF muxer
+    * E-AC-3 support added to AC-3 decoder
+    * Nellymoser ASAO encoder
+    * ASS and SSA demuxer and muxer
+    * liba52 wrapper removed
+    * SVQ3 watermark decoding support
+    * Speex decoding via libspeex
+    * Electronic Arts TGQ decoder
+    * RV30 and RV40 decoder
+    * QCELP / PureVoice decoder
+    * hybrid WavPack support
+    * R3D REDCODE demuxer
+    * Electronic Arts TQI decoder
+    * OpenJPEG based JPEG 2000 decoder
+    * NC (NC4600) cameras file demuxer
+    * MXF D-10 muxer
+    * Generic metadata API
+    * H.264 speedup and PAFF decoding (install Yasm for faster H264 decoding)
+    * correctly decode more of the H.264 conformance testsuite
+    * VC-1/WMV3 decoder speedup
+    * VP3 decoder speedup
+    * VP6 decoder speedup
+    * Split-Radix FFT (speedup multiple audio codecs)
+    * MMX/SSE/ARM and other misc speedups
+
+    libmpeg2:
+    * enable Alpha/ARM optimizations in libmpeg2
+    * SSE2-optimized IDCT routines from upstream libmpeg2
+    * libmpeg2 updated to version 0.5.1
+
+    Drivers:
+    * replace PolypAudio by PulseAudio (-ao pulse)
+    * add force-pbo suboption for faster output in vo_gl
+    * add Nintendo Wii/GameCube video driver (-vo wii)
+    * VIDIX driver for SuperH Mobile VEU hardware block.
+    * support -border on vo_gl/gl2 in x11
+    * Direct3D Windows video output driver added.
+    * factorize code in vo_wii
+    * removed unnecessary code from vo x11, xv, xvmc
+    * add OS/2 DART audio driver (-ao dart)
+    * add VDPAU video output
+
+    MEncoder:
+    * check for system-wide configuration file in MEncoder
+    * AVOption support for lavc encoders
+    * AVOption support for lavf muxers
+
+    Others:
+    * many compiler warning fixes
+    * basic support for Closed Captioning roll-up mode
+    * reworked screensaver disabling support, most users will need to use
+      -heartbeat-cmd due to screensaver authors failing to design a common API
+    * grayscale decoding/encoding with FFmpeg disabled where it slowed down
+      the color case
+    * Linux AppleIR remote support
+    * add options to disable some or all configuration files
+    * support for DOS-style file:///x:/path paths
+    * some new slave commands (check DOCS/tech/slave.txt)
+    * libass fixes and updates to match VSFilter renderer
+    * libdvdcss updated to 1.2.10, now same as upstream version
+    * fix -endchapter support again for -dump* options
+    * add startup volume option
+
+    Ports:
+    * small crash with vo_macosx fixed
+    * AC3/DTS passthrough for ao_macosx
+    * fix frozen OSD on Mac OS X
+    * vo_gl now works with -wid and nVidia drivers on Windows (this is a hack)
+    * VIDIX on SuperH.
+    * workarounds for AltiVec on Apple gcc 3.3 on Mac OS X dropped
+    * vo_macosx can now be compiled in 64-bits mode
+    * allow multiple MPlayer instances w/ vo_macosx using buffer_name
+    * OpenGL support for unmodified MinGW64
+
+    SWScaler:
+    * new LGPLed YUV to RGB tables generator
+
+
+  rc2try2:
+
+    Security:
+    * buffer overflow in url.c fixed
+    * buffer overflow in stream_cddb.c fixed
+    * stack overflow in demuxer_audio.c fixed
+    * buffer overflow in demuxer_mov.c fixed
+
+
+
   rc2: "AreWeThereYet?" October 7, 2007
   (SVN revisions: MPlayer r24722, FFmpeg r10677)
 
@@ -43,7 +236,6 @@ MPlayer (1.0)
     * support for channel navigation with PVR input
     * text subtitles should now work with libavformat demuxer
     * cleaned up TiVo demuxer
-
 
     Streaming:
     * authentication for Real RTSP streams
@@ -141,16 +333,19 @@ MPlayer (1.0)
     * many compiler warning fixes
 
 
+
   rc1try3: June 5, 2007 (unreleased)
 
     Security:
     * stack overflow in stream_cddb.c fixed
 
 
+
   rc1try2: December 31, 2006 (unreleased)
 
     Security:
     * buffer overflow in asmrp.c fixed
+
 
 
   rc1: "Codename intentionally left blank" October 22, 2006
@@ -241,6 +436,7 @@ MPlayer (1.0)
     * libavutil mandatory for MPlayer compilation
     * more intuitive -edlout behaviour
     * -nortc is now default since -rtc has disadvantages with recent kernels
+
 
 
   pre8: "NeuTeam strikes back" June 11, 2006
@@ -481,7 +677,7 @@ MPlayer (1.0)
     * support for file:// syntax
     * -fb option removed, use the device suboption of -vo fbdev/fbdev2 instead
     * full gcc 4 support
-    * TOOLS/vobshift.py: vobsub time-adjust tool
+    * TOOLS/vobshift.py: VOBsub time-adjust tool
     * TOOLS/psnr-video.sh: computes PSNR between two existing video files
     * fixed auto-insertion of lavc encoder (for DXR2/3 and DVB)
     * new option: -idle, to make MPlayer wait for input commands when
@@ -521,10 +717,12 @@ MPlayer (1.0)
       screen resolution
 
 
+
   pre7try3: February 15, 2006 (unreleased)
 
     Security:
     * heap overflow in demuxer.h fixed
+
 
 
   pre7try2: August 26, 2005
@@ -533,12 +731,12 @@ MPlayer (1.0)
     * heap overflow in PCM audio decoder fixed
 
 
+
   pre7: "PatentCounter" April 16, 2005
 
     Security:
     * heap overflow in Real RTSP streaming code fixed
     * buffer overflow in MMST streaming code fixed
-
 
     DOCS:
     * Czech documentation translation in progress
@@ -675,6 +873,7 @@ MPlayer (1.0)
     * partial NX (noexec bit) support
     * support libsmbclient with SSL
     * put changed notices into all imported files for GPL 2a compliance
+
 
 
   pre6: "X-mas present" December 23, 2004
@@ -874,6 +1073,7 @@ MPlayer (1.0)
     * many memleaks fixed
 
 
+
   pre5try2: December 15, 2004
 
     Security:
@@ -882,6 +1082,7 @@ MPlayer (1.0)
     * stack overflow in MMST streaming code fixed
     * unnecessary BMP demuxer removed because of buffer overflows
     * heap overflow in pnm streaming code fixed
+
 
 
   pre5: "LinuxTag release" July 15, 2004
@@ -1009,6 +1210,7 @@ MPlayer (1.0)
     * multi-threaded encoding with libavcodec
     * fixed a bug with Real files introduced in pre4
     * -use-stdin renamed to -noconsolecontrols
+
 
 
   pre4: "YAML Counter" Apr 28, 2004
@@ -1182,10 +1384,12 @@ MPlayer (1.0)
     * less verbosity in Win32 loader and other places
 
 
+
   pre3try2: security fix release Mar 3, 2004
 
     Security:
     * HTTP parser remote heap overflow vulnerability fixed
+
 
 
   pre3: "The Real Counter" Dec 9, 2003
@@ -1341,6 +1545,7 @@ MPlayer (1.0)
     * rawyuv (i420) 'encoder'
 
 
+
   pre2: Oct 5, 2003
 
     Security:
@@ -1429,6 +1634,7 @@ MPlayer (1.0)
     * unrarlib cleaned up a bit
     * updated the list of known x86 CPUs (including Opteron!)
     * subtitle alignment and smart line splitting options
+
 
 
   pre1:  "Development" on the beach Sept 1, 2003
@@ -1571,6 +1777,7 @@ MPlayer (1.0)
     * spelling/grammar fixes in numerous files
 
 
+
 MPlayer (0.90)
 
   rc4:  "FlameCounter" Feb 9, 2003
@@ -1628,6 +1835,7 @@ MPlayer (0.90)
     * support for the XviD and DivX4/5Linux libraries at the same time
     * -fstype option: override priority/layer of the fullscreen switch methods
     * libavcodec: some B-frame related encoding failures/crashes fixed
+
 
 
   rc3:  "BugfixCounter" Jan 19, 2003
@@ -1718,6 +1926,7 @@ MPlayer (0.90)
     * fixed some possible crashes
 
 
+
   rc2: Dec 24, 2002
     General:
     * DOCS/tech/encoding-tips.txt and tech/directfb.txt
@@ -1749,6 +1958,7 @@ MPlayer (0.90)
     * Win32/RealPlayer codecs DLL & 64bit Alpha Linux RealPlayer codecs support
     * XMMS Input plugins (demuxer & codec) support
     * Fixed a bug in MMX-optimized mp3lib (triggered by OpenBSD).
+
 
 
   rc1:  "CodecCounter" Dec 7, 2002
@@ -1788,6 +1998,7 @@ MPlayer (0.90)
     * -stop-xscreensaver fixed, support for KDE screensaver, too
     * More compiler warning fixes
     * AltiVec (G4) support
+
 
 
   pre10:  "BirthdayCounter" Nov 11, 2002
@@ -1845,6 +2056,7 @@ MPlayer (0.90)
     * -vop perpective
     * -vop sab
     * -vop smartblur
+
 
 
   pre9: Oct 24, 2002
@@ -1922,6 +2134,7 @@ MPlayer (0.90)
     * complete MPEG-4 GMC decoding support
 
 
+
   pre8: Sep 18, 2002
     Docs:
     * man page rewritten, now has better indenting, and can be converted to HTML
@@ -1954,6 +2167,7 @@ MPlayer (0.90)
     * Win32 DLL loader merged/synced with avifile CVS
 
 
+
   pre7: Sep 5, 2002
     Cleanup:
     * libvo2, old input code & sis_vid removed, other code cleanups
@@ -1982,6 +2196,7 @@ MPlayer (0.90)
     * drag'n'drop support
 
 
+
   pre6: Aug 6, 2002
     * WMV1, Sorenson v1 (SVQ1) and RealPlayer 8.0 (RV20/30, Cook) codecs support
     * libavcodec M1 direct rendering
@@ -2008,6 +2223,7 @@ MPlayer (0.90)
     * 'mencvcd' script (creating VCD/SVCD with MEncoder)
     * HTML DOCS updates
     * man page & README restructured (again :))
+
 
 
   pre5: Jun 8, 2002
@@ -2049,6 +2265,7 @@ MPlayer (0.90)
     * various portability fixes (Cygwin, Darwin, 64bit SPARC/Alpha)
 
 
+
   pre4: May 13, 2002
     * X11 fullscreen toggle fixes with many window managers, multifile playback
     * DXR2 support
@@ -2057,6 +2274,7 @@ MPlayer (0.90)
     * libavcodec marked as default encoder for MEncoder
     * man page rewrite
     * a lot of other fixes
+
 
 
   pre3: May 3, 2002
@@ -2070,6 +2288,7 @@ MPlayer (0.90)
     * Mac OS X (Darwin) port?
     * buggy v4l audio grabbing disabled, we cannot fix, but patches are welcomed!
     * various MJPEG improvements in libavcodec
+
 
 
   pre2: Apr 30, 2002
@@ -2093,6 +2312,7 @@ MPlayer (0.90)
     * no more black VOBsub subtitles :)
 
 
+
   pre1: Apr 21, 2002
     * 100% GPL - yeah, so what?
     * runtime CPU detection - x86 MPlayer binary can run on "any" other x86 CPU
@@ -2110,12 +2330,14 @@ MPlayer (0.90)
     * and of course, faster than ever... :)
 
 
+
 MPlayer (0.60) "The RTFMCounter": Jan 2, 2002
 
   release:
     * minor bug fixes for RealMedia/nuppelvideo demuxers
     * docs updates
     * help file translation updates
+
 
 
   pre2: Dec 29, 2002
@@ -2126,6 +2348,7 @@ MPlayer (0.60) "The RTFMCounter": Jan 2, 2002
     * AC3 passthrough fix
     * docs updates
     * make install
+
 
 
   pre1: Dec 25, 2002
@@ -2157,6 +2380,7 @@ MPlayer (0.50) "The Faszom(C)ounter": Oct 8, 2001
   release:
     * documentation updates
     * non-Linux build fixes
+
 
 
   prex 1-3: Sep 28 2001 - Oct 5 2001
@@ -2289,6 +2513,7 @@ MPlayer v0.11-pre21: Feb 12, 2001
      de-interlace features)
   - draw_slice in syncfb finished for G400 cards (plays MPEG-1/2, OpenDivX)
     (de-interlacing has been disabled, because it's buggy now)
+
 
 
 MPlayer v0.11-pre20: Feb 11, 2001
@@ -2445,6 +2670,7 @@ MPlayer v0.11-pre11: Jan 29, 2001
   - runaway.bride.sample.avi seeking segfault discovered: AC3 resync fails :(
   - improved signal handling: module name is now printed. audio_resync added.
   - RGB opendivx encoding implemented, now AVI->opendivx is possible.
+
 
 
 MPlayer v0.11-pre10: Jan 22, 2001

@@ -1,13 +1,24 @@
 /*
- *  vesa_lvo.c
+ * vo_vesa interface to Linux Video Overlay
+ * (partly based on vo_mga.c)
  *
- *	Copyright (C) Nick Kurshev <nickols_k@mail.ru> - Oct 2001
+ * copyright (C) 2001 Nick Kurshev <nickols_k@mail.ru>
  *
- *  You can redistribute this file under terms and conditions
- *  of GNU General Public licence v2.
+ * This file is part of MPlayer.
  *
- * This file contains vo_vesa interface to Linux Video Overlay.
- * (Partly based on vo_mga.c from mplayer's package)
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <inttypes.h>
@@ -29,6 +40,7 @@
 #include "fastmemcpy.h"
 #include "osd.h"
 #include "video_out.h"
+#include "sub.h"
 #include "libmpcodecs/vfcap.h"
 
 #define WIDTH_ALIGN 32 /* should be 16 for rage:422 and 32 for rage:420 */
@@ -233,6 +245,7 @@ void     vlvo_flip_page(void)
   }	
 }
 
+#if 0
 static void draw_alpha_null(int x0,int y0, int w,int h, unsigned char* src, unsigned char *srca, int stride)
 {
   UNUSED(x0);
@@ -279,6 +292,7 @@ static void draw_alpha(int x0,int y0, int w,int h, unsigned char* src, unsigned 
         draw_alpha_null(x0,y0,w,h,src,srca,stride);
     }
 }
+#endif
 
 void     vlvo_draw_osd(void)
 {

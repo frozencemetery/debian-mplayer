@@ -1,120 +1,25 @@
 /*
- * vo_dxr3.c - DXR3/H+ video out
+ * DXR3/H+ video output
  *
  * Copyright (C) 2002-2003 David Holm <david@realityrift.com>
  *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* ChangeLog added 2002-01-10
- * 2003-11-28:
- *  Added a patch from Anders Rune Jensen to support the latest em8300 CVS
- *  changes.
- *
- * 2003-02-19:
- *  Yet another patch from Tamas Kohegyi to fix subpic placement.
- *
- * 2003-01-12:
- *  Added patch from Tamas Kohegyi to fix subpic placement with freetype.
- *
- * 2003-01-02:
- *  Added patch from Jens Axboe that makes vo_dxr3 return to previous TV norm
- *   after quiting.
- *  Added patch from Thomas Jarosch that fixed a lot of textual ouput
- *   errors.
- *
- * 2002-12-24: (Hohoho)
- *  Added patch from Thomas Jarosch <tomj@simonv.com> which adds support
- *   for setting the TV norm by movie framerate.
- *
- * 2002-11-03:
- *  Cleaned up syncing code and renamed setup variables so
- *   they can be accessed from the GUI.
- *
- * 2002-11-02:
- *  Added native overlay support, activate with :overlay
- *   you have to run dxr3view to modify settings (or manually
- *   edit the files in ~/.overlay.
- *
- * 2002-10-29:
- *  Added new sync-engine, activate with :sync option.
- *  Greatly improved commandline parser.
- *  Replaced :noprebuf with :prebuf and made noprebuf the default.
- *
- * 2002-10-28:
- *  Fixed multicard bug on athlons
- *
- * 2002-07-18:
- *  Disabled spuenc support, this is still not stable enough =(
- *
- * 2002-07-05:
- *  Removed lavc and fame encoder to be compatible with new libvo style.
- *  Added graphic equalizer support.
- *
- * 2002-04-15:
- *  The spuenc code isn't 100% stable yet, therefore I'm disabling
- *  it due to the upcoming stable release.
- *
- * 2002-04-03:
- *  Carl George added spuenc support
- *
- * 2002-03-26:
- *  XorA added an option parser and support for selecting encoder
- *  codec. We thank him again.
- *
- * 2002-03-25:
- *  A couple of bugfixes by XorA
- *
- * 2002-03-23:
- *  Thanks to Marcel Hild <hild@b4mad.net> the jitter-bug experienced
- *  with some videos have been fixed, many thanks goes to him.
- *
- * 2002-03-16:
- *  Fixed problems with fame, it gives a better picture than avcodec,
- *  but is slightly slower. Most notably the wobbling effect is gone
- *  with fame.
- *
- * 2002-03-13:
- *  Preliminary fame support added (it breaks after seeking, why?)
- *
- * 2002-02-18:
- *  Fixed sync problems when pausing video (while using prebuffering)
- *
- * 2002-02-16:
- *  Fixed bug which would case invalid output when using :noprebuf
- *  Removed equalization code, it caused problems on slow systems
- *
- * 2002-02-13:
- *  Using the swscaler instead of the old hand coded shit. (Checkout man mplayer and search for sws ;).
- *  Using aspect function to setup a proper mpeg1, no more hassling with odd resolutions or GOP-sizes,
- *  this would only create jitter on some vids!
- *  The swscaler sometimes exits with sig8 on mpegs, I don't know why yet (just use -vc mpegpes in this
- *  case, and report to me if you have any avi's etc which does this...)
- *
- * 2002-02-09:
- *  Thanks to the new control() method I have finally been able to enable the em8300 prebuffering.
- *  This should speed up playback on all systems, the vout cpu usage should rocket since I will be hogging
- *  the pci bus. Not to worry though, since frames are prebuffered it should be able to take a few blows
- *  if you start doing other stuff simultaneously.
- *
- * 2002-02-03:
- *  Removal of libmp1e, libavcodec has finally become faster (and it's code is helluva lot cleaner)
- *
- * 2002-02-02:
- *  Cleaned out some old code which might have slowed down writes
- *
- * 2002-01-17:
- *  Testrelease of new sync engine (using previously undocumented feature of em8300).
- *
- * 2002-01-15:
- *  Preliminary subpic support with -vc mpegpes and dvd's
- *  Device interfaces tries the new naming scheme by default (even though most users probably still use the old one)
- *
- * 2002-01-10:
- *  I rehauled the entire codebase. I have now changed to
- *  Kernighan & Ritchie codingstyle, please mail me if you 
- *  find any inconcistencies.
- */
- 
 #include <linux/em8300.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
@@ -132,7 +37,7 @@
 #include "config.h"
 #include "mp_msg.h"
 #include "help_mp.h"
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 #include "fastmemcpy.h"
@@ -142,24 +47,24 @@
 #include "aspect.h"
 #include "spuenc.h"
 #include "sub.h"
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 #include "gui/interface.h"
 #endif
-#ifdef HAVE_X11
+#ifdef CONFIG_X11
 #include "x11_common.h"
 #endif
 #include "libavutil/avstring.h"
 
 #define SPU_SUPPORT
 
-static vo_info_t info = 
+static const vo_info_t info = 
 {
 	"DXR3/H+ video out",
 	"dxr3",
 	"David Holm <dholm@iname.com>",
 	""
 };
-LIBVO_EXTERN (dxr3)
+const LIBVO_EXTERN (dxr3)
 
 /* Resolutions and positions */
 static int v_width, v_height;
@@ -262,7 +167,7 @@ static int overlay_signalmode(overlay_t *o, int mode);
 /* End overlay.h */
 
 
-#ifdef HAVE_X11
+#ifdef CONFIG_X11
 #define KEY_COLOR 0x80a040
 static XWindowAttributes xwin_attribs;
 static overlay_t *overlay_data;
@@ -288,7 +193,7 @@ static int control(uint32_t request, void *data, ...)
 			return VO_ERROR;
 		}
 		return VO_TRUE;
-#ifdef HAVE_X11
+#ifdef CONFIG_X11
 	case VOCTRL_ONTOP:
 		vo_x11_ontop();
 		return VO_TRUE;
@@ -539,7 +444,7 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_
 	ioctl(fd_control, EM8300_IOCTL_SET_ASPECTRATIO, &ioval);
 
 #ifdef SPU_SUPPORT
-#ifdef HAVE_FREETYPE
+#ifdef CONFIG_FREETYPE
 	if (ioval == EM8300_ASPECTRATIO_16_9) {
 		s_width *= d_height*1.78/s_height*(d_width*1.0/d_height)/2.35;
 	} else {
@@ -579,7 +484,7 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_
 
 #endif
 
-#ifdef HAVE_X11
+#ifdef CONFIG_X11
 	if (dxr3_overlay) {
 		XVisualInfo vinfo;
 		XSetWindowAttributes xswa;
@@ -597,7 +502,7 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_
 		vo_dy = (vo_screenheight - d_height) / 2;
 		vo_dwidth = d_width;
 		vo_dheight = d_height;
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 		if (use_gui) {
 			guiGetEvent(guiSetShVideo, 0);
 			XSetWindowBackground(mDisplay, vo_window, KEY_COLOR);
@@ -661,9 +566,6 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_
 		overlay_set_mode(overlay_data, EM8300_OVERLAY_MODE_OVERLAY);
 		overlay_set_mode(overlay_data, EM8300_OVERLAY_MODE_RECTANGLE);
 	}
-
-	if (vo_ontop) vo_x11_setlayer(mDisplay, vo_window, vo_ontop);
-
 #endif
 
 	return 0;
@@ -755,7 +657,7 @@ static int draw_frame(uint8_t * src[])
 
 static void flip_page(void)
 {
-#ifdef HAVE_X11
+#ifdef CONFIG_X11
 	if (dxr3_overlay) {
 		int event = vo_x11_check_events(mDisplay);
 		if (event & VO_EVENT_RESIZE) {
@@ -809,17 +711,17 @@ static int draw_slice(uint8_t *srcimg[], int stride[], int w, int h, int x0, int
 static void uninit(void)
 {
 	mp_msg(MSGT_VO,MSGL_INFO, MSGTR_LIBVO_DXR3_Uninitializing);
-#ifdef HAVE_X11
+#ifdef CONFIG_X11
 	if (dxr3_overlay) {
 		overlay_set_mode(overlay_data, EM8300_OVERLAY_MODE_OFF);
 		overlay_release(overlay_data);
 		
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 		if (!use_gui) {
 #endif
 			vo_x11_uninit();
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 		}
 #endif
 	}
@@ -867,7 +769,7 @@ static int preinit(const char *arg)
 			mp_msg(MSGT_VO,MSGL_INFO, MSGTR_LIBVO_DXR3_UsingNewSyncEngine);
 			dxr3_newsync = 1;
 		} else if (!strncmp("overlay", arg, 7) && !dxr3_overlay) {
-#ifdef HAVE_X11
+#ifdef CONFIG_X11
 			mp_msg(MSGT_VO,MSGL_INFO, MSGTR_LIBVO_DXR3_UsingOverlay);
 			dxr3_overlay = 1;
 #else
@@ -967,7 +869,7 @@ static int preinit(const char *arg)
 	}
 	strcpy(fds_name, devname);
 	
-#ifdef HAVE_X11
+#ifdef CONFIG_X11
 	if (dxr3_overlay) {
 	
 		/* Fucked up hack needed to enable overlay.
@@ -996,14 +898,14 @@ static int preinit(const char *arg)
 		
 		/* Initialize overlay and X11 */
 		overlay_data = overlay_init(fd_control);
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 		if (!use_gui) {
 #endif
 			if (!vo_init()) {
 				mp_msg(MSGT_VO,MSGL_ERR, MSGTR_LIBVO_DXR3_UnableToInitX11);
 				return -1;
 			}
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 		}
 #endif
 	}

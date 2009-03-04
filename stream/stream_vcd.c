@@ -1,7 +1,7 @@
 
 #include "config.h"
 
-#ifdef WIN32
+#if defined(__MINGW32__) || defined(__CYGWIN__)
 #include <windows.h>
 #endif
 
@@ -14,16 +14,16 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <unistd.h>
-#ifndef WIN32
+#if !defined(__MINGW32__) && !defined(__CYGWIN__)
 #include <sys/ioctl.h>
 #endif
 #include <errno.h>
 
 #if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__DragonFly__) || defined(__NetBSD__) || defined(__OpenBSD__)
 #include "vcd_read_fbsd.h" 
-#elif defined(SYS_DARWIN)
+#elif defined(__APPLE__)
 #include "vcd_read_darwin.h" 
-#elif defined(WIN32)
+#elif defined(__MINGW32__) || defined(__CYGWIN__)
 #include "vcd_read_win32.h"
 #else
 #include "vcd_read.h"
@@ -43,7 +43,7 @@ static struct stream_priv_s {
 
 #define ST_OFF(f) M_ST_OFF(struct stream_priv_s,f)
 /// URL definition
-static m_option_t stream_opts_fields[] = {
+static const m_option_t stream_opts_fields[] = {
   { "track", ST_OFF(track), CONF_TYPE_INT, M_OPT_MIN, 1, 0, NULL },
   { "device", ST_OFF(device), CONF_TYPE_STRING, 0, 0 ,0, NULL},
   /// For url parsing
@@ -51,7 +51,7 @@ static m_option_t stream_opts_fields[] = {
   { "filename", ST_OFF(device), CONF_TYPE_STRING, 0, 0 ,0, NULL},
   { NULL, NULL, 0, 0, 0, 0,  NULL }
 };
-static struct m_struct_st stream_opts = {
+static const struct m_struct_st stream_opts = {
   "vcd",
   sizeof(struct stream_priv_s),
   &stream_priv_dflts,
@@ -81,13 +81,13 @@ static int open_s(stream_t *stream,int mode, void* opts, int* file_format) {
 #if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
   int bsize = VCD_SECTOR_SIZE;
 #endif
-#ifdef WIN32
+#if defined(__MINGW32__) || defined(__CYGWIN__)
   HANDLE hd;
   char device[] = "\\\\.\\?:";
 #endif
 
   if(mode != STREAM_READ
-#ifdef WIN32
+#if defined(__MINGW32__) || defined(__CYGWIN__)
       || GetVersion() > 0x80000000 // Win9x
 #endif
       ) {
@@ -102,7 +102,7 @@ static int open_s(stream_t *stream,int mode, void* opts, int* file_format) {
       p->device = strdup(DEFAULT_CDROM_DEVICE);
   }
 
-#ifdef WIN32
+#if defined(__MINGW32__) || defined(__CYGWIN__)
   device[4] = p->device[0];
   /* open() can't be used for devices so do it the complicated way */
   hd = CreateFile(device, GENERIC_READ, FILE_SHARE_READ, NULL,
@@ -176,7 +176,7 @@ static int open_s(stream_t *stream,int mode, void* opts, int* file_format) {
   return STREAM_OK;
 }
 
-stream_info_t stream_info_vcd = {
+const stream_info_t stream_info_vcd = {
   "Video CD",
   "vcd",
   "Albeu",

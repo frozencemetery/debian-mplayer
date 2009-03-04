@@ -15,7 +15,7 @@ typedef struct dd_priv {
   demuxer_t* sd;
 } dd_priv_t;
 
-extern demuxer_desc_t demuxer_desc_demuxers;
+extern const demuxer_desc_t demuxer_desc_demuxers;
 
 demuxer_t*  new_demuxers_demuxer(demuxer_t* vd, demuxer_t* ad, demuxer_t* sd) {
   demuxer_t* ret;
@@ -37,6 +37,11 @@ demuxer_t*  new_demuxers_demuxer(demuxer_t* vd, demuxer_t* ad, demuxer_t* sd) {
   ret->video = vd->video;
   ret->audio = ad->audio;
   ret->sub = sd->sub;
+
+  // HACK?, necessary for subtitle (and audio and video when implemented) switching
+  memcpy(ret->v_streams, vd->v_streams, sizeof(ret->v_streams));
+  memcpy(ret->a_streams, ad->a_streams, sizeof(ret->a_streams));
+  memcpy(ret->s_streams, sd->s_streams, sizeof(ret->s_streams));
 
   ret->desc = &demuxer_desc_demuxers;
 
@@ -78,7 +83,7 @@ static void demux_demuxers_seek(demuxer_t *demuxer,float rel_seek_secs,float aud
   }
 
   if(priv->ad != priv->vd) {
-    sh_audio_t* sh = (sh_audio_t*)demuxer->audio->sh;
+    sh_audio_t* sh = demuxer->audio->sh;
     demux_seek(priv->ad,pos,audio_delay,1);
     // In case the demuxer don't set pts
     if(!demuxer->audio->pts)
@@ -125,7 +130,7 @@ static int demux_demuxers_control(demuxer_t *demuxer,int cmd, void *arg){
   return DEMUXER_CTRL_NOTIMPL;
 }
 
-demuxer_desc_t demuxer_desc_demuxers = {
+const demuxer_desc_t demuxer_desc_demuxers = {
   "Demuxers demuxer",
   "", // Not selectable
   "",

@@ -1,28 +1,49 @@
-/* 
- * vo_png.c, Portable Network Graphics Renderer for MPlayer
+/*
+ * Portable Network Graphics renderer
  *
  * Copyright 2001 by Felix Buenemann <atmosfear@users.sourceforge.net>
  *
  * Uses libpng (which uses zlib), so see according licenses.
  *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include <png.h>
 
-#include "mp_msg.h"
 #include "config.h"
+#include "mp_msg.h"
 #include "mp_msg.h"
 #include "help_mp.h"
 #include "video_out.h"
 #include "video_out_internal.h"
 #include "subopt-helper.h"
+#include "mplayer.h"
 
-static vo_info_t info = 
+#define BUFLENGTH 512
+
+static const vo_info_t info = 
 {
 	"PNG file",
 	"png",
@@ -30,10 +51,12 @@ static vo_info_t info =
 	""
 };
 
-LIBVO_EXTERN (png)
+const LIBVO_EXTERN (png)
 
 static int z_compression = Z_NO_COMPRESSION;
+static char *png_outdir = NULL;
 static int framenum = 0;
+static int use_alpha;
 
 struct pngdata {
 	FILE * fp;
@@ -42,9 +65,56 @@ struct pngdata {
 	enum {OK,ERROR} status;  
 };
 
+static void png_mkdir(char *buf, int verbose) { 
+    struct stat stat_p;
+
+#ifndef __MINGW32__	
+    if ( mkdir(buf, 0755) < 0 ) {
+#else
+    if ( mkdir(buf) < 0 ) {
+#endif
+        switch (errno) { /* use switch in case other errors need to be caught
+                            and handled in the future */
+            case EEXIST:
+                if ( stat(buf, &stat_p ) < 0 ) {
+                    mp_msg(MSGT_VO, MSGL_ERR, "%s: %s: %s\n", info.short_name,
+                            MSGTR_VO_GenericError, strerror(errno) );
+                    mp_msg(MSGT_VO, MSGL_ERR, "%s: %s %s\n", info.short_name,
+                            MSGTR_VO_UnableToAccess,buf);
+                    exit_player(MSGTR_Exit_error);
+                }
+                if ( !S_ISDIR(stat_p.st_mode) ) {
+                    mp_msg(MSGT_VO, MSGL_ERR, "%s: %s %s\n", info.short_name,
+                            buf, MSGTR_VO_ExistsButNoDirectory);
+                    exit_player(MSGTR_Exit_error);
+                }
+                if ( !(stat_p.st_mode & S_IWUSR) ) {
+                    mp_msg(MSGT_VO, MSGL_ERR, "%s: %s - %s\n", info.short_name,
+                            buf, MSGTR_VO_DirExistsButNotWritable);
+                    exit_player(MSGTR_Exit_error);
+                }
+                
+                mp_msg(MSGT_VO, MSGL_INFO, "%s: %s - %s\n", info.short_name,
+                        buf, MSGTR_VO_DirExistsAndIsWritable);
+                break;
+
+            default:
+                mp_msg(MSGT_VO, MSGL_ERR, "%s: %s: %s\n", info.short_name,
+                        MSGTR_VO_GenericError, strerror(errno) );
+                mp_msg(MSGT_VO, MSGL_ERR, "%s: %s - %s\n", info.short_name,
+                        buf, MSGTR_VO_CantCreateDirectory);
+                exit_player(MSGTR_Exit_error);
+        } /* end switch */
+    } else if ( verbose ) {  
+        mp_msg(MSGT_VO, MSGL_INFO, "%s: %s - %s\n", info.short_name,
+                buf, MSGTR_VO_DirectoryCreateSuccess);
+    } /* end if */
+}
+    
 static int
 config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uint32_t flags, char *title, uint32_t format)
 {
+    char buf[BUFLENGTH];
     
 	    if(z_compression == 0) {
  		    mp_msg(MSGT_VO,MSGL_INFO, MSGTR_LIBVO_PNG_Warning1);
@@ -52,6 +122,8 @@ config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uin
  		    mp_msg(MSGT_VO,MSGL_INFO, MSGTR_LIBVO_PNG_Warning3);
 	    }	    
     
+    snprintf(buf, BUFLENGTH, "%s", png_outdir);
+    png_mkdir(buf, 1);
     mp_msg(MSGT_VO,MSGL_DBG2, "PNG Compression level %i\n", z_compression);
 	  	
     return 0;
@@ -111,7 +183,7 @@ static struct pngdata create_png (char * fname, int image_width, int image_heigh
        bit_depth, color_type, interlace_type,
        compression_type, filter_type)*/
     png_set_IHDR(png.png_ptr, png.info_ptr, image_width, image_height,
-       8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
+       8, use_alpha ? PNG_COLOR_TYPE_RGBA : PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
        PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
     
     mp_msg(MSGT_VO,MSGL_DBG2, "PNG Write Info\n");
@@ -148,7 +220,7 @@ static uint32_t draw_image(mp_image_t* mpi){
     // if -dr or -slices then do nothing:
     if(mpi->flags&(MP_IMGFLAG_DIRECT|MP_IMGFLAG_DRAW_CALLBACK)) return VO_TRUE;
     
-    snprintf (buf, 100, "%08d.png", ++framenum);
+    snprintf (buf, 100, "%s/%08d.png", png_outdir, ++framenum);
 
     png = create_png(buf, mpi->w, mpi->h, IMGFMT_IS_BGR(mpi->imgfmt));
 
@@ -190,15 +262,24 @@ static int draw_slice( uint8_t *src[],int stride[],int w,int h,int x,int y )
 static int
 query_format(uint32_t format)
 {
+    const int supported_flags = VFCAP_CSP_SUPPORTED|VFCAP_CSP_SUPPORTED_BY_HW|VFCAP_ACCEPT_STRIDE;
     switch(format){
-    case IMGFMT_RGB|24:
-    case IMGFMT_BGR|24:
-        return VFCAP_CSP_SUPPORTED|VFCAP_CSP_SUPPORTED_BY_HW|VFCAP_ACCEPT_STRIDE;
+    case IMGFMT_RGB24:
+    case IMGFMT_BGR24:
+        return use_alpha ? 0 : supported_flags;
+    case IMGFMT_RGBA:
+    case IMGFMT_BGRA:
+        return use_alpha ? supported_flags : 0;
     }
     return 0;
 }
 
-static void uninit(void){}
+static void uninit(void){
+    if (png_outdir) {
+        free(png_outdir);
+        png_outdir = NULL;
+    }
+}
 
 static void check_events(void){}
 
@@ -210,13 +291,17 @@ static int int_zero_to_nine(int *sh)
 }
 
 static opt_t subopts[] = {
+    {"alpha", OPT_ARG_BOOL, &use_alpha, NULL, 0},
     {"z",   OPT_ARG_INT, &z_compression, (opt_test_f)int_zero_to_nine},
+    {"outdir",      OPT_ARG_MSTRZ,  &png_outdir,           NULL, 0},
     {NULL}
 };
 
 static int preinit(const char *arg)
 {
     z_compression = 0;
+    png_outdir = strdup(".");
+    use_alpha = 0;
     if (subopt_parse(arg, subopts) != 0) {
         return -1;
     }

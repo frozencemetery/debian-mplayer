@@ -1,7 +1,7 @@
 /*
  * Modified for use with MPlayer, for details see the changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: decod386.c 24193 2007-08-25 17:05:02Z diego $
+ * $Id: decod386.c 28374 2009-01-26 09:56:27Z diego $
  */
 
 /*
@@ -54,7 +54,7 @@
  * layouts of double floating point values an all cpu architectures.  If
  * it doesn't work for you, just enable the "old WRITE_SAMPLE" macro.
  */
-#if WORDS_BIGENDIAN
+#ifdef WORDS_BIGENDIAN
 #define	MANTISSA_OFFSET	1
 #else
 #define	MANTISSA_OFFSET	0
@@ -102,7 +102,7 @@ static int synth_1to1_mono2stereo(real *bandPtr,unsigned char *samples,int *pnt)
 
 static synth_func_t synth_func;
 
-#ifdef HAVE_ALTIVEC
+#if HAVE_ALTIVEC
 #define dct64_base(a,b,c) if(gCpuCaps.hasAltiVec) dct64_altivec(a,b,c); else dct64(a,b,c)
 #else /* HAVE_ALTIVEC */
 #define dct64_base(a,b,c) dct64(a,b,c)
@@ -121,7 +121,7 @@ static int synth_1to1(real *bandPtr,int channel,unsigned char *out,int *pnt)
   *pnt += 128;
 
 /* optimized for x86 */
-#ifdef ARCH_X86
+#if ARCH_X86
   if ( synth_func )
    {
 //    printf("Calling %p, bandPtr=%p channel=%d samples=%p\n",synth_func,bandPtr,channel,samples);
@@ -220,7 +220,7 @@ static int synth_1to1(real *bandPtr,int channel,unsigned char *out,int *pnt)
 
 }
 
-#ifdef USE_FAKE_MONO
+#ifdef CONFIG_FAKE_MONO
 static int synth_1to1_l(real *bandPtr,int channel,unsigned char *out,int *pnt)
 {
   int i,ret;

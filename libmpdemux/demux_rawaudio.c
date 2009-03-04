@@ -13,14 +13,13 @@
 #include "stheader.h"
 
 
-extern int demuxer_type;
 static int channels = 2;
 static int samplerate = 44100;
 static int samplesize = 2;
 static int bitrate = 0;
 static int format = 0x1; // Raw PCM
 
-m_option_t demux_rawaudio_opts[] = {
+const m_option_t demux_rawaudio_opts[] = {
   { "channels", &channels, CONF_TYPE_INT,CONF_RANGE,1,8, NULL },
   { "rate", &samplerate, CONF_TYPE_INT,CONF_RANGE,1000,8*48000, NULL },
   { "samplesize", &samplesize, CONF_TYPE_INT,CONF_RANGE,1,8, NULL },
@@ -53,6 +52,7 @@ static demuxer_t* demux_rawaudio_open(demuxer_t* demuxer) {
   demuxer->movi_start = demuxer->stream->start_pos;
   demuxer->movi_end = demuxer->stream->end_pos;
 
+  demuxer->audio->id = 0;
   demuxer->audio->sh = sh_audio;
   sh_audio->ds = demuxer->audio;
 
@@ -84,8 +84,8 @@ static void demux_rawaudio_seek(demuxer_t *demuxer,float rel_seek_secs,float aud
   sh_audio_t* sh_audio = demuxer->audio->sh;
   off_t base,pos;
 
-  base = (flags & 1) ? demuxer->movi_start : stream_tell(s);
-  if(flags & 2)
+  base = (flags & SEEK_ABSOLUTE) ? demuxer->movi_start : stream_tell(s);
+  if(flags & SEEK_FACTOR)
     pos = base + ((demuxer->movi_end - demuxer->movi_start)*rel_seek_secs);
   else
     pos = base + (rel_seek_secs*sh_audio->i_bps);
@@ -96,7 +96,7 @@ static void demux_rawaudio_seek(demuxer_t *demuxer,float rel_seek_secs,float aud
 }
 
 
-demuxer_desc_t demuxer_desc_rawaudio = {
+const demuxer_desc_t demuxer_desc_rawaudio = {
   "Raw audio demuxer",
   "rawaudio",
   "rawaudio",

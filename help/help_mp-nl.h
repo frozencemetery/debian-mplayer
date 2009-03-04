@@ -9,10 +9,10 @@ static char help_text[]=
 "Basis-opties: (volledige lijst in de man-pagina's)\n"
 " -vo <drv[:dev]>  selecteer video uitvoer driver & device (zie '-vo help' voor lijst)\n"
 " -ao <drv[:dev]>  selecteer audio uitvoer driver & device (zie '-ao help' voor lijst)\n"
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
 " vcd://<trackno>   speel VCD (Video CD) track van cdrom in plaats van standaard bestand\n"
 #endif
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 " dvd://<titelnr>   speel DVD titel/track van device in plaats van gewoon bestand\n"
 " -alang/-slang    selecteer DVD audio/ondertitelingstaal (door middel van 2-karakter landcode)\n"
 #endif
@@ -153,7 +153,6 @@ static char help_text[]=
 #define MSGTR_MenuInitFailed "Menu initialisatie mislukt.\n"
 #define MSGTR_Getch2InitializedTwice "WAARSCHUWING: getch2_init is twee maal opgeroepen!\n"
 #define MSGTR_DumpstreamFdUnavailable "Deze stream can niet opgeslagen worde - geen bestandsomschrijving (file descriptor) beschikbaar.\n"
-#define MSGTR_FallingBackOnPlaylist "De afspeellijst %s wordt opnieuw ingelezen ...\n"
 #define MSGTR_CantOpenLibmenuFilterWithThisRootMenu "Kan de libmenu video filter niet openen met het root menu %s.\n"
 #define MSGTR_AudioFilterChainPreinitError "Er is een fout opgetreden bijde pre-initialisatie van de audio filter!\n"
 #define MSGTR_LinuxRTCReadError "Linux RTC leesfout: %s\n"
@@ -318,7 +317,7 @@ static char help_text[]=
 #define MSGTR_ConfigFileError "Fout in het configuratie bestand of configuratie bestand ontbreekt"
 #define MSGTR_ErrorParsingCommandLine "Fout bij het analyseren van de commandoregel"
 #define MSGTR_VideoStreamRequired "Een Video stream is verplicht!\n"
-#define MSGTR_ForcingInputFPS "input fps zal geinterpreteerd worden als %5.2f \n"
+#define MSGTR_ForcingInputFPS "input fps zal geinterpreteerd worden als %5.3f \n"
 #define MSGTR_RawvideoDoesNotSupportAudio "Het output bestandsformaat RAWVIDEO ondersteunt geen audio - geluid \n"
 #define MSGTR_DemuxerDoesntSupportNosound "Deze demuxer ondersteunt -nosound nog niet.\n"
 #define MSGTR_MemAllocFailed "geheugentoewijzing gefaald"
@@ -429,7 +428,7 @@ static char help_text[]=
 #define MSGTR_SMBFileNotFound "Kon netwerkbestand '%s' niet openen\n"
 #define MSGTR_SMBNotCompiled "MPlayer werd niet gecompileerd met SMB leesondersteuning\n"
 
-#define MSGTR_CantOpenDVD "Kon DVD device niet openen: %s\n"
+#define MSGTR_CantOpenDVD "Kon DVD device niet openen: %s (%s)\n"
 #define MSGTR_DVDnumTitles "Er zijn %d titels op deze DVD.\n"
 #define MSGTR_DVDinvalidTitle "Foutieve DVD titelnummer: %d\n"
 #define MSGTR_DVDnumChapters "Er zijn %d hoofdstukken in deze DVD titel.\n"
@@ -551,7 +550,7 @@ static char help_text[]=
 
 // ====================== GUI messages/buttons ========================
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 
 // --- labels ---
 #define MSGTR_About "Info over"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Synced with r21930  -->
+<!-- Synced with r24035  -->
 <chapter id="faq" xreflabel="FAQ">
 <title>Často Kladené Dotazy (FAQ)</title>
 
@@ -80,7 +80,8 @@ záhadnou zprávu obsahující frázi
 <systemitem>internal compiler error</systemitem> nebo
 <systemitem>unable to find a register to spill</systemitem> nebo
 <systemitem>can't find a register in class `GENERAL_REGS'
-while reloading `asm'</systemitem>.</para></question>
+while reloading `asm'</systemitem>.
+</para></question>
 <answer><para>
 Právě jste narazili na chybu v <application>gcc</application>.
 <ulink url="http://gcc.gnu.org/bugs.html">Nahlaste ji prosím týmu gcc</ulink>,
@@ -109,7 +110,7 @@ Athlonu?
 <answer><para>
 Vyzkoušejte následující volby configure:
 <screen>
-./configure --target=athlon_xp --cc="gcc -m32" --as="as --32" --with-extralibdir=/usr/lib
+./configure --target=i386-linux --cc="gcc -m32" --as="as --32" --with-extralibdir=/usr/lib
 </screen>
 </para></answer>
 </qandaentry>
@@ -147,14 +148,14 @@ V Red Hatu se nazývá <filename>XFree86-devel*</filename>,
 v Debianu Woody je to <filename>xlibs-dev</filename>,
 v Debianu Sarge je to <filename>libx11-dev</filename>. Také se přesvědčte,
 že symlinky <filename class="directory">/usr/X11</filename> a
-<filename class="directory">/usr/include/X11</filename> existují (to může být
-problém v systémech Mandrake).
+<filename class="directory">/usr/include/X11</filename> existují.
 </para></answer>
 </qandaentry>
 
 <qandaentry>
 <question><para>
-Kompilace na Mac OS 10.3 vede k několika linkovacím chybám</para></question>
+Kompilace na Mac OS 10.3 vede k několika linkovacím chybám.
+</para></question>
 <answer>
 <para>
 Chyba linkování, kterou zakoušíte vypadá nejspíš takto:
@@ -234,8 +235,8 @@ Mám potíže s přehráváním souborů s ... kodekem. Mohu je používat?
 Prověřte
 <ulink url="../../codecs-status.html">stav kodeku</ulink>,
 pokud neobsahuje váš kodek, přečtěte si
-<link linkend="codecs">kodekovou dokumentaci</link>, zvláště
-<link linkend="codec-importing">codec importing HOWTO</link> a kontaktujte nás.
+<ulink url="../../tech/win32-codec-howto">Win32 codec HOWTO</ulink>
+a kontaktujte nás.
 </para></answer>
 </qandaentry>
 
@@ -799,8 +800,13 @@ Nebo může mít špatnou hlavičku, v tom případě může pomoci
 <option>-nobps</option> a/nebo <option>-mc 0</option>.
 </para></listitem>
 <listitem><para>
+  Mnoho FLV souborů bude správně hrát s <option>-correct-pts</option>.
+  Naneštěstí <application>MEncoder</application> takovou volbu nemá,
+  ale můžete zkusit nastavit <option>-fps</option> na zprávnou hodnotu ručně,
+  pokud ji znáte.
+</para></listitem>
+<listitem><para>
 Ovladač vaší zvukové karty je vadný.
-Viz <link linkend="audio">sekce audio</link>.
 </para></listitem>
 </itemizedlist>
 </para></answer>
@@ -990,7 +996,7 @@ nahraje 5. titul z DVD do souboru
 Jak vytvořím (S)VCD automaticky?
 </para></question>
 <answer><para>
-Zkuste skript <filename>mencvcd</filename> z podadresáře
+Zkuste skript <filename>mencvcd.sh</filename> z podadresáře
 <filename class="directory">TOOLS</filename>.
 Pomocí něj můžete enkódovat DVD nebo jiné filmy do VCD
 nebo SVCD formátu a dokonce je vypálit přímo na CD.
@@ -1255,7 +1261,7 @@ a je podporován všemi dobrými přehrávači.
 Jak mohu enkódovat soubor jen se zvukem?
 </para></question>
 <answer><para>
-Použijte <filename>aconvert</filename> z podadresáře
+Použijte <filename>aconvert.sh</filename> z podadresáře
 <filename class="directory">TOOLS</filename>
 ve zdrojových kódech MPlayeru.
 </para></answer>

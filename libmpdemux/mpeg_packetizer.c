@@ -1,25 +1,28 @@
 /*
- *  Copyright (C) 2006 Benjamin Zores
- *   Set of helper routines for building MPEG 1/2 PS/PES packets.
+ * set of helper routines for building MPEG 1/2 PS/PES packets
  *
- *   Based on various code bororwed from vo_mpegpes/vo_dxr2 :
- *      (C) 2000 Ralph Metzler <ralph@convergence.de>
- *               Marcus Metzler <marcus@convergence.de>
- *               Gerard Lantau
+ * Copyright (C) 2006 Benjamin Zores
  *
- *   This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * Based on code borrowed from vo_mpegpes/vo_dxr2:
+ *    (C) 2000 Ralph Metzler <ralph@convergence.de>
+ *             Marcus Metzler <marcus@convergence.de>
+ *             Gerard Lantau
  *
- *   This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This file is part of MPlayer.
  *
- *   You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software Foundation,
- *  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <unistd.h>
@@ -31,15 +34,13 @@
 
 #define PES_MAX_SIZE 2048
 
-static unsigned char pes_header[PES_MAX_SIZE];
-
-static unsigned char ps2_header[] = {
+static const unsigned char ps2_header[] = {
   0x00, 0x00, 0x01, 0xba, 0x44, 0x00, 0x04, 0x00,
   0x04, 0x01, 0x01, 0x86, 0xa3, 0xf8
 };
 
 
-static unsigned char ps1_header[] = {
+static const unsigned char ps1_header[] = {
   0x00, 0x00, 0x01, 0xba, 0x21, 0x00,
   0xb9, 0x37, 0x83, 0x80, 0xc3, 0x51,
 };
@@ -48,15 +49,16 @@ static unsigned char ps1_header[] = {
 static int
 send_mpeg_pes_packet_ll(unsigned char *data, int len, int id, uint64_t pts,
                       int type, unsigned char *header, int header_len,
-                      int align4, int my_write (unsigned char *data, int len))
+                      int align4, int my_write (const unsigned char *data, int len))
 {
   int ptslen = (pts ? 5 : 0);
   int n = 0;
   int idx, plen;
   int hdr;
+  unsigned char pes_header[PES_MAX_SIZE];
 
   mp_msg (MSGT_HEADER, MSGL_DBG2,
-          "MPEG%d PES packet: 0x%x => %lu   \n", type, id, pts);
+          "MPEG%d PES packet: 0x%x => %"PRIu64"   \n", type, id, pts);
   memset (pes_header, '\0', PES_MAX_SIZE);
   
   /* startcode */
@@ -139,7 +141,7 @@ send_mpeg_pes_packet_ll(unsigned char *data, int len, int id, uint64_t pts,
 
 int
 send_mpeg_pes_packet (unsigned char *data, int len, int id, uint64_t pts,
-                      int type, int my_write (unsigned char *data, int len))
+                      int type, int my_write (const unsigned char *data, int len))
 {
     return send_mpeg_pes_packet_ll(data, len, id, pts, type, NULL, 0, 0, my_write);
 }
@@ -148,7 +150,7 @@ send_mpeg_pes_packet (unsigned char *data, int len, int id, uint64_t pts,
 /* Send MPEG <type> PS packet */
 int
 send_mpeg_ps_packet(unsigned char *data, int len, int id, uint64_t pts, int type,
-                      int my_write (unsigned char *data, int len))
+                      int my_write (const unsigned char *data, int len))
 {
   if(type == 2)
     my_write (ps2_header, sizeof (ps2_header));
@@ -161,7 +163,7 @@ send_mpeg_ps_packet(unsigned char *data, int len, int id, uint64_t pts, int type
 int
 send_mpeg_lpcm_packet(unsigned char* data, int len,
                        int id, uint64_t pts, int freq_id,
-                       int my_write (unsigned char *data, int len))
+                       int my_write (const unsigned char *data, int len))
 {
     unsigned char header[7] = {0xA0, 0x07, 0x00, 0x04, 0x0C, 1 | (freq_id << 4), 0x80};
     return send_mpeg_pes_packet_ll(data, len, 0xBD, pts, 2, header, sizeof(header), 1, my_write);

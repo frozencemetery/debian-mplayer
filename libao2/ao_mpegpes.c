@@ -1,3 +1,23 @@
+/*
+ * MPEG-PES audio output driver
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,12 +30,8 @@
 
 #include "config.h"
 
-#ifdef HAVE_DVB_HEAD
-#define HAVE_DVB 1
-#endif
-
-#ifdef HAVE_DVB
-#include <sys/poll.h>
+#ifdef CONFIG_DVB
+#include <poll.h>
 #include <sys/ioctl.h>
 #endif
 
@@ -29,8 +45,8 @@
 #include "mp_msg.h"
 #include "help_mp.h"
 
-#ifdef HAVE_DVB
-#ifndef HAVE_DVB_HEAD
+#ifdef CONFIG_DVB
+#ifndef CONFIG_DVB_HEAD
 #include <ost/audio.h>
 audioMixer_t dvb_mixer={255,255};
 #else
@@ -49,10 +65,10 @@ int vo_mpegpes_fd2 = -1;
 
 static ao_info_t info = 
 {
-#ifdef HAVE_DVB
+#ifdef CONFIG_DVB
 	"DVB audio output",
 #else
-	"Mpeg-PES audio output",
+	"MPEG-PES audio output",
 #endif
 	"mpegpes",
 	"A'rpi",
@@ -64,7 +80,7 @@ LIBAO_EXTERN(mpegpes)
 
 // to set/get/query special features/parameters
 static int control(int cmd,void *arg){
-#ifdef HAVE_DVB
+#ifdef CONFIG_DVB
     switch(cmd){
 	case AOCONTROL_GET_VOLUME:
 	  if(vo_mpegpes_fd2>=0){
@@ -96,11 +112,11 @@ static int control(int cmd,void *arg){
 static int freq=0;
 static int freq_id=0;
 
-#ifdef HAVE_DVB
+#ifdef CONFIG_DVB
 static int init_device(int card)
 {
 	char ao_file[30];
-#ifndef HAVE_DVB_HEAD
+#ifndef CONFIG_DVB_HEAD
 	mp_msg(MSGT_VO,MSGL_INFO, "Opening /dev/ost/audio\n");
 	sprintf(ao_file, "/dev/ost/audio");
 #else
@@ -127,7 +143,7 @@ static int init_device(int card)
 		mp_msg(MSGT_VO, MSGL_ERR, "DVB AUDIO SET AV SYNC: %s\n", strerror(errno));
 		return -1;
 	}
-	//FIXME: in vo_mpegpes audio was inited as MUTEd
+	//FIXME: in vo_mpegpes audio was initialized as MUTEd
 	if((ioctl(vo_mpegpes_fd2,AUDIO_SET_MUTE, false) < 0))
 	{
 		mp_msg(MSGT_VO, MSGL_ERR, "DVB AUDIO SET MUTE: %s\n", strerror(errno));
@@ -139,7 +155,7 @@ static int init_device(int card)
 
 static int preinit(const char *arg)
 {
-	int card = 1;
+	int card = -1;
 	char *ao_file = NULL;
 
 	opt_t subopts[] = {
@@ -153,6 +169,21 @@ static int preinit(const char *arg)
 		mp_msg(MSGT_VO, MSGL_ERR, "AO_MPEGPES, Unrecognized options\n");
 		return -1;
 	}
+	if(card==-1)
+	{
+		//search the first usable card
+		int n;
+		char file[30];
+		for(n=0; n<4; n++)
+		{
+			sprintf(file, "/dev/dvb/adapter%d/audio0", n);
+			if(access(file, F_OK | W_OK)==0)
+			{
+				card = n+1;
+				break;
+			}
+        	}
+	}
 	if((card < 1) || (card > 4))
 	{
 		mp_msg(MSGT_VO, MSGL_ERR, "DVB card number must be between 1 and 4\n");
@@ -160,7 +191,7 @@ static int preinit(const char *arg)
 	}
 	card--;
 
-#ifdef HAVE_DVB
+#ifdef CONFIG_DVB
 	if(!ao_file)
 		return init_device(card);
 #else	
@@ -179,7 +210,7 @@ static int preinit(const char *arg)
 
 static int my_ao_write(unsigned char* data,int len){
     int orig_len = len;
-#ifdef HAVE_DVB
+#ifdef CONFIG_DVB
 #define NFD   1
     struct pollfd pfd[NFD];
 

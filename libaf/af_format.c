@@ -1,27 +1,34 @@
-/* This audio output filter changes the format of a data block. Valid
-   formats are: AFMT_U8, AFMT_S8, AFMT_S16_LE, AFMT_S16_BE
-   AFMT_U16_LE, AFMT_U16_BE, AFMT_S32_LE and AFMT_S32_BE.
-*/
-
-// Must be defined before any libc headers are included!
-#define _ISOC9X_SOURCE
+/*
+ * This audio filter changes the format of a data block. Valid
+ * formats are: AFMT_U8, AFMT_S8, AFMT_S16_LE, AFMT_S16_BE
+ * AFMT_U16_LE, AFMT_U16_BE, AFMT_S32_LE and AFMT_S32_BE.
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
 #include <limits.h>
-
-// Integer to float conversion through lrintf()
-#ifdef HAVE_LRINTF
 #include <math.h>
-long int lrintf(float);
-#else
-#define lrintf(x) ((int)(x))
-#endif
 
+#include "config.h"
 #include "af.h"
-#include "libavutil/common.h"
 #include "mpbswap.h"
 #include "libvo/fastmemcpy.h"
 
@@ -30,8 +37,8 @@ long int lrintf(float);
 
 /* The below includes retrieves functions for converting to and from
    ulaw and alaw */ 
-#include "af_format_ulaw.c"
-#include "af_format_alaw.c"
+#include "af_format_ulaw.h"
+#include "af_format_alaw.h"
 
 // Switch endianness
 static void endian(void* in, void* out, int len, int bps);
@@ -104,9 +111,7 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
 
     af->data->rate = data->rate;
     af->data->nch  = data->nch;
-    af->mul.n      = af->data->bps;
-    af->mul.d      = data->bps;
-    af_frac_cancel(&af->mul);
+    af->mul        = (double)af->data->bps / data->bps;
     
     af->play = play; // set default
     
@@ -309,8 +314,7 @@ static int af_open(af_instance_t* af){
   af->control=control;
   af->uninit=uninit;
   af->play=play;
-  af->mul.n=1;
-  af->mul.d=1;
+  af->mul=1;
   af->data=calloc(1,sizeof(af_data_t));
   if(af->data == NULL)
     return AF_ERROR;
@@ -328,7 +332,7 @@ af_info_t af_info_format = {
 };
 
 static inline uint32_t load24bit(void* data, int pos) {
-#if WORDS_BIGENDIAN
+#ifdef WORDS_BIGENDIAN
   return (((uint32_t)((uint8_t*)data)[3*pos])<<24) |
 	 (((uint32_t)((uint8_t*)data)[3*pos+1])<<16) |
 	 (((uint32_t)((uint8_t*)data)[3*pos+2])<<8);
@@ -340,7 +344,7 @@ static inline uint32_t load24bit(void* data, int pos) {
 }
 
 static inline void store24bit(void* data, int pos, uint32_t expanded_value) {
-#if WORDS_BIGENDIAN
+#ifdef WORDS_BIGENDIAN
       ((uint8_t*)data)[3*pos]=expanded_value>>24;
       ((uint8_t*)data)[3*pos+1]=expanded_value>>16;
       ((uint8_t*)data)[3*pos+2]=expanded_value>>8;

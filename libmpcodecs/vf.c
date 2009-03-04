@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "config.h"
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 
@@ -23,92 +23,92 @@
 
 #include "libvo/fastmemcpy.h"
 
-extern vf_info_t vf_info_vo;
-extern vf_info_t vf_info_rectangle;
-extern vf_info_t vf_info_bmovl;
-extern vf_info_t vf_info_crop;
-extern vf_info_t vf_info_expand;
-extern vf_info_t vf_info_pp;
-extern vf_info_t vf_info_scale;
-extern vf_info_t vf_info_format;
-extern vf_info_t vf_info_noformat;
-extern vf_info_t vf_info_yuy2;
-extern vf_info_t vf_info_flip;
-extern vf_info_t vf_info_rgb2bgr;
-extern vf_info_t vf_info_rotate;
-extern vf_info_t vf_info_mirror;
-extern vf_info_t vf_info_palette;
-extern vf_info_t vf_info_lavc;
-extern vf_info_t vf_info_zrmjpeg;
-extern vf_info_t vf_info_dvbscale;
-extern vf_info_t vf_info_cropdetect;
-extern vf_info_t vf_info_test;
-extern vf_info_t vf_info_noise;
-extern vf_info_t vf_info_yvu9;
-extern vf_info_t vf_info_lavcdeint;
-extern vf_info_t vf_info_eq;
-extern vf_info_t vf_info_eq2;
-extern vf_info_t vf_info_halfpack;
-extern vf_info_t vf_info_dint;
-extern vf_info_t vf_info_1bpp;
-extern vf_info_t vf_info_2xsai;
-extern vf_info_t vf_info_unsharp;
-extern vf_info_t vf_info_swapuv;
-extern vf_info_t vf_info_il;
-extern vf_info_t vf_info_fil;
-extern vf_info_t vf_info_boxblur;
-extern vf_info_t vf_info_sab;
-extern vf_info_t vf_info_smartblur;
-extern vf_info_t vf_info_perspective;
-extern vf_info_t vf_info_down3dright;
-extern vf_info_t vf_info_field;
-extern vf_info_t vf_info_denoise3d;
-extern vf_info_t vf_info_hqdn3d;
-extern vf_info_t vf_info_detc;
-extern vf_info_t vf_info_telecine;
-extern vf_info_t vf_info_tinterlace;
-extern vf_info_t vf_info_tfields;
-extern vf_info_t vf_info_ivtc;
-extern vf_info_t vf_info_ilpack;
-extern vf_info_t vf_info_dsize;
-extern vf_info_t vf_info_decimate;
-extern vf_info_t vf_info_softpulldown;
-extern vf_info_t vf_info_pullup;
-extern vf_info_t vf_info_filmdint;
-extern vf_info_t vf_info_framestep;
-extern vf_info_t vf_info_tile;
-extern vf_info_t vf_info_delogo;
-extern vf_info_t vf_info_remove_logo;
-extern vf_info_t vf_info_hue;
-extern vf_info_t vf_info_spp;
-extern vf_info_t vf_info_uspp;
-extern vf_info_t vf_info_fspp;
-extern vf_info_t vf_info_pp7;
-extern vf_info_t vf_info_yuvcsp;
-extern vf_info_t vf_info_kerndeint;
-extern vf_info_t vf_info_rgbtest;
-extern vf_info_t vf_info_qp;
-extern vf_info_t vf_info_phase;
-extern vf_info_t vf_info_divtc;
-extern vf_info_t vf_info_harddup;
-extern vf_info_t vf_info_softskip;
-extern vf_info_t vf_info_screenshot;
-extern vf_info_t vf_info_ass;
-extern vf_info_t vf_info_mcdeint;
-extern vf_info_t vf_info_yadif;
-extern vf_info_t vf_info_blackframe;
-extern vf_info_t vf_info_geq;
-extern vf_info_t vf_info_ow;
+extern const vf_info_t vf_info_vo;
+extern const vf_info_t vf_info_rectangle;
+extern const vf_info_t vf_info_bmovl;
+extern const vf_info_t vf_info_crop;
+extern const vf_info_t vf_info_expand;
+extern const vf_info_t vf_info_pp;
+extern const vf_info_t vf_info_scale;
+extern const vf_info_t vf_info_format;
+extern const vf_info_t vf_info_noformat;
+extern const vf_info_t vf_info_yuy2;
+extern const vf_info_t vf_info_flip;
+extern const vf_info_t vf_info_rgb2bgr;
+extern const vf_info_t vf_info_rotate;
+extern const vf_info_t vf_info_mirror;
+extern const vf_info_t vf_info_palette;
+extern const vf_info_t vf_info_lavc;
+extern const vf_info_t vf_info_zrmjpeg;
+extern const vf_info_t vf_info_dvbscale;
+extern const vf_info_t vf_info_cropdetect;
+extern const vf_info_t vf_info_test;
+extern const vf_info_t vf_info_noise;
+extern const vf_info_t vf_info_yvu9;
+extern const vf_info_t vf_info_lavcdeint;
+extern const vf_info_t vf_info_eq;
+extern const vf_info_t vf_info_eq2;
+extern const vf_info_t vf_info_halfpack;
+extern const vf_info_t vf_info_dint;
+extern const vf_info_t vf_info_1bpp;
+extern const vf_info_t vf_info_2xsai;
+extern const vf_info_t vf_info_unsharp;
+extern const vf_info_t vf_info_swapuv;
+extern const vf_info_t vf_info_il;
+extern const vf_info_t vf_info_fil;
+extern const vf_info_t vf_info_boxblur;
+extern const vf_info_t vf_info_sab;
+extern const vf_info_t vf_info_smartblur;
+extern const vf_info_t vf_info_perspective;
+extern const vf_info_t vf_info_down3dright;
+extern const vf_info_t vf_info_field;
+extern const vf_info_t vf_info_denoise3d;
+extern const vf_info_t vf_info_hqdn3d;
+extern const vf_info_t vf_info_detc;
+extern const vf_info_t vf_info_telecine;
+extern const vf_info_t vf_info_tinterlace;
+extern const vf_info_t vf_info_tfields;
+extern const vf_info_t vf_info_ivtc;
+extern const vf_info_t vf_info_ilpack;
+extern const vf_info_t vf_info_dsize;
+extern const vf_info_t vf_info_decimate;
+extern const vf_info_t vf_info_softpulldown;
+extern const vf_info_t vf_info_pullup;
+extern const vf_info_t vf_info_filmdint;
+extern const vf_info_t vf_info_framestep;
+extern const vf_info_t vf_info_tile;
+extern const vf_info_t vf_info_delogo;
+extern const vf_info_t vf_info_remove_logo;
+extern const vf_info_t vf_info_hue;
+extern const vf_info_t vf_info_spp;
+extern const vf_info_t vf_info_uspp;
+extern const vf_info_t vf_info_fspp;
+extern const vf_info_t vf_info_pp7;
+extern const vf_info_t vf_info_yuvcsp;
+extern const vf_info_t vf_info_kerndeint;
+extern const vf_info_t vf_info_rgbtest;
+extern const vf_info_t vf_info_qp;
+extern const vf_info_t vf_info_phase;
+extern const vf_info_t vf_info_divtc;
+extern const vf_info_t vf_info_harddup;
+extern const vf_info_t vf_info_softskip;
+extern const vf_info_t vf_info_screenshot;
+extern const vf_info_t vf_info_ass;
+extern const vf_info_t vf_info_mcdeint;
+extern const vf_info_t vf_info_yadif;
+extern const vf_info_t vf_info_blackframe;
+extern const vf_info_t vf_info_geq;
+extern const vf_info_t vf_info_ow;
 
 // list of available filters:
-static vf_info_t* filter_list[]={
+static const vf_info_t* const filter_list[]={
     &vf_info_rectangle,
 #ifdef HAVE_POSIX_SELECT
     &vf_info_bmovl,
 #endif
     &vf_info_crop,
     &vf_info_expand,
-#ifdef USE_LIBPOSTPROC
+#ifdef CONFIG_LIBPOSTPROC
     &vf_info_pp,
 #endif
     &vf_info_scale,
@@ -122,12 +122,13 @@ static vf_info_t* filter_list[]={
     &vf_info_rotate,
     &vf_info_mirror,
     &vf_info_palette,
-#ifdef USE_LIBAVCODEC
+    &vf_info_pp7,
+#ifdef CONFIG_LIBAVCODEC
     &vf_info_lavc,
     &vf_info_lavcdeint,
-    &vf_info_pp7,
+    &vf_info_screenshot,
 #endif
-#ifdef HAVE_ZR
+#ifdef CONFIG_ZR
     &vf_info_zrmjpeg,
 #endif
     &vf_info_dvbscale,
@@ -169,7 +170,7 @@ static vf_info_t* filter_list[]={
     &vf_info_delogo,
     &vf_info_remove_logo,
     &vf_info_hue,
-#ifdef USE_LIBAVCODEC_A
+#ifdef CONFIG_LIBAVCODEC_A
     &vf_info_spp,
     &vf_info_uspp,
     &vf_info_fspp,
@@ -184,10 +185,7 @@ static vf_info_t* filter_list[]={
     &vf_info_divtc,
     &vf_info_harddup,
     &vf_info_softskip,
-#ifdef HAVE_PNG
-    &vf_info_screenshot,
-#endif
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
     &vf_info_ass,
 #endif
     &vf_info_yadif,
@@ -198,7 +196,7 @@ static vf_info_t* filter_list[]={
 
 // For the vf option
 m_obj_settings_t* vf_settings = NULL;
-m_obj_list_t vf_obj_list = {
+const m_obj_list_t vf_obj_list = {
   (void**)filter_list,
   M_ST_OFF(vf_info_t,name),
   M_ST_OFF(vf_info_t,info),
@@ -255,6 +253,7 @@ void vf_mpi_clear(mp_image_t* mpi,int x0,int y0,int w,int h){
 mp_image_t* vf_get_image(vf_instance_t* vf, unsigned int outfmt, int mp_imgtype, int mp_imgflag, int w, int h){
   mp_image_t* mpi=NULL;
   int w2;
+  int number = mp_imgtype >> 16;
 
 #ifdef MP_DEBUG
   assert(w == -1 || w >= vf->w);
@@ -277,7 +276,7 @@ mp_image_t* vf_get_image(vf_instance_t* vf, unsigned int outfmt, int mp_imgtype,
   
   // Note: we should call libvo first to check if it supports direct rendering
   // and if not, then fallback to software buffers:
-  switch(mp_imgtype){
+  switch(mp_imgtype & 0xff){
   case MP_IMGTYPE_EXPORT:
     if(!vf->imgctx.export_images[0]) vf->imgctx.export_images[0]=new_mp_image(w2,h);
     mpi=vf->imgctx.export_images[0];
@@ -300,6 +299,19 @@ mp_image_t* vf_get_image(vf_instance_t* vf, unsigned int outfmt, int mp_imgtype,
     if(!vf->imgctx.static_images[vf->imgctx.static_idx]) vf->imgctx.static_images[vf->imgctx.static_idx]=new_mp_image(w2,h);
     mpi=vf->imgctx.static_images[vf->imgctx.static_idx];
     vf->imgctx.static_idx^=1;
+    break;
+  case MP_IMGTYPE_NUMBERED:
+    if (number == -1) {
+      int i;
+      for (i = 0; i < NUM_NUMBERED_MPI; i++)
+        if (!vf->imgctx.numbered_images[i] || !(vf->imgctx.numbered_images[i]->flags & MP_IMGFLAG_IN_USE))
+          break;
+      number = i;
+    }
+    if (number < 0 || number >= NUM_NUMBERED_MPI) return NULL;
+    if (!vf->imgctx.numbered_images[number]) vf->imgctx.numbered_images[number] = new_mp_image(w2,h);
+    mpi = vf->imgctx.numbered_images[number];
+    mpi->number = number;
     break;
   }
   if(mpi){
@@ -334,6 +346,11 @@ mp_image_t* vf_get_image(vf_instance_t* vf, unsigned int outfmt, int mp_imgtype,
 	
         if(!(mpi->flags&MP_IMGFLAG_DIRECT)){
           // non-direct and not yet allocated image. allocate it!
+          if (!mpi->bpp) { // no way we can allocate this
+              mp_msg(MSGT_DECVIDEO, MSGL_FATAL,
+                     "vf_get_image: Tried to allocate a format that can not be allocated!\n");
+              return NULL;
+          }
 	  
 	  // check if codec prefer aligned stride:  
 	  if(mp_imgflag&MP_IMGFLAG_PREFER_ALIGNED_STRIDE){
@@ -414,6 +431,7 @@ mp_image_t* vf_get_image(vf_instance_t* vf, unsigned int outfmt, int mp_imgtype,
 
   mpi->qscale = NULL;
   }
+  mpi->flags |= MP_IMGFLAG_IN_USE;
 //    printf("\rVF_MPI: %p %p %p %d %d %d    \n",
 //	mpi->planes[0],mpi->planes[1],mpi->planes[2],
 //	mpi->stride[0],mpi->stride[1],mpi->stride[2]);
@@ -428,7 +446,7 @@ static int vf_default_query_format(struct vf_instance_s* vf, unsigned int fmt){
   return vf_next_query_format(vf,fmt);
 }
 
-vf_instance_t* vf_open_plugin(vf_info_t** filter_list, vf_instance_t* next, const char *name, char **args){
+vf_instance_t* vf_open_plugin(const vf_info_t* const* filter_list, vf_instance_t* next, const char *name, char **args){
     vf_instance_t* vf;
     int i;
     for(i=0;;i++){
@@ -449,7 +467,7 @@ vf_instance_t* vf_open_plugin(vf_info_t** filter_list, vf_instance_t* next, cons
     vf->default_caps=VFCAP_ACCEPT_STRIDE;
     vf->default_reqs=0;
     if(vf->info->opts) { // vf_vo get some special argument
-      m_struct_t* st = vf->info->opts;
+      const m_struct_t* st = vf->info->opts;
       void* vf_priv = m_struct_alloc(st);
       int n;
       for(n = 0 ; args && args[2*n] ; n++)
@@ -514,9 +532,9 @@ vf_instance_t* vf_add_before_vo(vf_instance_t **vf, char *name, char **args) {
 
 //============================================================================
 
-unsigned int vf_match_csp(vf_instance_t** vfp,unsigned int* list,unsigned int preferred){
+unsigned int vf_match_csp(vf_instance_t** vfp,const unsigned int* list,unsigned int preferred){
     vf_instance_t* vf=*vfp;
-    unsigned int* p;
+    const unsigned int* p;
     unsigned int best=0;
     int ret;
     if((p=list)) while(*p){
@@ -580,6 +598,12 @@ int vf_output_queued_frame(vf_instance_t *vf)
 	tmp = last->continue_buffered_image;
 	last->continue_buffered_image = NULL;
 	ret = tmp(last);
+	if (ret > 0) {
+	    vf->control(vf, VFCTRL_DRAW_OSD, NULL);
+#ifdef CONFIG_ASS
+	    vf->control(vf, VFCTRL_DRAW_EOSD, NULL);
+#endif
+	}
 	if (ret)
 	    return ret;
     }
@@ -655,6 +679,14 @@ int vf_next_config(struct vf_instance_s* vf,
 
 int vf_next_control(struct vf_instance_s* vf, int request, void* data){
     return vf->next->control(vf->next,request,data);
+}
+
+void vf_extra_flip(struct vf_instance_s* vf) {
+    vf_next_control(vf, VFCTRL_DRAW_OSD, NULL);
+#ifdef CONFIG_ASS
+    vf_next_control(vf, VFCTRL_DRAW_EOSD, NULL);
+#endif
+    vf_next_control(vf, VFCTRL_FLIP_PAGE, NULL);
 }
 
 int vf_next_query_format(struct vf_instance_s* vf, unsigned int fmt){

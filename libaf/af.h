@@ -1,10 +1,28 @@
-#ifndef __af_h__
-#define __af_h__
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+#ifndef MPLAYER_AF_H
+#define MPLAYER_AF_H
 
 #include <stdio.h>
 
-#include "af_mp.h"
 #include "config.h"
+#include "af_mp.h"
 #include "control.h"
 #include "af_format.h"
 
@@ -26,16 +44,6 @@ typedef struct af_data_s
   int bps; 	// bytes per sample
 } af_data_t;
 
-// Fraction, used to calculate buffer lengths
-typedef struct frac_s
-{
-  int n; // Numerator
-  int d; // Denominator
-} frac_t;
-
-int af_gcd(register int a, register int b);
-void af_frac_cancel(frac_t *f);
-void af_frac_mul(frac_t *out, const frac_t *in);
 
 // Flags used for defining the behavior of an audio filter
 #define AF_FLAGS_REENTRANT 	0x00000000
@@ -64,8 +72,9 @@ typedef struct af_instance_s
   af_data_t* data; // configuration for outgoing data stream
   struct af_instance_s* next;
   struct af_instance_s* prev;  
-  double delay; // Delay caused by the filter [ms]
-  frac_t mul; /* length multiplier: how much does this instance change
+  double delay; /* Delay caused by the filter, in units of bytes read without
+		 * corresponding output */
+  double mul; /* length multiplier: how much does this instance change
 		 the length of the buffer. */
 }af_instance_t;
 
@@ -84,7 +93,7 @@ extern int* af_cpu_speed;
 
 // Default init type 
 #ifndef AF_INIT_TYPE
-#if defined(HAVE_SSE) || defined(HAVE_3DNOW)
+#if HAVE_SSE || HAVE_AMD3DNOW
 #define AF_INIT_TYPE (af_cpu_speed?*af_cpu_speed:AF_INIT_FAST)
 #else
 #define AF_INIT_TYPE (af_cpu_speed?*af_cpu_speed:AF_INIT_SLOW)
@@ -199,44 +208,14 @@ af_data_t* af_play(af_stream_t* s, af_data_t* data);
 af_instance_t *af_control_any_rev (af_stream_t* s, int cmd, void* arg);
 
 /**
- * \brief Calculate how long the output from the filters will be for a given
- *        input length.
- * \param len input lenght for which to calculate output length
- * \return calculated output length, will always be >= the resulting
- *         length when actually calling af_play.
+ * \brief calculate average ratio of filter output lenth to input length
+ * \return the ratio
  */
-int af_outputlen(af_stream_t* s, int len);
-
-/**
- * \brief Calculate how long the input to the filters should be to produce a
- *        certain output length
- * \param len wanted output length
- * \return input length required to produce the output length "len". Possibly
- *         smaller to avoid overflow of output buffer
- */
-int af_inputlen(af_stream_t* s, int len);
-
-/**
- * \brief calculate required input length for desired output size
- * \param len desired minimum output length
- * \param max_outsize maximum output length
- * \param max_insize maximum input length
- * \return input length or -1 on error
- *
-   Calculate how long the input IN to the filters should be to produce
-   a certain output length OUT but with the following three constraints:
-   1. IN <= max_insize, where max_insize is the maximum possible input
-      block length
-   2. OUT <= max_outsize, where max_outsize is the maximum possible
-      output block length
-   3. If possible OUT >= len. 
- */ 
-int af_calc_insize_constrained(af_stream_t* s, int len,
-			       int max_outsize,int max_insize);
+double af_calc_filter_multiplier(af_stream_t* s);
 
 /**
  * \brief Calculate the total delay caused by the filters
- * \return delay in seconds
+ * \return delay in bytes of "missing" output
  */
 double af_calc_delay(af_stream_t* s);
 
@@ -256,7 +235,7 @@ int af_resize_local_buffer(af_instance_t* af, af_data_t* data);
 /* Helper function used to calculate the exact buffer length needed
    when buffers are resized. The returned length is >= than what is
    needed */
-int af_lencalc(frac_t mul, af_data_t* data);
+int af_lencalc(double mul, af_data_t* data);
 
 /**
  * \brief convert dB to gain value
@@ -393,4 +372,4 @@ extern af_msg_cfg_t af_msg_cfg; // Message
 #endif
 //! \}
 
-#endif /* __af_h__ */
+#endif /* MPLAYER_AF_H */

@@ -43,11 +43,11 @@ static struct stream_priv_s {
 
 #define ST_OFF(f) M_ST_OFF(struct stream_priv_s,f)
 /// URL definition
-static m_option_t stream_opts_fields[] = {
+static const m_option_t stream_opts_fields[] = {
   { "string", ST_OFF(filename), CONF_TYPE_STRING, 0, 0 ,0, NULL},
   { NULL, NULL, 0, 0, 0, 0,  NULL }
 };
-static struct m_struct_st stream_opts = {
+static const struct m_struct_st stream_opts = {
   "cue",
   sizeof(struct stream_priv_s),
   &stream_priv_dflts,
@@ -95,13 +95,17 @@ static struct cue_track_pos {
 /* number of tracks on the cd */
 static int nTracks = 0;
 
+static int digits2int(char s[2], int errval) {
+  uint8_t a = s[0] - '0';
+  uint8_t b = s[1] - '0';
+  if (a > 9 || b > 9)
+    return errval;
+  return a * 10 + b;
+}
+
 /* presumes Line is preloaded with the "current" line of the file */
 static int cue_getTrackinfo(char *Line, tTrack *track)
 {
-  char inum[3];
-  char min;
-  char sec;
-  char fps;
   int already_set = 0;
 
   /* Get the 'mode' */
@@ -116,7 +120,7 @@ static int cue_getTrackinfo(char *Line, tTrack *track)
     if(strncmp(&Line[11], "MODE2/2352", 10)==0) track->mode = MODE2_2352;
     if(strncmp(&Line[11], "MODE2/2336", 10)==0) track->mode = MODE2_2336;
   }
-  else return(1);
+  else return 1;
 
   /* Get the track indexes */
   while(1) {
@@ -132,19 +136,13 @@ static int cue_getTrackinfo(char *Line, tTrack *track)
     if (strncmp(&Line[4], "INDEX ", 6)==0)
     {
       /* check stuff here so if the answer is false the else stuff below won't be executed */
-      strncpy(inum, &Line[10], 2); inum[2] = '\0';
-      if ((already_set == 0) &&
-          ((strcmp(inum, "00")==0) || (strcmp(inum, "01")==0)))
+      if ((already_set == 0) && digits2int(Line + 10, 100) <= 1)
       {
         already_set = 1;
 
-        min = ((Line[13]-'0')<<4) | (Line[14]-'0');
-        sec = ((Line[16]-'0')<<4) | (Line[17]-'0');
-        fps = ((Line[19]-'0')<<4) | (Line[20]-'0');
-
-        track->minute = (((min>>4)*10) + (min&0xf));
-        track->second = (((sec>>4)*10) + (sec&0xf));
-        track->frame  = (((fps>>4)*10) + (fps&0xf));
+        track->minute = digits2int(Line + 13, 0);
+        track->second = digits2int(Line + 16, 0);
+        track->frame  = digits2int(Line + 19, 0);
       }
     }
     else if (strncmp(&Line[4], "PREGAP ", 7)==0) { ; /* ignore */ }
@@ -152,7 +150,7 @@ static int cue_getTrackinfo(char *Line, tTrack *track)
     else mp_msg (MSGT_OPEN,MSGL_INFO,
                  MSGTR_MPDEMUX_CUEREAD_UnexpectedCuefileLine, Line);
   }
-  return(0);
+  return 0;
 }
 
 
@@ -591,7 +589,7 @@ static int open_s(stream_t *stream,int mode, void* opts, int* file_format) {
   return STREAM_OK;
 }
 
-stream_info_t stream_info_cue = {
+const stream_info_t stream_info_cue = {
   "CUE track",
   "cue",
   "Albeu",

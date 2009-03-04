@@ -1,5 +1,5 @@
 /*
- * Copyright 1992-2000 by Alan Hourihane, Wigan, England.
+ * Copyright 1992-2000 by Alan Hourihane, Wigan, England
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -22,6 +22,9 @@
  * Author:  Alan Hourihane, alanh@fairlite.demon.co.uk
  */
 /* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident_regs.h,v 1.22 2002/01/11 13:06:30 alanh Exp $ */
+
+#ifndef MPLAYER_CYBERBLADE_REGS_H
+#define MPLAYER_CYBERBLADE_REGS_H
 
 #define DEBUG 1
 
@@ -134,3 +137,4 @@
 
 /* --- */
 
+#endif /* MPLAYER_CYBERBLADE_REGS_H */

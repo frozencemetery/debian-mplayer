@@ -1,6 +1,23 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
-#ifndef AUDIO_OUT_H
-#define AUDIO_OUT_H
+#ifndef MPLAYER_AUDIO_OUT_H
+#define MPLAYER_AUDIO_OUT_H
 
 typedef struct ao_info_s
 {
@@ -45,10 +62,10 @@ extern char *ao_subdevice;
 extern ao_data_t ao_data;
 
 void list_audio_out(void);
-ao_functions_t* init_best_audio_out(char** ao_list,int use_plugin,int rate,int channels,int format,int flags);
+const ao_functions_t* init_best_audio_out(char** ao_list,int use_plugin,int rate,int channels,int format,int flags);
 
 // NULL terminated array of all drivers
-extern ao_functions_t* audio_out_drivers[];
+extern const ao_functions_t* const audio_out_drivers[];
 
 #define CONTROL_OK 1
 #define CONTROL_TRUE 1
@@ -72,4 +89,4 @@ typedef struct ao_control_vol_s {
 	float right;
 } ao_control_vol_t;
 
-#endif
+#endif /* MPLAYER_AUDIO_OUT_H */

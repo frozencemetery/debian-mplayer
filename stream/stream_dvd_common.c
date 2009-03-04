@@ -1,3 +1,4 @@
+#include "config.h"
 #include <inttypes.h>
 #include <dvdread/ifo_types.h>
 #include "stream_dvd_common.h"

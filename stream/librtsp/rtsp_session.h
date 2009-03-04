@@ -28,8 +28,10 @@
  *      Support for MPEG-TS streaming through RFC compliant RTSP servers
  */
 
-#ifndef HAVE_RTSP_SESSION_H
-#define HAVE_RTSP_SESSION_H
+#ifndef MPLAYER_RTSP_SESSION_H
+#define MPLAYER_RTSP_SESSION_H
+
+#include <stdint.h>
 
 typedef struct rtsp_session_s rtsp_session_t;
 
@@ -40,4 +42,4 @@ int rtsp_session_read(rtsp_session_t *session, char *data, int len);
 
 void rtsp_session_end(rtsp_session_t *session);
 
-#endif
+#endif /* MPLAYER_RTSP_SESSION_H */

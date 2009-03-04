@@ -1,7 +1,12 @@
 /*
  * VIDIX driver for VIA Cyberblade/i1 chipsets.
+ * Brightness/Contrast controls disabled for the time being - they were
+ * seriously degrading picture quality, especially with TV-Out.
+ *
  * Copyright (C) 2002 Alastair M. Robinson
  * http://www.blackfiveservices.co.uk/EPIAVidix.shtml
+ * based on Permedia 3 driver by Måns Rullgård
+ * thanks to Gilles Frattini for bugfixes
  *
  * This file is part of MPlayer.
  *
@@ -15,22 +20,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
- * Based on Permedia 3 driver by Måns Rullgård
- * Thanks to Gilles Frattini for bugfixes.
- *
- * Changes:
- *   18/01/03
- *     MMIO is no longer used, sidestepping cache issues on EPIA-800
- *     TV-Out modes are now better supported - this should be the end
- *       of the magenta stripes :)
- *     Brightness/Contrast controls disabled for the time being - they were
- *       seriously degrading picture quality, especially with TV-Out.
- *
- * To Do:
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+/* To Do:
  *   Implement Hue/Saturation controls
  *   Support / Test multiple frames
  *   Test colour-key code more extensively
@@ -43,13 +38,12 @@
 #include <inttypes.h>
 #include <unistd.h>
 
+#include "config.h"
 #include "vidix.h"
-#include "vidixlib.h"
 #include "fourcc.h"
 #include "dha.h"
 #include "pci_ids.h"
 #include "pci_names.h"
-#include "config.h"
 
 #include "cyberblade_regs.h"
 
@@ -243,7 +237,7 @@ static vidix_grkey_t cyberblade_grkey;
 static int cyberblade_get_gkeys(vidix_grkey_t *grkey)
 {
 	memcpy(grkey, &cyberblade_grkey, sizeof(vidix_grkey_t));
-	return(0);
+	return 0;
 }
 
 static int cyberblade_set_gkeys(const vidix_grkey_t *grkey)
@@ -277,7 +271,7 @@ static int cyberblade_set_gkeys(const vidix_grkey_t *grkey)
 		SROUTB(0x56, 0x00); /* Colour Key Mask */
 	}
 	SROUTB(0x11,protect);
-	return(0);
+	return 0;
 }
 
 

@@ -1,3 +1,20 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <inttypes.h>
 #include <stdlib.h>
@@ -34,7 +51,7 @@
 
 extern af_cfg_t af_cfg;
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 #include <iconv.h>
 #endif
 
@@ -43,7 +60,7 @@ extern af_cfg_t af_cfg;
 #include "libmpdemux/stheader.h"
 #include "libmpcodecs/dec_video.h"
 
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 #include "stream/stream_dvd.h"
 #endif
 
@@ -168,14 +185,14 @@ void guiInit( void )
  guiIntfStruct.StreamType=-1;
 
  memset( &gtkEquChannels,0,sizeof( gtkEquChannels ) );
-#ifdef HAVE_DXR3
+#ifdef CONFIG_DXR3
  if ( !gtkDXR3Device ) gtkDXR3Device=strdup( "/dev/em8300-0" );
 #endif
  if ( stream_cache_size > 0 ) { gtkCacheOn=1; gtkCacheSize=stream_cache_size; }
  else if ( stream_cache_size == 0 ) gtkCacheOn = 0;
  if ( autosync && autosync != gtkAutoSync ) { gtkAutoSyncOn=1; gtkAutoSync=autosync; }
    
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
  gtkASS.enabled = ass_enabled;
  gtkASS.use_margins = ass_use_margins;
  gtkASS.top_margin = ass_top_margin;
@@ -353,7 +370,7 @@ void guiDone( void )
    gui_sub_pos_x=appMPlayer.subWindow.X; gui_sub_pos_y=appMPlayer.subWindow.Y;
   }
  
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
  ass_enabled = gtkASS.enabled;
  ass_use_margins = gtkASS.use_margins;
  ass_top_margin = gtkASS.top_margin;
@@ -383,8 +400,8 @@ extern m_obj_settings_t * vf_settings;
 
 void guiLoadFont( void )
 {
-#ifdef HAVE_FREETYPE
-  load_font_ft(vo_image_width, vo_image_height, &vo_font, font_name);
+#ifdef CONFIG_FREETYPE
+  load_font_ft(vo_image_width, vo_image_height, &vo_font, font_name, osd_font_scale_factor);
 #else
  if ( vo_font )
   {
@@ -506,12 +523,12 @@ static void remove_vf( char * str )
 
 int guiGetEvent( int type,char * arg )
 {
-  ao_functions_t *audio_out = NULL;
-  vo_functions_t *video_out = NULL;
+  const ao_functions_t *audio_out = NULL;
+  const vo_functions_t *video_out = NULL;
   mixer_t *mixer = NULL;
 
  stream_t * stream = (stream_t *) arg;
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
  dvd_priv_t * dvdp = (dvd_priv_t *) arg;
 #endif 
 
@@ -575,7 +592,7 @@ int guiGetEvent( int type,char * arg )
             wsMoveWindow( &appMPlayer.mainWindow,0,0, vo_dheight);
          }
 	break;
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
    case guiSetDVD:
         guiIntfStruct.DVD.titles=dvdp->vmg_file->tt_srpt->nr_of_srpts;
         guiIntfStruct.DVD.chapters=dvdp->vmg_file->tt_srpt->title[dvd_title].nr_of_ptts;
@@ -594,12 +611,12 @@ int guiGetEvent( int type,char * arg )
 	guiIntfStruct.StreamType=stream->type;
 	switch( stream->type )
 	 {
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 	  case STREAMTYPE_DVD: 
 	       guiGetEvent( guiSetDVD,(char *)stream->priv );
 	       break;
 #endif
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
 	  case STREAMTYPE_VCD: 
 	       {
 	        int i;
@@ -689,9 +706,9 @@ int guiGetEvent( int type,char * arg )
 	     }
 	 }
 // -- subtitle
-#ifdef HAVE_DXR3
+#ifdef CONFIG_DXR3
 	if ( video_driver_list && !gstrcmp( video_driver_list[0],"dxr3" ) && guiIntfStruct.FileFormat != DEMUXER_TYPE_MPEG_PS
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_LIBAVCODEC
 	 && !gtkVfLAVC
 #endif
 	 )
@@ -726,7 +743,7 @@ int guiGetEvent( int type,char * arg )
          {
 	  case STREAMTYPE_PLAYLIST:
 	       break;
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
 	  case STREAMTYPE_VCD:
 	       {
 	        char tmp[512];
@@ -735,7 +752,7 @@ int guiGetEvent( int type,char * arg )
 	       }
 	       break;
 #endif
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
  	  case STREAMTYPE_DVD:
 	       {
 	        char tmp[512];
@@ -778,15 +795,15 @@ int guiGetEvent( int type,char * arg )
 	   }
 	}
 
-#ifdef HAVE_DXR3
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_DXR3
+#ifdef CONFIG_LIBAVCODEC
 	remove_vf( "lavc" );
 #endif
 	if ( video_driver_list && !gstrcmp( video_driver_list[0],"dxr3" ) )
 	 {
 	  if ( ( guiIntfStruct.StreamType != STREAMTYPE_DVD)&&( guiIntfStruct.StreamType != STREAMTYPE_VCD ) )
 	   {
-#ifdef USE_LIBAVCODEC
+#ifdef CONFIG_LIBAVCODEC
 	    if ( gtkVfLAVC ) add_vf( "lavc" );
 #endif
 	   }
@@ -810,7 +827,7 @@ int guiGetEvent( int type,char * arg )
 	  greplace(&af_cfg.list, "extrastereo", name);
 	  free(name);
 	 }
-#ifdef USE_OSS_AUDIO
+#ifdef CONFIG_OSS_AUDIO
 	if ( audio_driver_list && !gstrncmp( audio_driver_list[0],"oss",3 ) )
 	 {
 	  char *tmp;
@@ -825,7 +842,7 @@ int guiGetEvent( int type,char * arg )
 	  free(tmp);
 	 }
 #endif
-#if defined(HAVE_ALSA9) || defined (HAVE_ALSA1X)
+#ifdef CONFIG_ALSA
 	if ( audio_driver_list && !gstrncmp( audio_driver_list[0],"alsa",4 ) )
 	 {
 	  char *tmp;
@@ -840,7 +857,7 @@ int guiGetEvent( int type,char * arg )
 	  free(tmp);
 	 }
 #endif
-#ifdef HAVE_SDL
+#ifdef CONFIG_SDL
 	if ( audio_driver_list && !gstrncmp( audio_driver_list[0],"sdl",3 ) )
 	 {
 	  char *tmp;
@@ -853,7 +870,7 @@ int guiGetEvent( int type,char * arg )
 	  free(tmp);
 	 }
 #endif
-#ifdef USE_ESD
+#ifdef CONFIG_ESD
 	if ( audio_driver_list && !gstrncmp( audio_driver_list[0],"esd",3 ) )
 	 {
 	  char *tmp;
@@ -886,7 +903,7 @@ int guiGetEvent( int type,char * arg )
         guiIntfStruct.FilenameChanged=0;
         guiIntfStruct.NewPlay=0;
 
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
         ass_enabled = gtkASS.enabled;
         ass_use_margins = gtkASS.use_margins;
         ass_top_margin = gtkASS.top_margin;
@@ -1058,7 +1075,7 @@ void * gtkSet( int cmd,float fparam, void * vparam )
          } else { url_item->next=NULL; URLList=url_item; }
         return NULL;
 // --- subtitle
-#ifndef HAVE_FREETYPE
+#ifndef CONFIG_FREETYPE
    case gtkSetFontFactor:
         font_factor=fparam;
 	guiLoadFont();
@@ -1090,7 +1107,7 @@ void * gtkSet( int cmd,float fparam, void * vparam )
 	guiLoadFont();
 	return NULL;
 #endif
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
    case gtkSetSubEncoding:
 	gfree( (void **)&sub_cp );
 	sub_cp=gstrdup( (char *)vparam );
@@ -1105,10 +1122,10 @@ void * gtkSet( int cmd,float fparam, void * vparam )
 	  gfree( (void **)&guiIntfStruct.AudioFile );
 	  gtkSet( gtkDelPl,0,NULL );
 	 }
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 	if ( (unsigned int)vparam & guiDVD ) memset( &guiIntfStruct.DVD,0,sizeof( guiDVDStruct ) );
 #endif
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
 	if ( (unsigned int)vparam & guiVCD ) guiIntfStruct.VCDTracks=0;
 #endif
 	return NULL;

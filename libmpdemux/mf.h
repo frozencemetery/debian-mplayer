@@ -1,10 +1,10 @@
 
-#ifndef MF_H
-#define MF_H
+#ifndef MPLAYER_MF_H
+#define MPLAYER_MF_H
 
 extern int    mf_w;
 extern int    mf_h;
-extern float  mf_fps;
+extern double mf_fps;
 extern char * mf_type;
 
 typedef struct
@@ -16,4 +16,4 @@ typedef struct
 
 mf_t* open_mf(char * filename);
 
-#endif
+#endif /* MPLAYER_MF_H */

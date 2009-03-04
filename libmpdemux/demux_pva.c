@@ -170,6 +170,7 @@ static demuxer_t * demux_open_pva (demuxer_t * demuxer)
 	printf("demuxer->audio->id==%d\n",demuxer->audio->id);
 	*/
 	
+	demuxer->audio->id = 0;
 	demuxer->audio->sh=sh_audio;
 	sh_audio->format=0x50;
 	sh_audio->ds=demuxer->audio;
@@ -514,7 +515,7 @@ static void demux_close_pva(demuxer_t * demuxer)
 }
 			
 
-demuxer_desc_t demuxer_desc_pva = {
+const demuxer_desc_t demuxer_desc_pva = {
   "PVA demuxer",
   "pva",
   "PVA",

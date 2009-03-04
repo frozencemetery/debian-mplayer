@@ -37,11 +37,11 @@
 
  */
 
-#ifndef HAVE_ASMRP_H
-#define HAVE_ASMRP_H
+#ifndef MPLAYER_ASMRP_H
+#define MPLAYER_ASMRP_H
 
 #define MAX_RULEMATCHES 16
 
 int asmrp_match (const char *rules, int bandwidth, int *matches) ;
 
-#endif
+#endif /* MPLAYER_ASMRP_H */

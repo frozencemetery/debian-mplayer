@@ -21,9 +21,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 
@@ -39,19 +39,17 @@
 #include "mp_msg.h"
 #include "help_mp.h"
 
-#ifndef HAVE_WINSOCK2
-#define closesocket close
-#else
+#if HAVE_WINSOCK2_H
 #include <winsock2.h>
 #endif
 
-#ifndef USE_SETLOCALE
-#undef USE_ICONV
+#ifndef CONFIG_SETLOCALE
+#undef CONFIG_ICONV
 #endif
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 #include <iconv.h>
-#ifdef USE_LANGINFO
+#ifdef HAVE_LANGINFO
 #include <langinfo.h>
 #endif
 #endif
@@ -143,13 +141,13 @@ static void send_command (int s, int command, uint32_t switches,
   }
 }
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 static iconv_t url_conv;
 #endif
 
 static void string_utf16(char *dest, char *src, int len) {
     int i;
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
     size_t len1, len2;
     char *ip, *op;
 
@@ -172,7 +170,7 @@ static void string_utf16(char *dest, char *src, int len) {
 	/* trailing zeroes */
 	dest[i*2] = 0;
 	dest[i*2+1] = 0;
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
     }
 #endif
 }
@@ -266,7 +264,7 @@ static int get_header (int s, uint8_t *header, streaming_ctrl_t *streaming_ctrl)
 
      //	mp_msg(MSGT_NETWORK,MSGL_INFO,"get header packet finished\n");
 
-	return (header_len);
+	return header_len;
 
       } 
 
@@ -575,8 +573,8 @@ int asf_mmst_streaming_start(stream_t *stream)
   * */
 
   /* prepare for the url encoding conversion */
-#ifdef USE_ICONV
-#ifdef USE_LANGINFO
+#ifdef CONFIG_ICONV
+#ifdef HAVE_LANGINFO
   url_conv = iconv_open("UTF-16LE",nl_langinfo(CODESET));
 #else
   url_conv = iconv_open("UTF-16LE", NULL);
@@ -690,7 +688,7 @@ int asf_mmst_streaming_start(stream_t *stream)
   packet_length1 = packet_length;
   mp_msg(MSGT_NETWORK,MSGL_INFO,"mmst packet_length = %d\n", packet_length);
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
   if (url_conv != (iconv_t)(-1))
     iconv_close(url_conv);
 #endif

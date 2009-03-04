@@ -1,21 +1,30 @@
-/* 
- * vo_bl.c - playback using the Blinkenlights UPD protocol (and to files)
- * 
- * UDP socket handling copied from bsender.c part of blib-0.6: 
+/*
+ * playback using the Blinkenlights UDP protocol (and to files)
+ *
+ * UDP socket handling copied from bsender.c part of blib-0.6:
  * http://sven.gimp.org/blinkenlights/
- * Copyright (c)  2001-2001 The Blinkenlights Crew:
+ * copyright (c)  2001-2001 The Blinkenlights Crew:
  * 	Sven Neumann <sven@gimp.org>
  * 	Michael Natterer <mitch@gimp.org>
  * 	Daniel Mack <daniel@yoobay.net>
- * (these portions are licensed under GNU GPL v2 or "(at your option)
- * any later version")
- * 
- * Other stuff: Copyright (C) Rik Snel 2002, License GNU GPL v2
+ * copyright (C) 2004 Stefan Schuermans <1stein@schuermans.info>
+ * other stuff: copyright (C) 2002 Rik Snel
  *
- * patch from Stefan Schuermans <1stein@schuermans.info>:
- *   - correction of "maxval" in Blinkenlights UDP protcol
- *   - new scheme for new HDL
- *   - new scheme for grayscale in arbitrary size
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <stdio.h>
@@ -27,19 +36,16 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/time.h>
+#ifdef HAVE_SYS_MMAN_H
 #include <sys/mman.h>
+#endif
 #include <sys/ioctl.h>
 
 #include "config.h"
 
-#ifndef HAVE_WINSOCK2
-#define closesocket close
 #include <netdb.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#else
-#include <winsock2.h>
-#endif
 
 #include "video_out.h"
 #include "video_out_internal.h"
@@ -47,7 +53,7 @@
 #include "m_option.h"
 #include "fastmemcpy.h"
 
-static vo_info_t info = 
+static const vo_info_t info = 
 {
 	"Blinkenlights driver: http://www.blinkenlights.de",
 	"bl",
@@ -55,13 +61,13 @@ static vo_info_t info =
 	""
 };
 
-LIBVO_EXTERN (bl)
+const LIBVO_EXTERN (bl)
 
 /* General variables */
 
 static unsigned char *image = NULL;
 static unsigned char *tmp = NULL;
-static int framenum, yoff, stride;
+static int framenum;
 static char *bl_subdevice = NULL;
 static int prevpts = -1;
 
@@ -171,6 +177,7 @@ static int udp_init(bl_host_t *h) {
 	}
 
 	h->fd = -1;
+	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(h->port);
 
@@ -185,7 +192,7 @@ static int udp_init(bl_host_t *h) {
 	if (connect(h->fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
 		mp_msg(MSGT_VO, MSGL_ERR, "couldn't connect socket for %s\n", 
 				h->name);
-		closesocket(h->fd);
+		close(h->fd);
 		return 1;
 	}
 	return 0;
@@ -197,7 +204,7 @@ static void udp_send(bl_host_t *h) {
 }
 
 static void udp_close(bl_host_t *h) {
-	closesocket(h->fd);
+	close(h->fd);
 }
 
 #define NO_BLS 3
@@ -322,11 +329,9 @@ static void check_events(void) {
 
 static int draw_slice(uint8_t *srcimg[], int stride[],
 		int wf, int hf, int xf, int yf) {
-	int i, j, w, h, x, y;
+	int i, w, h, x, y;
 	uint8_t *dst;
 	uint8_t *src=srcimg[0];
-	uint8_t *src1=srcimg[1];
-	uint8_t *src2=srcimg[2];
 	w = wf; h = hf; x = xf; y = yf;
 	dst=image; /* + zr->off_y + zr->image_width*(y/zr->vdec)+x;*/
 	// copy Y:
@@ -424,7 +429,7 @@ static int preinit(const char *arg) {
 					bl_hosts[no_bl_hosts].port);
 			no_bl_hosts++;
 		} else {
-			mp_msg(MSGT_VO, MSGL_ERR, "bl: syntax error in entry %d in subdevice %s, should be a comma separated\nlist of host=name:port and file=foo.bml\n", no_bl_hosts, no_bl_files, arg);
+			mp_msg(MSGT_VO, MSGL_ERR, "bl: syntax error in entry %d in subdevice %s, should be a comma separated\nlist of host=name:port and file=foo.bml\n", no_bl_hosts + no_bl_files, arg);
 			return 1;
 		}
 		p = ++q;

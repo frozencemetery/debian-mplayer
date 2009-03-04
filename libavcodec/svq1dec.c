@@ -26,7 +26,7 @@
  */
 
 /**
- * @file svq1.c
+ * @file libavcodec/svq1.c
  * Sorenson Vector Quantizer #1 (SVQ1) video codec.
  * For more information of the SVQ1 algorithm, visit:
  *   http://www.pcisys.net/~melanson/codecs/
@@ -37,6 +37,7 @@
 #include "avcodec.h"
 #include "dsputil.h"
 #include "mpegvideo.h"
+#include "mathops.h"
 
 #include "svq1.h"
 
@@ -56,7 +57,7 @@ static VLC svq1_inter_mean;
 typedef struct svq1_pmv_s {
   int           x;
   int           y;
-} svq1_pmv_t;
+} svq1_pmv;
 
 static const uint16_t checksum_table[256] = {
   0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7,
@@ -301,7 +302,7 @@ static int svq1_decode_block_non_intra (GetBitContext *bitbuf, uint8_t *pixels, 
   return 0;
 }
 
-static int svq1_decode_motion_vector (GetBitContext *bitbuf, svq1_pmv_t *mv, svq1_pmv_t **pmv) {
+static int svq1_decode_motion_vector (GetBitContext *bitbuf, svq1_pmv *mv, svq1_pmv **pmv) {
   int        diff;
   int        i;
 
@@ -342,11 +343,11 @@ static void svq1_skip_block (uint8_t *current, uint8_t *previous, int pitch, int
 
 static int svq1_motion_inter_block (MpegEncContext *s, GetBitContext *bitbuf,
                                uint8_t *current, uint8_t *previous, int pitch,
-                               svq1_pmv_t *motion, int x, int y) {
+                               svq1_pmv *motion, int x, int y) {
   uint8_t    *src;
   uint8_t    *dst;
-  svq1_pmv_t  mv;
-  svq1_pmv_t *pmv[3];
+  svq1_pmv    mv;
+  svq1_pmv   *pmv[3];
   int         result;
 
   /* predict and decode motion vector */
@@ -394,11 +395,11 @@ static int svq1_motion_inter_block (MpegEncContext *s, GetBitContext *bitbuf,
 
 static int svq1_motion_inter_4v_block (MpegEncContext *s, GetBitContext *bitbuf,
                                   uint8_t *current, uint8_t *previous, int pitch,
-                                  svq1_pmv_t *motion,int x, int y) {
+                                  svq1_pmv *motion,int x, int y) {
   uint8_t    *src;
   uint8_t    *dst;
-  svq1_pmv_t  mv;
-  svq1_pmv_t *pmv[4];
+  svq1_pmv    mv;
+  svq1_pmv   *pmv[4];
   int         i, result;
 
   /* predict and decode motion vector (0) */
@@ -484,7 +485,7 @@ static int svq1_motion_inter_4v_block (MpegEncContext *s, GetBitContext *bitbuf,
 
 static int svq1_decode_delta_block (MpegEncContext *s, GetBitContext *bitbuf,
                         uint8_t *current, uint8_t *previous, int pitch,
-                        svq1_pmv_t *motion, int x, int y) {
+                        svq1_pmv *motion, int x, int y) {
   uint32_t block_type;
   int      result = 0;
 
@@ -540,7 +541,7 @@ static int svq1_decode_delta_block (MpegEncContext *s, GetBitContext *bitbuf,
   return result;
 }
 
-static uint16_t svq1_packet_checksum (uint8_t *data, int length, int value) {
+uint16_t ff_svq1_packet_checksum (const uint8_t *data, const int length, int value) {
   int i;
 
   for (i=0; i < length; i++) {
@@ -575,13 +576,13 @@ static int svq1_decode_frame_header (GetBitContext *bitbuf,MpegEncContext *s) {
   if(s->pict_type==4)
       return -1;
 
-  if (s->pict_type == I_TYPE) {
+  if (s->pict_type == FF_I_TYPE) {
 
     /* unknown fields */
     if (s->f_code == 0x50 || s->f_code == 0x60) {
       int csum = get_bits (bitbuf, 16);
 
-      csum = svq1_packet_checksum ((uint8_t *)bitbuf->buffer, bitbuf->size_in_bits>>3, csum);
+      csum = ff_svq1_packet_checksum (bitbuf->buffer, bitbuf->size_in_bits>>3, csum);
 
 //      av_log(s->avctx, AV_LOG_INFO, "%s checksum (%02x) for packet data\n",
 //              (csum == 0) ? "correct" : "incorrect", csum);
@@ -641,7 +642,7 @@ static int svq1_decode_frame_header (GetBitContext *bitbuf,MpegEncContext *s) {
 
 static int svq1_decode_frame(AVCodecContext *avctx,
                              void *data, int *data_size,
-                             uint8_t *buf, int buf_size)
+                             const uint8_t *buf, int buf_size)
 {
   MpegEncContext *s=avctx->priv_data;
   uint8_t        *current, *previous;
@@ -678,11 +679,11 @@ static int svq1_decode_frame(AVCodecContext *avctx,
 
   //FIXME this avoids some confusion for "B frames" without 2 references
   //this should be removed after libavcodec can handle more flexible picture types & ordering
-  if(s->pict_type==B_TYPE && s->last_picture_ptr==NULL) return buf_size;
+  if(s->pict_type==FF_B_TYPE && s->last_picture_ptr==NULL) return buf_size;
 
-  if(avctx->hurry_up && s->pict_type==B_TYPE) return buf_size;
-  if(  (avctx->skip_frame >= AVDISCARD_NONREF && s->pict_type==B_TYPE)
-     ||(avctx->skip_frame >= AVDISCARD_NONKEY && s->pict_type!=I_TYPE)
+  if(avctx->hurry_up && s->pict_type==FF_B_TYPE) return buf_size;
+  if(  (avctx->skip_frame >= AVDISCARD_NONREF && s->pict_type==FF_B_TYPE)
+     ||(avctx->skip_frame >= AVDISCARD_NONKEY && s->pict_type!=FF_I_TYPE)
      || avctx->skip_frame >= AVDISCARD_ALL)
       return buf_size;
 
@@ -705,13 +706,13 @@ static int svq1_decode_frame(AVCodecContext *avctx,
 
     current  = s->current_picture.data[i];
 
-    if(s->pict_type==B_TYPE){
+    if(s->pict_type==FF_B_TYPE){
         previous = s->next_picture.data[i];
     }else{
         previous = s->last_picture.data[i];
     }
 
-    if (s->pict_type == I_TYPE) {
+    if (s->pict_type == FF_I_TYPE) {
       /* keyframe */
       for (y=0; y < height; y+=16) {
         for (x=0; x < width; x+=16) {
@@ -727,9 +728,9 @@ static int svq1_decode_frame(AVCodecContext *avctx,
         current += 16*linesize;
       }
     } else {
-      svq1_pmv_t pmv[width/8+3];
+      svq1_pmv pmv[width/8+3];
       /* delta frame */
-      memset (pmv, 0, ((width / 8) + 3) * sizeof(svq1_pmv_t));
+      memset (pmv, 0, ((width / 8) + 3) * sizeof(svq1_pmv));
 
       for (y=0; y < height; y+=16) {
         for (x=0; x < width; x+=16) {
@@ -761,7 +762,7 @@ static int svq1_decode_frame(AVCodecContext *avctx,
   return buf_size;
 }
 
-static int svq1_decode_init(AVCodecContext *avctx)
+static av_cold int svq1_decode_init(AVCodecContext *avctx)
 {
     MpegEncContext *s = avctx->priv_data;
     int i;
@@ -805,7 +806,7 @@ static int svq1_decode_init(AVCodecContext *avctx)
     return 0;
 }
 
-static int svq1_decode_end(AVCodecContext *avctx)
+static av_cold int svq1_decode_end(AVCodecContext *avctx)
 {
     MpegEncContext *s = avctx->priv_data;
 
@@ -825,5 +826,6 @@ AVCodec svq1_decoder = {
     svq1_decode_frame,
     CODEC_CAP_DR1,
     .flush= ff_mpeg_flush,
-    .pix_fmts= (enum PixelFormat[]){PIX_FMT_YUV410P, -1},
+    .pix_fmts= (enum PixelFormat[]){PIX_FMT_YUV410P, PIX_FMT_NONE},
+    .long_name= NULL_IF_CONFIG_SMALL("Sorenson Vector Quantizer 1"),
 };

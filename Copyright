@@ -42,16 +42,16 @@ Copyright:  1999-2000 Aaron Holtzman <aholtzma@ess.engr.uvic.ca>
 License:    GNU General Public License
 
 Name:       libdvdcss
-Version:    Subversion r207 (post 1.2.9 release)
+Version:    1.2.10
 Homepage:   http://developers.videolan.org/libdvdcss/
 Directory:  libdvdcss
-Copyright:  1998-2006 VideoLAN
+Copyright:  1998-2008 VideoLAN
 License:    GNU General Public License
 
 Name:       libdvdread
 Version:    0.9.7 + patches
 Homepage:   http://www.dtek.chalmers.se/groups/dvd/development.shtml
-Directory:  dvdread
+Directory:  libdvdread
 Copyright:  1998, 1999 Eric Smith <eric@brouhaha.com>
             1999 Christian Wolff for convergence integrated media
             2000-2001 Billy Biggs <vektor@dumbterm.net>,
@@ -61,11 +61,11 @@ Copyright:  1998, 1999 Eric Smith <eric@brouhaha.com>
 License:    GNU General Public License
 
 Name:       libmpeg2
-Version:    0.4.1 + patches
+Version:    0.5.1 + patches
 Homepage:   http://libmpeg2.sourceforge.net/
 Directory:  libmpeg2
 Copyright:  1999-2000 Aaron Holtzman <aholtzma@ess.engr.uvic.ca>
-            2000-2003 Michel Lespinasse <walken@zoy.org>
+            2000-2004 Michel Lespinasse <walken@zoy.org>
             2002-2003 Falk Hueffner <falk@debian.org>
             2003 David S. Miller <davem@redhat.com>
             2003 Regis Duchesne <hpreg@zoy.org>
@@ -136,17 +136,33 @@ Directory:  libmpdemux/genres.h
 Copyright:  2001 Jason Carter
 License:    GNU General Public License
 
-Name:       unrarlib
-Version:    0.4.0 + patches
-Homepage:   http://www.unrarlib.org/
-Directory:  unrarlib.[ch]
-Copyright:  2000-2002 Christian Scheurer (www.ChristianScheurer.ch)
-            2000-2002 by Johannes Winkelmann (jw@tks6.net)
-License:    GNU General Public License / UniquE RAR File Library License
-
 Name:       FreeSDP
 Version:    0.4.1
 Homepage:   https://savannah.nongnu.org/projects/freesdp/
 Directory:  stream/freesdp/
 Copyright:  2001-2003 Federico Montesino Pouzols <fedemp@suidzer0.org>
+License:    GNU General Public License
+
+Name:       MJPEG Tools
+Version:    post 2001-12-03 release or CVS snapshot
+Homepage:   http://mjpeg.sourceforge.net/
+Directory:  libmpdemux/yuv4mpeg*
+Copyright:  2001 Matthew J. Marjanovic <maddog@mir.com>
+            2001 Andrew Stevens <andrew.stevens@philips.com>
+License:    GNU General Public License
+
+Name:       NuppelVideo / RTJPEG
+Version:    0.52a + patches
+Homepage:   http://web.archive.org/web/20060219034716/http://frost.htu.tuwien.ac.at/~roman/nuppelvideo/
+Directory:  libmpcodecs/native/rtjpegn.[ch] libmpdemux/nuppelvideo.h
+Copyright:  1998 Justin Schoeman (justin@suntiger.ee.up.ac.za)
+            1998, 1999 Joerg Walter <trouble@moes.pmnet.uni-oldenburg.de>
+            1999 Wim Taymans <wim.taymans@tvd.be>
+License:    GNU General Public License
+
+Name:       ReactOS
+Version:    r25937
+Homepage:   http://www.reactos.org/
+Directory:  vidix/dhahelperwin/ntverp.h vidix/dhahelperwin/common.ver
+Copyright:  Alex Ionescu (alex.ionescu@reactos.org)
 License:    GNU General Public License

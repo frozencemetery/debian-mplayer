@@ -1,5 +1,5 @@
-#ifndef TV_H
-#define TV_H
+#ifndef MPLAYER_TV_H
+#define MPLAYER_TV_H
 
 //#include "libao2/afmt.h"
 //#include "libmpcodecs/img_format.h"
@@ -11,9 +11,7 @@ typedef struct tv_param_s {
     char *chanlist;
     char *norm;
     int automute;
-#ifdef HAVE_TV_V4L2
     int normid;
-#endif
     char *device;
     char *driver;
     int width;
@@ -26,7 +24,6 @@ typedef struct tv_param_s {
     int immediate;
     int audiorate;
     int audio_id;
-#if defined(HAVE_TV_V4L)
     int amode;
     int volume;
     int bass;
@@ -38,10 +35,7 @@ typedef struct tv_param_s {
     int mjpeg;
     int decimation;
     int quality;
-#if defined(HAVE_ALSA9) || defined(HAVE_ALSA1X)
     int alsa;
-#endif
-#endif
     char* adevice;
     int brightness;
     int contrast;
@@ -56,6 +50,32 @@ typedef struct tv_param_s {
     int scan;
     int scan_threshold;
     float scan_period;
+    /**
+      Terminate stream with video renderer instead of Null renderer 
+      Will help if video freezes but audio does not.
+      May not work with -vo directx and -vf crop combination.
+    */
+    int hidden_video_renderer;
+    /**
+      For VIVO cards VP pin have to be rendered too.
+      This tweak will cause VidePort pin stream to be terminated with video renderer 
+      instead of removing it from graph.
+      Use if your card have vp pin and video is still choppy.
+      May not work with -vo directx and -vf crop combination.
+    */
+    int hidden_vp_renderer;
+    /**
+      Use system clock as sync source instead of default graph clock (usually the clock 
+      from one of live sources in graph.
+    */
+    int system_clock;
+    /**
+      Some audio cards creates audio chunks with about 0.5 sec size.
+      This can cause choppy video when using mplayer with immediatemode=0
+      Use followingtweak to decrease audio chunk sizes.
+      It will create audio chunks with time length equal to one video frame time.
+    */
+    int normalize_audio_chunks;
 } tv_param_t;
   
 extern tv_param_t stream_tv_defaults;
@@ -82,7 +102,7 @@ typedef struct tvi_functions_s
 } tvi_functions_t;
 
 typedef struct tvi_handle_s {
-    tvi_functions_t	*functions;
+    const tvi_functions_t	*functions;
     void		*priv;
     int 		seq;
 
@@ -99,6 +119,7 @@ typedef struct tv_channels_s {
     int index;
     char number[5];
     char name[20];
+    int norm;
     int   freq;
     struct tv_channels_s *next;
     struct tv_channels_s *prev;
@@ -324,4 +345,4 @@ typedef struct tt_stream_props_s{
     int bufsize;      ///< required buffer size
 } tt_stream_props;
 
-#endif /* TV_H */
+#endif /* MPLAYER_TV_H */

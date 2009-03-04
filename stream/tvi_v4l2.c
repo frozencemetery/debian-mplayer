@@ -1,19 +1,29 @@
 /*
-**  Video 4 Linux 2 input
-**
-**  This file is part of MPlayer, see http://mplayerhq.hu/ for info.  
-**
-**  (c) 2003 Martin Olschewski <olschewski@zpr.uni-koeln.de>
-**  (c) 2003 Jindrich Makovicka <makovick@gmail.com>
-**  
-**  File licensed under the GPL, see http://www.fsf.org/ for more info.
-**
-**  Some ideas are based on works from
-**    Alex Beregszaszi <alex@fsn.hu>
-**    Gerd Knorr <kraxel@bytesex.org>
-**
-**  CODE IS UNDER DEVELOPMENT, NO FEATURE REQUESTS PLEASE!
-*/
+ * Video 4 Linux 2 input
+ *
+ * copyright (c) 2003 Martin Olschewski <olschewski@zpr.uni-koeln.de>
+ * copyright (c) 2003 Jindrich Makovicka <makovick@gmail.com>
+ *
+ * Some ideas are based on works from
+ *   Alex Beregszaszi <alex@fsn.hu>
+ *   Gerd Knorr <kraxel@bytesex.org>
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 /*
 
@@ -35,6 +45,7 @@ known issues:
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <math.h>
 #ifdef HAVE_SYS_SYSINFO_H
 #include <sys/sysinfo.h>
 #endif
@@ -49,7 +60,7 @@ known issues:
 #define info tvi_info_v4l2
 static tvi_handle_t *tvi_init_v4l2(tv_param_t* tv_param);
 /* information about this file */
-tvi_info_t tvi_info_v4l2 = {
+const tvi_info_t tvi_info_v4l2 = {
     tvi_init_v4l2,
     "Video 4 Linux 2 input",
     "v4l2",
@@ -77,7 +88,7 @@ typedef struct {
     /* video */
     char                        *video_dev;
     int                         video_fd;
-#ifdef HAVE_TV_TELETEXT
+#ifdef CONFIG_TV_TELETEXT
     char                        *vbi_dev;
     int                         vbi_fd;
     int                         vbi_bufsize;
@@ -133,7 +144,7 @@ typedef struct {
     volatile int                audio_drop;
     volatile int                shutdown;
 
-    int                         audio_inited;
+    int                         audio_initialized;
     double                      audio_secs_per_block;
     long long                   audio_usecs_per_block;
     long long                   audio_skew_total;
@@ -336,13 +347,23 @@ static int amode2v4l(int amode)
 }
 
 
+/*
+** Get current FPS.
+*/
+static double getfps(priv_t *priv)
+{
+    if (priv->tv_param->fps > 0)
+        return priv->tv_param->fps;
+    if (priv->standard.frameperiod.denominator && priv->standard.frameperiod.numerator)
+        return (double)priv->standard.frameperiod.denominator / priv->standard.frameperiod.numerator;
+    return 25.0;
+}
+
 // sets and sanitizes audio buffer/block sizes
 static void setup_audio_buffer_sizes(priv_t *priv)
 {
     int bytes_per_sample = priv->audio_in.bytes_per_sample;
-    double fps = (double)priv->standard.frameperiod.denominator /
-        priv->standard.frameperiod.numerator;
-    int seconds = priv->video_buffer_size_max/fps;
+    int seconds = priv->video_buffer_size_max/getfps(priv);
 
     if (seconds < 5) seconds = 5;
     if (seconds > 500) seconds = 500;
@@ -365,10 +386,10 @@ static void setup_audio_buffer_sizes(priv_t *priv)
 
 static void init_audio(priv_t *priv)
 {
-    if (priv->audio_inited) return;
+    if (priv->audio_initialized) return;
 
     if (!priv->tv_param->noaudio) {
-#if defined(HAVE_ALSA9) || defined(HAVE_ALSA1X)
+#ifdef CONFIG_ALSA
         if (priv->tv_param->alsa)
             audio_in_init(&priv->audio_in, AUDIO_IN_ALSA);
         else
@@ -398,7 +419,7 @@ static void init_audio(priv_t *priv)
 
         if (audio_in_setup(&priv->audio_in) < 0) return;
 
-        priv->audio_inited = 1;
+        priv->audio_initialized = 1;
     }
 }
 
@@ -438,6 +459,18 @@ static int getstd(priv_t *priv)
     int i=0;
 
     if (ioctl(priv->video_fd, VIDIOC_G_STD, &id) < 0) {
+        struct v4l2_streamparm      parm;
+
+        parm.type=V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        if(ioctl(priv->video_fd, VIDIOC_G_PARM, &parm) >= 0) {
+            mp_msg(MSGT_TV, MSGL_WARN, "%s: your device driver does not support VIDIOC_G_STD ioctl,"
+                   " VIDIOC_G_PARM was used instead.\n", info.short_name);
+            priv->standard.index=0;
+            priv->standard.id=0;
+            priv->standard.frameperiod=parm.parm.capture.timeperframe;
+            return 0;
+        }
+
         mp_msg(MSGT_TV, MSGL_ERR, "%s: ioctl get standard failed: %s\n",
                info.short_name, strerror(errno));
         return -1;
@@ -558,7 +591,7 @@ static int get_control(priv_t *priv, struct v4l2_control *control, int val_signe
     return TVI_CONTROL_TRUE;
 }
 
-#ifdef HAVE_TV_TELETEXT
+#ifdef CONFIG_TV_TELETEXT
 static int vbi_init(priv_t* priv,char* device)
 {
     int vbi_fd=0;
@@ -662,6 +695,8 @@ static void *vbi_grabber(void *data)
 
     while (!priv->vbi_shutdown){
         bytes=read(priv->vbi_fd,buf,tsp.bufsize);	
+        if(bytes<0 && errno==EINTR)
+            continue;
 	if (bytes!=tsp.bufsize){
 	    mp_msg(MSGT_TV,MSGL_WARN,"vbi: expecting bytes: %d, got: %d\n",tsp.bufsize,bytes);
 	    break;
@@ -679,7 +714,7 @@ static void *vbi_grabber(void *data)
     free(buf);
     return NULL;
 }
-#endif //HAVE_TV_TELETEXT
+#endif /* CONFIG_TV_TELETEXT */
 
 static int control(priv_t *priv, int cmd, void *arg)
 {
@@ -699,6 +734,10 @@ static int control(priv_t *priv, int cmd, void *arg)
         priv->immediate_mode = 1;
         return TVI_CONTROL_TRUE;
     case TVI_CONTROL_VID_GET_FPS:
+        if (!priv->standard.frameperiod.denominator || !priv->standard.frameperiod.numerator) {
+            mp_msg(MSGT_TV, MSGL_ERR, "%s: Cannot get fps\n", info.short_name);
+            return TVI_CONTROL_FALSE;
+        }
         *(float *)arg = (float)priv->standard.frameperiod.denominator /
             priv->standard.frameperiod.numerator;
         mp_msg(MSGT_TV, MSGL_V, "%s: get fps: %f\n", info.short_name,
@@ -958,28 +997,28 @@ static int control(priv_t *priv, int cmd, void *arg)
         return TVI_CONTROL_TRUE;
     case TVI_CONTROL_AUD_GET_FORMAT:
         init_audio(priv);
-        if (!priv->audio_inited) return TVI_CONTROL_FALSE;
+        if (!priv->audio_initialized) return TVI_CONTROL_FALSE;
         *(int *)arg = AF_FORMAT_S16_LE;
         mp_msg(MSGT_TV, MSGL_V, "%s: get audio format: %d\n",
                info.short_name, *(int *)arg);
         return TVI_CONTROL_TRUE;
     case TVI_CONTROL_AUD_GET_SAMPLERATE:
         init_audio(priv);
-        if (!priv->audio_inited) return TVI_CONTROL_FALSE;
+        if (!priv->audio_initialized) return TVI_CONTROL_FALSE;
         *(int *)arg = priv->audio_in.samplerate;
         mp_msg(MSGT_TV, MSGL_V, "%s: get audio samplerate: %d\n",
                info.short_name, *(int *)arg);
         return TVI_CONTROL_TRUE;
     case TVI_CONTROL_AUD_GET_SAMPLESIZE:
         init_audio(priv);
-        if (!priv->audio_inited) return TVI_CONTROL_FALSE;
+        if (!priv->audio_initialized) return TVI_CONTROL_FALSE;
         *(int *)arg = priv->audio_in.bytes_per_sample;
         mp_msg(MSGT_TV, MSGL_V, "%s: get audio samplesize: %d\n",
                info.short_name, *(int *)arg);
         return TVI_CONTROL_TRUE;
     case TVI_CONTROL_AUD_GET_CHANNELS:
         init_audio(priv);
-        if (!priv->audio_inited) return TVI_CONTROL_FALSE;
+        if (!priv->audio_initialized) return TVI_CONTROL_FALSE;
         *(int *)arg = priv->audio_in.channels;
         mp_msg(MSGT_TV, MSGL_V, "%s: get audio channels: %d\n",
                info.short_name, *(int *)arg);
@@ -991,7 +1030,7 @@ static int control(priv_t *priv, int cmd, void *arg)
         if (audio_in_set_samplerate(&priv->audio_in, *(int*)arg) < 0) return TVI_CONTROL_FALSE;
 //        setup_audio_buffer_sizes(priv);
         return TVI_CONTROL_TRUE;
-#ifdef HAVE_TV_TELETEXT
+#ifdef CONFIG_TV_TELETEXT
     case TVI_CONTROL_VBI_INIT:
     {
         void* ptr;
@@ -1014,7 +1053,7 @@ static int control(priv_t *priv, int cmd, void *arg)
 #endif
     }
     mp_msg(MSGT_TV, MSGL_V, "%s: unknown control: %d\n", info.short_name, cmd);
-    return(TVI_CONTROL_UNKNOWN);
+    return TVI_CONTROL_UNKNOWN;
 }
 
 
@@ -1058,7 +1097,7 @@ static int uninit(priv_t *priv)
 {
     int i, frames, dropped = 0;
 
-#ifdef HAVE_TV_TELETEXT
+#ifdef CONFIG_TV_TELETEXT
     priv->vbi_shutdown=1;
     if(priv->vbi_grabber_thread)
         pthread_join(priv->vbi_grabber_thread, NULL);
@@ -1087,11 +1126,7 @@ static int uninit(priv_t *priv)
         struct v4l2_buffer buf;
 
         /* get performance */
-        frames = 1 + (priv->curr_frame - priv->first_frame +
-                      priv->standard.frameperiod.numerator * 500000 /
-                      priv->standard.frameperiod.denominator) *
-            priv->standard.frameperiod.denominator /
-            priv->standard.frameperiod.numerator / 1000000;
+        frames = 1 + lrintf((double)(priv->curr_frame - priv->first_frame) / (1e6 * getfps(priv)));
         dropped = frames - priv->frames;
 
         /* turn off streaming */
@@ -1145,6 +1180,8 @@ static int uninit(priv_t *priv)
             free(priv->audio_skew_buffer);
         if (priv->audio_skew_delta_buffer)
             free(priv->audio_skew_delta_buffer);
+
+        audio_in_uninit(&priv->audio_in);
     }
 
     /* show some nice statistics ;-) */
@@ -1166,7 +1203,7 @@ static int init(priv_t *priv)
     priv->audio_skew_buffer = NULL;
     priv->audio_skew_delta_buffer = NULL;
 
-    priv->audio_inited = 0;
+    priv->audio_initialized = 0;
 
     /* Open the video device. */
     priv->video_fd = open(priv->video_dev, O_RDWR);
@@ -1379,7 +1416,7 @@ static int start(priv_t *priv)
     /* setup audio parameters */
 
     init_audio(priv);
-    if (!priv->tv_param->noaudio && !priv->audio_inited) return 0;
+    if (!priv->tv_param->noaudio && !priv->audio_initialized) return 0;
 
     /* we need this to size the audio buffer properly */
     if (priv->immediate_mode) {
@@ -1514,7 +1551,7 @@ static int start(priv_t *priv)
         }
     }
 
-#ifdef HAVE_TV_TELETEXT
+#ifdef CONFIG_TV_TELETEXT
     /* start vbi thread */
     if(priv->priv_vbi){
         priv->vbi_shutdown = 0;
@@ -1972,5 +2009,5 @@ out:
 
 static int get_audio_framesize(priv_t *priv)
 {
-    return(priv->audio_in.blocksize);
+    return priv->audio_in.blocksize;
 }

@@ -18,7 +18,9 @@
 #include "loader/loader.h"
 //#include "loader/wine/mmreg.h"
 #include "loader/wine/vfw.h"
-#include "loader/wine/avifmt.h"
+#include "libmpdemux/aviheader.h"
+#include "loader/wine/winerror.h"
+#include "loader/wine/objbase.h"
 
 #include "img_format.h"
 #include "mp_image.h"
@@ -31,6 +33,7 @@
 
 static char *vfw_param_codec = NULL;
 static char *vfw_param_compdata = NULL;
+static HRESULT CoInitRes = -1;
 
 #include "m_option.h"
 
@@ -63,7 +66,7 @@ static BITMAPINFOHEADER* vfw_open_encoder(char *dll_name, char *compdatafile, BI
 //sh_video = malloc(sizeof(sh_video_t));
 
   mp_msg(MSGT_WIN32,MSGL_V,"======= Win32 (VFW) VIDEO Encoder init =======\n");
-
+  CoInitRes = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
 //  memset(&sh_video->o_bih, 0, sizeof(BITMAPINFOHEADER));
 //  output_bih->biSize = sizeof(BITMAPINFOHEADER);
 
@@ -176,21 +179,21 @@ static int vfw_start_encoder(BITMAPINFOHEADER *input_bih, BITMAPINFOHEADER *outp
 //  if( mp_msg_test(MSGT_WIN32,MSGL_V) ) {
     printf("Starting compression:\n");
     printf(" Input format:\n");
-	printf("  biSize %d\n", input_bih->biSize);
-	printf("  biWidth %d\n", input_bih->biWidth);
-	printf("  biHeight %d\n", input_bih->biHeight);
+	printf("  biSize %ld\n", input_bih->biSize);
+	printf("  biWidth %ld\n", input_bih->biWidth);
+	printf("  biHeight %ld\n", input_bih->biHeight);
 	printf("  biPlanes %d\n", input_bih->biPlanes);
 	printf("  biBitCount %d\n", input_bih->biBitCount);
-	printf("  biCompression 0x%x ('%.4s')\n", input_bih->biCompression, (char *)&input_bih->biCompression);
-	printf("  biSizeImage %d\n", input_bih->biSizeImage);
+	printf("  biCompression 0x%lx ('%.4s')\n", input_bih->biCompression, (char *)&input_bih->biCompression);
+	printf("  biSizeImage %ld\n", input_bih->biSizeImage);
     printf(" Output format:\n");
-	printf("  biSize %d\n", output_bih->biSize);
-	printf("  biWidth %d\n", output_bih->biWidth);
-	printf("  biHeight %d\n", output_bih->biHeight);
+	printf("  biSize %ld\n", output_bih->biSize);
+	printf("  biWidth %ld\n", output_bih->biWidth);
+	printf("  biHeight %ld\n", output_bih->biHeight);
 	printf("  biPlanes %d\n", output_bih->biPlanes);
 	printf("  biBitCount %d\n", output_bih->biBitCount);
-	printf("  biCompression 0x%x ('%.4s')\n", output_bih->biCompression, (char *)&output_bih->biCompression);
-	printf("  biSizeImage %d\n", output_bih->biSizeImage);
+	printf("  biCompression 0x%lx ('%.4s')\n", output_bih->biCompression, (char *)&output_bih->biCompression);
+	printf("  biSizeImage %ld\n", output_bih->biSizeImage);
 //  }
 
   output_bih->biWidth=input_bih->biWidth;
@@ -210,13 +213,13 @@ static int vfw_start_encoder(BITMAPINFOHEADER *input_bih, BITMAPINFOHEADER *outp
   } else
     mp_msg(MSGT_WIN32,MSGL_V,"ICCompressBegin OK\n");
     mp_msg(MSGT_WIN32,MSGL_INFO," Output format after query/begin:\n");
-    mp_msg(MSGT_WIN32,MSGL_INFO,"  biSize %d\n", output_bih->biSize);
-    mp_msg(MSGT_WIN32,MSGL_INFO,"  biWidth %d\n", output_bih->biWidth);
-    mp_msg(MSGT_WIN32,MSGL_INFO,"  biHeight %d\n", output_bih->biHeight);
+    mp_msg(MSGT_WIN32,MSGL_INFO,"  biSize %ld\n", output_bih->biSize);
+    mp_msg(MSGT_WIN32,MSGL_INFO,"  biWidth %ld\n", output_bih->biWidth);
+    mp_msg(MSGT_WIN32,MSGL_INFO,"  biHeight %ld\n", output_bih->biHeight);
     mp_msg(MSGT_WIN32,MSGL_INFO,"  biPlanes %d\n", output_bih->biPlanes);
     mp_msg(MSGT_WIN32,MSGL_INFO,"  biBitCount %d\n", output_bih->biBitCount);
-    mp_msg(MSGT_WIN32,MSGL_INFO,"  biCompression 0x%x ('%.4s')\n", output_bih->biCompression, (char *)&output_bih->biCompression);
-    mp_msg(MSGT_WIN32,MSGL_INFO,"  biSizeImage %d\n", output_bih->biSizeImage);
+    mp_msg(MSGT_WIN32,MSGL_INFO,"  biCompression 0x%lx ('%.4s')\n", output_bih->biCompression, (char *)&output_bih->biCompression);
+    mp_msg(MSGT_WIN32,MSGL_INFO,"  biSizeImage %ld\n", output_bih->biSizeImage);
   
   encoder_buf_size=input_bih->biSizeImage;
   encoder_buf=malloc(encoder_buf_size);
@@ -246,7 +249,7 @@ static int vfw_encode_frame(BITMAPINFOHEADER* biOutput,void* OutBuf,
 	NULL, keyframe, encoder_frameno, 0, quality,
 	biInput, encoder_buf);
 
-//    printf("ok. size=%d\n",biOutput->biSizeImage);
+//    printf("ok. size=%ld\n",biOutput->biSizeImage);
 
     memcpy(encoder_buf,Image,encoder_buf_size);
     ++encoder_frameno;
@@ -295,6 +298,24 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
     return 1;
 }
 
+static void uninit(struct vf_instance_s* vf)
+{
+    HRESULT ret;
+
+    if(encoder_hic){
+        if(encoder_buf){
+            ret=ICCompressEnd(encoder_hic);
+            if(ret) mp_msg(MSGT_WIN32, MSGL_WARN, "ICCompressEnd failed: %ld\n", ret);
+            free(encoder_buf);
+            encoder_buf=NULL;
+        }
+        ret=ICClose(encoder_hic);
+        if(ret) mp_msg(MSGT_WIN32, MSGL_WARN, "ICClose failed: %ld\n", ret);
+        encoder_hic=0;
+        if ((CoInitRes == S_OK) || (CoInitRes == S_FALSE)) CoUninitialize();
+    }
+}
+
 //===========================================================================//
 
 static int vf_open(vf_instance_t *vf, char* args){
@@ -303,6 +324,7 @@ static int vf_open(vf_instance_t *vf, char* args){
     vf->control=control;
     vf->query_format=query_format;
     vf->put_image=put_image;
+    vf->uninit=uninit;
     vf->priv=malloc(sizeof(struct vf_priv_s));
     memset(vf->priv,0,sizeof(struct vf_priv_s));
     vf->priv->mux=(muxer_stream_t*)args;

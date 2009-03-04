@@ -19,7 +19,6 @@
 
   Modified for use with MPlayer, detailed changelog at
   http://svn.mplayerhq.hu/mplayer/trunk/
-  $Id: afl.c 24400 2007-09-10 11:31:51Z diego $
   
 ***************************************************************************/
 #include "config.h"
@@ -38,7 +37,7 @@
 #ifndef __MINGW32__
 #include "ext.h"
 #endif
-#include "driver.h"
+#include "drv.h"
 
 #include <stdio.h>
 #include <stdlib.h>

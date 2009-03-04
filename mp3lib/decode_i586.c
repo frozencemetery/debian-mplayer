@@ -1,7 +1,7 @@
 /*
  * Modified for use with MPlayer, for details see the changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: decode_i586.c 23452 2007-06-02 16:25:18Z zuxy $
+ * $Id: decode_i586.c 27791 2008-10-16 20:17:56Z diego $
  */
 
 /*
@@ -27,7 +27,7 @@
 *
 * Stefan Bieschewski <stb@acm.org>
 *
-* $Id: decode_i586.c 23452 2007-06-02 16:25:18Z zuxy $
+* $Id: decode_i586.c 27791 2008-10-16 20:17:56Z diego $
 */
 #include "config.h"
 #include "mangle.h"
@@ -41,7 +41,7 @@ int synth_1to1_pent(real *bandPtr, int channel, short *samples)
 {
   real tmp[3];
   register int retval;
-    __asm __volatile(
+    __asm__ volatile(
 "        movl %%ebp,"MANGLE(saved_ebp)"\n\t"
 "        movl %1,%%eax\n\t"/*bandPtr*/
 "        movl %3,%%esi\n\t"

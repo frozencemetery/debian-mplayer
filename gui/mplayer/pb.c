@@ -1,5 +1,22 @@
-
-// main window
+/*
+ * main window
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -8,31 +25,31 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "app.h"
-#include "skin/font.h"
-#include "skin/skin.h"
-#include "wm/ws.h"
+#include "config.h"
+#include "gui/app.h"
+#include "gui/skin/font.h"
+#include "gui/skin/skin.h"
+#include "gui/wm/ws.h"
 
-#include "../config.h"
-#include "../help_mp.h"
-#include "../libvo/x11_common.h"
-#include "../libvo/fastmemcpy.h"
+#include "help_mp.h"
+#include "libvo/x11_common.h"
+#include "libvo/fastmemcpy.h"
 
-#include "../stream/stream.h"
-#include "../mixer.h"
-#include "../libvo/sub.h"
+#include "stream/stream.h"
+#include "mixer.h"
+#include "libvo/sub.h"
 
-#include "../libmpdemux/demuxer.h"
-#include "../libmpdemux/stheader.h"
-#include "../codec-cfg.h"
+#include "libmpdemux/demuxer.h"
+#include "libmpdemux/stheader.h"
+#include "codec-cfg.h"
 
 #include "gmplayer.h"
 #include "play.h"
 #include "widgets.h"
-#include "common.h"
+#include "gui_common.h"
 
-extern unsigned int GetTimerMS( void );
-extern unsigned int GetTimer( void );
+unsigned int GetTimerMS( void );
+unsigned int GetTimer( void );
 
 unsigned char * mplPBDrawBuffer = NULL;
 int		mplPBVisible = 0;

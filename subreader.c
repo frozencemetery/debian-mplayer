@@ -20,17 +20,17 @@
 #include "subreader.h"
 #include "stream/stream.h"
 
-#ifdef HAVE_ENCA
+#ifdef CONFIG_ENCA
 #include <enca.h>
 #endif
 
 #define ERR ((void *) -1)
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 #include <iconv.h>
 char *sub_cp=NULL;
 #endif
-#ifdef USE_FRIBIDI
+#ifdef CONFIG_FRIBIDI
 #include <fribidi/fribidi.h>
 char *fribidi_charset = NULL;   ///character set that will be passed to FriBiDi
 int flip_hebrew = 1;            ///flip subtitles using fribidi
@@ -52,14 +52,14 @@ int sub_match_fuzziness=0; // level of sub name matching fuzziness
 
 /* Use the SUB_* constant defined in the header file */
 int sub_format=SUB_INVALID;
-#ifdef USE_SORTSUB
+#ifdef CONFIG_SORTSUB
 /* 
    Some subtitling formats, namely AQT and Subrip09, define the end of a
    subtitle as the beginning of the following. Since currently we read one
    subtitle at time, for these format we keep two global *subtitle,
    previous_aqt_sub and previous_subrip09_sub, pointing to previous subtitle,
    so we can change its end when we read current subtitle starting time.
-   When USE_SORTSUB is defined, we use a single global unsigned long, 
+   When CONFIG_SORTSUB is defined, we use a single global unsigned long,
    previous_sub_end, for both (and even future) formats, to store the end of
    the previous sub: it is initialized to 0 in sub_read_file and eventually
    modified by sub_read_aqt_line or sub_read_subrip09_line.
@@ -68,7 +68,7 @@ unsigned long previous_sub_end;
 #endif
 
 static int eol(char p) {
-	return (p=='\r' || p=='\n' || p=='\0');
+	return p=='\r' || p=='\n' || p=='\0';
 }
 
 /* Remove leading and trailing space */
@@ -702,7 +702,7 @@ static subtitle *sub_read_line_mpsub(stream_t *st, subtitle *current) {
 	return NULL; // we should have returned before if it's OK
 }
 
-#ifndef USE_SORTSUB
+#ifndef CONFIG_SORTSUB
 //we don't need this if we use previous_sub_end
 subtitle *previous_aqt_sub = NULL;
 #endif
@@ -720,7 +720,7 @@ static subtitle *sub_read_line_aqt(stream_t *st,subtitle *current) {
 		break;
     }
     
-#ifdef USE_SORTSUB
+#ifdef CONFIG_SORTSUB
     previous_sub_end = (current->start) ? current->start - 1 : 0; 
 #else
     if (previous_aqt_sub != NULL) 
@@ -748,7 +748,7 @@ static subtitle *sub_read_line_aqt(stream_t *st,subtitle *current) {
     current->lines=i+1;
 
     if (!strlen(current->text[0]) && !strlen(current->text[1])) {
-#ifdef USE_SORTSUB
+#ifdef CONFIG_SORTSUB
 	previous_sub_end = 0;
 #else
 	// void subtitle -> end of previous marked and exit
@@ -760,7 +760,7 @@ static subtitle *sub_read_line_aqt(stream_t *st,subtitle *current) {
     return current;
 }
 
-#ifndef USE_SORTSUB
+#ifndef CONFIG_SORTSUB
 subtitle *previous_subrip09_sub = NULL;
 #endif
 
@@ -780,7 +780,7 @@ static subtitle *sub_read_line_subrip09(stream_t *st,subtitle *current) {
 
     current->start = a1*360000+a2*6000+a3*100;
     
-#ifdef USE_SORTSUB
+#ifdef CONFIG_SORTSUB
     previous_sub_end = (current->start) ? current->start - 1 : 0; 
 #else
     if (previous_subrip09_sub != NULL) 
@@ -804,7 +804,7 @@ static subtitle *sub_read_line_subrip09(stream_t *st,subtitle *current) {
     current->lines=i+1;
 
     if (!strlen(current->text[0]) && (i==0)) {
-#ifdef USE_SORTSUB
+#ifdef CONFIG_SORTSUB
 	previous_sub_end = 0;
 #else
 	// void subtitle -> end of previous marked and exit
@@ -1065,17 +1065,13 @@ static int sub_autodetect (stream_t* st, int *uses_time) {
     return SUB_INVALID;  // too many bad lines
 }
 
-#ifdef DUMPSUBS
-int sub_utf8=0;
-#else
 extern int sub_utf8;
 int sub_utf8_prev=0;
-#endif
 
 extern float sub_delay;
 extern float sub_fps;
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 static iconv_t icdsc = (iconv_t)(-1);
 
 void	subcp_open (stream_t *st)
@@ -1083,19 +1079,17 @@ void	subcp_open (stream_t *st)
 	char *tocp = "UTF-8";
 
 	if (sub_cp){
-		char *cp_tmp = sub_cp;
-#ifdef HAVE_ENCA
+		const char *cp_tmp = sub_cp;
+#ifdef CONFIG_ENCA
 		char enca_lang[3], enca_fallback[100];
-		int free_cp_tmp = 0;
 		if (sscanf(sub_cp, "enca:%2s:%99s", enca_lang, enca_fallback) == 2
 		     || sscanf(sub_cp, "ENCA:%2s:%99s", enca_lang, enca_fallback) == 2) {
 		  if (st && st->flags & STREAM_SEEK ) {
 		    cp_tmp = guess_cp(st, enca_lang, enca_fallback);
-		    free_cp_tmp = 1;
 		  } else {
 		    cp_tmp = enca_fallback;
 		    if (st)
-		      mp_msg(MSGT_SUBREADER,MSGL_WARN,"SUB: enca failed, stream must be seakable.\n"); 
+		      mp_msg(MSGT_SUBREADER,MSGL_WARN,"SUB: enca failed, stream must be seekable.\n"); 
 		  }
 		}
 #endif
@@ -1104,9 +1098,6 @@ void	subcp_open (stream_t *st)
 			sub_utf8 = 2;
 		} else
 			mp_msg(MSGT_SUBREADER,MSGL_ERR,"SUB: error opening iconv descriptor.\n");
-#ifdef HAVE_ENCA
-		if (free_cp_tmp && cp_tmp) free(cp_tmp);
-#endif
 	}
 }
 
@@ -1142,6 +1133,11 @@ subtitle* subcp_recode (subtitle *sub)
 			free(ot);
 			continue;
 		}
+		// In some stateful encodings, we must clear the state to handle the last character
+		if (iconv(icdsc, NULL, NULL,
+			  &op, &oleft) == (size_t)(-1)) {
+			mp_msg(MSGT_SUBREADER,MSGL_WARN,"SUB: error recoding line, can't clear encoding state.\n");
+		}
 		*op='\0' ;
 		free (sub->text[l]);
 		sub->text[l] = ot;
@@ -1150,7 +1146,7 @@ subtitle* subcp_recode (subtitle *sub)
 }
 #endif
 
-#ifdef USE_FRIBIDI
+#ifdef CONFIG_FRIBIDI
 #ifndef max
 #define max(a,b)  (((a)>(b))?(a):(b))
 #endif
@@ -1274,14 +1270,14 @@ struct subreader {
     const char *name;
 };
 
-#ifdef HAVE_ENCA
-void* guess_buffer_cp(unsigned char* buffer, int buflen, char *preferred_language, char *fallback)
+#ifdef CONFIG_ENCA
+const char* guess_buffer_cp(unsigned char* buffer, int buflen, const char *preferred_language, const char *fallback)
 {
     const char **languages;
     size_t langcnt;
     EncaAnalyser analyser;
     EncaEncoding encoding;
-    char *detected_sub_cp = NULL;
+    const char *detected_sub_cp = NULL;
     int i;
 
     languages = enca_get_languages(&langcnt);
@@ -1292,35 +1288,34 @@ void* guess_buffer_cp(unsigned char* buffer, int buflen, char *preferred_languag
     mp_msg(MSGT_SUBREADER, MSGL_V, "\n");
     
     for (i = 0; i < langcnt; i++) {
-	const char *tmp;
-	
 	if (strcasecmp(languages[i], preferred_language) != 0) continue;
 	analyser = enca_analyser_alloc(languages[i]);
 	encoding = enca_analyse_const(analyser, buffer, buflen);
-	tmp = enca_charset_name(encoding.charset, ENCA_NAME_STYLE_ICONV);
-	if (tmp && encoding.charset != ENCA_CS_UNKNOWN) {
-	    detected_sub_cp = strdup(tmp);
-	    mp_msg(MSGT_SUBREADER, MSGL_INFO, "ENCA detected charset: %s\n", tmp);
-	}
 	enca_analyser_free(analyser);
+	if (encoding.charset != ENCA_CS_UNKNOWN) {
+	    detected_sub_cp = enca_charset_name(encoding.charset, ENCA_NAME_STYLE_ICONV);
+	    break;
+	}
     }
     
     free(languages);
 
     if (!detected_sub_cp) {
-	detected_sub_cp = strdup(fallback);
+	detected_sub_cp = fallback;
 	mp_msg(MSGT_SUBREADER, MSGL_INFO, "ENCA detection failed: fallback to %s\n", fallback);
+    }else{
+	mp_msg(MSGT_SUBREADER, MSGL_INFO, "ENCA detected charset: %s\n", detected_sub_cp);
     }
 
     return detected_sub_cp;
 }
 
 #define MAX_GUESS_BUFFER_SIZE (256*1024)
-void* guess_cp(stream_t *st, char *preferred_language, char *fallback)
+const char* guess_cp(stream_t *st, const char *preferred_language, const char *fallback)
 {
     size_t buflen;
     unsigned char *buffer;
-    char *detected_sub_cp = NULL;
+    const char *detected_sub_cp = NULL;
 
     buffer = malloc(MAX_GUESS_BUFFER_SIZE);
     buflen = stream_read(st,buffer, MAX_GUESS_BUFFER_SIZE);
@@ -1374,7 +1369,7 @@ sub_data* sub_read_file (char *filename, float fps) {
     stream_reset(fd);
     stream_seek(fd,0);
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
     sub_utf8_prev=sub_utf8;
     {
 	    int l,k;
@@ -1394,14 +1389,14 @@ sub_data* sub_read_file (char *filename, float fps) {
     sub_num=0;n_max=32;
     first=malloc(n_max*sizeof(subtitle));
     if(!first){
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 	  subcp_close();
           sub_utf8=sub_utf8_prev;
 #endif
 	    return NULL;
     }
     
-#ifdef USE_SORTSUB
+#ifdef CONFIG_SORTSUB
     sub = malloc(sizeof(subtitle));
     //This is to deal with those formats (AQT & Subrip) which define the end of a subtitle
     //as the beginning of the following
@@ -1412,21 +1407,21 @@ sub_data* sub_read_file (char *filename, float fps) {
             n_max+=16;
             first=realloc(first,n_max*sizeof(subtitle));
         }
-#ifndef USE_SORTSUB
+#ifndef CONFIG_SORTSUB
 	sub = &first[sub_num];
 #endif	
 	memset(sub, '\0', sizeof(subtitle));
         sub=srp->read(fd,sub);
         if(!sub) break;   // EOF
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 	if ((sub!=ERR) && (sub_utf8 & 2)) sub=subcp_recode(sub);
 #endif
-#ifdef USE_FRIBIDI
+#ifdef CONFIG_FRIBIDI
 	if (sub!=ERR) sub=sub_fribidi(sub,sub_utf8);
 #endif
 	if ( sub == ERR )
 	 {
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
           subcp_close();
 #endif
     	  if ( first ) free(first);
@@ -1434,7 +1429,7 @@ sub_data* sub_read_file (char *filename, float fps) {
 	 }
         // Apply any post processing that needs recoding first
         if ((sub!=ERR) && !sub_no_text_pp && srp->post) srp->post(sub);
-#ifdef USE_SORTSUB
+#ifdef CONFIG_SORTSUB
 	if(!sub_num || (first[sub_num - 1].start <= sub->start)){
 	    first[sub_num].start = sub->start;
   	    first[sub_num].end   = sub->end;
@@ -1479,7 +1474,7 @@ sub_data* sub_read_file (char *filename, float fps) {
     
     free_stream(fd);
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
     subcp_close();
 #endif
 
@@ -1787,7 +1782,7 @@ static int whiteonly(char *s)
     return 1;
 }
 
-typedef struct _subfn 
+typedef struct subfn
 {
     int priority;
     char *fname;
@@ -1841,8 +1836,9 @@ char** sub_filenames(const char* path, char *fname)
     subcnt = 0;
     
     tmp = strrchr(fname,'/');
-#ifdef WIN32
+#if defined(__MINGW32__) || defined(__CYGWIN__) || defined(__OS2__)
     if(!tmp)tmp = strrchr(fname,'\\');
+    if(!tmp)tmp = strrchr(fname,':');
 #endif
     
     // extract filename & dirname from fname
@@ -1880,8 +1876,8 @@ char** sub_filenames(const char* path, char *fname)
 
 		// does it end with a subtitle extension?
 		found = 0;
-#ifdef USE_ICONV
-#ifdef HAVE_ENCA
+#ifdef CONFIG_ICONV
+#ifdef CONFIG_ENCA
 		for (i = ((sub_cp && strncasecmp(sub_cp, "enca", 4) != 0) ? 3 : 0); sub_exts[i]; i++) {
 #else
 		for (i = (sub_cp ? 3 : 0); sub_exts[i]; i++) {
@@ -1935,7 +1931,7 @@ char** sub_filenames(const char* path, char *fname)
 
 		    if (prio) {
 			prio += prio;
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 			if (i<3){ // prefer UTF-8 coded
 			    prio++;
 			}
@@ -2349,24 +2345,3 @@ int sub_clear_text(subtitle *sub, double pts) {
   }
   return changed;
 }
-
-#ifdef DUMPSUBS
-int main(int argc, char **argv) {  // for testing
-    sub_data *subd;
-    
-    if(argc<2){
-        printf("\nUsage: subreader filename.sub\n\n");
-        exit(1);
-    }
-    sub_cp = argv[2]; 
-    subd = sub_read_file(argv[1]);
-    if(!subd){
-        printf("Couldn't load file.\n");
-        exit(1);
-    }
-    
-    list_sub_file(subd);
-
-    return 0;
-}
-#endif

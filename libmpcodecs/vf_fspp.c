@@ -1,21 +1,23 @@
 /*
-  Copyright (C) 2003 Michael Niedermayer <michaelni@gmx.at>
-  Copyright (C) 2005 Nikolaj Poroshin <porosh3@psu.ru>
-
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-*/
+ * Copyright (C) 2003 Michael Niedermayer <michaelni@gmx.at>
+ * Copyright (C) 2005 Nikolaj Poroshin <porosh3@psu.ru>
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 /*
  * This implementation is based on an algorithm described in
@@ -41,10 +43,7 @@
 #include "mp_msg.h"
 #include "cpudetect.h"
 
-#include "libavcodec/avcodec.h"
-#include "libavcodec/dsputil.h"
-
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 
@@ -52,6 +51,15 @@
 #include "mp_image.h"
 #include "vf.h"
 #include "libvo/fastmemcpy.h"
+
+#include "libavutil/internal.h"
+#include "libavutil/intreadwrite.h"
+#include "libavutil/mem.h"
+#include "libavcodec/avcodec.h"
+#include "libavcodec/dsputil.h"
+
+#undef free
+#undef malloc
 
 //===========================================================================//
 #define BLOCKSZ 12
@@ -97,7 +105,7 @@ struct vf_priv_s { //align 16 !
 };
 
 
-#ifndef HAVE_MMX
+#if !HAVE_MMX
 
 //This func reads from 1 slice, 1 and clears 0 & 1
 static void store_slice_c(uint8_t *dst, int16_t *src, int dst_stride, int src_stride, int width, int height, int log2_scale)
@@ -183,7 +191,7 @@ static void store_slice_mmx(uint8_t *dst, int16_t *src, long dst_stride, long sr
     width = (width+7)&~7;
     dst_stride-=width;
     //src_stride=(src_stride-width)*2;
-    asm volatile(
+    __asm__ volatile(
 	"mov %5, %%"REG_d"                \n\t"
 	"mov %6, %%"REG_S"                \n\t"
 	"mov %7, %%"REG_D"                \n\t"
@@ -251,7 +259,7 @@ static void store_slice2_mmx(uint8_t *dst, int16_t *src, long dst_stride, long s
     width = (width+7)&~7;
     dst_stride-=width;
     //src_stride=(src_stride-width)*2;
-    asm volatile(
+    __asm__ volatile(
 	"mov %5, %%"REG_d"                \n\t"
 	"mov %6, %%"REG_S"                \n\t"
 	"mov %7, %%"REG_D"                \n\t"
@@ -314,7 +322,7 @@ static void store_slice2_mmx(uint8_t *dst, int16_t *src, long dst_stride, long s
 static void mul_thrmat_mmx(struct vf_priv_s *p, int q)
 {
     uint64_t *adr=&p->threshold_mtx_noq[0];
-    asm volatile(
+    __asm__ volatile(
 	"movd %0, %%mm7                \n\t"
 	"add $8*8*2, %%"REG_D"            \n\t"
 	"movq 0*8(%%"REG_S"), %%mm0        \n\t"
@@ -456,8 +464,8 @@ static void filter(struct vf_priv_s *p, uint8_t *dst, uint8_t *src,
 		    column_fidct_s((int16_t*)(&p->threshold_mtx[0]), block+x*8, block3+x*8, 8); //yes, this is a HOTSPOT
 		}
 	    row_idct_s(block3+0*8, p->temp + (y&15)*stride+x0+2-(y&1), stride, 2*(BLOCKSZ-1));
-	    memcpy(block, block+(BLOCKSZ-1)*64, 8*8*sizeof(DCTELEM)); //cycling
-	    memcpy(block3, block3+(BLOCKSZ-1)*64, 6*8*sizeof(DCTELEM));  
+	    memmove(block, block+(BLOCKSZ-1)*64, 8*8*sizeof(DCTELEM)); //cycling
+	    memmove(block3, block3+(BLOCKSZ-1)*64, 6*8*sizeof(DCTELEM));
 	}
 	//
 	es=width+8-x0; //  8, ...      
@@ -553,11 +561,11 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts)
 	}
     }
 
-#ifdef HAVE_MMX
-    if(gCpuCaps.hasMMX) asm volatile ("emms\n\t");
+#if HAVE_MMX
+    if(gCpuCaps.hasMMX) __asm__ volatile ("emms\n\t");
 #endif
-#ifdef HAVE_MMX2
-    if(gCpuCaps.hasMMX2) asm volatile ("sfence\n\t");
+#if HAVE_MMX2
+    if(gCpuCaps.hasMMX2) __asm__ volatile ("sfence\n\t");
 #endif
     return vf_next_put_image(vf,dmpi, pts);
 }
@@ -599,23 +607,6 @@ static int query_format(struct vf_instance_s* vf, unsigned int fmt)
     }
     return 0;
 }
-
-/*
-  static unsigned int fmt_list[]={
-  IMGFMT_YVU9,
-  IMGFMT_IF09,
-  IMGFMT_YV12,
-  IMGFMT_I420,
-  IMGFMT_IYUV,
-  IMGFMT_CLPL,
-  IMGFMT_Y800,
-  IMGFMT_Y8,
-  IMGFMT_444P,
-  IMGFMT_422P,
-  IMGFMT_411P,
-  0
-  };
-*/
 
 static int control(struct vf_instance_s* vf, int request, void* data)
 {
@@ -686,7 +677,7 @@ static int open(vf_instance_t *vf, char* args)
     return 1;
 }
 
-vf_info_t vf_info_fspp = {
+const vf_info_t vf_info_fspp = {
     "fast simple postprocess",
     "fspp",
     "Michael Niedermayer, Nikolaj Poroshin",
@@ -699,7 +690,6 @@ vf_info_t vf_info_fspp = {
 //Specific spp's dct, idct and threshold functions
 //I'd prefer to have them in the separate file.
 
-#include "mangle.h"
 //#define MANGLE(a) #a
 
 //typedef int16_t DCTELEM; //! only int16_t
@@ -715,45 +705,43 @@ vf_info_t vf_info_fspp = {
 #define THRESHOLD(r,x,t) if(((unsigned)((x)+t))>t*2) r=(x);else r=0;
 #define DESCALE(x,n)  (((x) + (1 << ((n)-1))) >> n)
 
-#ifdef HAVE_MMX
+#if HAVE_MMX
 
-static uint64_t attribute_used __attribute__((aligned(8))) temps[4];//!!
+DECLARE_ASM_CONST(8, uint64_t, MM_FIX_0_382683433)=FIX64(0.382683433, 14); 
+DECLARE_ASM_CONST(8, uint64_t, MM_FIX_0_541196100)=FIX64(0.541196100, 14); 
+DECLARE_ASM_CONST(8, uint64_t, MM_FIX_0_707106781)=FIX64(0.707106781, 14); 
+DECLARE_ASM_CONST(8, uint64_t, MM_FIX_1_306562965)=FIX64(1.306562965, 14); 
 
-static uint64_t attribute_used __attribute__((aligned(8))) MM_FIX_0_382683433=FIX64(0.382683433, 14); 
-static uint64_t attribute_used __attribute__((aligned(8))) MM_FIX_0_541196100=FIX64(0.541196100, 14); 
-static uint64_t attribute_used __attribute__((aligned(8))) MM_FIX_0_707106781=FIX64(0.707106781, 14); 
-static uint64_t attribute_used __attribute__((aligned(8))) MM_FIX_1_306562965=FIX64(1.306562965, 14); 
+DECLARE_ASM_CONST(8, uint64_t, MM_FIX_1_414213562_A)=FIX64(1.414213562, 14); 
 
-static uint64_t attribute_used __attribute__((aligned(8))) MM_FIX_1_414213562_A=FIX64(1.414213562, 14); 
-
-static uint64_t attribute_used __attribute__((aligned(8))) MM_FIX_1_847759065=FIX64(1.847759065, 13); 
-static uint64_t attribute_used __attribute__((aligned(8))) MM_FIX_2_613125930=FIX64(-2.613125930, 13); //-
-static uint64_t attribute_used __attribute__((aligned(8))) MM_FIX_1_414213562=FIX64(1.414213562, 13); 
-static uint64_t attribute_used __attribute__((aligned(8))) MM_FIX_1_082392200=FIX64(1.082392200, 13);
+DECLARE_ASM_CONST(8, uint64_t, MM_FIX_1_847759065)=FIX64(1.847759065, 13); 
+DECLARE_ASM_CONST(8, uint64_t, MM_FIX_2_613125930)=FIX64(-2.613125930, 13); //-
+DECLARE_ASM_CONST(8, uint64_t, MM_FIX_1_414213562)=FIX64(1.414213562, 13); 
+DECLARE_ASM_CONST(8, uint64_t, MM_FIX_1_082392200)=FIX64(1.082392200, 13);
 //for t3,t5,t7 == 0 shortcut
-static uint64_t attribute_used __attribute__((aligned(8))) MM_FIX_0_847759065=FIX64(0.847759065, 14); 
-static uint64_t attribute_used __attribute__((aligned(8))) MM_FIX_0_566454497=FIX64(0.566454497, 14); 
-static uint64_t attribute_used __attribute__((aligned(8))) MM_FIX_0_198912367=FIX64(0.198912367, 14); 
+DECLARE_ASM_CONST(8, uint64_t, MM_FIX_0_847759065)=FIX64(0.847759065, 14); 
+DECLARE_ASM_CONST(8, uint64_t, MM_FIX_0_566454497)=FIX64(0.566454497, 14); 
+DECLARE_ASM_CONST(8, uint64_t, MM_FIX_0_198912367)=FIX64(0.198912367, 14); 
 
-static uint64_t attribute_used __attribute__((aligned(8))) MM_DESCALE_RND=C64(4);
-static uint64_t attribute_used __attribute__((aligned(8))) MM_2=C64(2);
+DECLARE_ASM_CONST(8, uint64_t, MM_DESCALE_RND)=C64(4);
+DECLARE_ASM_CONST(8, uint64_t, MM_2)=C64(2);
 
 #else /* !HAVE_MMX */
 
 typedef int32_t int_simd16_t;
-static int16_t FIX_0_382683433=FIX(0.382683433, 14); 
-static int16_t FIX_0_541196100=FIX(0.541196100, 14); 
-static int16_t FIX_0_707106781=FIX(0.707106781, 14); 
-static int16_t FIX_1_306562965=FIX(1.306562965, 14); 
-static int16_t FIX_1_414213562_A=FIX(1.414213562, 14); 
-static int16_t FIX_1_847759065=FIX(1.847759065, 13); 
-static int16_t FIX_2_613125930=FIX(-2.613125930, 13); //-
-static int16_t FIX_1_414213562=FIX(1.414213562, 13); 
-static int16_t FIX_1_082392200=FIX(1.082392200, 13);
+static const int16_t FIX_0_382683433=FIX(0.382683433, 14); 
+static const int16_t FIX_0_541196100=FIX(0.541196100, 14); 
+static const int16_t FIX_0_707106781=FIX(0.707106781, 14); 
+static const int16_t FIX_1_306562965=FIX(1.306562965, 14); 
+static const int16_t FIX_1_414213562_A=FIX(1.414213562, 14); 
+static const int16_t FIX_1_847759065=FIX(1.847759065, 13); 
+static const int16_t FIX_2_613125930=FIX(-2.613125930, 13); //-
+static const int16_t FIX_1_414213562=FIX(1.414213562, 13); 
+static const int16_t FIX_1_082392200=FIX(1.082392200, 13);
 
 #endif
 
-#ifndef HAVE_MMX
+#if !HAVE_MMX
 
 static void column_fidct_c(int16_t* thr_adr, DCTELEM *data, DCTELEM *output, int cnt)
 {
@@ -882,7 +870,8 @@ static void column_fidct_c(int16_t* thr_adr, DCTELEM *data, DCTELEM *output, int
 
 static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,  int cnt)
 {
-    asm volatile(
+    uint64_t __attribute__((aligned(8))) temps[4];
+    __asm__ volatile(
 	ASMALIGN(4)
 	"1:                   \n\t"
 	"movq "DCTSIZE_S"*0*2(%%"REG_S"), %%mm1 \n\t"
@@ -982,7 +971,7 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 	"pmulhw "MANGLE(MM_FIX_1_414213562_A)", %%mm1 \n\t"
 	"paddw %%mm6, %%mm2            \n\t" //'t0
 
-	"movq %%mm2, "MANGLE(temps)"+0*8       \n\t" //!
+	"movq %%mm2, 0*8+%3            \n\t" //!
 	"psubw %%mm6, %%mm7            \n\t" //'t3
 
 	"movq "DCTSIZE_S"*2*2(%%"REG_S"), %%mm2 \n\t"
@@ -991,7 +980,7 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 	"psubw "DCTSIZE_S"*5*2(%%"REG_S"), %%mm2 \n\t" //t5
 	"movq %%mm5, %%mm6             \n\t"
 
-	"movq %%mm7, "MANGLE(temps)"+3*8       \n\t"
+	"movq %%mm7, 3*8+%3            \n\t"
 	"paddw %%mm2, %%mm3            \n\t" //t10
 
 	"paddw %%mm4, %%mm2            \n\t" //t11
@@ -1018,13 +1007,13 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 
 	"paddw %%mm3, %%mm7            \n\t" //z2        
 
-	"movq %%mm5, "MANGLE(temps)"+1*8       \n\t"
+	"movq %%mm5, 1*8+%3            \n\t"
 	"paddw %%mm3, %%mm4            \n\t" //z4
 
 	"movq 3*16(%%"REG_d"), %%mm3       \n\t"
 	"movq %%mm0, %%mm1             \n\t"
 
-	"movq %%mm6, "MANGLE(temps)"+2*8       \n\t"
+	"movq %%mm6, 2*8+%3            \n\t"
 	"psubw %%mm2, %%mm1            \n\t" //z13            
 
 //===
@@ -1084,7 +1073,7 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 	// t4 t5 - - - t6 t7 -
 	//--- t4 (mm0) may be <>0; mm1, mm5, mm6 == 0
 //Typical numbers: nondc - 19%%,  dc - 26%%,  zero - 55%%. zero case alone isn't worthwhile
-	"movq "MANGLE(temps)"+0*8, %%mm4       \n\t"
+	"movq 0*8+%3, %%mm4            \n\t"
 	"movq %%mm0, %%mm1             \n\t"
 
 	"pmulhw "MANGLE(MM_FIX_0_847759065)", %%mm0 \n\t" //tmp6
@@ -1096,7 +1085,7 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 	"pmulhw "MANGLE(MM_FIX_0_566454497)", %%mm1 \n\t" //tmp5
 	"paddw %%mm4, %%mm5            \n\t"
 
-	"movq "MANGLE(temps)"+1*8, %%mm6       \n\t"
+	"movq 1*8+%3, %%mm6            \n\t"
 	//paddw mm3, MM_2
 	"psraw $2, %%mm3              \n\t" //tmp7     
 
@@ -1109,7 +1098,7 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 	"movq %%mm4, "DCTSIZE_S"*7*2(%%"REG_D") \n\t"
 	"paddw %%mm6, %%mm7            \n\t"
 
-	"movq "MANGLE(temps)"+2*8, %%mm3       \n\t"
+	"movq 2*8+%3, %%mm3            \n\t"
 	"psubw %%mm0, %%mm6            \n\t"
 
 	"movq "DCTSIZE_S"*2*2(%%"REG_D"), %%mm4 \n\t"
@@ -1127,7 +1116,7 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 	"movq "DCTSIZE_S"*3*2(%%"REG_D"), %%mm6 \n\t"
 	"paddw %%mm3, %%mm5            \n\t"
 
-	"movq "MANGLE(temps)"+3*8, %%mm0       \n\t"
+	"movq 3*8+%3, %%mm0            \n\t"
 	"add $8, %%"REG_S"               \n\t"
 
 	"movq %%mm7, "DCTSIZE_S"*1*2(%%"REG_D") \n\t"
@@ -1176,7 +1165,7 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 	"movq %%mm2, %%mm7             \n\t"
 
 	//---
-	"movq "MANGLE(temps)"+0*8, %%mm4       \n\t"
+	"movq 0*8+%3, %%mm4            \n\t"
 	"psubw %%mm3, %%mm2            \n\t"
 
 	"psllw $1, %%mm2              \n\t"
@@ -1190,7 +1179,7 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 	"paddw "DCTSIZE_S"*0*2(%%"REG_D"), %%mm4 \n\t"
 	"psubw %%mm7, %%mm6            \n\t"
 
-	"movq "MANGLE(temps)"+1*8, %%mm3       \n\t"
+	"movq 1*8+%3, %%mm3            \n\t"
 	"paddw %%mm7, %%mm4            \n\t"
 
 	"movq %%mm6, "DCTSIZE_S"*7*2(%%"REG_D") \n\t"
@@ -1199,10 +1188,10 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 	"movq %%mm4, "DCTSIZE_S"*0*2(%%"REG_D") \n\t"
 	"psubw %%mm7, %%mm1            \n\t" //'t6
 
-	"movq "MANGLE(temps)"+2*8, %%mm7       \n\t"
+	"movq 2*8+%3, %%mm7            \n\t"
 	"psubw %%mm5, %%mm0            \n\t" //'t10
 
-	"movq "MANGLE(temps)"+3*8, %%mm6       \n\t"
+	"movq 3*8+%3, %%mm6            \n\t"
 	"movq %%mm3, %%mm5             \n\t"
 
 	"paddw "DCTSIZE_S"*1*2(%%"REG_D"), %%mm3 \n\t"
@@ -1340,7 +1329,7 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 	"pmulhw "MANGLE(MM_FIX_1_414213562_A)", %%mm1 \n\t"
 	"paddw %%mm6, %%mm2            \n\t" //'t0
 
-	"movq %%mm2, "MANGLE(temps)"+0*8       \n\t" //!
+	"movq %%mm2, 0*8+%3            \n\t" //!
 	"psubw %%mm6, %%mm7            \n\t" //'t3
 
 	"movq "DCTSIZE_S"*2*2(%%"REG_S"), %%mm2 \n\t"
@@ -1349,7 +1338,7 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 	"psubw "DCTSIZE_S"*5*2(%%"REG_S"), %%mm2 \n\t" //t5
 	"movq %%mm5, %%mm6             \n\t"
 
-	"movq %%mm7, "MANGLE(temps)"+3*8       \n\t"
+	"movq %%mm7, 3*8+%3            \n\t"
 	"paddw %%mm2, %%mm3            \n\t" //t10
 
 	"paddw %%mm4, %%mm2            \n\t" //t11
@@ -1376,13 +1365,13 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 
 	"paddw %%mm3, %%mm7            \n\t" //z2        
 
-	"movq %%mm5, "MANGLE(temps)"+1*8       \n\t"
+	"movq %%mm5, 1*8+%3            \n\t"
 	"paddw %%mm3, %%mm4            \n\t" //z4
 
 	"movq 1*8+3*16(%%"REG_d"), %%mm3   \n\t"
 	"movq %%mm0, %%mm1             \n\t"
 
-	"movq %%mm6, "MANGLE(temps)"+2*8       \n\t"
+	"movq %%mm6, 2*8+%3            \n\t"
 	"psubw %%mm2, %%mm1            \n\t" //z13            
 
 //===
@@ -1442,7 +1431,7 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 	// t4 t5 - - - t6 t7 -
 	//--- t4 (mm0) may be <>0; mm1, mm5, mm6 == 0
 //Typical numbers: nondc - 19%%,  dc - 26%%,  zero - 55%%. zero case alone isn't worthwhile
-	"movq "MANGLE(temps)"+0*8, %%mm4       \n\t"
+	"movq 0*8+%3, %%mm4            \n\t"
 	"movq %%mm0, %%mm1             \n\t"
 
 	"pmulhw "MANGLE(MM_FIX_0_847759065)", %%mm0 \n\t" //tmp6
@@ -1454,7 +1443,7 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 	"pmulhw "MANGLE(MM_FIX_0_566454497)", %%mm1 \n\t" //tmp5
 	"paddw %%mm4, %%mm5            \n\t"
 
-	"movq "MANGLE(temps)"+1*8, %%mm6       \n\t"
+	"movq 1*8+%3, %%mm6            \n\t"
 	//paddw mm3, MM_2
 	"psraw $2, %%mm3              \n\t" //tmp7     
 
@@ -1467,7 +1456,7 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 	"movq %%mm4, "DCTSIZE_S"*7*2(%%"REG_D") \n\t"
 	"paddw %%mm6, %%mm7            \n\t"
 
-	"movq "MANGLE(temps)"+2*8, %%mm3       \n\t"
+	"movq 2*8+%3, %%mm3            \n\t"
 	"psubw %%mm0, %%mm6            \n\t"
 
 	"movq "DCTSIZE_S"*2*2(%%"REG_D"), %%mm4 \n\t"
@@ -1485,7 +1474,7 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 	"movq "DCTSIZE_S"*3*2(%%"REG_D"), %%mm6 \n\t"
 	"paddw %%mm3, %%mm5            \n\t"
 
-	"movq "MANGLE(temps)"+3*8, %%mm0       \n\t"
+	"movq 3*8+%3, %%mm0            \n\t"
 	"add $24, %%"REG_S"              \n\t"
 
 	"movq %%mm7, "DCTSIZE_S"*1*2(%%"REG_D") \n\t"
@@ -1536,7 +1525,7 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 	"movq %%mm2, %%mm7             \n\t"
 
 	//---
-	"movq "MANGLE(temps)"+0*8, %%mm4       \n\t"
+	"movq 0*8+%3, %%mm4            \n\t"
 	"psubw %%mm3, %%mm2            \n\t"
 
 	"psllw $1, %%mm2              \n\t"
@@ -1550,7 +1539,7 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 	"paddw "DCTSIZE_S"*0*2(%%"REG_D"), %%mm4 \n\t"
 	"psubw %%mm7, %%mm6            \n\t"
 
-	"movq "MANGLE(temps)"+1*8, %%mm3       \n\t"
+	"movq 1*8+%3, %%mm3            \n\t"
 	"paddw %%mm7, %%mm4            \n\t"
 
 	"movq %%mm6, "DCTSIZE_S"*7*2(%%"REG_D") \n\t"
@@ -1559,10 +1548,10 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 	"movq %%mm4, "DCTSIZE_S"*0*2(%%"REG_D") \n\t"
 	"psubw %%mm7, %%mm1            \n\t" //'t6
 
-	"movq "MANGLE(temps)"+2*8, %%mm7       \n\t"
+	"movq 2*8+%3, %%mm7            \n\t"
 	"psubw %%mm5, %%mm0            \n\t" //'t10
 
-	"movq "MANGLE(temps)"+3*8, %%mm6       \n\t"
+	"movq 3*8+%3, %%mm6            \n\t"
 	"movq %%mm3, %%mm5             \n\t"
 
 	"paddw "DCTSIZE_S"*1*2(%%"REG_D"), %%mm3 \n\t"
@@ -1604,7 +1593,7 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 	"jnz 1b                \n\t"
 	"5:                      \n\t"
 
-	: "+S"(data), "+D"(output), "+c"(cnt)// input regs
+	: "+S"(data), "+D"(output), "+c"(cnt), "=o"(temps)
 	: "d"(thr_adr)
 	: "%"REG_a
 	);
@@ -1612,7 +1601,7 @@ static void column_fidct_mmx(int16_t* thr_adr,  DCTELEM *data,  DCTELEM *output,
 
 #endif // HAVE_MMX
 
-#ifndef HAVE_MMX
+#if !HAVE_MMX
 
 static void row_idct_c(DCTELEM* workspace,
 		       int16_t* output_adr, int output_stride, int cnt)
@@ -1682,7 +1671,8 @@ static void row_idct_c(DCTELEM* workspace,
 static void row_idct_mmx (DCTELEM* workspace, 
 			  int16_t* output_adr,  int output_stride,  int cnt)
 {
-    asm volatile(
+    uint64_t __attribute__((aligned(8))) temps[4];
+    __asm__ volatile(
 	"lea (%%"REG_a",%%"REG_a",2), %%"REG_d"    \n\t"
 	"1:                     \n\t"
 	"movq "DCTSIZE_S"*0*2(%%"REG_S"), %%mm0 \n\t"
@@ -1737,10 +1727,10 @@ static void row_idct_mmx (DCTELEM* workspace,
 	"movq "DCTSIZE_S"*2*2+"DCTSIZE_S"(%%"REG_S"), %%mm5 \n\t"
 	"paddw %%mm0, %%mm1            \n\t" //t1
 
-	"movq %%mm4, "MANGLE(temps)"+0*8       \n\t" //t0
+	"movq %%mm4, 0*8+%3            \n\t" //t0
 	"movq %%mm3, %%mm4             \n\t"
 
-	"movq %%mm6, "MANGLE(temps)"+1*8       \n\t" //t3
+	"movq %%mm6, 1*8+%3            \n\t" //t3
 	"punpcklwd %%mm2, %%mm3        \n\t"
 
 	//transpose 4x4    
@@ -1790,7 +1780,7 @@ static void row_idct_mmx (DCTELEM* workspace,
 	"psllw $3, %%mm0              \n\t"
 	"psubw %%mm3, %%mm4            \n\t" //t10    
 
-	"movq "MANGLE(temps)"+0*8, %%mm6       \n\t"
+	"movq 0*8+%3, %%mm6            \n\t"
 	"movq %%mm1, %%mm3             \n\t"
 
 	"psllw $3, %%mm4              \n\t"
@@ -1811,7 +1801,7 @@ static void row_idct_mmx (DCTELEM* workspace,
 	"movq "MANGLE(MM_DESCALE_RND)", %%mm2   \n\t" //4
 	"psubw %%mm5, %%mm6            \n\t" //d7
 
-	"paddw "MANGLE(temps)"+0*8, %%mm5      \n\t" //d0
+	"paddw 0*8+%3, %%mm5           \n\t" //d0
 	"paddw %%mm2, %%mm1            \n\t"
 
 	"paddw %%mm2, %%mm5            \n\t"
@@ -1838,7 +1828,7 @@ static void row_idct_mmx (DCTELEM* workspace,
 	"movq %%mm7, (%%"REG_D",%%"REG_a",2)    \n\t"
 	"add %%"REG_d", %%"REG_D"             \n\t" //3*ls
 
-	"movq "MANGLE(temps)"+1*8, %%mm5       \n\t" //t3
+	"movq 1*8+%3, %%mm5           \n\t" //t3
 	"psraw $3, %%mm3              \n\t"
 
 	"paddw (%%"REG_D",%%"REG_a",2), %%mm0   \n\t"
@@ -1847,7 +1837,7 @@ static void row_idct_mmx (DCTELEM* workspace,
 	"paddw (%%"REG_D",%%"REG_d",), %%mm3    \n\t"
 	"psraw $3, %%mm6              \n\t"
 
-	"paddw "MANGLE(temps)"+1*8, %%mm4      \n\t" //d4        
+	"paddw 1*8+%3, %%mm4           \n\t" //d4        
 	"paddw %%mm2, %%mm5            \n\t"
 
 	"paddw (%%"REG_D",%%"REG_a",4), %%mm6   \n\t"
@@ -1872,7 +1862,7 @@ static void row_idct_mmx (DCTELEM* workspace,
 	"dec %%"REG_c"                   \n\t"
 	"jnz 1b                  \n\t"
 
-	: "+S"(workspace), "+D"(output_adr), "+c"(cnt) //input regs
+	: "+S"(workspace), "+D"(output_adr), "+c"(cnt), "=o"(temps)
 	: "a"(output_stride*sizeof(short))
 	: "%"REG_d
 	);
@@ -1880,7 +1870,7 @@ static void row_idct_mmx (DCTELEM* workspace,
 
 #endif // HAVE_MMX
 
-#ifndef HAVE_MMX
+#if !HAVE_MMX
 
 static void row_fdct_c(DCTELEM *data, const uint8_t *pixels, int line_size, int cnt)
 {
@@ -1947,7 +1937,8 @@ static void row_fdct_c(DCTELEM *data, const uint8_t *pixels, int line_size, int 
 
 static void row_fdct_mmx(DCTELEM *data,  const uint8_t *pixels,  int line_size,  int cnt)
 {
-    asm volatile(
+    uint64_t __attribute__((aligned(8))) temps[4];
+    __asm__ volatile(
 	"lea (%%"REG_a",%%"REG_a",2), %%"REG_d"    \n\t"
 	"6:                     \n\t"
 	"movd (%%"REG_S"), %%mm0           \n\t"
@@ -1980,10 +1971,10 @@ static void row_fdct_mmx(DCTELEM *data,  const uint8_t *pixels,  int line_size, 
 	"movd (%%"REG_S",%%"REG_a",2), %%mm3    \n\t" //5
 	"paddw %%mm4, %%mm1            \n\t"
 
-	"movq %%mm5, "MANGLE(temps)"+0*8       \n\t" //t7
+	"movq %%mm5, 0*8+%3            \n\t" //t7
 	"punpcklbw %%mm7, %%mm3        \n\t"
 
-	"movq %%mm6, "MANGLE(temps)"+1*8       \n\t" //t6
+	"movq %%mm6, 1*8+%3            \n\t" //t6
 	"movq %%mm2, %%mm4             \n\t"
 
 	"movd (%%"REG_S"), %%mm5           \n\t" //3
@@ -2029,7 +2020,7 @@ static void row_fdct_mmx(DCTELEM *data,  const uint8_t *pixels,  int line_size, 
 	"psubw %%mm1, %%mm5            \n\t" //d1                
 	"movq %%mm0, %%mm6             \n\t"
 
-	"movq "MANGLE(temps)"+1*8, %%mm1       \n\t"
+	"movq 1*8+%3, %%mm1            \n\t"
 	"punpcklwd %%mm5, %%mm0        \n\t"
 
 	"punpckhwd %%mm5, %%mm6        \n\t"
@@ -2053,7 +2044,7 @@ static void row_fdct_mmx(DCTELEM *data,  const uint8_t *pixels,  int line_size, 
 	"movq %%mm7, "DCTSIZE_S"*3*2(%%"REG_D") \n\t"
 	"psllw $2, %%mm3              \n\t" //t10    
 
-	"movq "MANGLE(temps)"+0*8, %%mm2       \n\t"
+	"movq 0*8+%3, %%mm2           \n\t"
 	"psllw $2, %%mm4              \n\t" //t11
 
 	"pmulhw "MANGLE(MM_FIX_0_707106781)", %%mm4 \n\t" //z3
@@ -2116,7 +2107,7 @@ static void row_fdct_mmx(DCTELEM *data,  const uint8_t *pixels,  int line_size, 
 	"dec %%"REG_c"                   \n\t"
 	"jnz 6b                  \n\t"
 
-	: "+S"(pixels), "+D"(data), "+c"(cnt) //input regs
+	: "+S"(pixels), "+D"(data), "+c"(cnt), "=o"(temps)
 	: "a"(line_size)
 	: "%"REG_d);
 }

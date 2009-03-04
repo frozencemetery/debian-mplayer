@@ -1,22 +1,24 @@
-/******************************************************************************
- * vo_directx.c: Directx v2 or later DirectDraw interface for MPlayer
- * Copyright (c) 2002 - 2005 Sascha Sommer <saschasommer@freenet.de>.
+/*
+ * Directx v2 or later DirectDraw interface
  *
- * This program is free software; you can redistribute it and/or modify
+ * Copyright (c) 2002 - 2005 Sascha Sommer <saschasommer@freenet.de>
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * MPlayer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <windows.h>
 #include <windowsx.h>
@@ -35,8 +37,9 @@
 #include "aspect.h"
 #include "geometry.h"
 #include "mp_fifo.h"
+#include "sub.h"
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 #include "gui/interface.h"
 #endif
 
@@ -69,6 +72,7 @@ static HCURSOR              mplayercursor = NULL;   // Handle to mplayer cursor
 static uint32_t image_width, image_height;          //image width and height
 static uint32_t d_image_width, d_image_height;      //image width and height zoomed 
 static uint8_t  *image=NULL;                        //image data
+static void* tmp_image = NULL;
 static uint32_t image_format=0;                       //image format
 static uint32_t primary_image_format;
 static uint32_t vm_height=0;
@@ -86,7 +90,6 @@ static float window_aspect;
 static BOOL (WINAPI* myGetMonitorInfo)(HMONITOR, LPMONITORINFO) = NULL;
 static RECT last_rect = {0xDEADC0DE, 0xDEADC0DE, 0xDEADC0DE, 0xDEADC0DE};
 
-extern void vo_draw_text(int dxs,int dys,void (*draw_alpha)(int x0,int y0, int w,int h, unsigned char* src, unsigned char *srca, int stride));
 extern int vidmode;
 
 /*****************************************************************************
@@ -134,7 +137,7 @@ static directx_fourcc_caps g_ddpf[] =
 };
 #define NUM_FORMATS (sizeof(g_ddpf) / sizeof(g_ddpf[0]))
 
-static vo_info_t info =
+static const vo_info_t info =
 {
 	"Directx DDraw YUV/RGB/BGR renderer",
 	"directx",
@@ -142,7 +145,7 @@ static vo_info_t info =
 	""
 };
 
-LIBVO_EXTERN(directx)
+const LIBVO_EXTERN(directx)
 
 static void draw_alpha(int x0, int y0, int w, int h, unsigned char *src,
 		unsigned char *srca, int stride)
@@ -374,7 +377,7 @@ static void uninit(void)
 	FreeLibrary( hddraw_dll);
 	hddraw_dll= NULL;
 	mp_msg(MSGT_VO, MSGL_DBG3,"<vo_directx><INFO>ddraw.dll freed\n");
-	mp_msg(MSGT_VO, MSGL_DBG3,"<vo_directx><INFO>uninited\n");    
+	mp_msg(MSGT_VO, MSGL_DBG3,"<vo_directx><INFO>uninitialized\n");    
 }
 
 static BOOL WINAPI EnumCallbackEx(GUID FAR *lpGUID, LPSTR lpDriverDescription, LPSTR lpDriverName, LPVOID lpContext, HMONITOR  hm)
@@ -416,7 +419,6 @@ static BOOL WINAPI EnumCallbackEx(GUID FAR *lpGUID, LPSTR lpDriverDescription, L
 static uint32_t Directx_InitDirectDraw()
 {
 	HRESULT    (WINAPI *OurDirectDrawCreateEx)(GUID *,LPVOID *, REFIID,IUnknown FAR *);
- 	LPDIRECTDRAW lpDDraw;
 	DDSURFACEDESC2 ddsd;
 	LPDIRECTDRAWENUMERATEEX OurDirectDrawEnumerateEx;
 	HINSTANCE user32dll=LoadLibrary("user32.dll");
@@ -509,7 +511,7 @@ static uint32_t Directx_InitDirectDraw()
 	        mp_msg(MSGT_VO, MSGL_FATAL,"<vo_directx><FATAL ERROR>can't set displaymode\n");
 	        return 1;
 		}
-	    mp_msg(MSGT_VO, MSGL_V,"<vo_directx><INFO>Inited adapter %i for %i x %i @ %i \n",vo_adapter_num,vm_width,vm_height,vm_bpp);	
+	    mp_msg(MSGT_VO, MSGL_V,"<vo_directx><INFO>Initialized adapter %i for %i x %i @ %i \n",vo_adapter_num,vm_width,vm_height,vm_bpp);	
 	    return 0;	
 	}
 	if (g_lpdd->lpVtbl->SetCooperativeLevel(g_lpdd, hWnd, DDSCL_NORMAL) != DD_OK) // or DDSCL_SETFOCUSWINDOW
@@ -517,7 +519,7 @@ static uint32_t Directx_InitDirectDraw()
         mp_msg(MSGT_VO, MSGL_FATAL,"<vo_directx><FATAL ERROR>could not set cooperativelevel for hardwarecheck\n");
 		return 1;
     }
-    mp_msg(MSGT_VO, MSGL_DBG3,"<vo_directx><INFO>DirectDraw Inited\n");
+    mp_msg(MSGT_VO, MSGL_DBG3,"<vo_directx><INFO>DirectDraw Initialized\n");
 	return 0;
 }	
 
@@ -679,7 +681,7 @@ static uint32_t Directx_ManageDisplay()
         dwUpdateFlags = DDOVER_SHOW | DDOVER_DDFX;
         /*if hardware can't do colorkeying set the window on top*/
 		if(capsDrv.dwCKeyCaps & DDCKEYCAPS_DESTOVERLAY) dwUpdateFlags |= DDOVER_KEYDESTOVERRIDE;
-        else vo_ontop = 1;
+        else if (!tmp_image) vo_ontop = 1;
 	}
     else
     {
@@ -1121,7 +1123,7 @@ static int draw_slice(uint8_t *src[], int stride[], int w,int h,int x,int y )
 {
 	uint8_t *s;
     uint8_t *d;
-    uint32_t i=0, uvstride=dstride/2;
+    uint32_t uvstride=dstride/2;
 	// copy Y
     d=image+dstride*y+x;                
     s=src[0];                           
@@ -1155,6 +1157,12 @@ static void flip_page(void)
 		{
 			mp_msg(MSGT_VO, MSGL_ERR,"<vo_directx><ERROR><vo_directx><INFO>Restoring Surface\n");
 			g_lpddsBack->lpVtbl->Restore( g_lpddsBack );
+			// restore overlay and primary before calling
+			// Directx_ManageDisplay() to avoid error messages
+			g_lpddsOverlay->lpVtbl->Restore( g_lpddsOverlay );
+			g_lpddsPrimary->lpVtbl->Restore( g_lpddsPrimary );
+			// update overlay in case we return from screensaver
+			Directx_ManageDisplay();
 		    dxresult = g_lpddsOverlay->lpVtbl->Flip( g_lpddsOverlay,NULL, DDFLIP_WAIT);
 		}
 		if(dxresult != DD_OK)mp_msg(MSGT_VO, MSGL_ERR,"<vo_directx><ERROR>can't flip page\n");
@@ -1167,14 +1175,21 @@ static void flip_page(void)
         ddbltfx.dwSize = sizeof(DDBLTFX);
         ddbltfx.dwDDFX = DDBLTFX_NOTEARING;
         g_lpddsPrimary->lpVtbl->Blt(g_lpddsPrimary, &rd, g_lpddsBack, NULL, DDBLT_WAIT, &ddbltfx);
-    }	
-	g_lpddsBack->lpVtbl->Lock(g_lpddsBack,NULL,&ddsdsf, DDLOCK_NOSYSLOCK | DDLOCK_WAIT , NULL);
-    if(vo_directrendering && (dstride != ddsdsf.lPitch)){
-      mp_msg(MSGT_VO,MSGL_WARN,"<vo_directx><WARN>stride changed !!!! disabling direct rendering\n");
-      vo_directrendering=0;
-    }
-	dstride = ddsdsf.lPitch;
-    image = ddsdsf.lpSurface;
+	}
+	if (g_lpddsBack->lpVtbl->Lock(g_lpddsBack,NULL,&ddsdsf, DDLOCK_NOSYSLOCK | DDLOCK_WAIT , NULL) == DD_OK) {
+	    if(vo_directrendering && (dstride != ddsdsf.lPitch)){
+	        mp_msg(MSGT_VO,MSGL_WARN,"<vo_directx><WARN>stride changed !!!! disabling direct rendering\n");
+	        vo_directrendering=0;
+	    }
+	    if (tmp_image)
+		    free(tmp_image);
+	    tmp_image = NULL;
+	    dstride = ddsdsf.lPitch;
+	    image = ddsdsf.lpSurface;
+	} else if (!tmp_image) {
+		mp_msg(MSGT_VO, MSGL_WARN, "<vo_directx><WARN>Locking the surface failed, rendering to a hidden surface!\n");
+		tmp_image = image = calloc(1, image_height * dstride * 2);
+	}
 }
 
 static int draw_frame(uint8_t *src[])
@@ -1223,7 +1238,6 @@ static uint32_t get_image(mp_image_t *mpi)
   
 static uint32_t put_image(mp_image_t *mpi){
 
-    uint32_t  i = 0;
     uint8_t   *d;
 	uint8_t   *s;
     uint32_t x = mpi->x;
@@ -1262,7 +1276,7 @@ static uint32_t put_image(mp_image_t *mpi){
 	}
 	else //packed
 	{
-        fast_memcpy( image, mpi->planes[0], image_height * dstride);
+		mem2agpcpy_pic(image, mpi->planes[0], w * (mpi->bpp / 8), h, dstride, mpi->stride[0]);
 	}
 	return VO_TRUE;
 }
@@ -1280,7 +1294,7 @@ config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uin
     if(format != primary_image_format)nooverlay = 0;
     window_aspect= (float)d_image_width / (float)d_image_height;
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
     if(use_gui){
         guiGetEvent(guiSetShVideo, 0);
     }
@@ -1376,10 +1390,13 @@ config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uin
 	Directx_ManageDisplay();
 	memset(&ddsdsf, 0,sizeof(DDSURFACEDESC2));
 	ddsdsf.dwSize = sizeof (DDSURFACEDESC2);
-	g_lpddsBack->lpVtbl->Lock(g_lpddsBack,NULL,&ddsdsf, DDLOCK_NOSYSLOCK | DDLOCK_WAIT, NULL);
-	dstride = ddsdsf.lPitch;
-    image = ddsdsf.lpSurface;
-	return 0;
+	if (g_lpddsBack->lpVtbl->Lock(g_lpddsBack,NULL,&ddsdsf, DDLOCK_NOSYSLOCK | DDLOCK_WAIT, NULL) == DD_OK) {
+        dstride = ddsdsf.lPitch;
+        image = ddsdsf.lpSurface;
+        return 0;
+	}
+	mp_msg(MSGT_VO, MSGL_V, "<vo_directx><ERROR>Initial Lock on the Surface failed.\n");
+	return 1;
 }
 
 //function to set color controls

@@ -1,3 +1,21 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 /* Stuff for correct aspect scaling. */
 #include "aspect.h"
 #include "geometry.h"
@@ -66,44 +84,27 @@ void aspect_save_screenres(int scrw, int scrh){
  * resolution, that the scaled image should fit into
  */
 
-void aspect(int *srcw, int *srch, int zoom){
+void aspect_fit(int *srcw, int *srch, int fitw, int fith){
   int tmpw;
 
-  if( !zoom && geometry_wh_changed ) {
 #ifdef ASPECT_DEBUG
-    printf("aspect(0) no aspect forced!\n");
-#endif
-    return; // the user doesn't want to fix aspect
-  }
-
-#ifdef ASPECT_DEBUG
-  printf("aspect(0) fitin: %dx%d zoom: %d screenaspect: %.2f\n",aspdat.scrw,aspdat.scrh,
-      zoom,monitor_aspect);
+  printf("aspect(0) fitin: %dx%d screenaspect: %.2f\n",aspdat.scrw,aspdat.scrh,
+      monitor_aspect);
   printf("aspect(1) wh: %dx%d (org: %dx%d)\n",*srcw,*srch,aspdat.prew,aspdat.preh);
 #endif
-  if(zoom){
-    *srcw = aspdat.scrw;
-    *srch = (int)(((float)aspdat.scrw / (float)aspdat.prew * (float)aspdat.preh)
+    *srcw = fitw;
+    *srch = (int)(((float)fitw / (float)aspdat.prew * (float)aspdat.preh)
                * ((float)aspdat.scrh / ((float)aspdat.scrw / monitor_aspect)));
-  }else{
-    *srcw = aspdat.prew;
-    *srch = (int)((float)aspdat.preh
-               * ((float)aspdat.scrh / ((float)aspdat.scrw / monitor_aspect)));
-  }
   *srch+= *srch%2; // round
 #ifdef ASPECT_DEBUG
   printf("aspect(2) wh: %dx%d (org: %dx%d)\n",*srcw,*srch,aspdat.prew,aspdat.preh);
 #endif
   if(*srch>aspdat.scrh || *srch<aspdat.orgh){
-    if(zoom)
-      tmpw = (int)(((float)aspdat.scrh / (float)aspdat.preh * (float)aspdat.prew)
-                * ((float)aspdat.scrw / ((float)aspdat.scrh / (1.0/monitor_aspect))));
-    else
-      tmpw = (int)((float)aspdat.prew
+      tmpw = (int)(((float)fith / (float)aspdat.preh * (float)aspdat.prew)
                 * ((float)aspdat.scrw / ((float)aspdat.scrh / (1.0/monitor_aspect))));
     tmpw+= tmpw%2; // round
     if(tmpw<=aspdat.scrw /*&& tmpw>=aspdat.orgw*/){
-      *srch = zoom?aspdat.scrh:aspdat.preh;
+      *srch = fith;
       *srcw = tmpw;
     }else{
 #ifndef ASPECT_TEST
@@ -119,6 +120,18 @@ void aspect(int *srcw, int *srch, int zoom){
 #endif
 }
 
+void aspect(int *srcw, int *srch, int zoom){
+  int fitw = zoom ? aspdat.scrw : aspdat.prew;
+  int fith = zoom ? aspdat.scrh : aspdat.preh;
+  if( !zoom && geometry_wh_changed ) {
+#ifdef ASPECT_DEBUG
+    printf("aspect(0) no aspect forced!\n");
+#endif
+    return; // the user doesn't want to fix aspect
+  }
+  aspect_fit(srcw, srch, fitw, fith);
+}
+
 void panscan_init( void )
 {
  vo_panscan_x=0;
@@ -132,8 +145,10 @@ void panscan_calc( void )
  int vo_panscan_area;
 
  if (vo_panscanrange > 0) {
- aspect(&fwidth,&fheight,A_ZOOM);
- vo_panscan_area = (aspdat.scrh-fheight);
+   aspect(&fwidth,&fheight,A_ZOOM);
+   vo_panscan_area = (aspdat.scrh-fheight);
+   if (!vo_panscan_area)
+     vo_panscan_area = aspdat.scrw - fwidth;
    vo_panscan_area *= vo_panscanrange;
  } else
    vo_panscan_area = -vo_panscanrange * aspdat.scrh;

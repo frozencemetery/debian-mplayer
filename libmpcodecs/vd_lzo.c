@@ -5,12 +5,7 @@
 #include "mp_msg.h"
 
 #include "vd_internal.h"
-
-#ifdef USE_LIBAVUTIL_SO
-#include <ffmpeg/lzo.h>
-#else
 #include "libavutil/lzo.h"
-#endif
 
 #define MOD_NAME "DecLZO"
 
@@ -60,7 +55,7 @@ static int init(sh_video_t *sh)
 	return 0;
     }
     priv->bufsz = sh->bih->biSizeImage;
-    priv->buffer = malloc(priv->bufsz + LZO_OUTPUT_PADDING);
+    priv->buffer = malloc(priv->bufsz + AV_LZO_OUTPUT_PADDING);
     priv->codec = -1;
     sh->context = priv;
 
@@ -93,7 +88,7 @@ static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags)
 	    return NULL; // skipped frame
     }
     
-    r = lzo1x_decode(priv->buffer, &w, data, &len);
+    r = av_lzo1x_decode(priv->buffer, &w, data, &len);
     if (r) {
 	/* this should NEVER happen */
 	mp_msg (MSGT_DECVIDEO, MSGL_ERR, 

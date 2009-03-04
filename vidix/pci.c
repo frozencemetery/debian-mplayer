@@ -61,7 +61,7 @@
 #endif
 #include "AsmMacros.h"
 /* OS depended stuff */
-#if defined (linux)
+#if defined (__linux__)
 #include "sysdep/pci_linux.c"
 #elif defined (__FreeBSD__) || defined (__FreeBSD_kernel__) || defined(__DragonFly__)
 #include "sysdep/pci_freebsd.c"
@@ -107,7 +107,7 @@ static __inline__ unsigned long
 static swapl(unsigned long val)
 {
 	unsigned char *p = (unsigned char *)&val;
-	return ((p[3] << 24) | (p[2] << 16) | (p[1] << 8) | (p[0] << 0));
+	return (p[3] << 24) | (p[2] << 16) | (p[1] << 8) | (p[0] << 0);
 }
  
  
@@ -159,7 +159,7 @@ int pciconfig_write(
 	}
 	return PCIBIOS_SUCCESSFUL;
 }
-#endif
+#endif /* defined(Lynx) && defined(__powerpc__) */
  
 #if !defined(__powerpc__)
 struct pci_config_reg {
@@ -437,11 +437,8 @@ struct pci_config_reg {
     unsigned short _configtype;   /* config type found                   */
     unsigned long _cardnum;       /* config type 2 - private card number */
 };
-#endif
+#endif /* !defined(__powerpc__) */
 
-#define MAX_DEV_PER_VENDOR_CFG1 64
-#define MAX_PCI_DEVICES_PER_BUS 32
-#define MAX_PCI_DEVICES         64
 #define NF ((void (*)())NULL), { 0.0, 0, 0, NULL }
 #define PCI_MULTIFUNC_DEV	0x80
 #define PCI_ID_REG              0x00
@@ -484,12 +481,12 @@ static int pcibus=-1, pcicard=-1, pcifunc=-1 ;
 #include "sysdep/pci_arm32.c"
 #elif defined(__powerpc__)
 #include "sysdep/pci_powerpc.c"
-#elif defined(__x86_64__)
+#elif defined(__x86_64__) || defined(__sh__)
 /* Nothing here right now */
 #else
 #include "sysdep/pci_x86.c"
 #endif
-#endif
+#endif /*CONFIG_SVGAHELPER */
  
 static pciinfo_t *pci_lst;
  
@@ -534,7 +531,7 @@ int pci_scan(pciinfo_t *pci_list,unsigned *num_pci)
  
     ret = enable_os_io();
     if (ret != 0)
-	return(ret);
+	return ret;
 
     if((pcr._configtype = pci_config_type()) == 0xFFFF) return ENODEV;
  
@@ -628,7 +625,7 @@ int pci_scan(pciinfo_t *pci_list,unsigned *num_pci)
     } while (++pcr._pcibusidx < pcr._pcinumbus);
     }
 
-#if !defined(__alpha__) && !defined(__powerpc__)
+#if !defined(__alpha__) && !defined(__powerpc__) && !defined(__sh__)
     /* Now try pci config 2 probe (deprecated) */
  
     if ((pcr._configtype == 2) || do_mode2_scan) {
@@ -689,7 +686,7 @@ int pci_scan(pciinfo_t *pci_list,unsigned *num_pci)
     outb(PCI_MODE2_ENABLE_REG, 0x00);
     }
  
-#endif /* !__alpha__ && !__powerpc__ */
+#endif /* !__alpha__ && !__powerpc__ && !__sh__ */
  
     disable_os_io();
  
@@ -713,17 +710,17 @@ int pci_config_read(unsigned char bus, unsigned char dev, unsigned char func,
     if (len != 4)
     {
 	fprintf(stderr,"pci_config_read: Reading non-dword not supported!\n");
-	return(ENOTSUP);
+	return ENOTSUP;
     }
     
     ret = enable_os_io();
     if (ret != 0)
-	return(ret);
+	return ret;
     ret = pci_config_read_long(bus, dev, func, cmd);
     disable_os_io();
 
     *val = ret;
-    return(0);
+    return 0;
 }
 
 int enable_app_io( void )

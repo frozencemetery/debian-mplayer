@@ -12,10 +12,10 @@ static char help_text[]=
 "Основни опции:   (пълният списък е в ръководството - 'man mplayer')\n"
 " -vo <дрв[:устр]>  избор на видео драйвер & устройство ('-vo help' дава списък)\n"
 " -ao <дрв[:устр]>  избор на звуков драйвер & устройство ('-ao help' дава списък)\n"
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
 " vcd://<пътечка>   пуска (S)VCD (Super Video CD) пътечка (без монтиране!)\n"
 #endif
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 " dvd://<номер>     пуска DVD заглавие от устройство, вместо от файл\n"
 " -alang/-slang     избор на език за DVD аудиo/субтитри (чрез 2-буквен код)\n"
 #endif
@@ -155,8 +155,6 @@ static char help_text[]=
 #define MSGTR_MenuInitialized "Менюто е инициализирано: %s\n"
 #define MSGTR_MenuInitFailed "Менюто не може да бъде инициализирано.\n"
 #define MSGTR_Getch2InitializedTwice "Внимание: Функцията getch2_init е извикана двукратно!\n"
-#define MSGTR_DumpstreamFdUnavailable "Потока не може да бъде извлечен - няма наличен 'fd'.\n"
-#define MSGTR_FallingBackOnPlaylist "Повторен опит за обработка на playlist %s...\n"
 #define MSGTR_CantOpenLibmenuFilterWithThisRootMenu "Видео филтъра libmenu не може да бъде отворен без root меню %s.\n"
 #define MSGTR_AudioFilterChainPreinitError "Грешка при предварителна инициализация на аудио филтрите!\n"
 #define MSGTR_LinuxRTCReadError "Linux RTC грешка при четене: %s\n"
@@ -331,7 +329,7 @@ static char help_text[]=
 #define MSGTR_ConfigFileError "грешка в конфигурационния файл"
 #define MSGTR_ErrorParsingCommandLine "грешка при обработката на командния ред"
 #define MSGTR_VideoStreamRequired "Задължително е да има видео поток!\n"
-#define MSGTR_ForcingInputFPS "Входящите кадри в секунда ще се интерпретират като %5.2f\n"
+#define MSGTR_ForcingInputFPS "Входящите кадри в секунда ще се интерпретират като %5.3f\n"
 #define MSGTR_RawvideoDoesNotSupportAudio "Изходния формат RAWVIDEO не поддържа аудио - звука се премахва\n"
 #define MSGTR_DemuxerDoesntSupportNosound "Tози разпределител все още не поддържа -nosound .\n"
 #define MSGTR_MemAllocFailed "не може да задели памет"
@@ -445,7 +443,7 @@ static char help_text[]=
 #define MSGTR_SMBFileNotFound "'%s' не може да бъде отворен през LAN\n"
 #define MSGTR_SMBNotCompiled "MPlayer не е компилиран със поддръжка на четене от SMB.\n"
 
-#define MSGTR_CantOpenDVD "Не може да бъде отворено DVD устройство: %s\n"
+#define MSGTR_CantOpenDVD "Не може да бъде отворено DVD устройство: %s (%s)\n"
 #define MSGTR_DVDnumTitles "Има %d заглавия на това DVD.\n"
 #define MSGTR_DVDinvalidTitle "Невалиден номер на DVD заглавие: %d\n"
 #define MSGTR_DVDnumChapters "Има %d раздела в това DVD заглавие.\n"
@@ -567,7 +565,7 @@ static char help_text[]=
 
 // ====================== GUI messages/buttons ========================
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 
 // --- labels ---
 #define MSGTR_About "Информация"

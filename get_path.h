@@ -13,15 +13,15 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef GET_PATH_H
-#define GET_PATH_H
+#ifndef MPLAYER_GET_PATH_H
+#define MPLAYER_GET_PATH_H
 
 char *get_path(const char *filename);
 void set_path_env();
 
-#endif /* GET_PATH_H */
+#endif /* MPLAYER_GET_PATH_H */

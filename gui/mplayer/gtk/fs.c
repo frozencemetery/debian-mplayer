@@ -1,3 +1,20 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -6,110 +23,112 @@
 #include <glob.h>
 #include <unistd.h>
 
-#include "../gmplayer.h"
-
-#include "mplayer/pixmaps/up.xpm"
-#include "mplayer/pixmaps/dir.xpm"
-#include "mplayer/pixmaps/file.xpm"
-
-#include "app.h"
-#include "interface.h"
 #include "config.h"
+#include "gui/mplayer/gmplayer.h"
+
+#include "gui/mplayer/pixmaps/up.xpm"
+#include "gui/mplayer/pixmaps/dir.xpm"
+#include "gui/mplayer/pixmaps/file.xpm"
+
+#include "gui/app.h"
+#include "gui/interface.h"
 #include "help_mp.h"
 #include "stream/stream.h"
 
-#include "../widgets.h"
+#include "gui/mplayer/widgets.h"
 #include "fs.h"
 #include "opts.h"
-#include "common.h"
+#include "gtk_common.h"
 
 #ifndef __linux__
 #define get_current_dir_name()  getcwd(NULL, PATH_MAX)
-#endif
-
-#ifndef get_current_dir_name
- extern char * get_current_dir_name( void );
+#else
+char * get_current_dir_name( void );
 #endif
 
 gchar         * fsSelectedFile = NULL;
 gchar         * fsSelectedDirectory = NULL;
 unsigned char * fsThatDir = ".";
-gchar         * fsFilter = "*";
+const gchar   * fsFilter = "*";
 
-int             fsPressed = 0;
 int             fsType    = 0;
 
 char * fsVideoFilterNames[][2] =
-         { { "MPEG files (*.mpg,*.mpeg,*.m1v)",                         "*.mpg,*.mpeg,*.m1v" },
-	   { "VCD/SVCD Images (*.bin)",					"*.bin" },
-           { "VOB files (*.vob)",  				  	"*.vob" },
-           { "AVI files (*.avi)",  				  	"*.avi" },
-	   { "DiVX files (*.divx)",					"*.divx" },
-           { "QuickTime files (*.mov,*.qt,*.mp4)",		  	"*.mov,*.qt,*.mp4" },
-           { "ASF files (*.asf)",  				  	"*.asf" },
-           { "VIVO files (*.viv)", 				  	"*.viv" },
-	   { "RealVideo files (*.rm)",					"*.rm"  },
-	   { "Windows Media Video (*.wmv)",			  	"*.wmv" },
-	   { "OGG Media files (*.ogm)",			  		"*.ogm" },
-	   { "Matroska Media files (*.mkv)",			  	"*.mkv" },
+         {
+	   { "ASF files (*.asf)",					"*.asf" },
+	   { "AVI files (*.avi)",					"*.avi" },
 	   { "Autodesk animations (*.fli,*.flc)",			"*.fli,*.flc" },
-	   { "NuppelVideo files (*.nuv)",				"*.nuv" },
+	   { "DGStation Cuberevo recordings (*.trp)",			"*.trp" },
+	   { "DiVX files (*.divx)",					"*.divx" },
 	   { "MP3 files (*.mp3,*.mp2)",					"*.mp3,*.mp2" },
+	   { "MPEG files (*.mpg,*.mpeg,*.m1v)",				"*.mpg,*.mpeg,*.m1v" },
+	   { "Macromedia Flash Video (*.flv)",				"*.flv" },
+	   { "Matroska Audio files (*.mka)",				"*.mka" },
+	   { "Matroska Media files (*.mkv)",				"*.mkv" },
+	   { "NuppelVideo files (*.nuv)",				"*.nuv" },
+	   { "OGG Vorbis files (*.ogg)",				"*.ogg" },
+	   { "OGG Media files (*.ogm)",					"*.ogm" },
+	   { "QuickTime files (*.mov,*.qt,*.mp4)",			"*.mov,*.qt,*.mp4" },
+	   { "RealVideo files (*.rm)",					"*.rm"  },
+	   { "VCD/SVCD Images (*.bin)",					"*.bin" },
+	   { "VIVO files (*.viv)",					"*.viv" },
+	   { "VOB files (*.vob)",					"*.vob" },
 	   { "Wave files (*.wav)",					"*.wav" },
-	   { "WMA files (*.wma)",					"*.wma" },
-	   { "Matroska Audio files (*.mka)",			  	"*.mka" },
-	   { "Audio files",						"*.wav,*.ogg,*.mp2,*.mp3,*.wma,*.mka" },
-	   { "Video files", 						"*.asf,*.avi,*.divx,*.fli,*.flc,*.ogm,*.mpg,*.mpeg,*.m1v,*.mov,*.mp4,*.nuv,*.qt,*.rm,*.vob,*.viv,*.wmv,*.mkv,*.bin" },
-           { "All files",	      					"*" },
+	   { "Windows Media Audio (*.wma)",				"*.wma" },
+	   { "Windows Media Video (*.wmv)",				"*.wmv" },
+	   { "Audio files",						"*.mp2,*.mp3,*.mka,*.ogg,*.wav,*.wma" },
+	   { "Video files",						"*.asf,*.avi,*.fli,*.flc,*.trp,*.divx,*.mpg,*.mpeg,*.m1v,*.flv,*.mkv,*.nuv,*.ogm,*.mov,*.qt,*.mp4,*.rm,*.bin,*.viv,*.vob,*.wmv" },
+	   { "All files",						"*" },
 	   { NULL,NULL }
 	 };
 int fsLastVideoFilterSelected = -1;
 
 char * fsSubtitleFilterNames[][2] =
-         { { "UTF (*.utf)",  						   "*.utf" },
-           { "SUB (*.sub)",   						   "*.sub" },
-           { "SRT (*.srt)",   						   "*.str" },
-           { "SMI (*.smi)",   						   "*.smi" },
-           { "RT  (*.rt) ",   						   "*.rt"  },
-           { "TXT (*.txt)",   						   "*.txt" },
-           { "ASS (*.ass)",   						   "*.ass" },
-           { "SSA (*.ssa)",   						   "*.ssa" },
-           { "AQT (*.aqt)",   						   "*.aqt" },
-	   { "Subtitles",						   "*.utf,*.sub,*.srt,*.smi,*.rt,*.txt,*.ass,*.ssa,*.aqt" },
-           { "All files",	 					   "*" },
+         {
+           { "AQT (*.aqt)",						"*.aqt" },
+           { "ASS (*.ass)",						"*.ass" },
+           { "RT  (*.rt) ",						"*.rt"  },
+           { "SMI (*.smi)",						"*.smi" },
+           { "SRT (*.srt)",						"*.srt" },
+           { "SSA (*.ssa)",						"*.ssa" },
+           { "SUB (*.sub)",						"*.sub" },
+           { "TXT (*.txt)",						"*.txt" },
+           { "UTF (*.utf)",						"*.utf" },
+           { "Subtitles",						"*.aqt,*.ass,*.rt,*.smi,*.srt,*.ssa,*.sub,*.txt,*.utf" },
+           { "All files",						"*" },
 	   { NULL,NULL }
 	 };
 int fsLastSubtitleFilterSelected = -1;
 
 char * fsOtherFilterNames[][2] =
-         { 
-	   { "All files", "*"     },
+         {
+	   { "All files",						"*" },
 	   { NULL,NULL }
 	 };
-	 
+
 char * fsAudioFileNames[][2] =
-	 { 
-	   { "WAV files (*.wav)",					   "*.wav" },
-	   { "MP3 files (*.mp2, *.mp3)",				   "*.mp2,*.mp3" },
-	   { "OGG Vorbis files (*.ogg)",				   "*.ogg" },
-	   { "WMA files (*.wma)",				 	   "*.wma" },
-	   { "Matroska Audio files (*.mka)",			  	   "*.mka" },
-	   { "Audio files",						   "*.ogg,*.mp2,*.mp3,*.wav,*.wma,*.mka" },
-	   { "All files",						   "*" },
+	 {
+	   { "MP3 files (*.mp2, *.mp3)",				"*.mp2,*.mp3" },
+	   { "Matroska Audio files (*.mka)",				"*.mka" },
+	   { "OGG Vorbis files (*.ogg)",				"*.ogg" },
+	   { "WAV files (*.wav)",					"*.wav" },
+	   { "WMA files (*.wma)",					"*.wma" },
+	   { "Audio files",						"*.mp2,*.mp3,*.mka,*.ogg,*.wav,*.wma" },
+	   { "All files",						"*" },
 	   { NULL, NULL }
 	 };
 int fsLastAudioFilterSelected = -1;
 
 char * fsFontFileNames[][2] =
          {
-#ifdef HAVE_FREETYPE
-	   { "True Type fonts (*.ttf)",					   "*.ttf" },
-	   { "Type1 fonts (*.pfb)",					   "*.pfb" },
-	   { "All fonts",						   "*.ttf,*.pfb" },
+#ifdef CONFIG_FREETYPE
+	   { "True Type fonts (*.ttf)",					"*.ttf" },
+	   { "Type1 fonts (*.pfb)",					"*.pfb" },
+	   { "All fonts",						"*.ttf,*.pfb" },
 #else
-	   { "font files (*.desc)",					   "*.desc" },
+	   { "Font files (*.desc)",					"*.desc" },
 #endif
-	   { "All files",						   "*" },
+	   { "All files",						"*" },
 	   { NULL,NULL }
 	 };
 int fsLastFontFilterSelected = -1;
@@ -134,7 +153,7 @@ GdkPixmap   * fpixmap;
 GdkBitmap   * dmask;
 GdkBitmap   * fmask;
 
-static char * Filter( char * name )
+static char * Filter( const char * name )
 {
  static char tmp[32];
  int  i,c;
@@ -190,7 +209,7 @@ void CheckDir( GtkWidget * list,char * directory )
      if ( ( tmp[c] == ',' )||( tmp[c] == '\0' ) )
       {
        tmp[c]=0; c=-1;
-       glob( Filter( tmp ),glob_param,NULL,&gg ); 
+       glob( Filter( tmp ),glob_param,NULL,&gg );
        glob_param=GLOB_APPEND;
       }
     }
@@ -218,7 +237,7 @@ void ShowFileSelect( int type,int modal )
 
  if ( fsFileSelect ) gtkActive( fsFileSelect );
   else fsFileSelect=create_FileSelect();
- 
+
  fsType=type;
  switch ( type )
   {
@@ -283,7 +302,7 @@ void ShowFileSelect( int type,int modal )
    struct stat f;
    char * dir = strdup( tmp );
 
-   do 
+   do
     {
      char * c = strrchr( dir,'/' );
      stat( dir,&f );
@@ -292,14 +311,14 @@ void ShowFileSelect( int type,int modal )
     } while ( strrchr( dir,'/' ) );
 
    if ( dir[0] ) chdir( dir );
-   
+
    free( dir );
   }
- 
+
  if ( fsTopList_items ) g_list_free( fsTopList_items ); fsTopList_items=NULL;
  {
   int  i, c = 1;
-  
+
   if ( fsType == fsVideoSelector )
    {
     for ( i=0;i < fsPersistant_MaxPos;i++ )
@@ -312,7 +331,7 @@ void ShowFileSelect( int type,int modal )
  fsTopList_items=g_list_append( fsTopList_items,"/mnt" );
  fsTopList_items=g_list_append( fsTopList_items,"/" );
  gtk_combo_set_popdown_strings( GTK_COMBO( fsCombo4 ),fsTopList_items );
-  
+
  gtk_window_set_modal( GTK_WINDOW( fsFileSelect ),modal );
 
  gtk_widget_show( fsFileSelect );
@@ -352,7 +371,7 @@ void fs_fsFilterCombo_activate( GtkEditable * editable,gpointer user_data )
 
 void fs_fsFilterCombo_changed( GtkEditable * editable,gpointer user_data )
 {
- char * str;
+ const char * str;
  int    i;
 
  str=gtk_entry_get_text( GTK_ENTRY(user_data ) );
@@ -391,7 +410,7 @@ void fs_fsFilterCombo_changed( GtkEditable * editable,gpointer user_data )
 
 void fs_fsPathCombo_activate( GtkEditable * editable,gpointer user_data )
 {
- unsigned char * str;
+ const unsigned char * str;
 
  str=gtk_entry_get_text( GTK_ENTRY( user_data ) );
  if ( chdir( str ) != -1 ) CheckDir( fsFNameList,get_current_dir_name() );
@@ -399,10 +418,9 @@ void fs_fsPathCombo_activate( GtkEditable * editable,gpointer user_data )
 
 void fs_fsPathCombo_changed( GtkEditable * editable,gpointer user_data )
 {
- unsigned char * str;
+ const unsigned char * str;
 
  str=gtk_entry_get_text( GTK_ENTRY( user_data ) );
- fsPressed=2;
  if ( chdir( str ) != -1 ) CheckDir( fsFNameList,get_current_dir_name() );
 }
 
@@ -425,9 +443,8 @@ int fsFileExist( unsigned char * fname )
 
 void fs_Ok_released( GtkButton * button,gpointer user_data )
 {
- unsigned char * str;
  GList         * item;
- int             size,j,i = 1;
+ int             i = 1;
  struct stat     fs;
 
  stat( fsSelectedFile,&fs );
@@ -440,28 +457,7 @@ void fs_Ok_released( GtkButton * button,gpointer user_data )
    return;
   }
 
- switch( fsPressed )
-  {
-   case 1:
         fsSelectedDirectory=(unsigned char *)get_current_dir_name();
-        break;
-   case 2:
-        str=gtk_entry_get_text( GTK_ENTRY( fsPathCombo ) );
-        fsSelectedFile=str;
-        if ( !fsFileExist( fsSelectedFile ) ) { HideFileSelect(); return; }
-        fsSelectedDirectory=fsSelectedFile;
-        size=strlen( fsSelectedDirectory );
-        for ( j=0;j<size;j++ )
-         {
-          if ( fsSelectedDirectory[ size - j ] == '/' )
-           {
-            fsSelectedFile+=size - j + 1;
-            fsSelectedDirectory[ size - j ]=0;
-            break;
-           }
-         }
-        break;
-  }
  switch ( fsType )
   {
    case fsVideoSelector:
@@ -511,7 +507,6 @@ void fs_Cancel_released( GtkButton * button,gpointer user_data )
 void fs_fsFNameList_select_row( GtkWidget * widget,gint row,gint column,GdkEventButton *bevent,gpointer user_data )
 {
  gtk_clist_get_text( GTK_CLIST(widget ),row,1,&fsSelectedFile );
- fsPressed=1;
  if( bevent && bevent->type == GDK_BUTTON_PRESS )  gtk_button_released( GTK_BUTTON( fsOk ) );
 }
 
@@ -558,7 +553,7 @@ GtkWidget * create_FileSelect( void )
  gtk_window_set_policy( GTK_WINDOW( fsFileSelect ),TRUE,TRUE,TRUE );
  gtk_window_set_wmclass( GTK_WINDOW( fsFileSelect ),"FileSelect","MPlayer" );
  fsColorMap=gdk_colormap_get_system();
- 
+
  gtk_widget_realize( fsFileSelect );
  gtkAddIcon( fsFileSelect );
 

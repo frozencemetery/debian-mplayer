@@ -2,20 +2,21 @@
  * Demuxer for avisynth
  * Copyright (c) 2005 Gianluigi Tiesi <sherpya@netfarm.it>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * This file is part of MPlayer.
  *
- * This library is distributed in the hope that it will be useful,
+ * MPlayer is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301 USA.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <stdio.h>
@@ -299,7 +300,7 @@ static demuxer_t* demux_open_avs(demuxer_t* demuxer)
         
         //sh_video->format = get_mmioFOURCC(AVS->video_info);
         sh_video->format = mmioFOURCC('Y', 'V', '1', '2');
-        sh_video->fps = (float) ((float) AVS->video_info->fps_numerator / (float) AVS->video_info->fps_denominator);
+        sh_video->fps = (double) AVS->video_info->fps_numerator / (double) AVS->video_info->fps_denominator;
         sh_video->frametime = 1.0 / sh_video->fps;
         
         sh_video->bih = malloc(sizeof(BITMAPINFOHEADER) + (256 * 4));
@@ -418,10 +419,8 @@ static void demux_seek_avs(demuxer_t *demuxer, float rel_seek_secs, float audio_
     
     //mp_msg(MSGT_DEMUX, MSGL_V, "AVS: seek rel_seek_secs = %f - flags = %x\n", rel_seek_secs, flags);
     
-    // seek absolute
-    if (flags&1) video_pos=0;
-    // seek precent
-    if (flags&2) rel_seek_secs *= duration;
+    if (flags&SEEK_ABSOLUTE) video_pos=0;
+    if (flags&SEEK_FACTOR) rel_seek_secs *= duration;
 
     video_pos += rel_seek_secs;
     if (video_pos < 0) video_pos = 0;
@@ -432,6 +431,8 @@ static void demux_seek_avs(demuxer_t *demuxer, float rel_seek_secs, float audio_
       sh_video->num_frames_decoded = AVS->frameno;
       sh_video->num_frames = AVS->frameno;
     }
+    video_pos += audio_delay;
+    if (video_pos < 0) video_pos = 0;
     if (sh_audio)
       AVS->sampleno = FFMIN(video_pos * sh_audio->samplerate,
                             AVS->video_info->num_audio_samples);
@@ -462,7 +463,7 @@ static int avs_check_file(demuxer_t *demuxer)
 }
 
 
-demuxer_desc_t demuxer_desc_avs = {
+const demuxer_desc_t demuxer_desc_avs = {
   "Avisynth demuxer",
   "avs",
   "AVS",

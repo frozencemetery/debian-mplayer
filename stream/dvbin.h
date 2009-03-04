@@ -2,11 +2,11 @@
  *
  * Modified for use with MPlayer, for details see the changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: dvbin.h 20677 2006-11-04 23:07:55Z nicodvb $
+ * $Id: dvbin.h 28702 2009-02-22 14:12:33Z diego $
  */
 
-#ifndef DVBIN_H
-#define DVBIN_H
+#ifndef MPLAYER_DVBIN_H
+#define MPLAYER_DVBIN_H
 
 #include "stream.h"
 
@@ -14,7 +14,7 @@
 #define LOF1 (9750*1000UL)
 #define LOF2 (10600*1000UL)
 
-#ifdef HAVE_DVB_HEAD
+#ifdef CONFIG_DVB_HEAD
 	#include <linux/dvb/dmx.h>
 	#include <linux/dvb/frontend.h>
 	#include <linux/dvb/version.h>
@@ -38,9 +38,16 @@
 
 #undef DVB_ATSC
 #if defined(DVB_API_VERSION_MINOR)
-#if DVB_API_VERSION == 3 && DVB_API_VERSION_MINOR >= 1
+
+/* kernel headers >=2.6.28 have version 5.
+ *
+ * FIXME: are there any real differences between 3.1 and 5?
+ */
+
+#if (DVB_API_VERSION == 3 && DVB_API_VERSION_MINOR >= 1) || DVB_API_VERSION == 5
 #define DVB_ATSC 1
 #endif
+
 #endif
 
 
@@ -97,7 +104,6 @@ typedef struct {
 	dvb_channels_list *list;
 	int tuner_type;
 	int is_on;
-	stream_t *stream;
 	int retry;
 	int timeout;
 	int last_freq;
@@ -109,8 +115,9 @@ typedef struct {
 #define TUNER_CBL	3
 #define TUNER_ATSC	4
 
-extern int dvb_step_channel(dvb_priv_t *, int);
-extern int dvb_set_channel(dvb_priv_t *, int, int);
-extern dvb_config_t *dvb_get_config(void);
+int dvb_step_channel(stream_t *, int);
+int dvb_set_channel(stream_t *, int, int);
+dvb_config_t *dvb_get_config(void);
+void dvb_free_config(dvb_config_t *config);
 
-#endif
+#endif /* MPLAYER_DVBIN_H */

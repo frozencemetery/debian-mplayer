@@ -2339,4 +2339,4 @@ static const uint32_t correctionhighorder[] = {
         0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000
 };
 
-#endif // AVCODEC_INDEO3DATA_H
+#endif /* AVCODEC_INDEO3DATA_H */

@@ -30,19 +30,15 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../config.h"
+#include "config.h"
 #include "libavutil/common.h"
 #include "real.h"
 #include "asmrp.h"
 #include "sdpplin.h"
 #include "xbuffer.h"
-#if USE_LIBAVUTIL_SO
-#include "ffmpeg/md5.h"
-#else
 #include "libavutil/md5.h"
-#endif
 #include "libavutil/intreadwrite.h"
-#include "../http.h"
+#include "stream/http.h"
 #include "mp_msg.h"
 
 /*
@@ -88,14 +84,9 @@ static void real_calc_response_and_checksum (char *response, char *chksum, char 
 
   int   ch_len;
   int   i;
-  unsigned char zres[16], buf[128];
-
-  /* initialize return values */
-  memset(response, 0, 64);
-  memset(chksum, 0, 34);
+  unsigned char zres[16], buf[64];
 
   /* initialize buffer */
-  memset(buf, 0, 128);
   AV_WB32(buf, 0xa1e9149d);
   AV_WB32(buf+4, 0x0e6b3b59);
 
@@ -105,14 +96,12 @@ static void real_calc_response_and_checksum (char *response, char *chksum, char 
     ch_len = strlen (challenge);
 
     if (ch_len == 40) /* what a hack... */
-    {
-      challenge[32]=0;
       ch_len=32;
-    }
     if ( ch_len > 56 ) ch_len=56;
     
     /* copy challenge to buf */
     memcpy(buf+8, challenge, ch_len);
+    memset(buf+8+ch_len, 0, 56-ch_len);
   }
   
     /* xor challenge bytewise with xor_table */
@@ -131,6 +120,7 @@ static void real_calc_response_and_checksum (char *response, char *chksum, char 
   /* calculate checksum */
   for (i=0; i<8; i++)
     chksum[i] = response[i*4];
+  chksum[8] = 0;
 }
 
 
@@ -333,7 +323,7 @@ int real_get_rdt_chunk(rtsp_t *rtsp_session, char **buffer, int rdt_rawdata) {
   /* header[1] is channel, normally 0, ignored */
   size=(header[2]<<8)+header[3];
   flags1=header[4];
-  if ((flags1!=0x40)&&(flags1!=0x42)&&(flags1!=0x41))
+  if ((flags1 & 0xc0) != 0x40)
   {
 #ifdef LOG
     printf("got flags1: 0x%02x\n",flags1);
@@ -435,8 +425,8 @@ rmff_header_t *real_setup_and_get_header(rtsp_t *rtsp_session, uint32_t bandwidt
   char *session_id=NULL;
   rmff_header_t *h;
   char *challenge1;
-  char challenge2[64];
-  char checksum[34];
+  char challenge2[41];
+  char checksum[9];
   char *subscribe;
   char *buf = xbuffer_init(256);
   char *mrl=rtsp_get_mrl(rtsp_session);

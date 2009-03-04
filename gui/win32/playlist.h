@@ -16,13 +16,15 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef GUI_PLAYLIST_H
-#define GUI_PLAYLIST_H
+#ifndef MPLAYER_GUI_PLAYLIST_H
+#define MPLAYER_GUI_PLAYLIST_H
+
+#include <windows.h>
 
 typedef struct
 {
@@ -53,7 +55,7 @@ struct playlist_t
 #define SORT_BYTITLE        3
 #define SORT_BYDURATION     4
 
-extern playlist_t *create_playlist(void);
-extern BOOL adddirtoplaylist(playlist_t *playlist, const char* path, BOOL recursive);
+playlist_t *create_playlist(void);
+BOOL adddirtoplaylist(playlist_t *playlist, const char* path, BOOL recursive);
 
-#endif
+#endif /* MPLAYER_GUI_PLAYLIST_H */

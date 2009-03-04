@@ -292,9 +292,9 @@ Tengo problemas reproduciendo archivos con el codec .... ¿Puedo usarlo?
 </para></question>
 <answer><para>
 Compruebe el <ulink url="../../codecs-status.html">estado del codec</ulink>,
-si no contiene su codec, lea la <link linkend="codecs">documentación de codecs</link>,
-especialmente el <link linkend="win32-codecs">COMO importar codecs</link> y contacte con
-nosotros.
+si no contiene su codec, lea el
+<ulink url="../../tech/win32-codec-howto">COMO importar codecs Win32</ulink>
+y contacte con nosotros.
 </para></answer>
 </qandaentry>
 
@@ -449,27 +449,6 @@ y sustituir <systemitem>#undef FAST_OSD</systemitem> con
 <answer><para>
 Está usando el controlador vo con un solo buffer (x11,xv). Con xv, use la opción
 <option>-double</option>. Pruebe también <option>-vf expand</option>.
-</para></answer>
-</qandaentry>
-
-<qandaentry>
-<question><para>
-¿Qué es exactamente <systemitem class="library">libavcodec</systemitem>?
-</para></question>
-<answer><para>
-Consulte la sección
-<link linkend="ffmpeg"><systemitem class="library">libavcodec</systemitem></link>.
-</para></answer>
-</qandaentry>
-
-<qandaentry>
-<question><para>
-¡Pero configure me dice <screen>Checking for libavcodec ... no</screen>!
-</para></question>
-<answer><para>
-Necesita obtener <systemitem class="library">libavcodec</systemitem> del CVS de FFmpeg.
-Lea las instrucciones en la sección
-<link linkend="ffmpeg"><systemitem class="library">libavcodec</systemitem></link>.
 </para></answer>
 </qandaentry>
 
@@ -730,7 +709,6 @@ Si es un AVI, igual tiene interleaving malo. Intente la opción <option>-ni</opt
 </para></listitem>
 <listitem><para>
 Si su manejador de sonido tiene errores, o usa ALSA 0.5 con <option>-ao oss</option>.
-Consulte la <link linkend="audio-dev">sección de tarjeta de sonido</link>.
 </para></listitem>
 <listitem><para>
 El AVI tiene una cabecera errónea malo, pruebe la opción <option>-nobps</option>, y/o <option>-mc 0</option>.
@@ -1120,7 +1098,7 @@ Lea la sección <link linkend="mencoder"><application>MEncoder</application></li
 ¿Como puedo crear un VCD?
 </para></question>
 <answer><para>
-Pruebe el script <filename>mencvcd</filename> del subdirectorio <filename class="directory">TOOLS</filename>. 
+Pruebe el script <filename>mencvcd.sh</filename> del subdirectorio <filename class="directory">TOOLS</filename>.
 Con él puede codificar DVDs u otras peliculas al formato VCD o SVCD e incluso
 grabarlo directamente a CD.
 </para></answer>

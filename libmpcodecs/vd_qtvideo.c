@@ -3,19 +3,17 @@
 #include <inttypes.h>
 
 #include "config.h"
-
-#ifdef MACOSX
-#include <QuickTime/ImageCodec.h>
-#define dump_ImageDescription(x)
-#endif
-
-#include "loader/wine/windef.h"
-
 #include "mp_msg.h"
+#include "mpbswap.h"
 #include "vd_internal.h"
 
-#ifdef WIN32_LOADER
+#ifdef CONFIG_QUICKTIME
+#include <QuickTime/ImageCodec.h>
+#define dump_ImageDescription(x)
+#else
 #include "loader/ldt_keeper.h"
+#include "loader/qtx/qtxsdk/components.h"
+#include "loader/wine/windef.h"
 #endif
 
 static vd_info_t info = {
@@ -27,16 +25,6 @@ static vd_info_t info = {
 };
 
 LIBVD_EXTERN(qtvideo)
-
-#include "bswap.h"
-
-#ifndef MACOSX
-#include "loader/qtx/qtxsdk/components.h"
-
-HMODULE   WINAPI LoadLibraryA(LPCSTR);
-FARPROC   WINAPI GetProcAddress(HMODULE,LPCSTR);
-int       WINAPI FreeLibrary(HMODULE);
-#endif
 
 //static ComponentDescription desc; // for FindNextComponent()
 static ComponentInstance ci=NULL; // codec handle
@@ -50,10 +38,13 @@ static Rect OutBufferRect;              //the dimensions of our GWorld
 
 static GWorldPtr OutBufferGWorld = NULL;//a GWorld is some kind of description for a drawing environment
 static ImageDescriptionHandle framedescHandle;
-static HINSTANCE qtime_qts; // handle to the preloaded quicktime.qts
-static HMODULE handler;
 
-#if !defined(MACOSX)
+#ifndef CONFIG_QUICKTIME
+HMODULE   WINAPI LoadLibraryA(LPCSTR);
+FARPROC   WINAPI GetProcAddress(HMODULE,LPCSTR);
+int       WINAPI FreeLibrary(HMODULE);
+static    HINSTANCE qtime_qts; // handle to the preloaded quicktime.qts
+static    HMODULE handler;
 static    Component (*FindNextComponent)(Component prev,ComponentDescription* desc);
 static    OSErr (*GetComponentInfo)(Component prev,ComponentDescription* desc,Handle h1,Handle h2,Handle h3);
 static    long (*CountComponents)(ComponentDescription* desc);
@@ -65,12 +56,6 @@ static    ComponentResult (*ImageCodecInitialize)(ComponentInstance ci,
 static    ComponentResult (*ImageCodecBeginBand)(ComponentInstance      ci,
                                  CodecDecompressParams * params,
                                  ImageSubCodecDecompressRecord * drp,
-                                 long                   flags);
-static    ComponentResult (*ImageCodecDrawBand)(ComponentInstance      ci,
-                                 ImageSubCodecDecompressRecord * drp);
-static    ComponentResult (*ImageCodecEndBand)(ComponentInstance      ci,
-                                 ImageSubCodecDecompressRecord * drp,
-                                 OSErr                  result,
                                  long                   flags);
 static    ComponentResult (*ImageCodecGetCodecInfo)(ComponentInstance      ci,
                                  CodecInfo *            info);
@@ -88,25 +73,28 @@ static    OSErr           (*QTNewGWorldFromPtr)(GWorldPtr *gw,
                                void *baseAddr,
                                long rowBytes); 
 static    OSErr           (*NewHandleClear)(Size byteCount);                          
-#endif /* #if !defined(MACOSX) */
+#endif /* #ifndef CONFIG_QUICKTIME */
 
 // to set/get/query special features/parameters
 static int control(sh_video_t *sh,int cmd,void* arg,...){
     return CONTROL_UNKNOWN;
 }
 
-static int codec_inited=0;
+static int codec_initialized=0;
 
 // init driver
 static int init(sh_video_t *sh){
+#ifndef CONFIG_QUICKTIME
     long result = 1;
+#endif
     ComponentResult cres;
     ComponentDescription desc;
     Component prev=NULL;
     CodecInfo cinfo;	// for ImageCodecGetCodecInfo()
     ImageSubCodecDecompressCapabilities icap; // for ImageCodecInitialize()
 
-#ifdef MACOSX
+    codec_initialized = 0;
+#ifdef CONFIG_QUICKTIME
     EnterMovies();
 #else
 
@@ -153,7 +141,7 @@ static int init(sh_video_t *sh){
     mp_msg(MSGT_DECVIDEO,MSGL_DBG2,"InitializeQTML returned %li\n",result);
 //    result=EnterMovies();
 //    printf("EnterMovies->%d\n",result);
-#endif /* MACOSX */
+#endif /* CONFIG_QUICKTIME */
 
 #if 0
     memset(&desc,0,sizeof(desc));
@@ -195,7 +183,7 @@ static int init(sh_video_t *sh){
     prev=FindNextComponent(NULL,&desc);
     if(!prev){
 	mp_msg(MSGT_DECVIDEO,MSGL_ERR,"Cannot find requested component\n");
-	return(0);
+	return 0;
     }
     mp_msg(MSGT_DECVIDEO,MSGL_DBG2,"Found it! ID = %p\n",prev);
 
@@ -277,7 +265,7 @@ static int init(sh_video_t *sh){
 	    break;
 	default:
 	    mp_msg(MSGT_DECVIDEO,MSGL_ERR,"Unknown requested csp\n");
-	    return(0);    
+	    return 0;
     }
     mp_msg(MSGT_DECVIDEO,MSGL_DBG2,"imgfmt: %s qt_imgfmt: %.4s\n", vo_format_name(imgfmt), (char *)&qt_imgfmt);
     sh->context = (void *)qt_imgfmt;
@@ -292,7 +280,7 @@ static int init(sh_video_t *sh){
 
 // uninit driver
 static void uninit(sh_video_t *sh){
-#ifdef MACOSX
+#ifdef CONFIG_QUICKTIME
     ExitMovies();
 #endif
 }
@@ -314,7 +302,7 @@ static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags){
     decpar.bufferSize = len;
     (**framedescHandle).dataSize=len;
 
-if(!codec_inited){
+if(!codec_initialized){
     result = QTNewGWorldFromPtr(
         &OutBufferGWorld,  
 //        kYUVSPixelFormat, //pixel format of new GWorld == YUY2
@@ -381,7 +369,7 @@ if(!codec_inited){
 //    printf("ImageCodecPreDecompress cres=0x%X\n",cres);
 
 
-    codec_inited=1;
+    codec_initialized=1;
 }
 
 #if 0

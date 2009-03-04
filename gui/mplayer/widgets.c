@@ -1,3 +1,20 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -15,18 +32,18 @@
 #include <gdk/gdk.h>
 #include <gtk/gtk.h>
 
+#include "config.h"
+#include "help_mp.h"
+#include "mp_msg.h"
+
 #include "widgets.h"
-#include "app.h"
-#include "wm/ws.h"
+#include "gui/app.h"
+#include "gui/wm/ws.h"
 
 
 #include "gtk/menu.h"
 #include "play.h"
 #include "gtk/fs.h"
-
-#include "../config.h"
-#include "../help_mp.h"
-#include "../mp_msg.h"
 
 GtkWidget     * PopUpMenu = NULL;
 
@@ -35,7 +52,7 @@ GtkWidget     * ErrorPixmap;
 
 int gtkPopupMenu = 0;
 int gtkPopupMenuParam = 0;
-int gtkInited = 0;
+int gtkInitialized = 0;
 
 #include "gtk/sb.h"
 #include "gtk/pl.h"
@@ -44,7 +61,7 @@ int gtkInited = 0;
 #include "gtk/about.h"
 #include "gtk/opts.h"
 #include "gtk/menu.h"
-#include "gtk/url.h"
+#include "gtk/gtk_url.h"
 #include "gtk/eq.h"
 
 #include "pixmaps/MPlayer_mini.xpm"
@@ -59,7 +76,7 @@ Pixmap	    guiIconMask;
 void gtkInit( void )
 {
  mp_dbg( MSGT_GPLAYER,MSGL_DBG2,"[widget] init GTK ...\n" );
-#ifdef HAVE_GTK2_GUI
+#ifdef CONFIG_GTK2
  gtk_disable_setlocale();
 #endif
  gtk_init( 0,NULL );
@@ -78,7 +95,7 @@ void gtkInit( void )
   gtk_widget_destroy( win );
  }
  
- gtkInited=1;
+ gtkInitialized=1;
 }
 
 void gtkAddIcon( GtkWidget * window )
@@ -115,7 +132,7 @@ void gtkEventHandling( void )
 
 void gtkMessageBox( int type,const gchar * str )
 {
- if ( !gtkInited ) return;
+ if ( !gtkInitialized ) return;
  ShowMessageBox( str );
  gtk_label_set_text( GTK_LABEL( gtkMessageBoxText ),str );
  /* enable linewrapping by alex */

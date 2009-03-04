@@ -1,14 +1,27 @@
 /*
- *  video_out.h
+ * Copyright (C) Aaron Holtzman - Aug 1999
+ * Strongly modified, most parts rewritten: A'rpi/ESP-team - 2000-2001
+ * (C) MPlayer developers
  *
- *      Copyright (C) Aaron Holtzman - Aug 1999
- *	Strongly modified, most parts rewritten: A'rpi/ESP-team - 2000-2001
- *	(C) MPlayer Developers
+ * This file is part of MPlayer.
  *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
-#ifndef VIDEO_OUT_H
-#define VIDEO_OUT_H
+
+#ifndef MPLAYER_VIDEO_OUT_H
+#define MPLAYER_VIDEO_OUT_H
 
 #include <inttypes.h>
 #include <stdarg.h>
@@ -31,7 +44,6 @@
 #define VOCTRL_GUI_NOWINDOW 19
 /* used to switch to fullscreen */
 #define VOCTRL_FULLSCREEN 5
-#define VOCTRL_SCREENSHOT 6
 /* signal a device pause */
 #define VOCTRL_PAUSE 7
 /* start/resume playback */
@@ -111,7 +123,7 @@ typedef struct vo_info_s
 
 typedef struct vo_functions_s
 {
-	vo_info_t *info;
+	const vo_info_t *info;
 	/*
 	 * Preinitializes driver (real INITIALIZATION)
 	 *   arg - currently it's vo_subdevice
@@ -177,14 +189,14 @@ typedef struct vo_functions_s
 
 } vo_functions_t;
 
-vo_functions_t* init_best_video_out(char** vo_list);
-int config_video_out(vo_functions_t *vo, uint32_t width, uint32_t height,
+const vo_functions_t* init_best_video_out(char** vo_list);
+int config_video_out(const vo_functions_t *vo, uint32_t width, uint32_t height,
                      uint32_t d_width, uint32_t d_height, uint32_t flags,
                      char *title, uint32_t format);
 void list_video_out(void);
 
 // NULL terminated array of all drivers
-extern vo_functions_t* video_out_drivers[];
+extern const vo_functions_t* const video_out_drivers[];
 
 extern int vo_flags;
 
@@ -238,22 +250,29 @@ extern char *vo_subdevice;
 
 extern int vo_colorkey;
 
-extern int WinID;
-
-#if defined(HAVE_FBDEV)||defined(HAVE_VESA) 
+extern int64_t WinID;
 
 typedef struct {
         float min;
 	float max;
 	} range_t;
 
-extern float range_max(range_t *r);
-extern int in_range(range_t *r, float f);
-extern range_t *str2range(char *s);
+float range_max(range_t *r);
+int in_range(range_t *r, float f);
+range_t *str2range(char *s);
 extern char *monitor_hfreq_str;
 extern char *monitor_vfreq_str;
 extern char *monitor_dotclock_str;
 
-#endif 
-		
-#endif
+struct keymap {
+  int from;
+  int to;
+};
+int lookup_keymap_table(const struct keymap *map, int key);
+struct vo_rect {
+  int left, right, top, bottom, width, height;
+};
+void calc_src_dst_rects(int src_width, int src_height, struct vo_rect *src, struct vo_rect *dst,
+                        struct vo_rect *borders, const struct vo_rect *crop);
+
+#endif /* MPLAYER_VIDEO_OUT_H */

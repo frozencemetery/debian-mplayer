@@ -1,6 +1,3 @@
-
-//#define MSG_USE_COLORS
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -8,18 +5,18 @@
 
 #include "config.h"
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 #include <iconv.h>
 #include <errno.h>
-extern char* get_term_charset(void);
+char* get_term_charset(void);
 #endif
 
 #if defined(FOR_MENCODER)
-#undef HAVE_NEW_GUI
+#undef CONFIG_GUI
 int use_gui;
 #endif
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 #include "gui/interface.h"
 #endif
 #include "mp_msg.h"
@@ -27,10 +24,12 @@ int use_gui;
 /* maximum message length of mp_msg */
 #define MSGSIZE_MAX 3072
 
-int mp_msg_levels[MSGT_MAX]; // verbose level of this module. inited to -2
+int mp_msg_levels[MSGT_MAX]; // verbose level of this module. initialized to -2
 int mp_msg_level_all = MSGL_STATUS;
 int verbose = 0;
-#ifdef USE_ICONV
+int mp_msg_color = 0;
+int mp_msg_module = 0;
+#ifdef CONFIG_ICONV
 char *mp_msg_charset = NULL;
 static char *old_charset = NULL;
 static iconv_t msgiconv;
@@ -38,7 +37,7 @@ static iconv_t msgiconv;
 
 const char* filename_recode(const char* filename)
 {
-#if !defined(USE_ICONV) || !defined(MSG_CHARSET)
+#if !defined(CONFIG_ICONV) || !defined(MSG_CHARSET)
     return filename;
 #else
     static iconv_t inv_msgiconv = (iconv_t)(-1);
@@ -74,7 +73,7 @@ void mp_msg_init(void){
         verbose = atoi(env);
     for(i=0;i<MSGT_MAX;i++) mp_msg_levels[i] = -2;
     mp_msg_levels[MSGT_IDENTIFY] = -1; // no -identify output by default
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
     mp_msg_charset = getenv("MPLAYER_CHARSET");
     if (!mp_msg_charset)
       mp_msg_charset = get_term_charset();
@@ -86,10 +85,93 @@ int mp_msg_test(int mod, int lev)
     return lev <= (mp_msg_levels[mod] == -2 ? mp_msg_level_all + verbose : mp_msg_levels[mod]);
 }
 
+static void set_msg_color(FILE* stream, int lev)
+{
+    static const unsigned char v_colors[10] = {9, 1, 3, 15, 7, 2, 2, 8, 8, 8};
+    int c = v_colors[lev];
+#ifdef MP_ANNOY_ME
+    /* that's only a silly color test */
+    {
+        int c;
+        static int flag = 1;
+        if (flag)
+            for(c = 0; c < 24; c++)
+                printf("\033[%d;3%dm***  COLOR TEST %d  ***\n", c>7, c&7, c);
+        flag = 0;
+    }
+#endif
+    if (mp_msg_color)
+        fprintf(stream, "\033[%d;3%dm", c >> 3, c & 7);
+}
+
+static void print_msg_module(FILE* stream, int mod)
+{
+    static const char *module_text[MSGT_MAX] = {
+        "GLOBAL",
+        "CPLAYER",
+        "GPLAYER",
+        "VIDEOOUT",
+        "AUDIOOUT",
+        "DEMUXER",
+        "DS",
+        "DEMUX",
+        "HEADER",
+        "AVSYNC",
+        "AUTOQ",
+        "CFGPARSER",
+        "DECAUDIO",
+        "DECVIDEO",
+        "SEEK",
+        "WIN32",
+        "OPEN",
+        "DVD",
+        "PARSEES",
+        "LIRC",
+        "STREAM",
+        "CACHE",
+        "MENCODER",
+        "XACODEC",
+        "TV",
+        "OSDEP",
+        "SPUDEC",
+        "PLAYTREE",
+        "INPUT",
+        "VFILTER",
+        "OSD",
+        "NETWORK",
+        "CPUDETECT",
+        "CODECCFG",
+        "SWS",
+        "VOBSUB",
+        "SUBREADER",
+        "AFILTER",
+        "NETST",
+        "MUXER",
+        "OSDMENU",
+        "IDENTIFY",
+        "RADIO",
+        "ASS",
+        "LOADER",
+        "STATUSLINE",
+    };
+    int c2 = (mod + 1) % 15 + 1;
+
+    if (!mp_msg_module)
+        return;
+    if (mp_msg_color)
+        fprintf(stream, "\033[%d;3%dm", c2 >> 3, c2 & 7);
+    fprintf(stream, "%9s", module_text[mod]);
+    if (mp_msg_color)
+        fprintf(stream, "\033[0;37m");
+    fprintf(stream, ": ");
+}
+
 void mp_msg(int mod, int lev, const char *format, ... ){
     va_list va;
     char tmp[MSGSIZE_MAX];
-    
+    FILE *stream = lev <= MSGL_WARN ? stderr : stdout;
+    static int header = 1;
+
     if (!mp_msg_test(mod, lev)) return; // do not display
     va_start(va, format);
     vsnprintf(tmp, MSGSIZE_MAX, format, va);
@@ -97,12 +179,12 @@ void mp_msg(int mod, int lev, const char *format, ... ){
     tmp[MSGSIZE_MAX-2] = '\n';
     tmp[MSGSIZE_MAX-1] = 0;
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
     if(use_gui)
         guiMessageBox(lev, tmp);
 #endif
 
-#if defined(USE_ICONV) && defined(MSG_CHARSET)
+#if defined(CONFIG_ICONV) && defined(MSG_CHARSET)
     if (mp_msg_charset && strcasecmp(mp_msg_charset, "noconv")) {
       char tmp2[MSGSIZE_MAX];
       size_t inlen = strlen(tmp), outlen = MSGSIZE_MAX;
@@ -133,82 +215,11 @@ void mp_msg(int mod, int lev, const char *format, ... ){
     }
 #endif
 
-#ifdef MSG_USE_COLORS
-/* that's only a silly color test */
-#ifdef MP_ANNOY_ME
-    { int c;
-      static int flag=1;
-      if(flag)
-      for(c=0;c<24;c++)
-          printf("\033[%d;3%dm***  COLOR TEST %d  ***\n",(c>7),c&7,c);
-      flag=0;
-    }
-#endif    
-    {   unsigned char v_colors[10]={9,1,3,15,7,2,2,8,8,8};
-        static const char *mod_text[MSGT_MAX]= {
-                                "GLOBAL",
-                                "CPLAYER",
-                                "GPLAYER",
-                                "VIDEOOUT",
-                                "AUDIOOUT",
-                                "DEMUXER",
-                                "DS",
-                                "DEMUX",
-                                "HEADER",
-                                "AVSYNC",
-                                "AUTOQ",
-                                "CFGPARSER",
-                                "DECAUDIO",
-                                "DECVIDEO",
-                                "SEEK",
-                                "WIN32",
-                                "OPEN",
-                                "DVD",
-                                "PARSEES",
-                                "LIRC",
-                                "STREAM",
-                                "CACHE",
-                                "MENCODER",
-                                "XACODEC",
-                                "TV",
-                                "OSDEP",
-                                "SPUDEC",
-                                "PLAYTREE",
-                                "INPUT",
-                                "VFILTER",
-                                "OSD",
-                                "NETWORK",
-                                "CPUDETECT",
-                                "CODECCFG",
-                                "SWS",
-                                "VOBSUB",
-                                "SUBREADER",
-                                "AFILTER",
-                                "NETST",
-                                "MUXER",
-                                "OSDMENU",
-                                "IDENTIFY",
-                                "RADIO",
-                                "ASS",
-                                "LOADER",
-                                "STATUSLINE",
-        };
-
-        int c=v_colors[lev];
-        int c2=(mod+1)%15+1;
-        static int header=1;
-        FILE *stream= (lev) <= MSGL_WARN ? stderr : stdout;
-        if(header){
-            fprintf(stream, "\033[%d;3%dm%9s\033[0;37m: ",c2>>3,c2&7, mod_text[mod]);
-        }
-        fprintf(stream, "\033[%d;3%dm",c>>3,c&7);
-        header=    tmp[strlen(tmp)-1] == '\n'
-                 ||tmp[strlen(tmp)-1] == '\r';
-    }
-#endif
-    if (lev <= MSGL_WARN){
-        fprintf(stderr, "%s", tmp);fflush(stderr);
-    } else {
-        printf("%s", tmp);fflush(stdout);
-    }
+    if (header)
+        print_msg_module(stream, mod);
+    set_msg_color(stream, lev);
+    header = tmp[strlen(tmp)-1] == '\n' || tmp[strlen(tmp)-1] == '\r';
+ 
+    fprintf(stream, "%s", tmp);
+    fflush(stream);
 }

@@ -1,22 +1,24 @@
 // -*- c-basic-offset: 8; indent-tabs-mode: t -*-
 // vim:ts=8:sw=8:noet:ai:
 /*
-  Copyright (C) 2006 Evgeniy Stepanov <eugeni.stepanov@gmail.com>
-
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-*/
+ * Copyright (C) 2006 Evgeniy Stepanov <eugeni.stepanov@gmail.com>
+ *
+ * This file is part of libass.
+ *
+ * libass is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * libass is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with libass; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include "config.h"
 
@@ -30,7 +32,7 @@
 #include <unistd.h>
 #include <inttypes.h>
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 #include <iconv.h>
 #endif
 
@@ -161,7 +163,7 @@ static void rskip_spaces(char** str, char* limit) {
 static int lookup_style(ass_track_t* track, char* name) {
 	int i;
 	if (*name == '*') ++name; // FIXME: what does '*' really mean ?
-	for (i=0; i<track->n_styles; ++i) {
+	for (i = track->n_styles - 1; i >= 0; --i) {
 		// FIXME: mb strcasecmp ?
 		if (strcmp(track->styles[i].Name, name) == 0)
 			return i;
@@ -337,6 +339,15 @@ void process_force_style(ass_track_t* track) {
 		*eq = '\0';
 		token = eq + 1;
 
+		if(!strcasecmp(*fs, "PlayResX"))
+			track->PlayResX = atoi(token);
+		else if(!strcasecmp(*fs, "PlayResY"))
+			track->PlayResY = atoi(token);
+		else if(!strcasecmp(*fs, "Timer"))
+			track->Timer = atof(token);
+		else if(!strcasecmp(*fs, "WrapStyle"))
+			track->WrapStyle = atoi(token);
+
 		dt = strrchr(*fs, '.');
 		if (dt) {
 			*dt = '\0';
@@ -473,6 +484,12 @@ static int process_style(ass_track_t* track, char *str)
 		style->Name = strdup("Default");
 	if (!style->FontName)
 		style->FontName = strdup("Arial");
+	// skip '@' at the start of the font name
+	if (*style->FontName == '@') {
+		p = style->FontName;
+		style->FontName = strdup(p + 1);
+		free(p);
+	}
 	free(format);
 	return 0;
 	
@@ -638,17 +655,17 @@ static int process_fonts_line(ass_track_t* track, char *str)
 */ 
 static int process_line(ass_track_t* track, char *str)
 {
-	if (strstr(str, "[Script Info]")) { // FIXME: strstr to skip possible BOM at the beginning of the script
+	if (!strncasecmp(str, "[Script Info]", 13)) {
 		track->parser_priv->state = PST_INFO;
-	} else if (!strncmp(str, "[V4 Styles]", 11)) {
+	} else if (!strncasecmp(str, "[V4 Styles]", 11)) {
 		track->parser_priv->state = PST_STYLES;
 		track->track_type = TRACK_TYPE_SSA;
-	} else if (!strncmp(str, "[V4+ Styles]", 12)) {
+	} else if (!strncasecmp(str, "[V4+ Styles]", 12)) {
 		track->parser_priv->state = PST_STYLES;
 		track->track_type = TRACK_TYPE_ASS;
-	} else if (!strncmp(str, "[Events]", 8)) {
+	} else if (!strncasecmp(str, "[Events]", 8)) {
 		track->parser_priv->state = PST_EVENTS;
-	} else if (!strncmp(str, "[Fonts]", 7)) {
+	} else if (!strncasecmp(str, "[Fonts]", 7)) {
 		track->parser_priv->state = PST_FONTS;
 	} else {
 		switch (track->parser_priv->state) {
@@ -681,7 +698,11 @@ static int process_text(ass_track_t* track, char* str)
 	char* p = str;
 	while(1) {
 		char* q;
-		for (;((*p=='\r')||(*p=='\n'));++p) {}
+		while (1) {
+			if ((*p=='\r')||(*p=='\n')) ++p;
+			else if (p[0]=='\xef' && p[1]=='\xbb' && p[2]=='\xbf') p+=3; // U+FFFE (BOM)
+			else break;
+		}
 		for (q=p; ((*q!='\0')&&(*q!='\r')&&(*q!='\n')); ++q) {};
 		if (q==p)
 			break;
@@ -696,21 +717,33 @@ static int process_text(ass_track_t* track, char* str)
 }
 
 /**
- * \brief Process CodecPrivate section of subtitle stream
+ * \brief Process a chunk of subtitle stream data.
  * \param track track
  * \param data string to parse
  * \param size length of data
- CodecPrivate section contains [Stream Info] and [V4+ Styles] ([V4 Styles] for SSA) sections
-*/ 
-void ass_process_codec_private(ass_track_t* track, char *data, int size)
+*/
+void ass_process_data(ass_track_t* track, char* data, int size)
 {
 	char* str = malloc(size + 1);
 
 	memcpy(str, data, size);
 	str[size] = '\0';
 
+	mp_msg(MSGT_ASS, MSGL_V, "event: %s\n", str);
 	process_text(track, str);
 	free(str);
+}
+
+/**
+ * \brief Process CodecPrivate section of subtitle stream
+ * \param track track
+ * \param data string to parse
+ * \param size length of data
+ CodecPrivate section contains [Stream Info] and [V4+ Styles] ([V4 Styles] for SSA) sections
+*/
+void ass_process_codec_private(ass_track_t* track, char *data, int size)
+{
+	ass_process_data(track, data, size);
 
 	if (!track->event_format) {
 		// probably an mkv produced by ancient mkvtoolnix
@@ -735,7 +768,7 @@ static int check_duplicate_event(ass_track_t* track, int ReadOrder)
 }
 
 /**
- * \brief Process a chunk of subtitle stream data. In matroska, this containes exactly 1 event (or a commentary)
+ * \brief Process a chunk of subtitle stream data. In Matroska, this contains exactly 1 event (or a commentary).
  * \param track track
  * \param data string to parse
  * \param size length of data
@@ -789,7 +822,7 @@ void ass_process_chunk(ass_track_t* track, char *data, int size, long long timec
 	free(str);
 }
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 /** \brief recode buffer to utf-8
  * constraint: codepage != 0
  * \param data pointer to text buffer
@@ -804,8 +837,8 @@ static char* sub_recode(char* data, size_t size, char* codepage)
 	assert(codepage);
 
 	{
-		char* cp_tmp = codepage ? strdup(codepage) : 0;
-#ifdef HAVE_ENCA
+		const char* cp_tmp = codepage;
+#ifdef CONFIG_ENCA
 		char enca_lang[3], enca_fallback[100];
 		if (sscanf(codepage, "enca:%2s:%99s", enca_lang, enca_fallback) == 2
 				|| sscanf(codepage, "ENCA:%2s:%99s", enca_lang, enca_fallback) == 2) {
@@ -816,9 +849,6 @@ static char* sub_recode(char* data, size_t size, char* codepage)
 			mp_msg(MSGT_ASS,MSGL_V,"LIBSUB: opened iconv descriptor.\n");
 		} else
 			mp_msg(MSGT_ASS,MSGL_ERR,MSGTR_LIBASS_ErrorOpeningIconvDescriptor);
-#ifdef HAVE_ENCA
-		if (cp_tmp) free(cp_tmp);
-#endif
 	}
 
 	{
@@ -828,16 +858,22 @@ static char* sub_recode(char* data, size_t size, char* codepage)
 		char* ip;
 		char* op;
 		size_t rc;
+		int clear = 0;
 		
-		outbuf = malloc(size);
+		outbuf = malloc(osize);
 		ip = data;
 		op = outbuf;
 		
-		while (ileft) {
-			rc = iconv(icdsc, &ip, &ileft, &op, &oleft);
+		while (1) {
+			if (ileft)
+				rc = iconv(icdsc, &ip, &ileft, &op, &oleft);
+			else {// clear the conversion state and leave
+				clear = 1;
+				rc = iconv(icdsc, NULL, NULL, &op, &oleft);
+			}
 			if (rc == (size_t)(-1)) {
 				if (errno == E2BIG) {
-					int offset = op - outbuf;
+					size_t offset = op - outbuf;
 					outbuf = (char*)realloc(outbuf, osize + size);
 					op = outbuf + offset;
 					osize += size;
@@ -846,7 +882,9 @@ static char* sub_recode(char* data, size_t size, char* codepage)
 					mp_msg(MSGT_ASS, MSGL_WARN, MSGTR_LIBASS_ErrorRecodingFile);
 					return NULL;
 				}
-			}
+			} else
+				if (clear)
+					break;
 		}
 		outbuf[osize - oleft - 1] = 0;
 	}
@@ -965,7 +1003,7 @@ ass_track_t* ass_read_memory(ass_library_t* library, char* buf, size_t bufsize, 
 	if (!buf)
 		return 0;
 	
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 	if (codepage)
 		buf = sub_recode(buf, bufsize, codepage);
 	if (!buf)
@@ -983,7 +1021,7 @@ ass_track_t* ass_read_memory(ass_library_t* library, char* buf, size_t bufsize, 
 	return track;
 }
 
-char* read_file_recode(char* fname, char* codepage, int* size)
+char* read_file_recode(char* fname, char* codepage, size_t* size)
 {
 	char* buf;
 	size_t bufsize;
@@ -991,7 +1029,7 @@ char* read_file_recode(char* fname, char* codepage, int* size)
 	buf = read_file(fname, &bufsize);
 	if (!buf)
 		return 0;
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 	if (codepage) {
 		 char* tmpbuf = sub_recode(buf, bufsize, codepage);
 		 free(buf);
@@ -1045,7 +1083,7 @@ int ass_read_styles(ass_track_t* track, char* fname, char* codepage)
 	buf = read_file(fname, &sz);
 	if (!buf)
 		return 1;
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 	if (codepage) {
 		char* tmpbuf;
 		tmpbuf = sub_recode(buf, sz, codepage);

@@ -1,8 +1,8 @@
 /*
- *  SiS register definitions and access macros
- *  From SiS X11 driver
+ * SiS register definitions and access macros
+ * From SiS X11 driver
  *
- *  Copyright (C) 2001-2003 by Thomas Winischhofer, Vienna, Austria
+ * Copyright (C) 2001-2003 by Thomas Winischhofer, Vienna, Austria
  *
  * This file is part of MPlayer.
  *
@@ -16,23 +16,23 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef VIDIX_SIS_REGS_H
-#define VIDIX_SIS_REGS_H
+#ifndef MPLAYER_SIS_REGS_H
+#define MPLAYER_SIS_REGS_H
 
 #define inSISREG(base)          INPORT8(base)
 #define outSISREG(base,val)     OUTPORT8(base, val)
 #define orSISREG(base,val)      do { \
-                      unsigned char __Temp = INPORT8(base); \
-                      outSISREG(base, __Temp | (val)); \
+                      unsigned char tmp = INPORT8(base); \
+                      outSISREG(base, tmp | (val)); \
                     } while (0)
 #define andSISREG(base,val)     do { \
-                      unsigned char __Temp = INPORT8(base); \
-                      outSISREG(base, __Temp & (val)); \
+                      unsigned char tmp = INPORT8(base); \
+                      outSISREG(base, tmp & (val)); \
                     } while (0)
 
 #define inSISIDXREG(base,idx,var)   do { \
@@ -42,22 +42,22 @@
                       OUTPORT8(base, idx); OUTPORT8((base)+1, val); \
                     } while (0)
 #define orSISIDXREG(base,idx,val)   do { \
-                      unsigned char __Temp; \
+                      unsigned char tmp; \
                       OUTPORT8(base, idx);   \
-                      __Temp = INPORT8((base)+1)|(val); \
-                      outSISIDXREG(base,idx,__Temp); \
+                      tmp = INPORT8((base)+1)|(val); \
+                      outSISIDXREG(base,idx,tmp); \
                     } while (0)
 #define andSISIDXREG(base,idx,and)  do { \
-                      unsigned char __Temp; \
+                      unsigned char tmp; \
                       OUTPORT8(base, idx);   \
-                      __Temp = INPORT8((base)+1)&(and); \
-                      outSISIDXREG(base,idx,__Temp); \
+                      tmp = INPORT8((base)+1)&(and); \
+                      outSISIDXREG(base,idx,tmp); \
                     } while (0)
 #define setSISIDXREG(base,idx,and,or)   do { \
-                      unsigned char __Temp; \
+                      unsigned char tmp; \
                       OUTPORT8(base, idx);   \
-                      __Temp = (INPORT8((base)+1)&(and))|(or); \
-                      outSISIDXREG(base,idx,__Temp); \
+                      tmp = (INPORT8((base)+1)&(and))|(or); \
+                      outSISIDXREG(base,idx,tmp); \
                     } while (0)
 
 #define BITMASK(h,l)    (((unsigned)(1U << ((h)-(l)+1))-1)<<(l))
@@ -383,16 +383,16 @@
  *                    so users with different desktop sizes can keep
  *                    captured data off the desktop
  */
-#define _VINWID                                  704
-#define _VINHGT                         _VINHGT_NTSC
-#define _VINHGT_NTSC                             240
-#define _VINHGT_PAL                              290
-#define _VIN_WINDOW                  (704 * 291 * 2)
-#define _VBI_WINDOW                   (704 * 64 * 2)
+#define VINWID                                   704
+#define VINHGT                           VINHGT_NTSC
+#define VINHGT_NTSC                              240
+#define VINHGT_PAL                               290
+#define VIN_WINDOW                   (704 * 291 * 2)
+#define VBI_WINDOW                    (704 * 64 * 2)
 
-#define _VIN_FIELD_EVEN                            1
-#define _VIN_FIELD_ODD                             2
-#define _VIN_FIELD_BOTH                            4
+#define VIN_FIELD_EVEN                             1
+#define VIN_FIELD_ODD                              2
+#define VIN_FIELD_BOTH                             4
 
 
 /* i2c registers (TW; not on 300/310/325 series) */
@@ -410,4 +410,4 @@
 
 /* Not public (yet?) */
 
-#endif				/* VIDIX_SIS_REGS_H */
+#endif /* MPLAYER_SIS_REGS_H */

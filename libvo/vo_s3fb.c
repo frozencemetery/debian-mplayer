@@ -1,9 +1,26 @@
-/* Copyright (C) Mark Sanderson, 2006, <mmp@kiora.ath.cx>.
- * Released under the terms and conditions of the GPL.
+/*
+ * copyright (C) 2006 Mark Sanderson <mmp@kiora.ath.cx>
  *
  * 30-Mar-2006 Modified from tdfxfb.c by Mark Zealey
- * 
- * Hints and tricks:
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+/* Hints and tricks:
  * - Use -dr to get direct rendering
  * - Use -vf yuy2 to get yuy2 rendering, *MUCH* faster than yv12
  */
@@ -29,7 +46,7 @@
 #include "aspect.h"
 #include "sub.h"
 
-static vo_info_t info =
+static const vo_info_t info =
   {
     "S3 Virge over fbdev",
     "s3fb",
@@ -37,7 +54,7 @@ static vo_info_t info =
     ""
   };
 
-LIBVO_EXTERN(s3fb)
+const LIBVO_EXTERN(s3fb)
 
 typedef struct vga_type {
   int cr38, cr39, cr53;
@@ -54,7 +71,7 @@ static uint32_t in_width, in_height, in_format, in_depth, in_s3_format,
 static char *inpage, *inpage0, *smem = NULL;
 static void (*alpha_func)();
 
-static void clear_screen();
+static void clear_screen(void);
 
 /* streams registers */
 #define PSTREAM_CONTROL_REG 0x8180
@@ -99,7 +116,7 @@ void writecrtc(int reg, int value) {
 }
 
 // enable S3 registers
-int enable() {
+int enable(void) {
   int fd;
 
   if (v)
@@ -131,7 +148,7 @@ int enable() {
   return 0;
 }
 
-void disable() {
+void disable(void) {
   if (v) {
     writecrtc(0x53, v->cr53);
     writecrtc(0x39, v->cr39);
@@ -210,7 +227,7 @@ int yuv_on(int format, int src_w, int src_h, int dst_x, int dst_y, int dst_w, in
   return offset;
 }
 
-void yuv_off() {
+void yuv_off(void) {
   writecrtc(0x67, readcrtc(0x67) & ~0xc);
   memset(v->mmio + 0x8180, 0, 0x80);
   OUTREG(0x81b8, 0x900);
@@ -311,7 +328,7 @@ static void uninit(void)
   }
 }
 
-static void clear_screen()
+static void clear_screen(void)
 {
   if (inpage0) {
     int n;

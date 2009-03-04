@@ -8,7 +8,7 @@
  *
  * Modified for use with MPlayer, changes contained in liba52_changes.diff.
  * detailed changelog at http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: bitstream.h 23893 2007-07-28 14:28:38Z diego $
+ * $Id: bitstream.h 28394 2009-01-30 22:27:04Z diego $
  *
  * a52dec is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,12 +26,6 @@
  */
 
 /* code from ffmpeg/libavcodec */
-#if defined(__GNUC__) && (__GNUC__ > 3 || __GNUC_ == 3 && __GNUC_MINOR__ > 0)
-#    define always_inline __attribute__((always_inline)) inline
-#else
-#    define always_inline inline
-#endif
-
 #if defined(__sparc__) || defined(hpux)
 /*
  * the alt bitstream reader performs unaligned memory accesses; that doesn't work
@@ -43,11 +37,11 @@
 #define ALT_BITSTREAM_READER
 
 /* used to avoid misaligned exceptions on some archs (alpha, ...) */
-#if defined (ARCH_X86) || defined(ARCH_ARMV4L)
+#if ARCH_X86 || HAVE_ARMV6
 #    define unaligned32(a) (*(uint32_t*)(a))
 #else
 #    ifdef __GNUC__
-static always_inline uint32_t unaligned32(const void *v) {
+static inline uint32_t unaligned32(const void *v) {
     struct Unaligned {
 	uint32_t i;
     } __attribute__((packed));
@@ -86,7 +80,7 @@ static inline uint32_t unaligned32(const void *v) {
 #	else
 
 #	define swab32(x) __generic_swab32(x)
-	static always_inline const uint32_t __generic_swab32(uint32_t x)
+	static inline const uint32_t __generic_swab32(uint32_t x)
 	{
 		return ((((uint8_t*)&x)[0] << 24) | (((uint8_t*)&x)[1] << 16) |
 		 (((uint8_t*)&x)[2] << 8)  | (((uint8_t*)&x)[3]));

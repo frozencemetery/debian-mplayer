@@ -181,6 +181,7 @@ static demuxer_t* demux_open_nsv ( demuxer_t* demuxer )
         // PCM fourcc needs extra parsing for every audio chunk, yet to implement
         if((demuxer->audio->id != -2) && strncmp(hdr+8,"NONE", 4)){//&&strncmp(hdr+8,"VLB ", 4)){
             sh_audio = new_sh_audio ( demuxer, 0 );
+            demuxer->audio->id = 0;
             demuxer->audio->sh = sh_audio;
             sh_audio->format=mmioFOURCC(hdr[8],hdr[9],hdr[10],hdr[11]);
             sh_audio->ds = demuxer->audio;
@@ -315,7 +316,7 @@ static void demux_close_nsv(demuxer_t* demuxer) {
 }
 
 
-demuxer_desc_t demuxer_desc_nsv = {
+const demuxer_desc_t demuxer_desc_nsv = {
   "NullsoftVideo demuxer",
   "nsv",
   "Nullsoft Streaming Video",

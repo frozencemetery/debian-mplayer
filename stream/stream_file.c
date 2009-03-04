@@ -22,12 +22,12 @@ static struct stream_priv_s {
 
 #define ST_OFF(f) M_ST_OFF(struct stream_priv_s,f)
 /// URL definition
-static m_option_t stream_opts_fields[] = {
+static const m_option_t stream_opts_fields[] = {
   {"string", ST_OFF(filename), CONF_TYPE_STRING, 0, 0 ,0, NULL},
   {"filename", ST_OFF(filename2), CONF_TYPE_STRING, 0, 0 ,0, NULL},
   { NULL, NULL, 0, 0, 0, 0,  NULL }
 };
-static struct m_struct_st stream_opts = {
+static const struct m_struct_st stream_opts = {
   "file",
   sizeof(struct stream_priv_s),
   &stream_priv_dflts,
@@ -113,6 +113,12 @@ static int open_f(stream_t *stream,int mode, void* opts, int* file_format) {
     return STREAM_ERROR;
   }
 
+#if defined(__MINGW32__) || defined(__CYGWIN__) || defined(__OS2__)
+  // extract '/' from '/x:/path'
+  if( filename[ 0 ] == '/' && filename[ 1 ] && filename[ 2 ] == ':' )
+    filename++;
+#endif
+
 #if defined(__CYGWIN__)|| defined(__MINGW32__)
   m |= O_BINARY;
 #endif    
@@ -133,15 +139,11 @@ static int open_f(stream_t *stream,int mode, void* opts, int* file_format) {
 #endif
     }
   } else {
-    if(mode == STREAM_READ)
-      f=open(filename,m);
-    else {
       mode_t openmode = S_IRUSR|S_IWUSR;
 #ifndef __MINGW32__
       openmode |= S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH;
 #endif
       f=open(filename,m, openmode);
-    }
     if(f<0) {
       mp_msg(MSGT_OPEN,MSGL_ERR,MSGTR_FileNotFound,filename);
       m_struct_free(&stream_opts,opts);
@@ -175,7 +177,7 @@ static int open_f(stream_t *stream,int mode, void* opts, int* file_format) {
   return STREAM_OK;
 }
 
-stream_info_t stream_info_file = {
+const stream_info_t stream_info_file = {
   "File",
   "file",
   "Albeu",
