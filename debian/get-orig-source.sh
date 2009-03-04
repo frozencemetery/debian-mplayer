@@ -67,8 +67,8 @@ if [ -z $SVNDATE ]; then
 fi
 
 CLEANUPSCRIPT=`pwd`/debian/strip.sh
-TARBALL=../mplayer_0.svn${SVNDATE}.orig.tar.gz
-TARBALL_UNSTRIPPED=../mplayer-non-DFSG_0.svn${SVNDATE}.orig.tar.gz
+TARBALL=`pwd`/../mplayer_0.svn${SVNDATE}.orig.tar.gz
+TARBALL_UNSTRIPPED=`pwd`/../mplayer-non-DFSG_0.svn${SVNDATE}.orig.tar.gz
 PACKAGENAME=mplayer
 
 TMPDIR=`mktemp -d`
@@ -103,3 +103,5 @@ tar czf ${TARBALL_UNSTRIPPED} -C ${TMPDIR} ${PACKAGENAME}
 
 tar czf ${TARBALL} -C ${TMPDIR} ${PACKAGENAME}
 
+# print diff
+( cd ${TMPDIR} && ptardiff ${TARBALL_UNSTRIPPED} ) | tee ${TARBALL}.diff
