@@ -10,10 +10,10 @@ static char help_text[]=
 "Grundläggande argument: (komplett lista återfinns i `man mplayer`)\n"
 " -vo <drv[:enhet]>   välj video-ut drivrutin & enhet ('-vo help' för lista)\n"
 " -ao <drv[:enhet]>   välj audio-ut drivrutin & enhet ('-ao help' för lista)\n"
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
 " vcd://<spårnr>      spela (S)VCD (Super Video CD) spår (rå enhet, ingen montering)\n"
 #endif
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 " dvd://<titlenr>     spela DVD titel från enhet istället för ifrån en enkel fil\n"
 " -alang/-slang       välj DVD audio/textningsspråk (m.h.a. ett 2-teckens landskod)\n"
 #endif
@@ -156,7 +156,6 @@ static char help_text[]=
 #define MSGTR_MenuInitFailed "Menyinitiering misslyckades.\n"
 #define MSGTR_Getch2InitializedTwice "VARNING: getch2_init anropad dubbelt!\n"
 #define MSGTR_DumpstreamFdUnavailable "Kan inte dumpa denna ström - ingen 'fd' tillgänglig.\n"
-#define MSGTR_FallingBackOnPlaylist "Faller tillbaka med att försöka tolka spellista %s...\n"
 #define MSGTR_CantOpenLibmenuFilterWithThisRootMenu "Kan inte öppna 'libmenu video filter' med rotmeny %s.\n"
 #define MSGTR_AudioFilterChainPreinitError "Fel vid förinitiering av audiofilter!\n"
 #define MSGTR_LinuxRTCReadError "'Linux RTC' läsfel: %s\n"
@@ -327,7 +326,7 @@ static char help_text[]=
 #define MSGTR_ConfigFileError "konfigurationsfilsfel"
 #define MSGTR_ErrorParsingCommandLine "fel vid tolkning av cmdline"
 #define MSGTR_VideoStreamRequired "Videoström är obligatoriskt!\n"
-#define MSGTR_ForcingInputFPS "'input fps' kommer att bli tolkad som %5.2f istället\n"
+#define MSGTR_ForcingInputFPS "'input fps' kommer att bli tolkad som %5.3f istället\n"
 #define MSGTR_RawvideoDoesNotSupportAudio "Ut-filformat RAWVIDEO stödjer inte audio - deaktiverar audio\n"
 #define MSGTR_DemuxerDoesntSupportNosound "Denna demuxer stödjer inte -nosound ännu.\n"
 #define MSGTR_MemAllocFailed "minnesallokering misslyckades"
@@ -441,7 +440,7 @@ static char help_text[]=
 #define MSGTR_SMBFileNotFound "Kunde inte öppna från LAN: '%s'\n"
 #define MSGTR_SMBNotCompiled "MPlayer var inte kompilerad med SMB-lässtöd.\n"
 
-#define MSGTR_CantOpenDVD "Kunde inte öppna DVD-enhet: %s\n"
+#define MSGTR_CantOpenDVD "Kunde inte öppna DVD-enhet: %s (%s)\n"
 #define MSGTR_DVDnumTitles "Det är %d titlar på denna DVD.\n"
 #define MSGTR_DVDinvalidTitle "Icke godkänt DVD-titelnummer: %d\n"
 #define MSGTR_DVDnumChapters "Der är %d kapitel på denna DVD-titel.\n"
@@ -564,7 +563,7 @@ static char help_text[]=
 
 // ====================== GUI messages/buttons ========================
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 
 // --- labels ---
 #define MSGTR_About "Om"

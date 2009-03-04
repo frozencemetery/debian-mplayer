@@ -1,3 +1,20 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -31,6 +48,7 @@
 
 int menu_keepdir = 0;
 char *menu_chroot = NULL;
+extern char *filename;
 
 struct list_entry_s {
   struct list_entry p;
@@ -45,7 +63,6 @@ struct menu_priv_s {
   char* title;
   char* file_action;
   char* dir_action;
-  int auto_close;
   char** actions;
   char* filter; 
 };
@@ -58,7 +75,6 @@ static struct menu_priv_s cfg_dflt = {
   "Select a file: %p",
   "loadfile '%p'",
   NULL,
-  0,
   NULL,
   NULL
 };
@@ -71,7 +87,6 @@ static m_option_t cfg_fields[] = {
   { "title", ST_OFF(title),  CONF_TYPE_STRING, 0, 0, 0, NULL },
   { "file-action", ST_OFF(file_action),  CONF_TYPE_STRING, 0, 0, 0, NULL },
   { "dir-action", ST_OFF(dir_action),  CONF_TYPE_STRING, 0, 0, 0, NULL },
-  { "auto-close", ST_OFF(auto_close), CONF_TYPE_FLAG, 0, 0, 1, NULL },
   { "actions", ST_OFF(actions), CONF_TYPE_STRING_LIST, 0, 0, 0, NULL},
   { "filter", ST_OFF(filter), CONF_TYPE_STRING, 0, 0, 0, NULL},
   { NULL, NULL, NULL, 0,0,0,NULL }
@@ -84,7 +99,7 @@ static void free_entry(list_entry_t* entry) {
   free(entry);
 }
 
-static char* replace_path(char* title , char* dir) {
+static char* replace_path(char* title , char* dir , int escape) {
   char *p = strstr(title,"%p");
   if(p) {
     int tl = strlen(title);
@@ -92,18 +107,29 @@ static char* replace_path(char* title , char* dir) {
     int t1l = p-title; 
     int l = tl - 2 + dl;
     char *r, *n, *d = dir;
-    char term = *(p-1);
 
+    if (escape) {
     do {
-      if (*d == '\\' || *d == term)
+      if (*d == '\\')
         l++;
+      else if (*d == '\'') /* ' -> \'\\\'\' */
+        l+=7;
     } while (*d++);
+    }
     r = malloc(l + 1);
     n = r + t1l;
     memcpy(r,title,t1l);
     do {
-      if (*dir == '\\' || *dir == term)
+      if (escape) {
+      if (*dir == '\\')
         *n++ = '\\';
+      else if (*dir == '\'') { /* ' -> \'\\\'\' */
+        *n++ = '\\'; *n++ = '\'';
+        *n++ = '\\'; *n++ = '\\';
+        *n++ = '\\'; *n++ = '\'';
+        *n++ = '\\';
+      }
+      }
     } while ((*n++ = *dir++));
     if(tl - t1l - 2 > 0)
       strcpy(n-1,p+2);
@@ -117,6 +143,26 @@ typedef int (*kill_warn)(const void*, const void*);
 static int mylstat(char *dir, char *file,struct stat* st) {
   int l = strlen(dir) + strlen(file);
   char s[l+2];
+  if (!strcmp("..", file)) {
+    char *slash;
+    l -= 3;
+    strcpy(s, dir);
+#if defined(__MINGW32__) || defined(__CYGWIN__)
+    if (s[l] == '/' || s[l] == '\\')
+#else
+    if (s[l] == '/')
+#endif
+      s[l] = '\0';
+    slash = strrchr(s, '/');
+#if defined(__MINGW32__) || defined(__CYGWIN__)
+    if (!slash)
+      slash = strrchr(s,'\\');
+#endif
+    if (!slash)
+      return stat(dir,st);
+    slash[1] = '\0';
+    return stat(s,st);
+  }
   sprintf(s,"%s/%s",dir,file);
   return stat(s,st);
 }
@@ -201,7 +247,7 @@ static int open_dir(menu_t* menu,char* args) {
     free(mpriv->p.title);
   p = strstr(mpriv->title,"%p");
 
-  mpriv->p.title = replace_path(mpriv->title,mpriv->dir);
+  mpriv->p.title = replace_path(mpriv->title,mpriv->dir,0);
 
   if ((dirp = opendir (mpriv->dir)) == NULL){
     mp_msg(MSGT_GLOBAL,MSGL_ERR,MSGTR_LIBMENU_OpendirError, strerror(errno));
@@ -224,12 +270,13 @@ static int open_dir(menu_t* menu,char* args) {
     if(dp->d_name[0] == '.' && strcmp(dp->d_name,"..") != 0)
       continue;
     if (menu_chroot && !strcmp (dp->d_name,"..")) {
-      int len = strlen (menu_chroot);
+      size_t len = strlen (menu_chroot);
       if ((strlen (mpriv->dir) == len || strlen (mpriv->dir) == len + 1)
           && !strncmp (mpriv->dir, menu_chroot, len))
         continue;
     }
-    mylstat(args,dp->d_name,&st);
+    if (mylstat(args,dp->d_name,&st))
+      continue;
     if (file_filter && extensions && !S_ISDIR(st.st_mode)) {
       if((ext = strrchr(dp->d_name,'.')) == NULL)
         continue;
@@ -291,29 +338,18 @@ bailout:
 
   return 1;
 }
-    
 
 static char *action;
 
 static void read_cmd(menu_t* menu,int cmd) {
-  mp_cmd_t* c = NULL;
   switch(cmd) {
   case MENU_CMD_LEFT:
     mpriv->p.current = mpriv->p.menu; // Hack : we consider that the first entry is ../
   case MENU_CMD_RIGHT:
   case MENU_CMD_OK: {
     // Directory
-    if(mpriv->p.current->d) {
-      if(mpriv->dir_action) {
-	int fname_len = strlen(mpriv->dir) + strlen(mpriv->p.current->p.txt) + 1;
-	char filename[fname_len];
-	char* str;
-	sprintf(filename,"%s%s",mpriv->dir,mpriv->p.current->p.txt);
-	str = replace_path(mpriv->dir_action,filename);
-	c = mp_input_parse_cmd(str);
-	if(str != mpriv->dir_action)
-	  free(str);
-      } else { // Default action : open this dirctory ourself
+    if(mpriv->p.current->d && !mpriv->dir_action) {
+        // Default action : open this dirctory ourself
 	int l = strlen(mpriv->dir);
 	char *slash =  NULL, *p = NULL;
 	if(strcmp(mpriv->p.current->p.txt,"../") == 0) {
@@ -337,21 +373,16 @@ static void read_cmd(menu_t* menu,int cmd) {
 	  menu->cl = 1;
 	}
 	free(p);
-      }
-    } else { // Files
+    } else { // File and directory dealt with action string.
       int fname_len = strlen(mpriv->dir) + strlen(mpriv->p.current->p.txt) + 1;
       char filename[fname_len];
       char *str;
+      char *action = mpriv->p.current->d ? mpriv->dir_action:mpriv->file_action;
       sprintf(filename,"%s%s",mpriv->dir,mpriv->p.current->p.txt);
-      str = replace_path(mpriv->file_action,filename);
-      c = mp_input_parse_cmd(str);
-      if(str != mpriv->file_action)
+      str = replace_path(action, filename,1);
+      mp_input_parse_and_queue_cmds(str);
+      if (str != action)
 	free(str);
-    }	  
-    if(c) {
-      mp_input_queue_cmd(c);
-      if(mpriv->auto_close)
-	menu->cl = 1;
     }
   } break;
   case MENU_CMD_ACTION: {
@@ -359,8 +390,8 @@ static void read_cmd(menu_t* menu,int cmd) {
     char filename[fname_len];
     char *str;
     sprintf(filename,"%s%s",mpriv->dir,mpriv->p.current->p.txt);
-    str = replace_path(action, filename);
-    mp_input_queue_cmd(mp_input_parse_cmd(str));
+    str = replace_path(action, filename,1);
+    mp_input_parse_and_queue_cmds(str);
     if(str != action)
       free(str);
   } break;
@@ -369,20 +400,17 @@ static void read_cmd(menu_t* menu,int cmd) {
   }
 }
 
-static void read_key(menu_t* menu,int c){
-  if(c == KEY_BS)
-    read_cmd(menu,MENU_CMD_LEFT);
-  else {
+static int read_key(menu_t* menu,int c){
     char **str;
     for (str=mpriv->actions; str && *str; str++)
       if (c == (*str)[0]) {
         action = &(*str)[2];
         read_cmd(menu,MENU_CMD_ACTION);
-        break;
+        return 1;
       }
-    if (!str || !*str)
-      menu_list_read_key(menu,c,1);
-  }
+  if (menu_dflt_read_key(menu, c))
+    return 1;
+  return menu_list_jump_to_key(menu, c);
 }
 
 static void clos(menu_t* menu) {
@@ -391,9 +419,9 @@ static void clos(menu_t* menu) {
 }
 
 static int open_fs(menu_t* menu, char* args) {
-  char *path = mpriv->path, *freepath = NULL;
+  char *path = mpriv->path;
   int r = 0;
-  char wd[PATH_MAX+1];
+  char wd[PATH_MAX+1], b[PATH_MAX+1];
   args = NULL; // Warning kill
 
   menu->draw = menu_list_draw;
@@ -410,11 +438,9 @@ static int open_fs(menu_t* menu, char* args) {
       if (path_fp >= 0) {
         if (!fstat (path_fp, &st) && (st.st_size > 0)) {
           path = malloc(st.st_size+1);
-          if ((read(path_fp, path, st.st_size) == st.st_size) && path[0] != '\0'){
-            freepath = path;
-            path[st.st_size] = '\0';
-          }
-          else {
+          path[st.st_size] = '\0';
+          if (!((read(path_fp, path, st.st_size) == st.st_size) && path[0] == '/'
+              && !stat(path, &st) && S_ISDIR(st.st_mode))) {
             free(path);
             path = NULL;
           }
@@ -425,26 +451,48 @@ static int open_fs(menu_t* menu, char* args) {
   }
   
   getcwd(wd,PATH_MAX);
-  if(!path || path[0] == '\0') {
-    int l = strlen(wd) + 2;
-    char b[l];
-    sprintf(b,"%s/",wd);
-    r = open_dir(menu,b);
-  } else if(path[0] != '/') {
-    int al = strlen(path);
-    int l = strlen(wd) + al + 3;
-    char b[l];
-    if(b[al-1] != '/')
-      sprintf(b,"%s/%s/",wd,path);
+  if (!path || path[0] == '\0') {
+#if 0
+    char *slash = NULL;
+    if (filename && !strstr(filename, "://") && (path=realpath(filename, b))) {
+      slash = strrchr(path, '/');
+#if defined(__MINGW32__) || defined(__CYGWIN__)
+      // FIXME: Do we need and can convert all '\\' in path to '/' on win32?
+      if (!slash)
+        slash = strrchr(path, '\\');
+#endif
+    }
+    if (slash)
+      slash[1] = '\0';
     else
-      sprintf(b,"%s/%s",wd,path);
-    r = open_dir(menu,b);
-  } else
-    r = open_dir(menu,path);
+#endif
+      path = wd;
+  }
+  if (path[0] != '/') {
+    if(path[strlen(path)-1] != '/')
+      snprintf(b,sizeof(b),"%s/%s/",wd,path);
+    else
+      snprintf(b,sizeof(b),"%s/%s",wd,path);
+    path = b;
+  } else if (path[strlen(path)-1]!='/') {
+    sprintf(b,"%s/",path);
+    path = b;
+  }
+  if (menu_chroot && menu_chroot[0] == '/') {
+    int l = strlen(menu_chroot);
+    if (l > 0 && menu_chroot[l-1] == '/')
+      --l;
+    if (strncmp(menu_chroot, path, l) || (path[l] != '\0' && path[l] != '/')) {
+      if (menu_chroot[l] == '/')
+        path = menu_chroot;
+      else {
+        sprintf(b,"%s/",menu_chroot);
+        path = b;
+      }
+    }
+  }
+  r = open_dir(menu,path);
 
-  if (freepath)
-    free(freepath);
-  
   return r;
 }
   

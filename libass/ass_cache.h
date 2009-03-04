@@ -1,25 +1,31 @@
 // -*- c-basic-offset: 8; indent-tabs-mode: t -*-
 // vim:ts=8:sw=8:noet:ai:
 /*
-  Copyright (C) 2006 Evgeniy Stepanov <eugeni.stepanov@gmail.com>
+ * Copyright (C) 2006 Evgeniy Stepanov <eugeni.stepanov@gmail.com>
+ *
+ * This file is part of libass.
+ *
+ * libass is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * libass is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with libass; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
+#ifndef LIBASS_CACHE_H
+#define LIBASS_CACHE_H
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-*/
-
-#ifndef ASS_CACHE_H
-#define ASS_CACHE_H
+#include "ass.h"
+#include "ass_font.h"
+#include "ass_bitmap.h"
 
 void ass_font_cache_init(void);
 ass_font_t* ass_font_cache_find(ass_font_desc_t* desc);
@@ -36,6 +42,7 @@ typedef struct bitmap_hash_key_s {
 	unsigned outline; // border width, 16.16 fixed point value
 	int bold, italic;
 	char be; // blur edges
+	double blur; // gaussian blur
 
 	unsigned scale_x, scale_y; // 16.16
 	int frx, fry, frz; // signed 16.16
@@ -94,5 +101,4 @@ void hashmap_done(hashmap_t* map);
 void* hashmap_insert(hashmap_t* map, void* key, void* value);
 void* hashmap_find(hashmap_t* map, void* key);
 
-#endif
-
+#endif /* LIBASS_CACHE_H */

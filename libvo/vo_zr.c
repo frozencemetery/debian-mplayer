@@ -1,9 +1,25 @@
-/* 
- * vo_zr.c - playback on zoran cards 
- * Copyright (C) Rik Snel 2001,2002, License GNU GPL v2
+/*
+ * playback on Zoran cards
+ * copyright (C) 2001, 2003 Rik Snel
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* $Id: vo_zr.c 23893 2007-07-28 14:28:38Z diego $ */
+/* $Id: vo_zr.c 27541 2008-09-07 14:09:51Z diego $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,10 +34,8 @@
 #include <sys/ioctl.h>
 #include <linux/types.h>
 #include <linux/videodev.h>
-#include "videodev_mjpeg.h"
-
 #include "config.h"
-
+#include "videodev_mjpeg.h"
 #include "video_out.h"
 #include "video_out_internal.h"
 #include "mp_msg.h"
@@ -30,7 +44,7 @@
 
 #include "jpeg_enc.h"
 
-static vo_info_t info = 
+static const vo_info_t info = 
 {
 	"Zoran ZR360[56]7/ZR36060 Driver (DC10(+)/buz/lml33/MatroxRR)",
 	"zr",
@@ -38,7 +52,7 @@ static vo_info_t info =
 	""
 };
 
-LIBVO_EXTERN (zr)
+const LIBVO_EXTERN (zr)
 
 #define	ZR_MAX_DEVICES 4
 /* General variables */
@@ -225,7 +239,7 @@ int init_zoran(zr_info_t *zr, int stretchx, int stretchy) {
 	zr->zrq.size = MJPEG_SIZE;
 
 	if (ioctl(zr->vdes, MJPIOC_REQBUFS, &zr->zrq)) {
-		mp_msg(MSGT_VO, MSGL_ERR, "zr: error requesting %d buffers of size %d\n", zr->zrq.count, zr->zrq.size);
+		mp_msg(MSGT_VO, MSGL_ERR, "zr: error requesting %ld buffers of size %ld\n", zr->zrq.count, zr->zrq.size);
 		return 1;
 	}
 
@@ -234,11 +248,11 @@ int init_zoran(zr_info_t *zr, int stretchx, int stretchy) {
 			PROT_READ|PROT_WRITE, MAP_SHARED, zr->vdes, 0);
 
 	if (zr->buf == MAP_FAILED) {
-		mp_msg(MSGT_VO, MSGL_ERR, "zr: error requesting %d buffers of size %d\n", zr->zrq.count, zr->zrq.size);
+		mp_msg(MSGT_VO, MSGL_ERR, "zr: error requesting %ld buffers of size %ld\n", zr->zrq.count, zr->zrq.size);
 		return 1;
 	}
 	
-	mp_msg(MSGT_VO, MSGL_V, "zr: got %d buffers of size %d (wanted %d buffers of size %d)\n", zr->zrq.count, zr->zrq.size, MJPEG_NBUFFERS, MJPEG_SIZE);
+	mp_msg(MSGT_VO, MSGL_V, "zr: got %ld buffers of size %ld (wanted %d buffers of size %d)\n", zr->zrq.count, zr->zrq.size, MJPEG_NBUFFERS, MJPEG_SIZE);
 	if (zr->zrq.count < MJPEG_NBUFFERS) {
 		mp_msg(MSGT_VO, MSGL_V, "zr: got not enough buffers\n");
 		return 1;
@@ -649,7 +663,7 @@ static int draw_slice(uint8_t *srcimg[], int stride[],
 
 /* copied and adapted from vo_aa_parseoption */
 int
-vo_zr_parseoption(m_option_t* conf, char *opt, char *param){
+vo_zr_parseoption(const m_option_t* conf, const char *opt, const char *param){
     /* got an option starting with zr */
     zr_info_t *zr = &zr_info[zr_parsing];
     int i;
@@ -775,7 +789,7 @@ vo_zr_parseoption(m_option_t* conf, char *opt, char *param){
     return ERR_NOT_AN_OPTION;
 }
 
-void vo_zr_revertoption(m_option_t* opt,char* param) {
+void vo_zr_revertoption(const m_option_t* opt,const char* param) {
 
   zr_info_t *zr = &zr_info[1];
   zr_count = 1;

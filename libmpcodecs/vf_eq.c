@@ -26,7 +26,7 @@ static struct vf_priv_s {
   0
 };
 
-#ifdef HAVE_MMX
+#if HAVE_MMX
 static void process_MMX(unsigned char *dest, int dstride, unsigned char *src, int sstride,
 		    int w, int h, int brightness, int contrast)
 {
@@ -44,7 +44,7 @@ static void process_MMX(unsigned char *dest, int dstride, unsigned char *src, in
 	contvec[0] = contvec[1] = contvec[2] = contvec[3] = contrast;
 		
 	while (h--) {
-		asm volatile (
+		__asm__ volatile (
 			"movq (%5), %%mm3 \n\t"
 			"movq (%6), %%mm4 \n\t"
 			"pxor %%mm0, %%mm0 \n\t"
@@ -82,7 +82,7 @@ static void process_MMX(unsigned char *dest, int dstride, unsigned char *src, in
 		src += sstep;
 		dest += dstep;
 	}
-	asm volatile ( "emms \n\t" ::: "memory" );
+	__asm__ volatile ( "emms \n\t" ::: "memory" );
 }
 #endif
 
@@ -215,7 +215,7 @@ static int open(vf_instance_t *vf, char* args)
 	if (args) sscanf(args, "%d:%d", &vf->priv->brightness, &vf->priv->contrast);
 
 	process = process_C;
-#ifdef HAVE_MMX
+#if HAVE_MMX
 	if(gCpuCaps.hasMMX) process = process_MMX;
 #endif
 	
@@ -236,7 +236,7 @@ static m_struct_t vf_opts = {
   vf_opts_fields
 };
 
-vf_info_t vf_info_eq = {
+const vf_info_t vf_info_eq = {
 	"soft video equalizer",
 	"eq",
 	"Richard Felker",

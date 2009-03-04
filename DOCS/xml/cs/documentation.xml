@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Synced with r21867-->
+<!-- Synced with r24293-->
 
 <bookinfo id="toc">
 <title><application>MPlayer</application> - Multimediální přehrávač</title>
@@ -14,26 +14,26 @@
   <year>2005</year>
   <year>2006</year>
   <year>2007</year>
+  <year>2008</year>
+  <year>2009</year>	
   <holder>MPlayer team</holder>
 </copyright>
-<!--
 <legalnotice>
   <title>License</title>
-  <para>This program is free software; you can redistribute it and/or modify
+  <para>MPlayer is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by the
   Free Software Foundation; either version 2 of the License, or (at your
   option) any later version.</para>
 
-  <para>This program is distributed in the hope that it will be useful, but
+  <para>MPlayer is distributed in the hope that it will be useful, but
   WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
   or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
   for more details.</para>
 
   <para>You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software Foundation,
+  along with MPlayer; if not, write to the Free Software Foundation,
   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.</para>
 </legalnotice>
--->
 </bookinfo>
 
 
@@ -116,8 +116,7 @@ audia.
 </para></listitem>
 <listitem><para>
   Enkódování pomocí všech FFmpeg
-  <link linkend="ffmpeg"><systemitem class="library">libavcodec</systemitem></link>
-   kodeků
+  <systemitem class="library">libavcodec</systemitem> kodeků
 </para></listitem>
 <listitem><para>
   Video enkódování z <emphasis role="bold">V4L kompatibilních TV tunerů</emphasis>
@@ -164,14 +163,6 @@ audia.
 </para></listitem>
 </itemizedlist>
 
-<itemizedlist>
-<title>Plánované vlastnosti</title>
-<listitem><para>
-  Ještě širší možnosti dostupných en/dekódovacích formátů/kodeků
-  (tvorba VOB souborů s DivX4/Indeo5/VIVO datovými proudy :).
-</para></listitem>
-</itemizedlist>
-
 <!-- FIXME: the license should be in bookinfo -->
 <para>
 <application>MPlayer</application> a <application>MEncoder</application>
@@ -184,19 +175,12 @@ mohou být distribuovány za podmínek stanovených v GNU General Public License
 
 &usage.xml;
 &cd-dvd.xml;
-&faq.xml;
-
-&containers.xml;
-&codecs.xml;
-&video.xml;
-&audio.xml;
 &tvinput.xml;
 &radio.xml;
-
+&video.xml;
 &ports.xml;
 &mencoder.xml;
 &encoding-guide.xml;
+&faq.xml;
 &bugreports.xml;
-&bugs.xml;
 &skin.xml;
-&history.xml;

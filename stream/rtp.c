@@ -2,7 +2,7 @@
  *
  * Modified for use with MPlayer, for details see the changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: rtp.c 19325 2006-08-04 19:36:41Z ben $
+ * $Id: rtp.c 28437 2009-02-01 13:42:27Z diego $
  */
 
 #include <stdlib.h>
@@ -13,16 +13,16 @@
 #include <sys/types.h>
 #include <ctype.h>
 #include "config.h"
-#ifndef HAVE_WINSOCK2
+#if !HAVE_WINSOCK2_H
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#define closesocket close
 #else
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #endif
 #include <errno.h>
+#include "network.h"
 #include "stream.h"
 
 /* MPEG-2 TS RTP stack */
@@ -213,7 +213,7 @@ int read_rtp_from_server(int fd, char *buffer, int length) {
 		mp_msg(MSGT_NETWORK, MSGL_ERR, "Got empty packet from RTP cache!?\n");
 	}
 	
-	return(length);
+	return length;
 }
 
 static int getrtp2(int fd, struct rtpheader *rh, char** data, int* lengthData) {
@@ -251,5 +251,5 @@ static int getrtp2(int fd, struct rtpheader *rh, char** data, int* lengthData) {
 
   //  mp_msg(MSGT_NETWORK,MSGL_DBG2,"Reading rtp: v=%x p=%x x=%x cc=%x m=%x pt=%x seq=%x ts=%x lgth=%d\n",rh->b.v,rh->b.p,rh->b.x,rh->b.cc,rh->b.m,rh->b.pt,rh->b.sequence,rh->timestamp,lengthPacket);
 
-  return(0);
+  return 0;
 }

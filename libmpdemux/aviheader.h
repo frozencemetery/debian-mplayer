@@ -1,7 +1,9 @@
-#ifndef AVIHEADER_H
-#define AVIHEADER_H
+#ifndef MPLAYER_AVIHEADER_H
+#define MPLAYER_AVIHEADER_H
 
-//#include "config.h"	/* get correct definition WORDS_BIGENDIAN */
+#include <sys/types.h>
+#include <stdint.h>
+#include "config.h"	/* get correct definition of WORDS_BIGENDIAN */
 #include "libavutil/common.h"
 #include "mpbswap.h"
 
@@ -120,19 +122,19 @@ typedef struct
 } AVIINDEXENTRY;
 
 
-typedef struct _avisuperindex_entry {
+typedef struct avisuperindex_entry {
     uint64_t qwOffset;           // absolute file offset
     uint32_t dwSize;             // size of index chunk at this offset
     uint32_t dwDuration;         // time span in stream ticks
 } avisuperindex_entry;
 
-typedef struct _avistdindex_entry {
+typedef struct avistdindex_entry {
     uint32_t dwOffset;           // qwBaseOffset + this is absolute file offset
     uint32_t dwSize;             // bit 31 is set if this is NOT a keyframe
 } avistdindex_entry;
 
 // Standard index 
-typedef struct __attribute__((packed)) _avistdindex_chunk {
+typedef struct __attribute__((packed)) avistdindex_chunk {
     char           fcc[4];       // ix##
     uint32_t  dwSize;            // size of this chunk
     uint16_t wLongsPerEntry;     // must be sizeof(aIndex[0])/sizeof(DWORD)
@@ -147,7 +149,7 @@ typedef struct __attribute__((packed)) _avistdindex_chunk {
     
 
 // Base Index Form 'indx'
-typedef struct _avisuperindex_chunk {
+typedef struct avisuperindex_chunk {
     char           fcc[4];
     uint32_t  dwSize;                // size of this chunk
     uint16_t wLongsPerEntry;         // size of each entry in aIndex array (must be 4*4 for us)
@@ -353,4 +355,4 @@ typedef struct {
 
 #define AVI_IDX_OFFSET(x) ((((uint64_t)(x)->dwFlags&0xffff0000)<<16)+(x)->dwChunkOffset)
 
-#endif /* _aviheader_h */
+#endif /* MPLAYER_AVIHEADER_H */

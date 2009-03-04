@@ -1,12 +1,12 @@
-#ifndef AUDIO_IN_H
-#define AUDIO_IN_H
+#ifndef MPLAYER_AUDIO_IN_H
+#define MPLAYER_AUDIO_IN_H
 
 #define AUDIO_IN_ALSA 1
 #define AUDIO_IN_OSS 2
 
 #include "config.h"
 
-#if defined(HAVE_ALSA9) || defined(HAVE_ALSA1X)
+#ifdef CONFIG_ALSA
 #include <alsa/asoundlib.h>
 
 typedef struct {
@@ -19,7 +19,7 @@ typedef struct {
 } ai_alsa_t;
 #endif
 
-#ifdef USE_OSS_AUDIO
+#ifdef CONFIG_OSS_AUDIO
 typedef struct {
     char *device;
 
@@ -43,10 +43,10 @@ typedef struct
     int bytes_per_sample;
     int samplesize;
     
-#if defined(HAVE_ALSA9) || defined(HAVE_ALSA1X)
+#ifdef CONFIG_ALSA
     ai_alsa_t alsa;
 #endif
-#ifdef USE_OSS_AUDIO
+#ifdef CONFIG_OSS_AUDIO
     ai_oss_t oss;
 #endif
 } audio_in_t;
@@ -60,16 +60,16 @@ int audio_in_uninit(audio_in_t *ai);
 int audio_in_start_capture(audio_in_t *ai);
 int audio_in_read_chunk(audio_in_t *ai, unsigned char *buffer);
 
-#if defined(HAVE_ALSA9) || defined(HAVE_ALSA1X)
+#ifdef CONFIG_ALSA
 int ai_alsa_setup(audio_in_t *ai);
 int ai_alsa_init(audio_in_t *ai);
 int ai_alsa_xrun(audio_in_t *ai);
 #endif
 
-#ifdef USE_OSS_AUDIO
+#ifdef CONFIG_OSS_AUDIO
 int ai_oss_set_samplerate(audio_in_t *ai);
 int ai_oss_set_channels(audio_in_t *ai);
 int ai_oss_init(audio_in_t *ai);
 #endif
 
-#endif /* AUDIO_IN_H */
+#endif /* MPLAYER_AUDIO_IN_H */

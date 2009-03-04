@@ -1,6 +1,4 @@
 /*
- * config_bfin.h
- *
  * Copyright (C) 2007 Marc Hoffman <marc.hoffman@analog.com>
  *
  * This file is part of FFmpeg.
@@ -29,12 +27,20 @@ DEFUN(put_pixels_clamped,mL1,
 
       rts;
 */
+
+#ifndef AVCODEC_BFIN_CONFIG_BFIN_H
+#define AVCODEC_BFIN_CONFIG_BFIN_H
+
 #ifndef DEFUN
 
-#ifndef mL1
-#define mL1 .l1.text
-#endif
 #define mL3 .text
+#ifndef mL1
+#ifdef __FDPIC__
+#define mL1 .l1.text
+#else
+#define mL1 mL3
+#endif
+#endif
 
 #define DEFUN(fname,where,interface) \
         .section where;              \
@@ -46,6 +52,12 @@ DEFUN(put_pixels_clamped,mL1,
 #define DEFUN_END(fname) \
         .size _ff_bfin_ ## fname, . - _ff_bfin_ ## fname
 
+#ifdef __FDPIC__
+#define RELOC(reg,got,obj) reg = [got + obj@GOT17M4]
+#else
+#define RELOC(reg,got,obj) reg.L = obj; reg.H = obj
+#endif
 
 #endif
 
+#endif /* AVCODEC_BFIN_CONFIG_BFIN_H */

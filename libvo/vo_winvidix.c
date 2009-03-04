@@ -1,10 +1,24 @@
 /*
-    VIDIX accelerated overlay in a WIN32 window
-    
-    (C) Sascha Sommer
-    
- 
-*/
+ * VIDIX-accelerated overlay in a Win32 window
+ *
+ * copyright (C) 2003 Sascha Sommer
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,10 +39,10 @@
 #include "mp_fifo.h"
 
 #include "vosub_vidix.h"
-#include "vidix/vidixlib.h"
+#include "vidix/vidix.h"
 
 
-static vo_info_t info = 
+static const vo_info_t info = 
 {
     "WIN32 (VIDIX)",
     "winvidix",
@@ -47,7 +61,6 @@ static char *vidix_name;
 static uint32_t image_width;
 static uint32_t image_height;
 static uint32_t image_format;
-static HWND hWnd;
 /* Window parameters */
 static HWND hWnd=NULL,hWndFS=NULL;
 static float window_aspect;
@@ -55,7 +68,7 @@ static float window_aspect;
 static vidix_grkey_t gr_key;
     
 
-extern void set_video_eq( int cap );
+void set_video_eq(int cap);
 
 
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -256,7 +269,7 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,uint32_t d_h
     ShowWindow(hWnd,SW_SHOW);
     if(vo_fs)ShowWindow(hWndFS,SW_SHOW);
     
-    return(0);
+    return 0;
 }
 
 static void check_events(void){
@@ -288,17 +301,17 @@ static int draw_slice(uint8_t *src[], int stride[],int w, int h, int x, int y){
     UNUSED(x);
     UNUSED(y);
     mp_msg(MSGT_VO, MSGL_FATAL, "[winvidix] error: didn't use vidix draw_slice!\n");
-    return(-1);
+    return -1;
 }
 
 static int draw_frame(uint8_t *src[]){
     UNUSED(src);
     mp_msg(MSGT_VO, MSGL_FATAL, "[winvidix] error: didn't use vidix draw_frame!\n");
-    return(-1);
+    return -1;
 }
 
 static int query_format(uint32_t format){
-  return(vidix_query_fourcc(format));
+  return vidix_query_fourcc(format);
 }
 
 static void uninit(void){
@@ -324,9 +337,9 @@ static int preinit(const char *arg){
     }
 
     if (vidix_preinit(vidix_name, &video_out_winvidix) != 0)
-	return(1);
+	return 1;
 
-    return(0);
+    return 0;
 }
 
 static int control(uint32_t request, void *data, ...){

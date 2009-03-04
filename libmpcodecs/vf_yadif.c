@@ -1,20 +1,22 @@
 /*
-    Copyright (C) 2006 Michael Niedermayer <michaelni@gmx.at>
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-*/
+ * Copyright (C) 2006 Michael Niedermayer <michaelni@gmx.at>
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,7 +29,7 @@
 
 #include "mp_msg.h"
 
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 
@@ -35,13 +37,7 @@
 #include "mp_image.h"
 #include "vf.h"
 #include "libvo/fastmemcpy.h"
-
-#define MIN(a,b) ((a) > (b) ? (b) : (a))
-#define MAX(a,b) ((a) < (b) ? (b) : (a))
-#define ABS(a) ((a) > 0 ? (a) : (-(a)))
-
-#define MIN3(a,b,c) MIN(MIN(a,b),c)
-#define MAX3(a,b,c) MAX(MAX(a,b),c)
+#include "libavutil/common.h"
 
 //===========================================================================//
 
@@ -72,7 +68,7 @@ static void store_ref(struct vf_priv_s *p, uint8_t *src[3], int src_stride[3], i
     }
 }
 
-#if defined(HAVE_MMX) && defined(NAMED_ASM_ARGS)
+#if HAVE_MMX && defined(NAMED_ASM_ARGS)
 
 #define LOAD4(mem,dst) \
             "movd      "mem", "#dst" \n\t"\
@@ -140,7 +136,7 @@ static void filter_line_mmx2(struct vf_priv_s *p, uint8_t *dst, uint8_t *prev, u
 
 #define FILTER\
     for(x=0; x<w; x+=4){\
-        asm volatile(\
+        __asm__ volatile(\
             "pxor      %%mm7, %%mm7 \n\t"\
             LOAD4("(%[cur],%[mrefs])", %%mm0) /* c = cur[x-refs] */\
             LOAD4("(%[cur],%[prefs])", %%mm1) /* e = cur[x+refs] */\
@@ -257,7 +253,7 @@ static void filter_line_mmx2(struct vf_priv_s *p, uint8_t *dst, uint8_t *prev, u
              [pb1]  "m"(pb_1),\
              [mode] "g"(mode)\
         );\
-        asm volatile("movd %%mm1, %0" :"=m"(*dst));\
+        __asm__ volatile("movd %%mm1, %0" :"=m"(*dst));\
         dst += 4;\
         prev+= 4;\
         cur += 4;\
@@ -285,7 +281,7 @@ static void filter_line_mmx2(struct vf_priv_s *p, uint8_t *dst, uint8_t *prev, u
 #undef CHECK2
 #undef FILTER
 
-#endif /* defined(HAVE_MMX) && defined(NAMED_ASM_ARGS) */
+#endif /* HAVE_MMX && defined(NAMED_ASM_ARGS) */
 
 static void filter_line_c(struct vf_priv_s *p, uint8_t *dst, uint8_t *prev, uint8_t *cur, uint8_t *next, int w, int refs, int parity){
     int x;
@@ -295,18 +291,18 @@ static void filter_line_c(struct vf_priv_s *p, uint8_t *dst, uint8_t *prev, uint
         int c= cur[-refs];
         int d= (prev2[0] + next2[0])>>1;
         int e= cur[+refs];
-        int temporal_diff0= ABS(prev2[0] - next2[0]);
-        int temporal_diff1=( ABS(prev[-refs] - c) + ABS(prev[+refs] - e) )>>1;
-        int temporal_diff2=( ABS(next[-refs] - c) + ABS(next[+refs] - e) )>>1;
-        int diff= MAX3(temporal_diff0>>1, temporal_diff1, temporal_diff2);
+        int temporal_diff0= FFABS(prev2[0] - next2[0]);
+        int temporal_diff1=( FFABS(prev[-refs] - c) + FFABS(prev[+refs] - e) )>>1;
+        int temporal_diff2=( FFABS(next[-refs] - c) + FFABS(next[+refs] - e) )>>1;
+        int diff= FFMAX3(temporal_diff0>>1, temporal_diff1, temporal_diff2);
         int spatial_pred= (c+e)>>1;
-        int spatial_score= ABS(cur[-refs-1] - cur[+refs-1]) + ABS(c-e)
-                         + ABS(cur[-refs+1] - cur[+refs+1]) - 1;
+        int spatial_score= FFABS(cur[-refs-1] - cur[+refs-1]) + FFABS(c-e)
+                         + FFABS(cur[-refs+1] - cur[+refs+1]) - 1;
 
 #define CHECK(j)\
-    {   int score= ABS(cur[-refs-1+j] - cur[+refs-1-j])\
-                 + ABS(cur[-refs  +j] - cur[+refs  -j])\
-                 + ABS(cur[-refs+1+j] - cur[+refs+1-j]);\
+    {   int score= FFABS(cur[-refs-1+j] - cur[+refs-1-j])\
+                 + FFABS(cur[-refs  +j] - cur[+refs  -j])\
+                 + FFABS(cur[-refs+1+j] - cur[+refs+1-j]);\
         if(score < spatial_score){\
             spatial_score= score;\
             spatial_pred= (cur[-refs  +j] + cur[+refs  -j])>>1;\
@@ -320,14 +316,14 @@ static void filter_line_c(struct vf_priv_s *p, uint8_t *dst, uint8_t *prev, uint
 #if 0
             int a= cur[-3*refs];
             int g= cur[+3*refs];
-            int max= MAX3(d-e, d-c, MIN3(MAX(b-c,f-e),MAX(b-c,b-a),MAX(f-g,f-e)) );
-            int min= MIN3(d-e, d-c, MAX3(MIN(b-c,f-e),MIN(b-c,b-a),MIN(f-g,f-e)) );
+            int max= FFMAX3(d-e, d-c, FFMIN3(FFMAX(b-c,f-e),FFMAX(b-c,b-a),FFMAX(f-g,f-e)) );
+            int min= FFMIN3(d-e, d-c, FFMAX3(FFMIN(b-c,f-e),FFMIN(b-c,b-a),FFMIN(f-g,f-e)) );
 #else
-            int max= MAX3(d-e, d-c, MIN(b-c, f-e));
-            int min= MIN3(d-e, d-c, MAX(b-c, f-e));
+            int max= FFMAX3(d-e, d-c, FFMIN(b-c, f-e));
+            int min= FFMIN3(d-e, d-c, FFMAX(b-c, f-e));
 #endif
 
-            diff= MAX3(diff, min, -max);
+            diff= FFMAX3(diff, min, -max);
         }
 
         if(spatial_pred > d + diff)
@@ -367,8 +363,8 @@ static void filter(struct vf_priv_s *p, uint8_t *dst[3], int dst_stride[3], int 
             }
         }
     }
-#if defined(HAVE_MMX) && defined(NAMED_ASM_ARGS)
-    if(gCpuCaps.hasMMX2) asm volatile("emms \n\t" : : : "memory");
+#if HAVE_MMX && defined(NAMED_ASM_ARGS)
+    if(gCpuCaps.hasMMX2) __asm__ volatile("emms \n\t" : : : "memory");
 #endif
 }
 
@@ -444,7 +440,7 @@ static int continue_buffered_image(struct vf_instance_s *vf)
         if (correct_pts)
             break;
         if(i<(vf->priv->mode&1))
-            vf_next_control(vf, VFCTRL_FLIP_PAGE, NULL);
+            vf_extra_flip(vf);
     }
     vf->priv->buffered_i = 1;
     return ret;
@@ -505,14 +501,14 @@ static int open(vf_instance_t *vf, char* args){
     if (args) sscanf(args, "%d:%d", &vf->priv->mode, &vf->priv->parity);
 
     filter_line = filter_line_c;
-#if defined(HAVE_MMX) && defined(NAMED_ASM_ARGS)
+#if HAVE_MMX && defined(NAMED_ASM_ARGS)
     if(gCpuCaps.hasMMX2) filter_line = filter_line_mmx2;
 #endif
 
     return 1;
 }
 
-vf_info_t vf_info_yadif = {
+const vf_info_t vf_info_yadif = {
     "Yet Another DeInterlacing Filter",
     "yadif",
     "Michael Niedermayer",

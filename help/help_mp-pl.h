@@ -12,10 +12,10 @@ static char help_text[]=
 "Podstawowe opcje: (pełna lista dostępna na stronie man)\n"
 " -vo <drv>        podaj wyjściowy sterownik video (lista: '-vo help')\n"
 " -ao <drv>        podaj wyjściowy sterownik audio (lista: '-ao help')\n"
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
 " vcd://<numer_ścieżki>  odtwórz ścieżkę (S)VCD (Super Video CD) (bezpośrednio, bez montowania)\n"
 #endif
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 " dvd://<tytuł>    odtwórz tytuł DVD z urządzenia zamiast pliku\n"
 " -alang/-slang    wybierz język napisów/ścieżki dźwiękowej (dwuliterowy kod kraju)\n"
 #endif
@@ -158,7 +158,6 @@ static char help_text[]=
 #define MSGTR_MenuInitFailed "Nie mogę zainicjować menu.\n"
 #define MSGTR_Getch2InitializedTwice "UWAGA: getch2_init wywołany dwukrotnie!\n"
 #define MSGTR_DumpstreamFdUnavailable "Nie mogę zrzucić strumienia - brak deskryptora pliku\n"
-#define MSGTR_FallingBackOnPlaylist "Próbuję zinterpretować listę odtwarzania %s...\n"
 #define MSGTR_CantOpenLibmenuFilterWithThisRootMenu "Nie mogę otworzyć filtru video libmenu z głownym menu %s.\n"
 #define MSGTR_AudioFilterChainPreinitError "Błąd preinicjalizacji łańcucha filtru audio!\n"
 #define MSGTR_LinuxRTCReadError "Błąd odczytu RTC Linuxa : %s\n"
@@ -388,7 +387,7 @@ static char help_text[]=
 #define MSGTR_ConfigFileError "błąd pliku konfiguracyjnego"
 #define MSGTR_ErrorParsingCommandLine "błąd w przetwarzaniu wiersza poleceń"
 #define MSGTR_VideoStreamRequired "Wymagany jest strumień video!\n"
-#define MSGTR_ForcingInputFPS "Wejściowa wartość FPS zostanie zinterpretowana jako %5.2f.\n"
+#define MSGTR_ForcingInputFPS "Wejściowa wartość FPS zostanie zinterpretowana jako %5.3f.\n"
 #define MSGTR_RawvideoDoesNotSupportAudio "Wyjściowy format RAWVIDEO nie obsługuje dźwięku - wyłączam dźwięk.\n"
 #define MSGTR_DemuxerDoesntSupportNosound "Ten demuxer jeszcze nie obsługuje opcji -nosound.\n"
 #define MSGTR_MemAllocFailed "Alokacja pamięci nie powiodła się.\n"
@@ -513,7 +512,7 @@ static char help_text[]=
 #define MSGTR_SMBFileNotFound "Nie mogę otworzyć z sieci lokalnej (LAN): '%s'\n"
 #define MSGTR_SMBNotCompiled "Brak wkompilowanej obsługi zasobów SMB.\n"
 
-#define MSGTR_CantOpenDVD "Nie znaleziono DVD: %s\n"
+#define MSGTR_CantOpenDVD "Nie znaleziono DVD: %s (%s)\n"
 
 // stream_dvd.c
 #define MSGTR_NoDVDSupport "MPlayer został skompilowany bez obsługi DVD support, wychodzę.\n"
@@ -674,7 +673,7 @@ static char help_text[]=
 
 // ====================== GUI messages/buttons ========================
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 
 // --- labels ---
 #define MSGTR_About "O programie"
@@ -1576,7 +1575,7 @@ static char help_text[]=
 #define MSGTR_LIBVO_MGA_InvalidOutputFormat "[MGA] niepoprawny format wyjściowy %0X\n"
 #define MSGTR_LIBVO_MGA_IncompatibleDriverVersion "[MGA] Wersja Twojego sterownika mga_vid jest niekompatybilna z tą wersją MPlayera!\n"
 #define MSGTR_LIBVO_MGA_CouldntOpen "[MGA] Nie mogłem otworzyć: %s\n"
-#define MGSTR_LIBVO_MGA_ResolutionTooHigh "[MGA] Żródłowa rozdzielczość jest co najmniej o wymiar większa niż 1023x1023. Proszę przeskaluj programowo lub użyj -lavdopts lowres=1\n"
+#define MSGTR_LIBVO_MGA_ResolutionTooHigh "[MGA] Żródłowa rozdzielczość jest co najmniej o wymiar większa niż 1023x1023. Proszę przeskaluj programowo lub użyj -lavdopts lowres=1\n"
 
 // libvo/vesa_lvo.c
 
@@ -1694,8 +1693,6 @@ static char help_text[]=
 #define MSGTR_LIBVO_SUB_VIDIX_YouHaveWrongVersionOfVidixLibrary "[VO_SUB_VIDIX] Masz nieprawidłową wersję biblioteki VIDIX.\n"
 #define MSGTR_LIBVO_SUB_VIDIX_CouldntFindWorkingVidixDriver "[VO_SUB_VIDIX] Nie odnalazłem działającego sterownika VIDIX.\n"
 #define MSGTR_LIBVO_SUB_VIDIX_CouldntGetCapability "[VO_SUB_VIDIX] Nie mogłem pobrać możliwości: %s.\n"
-#define MSGTR_LIBVO_SUB_VIDIX_Description "[VO_SUB_VIDIX] Opis: %s.\n"
-#define MSGTR_LIBVO_SUB_VIDIX_Author "[VO_SUB_VIDIX] Autor: %s.\n"
 
 // libvo/vo_svga.c
 
@@ -1839,7 +1836,6 @@ static char help_text[]=
 #define MSGTR_RADIO_CaptureStarting "[radio] Zaczynam nagrywanie.\n"
 #define MSGTR_RADIO_ClearBufferFailed "[radio] Czyszczenie bufora nie powiodło się: %s\n"
 #define MSGTR_RADIO_StreamEnableCacheFailed "[radio] Wywołanie stream_enable_cache nie powiodło się: %s\n"
-#define MSGTR_RADIO_DriverUnknownId "[radio] Nieznany id sterownika: %d\n"
 #define MSGTR_RADIO_DriverUnknownStr "[radio] Nieznana nazwa sterownika: %s\n"
 #define MSGTR_RADIO_DriverV4L2 "[radio] Używam interfejsu radiowego V4Lv2.\n"
 #define MSGTR_RADIO_DriverV4L "[radio] Używam interfejsu radiowego V4Lv1.\n"

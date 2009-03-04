@@ -39,14 +39,14 @@ typedef struct
 }i_cmplx_t;
 
 #define TRANS_FILL_MM6_MM7_3DNOW()\
-    __asm__ __volatile__(\
+    __asm__ volatile(\
 	"movq	%1, %%mm7\n\t"\
 	"movq	%0, %%mm6\n\t"\
 	::"m"(x_plus_minus_3dnow),\
 	"m"(x_minus_plus_3dnow)\
 	:"memory");
 
-#ifdef HAVE_3DNOWEX
+#if HAVE_AMD3DNOWEXT
 #define PSWAP_MM(mm_base,mm_hlp) "pswapd	"mm_base","mm_base"\n\t"
 #else
 #define PSWAP_MM(mm_base,mm_hlp)\
@@ -54,7 +54,7 @@ typedef struct
 	"psrlq $32, "mm_base"\n\t"\
 	"punpckldq "mm_hlp","mm_base"\n\t"
 #endif
-#ifdef HAVE_3DNOWEX
+#if HAVE_AMD3DNOWEXT
 #define PFNACC_MM(mm_base,mm_hlp)	"pfnacc	"mm_base","mm_base"\n\t"
 #else
 #define PFNACC_MM(mm_base,mm_hlp)\
@@ -66,7 +66,7 @@ typedef struct
 
 #define TRANSZERO_3DNOW(A0,A4,A8,A12) \
 { \
-    __asm__ __volatile__(\
+    __asm__ volatile(\
 	"movq	%4, %%mm0\n\t" /* mm0 = wTB[0]*/\
 	"movq	%5, %%mm1\n\t" /* mm1 = wTB[k*2]*/ \
 	"movq	%%mm0, %%mm5\n\t"/*u.re = wTB[0].re + wTB[k*2].re;*/\
@@ -95,7 +95,7 @@ typedef struct
 
 #define TRANSHALF_16_3DNOW(A2,A6,A10,A14)\
 {\
-    __asm__ __volatile__(\
+    __asm__ volatile(\
 	"movq	%4, %%mm0\n\t"/*u.re = wTB[2].im + wTB[2].re;*/\
 	"movq	%%mm0, %%mm1\n\t"\
 	"pxor	%%mm7, %%mm1\n\t"\
@@ -136,7 +136,7 @@ typedef struct
 
 #define TRANS_3DNOW(A1,A5,A9,A13,WT,WB,D,D3)\
 { \
-    __asm__ __volatile__(\
+    __asm__ volatile(\
 	"movq	%1,	%%mm4\n\t"\
 	"movq	%%mm4,	%%mm5\n\t"\
 	"punpckldq %%mm4, %%mm4\n\t"/*mm4 = D.re | D.re */\
@@ -166,7 +166,7 @@ typedef struct
 	:\
 	:"m"(WT), "m"(D), "m"(WB), "m"(D3)\
 	:"memory");\
-    __asm__ __volatile__(\
+    __asm__ volatile(\
 	"movq	%4, %%mm0\n\t"/* a1 = A1*/\
 	"movq	%5, %%mm2\n\t"/* a1 = A5*/\
 	"movq	%%mm0, %%mm1\n\t"\

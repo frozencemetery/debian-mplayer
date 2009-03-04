@@ -1,20 +1,22 @@
 /*
-    Copyright (C) 2007 Michael Niedermayer <michaelni@gmx.at>
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-*/
+ * Copyright (C) 2007 Michael Niedermayer <michaelni@gmx.at>
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 /**
  * @todo try to change to int
@@ -34,7 +36,7 @@
 
 #include "mp_msg.h"
 
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 
@@ -165,7 +167,7 @@ static void compose2D2(float *dst, float *src[4], float *temp[2], int stride, in
 
 static void filter(struct vf_priv_s *p, uint8_t *dst, uint8_t *src, int dst_stride, int src_stride, int width, int height, int is_luma){
     int x,y, i, j;
-    double sum=0;
+//    double sum=0;
     double s= p->strength[!is_luma];
     int depth= p->depth;
 
@@ -293,21 +295,6 @@ static int query_format(struct vf_instance_s* vf, unsigned int fmt){
     return 0;
 }
 
-static unsigned int fmt_list[]={
-    IMGFMT_YVU9,
-    IMGFMT_IF09,
-    IMGFMT_YV12,
-    IMGFMT_I420,
-    IMGFMT_IYUV,
-    IMGFMT_CLPL,
-    IMGFMT_Y800,
-    IMGFMT_Y8,
-    IMGFMT_444P,
-    IMGFMT_422P,
-    IMGFMT_411P,
-    0
-};
-
 
 static int open(vf_instance_t *vf, char* args){
     vf->config=config;
@@ -332,7 +319,7 @@ static int open(vf_instance_t *vf, char* args){
     return 1;
 }
 
-vf_info_t vf_info_ow = {
+const vf_info_t vf_info_ow = {
     "overcomplete wavelet denoiser",
     "ow",
     "Michael Niedermayer",

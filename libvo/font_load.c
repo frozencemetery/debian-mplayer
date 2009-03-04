@@ -1,3 +1,21 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include "config.h"
 
 #include <stdio.h>
@@ -158,7 +176,7 @@ while(fgets(sor,1020,f)){
       }
   } else    
 
-#ifdef SYS_AMIGAOS4
+#ifdef __AMIGAOS4__
 #define FONT_PATH_SEP ""
 #else
 //! path seperator for font paths, may not be more than one character
@@ -336,11 +354,7 @@ fail_out:
   return NULL;
 }
 
-#if 0
-int main(){
-
-read_font_desc("high_arpi.desc",1);
-
-}
+#ifndef CONFIG_FREETYPE
+void render_one_glyph(font_desc_t *desc, int c) {}
+int kerning(font_desc_t *desc, int prevc, int c) { return 0; }
 #endif
-

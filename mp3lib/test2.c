@@ -1,16 +1,14 @@
-
-//gcc test2.c -O2 -I.. -L. ../libvo/aclib.c -lMP3 -lm -o test2
-
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <sys/soundcard.h>
 
-#include "mp3lib/mp3.h"
 #include "config.h"
+#include "mp3lib/mp3.h"
 #include "cpudetect.h"
 
 static FILE* mp3file=NULL;
@@ -26,7 +24,6 @@ static unsigned char buffer[BUFFLEN];
 int main(int argc,char* argv[]){
   int len;
   int total=0;
-  float length;
   int r;
   int audio_fd;
   
@@ -36,7 +33,7 @@ int main(int argc,char* argv[]){
   GetCpuCaps(&gCpuCaps);
 
   // MPEG Audio:
-#ifdef USE_FAKE_MONO
+#ifdef CONFIG_FAKE_MONO
   MP3_Init(0);
 #else
   MP3_Init();
@@ -68,5 +65,5 @@ int main(int argc,char* argv[]){
   }
   
   fclose(mp3file);
-  
+  return 0;
 }

@@ -1,10 +1,31 @@
-/* GyS-TermIO v2.0 (for GySmail v3)          (C) 1999 A'rpi/ESP-team */
+/*
+ * GyS-TermIO v2.0 (for GySmail v3)
+ * a very small replacement of ncurses library
+ *
+ * copyright (C) 1999 A'rpi/ESP-team
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include "config.h"
 
-//#define USE_TERMCAP
+//#define HAVE_TERMCAP
 #if !defined(__OS2__) && !defined(__MORPHOS__)
-#define USE_IOCTL
+#define CONFIG_IOCTL
 #endif
 
 #define MAX_KEYS 64
@@ -15,7 +36,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#ifdef USE_IOCTL
+#ifdef CONFIG_IOCTL
 #include <sys/ioctl.h>
 #endif
 
@@ -28,7 +49,7 @@
 #endif
 #endif
 
-#if defined(USE_LANGINFO) && defined(USE_ICONV)
+#if defined(HAVE_LANGINFO) && defined(CONFIG_ICONV)
 #include <locale.h>
 #include <langinfo.h>
 #endif
@@ -56,15 +77,15 @@ typedef struct {
 static keycode_st getch2_keys[MAX_KEYS];
 static int getch2_key_db=0;
 
-#ifdef USE_TERMCAP
+#ifdef HAVE_TERMCAP
 
 #if 0
 #include <termcap.h>
 #else
-  extern int tgetent (char *BUFFER, char *TERMTYPE);
-  extern int tgetnum (char *NAME);
-  extern int tgetflag (char *NAME);
-  extern char *tgetstr (char *NAME, char **AREA);
+int tgetent(char *BUFFER, char *TERMTYPE);
+int tgetnum(char *NAME);
+int tgetflag(char *NAME);
+char *tgetstr(char *NAME, char **AREA);
 #endif
 
 static char term_buffer[4096];
@@ -125,7 +146,7 @@ int load_termcap(char *termtype){
 #endif
 
 void get_screen_size(void){
-#ifdef USE_IOCTL
+#ifdef CONFIG_IOCTL
   struct winsize ws;
   if (ioctl(0, TIOCGWINSZ, &ws) < 0 || !ws.ws_row || !ws.ws_col) return;
 /*  printf("Using IOCTL\n"); */
@@ -270,11 +291,11 @@ void getch2_disable(void){
     getch2_status=0;
 }
 
-#ifdef USE_ICONV
+#ifdef CONFIG_ICONV
 char* get_term_charset(void)
 {
     char* charset = NULL;
-#ifdef USE_LANGINFO
+#ifdef HAVE_LANGINFO
     setlocale(LC_CTYPE, "");
     charset = nl_langinfo(CODESET);
     setlocale(LC_CTYPE, "C");

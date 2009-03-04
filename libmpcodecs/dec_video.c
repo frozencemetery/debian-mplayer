@@ -2,7 +2,7 @@
 #include "config.h"
 
 #include <stdio.h>
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 #include <stdlib.h>
@@ -28,7 +28,7 @@
 
 #include "dec_video.h"
 
-#ifdef DYNAMIC_PLUGINS
+#ifdef CONFIG_DYNAMIC_PLUGINS
 #include <dlfcn.h>
 #endif
 
@@ -75,7 +75,7 @@ void set_video_quality(sh_video_t *sh_video,int quality){
     mpvdec->control(sh_video,VDCTRL_SET_PP_LEVEL, (void*)(&quality));
 }
 
-int set_video_colors(sh_video_t *sh_video,char *item,int value)
+int set_video_colors(sh_video_t *sh_video,const char *item,int value)
 {
     vf_instance_t* vf=sh_video->vfilter;
     vf_equalizer_t data;
@@ -88,7 +88,7 @@ int set_video_colors(sh_video_t *sh_video,char *item,int value)
     {
 	int ret = vf->control(vf, VFCTRL_SET_EQUALIZER, &data);
 	if (ret == CONTROL_TRUE)
-	    return(1);
+	    return 1;
     }
     /* try software control */
     if(mpvdec)
@@ -98,7 +98,7 @@ int set_video_colors(sh_video_t *sh_video,char *item,int value)
     return 0;
 }
 
-int get_video_colors(sh_video_t *sh_video,char *item,int *value)
+int get_video_colors(sh_video_t *sh_video,const char *item,int *value)
 {
     vf_instance_t* vf=sh_video->vfilter;
     vf_equalizer_t data;
@@ -111,7 +111,7 @@ int get_video_colors(sh_video_t *sh_video,char *item,int *value)
         int ret = vf->control(vf, VFCTRL_GET_EQUALIZER, &data);
 	if (ret == CONTROL_TRUE){
 	    *value = data.value;
-	    return(1);
+	    return 1;
 	}
     }
     /* try software control */
@@ -129,7 +129,7 @@ int set_rectangle(sh_video_t *sh_video,int param,int value)
     {
         int ret = vf->control(vf, VFCTRL_CHANGE_RECTANGLE, data);
 	if (ret)
-	    return(1);
+	    return 1;
     }
     return 0;
 }
@@ -152,15 +152,15 @@ int get_current_video_decoder_lag(sh_video_t *sh_video)
 }
 
 void uninit_video(sh_video_t *sh_video){
-    if(!sh_video->inited) return;
+    if(!sh_video->initialized) return;
     mp_msg(MSGT_DECVIDEO,MSGL_V,MSGTR_UninitVideoStr,sh_video->codec->drv);
     mpvdec->uninit(sh_video);
-#ifdef DYNAMIC_PLUGINS
+#ifdef CONFIG_DYNAMIC_PLUGINS
     if (sh_video->dec_handle)
 	dlclose(sh_video->dec_handle);
 #endif
     vf_uninit_filter_chain(sh_video->vfilter);
-    sh_video->inited=0;
+    sh_video->initialized=0;
 }
 
 void vfm_help(void){
@@ -175,11 +175,12 @@ void vfm_help(void){
 	    mpcodecs_vd_drivers[i]->info->comment);
 }
 
-int init_video(sh_video_t *sh_video,char* codecname,char* vfm,int status){
+static int init_video(sh_video_t *sh_video,char* codecname,char* vfm,int status,
+               stringset_t *selected){
     int force = 0;
     unsigned int orig_fourcc=sh_video->bih?sh_video->bih->biCompression:0;
     sh_video->codec=NULL;
-    sh_video->vf_inited=0;
+    sh_video->vf_initialized=0;
     if (codecname && codecname[0] == '+') {
       codecname = &codecname[1];
       force = 1;
@@ -194,17 +195,17 @@ int init_video(sh_video_t *sh_video,char* codecname,char* vfm,int status){
           sh_video->bih?((unsigned int*) &sh_video->bih->biCompression):NULL,
           sh_video->codec,force) )) break;
 	// ok we found one codec
-	if(sh_video->codec->flags&CODECS_FLAG_SELECTED) continue; // already tried & failed
+	if(stringset_test(selected, sh_video->codec->name)) continue; // already tried & failed
 	if(codecname && strcmp(sh_video->codec->name,codecname)) continue; // -vc
 	if(vfm && strcmp(sh_video->codec->drv,vfm)) continue; // vfm doesn't match
 	if(!force && sh_video->codec->status<status) continue; // too unstable
-	sh_video->codec->flags|=CODECS_FLAG_SELECTED; // tagging it
+	stringset_add(selected, sh_video->codec->name); // tagging it
 	// ok, it matches all rules, let's find the driver!
 	for (i=0; mpcodecs_vd_drivers[i] != NULL; i++)
 //	    if(mpcodecs_vd_drivers[i]->info->id==sh_video->codec->driver) break;
 	    if(!strcmp(mpcodecs_vd_drivers[i]->info->short_name,sh_video->codec->drv)) break;
 	mpvdec=mpcodecs_vd_drivers[i];
-#ifdef DYNAMIC_PLUGINS
+#ifdef CONFIG_DYNAMIC_PLUGINS
 	if (!mpvdec)
 	{
 	    /* try to open shared decoder plugin */
@@ -258,8 +259,8 @@ int init_video(sh_video_t *sh_video,char* codecname,char* vfm,int status){
 	// init()
 	mp_msg(MSGT_DECVIDEO,MSGL_INFO,MSGTR_OpeningVideoDecoder,mpvdec->info->short_name,mpvdec->info->name);
 	// clear vf init error, it is no longer relevant
-	if (sh_video->vf_inited < 0)
-		sh_video->vf_inited = 0;
+	if (sh_video->vf_initialized < 0)
+		sh_video->vf_initialized = 0;
 	if(!mpvdec->init(sh_video)){
 	    mp_msg(MSGT_DECVIDEO,MSGL_INFO,MSGTR_VDecoderInitFailed);
 	    sh_video->disp_w=orig_w;
@@ -271,7 +272,7 @@ int init_video(sh_video_t *sh_video,char* codecname,char* vfm,int status){
 	    continue; // try next...
 	}
 	// Yeah! We got it!
-	sh_video->inited=1;
+	sh_video->initialized=1;
 	return 1;
     }
     return 0;
@@ -279,21 +280,22 @@ int init_video(sh_video_t *sh_video,char* codecname,char* vfm,int status){
 
 int init_best_video_codec(sh_video_t *sh_video,char** video_codec_list,char** video_fm_list){
 char* vc_l_default[2]={"",(char*)NULL};
+stringset_t selected;
 // hack:
 if(!video_codec_list) video_codec_list=vc_l_default;
 // Go through the codec.conf and find the best codec...
-sh_video->inited=0;
-codecs_reset_selection(0);
-while(!sh_video->inited && *video_codec_list){
+sh_video->initialized=0;
+stringset_init(&selected);
+while(!sh_video->initialized && *video_codec_list){
   char* video_codec=*(video_codec_list++);
   if(video_codec[0]){
     if(video_codec[0]=='-'){
       // disable this codec:
-      select_codec(video_codec+1,0);
+      stringset_add(&selected, video_codec+1);
     } else {
       // forced codec by name:
       mp_msg(MSGT_DECVIDEO,MSGL_INFO,MSGTR_ForcedVideoCodec,video_codec);
-      init_video(sh_video,video_codec,NULL,-1);
+      init_video(sh_video,video_codec,NULL,-1, &selected);
     }
   } else {
     int status;
@@ -301,20 +303,21 @@ while(!sh_video->inited && *video_codec_list){
     if(video_fm_list){
       char** fmlist=video_fm_list;
       // try first the preferred codec families:
-      while(!sh_video->inited && *fmlist){
+      while(!sh_video->initialized && *fmlist){
         char* video_fm=*(fmlist++);
 	mp_msg(MSGT_DECVIDEO,MSGL_INFO,MSGTR_TryForceVideoFmtStr,video_fm);
 	for(status=CODECS_STATUS__MAX;status>=CODECS_STATUS__MIN;--status)
-	    if(init_video(sh_video,NULL,video_fm,status)) break;
+	    if(init_video(sh_video,NULL,video_fm,status, &selected)) break;
       }
     }
-    if(!sh_video->inited)
+    if(!sh_video->initialized)
 	for(status=CODECS_STATUS__MAX;status>=CODECS_STATUS__MIN;--status)
-	    if(init_video(sh_video,NULL,NULL,status)) break;
+	    if(init_video(sh_video,NULL,NULL,status, &selected)) break;
   }
 }
+stringset_free(&selected);
 
-if(!sh_video->inited){
+if(!sh_video->initialized){
     mp_msg(MSGT_DECVIDEO,MSGL_ERR,MSGTR_CantFindVideoCodec,sh_video->format);
     mp_msg(MSGT_DECAUDIO,MSGL_HINT, MSGTR_RTFMCodecs);
     return 0; // failed
@@ -367,14 +370,14 @@ void *decode_video(sh_video_t *sh_video, unsigned char *start, int in_size,
 
     //------------------------ frame decoded. --------------------
 
-#ifdef HAVE_MMX
+#if HAVE_MMX
     // some codecs are broken, and doesn't restore MMX state :(
     // it happens usually with broken/damaged files.
     if (gCpuCaps.has3DNow) {
-	__asm __volatile ("femms\n\t":::"memory");
+	__asm__ volatile ("femms\n\t":::"memory");
     }
     else if (gCpuCaps.hasMMX) {
-	__asm __volatile ("emms\n\t":::"memory");
+	__asm__ volatile ("emms\n\t":::"memory");
     }
 #endif
 
@@ -413,7 +416,7 @@ int filter_video(sh_video_t *sh_video, void *frame, double pts)
     int ret = vf->put_image(vf, mpi, pts);
     if (ret > 0) {
 	vf->control(vf, VFCTRL_DRAW_OSD, NULL);
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
 	vf->control(vf, VFCTRL_DRAW_EOSD, NULL);
 #endif
     }

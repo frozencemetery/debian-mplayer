@@ -1,7 +1,5 @@
-/* vf_blackframe.c - detect frames that are (almost) black
- *
- * $Id$
- *
+/*
+ * detect frames that are (almost) black
  * search for black frames to detect scene transitions
  * (c) 2006 Julian Hall
  *
@@ -10,19 +8,21 @@
  *
  * cleanup, simplify, speedup (c) 2006 by Ivo van Poorten
  *
- * This program is free software; you can redistribute it and/or modify
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * MPlayer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <stdio.h>
@@ -76,7 +76,7 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
     int w = mpi->w, h = mpi->h;
     int bthresh = vf->priv->bthresh;
     int bamount = vf->priv->bamount;
-    static const char *picttypes[4] = { "unknown", "I", "P", "B" };
+    static const char *const picttypes[4] = { "unknown", "I", "P", "B" };
 
     for (y=1; y<=h; y++) {
 	    for (x=0; x<w; x++)
@@ -138,7 +138,7 @@ static int open(vf_instance_t *vf, char* args){
     return 1;
 }
 
-vf_info_t vf_info_blackframe = {
+const vf_info_t vf_info_blackframe = {
     "detects black frames",
     "blackframe",
     "Brian J. Murrell, Julian Hall, Ivo van Poorten",

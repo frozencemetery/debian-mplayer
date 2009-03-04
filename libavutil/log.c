@@ -20,36 +20,45 @@
  */
 
 /**
- * @file log.c
- * log.
+ * @file libavutil/log.c
+ * logging functions
  */
 
 #include "avutil.h"
+#include "log.h"
 
 int av_log_level = AV_LOG_INFO;
 
 void av_log_default_callback(void* ptr, int level, const char* fmt, va_list vl)
 {
     static int print_prefix=1;
+    static int count;
+    static char line[1024], prev[1024];
     AVClass* avc= ptr ? *(AVClass**)ptr : NULL;
     if(level>av_log_level)
         return;
 #undef fprintf
     if(print_prefix && avc) {
-            fprintf(stderr, "[%s @ %p]", avc->item_name(ptr), avc);
+        snprintf(line, sizeof(line), "[%s @ %p]", avc->item_name(ptr), ptr);
+    }else
+        line[0]=0;
+
+    vsnprintf(line + strlen(line), sizeof(line) - strlen(line), fmt, vl);
+
+    print_prefix= line[strlen(line)-1] == '\n';
+    if(print_prefix && !strcmp(line, prev)){
+        count++;
+        return;
     }
-#define fprintf please_use_av_log
-
-    print_prefix= strstr(fmt, "\n") != NULL;
-
-    vfprintf(stderr, fmt, vl);
+    if(count>0){
+        fprintf(stderr, "    Last message repeated %d times\n", count);
+        count=0;
+    }
+    fputs(line, stderr);
+    strcpy(prev, line);
 }
 
-#if LIBAVUTIL_VERSION_INT < (50<<16)
 static void (*av_log_callback)(void*, int, const char*, va_list) = av_log_default_callback;
-#else
-void (*av_vlog)(void*, int, const char*, va_list) = av_log_default_callback;
-#endif
 
 void av_log(void* avcl, int level, const char *fmt, ...)
 {
@@ -59,7 +68,6 @@ void av_log(void* avcl, int level, const char *fmt, ...)
     va_end(vl);
 }
 
-#if LIBAVUTIL_VERSION_INT < (50<<16)
 void av_vlog(void* avcl, int level, const char *fmt, va_list vl)
 {
     av_log_callback(avcl, level, fmt, vl);
@@ -79,4 +87,3 @@ void av_log_set_callback(void (*callback)(void*, int, const char*, va_list))
 {
     av_log_callback = callback;
 }
-#endif

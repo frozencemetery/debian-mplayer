@@ -1,6 +1,23 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
-#ifndef GUI_CFG_H
-#define GUI_CFG_H
+#ifndef MPLAYER_GUI_CFG_H
+#define MPLAYER_GUI_CFG_H
 
 extern int gtkEnableAudioEqualizer;
 
@@ -11,25 +28,15 @@ extern int    gtkAONorm;
 extern int    gtkAOFakeSurround;
 extern int    gtkAOExtraStereo;
 extern float  gtkAOExtraStereoMul;
-#ifdef USE_OSS_AUDIO
 extern char * gtkAOOSSMixer;
 extern char * gtkAOOSSMixerChannel;
 extern char * gtkAOOSSDevice;
-#endif
-#if defined(HAVE_ALSA9) || defined (HAVE_ALSA1X)
 extern char * gtkAOALSAMixer;
 extern char * gtkAOALSAMixerChannel;
 extern char * gtkAOALSADevice;
-#endif
-#ifdef HAVE_SDL
 extern char * gtkAOSDLDriver;
-#endif
-#ifdef USE_ESD
 extern char * gtkAOESDDevice;
-#endif
-#ifdef HAVE_DXR3
 extern char * gtkDXR3Device;
-#endif
 
 extern int    gtkCacheOn;
 extern int    gtkCacheSize;
@@ -56,7 +63,7 @@ extern int    gui_main_pos_y;
 extern int    gui_sub_pos_x;
 extern int    gui_sub_pos_y;
 
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
 typedef struct {
     int enabled;
     int use_margins;
@@ -66,7 +73,7 @@ typedef struct {
 extern gtkASS_t gtkASS;
 #endif
 
-extern int cfg_read( void );
-extern int cfg_write( void );
+int cfg_read( void );
+int cfg_write( void );
 
-#endif
+#endif /* MPLAYER_GUI_CFG_H */

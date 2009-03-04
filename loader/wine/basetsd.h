@@ -6,11 +6,10 @@
 /*
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: basetsd.h 24442 2007-09-13 08:50:21Z diego $
  */
 
-#ifndef WINE_BASETSD_H
-#define WINE_BASETSD_H
+#ifndef MPLAYER_BASETSD_H
+#define MPLAYER_BASETSD_H
 
 #include "config.h"
 
@@ -170,4 +169,4 @@ typedef UINT_PTR SIZE_T, *PSIZE_T;
 } /* extern "C" */
 #endif /* defined(__cplusplus) */
 
-#endif /* !defined(WINE_BASETSD_H) */
+#endif /* MPLAYER_BASETSD_H */

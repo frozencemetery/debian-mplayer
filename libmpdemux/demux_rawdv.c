@@ -38,8 +38,8 @@ static void demux_seek_rawdv(demuxer_t *demuxer,float rel_seek_secs,float audio_
 {
    rawdv_frames_t *frames = (rawdv_frames_t *)demuxer->priv;
    sh_video_t *sh_video = demuxer->video->sh;
-   off_t newpos=(flags&1)?0:frames->current_frame;
-   if(flags&2)
+   off_t newpos=(flags&SEEK_ABSOLUTE)?0:frames->current_frame;
+   if(flags&SEEK_FACTOR)
    {
       // float 0..1
       newpos+=rel_seek_secs*frames->frame_number;
@@ -195,6 +195,7 @@ static demuxer_t* demux_open_rawdv(demuxer_t* demuxer)
    mp_msg(MSGT_DEMUXER,MSGL_V,"demux_open_rawdv() seek to %qu, size: %d, dv_dec->frame_size: %d\n",frames->current_filepos,frames->frame_size, dv_decoder->frame_size);
     if (dv_decoder->audio != NULL && demuxer->audio->id>=-1){
        sh_audio_t *sh_audio =  new_sh_audio(demuxer, 0);
+       demuxer->audio->id = 0;
 	    demuxer->audio->sh = sh_audio;
 	    sh_audio->ds = demuxer->audio;
        mp_msg(MSGT_DEMUXER,MSGL_V,"demux_open_rawdv() chan: %d samplerate: %d\n",dv_decoder->audio->num_channels,dv_decoder->audio->frequency );
@@ -248,7 +249,7 @@ static int demux_rawdv_control(demuxer_t *demuxer,int cmd, void *arg) {
 }
 
 
-demuxer_desc_t demuxer_desc_rawdv = {
+const demuxer_desc_t demuxer_desc_rawdv = {
   "Raw DV demuxer",
   "rawdv",
   "RAWDV",

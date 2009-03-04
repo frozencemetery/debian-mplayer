@@ -16,7 +16,7 @@
 
 #include "libvo/fastmemcpy.h"
 
-vf_info_t vf_info_divtc;
+const vf_info_t vf_info_divtc;
 
 struct vf_priv_s
    {
@@ -33,11 +33,11 @@ struct vf_priv_s
  * diff_MMX and diff_C stolen from vf_decimate.c
  */
 
-#ifdef HAVE_MMX
+#if HAVE_MMX
 static int diff_MMX(unsigned char *old, unsigned char *new, int os, int ns)
    {
    volatile short out[4];
-   asm (
+   __asm__ (
 	"movl $8, %%ecx \n\t"
 	"pxor %%mm4, %%mm4 \n\t"
 	"pxor %%mm7, %%mm7 \n\t"
@@ -128,7 +128,7 @@ static unsigned int checksum_plane(unsigned char *p, unsigned char *z,
    unsigned int shift;
    uint32_t sum, t;
    unsigned char *e, *e2;
-#if MP_WORDSIZE==64
+#if __WORDSIZE==64
    typedef uint64_t wsum_t;
 #else
    typedef uint32_t wsum_t;
@@ -143,7 +143,7 @@ static unsigned int checksum_plane(unsigned char *p, unsigned char *z,
       for(wsum=0, e2=e-sizeof(wsum_t)+1; p<e2; p+=sizeof(wsum_t))
 	 wsum^=*(wsum_t *)p;
 
-#if MP_WORDSIZE==64
+#if __WORDSIZE==64
       t=be2me_32((uint32_t)(wsum>>32^wsum));
 #else
       t=be2me_32(wsum);
@@ -683,7 +683,7 @@ static int open(vf_instance_t *vf, char* args)
       goto nomem;
 
    diff=
-#ifdef HAVE_MMX
+#if HAVE_MMX
       gCpuCaps.hasMMX?diff_MMX:
 #endif
       diff_C;
@@ -692,7 +692,7 @@ static int open(vf_instance_t *vf, char* args)
    return 1;
    }
 
-vf_info_t vf_info_divtc =
+const vf_info_t vf_info_divtc =
    {
    "inverse telecine for deinterlaced video",
    "divtc",

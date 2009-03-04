@@ -1,23 +1,21 @@
 /*
- *  stream_netstream.c
+ * Copyright (C) Alban Bedel - 04/2003
  *
- *	Copyright (C) Alban Bedel - 04/2003
+ * This file is part of MPlayer.
  *
- *  This file is part of MPlayer, a free movie player.
- *	
- *  MPlayer is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2, or (at your option)
- *  any later version.
- *   
- *  MPlayer is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *   
- *  You should have received a copy of the GNU General Public License
- *  along with MPlayer; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /*
@@ -44,8 +42,7 @@
 #include <inttypes.h>
 #include <errno.h>
 
-#ifndef HAVE_WINSOCK2
-#define closesocket close
+#if !HAVE_WINSOCK2_H
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -61,7 +58,8 @@
 #include "libavutil/common.h"
 #include "mpbswap.h"
 
-#include "netstream.h"
+#include "network.h"
+#include "stream_netstream.h"
 #include "tcp.h"
 
 static struct stream_priv_s {
@@ -76,13 +74,13 @@ static struct stream_priv_s {
 
 #define ST_OFF(f) M_ST_OFF(struct stream_priv_s,f)
 /// URL definition
-static m_option_t stream_opts_fields[] = {
+static const m_option_t stream_opts_fields[] = {
   {"hostname", ST_OFF(host), CONF_TYPE_STRING, 0, 0 ,0, NULL},
   {"port", ST_OFF(port), CONF_TYPE_INT, M_OPT_MIN, 1 ,0, NULL},
   {"filename", ST_OFF(url), CONF_TYPE_STRING, 0, 0 ,0, NULL},
   { NULL, NULL, 0, 0, 0, 0,  NULL }
 };
-static struct m_struct_st stream_opts = {
+static const struct m_struct_st stream_opts = {
   "netstream",
   sizeof(struct stream_priv_s),
   &stream_priv_dflts,
@@ -92,7 +90,7 @@ static struct m_struct_st stream_opts = {
 //// When the cache is running we need a lock as
 //// fill_buffer is called from another proccess
 static int lock_fd(int fd) {
-#ifndef HAVE_WINSOCK2
+#if !HAVE_WINSOCK2_H
   struct flock lock;
 
   memset(&lock,0,sizeof(struct flock));
@@ -115,7 +113,7 @@ printf("FIXME? should lock here\n");
 }
 
 static int unlock_fd(int fd) {
-#ifndef HAVE_WINSOCK2
+#if !HAVE_WINSOCK2_H
   struct flock lock;
 
   memset(&lock,0,sizeof(struct flock));
@@ -296,7 +294,7 @@ static int open_s(stream_t *stream,int mode, void* opts, int* file_format) {
   return STREAM_ERROR;
 }
 
-stream_info_t stream_info_netstream = {
+const stream_info_t stream_info_netstream = {
   "Net stream",
   "netstream",
   "Albeu",

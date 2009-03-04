@@ -18,6 +18,7 @@
 #include "m_option.h"
 #include "m_config.h"
 #include "playtree.h"
+#include "parser-mpcmd.h"
 
 static int recursion_depth = 0;
 static int mode = 0;
@@ -73,8 +74,8 @@ m_config_parse_mp_command_line(m_config_t *config, int argc, char **argv)
   int no_more_opts = 0;
   int opt_exit = 0; // flag indicating whether mplayer should exit without playing anything
   play_tree_t *last_parent, *last_entry = NULL, *root;
-#ifdef MACOSX_FINDER_SUPPORT
-  extern play_tree_t *macosx_finder_args(m_config_t *, int , char **);
+#ifdef CONFIG_MACOSX_FINDER
+  play_tree_t *macosx_finder_args(m_config_t *, int , char **);
 #endif
 
 #ifdef MP_DEBUG
@@ -85,7 +86,7 @@ m_config_parse_mp_command_line(m_config_t *config, int argc, char **argv)
 
   config->mode = M_COMMAND_LINE;
   mode = GLOBAL;
-#ifdef MACOSX_FINDER_SUPPORT
+#ifdef CONFIG_MACOSX_FINDER
   root=macosx_finder_args(config, argc, argv);
   if(root) 
   	return root;
@@ -170,7 +171,7 @@ m_config_parse_mp_command_line(m_config_t *config, int argc, char **argv)
 	  else
 	    last_parent->flags &= ~PLAY_TREE_RND;
 	} else {
-	  m_option_t* mp_opt = NULL;
+	  const m_option_t* mp_opt = NULL;
 	  play_tree_t* entry = NULL;
 
 	  tmp = is_entry_option(opt,(i+1<argc) ? argv[i + 1] : NULL,&entry);

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- synced with r24549 -->
+<!-- synced with r28510 -->
 <chapter id="encoding-guide">
 <title>Kódolás a <application>MEncoder</application>rel</title>
 
@@ -438,7 +438,7 @@ tengelyen, a másik a kék-sárga tengelyen).
 Ha a film szélessége és magassága nem 16 többszöröse, a kódoló akkor is
 elegendő 16x16-os makroblokkot fog használni, hogy lefedje a teljes
 képet, a maradék hely veszendőbe megy.
-Így ha a minőség maximalizálása a cél egy fix fájlmérettel, akkor
+Így ha a minőség maximalizálása a cél egy fix fájl mérettel, akkor
 eléggé rossz ötlet nem 16 valamelyik többszörösét használni méretként.
 </para>
 
@@ -1057,7 +1057,7 @@ Először, ki kell számítanod az elkódolt képarányt:
 </para></listitem>
 <listitem><para>
   PRdvd a DVD pixel rátája, ami PAL DVD-k esetén 1.25=(720/576)
-  és 1.5=(720/480) NTSC DVD-knél,
+  és 1.5=(720/480) NTSC DVD-knél.
 </para></listitem>
 </itemizedlist>
 </para>
@@ -1185,8 +1185,8 @@ Az egyetlen dolog, amit szeretnél, a videó nagyon könnyű zajszűrőn törté
 bitek jobb felhasználásáról van szó: miért vesztegessük el őket a zaj
 kódolására, ha ezt a zajt lejátszás közben is hozzá tudod adni? A
 <option>hqdn3d</option> paramétereinek növelésével még jobb tömörítettséget
-érhetsz el, de ha túl magasra állítod az értékeket, rontod a kép
-láthatóságát.
+érhetsz el, de ha túl magasra állítod az értékeket, akkor láthatóan rontod
+a kép minőségét.
 A fent javasolt értékek (<option>2:1:2</option>) eléggé konzervatívak;
 kísérletezz szabadon nagyobb értékekkel és ellenőrizd az eredményeket magad.
 </para>
@@ -1548,7 +1548,7 @@ PCM-be az <application>MPlayer</application>rel), a szeletek hibásan maradnak
 benne és csak képkocka eldobással/duplázással lehet javítani.
 Amíg a <application>MEncoder</application> látja az audiót a videó kódolása
 közben, meg tudja csinálni ezt az eldobást/duplázást (ami általában rendben
-van, mert teljesen sötét/jelentetváltásos helyeken történik), de ha a
+van, mert teljesen sötét/jelentet váltásos helyeken történik), de ha a
 <application>MEncoder</application> nem látja az audiót, csak feldolgoz
 minden képkockát úgy ahogy van és nem fog illeszkedni a végső audió folyamhoz
 ha például összeilleszted az audió és a videó sávodat egy Matroska fájlba.
@@ -1789,7 +1789,7 @@ a telecine.
 <formalpara>
 <title>Megjegyzés a számokhoz.</title>
 <para>
-Sok dokumentáció, beleértve a fent belinkeltet is, az NTSC videó mező
+Sok dokumentáció, beleértve a fent belinkelt cikket is, az NTSC videó mező
 per másodperc értékét 59.94-ként határozza meg, és a megfelelő képkocka
 per másodperc értéket 29.97-nek (telecine-s és átlapolt) és 23.976-nak
 írja (progresszív). Az egyszerűség kedvéért sok dokumentáció még ezeket
@@ -1870,7 +1870,9 @@ kockáról kockára mutatja meg, mezőről mezőre történő lejátszás helyet
   írva. Csak a legalapvetőbb dolgokat mutatják, ami a megfelelő kategóriába
   tartozó videók kódolásához szükséges. A jó DVD rip-ek készítése vagy a
   <systemitem class="library">libavcodec</systemitem> finomhangolása a
-  maximális minőség eléréséhez nem tartozik ezen dokumentum célkitűzései közé.
+  maximális minőség eléréséhez nem tartozik ezen fejezet célkitűzései közé,
+  nézd meg a <link linkend="encoding-guide">MEncoder kódolási útmutató</link>
+  többi részét.
 </para></listitem>
 <listitem><para>
   Sok megjegyzés vonatkozik erre a leírásra, melyek így vannak jelölve:
@@ -2120,7 +2122,7 @@ felépítéséhez (ennek vannak hátrányai - lásd a 3. módszert).
   eléggé odavág a kódoló tömörítési képességeinek, de a
   <systemitem class="library">libavcodec</systemitem>nek van két
   paramétere speciálisan az átlapolt videó tárolásának egy kicsit jobb
-  kezeléséhez: <option> ildct</option> és <option>ilme</option>. Az
+  kezeléséhez: <option>ildct</option> és <option>ilme</option>. Az
   <option>mbd=2</option> használata is javasolt
   <link linkend="menc-feat-telecine-footnotes">[2] </link>, mert ez a
   makroblokkokat nem-átlapoltként fogja elkódolni azokon a helyeken, ahol
@@ -2132,7 +2134,7 @@ felépítéséhez (ennek vannak hátrányai - lásd a 3. módszert).
   választhatsz, mindegyiknek megvan a maga előnye és hátránya.
   Lásd az <option>mplayer -pphelp</option> és az
   <option>mplayer -vf help</option> kimenetét, hogy megtudd, mit
-  használhatsz (grep-pelj a "deint"-re), olvasd el Michael's Niedermayer
+  használhatsz (grep-pelj a "deint"-re), olvasd el Michael Niedermayer
   <ulink url="http://guru.multimedia.cx/deinterlacing-filters/">Deinterlacing szűrő összehasonlítását</ulink>,
   és keress az
   <ulink url="http://www.mplayerhq.hu/design7/mailing_lists.html">
@@ -2147,7 +2149,7 @@ felépítéséhez (ennek vannak hátrányai - lásd a 3. módszert).
 <listitem><para>
   Sajnos ez a kapcsoló hibás a <application>MEncoder</application>ben;
   talán a <application>MEncoder G2</application>-vel működni fog,
-  de itt most még nem. Belefuthatsz fagyásokba. Egyébként a <option> -vf
+  de itt most még nem. Fagyásokat tapasztalhatsz. Egyébként a <option> -vf
   tfields</option> célja az lenne, hogy teljes képkockát készít
   mindegyik mezőből, ami miatt a frameráta 60000/1001 lesz. Ennek a
   megközelítésnek az az előnye, hogy soha nincs adatvesztés; habár
@@ -2219,7 +2221,23 @@ mencoder dvd://1 -oac copy -vf pullup,softskip
   --></screen>
 </para></listitem>
 <listitem><para>
-  A másik módszer, a telecine-s részek inverz-telecine-lése
+  A <option>-vf filmdint</option> hasonló a
+  <option>-vf pullup</option>-hoz: mindkét szűrő megpróbálja egyeztetni a
+  mezőpárokat, hogy azok egy komplett képkockát adjanak. A <option>filmdint</option>
+  deinterlace-lni fogja az egyedi mezőket, amelyeket nem tud egyeztetni,
+  míg a <option>pullup</option> egyszerűen csak eldobja őket. A két szűrő
+  különböző detektáló kódot alkalmaz és a <option>filmdint</option> néha túl kevés mezőt
+  egyeztet. Az, hogy melyik szűrő a jobb, a bemeneti videótól és az egyéni
+  ízléstől függ; kísérletezz szabadon a szűrők opcióinak finomhangolásával,
+  ha valamelyikkel problémád van (lásd a man oldalt a részletekért).
+  A legtöbb jól elkészített bemeneti videónál mindkettő eléggé jól működik,
+  így bármelyik jó választás lehet a kezdéshez.
+  <screen>
+mencoder dvd://1 -oac copy -vf filmdint -ovc lavc -ofps 24000/1001<!--
+  --></screen>
+</para></listitem>
+<listitem><para>
+  A régebbi módszer, a telecine-s részek inverz-telecine-lése
   helyett a nem-telecine-s részek telecine-lése majd a teljes
   videó inverz-telecine-lése. Zavarosan hangzik? A softpulldown
   egy olyan szűrő, ami végigmegy a videón és a teljes fájlt
@@ -2232,18 +2250,6 @@ mencoder dvd://1 -oac copy -vf softpulldown,ivtc=1 -ovc lavc -ofps 24000/1001
   </screen>
 </para></listitem>
 
-<listitem><para>
-  Én magam nem használtam a <option>-vf filmdint</option>-et, de álljon itt
-  D Richard Felker III hozzászólása:
-
-  <blockquote><para>Rendben, de IMO inkább deinterlace-t próbálj
-	 a túl gyakori inverz telecine helyett (inkább settop DVD
-     lejátszók &amp; progresszív TV-k) ami csúnya vibrálást és egyéb
-     jelenségeket okoz. Ha használni akarod, el kell töltened egy kis
-     időt az opciók próbálgatásával és az eredmény megfigyelésével,
-     hogy biztos légy benne, nem rontja el az egészet.
-  </para></blockquote>
-</para></listitem>
 </itemizedlist>
 </sect3>
 
@@ -2378,7 +2384,7 @@ Az időtartam/hely alapján kell döntened.
   <para>
   Bátran használhatod a <option>pullup</option>-ot (a <option>softskip</option>pel
   együtt) a progresszív videókon és ez általában jó ötlet, hacsak a forrás
-  nem egyértelműen teljesen progresszív. A teljesítményveszteség kicsi az
+  nem egyértelműen teljesen progresszív. A teljesítmény veszteség kicsi az
   esetek többségében. Nagyon ritka kódolási esetekben a <option>pullup</option>
   a <application>MEncoder</application> 50%-os lassulását okozhatja.
   A zenefeldolgozás hozzáadása és a fejlett <option>lavcopts</option>
@@ -2399,7 +2405,7 @@ Az időtartam/hely alapján kell döntened.
   codec családdal</title>
 
 <para>
-A <link linkend="ffmpeg"><systemitem class="library">libavcodec</systemitem></link>
+A <systemitem class="library">libavcodec</systemitem>
 számos érdekes videó és audió formátumba történő egyszerű kódolást biztosít.
 A következő codec-ekbe kódolhatsz (többé-kevésbé friss lista):
 </para>
@@ -2534,8 +2540,12 @@ A következő codec-ekbe kódolhatsz (többé-kevésbé friss lista):
   <entry>az FFmpeg kísérleti wavelet-alapú codecja</entry>
 </row>
 <row>
-  <entry>zbmv</entry>
-  <entry>Zip Blocks Motion Video</entry>
+  <entry>zmbv</entry>
+  <entry>Zip Motion Blocks Video</entry>
+</row>
+<row>
+  <entry>dnxhd</entry>
+  <entry>AVID DNxHD</entry>
 </row>
 </tbody>
 </tgroup>
@@ -2839,7 +2849,7 @@ Ez szép is lenne, de sajnos nehezen megvalósítható, mert a különböző
 kódolási opciók különböző minőséget eredményeznek, mely függ a forrás
 anyagtól is.
 Ez azért van, mert a tömörítés függ a szóbanforgó videó vizuális tulajdonságaitól.
-Például az anime és az élő felvétel két nagyon különböző anyag és
+Például az Anime és az élő felvétel két nagyon különböző anyag és
 így különböző opciókat követelnek meg az optimális kódoláshoz.
 A jó hír, hogy néhány opciót soha sem lehet elhagyni, mint például az
 <option>mbd=2</option>, <option>trell</option> és <option>v4mv</option>.
@@ -2879,7 +2889,7 @@ Olvass tovább a gyakori kódolási opciók leírásához.
   Kísérletezz a 0 (alapértelmezett), 2 (hadamard), 3 (dct) és 6 (ráta
   torzítás) értékekkel!
   0 a leggyorsabb és és elegendő a precmp-hez.
-  A cmp-hez és subcmp-hez 2 jó, ha anime és 3 ha élő akció.
+  A cmp-hez és subcmp-hez 2 jó, ha Anime és 3 ha élő akció.
   A 6 vagy jobb vagy nem, de mindenképpen lassabb.
 </para></listitem>
 <listitem><para>
@@ -2924,7 +2934,7 @@ Olvass tovább a gyakori kódolási opciók leírásához.
   általad megadott küszöb és ebben az esetben egyszerűen "változtatás nélkül"
   kerül elkódolásra a blokk.
   Ez biteket ment meg és talán gyorsít is a kódoláson. A vlelim=-4 és
-  vcelim=9 látszólag jók az élő filmekhez, de nem segítenek az anime-nál;
+  vcelim=9 látszólag jók az élő filmekhez, de nem segítenek az Anime-nál;
   ha animációt kódolsz, inkább hagyd őket változatlanul.
 </para></listitem>
 <listitem><para>
@@ -2932,7 +2942,7 @@ Olvass tovább a gyakori kódolási opciók leírásához.
   Az MPEG-4 fél pixeles precíziót használ a mozgáskereséshez alapértelmezésként,
   ezért ez az opció plusz terhelést hoz, mivel több információ tárolódik az
   elkódolt fájlban. A tömörítési nyereség/veszteség a filmtől függ, de
-  általában nem hatékony anime-oknál.
+  általában nem hatékony Anime-oknál.
   A qpel mindig jelentős dekódolási CPU idő igénnyel jár (+25% a gyakorlatban).
 </para></listitem>
 <listitem><para>
@@ -3031,7 +3041,7 @@ Kérlek vedd figyelembe, hogy a forrásanyagodtól, a géped típusától
 <title>Egyedi inter/intra matricák</title>
 
 <para>
-A <link linkend="ffmpeg"><systemitem class="library">libavcodec</systemitem></link>
+A <systemitem class="library">libavcodec</systemitem>
 ezen képességével egyedi inter (I-frame/kulcs frame) és intra
 (P-frame/jósolt frame) matricákat állíthatsz be. Több codec támogatja ezt:
 az <systemitem>mpeg1video</systemitem> és <systemitem>mpeg2video</systemitem>
@@ -3331,7 +3341,7 @@ ha a következő rész túl zavarosnak tűnik.
 <listitem><para>
   <emphasis role="bold">hq_ac</emphasis>
   Bekapcsol egy jobb együttható kölcségbecslő módszert, ami kissé
-  csökkenti a fájlméretet, kb. 0,15-0,19% között (ami kevesebb, mint
+  csökkenti a fájl méretet, kb. 0,15-0,19% között (ami kevesebb, mint
   0,01dB-es PSNR növekedésnek felel meg), miközben jelentéktelen
   hatása van a sebességre. Ezért ajánlott mindig bekapcsolva hagyni.
 </para></listitem>
@@ -3364,7 +3374,7 @@ ha a következő rész túl zavarosnak tűnik.
   csak a luma-t (grayscale) használja.
   Ez 5-10%-kal lassítja a kódolást, de eléggé javítja a vizuális
   minőséget a blokkosodási effektusok csökkentésével és csökkenti
-  a fájlméretet kb. 1,3%-kal.
+  a fájl méretet kb. 1,3%-kal.
   Ha a sebesség érdekel, kapcsold ki ezt az opciót, mielőtt
   elkezdenél töprengeni a <option>me_quality</option> csökkentésén.
 </para></listitem>
@@ -3656,7 +3666,7 @@ A következő táblázat megmutatja, hogy melyik profil mit támogat.
   <entry>X</entry>
 </row>
 <row>
-  <entry>Quaterpixel</entry>
+  <entry>Quarterpixel</entry>
   <entry></entry>
   <entry></entry>
   <entry></entry>
@@ -3769,7 +3779,7 @@ Kérlek vedd figyelembe, hogy a forrásanyagodtól, a géped típusától
 <para>
 Az <systemitem class="library">x264</systemitem> egy szabad függvénykönyvtár
 a H.264/AVC videó folyamok kódolásához.
-Mielőtt elkezdenél kódolni, <link linkend="codec-x264-encode">be kell
+Mielőtt elkezdenél kódolni, <link linkend="x264">be kell
 állítanod a <application>MEncoder</application>ben a támogatását</link>.
 </para>
 
@@ -3940,7 +3950,7 @@ elért bitráta különbségből adódik.
   valószínűleg jóval kevesebb, mint 0.1dB PSNR-t veszítesz, ami
   túl kicsi különbség ahhoz, hogy észrevedd.
   Bár a <option>frameref</option> különböző értékei alkalmanként
-  befolyásolhatják a frametype döntéseket.
+  befolyásolhatják a képkocka típus döntéseket.
   Ezek legtöbbször ritka, szélsőséges esetek, de ha teljesen biztos
   akarsz lenni, gondolkozz el rajta, hogy van-e a videódban teljes
   képernyős ismétlődő, csillogó minta vagy nagyon nagy ideiglenes
@@ -4409,7 +4419,7 @@ opciókat, ha a codec hibázik vagy rossz kimenetet ad.
 </row>
 <row>
   <entry>m3jpeg32.dll</entry>
-  <entry>Morgan Motion JPEG Codec (MJPG)</entry>
+  <entry>Morgan Motion JPEG Codec (MJPEG)</entry>
   <entry>1cd13fff5960aa2aae43790242c323b1</entry>
   <entry></entry>
 </row>
@@ -4447,7 +4457,7 @@ opciókat, ha a codec hibázik vagy rossz kimenetet ad.
   <entry>vp7vfw.dll</entry>
   <entry>On2 VP7 Personal Codec (VP70)</entry>
   <entry>cb4cc3d4ea7c94a35f1d81c3d750bc8d</entry>
-  <entry>hibás FourCC?</entry>
+  <entry><option>-ffourcc VP70</option></entry>
 </row>
 <row>
   <entry>ViVD2.dll</entry>
@@ -4782,7 +4792,7 @@ me=umh:partitions=all:trellis=1:qp_step=4:qcomp=0.7:direct_pred=auto:keyint=300 
   <screen>mplayer narnia.avi -dumpaudio -dumpfile narnia.aac
 mplayer narnia.avi -dumpvideo -dumpfile narnia.h264</screen>
 
-  A fájlnevek fontosak; az <application>mp4creator</application>
+  A fájl nevek fontosak; az <application>mp4creator</application>
   <systemitem>.aac</systemitem> kiterjesztésű AAC audió folyamot és
   <systemitem>.h264</systemitem> kiterjesztésű H.264 videó folyamot vár.
 </para>
@@ -5460,7 +5470,7 @@ mencoder -oac copy -ovc lavc -of mpeg -mpegopts format=dvd:tsaf:telecine \
 mencoder -oac lavc -ovc lavc -of mpeg -mpegopts format=xsvcd -vf \
     scale=480:576,harddup -srate 44100 -af lavcresample=44100 -lavcopts \
     vcodec=mpeg2video:mbd=2:keyint=15:vrc_buf_size=917:vrc_minrate=600:\
-vbitrate=2500:vrc_maxrate=2500:acodec=mp2:abitrate=224 -ofps 25 \
+vbitrate=2500:vrc_maxrate=2500:acodec=mp2:abitrate=224:aspect=16/9 -ofps 25 \
     -o <replaceable>movie.mpg</replaceable> <replaceable>movie.avi</replaceable>
   </screen>
 </para>
@@ -5475,7 +5485,7 @@ vbitrate=2500:vrc_maxrate=2500:acodec=mp2:abitrate=224 -ofps 25 \
 mencoder -oac lavc -ovc lavc -of mpeg -mpegopts format=xsvcd  -vf \
     scale=480:480,harddup -srate 44100 -af lavcresample=44100 -lavcopts \
     vcodec=mpeg2video:mbd=2:keyint=18:vrc_buf_size=917:vrc_minrate=600:\
-vbitrate=2500:vrc_maxrate=2500:acodec=mp2:abitrate=224 -ofps 30000/1001 \
+vbitrate=2500:vrc_maxrate=2500:acodec=mp2:abitrate=224:aspect=16/9 -ofps 30000/1001 \
     -o <replaceable>movie.mpg</replaceable> <replaceable>movie.avi</replaceable>
 </screen>
 </para>
@@ -5490,7 +5500,7 @@ vbitrate=2500:vrc_maxrate=2500:acodec=mp2:abitrate=224 -ofps 30000/1001 \
 mencoder -oac lavc -ovc lavc -of mpeg -mpegopts format=xvcd -vf \
     scale=352:288,harddup -srate 44100 -af lavcresample=44100 -lavcopts \
     vcodec=mpeg1video:keyint=15:vrc_buf_size=327:vrc_minrate=1152:\
-vbitrate=1152:vrc_maxrate=1152:acodec=mp2:abitrate=224 -ofps 25 \
+vbitrate=1152:vrc_maxrate=1152:acodec=mp2:abitrate=224:aspect=16/9 -ofps 25 \
     -o <replaceable>movie.mpg</replaceable> <replaceable>movie.avi</replaceable>
 </screen>
 </para>
@@ -5505,7 +5515,7 @@ vbitrate=1152:vrc_maxrate=1152:acodec=mp2:abitrate=224 -ofps 25 \
 mencoder -oac lavc -ovc lavc -of mpeg -mpegopts format=xvcd -vf \
     scale=352:240,harddup -srate 44100 -af lavcresample=44100 -lavcopts \
     vcodec=mpeg1video:keyint=18:vrc_buf_size=327:vrc_minrate=1152:\
-vbitrate=1152:vrc_maxrate=1152:acodec=mp2:abitrate=224 -ofps 30000/1001 \
+vbitrate=1152:vrc_maxrate=1152:acodec=mp2:abitrate=224:aspect=16/9 -ofps 30000/1001 \
     -o <replaceable>movie.mpg</replaceable> <replaceable>movie.avi</replaceable>
 </screen>
 </para>

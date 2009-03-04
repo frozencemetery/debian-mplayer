@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- synced with r24604 -->
+<!-- synced with r27815 -->
 <chapter id="tv">
 <title>TV</title>
 
@@ -111,11 +111,6 @@ Itt csak pár tippet említünk meg:
   használat.
 </para></listitem>
 <listitem><para>
-  Az I420 színtér megadásához (<option>outfmt=i420</option>) meg kell adnod
-  egy <option>-vc rawi420</option> kapcsolót is, mivel fourcc ütközés van
-  egy Intel Indeo videó codec-kel.
-</para></listitem>
-<listitem><para>
   Rengeteg módon menthetsz el audiót. A hangot grabbelheted a hang kártyáddal is
   egy a videó kártya és a line-in között lévő külső kábelen keresztül, vagy a
   bt878-as chip-be beépített ADC segítségével. A második esetben be kell töltened
@@ -194,7 +189,8 @@ tudják hardveres korlátok miatt.
 <title>Teletext</title>
 
 <para>
-A teletext jelenleg csak a v4l és v4l2 vezérlőkkel használható az MPlayerben.
+  A teletext jelenleg csak a v4l és v4l2 vezérlőkkel használható
+  az <application>MPlayerben</application>.
 </para>
 
 <sect2 id="tv-teletext-implementation-notes">

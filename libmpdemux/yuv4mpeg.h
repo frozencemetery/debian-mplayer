@@ -6,7 +6,7 @@
  *
  *  Copyright (C) 2001 Matthew J. Marjanovic <maddog@mir.com>
  *
- *  This file is ripped from the lavtools package (mjpeg.sourceforge.net)
+ *  This file is part of the MJPEG Tools package (mjpeg.sourceforge.net).
  *  Ported to mplayer by Rik Snel <rsnel@cube.dyndns.org>
  *
  *  This program is free software; you can redistribute it and/or
@@ -24,8 +24,8 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef YUV4MPEG_H
-#define YUV4MPEG_H
+#ifndef MPLAYER_YUV4MPEG_H
+#define MPLAYER_YUV4MPEG_H
 
 #include <stdlib.h>
 //#include "mp_msg.h"
@@ -55,7 +55,7 @@
  *  'ratio' datatype, for rational numbers
  *                                     (see 'ratio' functions down below)
  ************************************************************************/
-typedef struct _y4m_ratio {
+typedef struct y4m_ratio {
   int n;  /* numerator   */
   int d;  /* denominator */
 } y4m_ratio_t;
@@ -99,7 +99,7 @@ extern const y4m_ratio_t y4m_sar_PAL_SVCD_16_9; /* PAL SVCD 16:9           */
  ************************************************************************/
 #define Y4M_MAX_XTAGS 32        /* maximum number of xtags in list       */
 #define Y4M_MAX_XTAG_SIZE 32    /* max length of an xtag (including 'X') */
-typedef struct _y4m_xtag_list {
+typedef struct y4m_xtag_list {
   int count;
   char *tags[Y4M_MAX_XTAGS];
 } y4m_xtag_list_t;
@@ -114,7 +114,7 @@ typedef struct _y4m_xtag_list {
  *     Use the y4m_si_*() functions (see below).
  *     You must initialize/finalize this structure before/after use.
  ************************************************************************/
-typedef struct _y4m_stream_info {
+typedef struct y4m_stream_info {
   /* values from header */
   int width;
   int height;
@@ -141,7 +141,7 @@ typedef struct _y4m_stream_info {
  *     Use the y4m_fi_*() functions (see below).
  *     You must initialize/finalize this structure before/after use.
  ************************************************************************/
-typedef struct _y4m_frame_info {
+typedef struct y4m_frame_info {
   /* mystical X tags */
   y4m_xtag_list_t x_tags;
 } y4m_frame_info_t;
@@ -449,6 +449,6 @@ int y4m_allow_unknown_tags(int yn);
  ************************************************************************
  ************************************************************************/
 
-#endif /* YUV4MPEG_H */
+#endif /* MPLAYER_YUV4MPEG_H */
 
 

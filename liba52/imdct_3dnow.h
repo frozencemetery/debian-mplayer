@@ -1,8 +1,24 @@
 /*
-   3DNOW and 3DNOWEX optimized IMDCT
-   Licence: GPL v2
-   Copyrights: Nick Kurshev
-*/
+ * 3DNOW and 3DNOWEX optimized IMDCT
+ * Copyright (C) 2002 Nick Kurshev
+ *
+ * This file is part of a52dec, a free ATSC A-52 stream decoder.
+ * See http://liba52.sourceforge.net/ for updates.
+ *
+ * a52dec is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * a52dec is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #undef FFT_4_3DNOW
 #undef FFT_8_3DNOW
@@ -10,7 +26,7 @@
 #undef FFT_ASMB16_3DNOW
 #undef FFT_128P_3DNOW
 
-#ifdef HAVE_3DNOWEX
+#if HAVE_AMD3DNOWEXT
 #define FFT_4_3DNOW fft_4_3dnowex
 #define FFT_8_3DNOW fft_8_3dnowex
 #define FFT_ASMB_3DNOW fft_asmb_3dnowex
@@ -29,14 +45,14 @@ static void FFT_4_3DNOW(complex_t *x)
   /* delta_p = 1 here */
   /* x[k] = sum_{i=0..3} x[i] * w^{i*k}, w=e^{-2*pi/4} 
    */
-  __asm__ __volatile__(
+  __asm__ volatile(
 	"movq	24(%1), %%mm3\n\t"
 	"movq	8(%1), %%mm1\n\t"
 	"pxor	%2, %%mm3\n\t" /* mm3.re | -mm3.im */
 	"pxor   %3, %%mm1\n\t" /* -mm1.re | mm1.im */
 	"pfadd	%%mm1, %%mm3\n\t" /* vi.im = x[3].re - x[1].re; */
 	"movq	%%mm3, %%mm4\n\t" /* vi.re =-x[3].im + x[1].im; mm4 = vi */
-#ifdef HAVE_3DNOWEX
+#if HAVE_AMD3DNOWEXT
 	"pswapd %%mm4, %%mm4\n\t"
 #else
 	"punpckldq %%mm4, %%mm5\n\t"
@@ -74,7 +90,7 @@ static void FFT_8_3DNOW(complex_t *x)
    */
   complex_t wT1, wB1, wB2;
   
-  __asm__ __volatile__(
+  __asm__ volatile(
 	"movq	8(%2), %%mm0\n\t"
 	"movq	24(%2), %%mm1\n\t"
 	"movq	%%mm0, %0\n\t"  /* wT1 = x[1]; */
@@ -83,7 +99,7 @@ static void FFT_8_3DNOW(complex_t *x)
 	:"r"(x)
 	:"memory");
 
-  __asm__ __volatile__(
+  __asm__ volatile(
 	"movq	16(%0), %%mm2\n\t"
 	"movq	32(%0), %%mm3\n\t"
 	"movq	%%mm2, 8(%0)\n\t"  /* x[1] = x[2]; */
@@ -98,7 +114,7 @@ static void FFT_8_3DNOW(complex_t *x)
   
   /* x[0] x[4] x[2] x[6] */
   
-  __asm__ __volatile__(
+  __asm__ volatile(
       "movq	40(%1), %%mm0\n\t"
       "movq	%%mm0,	%%mm3\n\t"
       "movq	56(%1),	%%mm1\n\t"
@@ -113,7 +129,7 @@ static void FFT_8_3DNOW(complex_t *x)
       "movq	(%1),	%%mm1\n\t"
       "movq	16(%1),	%%mm4\n\t"
       "movq	%%mm1,	%%mm2\n\t"
-#ifdef HAVE_3DNOWEX
+#if HAVE_AMD3DNOWEXT
       "pswapd	%%mm3,	%%mm3\n\t"
 #else
       "punpckldq %%mm3,	%%mm6\n\t"
@@ -137,14 +153,14 @@ static void FFT_8_3DNOW(complex_t *x)
       :"memory");
   
   /* x[1] x[5] */
-  __asm__ __volatile__ (
+  __asm__ volatile (
 	"movq	%6,	%%mm6\n\t"
 	"movq	%5,	%%mm7\n\t"
 	"movq	%1,	%%mm0\n\t"
 	"movq	%2,	%%mm1\n\t"
 	"movq	56(%3),	%%mm3\n\t"
 	"pfsub	40(%3),	%%mm0\n\t"
-#ifdef HAVE_3DNOWEX
+#if HAVE_AMD3DNOWEXT
 	"pswapd	%%mm1,	%%mm1\n\t"
 #else
 	"punpckldq %%mm1, %%mm2\n\t"
@@ -152,7 +168,7 @@ static void FFT_8_3DNOW(complex_t *x)
 #endif
 	"pxor	%%mm7,	%%mm1\n\t"
 	"pfadd	%%mm1,	%%mm0\n\t"
-#ifdef HAVE_3DNOWEX
+#if HAVE_AMD3DNOWEXT
 	"pswapd	%%mm3,	%%mm3\n\t"
 #else
 	"punpckldq %%mm3, %%mm2\n\t"
@@ -166,7 +182,7 @@ static void FFT_8_3DNOW(complex_t *x)
 	"pfmul	%4,	%%mm0\n\t"
 	
 	"movq	40(%3),	%%mm5\n\t"
-#ifdef HAVE_3DNOWEX
+#if HAVE_AMD3DNOWEXT
 	"pswapd	%%mm5,	%%mm5\n\t"
 #else
 	"punpckldq %%mm5, %%mm1\n\t"
@@ -187,9 +203,9 @@ static void FFT_8_3DNOW(complex_t *x)
 
 
   /* x[3] x[7] */
-  __asm__ __volatile__(
+  __asm__ volatile(
 	"movq	%1,	%%mm0\n\t"
-#ifdef HAVE_3DNOWEX
+#if HAVE_AMD3DNOWEXT
 	"pswapd	%3,	%%mm1\n\t"
 #else
 	"movq	%3,	%%mm1\n\t"
@@ -202,7 +218,7 @@ static void FFT_8_3DNOW(complex_t *x)
 	"movq	56(%4),	%%mm3\n\t"
 	"pxor	%%mm7,	%%mm3\n\t"
 	"pfadd	%%mm3,	%%mm2\n\t"
-#ifdef HAVE_3DNOWEX
+#if HAVE_AMD3DNOWEXT
 	"pswapd	%%mm2,	%%mm2\n\t"
 #else
 	"punpckldq %%mm2, %%mm5\n\t"
@@ -315,7 +331,7 @@ static void FFT_128P_3DNOW(complex_t *a)
 }
 
 static void
-#ifdef HAVE_3DNOWEX
+#if HAVE_AMD3DNOWEXT
 imdct_do_512_3dnowex
 #else
 imdct_do_512_3dnow
@@ -342,27 +358,27 @@ imdct_do_512_3dnow
 	
     /* Pre IFFT complex multiply plus IFFT cmplx conjugate & reordering*/
 #if 1
-      __asm__ __volatile__ (
+      __asm__ volatile (
 	"movq %0, %%mm7\n\t"
 	::"m"(x_plus_minus_3dnow)
 	:"memory");
 	for( i=0; i < 128; i++) {
 		int j = pm128[i];
-	__asm__ __volatile__ (
+	__asm__ volatile (
 		"movd	%1, %%mm0\n\t"
 		"movd	%3, %%mm1\n\t"
 		"punpckldq %2, %%mm0\n\t" /* mm0 = data[256-2*j-1] | data[2*j]*/
 		"punpckldq %4, %%mm1\n\t" /* mm1 = xcos[j] | xsin[j] */
 		"movq	%%mm0, %%mm2\n\t"
 		"pfmul	%%mm1, %%mm0\n\t"
-#ifdef HAVE_3DNOWEX
+#if HAVE_AMD3DNOWEXT
 		"pswapd	%%mm1, %%mm1\n\t"
 #else
 		"punpckldq %%mm1, %%mm5\n\t"
 		"punpckhdq %%mm5, %%mm1\n\t"
 #endif
 		"pfmul	%%mm1, %%mm2\n\t"
-#ifdef HAVE_3DNOWEX
+#if HAVE_AMD3DNOWEXT
 		"pfpnacc %%mm2, %%mm0\n\t"
 #else
 		"pxor	%%mm7, %%mm0\n\t"
@@ -378,7 +394,7 @@ imdct_do_512_3dnow
 		buf[i].im = (data[256-2*j-1] * xsin1[j] + data[2*j] * xcos1[j])*(-1.0);*/
 	}
 #else
-  __asm__ __volatile__ ("femms":::"memory");
+  __asm__ volatile ("femms":::"memory");
     for( i=0; i < 128; i++) {
 	/* z[i] = (X[256-2*i-1] + j * X[2*i]) * (xcos1[i] + j * xsin1[i]) ; */ 
 	int j= pm128[i];
@@ -415,21 +431,21 @@ imdct_do_512_3dnow
 */
 
     FFT_128P_3DNOW (&buf[0]);
-//    asm volatile ("femms \n\t":::"memory");
+//    __asm__ volatile ("femms \n\t":::"memory");
     
     /* Post IFFT complex multiply  plus IFFT complex conjugate*/
 #if 1  
-  __asm__ __volatile__ (
+  __asm__ volatile (
 	"movq %0, %%mm7\n\t"
 	"movq %1, %%mm6\n\t"
 	::"m"(x_plus_minus_3dnow),
 	"m"(x_minus_plus_3dnow)
 	:"eax","memory");
 	for (i=0; i < 128; i++) {
-	    __asm__ __volatile__ (
+	    __asm__ volatile (
 		"movq %1, %%mm0\n\t" /* ac3_buf[i].re | ac3_buf[i].im */
 		"movq %%mm0, %%mm1\n\t" /* ac3_buf[i].re | ac3_buf[i].im */
-#ifndef HAVE_3DNOWEX
+#if !HAVE_AMD3DNOWEXT
 		"punpckldq %%mm1, %%mm2\n\t"
 		"punpckhdq %%mm2, %%mm1\n\t"
 #else			 
@@ -439,7 +455,7 @@ imdct_do_512_3dnow
 		"punpckldq %2, %%mm3\n\t" /* ac3_xsin[i] | ac3_xcos[i] */
 		"pfmul %%mm3, %%mm0\n\t"
 		"pfmul %%mm3, %%mm1\n\t"
-#ifndef HAVE_3DNOWEX
+#if !HAVE_AMD3DNOWEXT
 		"pxor  %%mm7, %%mm0\n\t"
 		"pfacc %%mm1, %%mm0\n\t"
 		"punpckldq %%mm0, %%mm1\n\t"
@@ -457,7 +473,7 @@ imdct_do_512_3dnow
 		ac3_buf[i].im =(tmp_a_r * ac3_xsin1[i])  -  (tmp_a_i  * ac3_xcos1[i]);*/
 	}
 #else    
-  __asm__ __volatile__ ("femms":::"memory");
+  __asm__ volatile ("femms":::"memory");
     for( i=0; i < 128; i++) {
 	/* y[n] = z[n] * (xcos1[n] + j * xsin1[n]) ; */
 	tmp_a_r =        buf[i].real;
@@ -473,14 +489,14 @@ imdct_do_512_3dnow
 
     /* Window and convert to real valued signal */
 #if 1
-	asm volatile (
+	__asm__ volatile (
 		"movd (%0), %%mm3	\n\t"
 		"punpckldq %%mm3, %%mm3	\n\t"
 	:: "r" (&bias)
 	);
 	for (i=0; i< 64; i++) {
 /* merge two loops in one to enable working of 2 decoders */
-	__asm__ __volatile__ (
+	__asm__ volatile (
 		"movd	516(%1), %%mm0\n\t"
 		"movd	(%1), %%mm1\n\t" /**data_ptr++=-buf[64+i].im**window_ptr+++*delay_ptr++;*/
 		"punpckldq (%2), %%mm0\n\t"/*data_ptr[128]=-buf[i].re*window_ptr[128]+delay_ptr[128];*/
@@ -504,7 +520,7 @@ imdct_do_512_3dnow
 	}
 	window_ptr += 128;
 #else    
-  __asm__ __volatile__ ("femms":::"memory");
+  __asm__ volatile ("femms":::"memory");
     for(i=0; i< 64; i++) { 
 	*data_ptr++   = -buf[64+i].imag   * *window_ptr++ + *delay_ptr++ + bias; 
 	*data_ptr++   =  buf[64-i-1].real * *window_ptr++ + *delay_ptr++ + bias; 
@@ -522,12 +538,12 @@ imdct_do_512_3dnow
 	for(i=0; i< 64; i++) {
 /* merge two loops in one to enable working of 2 decoders */
 	    window_ptr -=2;
-	    __asm__ __volatile__(
+	    __asm__ volatile(
 		"movd	508(%1), %%mm0\n\t"
 		"movd	(%1), %%mm1\n\t"
 		"punpckldq (%2), %%mm0\n\t"
 		"punpckldq 508(%2), %%mm1\n\t"
-#ifdef HAVE_3DNOWEX
+#if HAVE_AMD3DNOWEXT
 		"pswapd	(%3), %%mm3\n\t"
 		"pswapd	-512(%3), %%mm4\n\t"
 #else
@@ -549,9 +565,9 @@ imdct_do_512_3dnow
 		:"memory");
 		delay_ptr += 2;
 	}
-  __asm__ __volatile__ ("femms":::"memory");
+  __asm__ volatile ("femms":::"memory");
 #else    
-  __asm__ __volatile__ ("femms":::"memory");
+  __asm__ volatile ("femms":::"memory");
     for(i=0; i< 64; i++) { 
 	*delay_ptr++  = -buf[64+i].real   * *--window_ptr; 
 	*delay_ptr++  =  buf[64-i-1].imag * *--window_ptr; 

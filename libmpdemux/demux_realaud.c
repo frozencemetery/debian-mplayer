@@ -141,7 +141,7 @@ static int demux_ra_fill_buffer(demuxer_t *demuxer, demux_stream_t *dsds)
 
 
 
-extern void print_wave_header(WAVEFORMATEX *h, int verbose_level);
+void print_wave_header(WAVEFORMATEX *h, int verbose_level);
 
 
 
@@ -350,7 +350,7 @@ int demux_seek_ra(demuxer_t *demuxer, float rel_seek_secs, float audio_delay, in
 #endif
 
 
-demuxer_desc_t demuxer_desc_realaudio = {
+const demuxer_desc_t demuxer_desc_realaudio = {
   "Realaudio demuxer",
   "realaudio",
   "REALAUDIO",

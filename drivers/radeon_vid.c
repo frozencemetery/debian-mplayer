@@ -1,20 +1,29 @@
 /*
- *
- * radeon_vid.c
+ * BES YUV video overlay driver for Radeon/Rage128Pro/Rage128 cards
  *
  * Copyright (C) 2001 Nick Kurshev
- * 
- * BES YUV video overlay driver for Radeon/Rage128Pro/Rage128 cards
- * 
- * This software has been released under the terms of the GNU Public
- * license. See http://www.gnu.org/copyleft/gpl.html for details.
  *
- * This file is partly based on mga_vid and sis_vid stuff from
- * mplayer's package.
- * Also here was used code from CVS of GATOS project and X11 trees.
+ * This file is partly based on mga_vid and sis_vid from MPlayer.
+ * Code from CVS of GATOS project and X11 trees was also used.
  *
  * SPECIAL THANKS TO: Hans-Peter Raschke for active testing and hacking
  * Rage128(pro) stuff of this driver.
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #define RADEON_VID_VERSION "1.2.1"
@@ -117,23 +126,23 @@ static int swap_fourcc __initdata = 0;
 #if defined(__i386__)
 /* Ugly but only way */
 #undef AVOID_FPU
-static double inline __FastSin(double x) 
+static inline double FastSin(double x)
 {
    register double res;
-   __asm __volatile("fsin":"=t"(res):"0"(x));
+   __asm__ volatile("fsin":"=t"(res):"0"(x));
    return res;
 }
 #undef sin
-#define sin(x) __FastSin(x)
+#define sin(x) FastSin(x)
 
-static double inline __FastCos(double x) 
+static inline double FastCos(double x)
 {
    register double res;
-   __asm __volatile("fcos":"=t"(res):"0"(x));
+   __asm__ volatile("fcos":"=t"(res):"0"(x));
    return res;
 }
 #undef cos
-#define cos(x) __FastCos(x)
+#define cos(x) FastCos(x)
 #else
 #include "generic_math.h"
 #endif /*__386__*/
@@ -327,47 +336,47 @@ static char *fourcc_format_name(int format)
 {
     switch(format)
     {
-	case IMGFMT_RGB8: return("RGB 8-bit");
-	case IMGFMT_RGB15: return("RGB 15-bit");
-	case IMGFMT_RGB16: return("RGB 16-bit");
-	case IMGFMT_RGB24: return("RGB 24-bit");
-	case IMGFMT_RGB32: return("RGB 32-bit");
-	case IMGFMT_BGR8: return("BGR 8-bit");
-	case IMGFMT_BGR15: return("BGR 15-bit");
-	case IMGFMT_BGR16: return("BGR 16-bit");
-	case IMGFMT_BGR24: return("BGR 24-bit");
-	case IMGFMT_BGR32: return("BGR 32-bit");
-	case IMGFMT_YVU9: return("Planar YVU9");
-	case IMGFMT_IF09: return("Planar IF09");
-	case IMGFMT_YV12: return("Planar YV12");
-	case IMGFMT_I420: return("Planar I420");
-	case IMGFMT_IYUV: return("Planar IYUV");
-	case IMGFMT_CLPL: return("Planar CLPL");
-	case IMGFMT_Y800: return("Planar Y800");
-	case IMGFMT_Y8: return("Planar Y8");
-	case IMGFMT_IUYV: return("Packed IUYV");
-	case IMGFMT_IY41: return("Packed IY41");
-	case IMGFMT_IYU1: return("Packed IYU1");
-	case IMGFMT_IYU2: return("Packed IYU2");
-	case IMGFMT_UYNV: return("Packed UYNV");
-	case IMGFMT_cyuv: return("Packed CYUV");
-	case IMGFMT_Y422: return("Packed Y422");
-	case IMGFMT_YUY2: return("Packed YUY2");
-	case IMGFMT_YUNV: return("Packed YUNV");
-	case IMGFMT_UYVY: return("Packed UYVY");
-//	case IMGFMT_YVYU: return("Packed YVYU");
-	case IMGFMT_Y41P: return("Packed Y41P");
-	case IMGFMT_Y211: return("Packed Y211");
-	case IMGFMT_Y41T: return("Packed Y41T");
-	case IMGFMT_Y42T: return("Packed Y42T");
-	case IMGFMT_V422: return("Packed V422");
-	case IMGFMT_V655: return("Packed V655");
-	case IMGFMT_CLJR: return("Packed CLJR");
-	case IMGFMT_YUVP: return("Packed YUVP");
-	case IMGFMT_UYVP: return("Packed UYVP");
-	case IMGFMT_MPEGPES: return("Mpeg PES");
+	case IMGFMT_RGB8: return "RGB 8-bit";
+	case IMGFMT_RGB15: return "RGB 15-bit";
+	case IMGFMT_RGB16: return "RGB 16-bit";
+	case IMGFMT_RGB24: return "RGB 24-bit";
+	case IMGFMT_RGB32: return "RGB 32-bit";
+	case IMGFMT_BGR8: return "BGR 8-bit";
+	case IMGFMT_BGR15: return "BGR 15-bit";
+	case IMGFMT_BGR16: return "BGR 16-bit";
+	case IMGFMT_BGR24: return "BGR 24-bit";
+	case IMGFMT_BGR32: return "BGR 32-bit";
+	case IMGFMT_YVU9: return "Planar YVU9";
+	case IMGFMT_IF09: return "Planar IF09";
+	case IMGFMT_YV12: return "Planar YV12";
+	case IMGFMT_I420: return "Planar I420";
+	case IMGFMT_IYUV: return "Planar IYUV";
+	case IMGFMT_CLPL: return "Planar CLPL";
+	case IMGFMT_Y800: return "Planar Y800";
+	case IMGFMT_Y8: return "Planar Y8";
+	case IMGFMT_IUYV: return "Packed IUYV";
+	case IMGFMT_IY41: return "Packed IY41";
+	case IMGFMT_IYU1: return "Packed IYU1";
+	case IMGFMT_IYU2: return "Packed IYU2";
+	case IMGFMT_UYNV: return "Packed UYNV";
+	case IMGFMT_cyuv: return "Packed CYUV";
+	case IMGFMT_Y422: return "Packed Y422";
+	case IMGFMT_YUY2: return "Packed YUY2";
+	case IMGFMT_YUNV: return "Packed YUNV";
+	case IMGFMT_UYVY: return "Packed UYVY";
+//	case IMGFMT_YVYU: return "Packed YVYU";
+	case IMGFMT_Y41P: return "Packed Y41P";
+	case IMGFMT_Y211: return "Packed Y211";
+	case IMGFMT_Y41T: return "Packed Y41T";
+	case IMGFMT_Y42T: return "Packed Y42T";
+	case IMGFMT_V422: return "Packed V422";
+	case IMGFMT_V655: return "Packed V655";
+	case IMGFMT_CLJR: return "Packed CLJR";
+	case IMGFMT_YUVP: return "Packed YUVP";
+	case IMGFMT_UYVP: return "Packed UYVP";
+	case IMGFMT_MPEGPES: return "Mpeg PES";
     }
-    return("Unknown");
+    return "Unknown";
 }
 
 
@@ -381,10 +390,10 @@ static char *fourcc_format_name(int format)
 #define OUTREG(addr,val)	writel(val, (radeon_mmio_base)+addr)
 #define OUTREGP(addr,val,mask)  					\
 	do {								\
-		unsigned int _tmp = INREG(addr);			\
-		_tmp &= (mask);						\
-		_tmp |= (val);						\
-		OUTREG(addr, _tmp);					\
+		unsigned int tmp = INREG(addr);				\
+		tmp &= (mask);						\
+		tmp |= (val);						\
+		OUTREG(addr, tmp);					\
 	} while (0)
 
 static uint32_t radeon_vid_get_dbpp( void )
@@ -427,7 +436,7 @@ static __inline__ void radeon_engine_flush ( void )
 }
 
 
-static __inline__ void _radeon_fifo_wait (int entries)
+static __inline__ void radeon_fifo_wait (int entries)
 {
 	int i;
 
@@ -437,12 +446,12 @@ static __inline__ void _radeon_fifo_wait (int entries)
 }
 
 
-static __inline__ void _radeon_engine_idle ( void )
+static __inline__ void radeon_engine_idle ( void )
 {
 	int i;
 
 	/* ensure FIFO is empty before waiting for idle */
-	_radeon_fifo_wait (64);
+	radeon_fifo_wait (64);
 
 	for (i=0; i<2000000; i++) {
 		if (((INREG(RBBM_STATUS) & GUI_ACTIVE)) == 0) {
@@ -451,9 +460,6 @@ static __inline__ void _radeon_engine_idle ( void )
 		}
 	}
 }
-
-#define radeon_engine_idle()		_radeon_engine_idle()
-#define radeon_fifo_wait(entries)	_radeon_fifo_wait(entries)
 
 #if 0
 static void __init radeon_vid_save_state( void )
@@ -1104,14 +1110,14 @@ static int radeon_vid_ioctl(struct inode *inode, struct file *file, unsigned int
 			if(copy_from_user(&frame,(int *) arg,sizeof(int)))
 			{
 				printk(RVID_MSG"FSEL failed copy from userspace\n");
-				return(-EFAULT);
+				return -EFAULT;
 			}
 			radeon_vid_frame_sel(frame);
 		break;
 
 	        default:
 			printk(RVID_MSG"Invalid ioctl\n");
-			return (-EINVAL);
+			return -EINVAL;
 	}
 
 	return 0;
@@ -1399,10 +1405,10 @@ static int radeon_vid_mmap(struct file *file, struct vm_area_struct *vma)
 		 vma->vm_end - vma->vm_start, vma->vm_page_prot)) 
 	{
 		printk(RVID_MSG"error mapping video memory\n");
-		return(-EAGAIN);
+		return -EAGAIN;
 	}
 
-	return(0);
+	return 0;
 }
 
 static int radeon_vid_release(struct inode *inode, struct file *file)
@@ -1424,14 +1430,14 @@ static int radeon_vid_open(struct inode *inode, struct file *file)
 	int minor = MINOR(inode->i_rdev);
 
 	if(minor != 0)
-	 return(-ENXIO);
+	 return -ENXIO;
 
 	if(radeon_vid_in_use == 1) 
-		return(-EBUSY);
+		return -EBUSY;
 
 	radeon_vid_in_use = 1;
 	MOD_INC_USE_COUNT;
-	return(0);
+	return 0;
 }
 
 #if LINUX_VERSION_CODE >= 0x020400
@@ -1517,7 +1523,7 @@ static int __init radeon_vid_initialize(void)
 		printk(RVID_MSG"MTRR set to ON\n");
 	}
 #endif /* CONFIG_MTRR */
-	return(0);
+	return 0;
 }
 
 int __init init_module(void)

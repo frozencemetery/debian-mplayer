@@ -1,5 +1,5 @@
-#ifndef STREAM_H
-#define STREAM_H
+#ifndef MPLAYER_STREAM_H
+#define MPLAYER_STREAM_H
 
 #include "mp_msg.h"
 #include <string.h>
@@ -43,6 +43,7 @@
 #define STREAM_SEEK  (STREAM_SEEK_BW|STREAM_SEEK_FW)
 
 //////////// Open return code
+#define STREAM_REDIRECTED -2
 /// This can't open the requested protocol (used by stream wich have a
 /// * protocol when they don't know the requested protocol)
 #define STREAM_UNSUPPORTED -1
@@ -60,8 +61,12 @@
 #define STREAM_CTRL_SEEK_TO_TIME 6
 #define STREAM_CTRL_GET_SIZE 7
 #define STREAM_CTRL_GET_ASPECT_RATIO 8
+#define STREAM_CTRL_GET_NUM_ANGLES 9
+#define STREAM_CTRL_GET_ANGLE 10
+#define STREAM_CTRL_SET_ANGLE 11
 
-#ifdef MPLAYER_NETWORK
+
+#ifdef CONFIG_NETWORK
 #include "network.h"
 #endif
 
@@ -75,8 +80,8 @@ typedef struct stream_info_st {
   /// opts is at least in it's defaults settings and may have been
   /// altered by url parsing if enabled and the options string parsing.
   int (*open)(struct stream_st* st, int mode, void* opts, int* file_format);
-  char* protocols[MAX_STREAM_PROTOCOLS];
-  void* opts;
+  const char* protocols[MAX_STREAM_PROTOCOLS];
+  const void* opts;
   int opts_url; /* If this is 1 we will parse the url as an option string
 		 * too. Otherwise options are only parsed from the
 		 * options string given to open_stream_plugin */
@@ -108,13 +113,13 @@ typedef struct stream_st {
   void* cache_data;
   void* priv; // used for DVD, TV, RTSP etc
   char* url;  // strdup() of filename/url
-#ifdef MPLAYER_NETWORK
+#ifdef CONFIG_NETWORK
   streaming_ctrl_t *streaming_ctrl;
 #endif
   unsigned char buffer[STREAM_BUFFER_SIZE>VCD_SECTOR_SIZE?STREAM_BUFFER_SIZE:VCD_SECTOR_SIZE];
 } stream_t;
 
-#ifdef USE_STREAM_CACHE
+#ifdef CONFIG_STREAM_CACHE
 int stream_enable_cache(stream_t *stream,int size,int min,int prefill);
 int cache_stream_fill_buffer(stream_t *s);
 int cache_stream_seek_long(stream_t *s,off_t pos);
@@ -219,7 +224,7 @@ inline static int stream_read(stream_t *s,char* mem,int total){
 
 inline static unsigned char* stream_read_line(stream_t *s,unsigned char* mem, int max) {
   int len;
-  unsigned char* end,*ptr = mem;;
+  unsigned char* end,*ptr = mem;
   do {
     len = s->buf_len-s->buf_pos;
     // try to fill the buffer
@@ -292,6 +297,11 @@ stream_t* new_memory_stream(unsigned char* data,int len);
 stream_t* open_stream(char* filename,char** options,int* file_format);
 stream_t* open_stream_full(char* filename,int mode, char** options, int* file_format);
 stream_t* open_output_stream(char* filename,char** options);
+/// Set the callback to be used by libstream to check for user
+/// interruption during long blocking operations (cache filling, etc).
+void stream_set_interrupt_callback(int (*cb)(int));
+/// Call the interrupt checking callback if there is one.
+int stream_check_interrupt(int time);
 
 extern int dvd_title;
 extern int dvd_chapter;
@@ -307,4 +317,4 @@ typedef struct {
  int channels;
 } stream_language_t;
 
-#endif // STREAM_H
+#endif /* MPLAYER_STREAM_H */

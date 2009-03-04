@@ -1,6 +1,11 @@
 /*
  * VIDIX driver for ATI Rage128 and Radeon chipsets.
+ *
+ * This file is based on sources from
+ *   GATOS (gatos.sf.net) and X11 (www.xfree86.org)
+ *
  * Copyright (C) 2002 Nick Kurshev
+ * support for fglrx drivers by Marcel Naziri (zwobbl@zwobbl.de)
  *
  * This file is part of MPlayer.
  *
@@ -14,19 +19,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
- * This file is based on sources from
- *   GATOS (gatos.sf.net) and X11 (www.xfree86.org)
- *
- * Changes:
- *  - 31.12.2002
- *    added support for fglrx drivers by Marcel Naziri (zwobbl@zwobbl.de)
- *  - 6.04.2004
- *    fixes to allow compiling vidix without X11 (broken in original patch)
- *  - PowerPC support by Alex Beregszaszi
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <errno.h>
@@ -42,12 +37,11 @@
 #include "pci_ids.h"
 #include "pci_names.h"
 #include "vidix.h"
-#include "vidixlib.h"
 #include "fourcc.h"
 #include "dha.h"
 #include "radeon.h"
 
-#if !defined(RAGE128) && defined(HAVE_X11)
+#if !defined(RAGE128) && defined(CONFIG_X11)
 #include <X11/Xlib.h>
 static uint32_t firegl_shift = 0;
 #endif
@@ -66,7 +60,7 @@ static uint32_t firegl_shift = 0;
 #define RADEON_ASSERT(msg) printf(RADEON_MSG"################# FATAL:"msg);
 
 #define VERBOSE_LEVEL 0
-static int __verbose = 0;
+static int verbosity = 0;
 typedef struct bes_registers_s
 {
   /* base address of yuv framebuffer */
@@ -136,7 +130,7 @@ typedef struct video_registers_s
 
 static bes_registers_t besr;
 #define DECLARE_VREG(name) { #name, name, 0 }
-static video_registers_t vregs[] = 
+static const video_registers_t vregs[] = 
 {
   DECLARE_VREG(VIDEOMUX_CNTL),
   DECLARE_VREG(VIPPAD_MASK),
@@ -255,6 +249,7 @@ static video_registers_t vregs[] =
   DECLARE_VREG(BM_GUI),
   DECLARE_VREG(BM_ABORT)
 #else
+  DECLARE_VREG(DISP_MERGE_CNTL),
   DECLARE_VREG(DMA_GUI_TABLE_ADDR),
   DECLARE_VREG(DMA_GUI_SRC_ADDR),
   DECLARE_VREG(DMA_GUI_DST_ADDR),
@@ -272,20 +267,17 @@ static video_registers_t vregs[] =
 #define R_FAMILY	0x000000FF
 #define R_100		0x00000001
 #define R_120		0x00000002
-#define R_150		0x00000003
-#define R_200		0x00000004
-#define R_250		0x00000005
-#define R_280		0x00000006
-#define R_300		0x00000007
-#define R_350		0x00000008
-#define R_370		0x00000010
-#define R_380		0x00000020
-#define R_420		0x00000040
-#define R_430		0x00000080
-#define R_480		0x00000100
-#define R_520		0x00000200
-#define R_530		0x00000400
-#define R_580		0x00000800
+#define R_150		0x00000004
+#define R_200		0x00000008
+#define R_250		0x00000010
+#define R_280		0x00000020
+#define R_300		0x00000040
+#define R_350		0x00000080
+#define R_370		0x00000100
+#define R_380		0x00000200
+#define R_420		0x00000400
+#define R_430		0x00000800
+#define R_480		0x00001000
 #define R_OVL_SHIFT	0x01000000
 #define R_INTEGRATED	0x02000000
 #define R_PCIE		0x04000000
@@ -525,67 +517,6 @@ static const ati_card_ids_t ati_card_ids[] =
  { DEVICE_ATI_R480_RADEON_X850XT4,	R_480|R_PCIE  },
  { DEVICE_ATI_R480_RADEON_X850XT5,	R_480|R_PCIE  },
  { DEVICE_ATI_R480_RADEON_X850XT6,	R_480|R_PCIE  },
- { DEVICE_ATI_R520_FIREGL,		R_520  },
- { DEVICE_ATI_R520_GL_ATI,		R_520  },
- { DEVICE_ATI_R520_GL_ATI2,		R_520  },
- { DEVICE_ATI_R520_RADEON_X1800,	R_520  },
- { DEVICE_ATI_R520_RADEON_X18002,	R_520  },
- { DEVICE_ATI_R520_RADEON_X18003,	R_520  },
- { DEVICE_ATI_R520_RADEON_X18004,	R_520  },
- { DEVICE_ATI_R520_RADEON_X18005,	R_520  },
- { DEVICE_ATI_R520_RADEON_X18006,	R_520  },
- { DEVICE_ATI_R520_RADEON_X18007,	R_520  },
- { DEVICE_ATI_M58_RADEON_MOBILITY,	R_520  },
- { DEVICE_ATI_M58_RADEON_MOBILITY2,	R_520  },
- { DEVICE_ATI_M58_MOBILITY_FIREGL,	R_520  },
- { DEVICE_ATI_M58_MOBILITY_FIREGL2,	R_520  },
- { DEVICE_ATI_RV515_RADEON_X1600,	R_520  },
- { DEVICE_ATI_RV515_RADEON_X1300,	R_520  },
- { DEVICE_ATI_RV515_RADEON_X13002,	R_520  },
- { DEVICE_ATI_RV515_RADEON_X13003,	R_520  },
- { DEVICE_ATI_RV515_RADEON_X13004,	R_520  },
- { DEVICE_ATI_RV515_RADEON_X13005,	R_520  },
- { DEVICE_ATI_RV515_RADEON_X13006,	R_520  },
- { DEVICE_ATI_RV515_RADEON_X13007,	R_520  },
- { DEVICE_ATI_RV515_GL_ATI,		R_520  },
- { DEVICE_ATI_RV515_GL_ATI2,		R_520  },
- { DEVICE_ATI_RADEON_MOBILITY_X1400,	R_520  },
- { DEVICE_ATI_M52_ATI_MOBILITY,		R_520  },
- { DEVICE_ATI_M52_ATI_MOBILITY2,	R_520  },
- { DEVICE_ATI_M52_ATI_MOBILITY3,	R_520  },
- { DEVICE_ATI_M52_ATI_MOBILITY4,	R_520  },
- { DEVICE_ATI_RV516_RADEON_X1300,	R_520  },
- { DEVICE_ATI_RV516_RADEON_X13002,	R_520  },
- { DEVICE_ATI_RV516_XT_RADEON,		R_520  },
- { DEVICE_ATI_RV516_XT_RADEON2,		R_520  },
- { DEVICE_ATI_RV530_RADEON_X1600,	R_520  },
- { DEVICE_ATI_RV530_RADEON_X16002,	R_520  },
- { DEVICE_ATI_M56GL_ATI_MOBILITY,	R_520  },
- { DEVICE_ATI_M56P_RADEON_MOBILITY,	R_520  },
- { DEVICE_ATI_M66_P_ATI_MOBILITY,	R_520  },
- { DEVICE_ATI_M66_XT_ATI_MOBILITY,	R_520  },
- { DEVICE_ATI_RV530LE_RADEON_X1600,	R_520  },
- { DEVICE_ATI_RV530LE_RADEON_X16002,	R_520  },
- { DEVICE_ATI_RV530LE_RADEON_X16003,	R_520  },
- { DEVICE_ATI_RV530_RADEON_X16003,	R_520  },
- { DEVICE_ATI_RV530_RADEON_X16004,	R_520  },
- { DEVICE_ATI_R580_RADEON_X1900,	R_520  },
- { DEVICE_ATI_R580_RADEON_X19002,	R_520  },
- { DEVICE_ATI_R580_RADEON_X19003,	R_520  },
- { DEVICE_ATI_R580_RADEON_X19004,	R_520  },
- { DEVICE_ATI_R580_RADEON_X19005,	R_520  },
- { DEVICE_ATI_R580_RADEON_X19006,	R_520  },
- { DEVICE_ATI_R580_RADEON_X19007,	R_520  },
- { DEVICE_ATI_R580_RADEON_X19008,	R_520  },
- { DEVICE_ATI_R580_RADEON_X19009,	R_520  },
- { DEVICE_ATI_R580_RADEON_X190010,	R_520  },
- { DEVICE_ATI_R580_RADEON_X190011,	R_520  },
- { DEVICE_ATI_R580_RADEON_X190012,	R_520  },
- { DEVICE_ATI_R580_RADEON_X190013,	R_520  },
- { DEVICE_ATI_R580_RADEON_X190014,	R_520  },
- { DEVICE_ATI_R580_RADEON_X190015,	R_520  },
- { DEVICE_ATI_R580_FIREGL_V7300_V7350,	R_520  },
- { DEVICE_ATI_R580_FIREGL_V7300_V73502,	R_520  },
 #endif
 };
 
@@ -616,7 +547,7 @@ static inline uint32_t INREG (uint32_t addr) {
 static __inline__ uint32_t INPLL(uint32_t addr)
 {
 	OUTREG8(CLOCK_CNTL_INDEX, addr & 0x0000001f);
-	return (INREG(CLOCK_CNTL_DATA));
+	return INREG(CLOCK_CNTL_DATA);
 }
 
 #define OUTPLL(addr,val)	OUTREG8(CLOCK_CNTL_INDEX, (addr & 0x0000001f) | 0x00000080); \
@@ -1008,7 +939,7 @@ typedef struct tagREF_TRANSFORM
 } REF_TRANSFORM;
 
 /* Parameters for ITU-R BT.601 and ITU-R BT.709 colour spaces */
-REF_TRANSFORM trans[2] =
+static const REF_TRANSFORM trans[2] =
 {
 	{1.1678, 0.0, 1.6007, -0.3929, -0.8154, 2.0232, 0.0}, /* BT.601 */
 	{1.1678, 0.0, 1.7980, -0.2139, -0.5345, 2.1186, 0.0}  /* BT.709 */
@@ -1115,7 +1046,7 @@ typedef struct
 }GAMMA_SETTINGS;
 
 /* Recommended gamma curve parameters */
-GAMMA_SETTINGS r200_def_gamma[18] = 
+static const GAMMA_SETTINGS r200_def_gamma[18] = 
 {
 	{OV0_GAMMA_0_F, 0x100, 0x0000},
 	{OV0_GAMMA_10_1F, 0x100, 0x0020},
@@ -1137,7 +1068,7 @@ GAMMA_SETTINGS r200_def_gamma[18] =
 	{OV0_GAMMA_3C0_3FF, 0x100, 0x0700}
 };
 
-GAMMA_SETTINGS r100_def_gamma[6] = 
+static const GAMMA_SETTINGS r100_def_gamma[6] = 
 {
 	{OV0_GAMMA_0_F, 0x100, 0x0000},
 	{OV0_GAMMA_10_1F, 0x100, 0x0020},
@@ -1237,7 +1168,7 @@ static vidix_capability_t def_cap =
     { 0, 0, 0, 0}
 };
 
-#if !defined(RAGE128) && defined(HAVE_X11)
+#if !defined(RAGE128) && defined(CONFIG_X11)
 static void probe_fireGL_driver(void) {
   Display *dp = XOpenDisplay ((void*)0);
   int n = 0;
@@ -1272,7 +1203,7 @@ static int radeon_probe(int verbose, int force)
   pciinfo_t lst[MAX_PCI_DEVICES];
   unsigned i,num_pci;
   int err;
-  __verbose = verbose;
+  verbosity = verbose;
   err = pci_scan(lst,&num_pci);
   if(err)
   {
@@ -1312,7 +1243,7 @@ static int radeon_probe(int verbose, int force)
 #endif
 	    besr.chip_flags=R_100|R_OVL_SHIFT;
 	}
-#if !defined(RAGE128) && defined(HAVE_X11)
+#if !defined(RAGE128) && defined(CONFIG_X11)
         probe_fireGL_driver();
 #endif
 	if(idx != -1) besr.chip_flags=ati_card_ids[idx].flags;
@@ -1364,8 +1295,6 @@ static void restore_regs( void )
 static int radeon_init(void)
 {
   int err;
-
-  if(__verbose>0) printf("[radeon_vid] version %d\n", VIDIX_VERSION);
 
   if(!probed) 
   {
@@ -1449,7 +1378,7 @@ typedef struct fourcc_desc_s
     unsigned max_srcw;
 }fourcc_desc_t;
 
-static fourcc_desc_t supported_fourcc[] = 
+static const fourcc_desc_t supported_fourcc[] = 
 {
   { IMGFMT_Y800, 1567 },
   { IMGFMT_YVU9, 1567 },
@@ -1615,8 +1544,8 @@ static void radeon_vid_display_video( void )
     OUTREG(OV0_FOUR_TAP_COEF_4,besr.four_tap_coeff[4]);
     if(besr.swap_uv) OUTREG(OV0_TEST,INREG(OV0_TEST)|OV0_SWAP_UV);
     OUTREG(OV0_REG_LOAD_CNTL,		0);
-    if(__verbose > VERBOSE_LEVEL) printf(RADEON_MSG"we wanted: scaler=%08X\n",bes_flags);
-    if(__verbose > VERBOSE_LEVEL) radeon_vid_dump_regs();
+    if(verbosity > VERBOSE_LEVEL) printf(RADEON_MSG"we wanted: scaler=%08X\n",bes_flags);
+    if(verbosity > VERBOSE_LEVEL) radeon_vid_dump_regs();
 }
 
 /* Goal of this function: hide RGB background and provide black screen around movie.
@@ -2492,7 +2421,7 @@ typedef struct RangeAndCoefSet {
 /* Filter Setup Routine */
 static void FilterSetup ( uint32_t val_OV0_P1_H_INC )
 {
-    static RANGEANDCOEFSET ArrayOfSets[] = {
+    static const RANGEANDCOEFSET ArrayOfSets[] = {
 	{0.25, {{ 7,	16,  9,	 0}, { 7,   16,	 9,  0}, { 5,	15, 11,	 1}, { 4,   15, 12,  1}, { 3,	13,   13,    3}, }},
 	{0.26, {{ 7,	16,  9,	 0}, { 7,   16,	 9,  0}, { 5,	15, 11,	 1}, { 4,   15, 12,  1}, { 3,	13, 13,	 3}, }},
 	{0.27, {{ 7,	16,  9,	 0}, { 7,   16,	 9,  0}, { 5,	15, 11,	 1}, { 4,   15, 12,  1}, { 3,	13, 13,	 3}, }},
@@ -3169,7 +3098,7 @@ static int radeon_config_playback(vidix_playback_t *info)
   for(;nfr>0; nfr--)
   {
       radeon_overlay_off = radeon_video_size - info->frame_size*nfr;
-#if !defined (RAGE128) && defined(HAVE_X11)
+#if !defined (RAGE128) && defined(CONFIG_X11)
       radeon_overlay_off -= firegl_shift;
 #endif
       radeon_overlay_off &= 0xffff0000;
@@ -3181,7 +3110,7 @@ static int radeon_config_playback(vidix_playback_t *info)
    for(;nfr>0; nfr--)
    {
       radeon_overlay_off = radeon_video_size - info->frame_size*nfr;
-#if !defined (RAGE128) && defined(HAVE_X11)
+#if !defined (RAGE128) && defined(CONFIG_X11)
       radeon_overlay_off -= firegl_shift;
 #endif
       radeon_overlay_off &= 0xffff0000;
@@ -3246,7 +3175,7 @@ static int radeon_frame_select(unsigned frame)
     OUTREG(OV0_VID_BUF5_BASE_ADRS,	off[5]);
     OUTREG(OV0_REG_LOAD_CNTL,		0);
     if(besr.vid_nbufs == 2) radeon_wait_vsync();
-    if(__verbose > VERBOSE_LEVEL) radeon_vid_dump_regs();
+    if(verbosity > VERBOSE_LEVEL) radeon_vid_dump_regs();
     return 0;
 }
 
@@ -3446,9 +3375,7 @@ static int set_gr_key( void )
 		besr.graphics_key_msk=0;
 		besr.graphics_key_clr=0;
 		besr.ckey_cntl = VIDEO_KEY_FN_TRUE|GRAPHIC_KEY_FN_TRUE|CMP_MIX_AND;
-		besr.merge_cntl = 0xff000000 | /* overlay alpha */
-				  0x00ff0000 | /* graphic alpha */
-				  0x00000001;  /* DISP_ALPHA_MODE_PER_PIXEL */
+		besr.merge_cntl |= 0x00000001; /* DISP_ALPHA_MODE_PER_PIXEL */
 		break;
 	default:
 		besr.ckey_on=0;
@@ -3464,6 +3391,7 @@ static int set_gr_key( void )
 	besr.graphics_key_msk=0;
 	besr.graphics_key_clr=0;
 	besr.ckey_cntl = VIDEO_KEY_FN_TRUE|GRAPHIC_KEY_FN_TRUE|CMP_MIX_AND;
+	besr.merge_cntl |= 0x00000100;  /* DISP_RGB_OFFSET_EN */
     }
     radeon_fifo_wait(3);
     OUTREG(OV0_GRAPHICS_KEY_MSK, besr.graphics_key_msk);
@@ -3476,13 +3404,13 @@ static int set_gr_key( void )
 static int radeon_get_gkey(vidix_grkey_t *grkey)
 {
     memcpy(grkey, &radeon_grkey, sizeof(vidix_grkey_t));
-    return(0);
+    return 0;
 }
 
 static int radeon_set_gkey(const vidix_grkey_t *grkey)
 {
     memcpy(&radeon_grkey, grkey, sizeof(vidix_grkey_t));
-    return (set_gr_key());
+    return set_gr_key();
 }
 
 #ifdef RAGE128

@@ -1,22 +1,24 @@
 // -*- c-basic-offset: 8; indent-tabs-mode: t -*-
 // vim:ts=8:sw=8:noet:ai:
 /*
-  Copyright (C) 2006 Evgeniy Stepanov <eugeni.stepanov@gmail.com>
-
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-*/
+ * Copyright (C) 2006 Evgeniy Stepanov <eugeni.stepanov@gmail.com>
+ *
+ * This file is part of libass.
+ *
+ * libass is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * libass is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with libass; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include "config.h"
 
@@ -248,14 +250,8 @@ void ass_font_get_asc_desc(ass_font_t* font, uint32_t ch, int* asc, int* desc)
 	for (i = 0; i < font->n_faces; ++i) {
 		FT_Face face = font->faces[i];
 		if (FT_Get_Char_Index(face, ch)) {
-			int v, v2;
-			v = face->size->metrics.ascender;
-			v2 = FT_MulFix(face->bbox.yMax, face->size->metrics.y_scale);
-			*asc = (v > v2 * 0.9) ? v : v2;
-				
-			v = - face->size->metrics.descender;
-			v2 = - FT_MulFix(face->bbox.yMin, face->size->metrics.y_scale);
-			*desc = (v > v2 * 0.9) ? v : v2;
+			*asc = face->size->metrics.ascender;
+			*desc = - face->size->metrics.descender;
 			return;
 		}
 	}
@@ -288,17 +284,19 @@ FT_Glyph ass_font_get_glyph(void* fontconfig_priv, ass_font_t* font, uint32_t ch
 			break;
 	}
 
-#ifdef HAVE_FONTCONFIG
+#ifdef CONFIG_FONTCONFIG
 	if (index == 0) {
 		int face_idx;
 		mp_msg(MSGT_ASS, MSGL_INFO, MSGTR_LIBASS_GlyphNotFoundReselectingFont,
 		       ch, font->desc.family, font->desc.bold, font->desc.italic);
 		face_idx = add_face(fontconfig_priv, font, ch);
-		face = font->faces[face_idx];
-		index = FT_Get_Char_Index(face, ch);
-		if (index == 0) {
-			mp_msg(MSGT_ASS, MSGL_ERR, MSGTR_LIBASS_GlyphNotFound,
-			       ch, font->desc.family, font->desc.bold, font->desc.italic);
+		if (face_idx >= 0) {
+			face = font->faces[face_idx];
+			index = FT_Get_Char_Index(face, ch);
+			if (index == 0) {
+				mp_msg(MSGT_ASS, MSGL_ERR, MSGTR_LIBASS_GlyphNotFound,
+				       ch, font->desc.family, font->desc.bold, font->desc.italic);
+			}
 		}
 	}
 #endif

@@ -7,6 +7,7 @@
 #define READ_USLEEP_TIME 10000
 #define FILL_USLEEP_TIME 50000
 #define PREFILL_SLEEP_TIME 200
+#define CONTROL_SLEEP_TIME 0
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,20 +16,27 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "osdep/timer.h"
-#ifndef WIN32
-#include <sys/wait.h>
 #include "osdep/shmem.h"
-#else
+#include "osdep/timer.h"
+#if defined(__MINGW32__)
 #include <windows.h>
-static DWORD WINAPI ThreadProc(void* s);
+static void ThreadProc( void *s );
+#elif defined(__OS2__)
+#define INCL_DOS
+#include <os2.h>
+static void ThreadProc( void *s );
+#elif defined(PTHREAD_CACHE)
+#include <pthread.h>
+static void *ThreadProc(void *s);
+#else
+#include <sys/wait.h>
 #endif
 
 #include "mp_msg.h"
 #include "help_mp.h"
 
 #include "stream.h"
-#include "input/input.h"
+#include "cache2.h"
 extern int use_gui;
 
 int stream_fill_buffer(stream_t *s);
@@ -54,6 +62,12 @@ typedef struct {
 //  int fifo_flag;  // 1 if we should use FIFO to notice cache about buffer reads.
   // callback
   stream_t* stream;
+  volatile int control;
+  volatile unsigned control_uint_arg;
+  volatile double control_double_arg;
+  volatile int control_res;
+  volatile off_t control_new_pos;
+  volatile double stream_time_length;
 } cache_vars_t;
 
 static int min_fill=0;
@@ -188,9 +202,53 @@ int cache_fill(cache_vars_t* s){
   
 }
 
+static int cache_execute_control(cache_vars_t *s) {
+  int res = 1;
+  static unsigned last;
+  if (!s->stream->control) {
+    s->stream_time_length = 0;
+    s->control_new_pos = 0;
+    s->control_res = STREAM_UNSUPPORTED;
+    s->control = -1;
+    return res;
+  }
+  if (GetTimerMS() - last > 99) {
+    double len;
+    if (s->stream->control(s->stream, STREAM_CTRL_GET_TIME_LENGTH, &len) == STREAM_OK)
+      s->stream_time_length = len;
+    else
+      s->stream_time_length = 0;
+    last = GetTimerMS();
+  }
+  if (s->control == -1) return res;
+  switch (s->control) {
+    case STREAM_CTRL_GET_CURRENT_TIME:
+    case STREAM_CTRL_SEEK_TO_TIME:
+    case STREAM_CTRL_GET_ASPECT_RATIO:
+      s->control_res = s->stream->control(s->stream, s->control, &s->control_double_arg);
+      break;
+    case STREAM_CTRL_SEEK_TO_CHAPTER:
+    case STREAM_CTRL_GET_NUM_CHAPTERS:
+    case STREAM_CTRL_GET_CURRENT_CHAPTER:
+    case STREAM_CTRL_GET_NUM_ANGLES:
+    case STREAM_CTRL_GET_ANGLE:
+    case STREAM_CTRL_SET_ANGLE:
+      s->control_res = s->stream->control(s->stream, s->control, &s->control_uint_arg);
+      break;
+    case -2:
+      res = 0;
+    default:
+      s->control_res = STREAM_UNSUPPORTED;
+      break;
+  }
+  s->control_new_pos = s->stream->pos;
+  s->control = -1;
+  return res;
+}
+
 cache_vars_t* cache_init(int size,int sector){
   int num;
-#ifndef WIN32
+#if !defined(__MINGW32__) && !defined(PTHREAD_CACHE) && !defined(__OS2__)
   cache_vars_t* s=shmem_alloc(sizeof(cache_vars_t));
 #else
   cache_vars_t* s=malloc(sizeof(cache_vars_t));
@@ -204,14 +262,14 @@ cache_vars_t* cache_init(int size,int sector){
   }//32kb min_size
   s->buffer_size=num*sector;
   s->sector_size=sector;
-#ifndef WIN32
+#if !defined(__MINGW32__) && !defined(PTHREAD_CACHE) && !defined(__OS2__)
   s->buffer=shmem_alloc(s->buffer_size);
 #else
   s->buffer=malloc(s->buffer_size);
 #endif
 
   if(s->buffer == NULL){
-#ifndef WIN32
+#if !defined(__MINGW32__) && !defined(PTHREAD_CACHE) && !defined(__OS2__)
     shmem_free(s,sizeof(cache_vars_t));
 #else
     free(s);
@@ -227,20 +285,20 @@ cache_vars_t* cache_init(int size,int sector){
 void cache_uninit(stream_t *s) {
   cache_vars_t* c = s->cache_data;
   if(!s->cache_pid) return;
-#ifndef WIN32
+#if defined(__MINGW32__) || defined(PTHREAD_CACHE) || defined(__OS2__)
+  cache_do_control(s, -2, NULL);
+#else
   kill(s->cache_pid,SIGKILL);
   waitpid(s->cache_pid,NULL,0);
-#else
-  TerminateThread((HANDLE)s->cache_pid,0);
-  free(c->stream);
 #endif
   if(!c) return;
-#ifndef WIN32
-  shmem_free(c->buffer,c->buffer_size);
-  shmem_free(s->cache_data,sizeof(cache_vars_t));
-#else
+#if defined(__MINGW32__) || defined(PTHREAD_CACHE) || defined(__OS2__)
+  free(c->stream);
   free(c->buffer);
   free(s->cache_data);
+#else
+  shmem_free(c->buffer,c->buffer_size);
+  shmem_free(s->cache_data,sizeof(cache_vars_t));
 #endif
 }
 
@@ -250,7 +308,7 @@ static void exit_sighandler(int x){
 }
 
 int stream_enable_cache(stream_t *stream,int size,int min,int seek_limit){
-  int ss=(stream->type==STREAMTYPE_VCD)?VCD_SECTOR_DATA:STREAM_BUFFER_SIZE;
+  int ss = stream->sector_size ? stream->sector_size : STREAM_BUFFER_SIZE;
   cache_vars_t* s;
 
   if (stream->type==STREAMTYPE_STREAM && stream->fd < 0) {
@@ -275,15 +333,24 @@ int stream_enable_cache(stream_t *stream,int size,int min,int seek_limit){
      min = s->buffer_size - s->fill_limit;
   }
   
-#ifndef WIN32  
+#if !defined(__MINGW32__) && !defined(PTHREAD_CACHE) && !defined(__OS2__)
   if((stream->cache_pid=fork())){
 #else
   {
-    DWORD threadId;
     stream_t* stream2=malloc(sizeof(stream_t));
     memcpy(stream2,s->stream,sizeof(stream_t));
     s->stream=stream2;
-    stream->cache_pid = CreateThread(NULL,0,ThreadProc,s,0,&threadId);
+#if defined(__MINGW32__)
+    stream->cache_pid = _beginthread( ThreadProc, 0, s );
+#elif defined(__OS2__)
+    stream->cache_pid = _beginthread( ThreadProc, NULL, 256 * 1024, s );
+#else
+    {
+    pthread_t tid;
+    pthread_create(&tid, NULL, ThreadProc, s);
+    stream->cache_pid = 1;
+    }
+#endif
 #endif
     // wait until cache is filled at least prefill_init %
     mp_msg(MSGT_CACHE,MSGL_V,"CACHE_PRE_INIT: %"PRId64" [%"PRId64"] %"PRId64"  pre:%d  eof:%d  \n",
@@ -294,29 +361,39 @@ int stream_enable_cache(stream_t *stream,int size,int min,int seek_limit){
 	    (int64_t)s->max_filepos-s->read_filepos
 	);
 	if(s->eof) break; // file is smaller than prefill size
-	if(mp_input_check_interrupt(PREFILL_SLEEP_TIME))
+	if(stream_check_interrupt(PREFILL_SLEEP_TIME))
 	  return 0;
     }
     mp_msg(MSGT_CACHE,MSGL_STATUS,"\n");
     return 1; // parent exits
   }
   
-#ifdef WIN32
+#if defined(__MINGW32__) || defined(PTHREAD_CACHE) || defined(__OS2__)
 }
-static DWORD WINAPI ThreadProc(void*s){
+#ifdef PTHREAD_CACHE
+static void *ThreadProc( void *s ){
+#else
+static void ThreadProc( void *s ){
+#endif
 #endif
   
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
   use_gui = 0; // mp_msg may not use gui stuff in forked code
 #endif
 // cache thread mainloop:
   signal(SIGTERM,exit_sighandler); // kill
-  while(1){
-    if(!cache_fill((cache_vars_t*)s)){
+  do {
+    if(!cache_fill(s)){
 	 usec_sleep(FILL_USLEEP_TIME); // idle
     }
 //	 cache_stats(s->cache_data);
-  }
+  } while (cache_execute_control(s));
+#if defined(__MINGW32__) || defined(__OS2__)
+  _endthread();
+#endif
+#ifdef PTHREAD_CACHE
+  return NULL;
+#endif
 }
 
 int cache_stream_fill_buffer(stream_t *s){
@@ -367,4 +444,55 @@ int cache_stream_seek_long(stream_t *stream,off_t pos){
 
   mp_msg(MSGT_CACHE,MSGL_V,"cache_stream_seek: WARNING! Can't seek to 0x%"PRIX64" !\n",(int64_t)(pos+newpos));
   return 0;
+}
+
+int cache_do_control(stream_t *stream, int cmd, void *arg) {
+  cache_vars_t* s = stream->cache_data;
+  switch (cmd) {
+    case STREAM_CTRL_SEEK_TO_TIME:
+      s->control_double_arg = *(double *)arg;
+      s->control = cmd;
+      break;
+    case STREAM_CTRL_SEEK_TO_CHAPTER:
+    case STREAM_CTRL_SET_ANGLE:
+      s->control_uint_arg = *(unsigned *)arg;
+      s->control = cmd;
+      break;
+// the core might call these every frame, they are too slow for this...
+    case STREAM_CTRL_GET_TIME_LENGTH:
+//    case STREAM_CTRL_GET_CURRENT_TIME:
+      *(double *)arg = s->stream_time_length;
+      return s->stream_time_length ? STREAM_OK : STREAM_UNSUPPORTED;
+    case STREAM_CTRL_GET_NUM_CHAPTERS:
+    case STREAM_CTRL_GET_CURRENT_CHAPTER:
+    case STREAM_CTRL_GET_ASPECT_RATIO:
+    case STREAM_CTRL_GET_NUM_ANGLES:
+    case STREAM_CTRL_GET_ANGLE:
+    case -2:
+      s->control = cmd;
+      break;
+    default:
+      return STREAM_UNSUPPORTED;
+  }
+  while (s->control != -1)
+    usec_sleep(CONTROL_SLEEP_TIME);
+  switch (cmd) {
+    case STREAM_CTRL_GET_TIME_LENGTH:
+    case STREAM_CTRL_GET_CURRENT_TIME:
+    case STREAM_CTRL_GET_ASPECT_RATIO:
+      *(double *)arg = s->control_double_arg;
+      break;
+    case STREAM_CTRL_GET_NUM_CHAPTERS:
+    case STREAM_CTRL_GET_CURRENT_CHAPTER:
+    case STREAM_CTRL_GET_NUM_ANGLES:
+    case STREAM_CTRL_GET_ANGLE:
+      *(unsigned *)arg = s->control_uint_arg;
+      break;
+    case STREAM_CTRL_SEEK_TO_CHAPTER:
+    case STREAM_CTRL_SEEK_TO_TIME:
+    case STREAM_CTRL_SET_ANGLE:
+      stream->pos = s->read_filepos = s->control_new_pos;
+      break;
+  }
+  return s->control_res;
 }

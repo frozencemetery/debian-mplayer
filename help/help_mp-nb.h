@@ -11,7 +11,7 @@ static char help_text[]=
 " -vo <drv[:dev]> velg video-ut driver og enhet (se '-vo help' for liste)\n"
 " -ao <drv[:dev]> velg lyd-ut driver og enhet (se '-ao help' for liste)\n"
 " vcd://<sporno>   spill VCD (video cd) spor fra enhet i stedet for fil\n"
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 " dvd://<tittelno> spill DVD tittel/spor fra enhet i stedet for fil\n"
 #endif
 " -ss <timepos>   søk til gitt (sekunder eller hh:mm:ss) posisjon\n"
@@ -98,7 +98,7 @@ static char help_text[]=
 #define MSGTR_ConnToServer "Koblet til server: %s\n"
 #define MSGTR_FileNotFound "Finner ikke filen: '%s'\n"
 
-#define MSGTR_CantOpenDVD "Kan ikke åpne DVD enhet: %s\n"
+#define MSGTR_CantOpenDVD "Kan ikke åpne DVD enhet: %s (%s)\n"
 #define MSGTR_DVDnumTitles "Det er %d titler på denne DVD.\n"
 #define MSGTR_DVDinvalidTitle "Ugyldig DVD tittelnummer: %d\n"
 #define MSGTR_DVDnumChapters "Det er %d kapitler i denne DVD tittelen.\n"
@@ -164,7 +164,7 @@ static char help_text[]=
 
 // ====================== GUI messages/buttons ========================
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 
 // --- labels ---
 #define MSGTR_About "Om"

@@ -1,4 +1,5 @@
-// Most of this was written by mbm@linux.com and released on the GPL2 License.
+// Most of this was written by Mike Baker <mbm@linux.com>
+// and released under the GPL v2+ license.
 //
 // Modifications and SEVERE cleanup of the code was done by 
 // Christopher Wingert 
@@ -60,7 +61,7 @@ static subtitle ty_OSD1;
 static subtitle ty_OSD2;
 static subtitle *ty_pOSD1;
 static subtitle *ty_pOSD2;
-static int             tyOSDInited = 0;
+static int             tyOSDInitialized = 0;
 static int             tyOSDUpdate = 0;
 
 static void ty_DrawOSD(void)
@@ -573,14 +574,14 @@ static char TY_XDS    [ 8 ][ 25 ][ 34 ];
 static char TY_XDS_new[ 8 ][ 25 ][ 34 ];
 
 // Array of [ MPAARating|TVRating ][ NumberRatings ]
-static char *TY_XDS_CHIP[ 2 ][ 8 ] = 
+static const char * const TY_XDS_CHIP[ 2 ][ 8 ] = 
 {
    { "(NOT APPLICABLE)", "G", "PG", "PG-13", "R", "NC-17", "X", "(NOT RATED)" },
    { "(NOT RATED)", "TV-Y", "TV-Y7", "TV-G", "TV-PG", "TV-14", "TV-MA", 
       "(NOT RATED)" }
 };
 
-static char *TY_XDS_modes[] = 
+static const char * const TY_XDS_modes[] = 
 {
   "CURRENT",                        // 01h-02h current program
   "FUTURE ",                        // 03h-04h future program
@@ -869,7 +870,7 @@ void ty_processuserdata( unsigned char* buf, int len )
 
 	if ( subcc_enabled )
 	{
-		if ( tyOSDInited == 0 )
+		if ( tyOSDInitialized == 0 )
 		{
 			for ( index = 0; index < SUB_MAX_TEXT ; index++ )
 			{
@@ -882,7 +883,7 @@ void ty_processuserdata( unsigned char* buf, int len )
 			ty_pOSD1 = &ty_OSD1;
 			ty_pOSD2 = &ty_OSD2;
 			tyOSDUpdate = 0;
-			tyOSDInited = 1;
+			tyOSDInitialized = 1;
 		}
 
 		if ( buf[ 0 ] == 0x01 )

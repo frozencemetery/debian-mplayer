@@ -10,7 +10,7 @@ extern int soft_vol;
 extern float soft_vol_max;
 
 typedef struct mixer_s {
-    ao_functions_t *audio_out;
+    const ao_functions_t *audio_out;
     af_stream_t *afilter;
     int volstep;
     int muted;
@@ -26,7 +26,7 @@ void mixer_mute(mixer_t *mixer);
 void mixer_getbalance(mixer_t *mixer, float *bal);
 void mixer_setbalance(mixer_t *mixer, float bal);
 
-//extern void mixer_setbothvolume( int v );
+//void mixer_setbothvolume(int v);
 #define mixer_setbothvolume(m, v) mixer_setvolume(m, v, v)
 
 #endif /* MPLAYER_MIXER_H */

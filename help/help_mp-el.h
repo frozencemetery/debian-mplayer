@@ -11,10 +11,10 @@ static char help_text[]=
 "Βασικές επιλογές: (Ανατρέξτε στη  σελίδα εγχειριδίου για ολοκληρωμένη λίστα με επιλογές)\n"
 " -vo <drv[:dev]> επιλέξτε τον οδηγό εξόδου βίντεο και τη συσκευή (βλέπε '-vo help' για τη λίστα)\n"
 " -ao <drv[:dev]> επιλέξτε τον οδηγό εξόδου ήχου και τη συσκευή (βλέπε '-ao help' για τη λίστα)\n"
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
 " vcd://<αριθμός track>  αναπαραγωγή track VCD (video cd)  από συσκευή αντί για αρχείο\n"
 #endif
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 " dvd://<titleno>  αναπαραγωγή του τίτλου/track DVD από τη συσκευή αντί για αρχείο\n"
 " -alang/-slang   επιλογή της γλώσσας του ήχου/υποτίτλων του DVD (2 χαρακτήρες του κωδικού της χώρας)\n"
 #endif
@@ -222,7 +222,7 @@ static char help_text[]=
 #define MSGTR_SMBFileNotFound "Δεν μπόρεσα να ανοίξω από το τοπικό δίκτυο: '%s'\n"
 #define MSGTR_SMBNotCompiled "MPlayer δεν μεταφράστηκε με υποστήριξη ανάγνωσης SMB\n"
 
-#define MSGTR_CantOpenDVD "Δεν μπόρεσα να ανοίξω την συσκευή DVD: %s\n"
+#define MSGTR_CantOpenDVD "Δεν μπόρεσα να ανοίξω την συσκευή DVD: %s (%s)\n"
 #define MSGTR_DVDnumTitles "Υπάρχουν %d τίτλοι στο DVD.\n"
 #define MSGTR_DVDinvalidTitle "Άκυρος αριθμός για τον τίτλο του DVD: %d\n"
 #define MSGTR_DVDnumChapters "Υπάρχουν %d κεφάλαια σε αυτόν τον τίτλο του DVD.\n"
@@ -342,7 +342,7 @@ static char help_text[]=
 
 // ====================== GUI messages/buttons ========================
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 
 // --- labels ---
 #define MSGTR_About "Περί"

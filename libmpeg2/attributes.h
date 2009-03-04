@@ -19,17 +19,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * Modified for use with MPlayer, see libmpeg-0.4.1.diff for the exact changes.
- * detailed changelog at http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: attributes.h 21542 2006-12-09 10:34:27Z henry $
  */
+
+#ifndef LIBMPEG2_ATTRIBUTES_H
+#define LIBMPEG2_ATTRIBUTES_H
 
 /* use gcc attribs to align critical data structures */
 #ifdef ATTRIBUTE_ALIGNED_MAX
 #define ATTR_ALIGN(align) __attribute__ ((__aligned__ ((ATTRIBUTE_ALIGNED_MAX < align) ? ATTRIBUTE_ALIGNED_MAX : align)))
 #else
-#define ATTR_ALIGN(align) __attribute__ ((__aligned__ ((16 < align) ? 16 : align)))
+#define ATTR_ALIGN(align)
 #endif
 
 #ifdef HAVE_BUILTIN_EXPECT
@@ -39,3 +38,5 @@
 #define likely(x) (x)
 #define unlikely(x) (x)
 #endif
+
+#endif /* LIBMPEG2_ATTRIBUTES_H */

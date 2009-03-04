@@ -1,7 +1,23 @@
-/* ad_faad.c - MPlayer AAC decoder using libfaad2
- * This file is part of MPlayer, see http://mplayerhq.hu/ for info.  
- * (c)2002 by Felix Buenemann <atmosfear at users.sourceforge.net>
- * File licensed under the GPL, see http://www.fsf.org/ for more info.
+/*
+ * MPlayer AAC decoder using libfaad2
+ *
+ * Copyright (C) 2002 Felix Buenemann <atmosfear at users.sourceforge.net>
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <stdio.h>
@@ -10,6 +26,7 @@
 
 #include "config.h"
 #include "ad_internal.h"
+#include "libaf/reorder_ch.h"
 
 static ad_info_t info = 
 {
@@ -22,7 +39,7 @@ static ad_info_t info =
 
 LIBAD_EXTERN(faad)
 
-#ifndef USE_FAAD_INTERNAL
+#ifndef CONFIG_FAAD_INTERNAL
 #include <faad.h>
 #else
 #include "libfaad2/faad.h"
@@ -74,7 +91,8 @@ static int init(sh_audio_t *sh)
   // If we don't get the ES descriptor, try manual config
   if(!sh->codecdata_len && sh->wf) {
     sh->codecdata_len = sh->wf->cbSize;
-    sh->codecdata = (char*)(sh->wf+1);
+    sh->codecdata = malloc(sh->codecdata_len);
+    memcpy(sh->codecdata, sh->wf+1, sh->codecdata_len);
     mp_msg(MSGT_DECAUDIO,MSGL_DBG2,"FAAD: codecdata extracted from WAVEFORMATEX\n");
   }
   if(!sh->codecdata_len) {
@@ -277,6 +295,14 @@ static int decode_audio(sh_audio_t *sh,unsigned char *buf,int minlen,int maxlen)
       /* XXX: samples already multiplied by channels! */
       mp_msg(MSGT_DECAUDIO,MSGL_DBG2,"FAAD: Successfully decoded frame (%ld Bytes)!\n",
       sh->samplesize*faac_finfo.samples);
+
+      if (sh->channels >= 5)
+        reorder_channel_copy_nch(faac_sample_buffer,
+                                 AF_CHANNEL_LAYOUT_AAC_DEFAULT,
+                                 buf+len, AF_CHANNEL_LAYOUT_MPLAYER_DEFAULT,
+                                 sh->channels,
+                                 faac_finfo.samples, sh->samplesize);
+      else
       memcpy(buf+len,faac_sample_buffer, sh->samplesize*faac_finfo.samples);
       last_dec_len = sh->samplesize*faac_finfo.samples;
       len += last_dec_len;

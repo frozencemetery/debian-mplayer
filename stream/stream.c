@@ -10,21 +10,18 @@
 #include <sys/wait.h>
 #endif
 #include <fcntl.h>
-#include <signal.h>
 #include <strings.h>
 
 #include "config.h"
 
-#ifndef HAVE_WINSOCK2
-#define closesocket close
-#else
+#if HAVE_WINSOCK2_H
 #include <winsock2.h>
 #endif
 
 #include "mp_msg.h"
 #include "help_mp.h"
 #include "osdep/shmem.h"
-
+#include "network.h"
 #include "stream.h"
 #include "libmpdemux/demuxer.h"
 
@@ -35,73 +32,50 @@
 
 //#include "vcd_read_bincue.h"
 
-#ifdef HAVE_VCD
-extern stream_info_t stream_info_vcd;
-#endif
-#ifdef HAVE_CDDA
-extern stream_info_t stream_info_cdda;
-#endif
-#ifdef MPLAYER_NETWORK
-extern stream_info_t stream_info_netstream;
-extern stream_info_t stream_info_pnm;
-extern stream_info_t stream_info_asf;
-extern stream_info_t stream_info_rtsp;
-extern stream_info_t stream_info_rtp;
-extern stream_info_t stream_info_udp;
-extern stream_info_t stream_info_http1;
-extern stream_info_t stream_info_http2;
-#endif
-#ifdef HAS_DVBIN_SUPPORT
-extern stream_info_t stream_info_dvb;
-#endif
-#ifdef USE_TV
-extern stream_info_t stream_info_tv;
-#endif
-#ifdef USE_RADIO
-extern stream_info_t stream_info_radio;
-#endif
-#ifdef HAVE_PVR
-extern stream_info_t stream_info_pvr;
-#endif
-#ifdef HAVE_FTP
-extern stream_info_t stream_info_ftp;
-#endif
-#ifdef HAVE_VSTREAM
-extern stream_info_t stream_info_vstream;
-#endif
-#ifdef USE_DVDNAV
-extern stream_info_t stream_info_dvdnav;
-#endif
-#ifdef LIBSMBCLIENT
-extern stream_info_t stream_info_smb;
-#endif
-#ifdef STREAMING_LIVE555
-extern stream_info_t stream_info_sdp;
-extern stream_info_t stream_info_rtsp_sip;
-#endif
+static int (*stream_check_interrupt_cb)(int time) = NULL;
 
-extern stream_info_t stream_info_cue;
-extern stream_info_t stream_info_null;
-extern stream_info_t stream_info_mf;
-extern stream_info_t stream_info_file;
-#ifdef USE_DVDREAD
-extern stream_info_t stream_info_dvd;
-#endif
+extern const stream_info_t stream_info_vcd;
+extern const stream_info_t stream_info_cdda;
+extern const stream_info_t stream_info_netstream;
+extern const stream_info_t stream_info_pnm;
+extern const stream_info_t stream_info_asf;
+extern const stream_info_t stream_info_rtsp;
+extern const stream_info_t stream_info_rtp;
+extern const stream_info_t stream_info_udp;
+extern const stream_info_t stream_info_http1;
+extern const stream_info_t stream_info_http2;
+extern const stream_info_t stream_info_dvb;
+extern const stream_info_t stream_info_tv;
+extern const stream_info_t stream_info_radio;
+extern const stream_info_t stream_info_pvr;
+extern const stream_info_t stream_info_ftp;
+extern const stream_info_t stream_info_vstream;
+extern const stream_info_t stream_info_dvdnav;
+extern const stream_info_t stream_info_smb;
+extern const stream_info_t stream_info_sdp;
+extern const stream_info_t stream_info_rtsp_sip;
 
-stream_info_t* auto_open_streams[] = {
-#ifdef HAVE_VCD
+extern const stream_info_t stream_info_cue;
+extern const stream_info_t stream_info_null;
+extern const stream_info_t stream_info_mf;
+extern const stream_info_t stream_info_file;
+extern const stream_info_t stream_info_ifo;
+extern const stream_info_t stream_info_dvd;
+
+static const stream_info_t* const auto_open_streams[] = {
+#ifdef CONFIG_VCD
   &stream_info_vcd,
 #endif
-#ifdef HAVE_CDDA
+#ifdef CONFIG_CDDA
   &stream_info_cdda,
 #endif
-#ifdef MPLAYER_NETWORK
+#ifdef CONFIG_NETWORK
   &stream_info_netstream,
   &stream_info_http1,
   &stream_info_asf,
   &stream_info_pnm,
   &stream_info_rtsp,
-#ifdef STREAMING_LIVE555
+#ifdef CONFIG_LIVE555
   &stream_info_sdp,
   &stream_info_rtsp_sip,
 #endif
@@ -109,32 +83,33 @@ stream_info_t* auto_open_streams[] = {
   &stream_info_udp,
   &stream_info_http2,
 #endif
-#ifdef HAS_DVBIN_SUPPORT
+#ifdef CONFIG_DVBIN
   &stream_info_dvb,
 #endif
-#ifdef USE_TV
+#ifdef CONFIG_TV
   &stream_info_tv,
 #endif
-#ifdef USE_RADIO
+#ifdef CONFIG_RADIO
   &stream_info_radio,
 #endif
-#ifdef HAVE_PVR
+#ifdef CONFIG_PVR
   &stream_info_pvr,
 #endif
-#ifdef HAVE_FTP
+#ifdef CONFIG_FTP
   &stream_info_ftp,
 #endif
-#ifdef HAVE_VSTREAM
+#ifdef CONFIG_VSTREAM
   &stream_info_vstream,
 #endif
-#ifdef LIBSMBCLIENT
+#ifdef CONFIG_LIBSMBCLIENT
   &stream_info_smb,
 #endif
   &stream_info_cue,
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
+  &stream_info_ifo,
   &stream_info_dvd,
 #endif
-#ifdef USE_DVDNAV
+#ifdef CONFIG_DVDNAV
   &stream_info_dvdnav,
 #endif
 
@@ -144,8 +119,9 @@ stream_info_t* auto_open_streams[] = {
   NULL
 };
 
-stream_t* open_stream_plugin(stream_info_t* sinfo,char* filename,int mode,
-			     char** options, int* file_format, int* ret) {
+stream_t* open_stream_plugin(const stream_info_t* sinfo,char* filename,int mode,
+			     char** options, int* file_format, int* ret,
+			     char** redirected_url) {
   void* arg = NULL;
   stream_t* s;
   m_struct_t* desc = (m_struct_t*)sinfo->opts;
@@ -178,6 +154,16 @@ stream_t* open_stream_plugin(stream_info_t* sinfo,char* filename,int mode,
   s->flags |= mode;
   *ret = sinfo->open(s,mode,arg,file_format);
   if((*ret) != STREAM_OK) {
+#ifdef CONFIG_NETWORK
+    if (*ret == STREAM_REDIRECTED && redirected_url) {
+        if (s->streaming_ctrl && s->streaming_ctrl->url
+            && s->streaming_ctrl->url->url)
+          *redirected_url = strdup(s->streaming_ctrl->url->url);
+        else
+          *redirected_url = NULL;
+    }
+    streaming_ctrl_free(s->streaming_ctrl);
+#endif
     free(s->url);
     free(s);
     return NULL;
@@ -202,8 +188,9 @@ stream_t* open_stream_plugin(stream_info_t* sinfo,char* filename,int mode,
 
 stream_t* open_stream_full(char* filename,int mode, char** options, int* file_format) {
   int i,j,l,r;
-  stream_info_t* sinfo;
+  const stream_info_t* sinfo;
   stream_t* s;
+  char *redirected_url = NULL;
 
   for(i = 0 ; auto_open_streams[i] ; i++) {
     sinfo = auto_open_streams[i];
@@ -215,12 +202,20 @@ stream_t* open_stream_full(char* filename,int mode, char** options, int* file_fo
       l = strlen(sinfo->protocols[j]);
       // l == 0 => Don't do protocol matching (ie network and filenames)
       if((l == 0 && !strstr(filename, "://")) ||
-         ((strncmp(sinfo->protocols[j],filename,l) == 0) &&
+         ((strncasecmp(sinfo->protocols[j],filename,l) == 0) &&
 		      (strncmp("://",filename+l,3) == 0))) {
 	*file_format = DEMUXER_TYPE_UNKNOWN;
-	s = open_stream_plugin(sinfo,filename,mode,options,file_format,&r);
+	s = open_stream_plugin(sinfo,filename,mode,options,file_format,&r,
+				&redirected_url);
 	if(s) return s;
-	if(r != STREAM_UNSUPPORTED) {
+	if(r == STREAM_REDIRECTED && redirected_url) {
+	  mp_msg(MSGT_OPEN,MSGL_V, "[%s] open %s redirected to %s\n",
+		 sinfo->info, filename, redirected_url);
+	  s = open_stream_full(redirected_url, mode, options, file_format);
+	  free(redirected_url);
+	  return s;
+	}
+	else if(r != STREAM_UNSUPPORTED) {
 	  mp_msg(MSGT_OPEN,MSGL_ERR, MSGTR_FailedToOpen,filename);
 	  return NULL;
 	}
@@ -250,8 +245,8 @@ int stream_fill_buffer(stream_t *s){
   if (/*s->fd == NULL ||*/ s->eof) { s->buf_pos = s->buf_len = 0; return 0; }
   switch(s->type){
   case STREAMTYPE_STREAM:
-#ifdef MPLAYER_NETWORK
-    if( s->streaming_ctrl!=NULL ) {
+#ifdef CONFIG_NETWORK
+    if( s->streaming_ctrl!=NULL && s->streaming_ctrl->streaming_read ) {
 	    len=s->streaming_ctrl->streaming_read(s->fd,s->buffer,STREAM_BUFFER_SIZE, s->streaming_ctrl);break;
     } else {
       len=read(s->fd,s->buffer,STREAM_BUFFER_SIZE);break;
@@ -317,7 +312,7 @@ if(newpos==0 || newpos!=s->pos){
     // Some streaming protocol allow to seek backward and forward
     // A function call that return -1 can tell that the protocol
     // doesn't support seeking.
-#ifdef MPLAYER_NETWORK
+#ifdef CONFIG_NETWORK
     if(s->seek) { // new stream seek is much cleaner than streaming_ctrl one
       if(!s->seek(s,newpos)) {
       	mp_msg(MSGT_STREAM,MSGL_ERR, "Seek failed\n");
@@ -384,6 +379,10 @@ void stream_reset(stream_t *s){
 
 int stream_control(stream_t *s, int cmd, void *arg){
   if(!s->control) return STREAM_UNSUPPORTED;
+#ifdef CONFIG_STREAM_CACHE
+  if (s->cache_pid)
+    return cache_do_control(s, cmd, arg);
+#endif
   return s->control(s, cmd, arg);
 }
 
@@ -409,7 +408,7 @@ stream_t* new_stream(int fd,int type){
   if(s==NULL) return NULL;
   memset(s,0,sizeof(stream_t));
 
-#ifdef HAVE_WINSOCK2
+#if HAVE_WINSOCK2_H
   {
     WSADATA wsdata;
     int temp = WSAStartup(0x0202, &wsdata); // there might be a better place for this (-> later)
@@ -430,7 +429,7 @@ stream_t* new_stream(int fd,int type){
 
 void free_stream(stream_t *s){
 //  printf("\n*** free_stream() called ***\n");
-#ifdef USE_STREAM_CACHE
+#ifdef CONFIG_STREAM_CACHE
   if(s->cache_pid) {
     cache_uninit(s);
   }
@@ -444,7 +443,7 @@ void free_stream(stream_t *s){
       closesocket(s->fd);
     else close(s->fd);
   }
-#ifdef HAVE_WINSOCK2
+#if HAVE_WINSOCK2_H
   mp_msg(MSGT_STREAM,MSGL_V,"WINSOCK2 uninit\n");
   WSACleanup(); // there might be a better place for this (-> later)
 #endif
@@ -459,4 +458,13 @@ stream_t* new_ds_stream(demux_stream_t *ds) {
   stream_t* s = new_stream(-1,STREAMTYPE_DS);
   s->priv = ds;
   return s;
+}
+
+void stream_set_interrupt_callback(int (*cb)(int)) {
+    stream_check_interrupt_cb = cb;
+}
+
+int stream_check_interrupt(int time) {
+    if(!stream_check_interrupt_cb) return 0;
+    return stream_check_interrupt_cb(time);
 }

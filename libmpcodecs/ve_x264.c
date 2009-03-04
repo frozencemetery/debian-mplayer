@@ -7,21 +7,21 @@
  *
  * Written by Bernhard Rosenkraenzer <bero@arklinux.org>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation, or if, and only if,
- * version 2 is ruled invalid in a court of law, any later version
- * of the GNU General Public License published by the Free Software
- * Foundation.
+ * This file is part of MPlayer.
  *
- * This program is distributed in the hope that it will be useful,
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTIBILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *****************************************************************************/
 
@@ -48,7 +48,7 @@
 
 #include <x264.h>
 
-typedef struct _h264_module_t {
+typedef struct h264_module_t {
     muxer_stream_t *mux;
     x264_t *    x264;
     x264_picture_t  pic;
@@ -76,7 +76,7 @@ static int encode_nals(uint8_t *buf, int size, x264_nal_t *nals, int nnal){
 static int put_image(struct vf_instance_s *vf, mp_image_t *mpi, double pts);
 static int encode_frame(struct vf_instance_s *vf, x264_picture_t *pic_in);
 
-void x264enc_set_param(m_option_t* opt, char* arg)
+void x264enc_set_param(const m_option_t* opt, char* arg)
 {
     static int initted = 0;
     if(!initted) {
@@ -156,6 +156,7 @@ static int config(struct vf_instance_s* vf, int width, int height, int d_width, 
 
     mod->mux->bih->biWidth = width;
     mod->mux->bih->biHeight = height;
+    mod->mux->bih->biSizeImage = width * height * 3;
     mod->mux->aspect = (float)d_width/d_height;
     
     // make sure param is initialized
@@ -172,35 +173,9 @@ static int config(struct vf_instance_s* vf, int width, int height, int d_width, 
     switch(outfmt) {
     case IMGFMT_I420:
         param.i_csp = X264_CSP_I420;
-        mod->mux->bih->biSizeImage = width * height * 3;
         break;
     case IMGFMT_YV12:
         param.i_csp = X264_CSP_YV12;
-        mod->mux->bih->biSizeImage = width * height * 3;
-        break;
-    case IMGFMT_422P:
-        param.i_csp = X264_CSP_I422;
-        mod->mux->bih->biSizeImage = width * height * 3;
-        break;
-    case IMGFMT_444P:
-        param.i_csp = X264_CSP_I444;
-        mod->mux->bih->biSizeImage = width * height * 3;
-        break;
-    case IMGFMT_YVYU:
-        param.i_csp = X264_CSP_YUYV;
-        mod->mux->bih->biSizeImage = width * height * 3;
-        break;
-    case IMGFMT_RGB:
-        param.i_csp = X264_CSP_RGB;
-        mod->mux->bih->biSizeImage = width * height * 3;
-        break;
-    case IMGFMT_BGR:
-        param.i_csp = X264_CSP_BGR;
-        mod->mux->bih->biSizeImage = width * height * 3;
-        break;
-    case IMGFMT_BGR32:
-        param.i_csp = X264_CSP_BGRA;
-        mod->mux->bih->biSizeImage = width * height * 4;
         break;
     default:
         mp_msg(MSGT_MENCODER, MSGL_ERR, "Wrong colorspace.\n");
@@ -257,7 +232,7 @@ static int query_format(struct vf_instance_s* vf, unsigned int fmt)
 {
     switch(fmt) {
     case IMGFMT_I420:
-        return (VFCAP_CSP_SUPPORTED|VFCAP_CSP_SUPPORTED_BY_HW);
+        return VFCAP_CSP_SUPPORTED | VFCAP_CSP_SUPPORTED_BY_HW;
     case IMGFMT_YV12:
     case IMGFMT_422P:
     case IMGFMT_444P:

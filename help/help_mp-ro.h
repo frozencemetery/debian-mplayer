@@ -1,5 +1,5 @@
 // FIXME: This needs to be redone properly.
-// Partially sync'ed with help_mp-en.h $Revision: 20743 $
+// Partially sync'ed with help_mp-en.h $Revision: 27402 $
 // This is a retranslation of the file by Bogdan Butnaru <bogdanb@fastmail.fm>,
 // based on the previous translation by Codre Adrian
 // <codreadrian@softhome.net> (address bounces).
@@ -18,11 +18,11 @@ static char help_text[]=
 " -ao <drv[:dev]>  alege driver-ul ºi device-ul de ieºire audio\n"
 "                  ('-ao help' pentru listã)\n"
 
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
 " vcd://<nrpistã>  ruleazã pista VCD (Video CD) de pe device în loc de fiºier\n"
 #endif
 
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 " dvd://<nrtitlu>  ruleazã titlul/pista de pe dispozitivul DVD în loc de fiºier\n"
 " -aLMB/-sLMB      alege limba pentru audio/subtitrãri DVD\n"
 "                  (cu codul de 2 caractere, ex. RO)\n"
@@ -211,7 +211,7 @@ static char help_text[]=
 
 #define MSGTR_SMBFileNotFound "Nu pot deschide de pe LAN: '%s'\n"
 
-#define MSGTR_CantOpenDVD "Nu pot deschide DVD-ul: %s\n"
+#define MSGTR_CantOpenDVD "Nu pot deschide DVD-ul: %s (%s)\n"
 #define MSGTR_DVDnumTitles "Sunt %d titluri pe acest DVD.\n"
 #define MSGTR_DVDinvalidTitle "Numãrul titlului DVD greºit: %d\n"
 #define MSGTR_DVDnumChapters "Sunt %d capitole în acest titlu.\n"
@@ -291,7 +291,7 @@ static char help_text[]=
 
 // ====================== GUI messages/buttons ========================
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 
 // --- labels ---
 #define MSGTR_About "Despre MPlayer"

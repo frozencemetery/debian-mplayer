@@ -158,9 +158,7 @@ static float read_first_mpeg_pts_at_position(demuxer_t* demuxer, off_t stream_po
   if(found == 3) pts = found_pts3;
 
   //clean up from searching of first pts;
-  ds_free_packs(demuxer->audio);
-  ds_free_packs(demuxer->video);
-  ds_free_packs(demuxer->sub);
+  demux_flush(demuxer);
 
   return pts;
 }
@@ -575,7 +573,8 @@ static int demux_mpg_read_packet(demuxer_t *demux,int id){
     if(l<len)
       resize_demux_packet(dp, l);
     len = l;
-    dp->pts=pts/90000.0f;
+    if(set_pts)
+      dp->pts=pts/90000.0f;
     dp->pos=demux->filepos;
     /*
       workaround:
@@ -600,6 +599,7 @@ static int num_elementary_packets101=0;
 static int num_elementary_packets12x=0;
 static int num_elementary_packets1B6=0;
 static int num_elementary_packetsPES=0;
+static int num_mpeg12_startcode=0;
 static int num_h264_slice=0; //combined slice
 static int num_h264_dpa=0; //DPA Slice
 static int num_h264_dpb=0; //DPB Slice
@@ -617,6 +617,7 @@ static void clear_stats(void)
   num_elementary_packets1B6=0;
   num_elementary_packets12x=0;
   num_elementary_packetsPES=0;
+  num_mpeg12_startcode=0;
   num_h264_slice=0; //combined slice
   num_h264_dpa=0; //DPA Slice
   num_h264_dpb=0; //DPB Slice
@@ -631,6 +632,7 @@ static void clear_stats(void)
 static inline void update_stats(int head)
 {
   if(head==0x1B6) ++num_elementary_packets1B6;
+  else if(head==0x1B3 || head==0x1B8) ++num_mpeg12_startcode;
   else if(head==0x100) ++num_elementary_packets100;
   else if(head==0x101) ++num_elementary_packets101;
   else if(head==0x1BD || (0x1C0<=head && head<=0x1EF))
@@ -682,7 +684,7 @@ static int demux_mpg_probe(demuxer_t *demuxer) {
        return file_format;
 
       // some hack to get meaningfull error messages to our unhappy users:
-      if(num_elementary_packets100>=2 && num_elementary_packets101>=2 &&
+      if(num_mpeg12_startcode>=2 && num_elementary_packets100>=2 && num_elementary_packets101>=2 &&
          abs(num_elementary_packets101+8-num_elementary_packets100)<16) {
          if(num_elementary_packetsPES>=4 && num_elementary_packetsPES>=num_elementary_packets100-4) {
            return file_format;
@@ -877,7 +879,7 @@ do{
   return 1;
 }
 
-extern void skip_audio_frame(sh_audio_t *sh_audio);
+void skip_audio_frame(sh_audio_t *sh_audio);
 
 void demux_seek_mpg(demuxer_t *demuxer,float rel_seek_secs,float audio_delay, int flags){
     demux_stream_t *d_audio=demuxer->audio;
@@ -889,14 +891,14 @@ void demux_seek_mpg(demuxer_t *demuxer,float rel_seek_secs,float audio_delay, in
     float oldpts = 0;
     off_t oldpos = demuxer->filepos;
     float newpts = 0; 
-    off_t newpos = (flags & 1) ? demuxer->movi_start : oldpos;
+    off_t newpos = (flags & SEEK_ABSOLUTE) ? demuxer->movi_start : oldpos;
 
     if(mpg_d)
       oldpts = mpg_d->last_pts;
-    newpts = (flags & 1) ? 0.0 : oldpts;
+    newpts = (flags & SEEK_ABSOLUTE) ? 0.0 : oldpts;
   //================= seek in MPEG ==========================
   //calculate the pts to seek to
-    if(flags & 2) {
+    if(flags & SEEK_FACTOR) {
       if (mpg_d && mpg_d->first_to_final_pts_len > 0.0)
         newpts += mpg_d->first_to_final_pts_len * rel_seek_secs;
       else
@@ -905,7 +907,7 @@ void demux_seek_mpg(demuxer_t *demuxer,float rel_seek_secs,float audio_delay, in
       newpts += rel_seek_secs;
     if (newpts < 0) newpts = 0;
 	
-    if(flags&2){
+    if(flags&SEEK_FACTOR){
 	// float seek 0..1
 	newpos+=(demuxer->movi_end-demuxer->movi_start)*rel_seek_secs;
     } else {
@@ -977,9 +979,7 @@ void demux_seek_mpg(demuxer_t *demuxer,float rel_seek_secs,float audio_delay, in
         //prepare another seek because we are off by more than 0.5s
 	if(mpg_d) {
         newpos += (newpts - mpg_d->last_pts) * (newpos - oldpos) / (mpg_d->last_pts - oldpts);
-        ds_free_packs(d_audio);
-        ds_free_packs(d_video);
-        ds_free_packs(demuxer->sub);
+        demux_flush(demuxer);
         demuxer->stream->eof=0; // clear eof flag
         d_video->eof=0;
         d_audio->eof=0;
@@ -1124,7 +1124,7 @@ static demuxer_t* demux_mpg_ps_open(demuxer_t* demuxer)
 }
 
 
-demuxer_desc_t demuxer_desc_mpeg_ps = {
+const demuxer_desc_t demuxer_desc_mpeg_ps = {
   "MPEG PS demuxer",
   "mpegps",
   "MPEG-PS",
@@ -1141,7 +1141,7 @@ demuxer_desc_t demuxer_desc_mpeg_ps = {
 };
 
 
-demuxer_desc_t demuxer_desc_mpeg_pes = {
+const demuxer_desc_t demuxer_desc_mpeg_pes = {
   "MPEG PES demuxer",
   "mpegpes",
   "MPEG-PES",
@@ -1158,7 +1158,7 @@ demuxer_desc_t demuxer_desc_mpeg_pes = {
 };
 
 
-demuxer_desc_t demuxer_desc_mpeg_gxf = {
+const demuxer_desc_t demuxer_desc_mpeg_gxf = {
   "MPEG ES in GXF demuxer",
   "mpeggxf",
   "MPEG-ES in GXF",
@@ -1174,7 +1174,7 @@ demuxer_desc_t demuxer_desc_mpeg_gxf = {
   NULL
 };
 
-demuxer_desc_t demuxer_desc_mpeg_es = {
+const demuxer_desc_t demuxer_desc_mpeg_es = {
   "MPEG ES demuxer",
   "mpeges",
   "MPEG-ES",
@@ -1191,7 +1191,7 @@ demuxer_desc_t demuxer_desc_mpeg_es = {
 };
 
 
-demuxer_desc_t demuxer_desc_mpeg4_es = {
+const demuxer_desc_t demuxer_desc_mpeg4_es = {
   "MPEG4 ES demuxer",
   "mpeg4es",
   "MPEG-ES",
@@ -1208,7 +1208,7 @@ demuxer_desc_t demuxer_desc_mpeg4_es = {
 };
 
 
-demuxer_desc_t demuxer_desc_h264_es = {
+const demuxer_desc_t demuxer_desc_h264_es = {
   "H.264 ES demuxer",
   "h264es",
   "H264-ES",

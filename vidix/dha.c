@@ -2,6 +2,20 @@
  * VIDIX Direct Hardware Access (DHA).
  * Copyright (C) 2002 Nick Kurshev
  *
+ * 1996/10/27   - Robin Cutshaw (robin@xfree86.org)
+ *                XFree86 3.3.3 implementation
+ * 1999         - Øyvind Aabling.
+ *                Modified for GATOS/win/gfxdump.
+ *
+ * 2002         - library implementation by Nick Kurshev
+ *              - dhahelper and some changes by Alex Beregszaszi
+ *
+ * supported OSes: SVR4, UnixWare, SCO, Solaris,
+ *                 FreeBSD, NetBSD, 386BSD, BSDI BSD/386,
+ *                 Linux, Mach/386, ISC
+ *                 DOS (WATCOM 9.5 compiler), Win9x (with mapdev.vxd)
+ * original location: www.linuxvideo.org/gatos
+ *
  * This file is part of MPlayer.
  *
  * MPlayer is free software; you can redistribute it and/or modify
@@ -14,23 +28,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
- *   1996/10/27	- Robin Cutshaw (robin@xfree86.org)
- *		  XFree86 3.3.3 implementation
- *   1999	- Øyvind Aabling.
- *   		  Modified for GATOS/win/gfxdump.
- *		  
- *   2002	- library implementation by Nick Kurshev
- *		- dhahelper and some changes by Alex Beregszaszi
- *   
- *   Supported O/S's:	SVR4, UnixWare, SCO, Solaris,
- *			FreeBSD, NetBSD, 386BSD, BSDI BSD/386,
- *			Linux, Mach/386, ISC
- *			DOS (WATCOM 9.5 compiler), Win9x (with mapdev.vxd)
- *   Original location: www.linuxvideo.org/gatos
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include "config.h"
@@ -43,12 +43,12 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#ifdef ARCH_ALPHA
+#if ARCH_ALPHA
 #include <sys/io.h>
 #endif
 #include <unistd.h>
 
-#if defined(WIN32)
+#if defined(__MINGW32__) || defined(__CYGWIN__)
 #include "sysdep/libdha_win32.c"
 #elif defined (__EMX__)
 #include "sysdep/libdha_os2.c"
@@ -80,7 +80,7 @@
 #endif
 
 #ifdef CONFIG_DHAHELPER
-#include "kernelhelper/dhahelper.h"
+#include "dhahelper/dhahelper.h"
 #endif
 
 #ifdef CONFIG_SVGAHELPER
@@ -91,7 +91,7 @@ static int mem_fd = -1;
 
 void *map_phys_mem(unsigned long base, unsigned long size)
 {    
-#ifdef ARCH_ALPHA
+#if ARCH_ALPHA
 /* TODO: move it into sysdep */
   base += bus_base();
 #endif
@@ -185,7 +185,7 @@ void unmap_phys_mem(void *ptr, unsigned long size)
 
 #endif /* Generic mmap (not win32, nor os2) */
 
-#if !defined(__alpha__) && !defined(__powerpc__)
+#if !defined(__alpha__) && !defined(__powerpc__) && !defined(__sh__)
 unsigned char INPORT8(unsigned idx)
 {
   return inb(idx);

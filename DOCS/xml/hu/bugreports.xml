@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- synced with r23225 -->
+<!-- synced with r28615 -->
 <appendix id="bugreports">
 <title>Hogyan jelentsd a hibákat</title>
 
@@ -111,6 +111,8 @@ spórolsz, ha vissza kell lépned.
 (Általában le kell futtatni a 'make distclean'-t egy régi verzió újrafordítása
 előtt, így ha nem készítesz mentést az eredeti forrás fádról, újra kell fordítanod
 mindent, ha visszajössz a jelenbe.)
+Alternatívaként használhatod a <ulink url="http://ccache.samba.org/">ccache</ulink>-t
+a fordítás felgyorsítására.
 </para>
 
 <para>
@@ -152,8 +154,7 @@ meglévő problémát napokon vagy akár órákon belül jelentik, így
 Ebbe beleértendőek az <application>MPlayer</application> bináris csomagjai is.
 A Subversion utasításokat megtalálod
 <ulink url="http://www.mplayerhq.hu/dload.html">ennek az oldalnak</ulink>
-az alján vagy a README fájlban. Ha ez sem segít, olvasd el az
-<link linkend="bugs">ismert hibák</link> listáját és a dokumentáció többi részét.
+az alján vagy a README fájlban. Ha ez sem segít, olvasd el a dokumentáció többi részét.
 Ha problémád még nem ismert vagy nem oldódott meg a leírásunk által, akkor kérjük
 jelentsd.
 </para>

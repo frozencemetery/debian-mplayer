@@ -1,18 +1,31 @@
-/*=============================================================================
-//	
-//  This software has been released under the terms of the GNU General Public
-//  license. See http://www.gnu.org/copyleft/gpl.html for details.
-//
-//  Copyright 2002 Anders Johansson ajh@atri.curtin.edu.au
-//
-//=============================================================================
-*/
+/*
+ * This audio filter changes the sample rate.
+ *
+ * Copyright (C) 2002 Anders Johansson ajh@atri.curtin.edu.au
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
-/* This audio filter changes the sample rate. */
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
 
+#include "libavutil/common.h"
+#include "libavutil/mathematics.h"
 #include "af.h"
 #include "dsp.h"
 
@@ -24,13 +37,13 @@
    slow and to 16 if the machine is fast and has MMX.  
 */
 
-#if !defined(HAVE_MMX) // This machine is slow
+#if !HAVE_MMX // This machine is slow
 #define L8 
 #else
 #define L16
 #endif
 
-#include "af_resample.h"
+#include "af_resample_template.c"
 
 // Filtering types
 #define RSMP_LIN   	(0<<0)	// Linear interpolation
@@ -184,14 +197,12 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
       s->step=((uint64_t)n->rate<<STEPACCURACY)/(uint64_t)af->data->rate+1LL;
       af_msg(AF_MSG_DEBUG0,"[resample] Linear interpolation step: 0x%016"PRIX64".\n",
 	     s->step);
-      af->mul.n = af->data->rate;
-      af->mul.d = n->rate;
-      af_frac_cancel(&af->mul);
+      af->mul = (double)af->data->rate / n->rate;
       return rv;
     }
 
     // Calculate up and down sampling factors
-    d=af_gcd(af->data->rate,n->rate);
+    d=av_gcd(af->data->rate,n->rate);
 
     // If sloppy resampling is enabled limit the upsampling factor
     if(((s->setup & FREQ_MASK) == FREQ_SLOPPY) && (af->data->rate/d > 5000)){
@@ -199,7 +210,7 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
       int dn=n->rate/2;
       int m=2;
       while(af->data->rate/(d*m) > 5000){
-	d=af_gcd(up,dn); 
+	d=av_gcd(up,dn);
 	up/=2; dn/=2; m*=2;
       }
       d*=m;
@@ -255,9 +266,8 @@ static int control(struct af_instance_s* af, int cmd, void* arg)
     }
 
     // Set multiplier and delay
-    af->delay = (double)(1000*L/2)/((double)n->rate);
-    af->mul.n = s->up;
-    af->mul.d = s->dn;
+    af->delay = 0; // not set correctly, but shouldn't be too large anyway
+    af->mul = (double)s->up / s->dn;
     return rv;
   }
   case AF_CONTROL_COMMAND_LINE:{
@@ -318,12 +328,12 @@ static af_data_t* play(struct af_instance_s* af, af_data_t* data)
 # define FORMAT_I 1
     if(s->up>s->dn){
 #     define UP
-#     include "af_resample.h"
+#     include "af_resample_template.c"
 #     undef UP 
     }
     else{
 #     define DN
-#     include "af_resample.h"
+#     include "af_resample_template.c"
 #     undef DN
     }
     break;
@@ -332,12 +342,12 @@ static af_data_t* play(struct af_instance_s* af, af_data_t* data)
 # define FORMAT_F 1
     if(s->up>s->dn){
 #     define UP
-#     include "af_resample.h"
+#     include "af_resample_template.c"
 #     undef UP 
     }
     else{
 #     define DN
-#     include "af_resample.h"
+#     include "af_resample_template.c"
 #     undef DN
     }
     break;
@@ -359,8 +369,7 @@ static int af_open(af_instance_t* af){
   af->control=control;
   af->uninit=uninit;
   af->play=play;
-  af->mul.n=1;
-  af->mul.d=1;
+  af->mul=1;
   af->data=calloc(1,sizeof(af_data_t));
   af->setup=calloc(1,sizeof(af_resample_t));
   if(af->data == NULL || af->setup == NULL)

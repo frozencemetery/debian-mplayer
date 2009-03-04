@@ -106,7 +106,7 @@ void create_lut (eq2_param_t *par)
   par->lut_clean = 1;
 }
 
-#ifdef HAVE_MMX
+#if HAVE_MMX
 static
 void affine_1d_MMX (eq2_param_t *par, unsigned char *dst, unsigned char *src,
   unsigned w, unsigned h, unsigned dstride, unsigned sstride)
@@ -130,7 +130,7 @@ void affine_1d_MMX (eq2_param_t *par, unsigned char *dst, unsigned char *src,
   dstep = dstride - w;
 
   while (h-- > 0) {
-    asm volatile (
+    __asm__ volatile (
       "movq (%5), %%mm3 \n\t"
       "movq (%6), %%mm4 \n\t"
       "pxor %%mm0, %%mm0 \n\t"
@@ -170,7 +170,7 @@ void affine_1d_MMX (eq2_param_t *par, unsigned char *dst, unsigned char *src,
     dst += dstep;
   }
 
-  asm volatile ( "emms \n\t" ::: "memory" );
+  __asm__ volatile ( "emms \n\t" ::: "memory" );
 }
 #endif
 
@@ -275,7 +275,7 @@ void check_values (eq2_param_t *par)
   if ((par->c == 1.0) && (par->b == 0.0) && (par->g == 1.0)) {
     par->adjust = NULL;
   }
-#ifdef HAVE_MMX
+#if HAVE_MMX
   else if (par->g == 1.0 && gCpuCaps.hasMMX) {
     par->adjust = &affine_1d_MMX;
   }
@@ -495,7 +495,7 @@ int open (vf_instance_t *vf, char *args)
   return 1;
 }
 
-vf_info_t vf_info_eq2 = {
+const vf_info_t vf_info_eq2 = {
   "Software equalizer",
   "eq2",
   "Hampa Hug, Daniel Moreno, Richard Felker",

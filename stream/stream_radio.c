@@ -1,29 +1,30 @@
 /*
- *     Radio support
- * 
- *     Initially wrote by Vladimir Voroshilov <voroshil@univer.omsk.su>.
- *     Based on tv.c and tvi_v4l2.c code.
+ * radio support
  *
- *     This program is free software; you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation; either version 2 of the License, or
- *     (at your option) any later version.
+ * Abilities:
+ * * Listening v4l compatible radio cards using line-in or
+ *   similar cable
+ * * Grabbing audio data using -ao pcm or -dumpaudio
+ *   (must be compiled with --enable-radio-capture).
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
+ * Initially written by Vladimir Voroshilov <voroshil@univer.omsk.su>.
+ * Based on tv.c and tvi_v4l2.c code.
  *
- *     You should have received a copy of the GNU General Public License
- *     along with this program; if not, write to the Free Software
- *     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+ * This file is part of MPlayer.
  *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- *     Abilities:
- *     * Listening v4l compatible radio cards using line-in or
- *       similar cable
- *     * Grabbing audio data using -ao pcm or -dumpaudio
- *       (must be compiled with --enable-radio-capture).
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #include "config.h"
 
@@ -34,21 +35,21 @@
 #include <errno.h>
 #include <unistd.h>
 
-#ifdef HAVE_RADIO_BSDBT848
+#ifdef CONFIG_RADIO_BSDBT848
 #include <sys/param.h>
 #ifdef IOCTL_BT848_H_NAME
 #include IOCTL_BT848_H_NAME
 #endif
 
-#else // HAVE_RADIO_BSDBT848
+#else /* CONFIG_RADIO_BSDBT848 */
 
 #include <linux/types.h>
 
-#ifdef HAVE_RADIO_V4L2
+#ifdef CONFIG_RADIO_V4L2
 #include <linux/videodev2.h>
 #endif
 
-#ifdef HAVE_RADIO_V4L
+#ifdef CONFIG_RADIO_V4L
 #include <linux/videodev.h>
 #warning  "V4L is deprecated and will be removed in future"
 #endif
@@ -65,7 +66,7 @@
 #include "stream_radio.h"
 #include "libavutil/avstring.h"
 
-#ifdef USE_RADIO_CAPTURE
+#ifdef CONFIG_RADIO_CAPTURE
 #include "audio_in.h"
 
 #ifdef HAVE_SYS_SOUNDCARD_H
@@ -90,7 +91,7 @@ typedef struct radio_channels_s {
 
 /// default values for options
 radio_param_t stream_radio_defaults={
-#ifdef HAVE_RADIO_BSDBT848
+#ifdef CONFIG_RADIO_BSDBT848
     "/dev/tuner0", //device
     87.50,         //freq_min
     108.00,        //freq_max
@@ -116,7 +117,7 @@ typedef struct radio_priv_s {
     float rangehigh;                       ///< highest tunable frequency in MHz
     const struct radio_driver_s*     driver;
     int                 old_snd_volume;
-#ifdef USE_RADIO_CAPTURE
+#ifdef CONFIG_RADIO_CAPTURE
     volatile int        do_capture;        ///< is capture enabled
     audio_in_t          audio_in;
     unsigned char*      audio_ringbuffer;
@@ -125,7 +126,7 @@ typedef struct radio_priv_s {
     int                 audio_buffer_size; ///< size of ringbuffer
     int                 audio_cnt;         ///< size of meanfull data inringbuffer
     int                 audio_drop;        ///< number of dropped bytes
-    int                 audio_inited;
+    int                 audio_initialized;
 #endif
     radio_param_t       *radio_param;
 } radio_priv_t;
@@ -141,13 +142,13 @@ typedef struct radio_driver_s {
 } radio_driver_t;
 
 #define ST_OFF(f) M_ST_OFF(radio_param_t,f)
-static m_option_t stream_opts_fields[] = {
+static const m_option_t stream_opts_fields[] = {
     {"hostname", ST_OFF(freq_channel), CONF_TYPE_FLOAT, 0, 0 ,0, NULL},
     {"filename", ST_OFF(capture), CONF_TYPE_STRING, 0, 0 ,0, NULL},
     { NULL, NULL, 0, 0, 0, 0,  NULL }
 };
 
-static struct m_struct_st stream_opts = {
+static const struct m_struct_st stream_opts = {
     "radio",
     sizeof(radio_param_t),
     &stream_radio_defaults,
@@ -155,7 +156,7 @@ static struct m_struct_st stream_opts = {
 };
 
 static void close_s(struct stream_st * stream);
-#ifdef USE_RADIO_CAPTURE
+#ifdef CONFIG_RADIO_CAPTURE
 static int clear_buffer(radio_priv_t* priv);
 #endif
 
@@ -251,7 +252,7 @@ static int parse_channels(radio_priv_t* priv,float freq_channel,float* pfreq){
     return STREAM_OK;
 }
 
-#ifdef HAVE_RADIO_V4L2
+#ifdef CONFIG_RADIO_V4L2
 /*****************************************************************
  * \brief get fraction value for using in set_frequency and get_frequency
  * \return STREAM_OK if success, STREAM_ERROR otherwise
@@ -408,8 +409,8 @@ static const radio_driver_t radio_driver_v4l2={
     set_frequency_v4l2,
     get_frequency_v4l2
 };
-#endif //HAVE_RADIO_V4L2
-#ifdef HAVE_RADIO_V4L
+#endif /* CONFIG_RADIO_V4L2 */
+#ifdef CONFIG_RADIO_V4L
 /*****************************************************************
  * \brief get fraction value for using in set_frequency and get_frequency
  * \return STREAM_OK if success, STREAM_ERROR otherwise
@@ -539,8 +540,8 @@ static const radio_driver_t radio_driver_v4l={
     set_frequency_v4l,
     get_frequency_v4l
 };
-#endif //HAVE_RADIO_V4L
-#ifdef HAVE_RADIO_BSDBT848
+#endif /* CONFIG_RADIO_V4L */
+#ifdef CONFIG_RADIO_BSDBT848
 
 /*****************************************************************
  * \brief get fraction value for using in set_frequency and get_frequency
@@ -651,7 +652,7 @@ static const radio_driver_t radio_driver_bsdbt848={
     set_frequency_bsdbt848,
     get_frequency_bsdbt848
 };
-#endif //HAVE_RADIO_BSDBT848
+#endif /* CONFIG_RADIO_BSDBT848 */
 
 static inline int init_frac(radio_priv_t* priv){ 
     return priv->driver->init_frac(priv);
@@ -664,7 +665,7 @@ static inline int set_frequency(radio_priv_t* priv,float frequency){
     if(priv->driver->set_frequency(priv,frequency)!=STREAM_OK)
         return STREAM_ERROR;
 	
-#ifdef USE_RADIO_CAPTURE
+#ifdef CONFIG_RADIO_CAPTURE
     if(clear_buffer(priv)!=STREAM_OK){
         mp_msg(MSGT_RADIO,MSGL_ERR,MSGTR_RADIO_ClearBufferFailed,strerror(errno));
         return  STREAM_ERROR;
@@ -683,7 +684,7 @@ static inline int get_volume(radio_priv_t* priv,int* volume){
 }
 
 
-#ifndef USE_RADIO_CAPTURE
+#ifndef CONFIG_RADIO_CAPTURE
 /*****************************************************************
  * \brief stub, if capture disabled at compile-time
  * \return STREAM_OK
@@ -714,7 +715,7 @@ static int read_chunk(audio_in_t *ai, unsigned char *buffer)
     int ret;
 
     switch (ai->type) {
-#if defined(HAVE_ALSA9) || defined(HAVE_ALSA1X)
+#ifdef CONFIG_ALSA
     case AUDIO_IN_ALSA:
         //device opened in non-blocking mode
         ret = snd_pcm_readi(ai->alsa.handle, buffer, ai->alsa.chunk_size);
@@ -736,7 +737,7 @@ static int read_chunk(audio_in_t *ai, unsigned char *buffer)
         }
         return ret;
 #endif
-#ifdef USE_OSS_AUDIO
+#ifdef CONFIG_OSS_AUDIO
     case AUDIO_IN_OSS:
     {
         int bt=0;
@@ -793,7 +794,7 @@ static int grab_audio_frame(radio_priv_t *priv, char *buffer, int len)
        1000ms delay will happen only at first buffer filling. At next call function
        just fills buffer until either buffer full or no data from driver available.
     */
-    for (i=0;i<1000 && priv->audio_cnt<priv->audio_buffer_size; i++){
+    for (i=0;i<1000 && !priv->audio_cnt; i++){
         //read_chunk fills exact priv->blocksize bytes
         if(read_chunk(&priv->audio_in, priv->audio_ringbuffer+priv->audio_tail) < 0){
             //sleppeing only when waiting first block to fill empty buffer
@@ -822,7 +823,7 @@ static int init_audio(radio_priv_t *priv)
     int is_oss=1;
     int seconds=2;
     char* tmp;
-    if (priv->audio_inited) return 1;
+    if (priv->audio_initialized) return 1;
 
     /* do_capture==0 mplayer was not started with capture keyword, so disabling capture*/
     if(!priv->do_capture)
@@ -835,7 +836,7 @@ static int init_audio(radio_priv_t *priv)
 
     priv->do_capture=1;
     mp_msg(MSGT_RADIO,MSGL_V,MSGTR_RADIO_CaptureStarting);
-#if defined(HAVE_ALSA9) || defined(HAVE_ALSA1X)
+#ifdef CONFIG_ALSA
     while ((tmp = strrchr(priv->radio_param->adevice, '='))){
         tmp[0] = ':';
         //adevice option looks like ALSA device name. Switching to ALSA
@@ -857,11 +858,11 @@ static int init_audio(radio_priv_t *priv)
         mp_msg(MSGT_RADIO, MSGL_ERR, MSGTR_RADIO_AudioInSetupFailed, strerror(errno));
         return STREAM_ERROR;
     }
-#ifdef USE_OSS_AUDIO
+#ifdef CONFIG_OSS_AUDIO
     if(is_oss)
         ioctl(priv->audio_in.oss.audio_fd, SNDCTL_DSP_NONBLOCK, 0);
 #endif
-#if defined(HAVE_ALSA9) || defined(HAVE_ALSA1X)
+#ifdef CONFIG_ALSA
     if(!is_oss)
         snd_pcm_nonblock(priv->audio_in.alsa.handle,1);
 #endif
@@ -883,12 +884,13 @@ static int init_audio(radio_priv_t *priv)
     priv->audio_cnt = 0;
     priv->audio_drop = 0;
 
+    audio_in_start_capture(&priv->audio_in);
 
-    priv->audio_inited = 1;
+    priv->audio_initialized = 1;
 
     return STREAM_OK;
 }
-#endif //USE_RADIO_CAPTURE
+#endif /* CONFIG_RADIO_CAPTURE */
 
 /*-------------------------------------------------------------------------
  for call from mplayer.c
@@ -1060,7 +1062,7 @@ char* radio_get_channel_name(struct stream_st *stream){
 static int fill_buffer_s(struct stream_st *s, char* buffer, int max_len){
     int len=max_len;
 
-#ifdef USE_RADIO_CAPTURE
+#ifdef CONFIG_RADIO_CAPTURE
     radio_priv_t* priv=(radio_priv_t*)s->priv;
 
     if (priv->do_capture){
@@ -1078,13 +1080,13 @@ static int fill_buffer_s(struct stream_st *s, char* buffer, int max_len){
  when no driver explicitly specified first available will be used
  */
 static const radio_driver_t* radio_drivers[]={
-#ifdef HAVE_RADIO_BSDBT848
+#ifdef CONFIG_RADIO_BSDBT848
     &radio_driver_bsdbt848,
 #endif
-#ifdef HAVE_RADIO_V4L2
+#ifdef CONFIG_RADIO_V4L2
     &radio_driver_v4l2,
 #endif
-#ifdef HAVE_RADIO_V4L
+#ifdef CONFIG_RADIO_V4L
     &radio_driver_v4l,
 #endif
     0
@@ -1113,7 +1115,7 @@ static int open_s(stream_t *stream,int mode, void* opts, int* file_format) {
 
     priv->radio_param=opts;
 
-#ifdef USE_RADIO_CAPTURE
+#ifdef CONFIG_RADIO_CAPTURE
     if (priv->radio_param->capture && strncmp("capture",priv->radio_param->capture,7)==0)
         priv->do_capture=1;
     else
@@ -1197,7 +1199,7 @@ static int open_s(stream_t *stream,int mode, void* opts, int* file_format) {
         return STREAM_ERROR;
     }
 
-#if defined(USE_RADIO_CAPTURE) && defined(USE_STREAM_CACHE)
+#if defined(CONFIG_RADIO_CAPTURE) && defined(CONFIG_STREAM_CACHE)
     if(priv->do_capture){
         //5 second cache
         if(!stream_enable_cache(stream,5*priv->audio_in.samplerate*priv->audio_in.channels*
@@ -1223,7 +1225,7 @@ static void close_s(struct stream_st * stream){
     radio_channels_t * tmp;
     if (!priv) return;
 
-#ifdef USE_RADIO_CAPTURE
+#ifdef CONFIG_RADIO_CAPTURE
     if(priv->audio_ringbuffer){
         free(priv->audio_ringbuffer);
         priv->audio_ringbuffer=NULL;
@@ -1251,7 +1253,7 @@ static void close_s(struct stream_st * stream){
     stream->priv=NULL;
 }
 
-stream_info_t stream_info_radio = {
+const stream_info_t stream_info_radio = {
     "Radio stream",
     "Radio",
     "Vladimir Voroshilov",

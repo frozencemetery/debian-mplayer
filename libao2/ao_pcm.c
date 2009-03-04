@@ -1,3 +1,23 @@
+/*
+ * PCM audio output driver
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include "config.h"
 
 #include <stdio.h>
@@ -8,6 +28,7 @@
 #include "mpbswap.h"
 #include "subopt-helper.h"
 #include "libaf/af_format.h"
+#include "libaf/reorder_ch.h"
 #include "audio_out.h"
 #include "audio_out_internal.h"
 #include "mp_msg.h"
@@ -35,6 +56,7 @@ static int fast = 0;
 #define WAV_ID_FMT  0x20746d66 /* "fmt " */
 #define WAV_ID_DATA 0x61746164 /* "data" */
 #define WAV_ID_PCM  0x0001
+#define WAV_ID_FLOAT_PCM  0x0003
 
 struct WaveHeader
 {
@@ -84,15 +106,24 @@ static int init(int rate,int channels,int format,int flags){
 	    strdup(ao_pcm_waveheader?"audiodump.wav":"audiodump.pcm");
 	}
 
-	/* bits is only equal to format if (format == 8) or (format == 16);
-	   this means that the following "if" is a kludge and should
-	   really be a switch to be correct in all cases */
-
 	bits=8;
 	switch(format){
+	case AF_FORMAT_S32_BE:
+	    format=AF_FORMAT_S32_LE;
+	case AF_FORMAT_S32_LE:
+	    bits=32;
+	    break;
+	case AF_FORMAT_FLOAT_BE:
+	    format=AF_FORMAT_FLOAT_LE;
+	case AF_FORMAT_FLOAT_LE:
+	    bits=32;
+	    break;
 	case AF_FORMAT_S8:
 	    format=AF_FORMAT_U8;
 	case AF_FORMAT_U8:
+	    break;
+	case AF_FORMAT_AC3:
+	    bits=16;
 	    break;
 	default:
 	    format=AF_FORMAT_S16_LE;
@@ -111,7 +142,7 @@ static int init(int rate,int channels,int format,int flags){
 	wavhdr.wave = le2me_32(WAV_ID_WAVE);
 	wavhdr.fmt = le2me_32(WAV_ID_FMT);
 	wavhdr.fmt_length = le2me_32(16);
-	wavhdr.fmt_tag = le2me_16(WAV_ID_PCM);
+	wavhdr.fmt_tag = le2me_16(format == AF_FORMAT_FLOAT_LE ? WAV_ID_FLOAT_PCM : WAV_ID_PCM);
 	wavhdr.channels = le2me_16(ao_data.channels);
 	wavhdr.sample_rate = le2me_32(ao_data.samplerate);
 	wavhdr.bytes_per_second = le2me_32(ao_data.bps);
@@ -196,6 +227,15 @@ static int play(void* data,int len,int flags){
 	  }
 	}
 #endif 
+
+	if (ao_data.channels == 6 || ao_data.channels == 5) {
+		int frame_size = le2me_16(wavhdr.bits) / 8;
+		len -= len % (frame_size * ao_data.channels);
+		reorder_channel_nch(data, AF_CHANNEL_LAYOUT_MPLAYER_DEFAULT,
+		                    AF_CHANNEL_LAYOUT_WAVEEX_DEFAULT,
+		                    ao_data.channels,
+		                    len / frame_size, frame_size);
+	}
 
 	//printf("PCM: Writing chunk!\n");
 	fwrite(data,len,1,fp);

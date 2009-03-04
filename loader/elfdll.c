@@ -5,7 +5,6 @@
  *
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: elfdll.c 24408 2007-09-10 13:10:44Z diego $
  *
  */
 #include "config.h"
@@ -18,6 +17,7 @@
 #include "wine/elfdll.h"
 #include "wine/debugtools.h"
 #include "wine/winerror.h"
+#include "debug.h"
 
 //DEFAULT_DEBUG_CHANNEL(elfdll)
 
@@ -33,8 +33,8 @@ extern modref_list* local_wm;
 
 
 /*------------------ HACKS -----------------*/
-extern DWORD fixup_imports(WINE_MODREF *wm);
-extern void dump_exports(HMODULE hModule);
+DWORD fixup_imports(WINE_MODREF *wm);
+void dump_exports(HMODULE hModule);
 /*---------------- END HACKS ---------------*/
 
 //char *extra_ld_library_path = "/usr/lib/win32";

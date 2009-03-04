@@ -1,26 +1,29 @@
 // -*- c-basic-offset: 8; indent-tabs-mode: t -*-
 // vim:ts=8:sw=8:noet:ai:
 /*
-  Copyright (C) 2006 Evgeniy Stepanov <eugeni.stepanov@gmail.com>
+ * Copyright (C) 2006 Evgeniy Stepanov <eugeni.stepanov@gmail.com>
+ *
+ * This file is part of libass.
+ *
+ * libass is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * libass is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with libass; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
+#ifndef LIBASS_ASS_H
+#define LIBASS_ASS_H
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-*/
-
-#ifndef ASS_H
-#define ASS_H
-
+#include <stdio.h>
 #include "ass_types.h"
 
 /// Libass renderer object. Contents are private.
@@ -93,6 +96,11 @@ void ass_set_line_spacing(ass_renderer_t* priv, double line_spacing);
 int  ass_set_fonts(ass_renderer_t* priv, const char* default_font, const char* default_family);
 
 /**
+ * \brief set font lookup defaults, don't use fontconfig even if it is available
+ */
+int  ass_set_fonts_nofc(ass_renderer_t* priv, const char* default_font, const char* default_family);
+
+/**
  * \brief render a frame, producing a list of ass_image_t
  * \param priv library
  * \param track subtitle track
@@ -146,7 +154,15 @@ void ass_free_style(ass_track_t* track, int sid);
 void ass_free_event(ass_track_t* track, int eid);
 
 /**
- * \brief Process Codec Private section of subtitle stream
+ * \brief Parse a chunk of subtitle stream data.
+ * \param track track
+ * \param data string to parse
+ * \param size length of data
+ */
+void ass_process_data(ass_track_t* track, char* data, int size);
+
+/**
+ * \brief Parse Codec Private section of subtitle stream
  * \param track target track
  * \param data string to parse
  * \param size length of data
@@ -154,7 +170,7 @@ void ass_free_event(ass_track_t* track, int eid);
 void ass_process_codec_private(ass_track_t* track, char *data, int size);
 
 /**
- * \brief Process a chunk of subtitle stream data. In matroska, this containes exactly 1 event (or a commentary)
+ * \brief Parse a chunk of subtitle stream data. In Matroska, this contains exactly 1 event (or a commentary).
  * \param track track
  * \param data string to parse
  * \param size length of data
@@ -163,7 +179,7 @@ void ass_process_codec_private(ass_track_t* track, char *data, int size);
 */
 void ass_process_chunk(ass_track_t* track, char *data, int size, long long timecode, long long duration);
 
-char* read_file_recode(char* fname, char* codepage, int* size);
+char* read_file_recode(char* fname, char* codepage, size_t* size);
 
 /**
  * \brief Read subtitles from file.
@@ -196,6 +212,11 @@ int ass_read_styles(ass_track_t* track, char* fname, char* codepage);
 void ass_add_font(ass_library_t* library, char* name, char* data, int data_size);
 
 /**
+ * \brief Remove all fonts stored in ass_library object
+ */
+void ass_clear_fonts(ass_library_t* library);
+
+/**
  * \brief Calculates timeshift from now to the start of some other subtitle event, depending on movement parameter
  * \param track subtitle track
  * \param now current time, ms
@@ -205,5 +226,4 @@ void ass_add_font(ass_library_t* library, char* name, char* data, int data_size)
  */
 long long ass_step_sub(ass_track_t* track, long long now, int movement);
 
-#endif
-
+#endif /* LIBASS_ASS_H */

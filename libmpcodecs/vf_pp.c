@@ -8,25 +8,22 @@
 #include "mp_msg.h"
 #include "cpudetect.h"
 
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 
 #include "img_format.h"
 #include "mp_image.h"
 #include "vf.h"
-
-
-#ifdef USE_LIBPOSTPROC_SO
-#include <postproc/postprocess.h>
-#elif defined(USE_LIBPOSTPROC)
-#define EMU_OLD
+#include "libavutil/internal.h"
 #include "libpostproc/postprocess.h"
 
-#ifdef EMU_OLD
+#ifdef CONFIG_LIBPOSTPROC_A
+#define EMU_OLD
 #include "libpostproc/postprocess_internal.h"
 #endif
-#endif
+
+#undef malloc
 
 struct vf_priv_s {
     int pp;
@@ -217,7 +214,7 @@ static int open(vf_instance_t *vf, char* args){
     return 1;
 }
 
-vf_info_t vf_info_pp = {
+const vf_info_t vf_info_pp = {
     "postprocessing",
     "pp",
     "A'rpi",

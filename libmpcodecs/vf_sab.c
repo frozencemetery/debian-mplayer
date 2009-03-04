@@ -1,20 +1,22 @@
 /*
-    Copyright (C) 2002 Michael Niedermayer <michaelni@gmx.at>
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-*/
+ * Copyright (C) 2002 Michael Niedermayer <michaelni@gmx.at>
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,15 +27,11 @@
 #include "config.h"
 #include "mp_msg.h"
 
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 
-#ifdef USE_LIBAVUTIL_SO
-#include <ffmpeg/avutil.h>
-#else
-#include "avutil.h"
-#endif
+#include "libavutil/avutil.h"
 #include "img_format.h"
 #include "mp_image.h"
 #include "vf.h"
@@ -142,7 +140,7 @@ static int config(struct vf_instance_s* vf,
 	unsigned int flags, unsigned int outfmt){
 	
 	int sw, sh;
-//asm volatile("emms\n\t");
+//__asm__ volatile("emms\n\t");
 	allocStuff(&vf->priv->luma, width, height);
 	
 	getSubSampleFactors(&sw, &sh, outfmt);
@@ -203,7 +201,7 @@ if((x/32)&1){
 					int dx;
 					int iy= y+dy - radius;
 					if     (iy<0)  iy=  -iy;
-					else if(iy>=h) iy= h-iy-1;
+					else if(iy>=h) iy= h+h-iy-1;
 
 					for(dx=0; dx<radius*2+1; dx++){
 						const int ix= x+dx - radius;
@@ -220,13 +218,13 @@ if((x/32)&1){
 					int dx;
 					int iy= y+dy - radius;
 					if     (iy<0)  iy=  -iy;
-					else if(iy>=h) iy= h-iy-1;
+					else if(iy>=h) iy= h+h-iy-1;
 
 					for(dx=0; dx<radius*2+1; dx++){
 						int ix= x+dx - radius;
 						int factor;
 						if     (ix<0)  ix=  -ix;
-						else if(ix>=w) ix= w-ix-1;
+						else if(ix>=w) ix= w+w-ix-1;
 
 						factor= f.colorDiffCoeff[256+preVal - f.preFilterBuf[ix + iy*f.preFilterStride] ]
 							*f.distCoeff[dx + dy*f.distStride];
@@ -311,7 +309,7 @@ static int open(vf_instance_t *vf, char* args){
 	return 1;
 }
 
-vf_info_t vf_info_sab = {
+const vf_info_t vf_info_sab = {
     "shape adaptive blur",
     "sab",
     "Michael Niedermayer",

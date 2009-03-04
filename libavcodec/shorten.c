@@ -20,7 +20,7 @@
  */
 
 /**
- * @file shorten.c
+ * @file libavcodec/shorten.c
  * Shorten decoder
  * @author Jeff Muizelaar
  *
@@ -100,10 +100,11 @@ typedef struct ShortenContext {
     int32_t lpcqoffset;
 } ShortenContext;
 
-static int shorten_decode_init(AVCodecContext * avctx)
+static av_cold int shorten_decode_init(AVCodecContext * avctx)
 {
     ShortenContext *s = avctx->priv_data;
     s->avctx = avctx;
+    avctx->sample_fmt = SAMPLE_FMT_S16;
 
     return 0;
 }
@@ -227,9 +228,9 @@ static int decode_wave_header(AVCodecContext *avctx, uint8_t *header, int header
     avctx->sample_rate = get_le32(&hb);
     avctx->bit_rate = get_le32(&hb) * 8;
     avctx->block_align = get_le16(&hb);
-    avctx->bits_per_sample = get_le16(&hb);
+    avctx->bits_per_coded_sample = get_le16(&hb);
 
-    if (avctx->bits_per_sample != 16) {
+    if (avctx->bits_per_coded_sample != 16) {
         av_log(avctx, AV_LOG_ERROR, "unsupported number of bits per sample\n");
         return -1;
     }
@@ -268,7 +269,7 @@ static void decode_subframe_lpc(ShortenContext *s, int channel, int residual_siz
 
 static int shorten_decode_frame(AVCodecContext *avctx,
         void *data, int *data_size,
-        uint8_t *buf, int buf_size)
+        const uint8_t *buf, int buf_size)
 {
     ShortenContext *s = avctx->priv_data;
     int i, input_buf_size = 0;
@@ -304,7 +305,7 @@ static int shorten_decode_frame(AVCodecContext *avctx,
     {
         int maxnlpc = 0;
         /* shorten signature */
-        if (get_bits_long(&s->gb, 32) != bswap_32(ff_get_fourcc("ajkg"))) {
+        if (get_bits_long(&s->gb, 32) != AV_RB32("ajkg")) {
             av_log(s->avctx, AV_LOG_ERROR, "missing shorten magic 'ajkg'\n");
             return -1;
         }
@@ -345,7 +346,7 @@ static int shorten_decode_frame(AVCodecContext *avctx,
             s->lpcqoffset = V2LPCQOFFSET;
 
         if (get_ur_golomb_shorten(&s->gb, FNSIZE) != FN_VERBATIM) {
-            av_log(s->avctx, AV_LOG_ERROR, "missing verbatim section at begining of stream\n");
+            av_log(s->avctx, AV_LOG_ERROR, "missing verbatim section at beginning of stream\n");
             return -1;
         }
 
@@ -501,7 +502,7 @@ frame_done:
         return i;
 }
 
-static int shorten_decode_close(AVCodecContext *avctx)
+static av_cold int shorten_decode_close(AVCodecContext *avctx)
 {
     ShortenContext *s = avctx->priv_data;
     int i;
@@ -532,4 +533,5 @@ AVCodec shorten_decoder = {
     shorten_decode_close,
     shorten_decode_frame,
     .flush= shorten_flush,
+    .long_name= NULL_IF_CONFIG_SMALL("Shorten"),
 };

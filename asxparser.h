@@ -1,13 +1,14 @@
+#ifndef MPLAYER_ASXPARSER_H
+#define MPLAYER_ASXPARSER_H
 
-
-typedef struct _ASX_Parser_t ASX_Parser_t;
+typedef struct ASX_Parser_t ASX_Parser_t;
 
 typedef struct {
   char* buffer;
   int line;
 } ASX_LineSave_t;
 
-struct _ASX_Parser_t {
+struct ASX_Parser_t {
   int line; // Curent line
   ASX_LineSave_t *ret_stack;
   int ret_stack_size;
@@ -47,3 +48,5 @@ typedef void (*ASX_FreeFunc)(void* arg);
 
 void
 asx_list_free(void* list_ptr,ASX_FreeFunc free_func);
+
+#endif /* MPLAYER_ASXPARSER_H */

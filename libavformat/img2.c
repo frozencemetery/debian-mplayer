@@ -1,6 +1,6 @@
 /*
  * Image format
- * Copyright (c) 2000, 2001, 2002 Fabrice Bellard.
+ * Copyright (c) 2000, 2001, 2002 Fabrice Bellard
  * Copyright (c) 2004 Michael Niedermayer
  *
  * This file is part of FFmpeg.
@@ -19,8 +19,11 @@
  * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
+
+#include "libavutil/intreadwrite.h"
+#include "libavutil/avstring.h"
 #include "avformat.h"
-#include "avstring.h"
+#include <strings.h>
 
 typedef struct {
     int img_first;
@@ -41,7 +44,9 @@ static const IdStrMap img_tags[] = {
     { CODEC_ID_MJPEG     , "jpg"},
     { CODEC_ID_LJPEG     , "ljpg"},
     { CODEC_ID_PNG       , "png"},
+    { CODEC_ID_PNG       , "mng"},
     { CODEC_ID_PPM       , "ppm"},
+    { CODEC_ID_PPM       , "pnm"},
     { CODEC_ID_PGM       , "pgm"},
     { CODEC_ID_PGMYUV    , "pgmyuv"},
     { CODEC_ID_PBM       , "pbm"},
@@ -55,12 +60,22 @@ static const IdStrMap img_tags[] = {
     { CODEC_ID_GIF       , "gif"},
     { CODEC_ID_TARGA     , "tga"},
     { CODEC_ID_TIFF      , "tiff"},
+    { CODEC_ID_TIFF      , "tif"},
     { CODEC_ID_SGI       , "sgi"},
     { CODEC_ID_PTX       , "ptx"},
-    {0, NULL}
+    { CODEC_ID_PCX       , "pcx"},
+    { CODEC_ID_SUNRAST   , "sun"},
+    { CODEC_ID_SUNRAST   , "ras"},
+    { CODEC_ID_SUNRAST   , "rs"},
+    { CODEC_ID_SUNRAST   , "im1"},
+    { CODEC_ID_SUNRAST   , "im8"},
+    { CODEC_ID_SUNRAST   , "im24"},
+    { CODEC_ID_SUNRAST   , "sunras"},
+    { CODEC_ID_JPEG2000  , "jp2"},
+    { CODEC_ID_NONE      , NULL}
 };
 
-static int sizes[][2] = {
+static const int sizes[][2] = {
     { 640, 480 },
     { 720, 480 },
     { 720, 576 },
@@ -76,7 +91,7 @@ static int infer_size(int *width_ptr, int *height_ptr, int size)
 {
     int i;
 
-    for(i=0;i<sizeof(sizes)/sizeof(sizes[0]);i++) {
+    for(i=0;i<FF_ARRAY_ELEMS(sizes);i++) {
         if ((sizes[i][0] * sizes[i][1]) == size) {
             *width_ptr = sizes[i][0];
             *height_ptr = sizes[i][1];
@@ -92,11 +107,8 @@ static enum CodecID av_str2id(const IdStrMap *tags, const char *str)
     str++;
 
     while (tags->id) {
-        int i;
-        for(i=0; toupper(tags->str[i]) == toupper(str[i]); i++){
-            if(tags->str[i]==0 && str[i]==0)
-                return tags->id;
-        }
+        if (!strcasecmp(str, tags->str))
+            return tags->id;
 
         tags++;
     }
@@ -239,7 +251,7 @@ static int img_read_packet(AVFormatContext *s1, AVPacket *pkt)
     char filename[1024];
     int i;
     int size[3]={0}, ret[3]={0};
-    ByteIOContext f1[3], *f[3]= {&f1[0], &f1[1], &f1[2]};
+    ByteIOContext *f[3];
     AVCodecContext *codec= s1->streams[0]->codec;
 
     if (!s->is_pipe) {
@@ -251,7 +263,7 @@ static int img_read_packet(AVFormatContext *s1, AVPacket *pkt)
                                   s->path, s->img_number)<0 && s->img_number > 1)
             return AVERROR(EIO);
         for(i=0; i<3; i++){
-            if (url_fopen(f[i], filename, URL_RDONLY) < 0)
+            if (url_fopen(&f[i], filename, URL_RDONLY) < 0)
                 return AVERROR(EIO);
             size[i]= url_fsize(f[i]);
 
@@ -263,7 +275,7 @@ static int img_read_packet(AVFormatContext *s1, AVPacket *pkt)
         if(codec->codec_id == CODEC_ID_RAWVIDEO && !codec->width)
             infer_size(&codec->width, &codec->height, size[0]);
     } else {
-        f[0] = &s1->pb;
+        f[0] = s1->pb;
         if (url_feof(f[0]))
             return AVERROR(EIO);
         size[0]= 4096;
@@ -294,12 +306,7 @@ static int img_read_packet(AVFormatContext *s1, AVPacket *pkt)
     }
 }
 
-static int img_read_close(AVFormatContext *s1)
-{
-    return 0;
-}
-
-#ifdef CONFIG_MUXERS
+#if CONFIG_IMAGE2_MUXER || CONFIG_IMAGE2PIPE_MUXER
 /******************************************************/
 /* image output */
 
@@ -322,7 +329,7 @@ static int img_write_header(AVFormatContext *s)
 static int img_write_packet(AVFormatContext *s, AVPacket *pkt)
 {
     VideoData *img = s->priv_data;
-    ByteIOContext pb1[3], *pb[3]= {&pb1[0], &pb1[1], &pb1[2]};
+    ByteIOContext *pb[3];
     char filename[1024];
     AVCodecContext *codec= s->streams[ pkt->stream_index ]->codec;
     int i;
@@ -332,7 +339,7 @@ static int img_write_packet(AVFormatContext *s, AVPacket *pkt)
                                   img->path, img->img_number) < 0 && img->img_number>1)
             return AVERROR(EIO);
         for(i=0; i<3; i++){
-            if (url_fopen(pb[i], filename, URL_WRONLY) < 0)
+            if (url_fopen(&pb[i], filename, URL_WRONLY) < 0)
                 return AVERROR(EIO);
 
             if(codec->codec_id != CODEC_ID_RAWVIDEO)
@@ -340,7 +347,7 @@ static int img_write_packet(AVFormatContext *s, AVPacket *pkt)
             filename[ strlen(filename) - 1 ]= 'U' + i;
         }
     } else {
-        pb[0] = &s->pb;
+        pb[0] = s->pb;
     }
 
     if(codec->codec_id == CODEC_ID_RAWVIDEO){
@@ -353,6 +360,29 @@ static int img_write_packet(AVFormatContext *s, AVPacket *pkt)
         url_fclose(pb[1]);
         url_fclose(pb[2]);
     }else{
+        if(av_str2id(img_tags, s->filename) == CODEC_ID_JPEG2000){
+            AVStream *st = s->streams[0];
+            if(st->codec->extradata_size > 8 &&
+               AV_RL32(st->codec->extradata+4) == MKTAG('j','p','2','h')){
+                if(pkt->size < 8 || AV_RL32(pkt->data+4) != MKTAG('j','p','2','c'))
+                    goto error;
+                put_be32(pb[0], 12);
+                put_tag (pb[0], "jP  ");
+                put_be32(pb[0], 0x0D0A870A); // signature
+                put_be32(pb[0], 20);
+                put_tag (pb[0], "ftyp");
+                put_tag (pb[0], "jp2 ");
+                put_be32(pb[0], 0);
+                put_tag (pb[0], "jp2 ");
+                put_buffer(pb[0], st->codec->extradata, st->codec->extradata_size);
+            }else if(pkt->size < 8 ||
+                     (!st->codec->extradata_size &&
+                      AV_RL32(pkt->data+4) != MKTAG('j','P',' ',' '))){ // signature
+            error:
+                av_log(s, AV_LOG_ERROR, "malformated jpeg2000 codestream\n");
+                return -1;
+            }
+        }
         put_buffer(pb[0], pkt->data, pkt->size);
     }
     put_flush_packet(pb[0]);
@@ -364,61 +394,54 @@ static int img_write_packet(AVFormatContext *s, AVPacket *pkt)
     return 0;
 }
 
-static int img_write_trailer(AVFormatContext *s)
-{
-    return 0;
-}
-
-#endif /* CONFIG_MUXERS */
+#endif /* CONFIG_IMAGE2_MUXER || CONFIG_IMAGE2PIPE_MUXER */
 
 /* input */
-#ifdef CONFIG_IMAGE2_DEMUXER
+#if CONFIG_IMAGE2_DEMUXER
 AVInputFormat image2_demuxer = {
     "image2",
-    "image2 sequence",
+    NULL_IF_CONFIG_SMALL("image2 sequence"),
     sizeof(VideoData),
     image_probe,
     img_read_header,
     img_read_packet,
-    img_read_close,
+    NULL,
     NULL,
     NULL,
     AVFMT_NOFILE,
 };
 #endif
-#ifdef CONFIG_IMAGE2PIPE_DEMUXER
+#if CONFIG_IMAGE2PIPE_DEMUXER
 AVInputFormat image2pipe_demuxer = {
     "image2pipe",
-    "piped image2 sequence",
+    NULL_IF_CONFIG_SMALL("piped image2 sequence"),
     sizeof(VideoData),
     NULL, /* no probe */
     img_read_header,
     img_read_packet,
-    img_read_close,
-    NULL,
 };
 #endif
 
 /* output */
-#ifdef CONFIG_IMAGE2_MUXER
+#if CONFIG_IMAGE2_MUXER
 AVOutputFormat image2_muxer = {
     "image2",
-    "image2 sequence",
+    NULL_IF_CONFIG_SMALL("image2 sequence"),
     "",
-    "",
+    "bmp,jpeg,jpg,ljpg,pam,pbm,pgm,pgmyuv,png,ppm,sgi,tif,tiff,jp2",
     sizeof(VideoData),
     CODEC_ID_NONE,
     CODEC_ID_MJPEG,
     img_write_header,
     img_write_packet,
-    img_write_trailer,
-    AVFMT_NOFILE,
+    NULL,
+    .flags= AVFMT_NOTIMESTAMPS | AVFMT_NOFILE
 };
 #endif
-#ifdef CONFIG_IMAGE2PIPE_MUXER
+#if CONFIG_IMAGE2PIPE_MUXER
 AVOutputFormat image2pipe_muxer = {
     "image2pipe",
-    "piped image2 sequence",
+    NULL_IF_CONFIG_SMALL("piped image2 sequence"),
     "",
     "",
     sizeof(VideoData),
@@ -426,6 +449,6 @@ AVOutputFormat image2pipe_muxer = {
     CODEC_ID_MJPEG,
     img_write_header,
     img_write_packet,
-    img_write_trailer,
+    .flags= AVFMT_NOTIMESTAMPS
 };
 #endif

@@ -1,6 +1,6 @@
 
-#ifndef MPLAYER_H
-#define MPLAYER_H
+#ifndef MPLAYER_MPLAYER_H
+#define MPLAYER_MPLAYER_H
 
 extern char* current_module;
 
@@ -22,7 +22,7 @@ extern char * font_name;
 extern char * sub_font_name;
 extern float  font_factor;
 extern float movie_aspect;
-extern float force_fps;
+extern double force_fps;
 
 //extern char **sub_name;
 extern float  sub_delay;
@@ -47,7 +47,7 @@ extern int video_id;
 extern int dvdsub_id;
 extern int vobsub_id;
 
-extern void exit_player(const char* how);
-extern void update_set_of_subtitles(void);
+void exit_player(const char* how);
+void update_set_of_subtitles(void);
 
-#endif /* MPLAYER_H */
+#endif /* MPLAYER_MPLAYER_H */

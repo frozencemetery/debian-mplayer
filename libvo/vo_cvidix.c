@@ -1,12 +1,26 @@
 /*
-    VIDIX accelerated overlay on (black) background
-    
-    should work on any OS
-    
-    (C) Sascha Sommer
-    
- 
-*/
+ * VIDIX-accelerated overlay on (black) background
+ *
+ * should work on any OS
+ *
+ * copyright (C) 2003 Sascha Sommer
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,10 +37,10 @@
 #include "mp_msg.h"
 
 #include "vosub_vidix.h"
-#include "vidix/vidixlib.h"
+#include "vidix/vidix.h"
 
 
-static vo_info_t info = {
+static const vo_info_t info = {
     "console VIDIX",
     "cvidix",
     "Sascha Sommer",
@@ -81,10 +95,15 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,uint32_t d_h
     if(vo_screenwidth && vo_screenheight){
       if(!vo_geometry)center=1;
     }
-    else mp_msg(MSGT_VO, MSGL_WARN, "vo_cvidix: warn: screenwidth and height not set assuming 640x480\n");
   }
-  if(!vo_screenwidth)vo_screenwidth=640;
-  if(!vo_screenheight)vo_screenheight=480;
+  if(!vo_screenwidth){
+    mp_msg(MSGT_VO, MSGL_WARN, "vo_cvidix: Screen width not set (see -screenw), assuming 640 pixels.\n");
+    vo_screenwidth = 640;
+    }
+  if(!vo_screenheight){
+    mp_msg(MSGT_VO, MSGL_WARN, "vo_cvidix: Screen height not set (see -screenh), assuming 480 pixels.\n");
+    vo_screenheight = 480;
+  }
   swidth = width;
   sheight = height;
   sformat = format;
@@ -134,7 +153,7 @@ static int draw_frame(uint8_t *src[]){
 }
 
 static int query_format(uint32_t format){
-  return(vidix_query_fourcc(format));
+  return vidix_query_fourcc(format);
 }
 
 static void uninit(void){

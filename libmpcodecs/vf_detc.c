@@ -273,7 +273,7 @@ static int do_put_image(struct vf_instance_s* vf, mp_image_t *dmpi)
 	int dropflag;
 
 	switch (p->drop) {
-	case 0:
+	default:
 		dropflag = 0;
 		break;
 	case 1:
@@ -425,7 +425,7 @@ static int open(vf_instance_t *vf, char* args)
 	return 1;
 }
 
-vf_info_t vf_info_detc = {
+const vf_info_t vf_info_detc = {
     "de-telecine filter",
     "detc",
     "Rich Felker",

@@ -1,3 +1,8 @@
+#ifndef MPLAYER_COMPONENTS_H
+#define MPLAYER_COMPONENTS_H
+
+#include <inttypes.h>
+
 // Basic types:
 
 typedef char *                          Ptr;
@@ -739,3 +744,4 @@ static inline void dump_CodecDecompressParams(void* xxx){
 
 }
 
+#endif /* MPLAYER_COMPONENTS_H */

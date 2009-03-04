@@ -1,3 +1,20 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include "fastmemcpy.h"
 #include <stdio.h>
@@ -20,10 +37,7 @@
 #include "sub.h"
 #include "get_path.h"
 #include "libmpdemux/mpeg_packetizer.h"
-
-#ifdef X11_FULLSCREEN
 #include "x11_common.h"
-#endif
 
 #include <dxr2ioctl.h>
 
@@ -37,7 +51,7 @@ static int movie_w,movie_h;
 static int playing = 0;
 
 // vo device used to blank the screen for the overlay init
-static  vo_functions_t* sub_vo = NULL;
+static const vo_functions_t* sub_vo = NULL;
 
 static uint8_t* sub_img = NULL;
 static int sub_x,sub_y,sub_w,sub_h;
@@ -132,14 +146,14 @@ m_option_t dxr2_opts[] = {
   { NULL,NULL, 0, 0, 0, 0, NULL}
 };
 
-static vo_info_t info = {
+static const vo_info_t info = {
   "DXR2 video out",
   "dxr2",
   "Alban Bedel <albeu@free.fr> and Tobias Diedrich <ranma@gmx.at>",
   ""
 };
 
-LIBVO_EXTERN (dxr2)
+const LIBVO_EXTERN (dxr2)
 
 static char *ucodesearchpath[] = {
   "/usr/local/lib/dxr2/dvd12.ux",
@@ -153,7 +167,7 @@ static char *ucodesearchpath[] = {
 static unsigned char dxr2buf[BUF_SIZE];
 static unsigned int  dxr2bufpos = 0;
 
-int write_dxr2(unsigned char *data, int len)
+int write_dxr2(const unsigned char *data, int len)
 {
   int w = 0;
 
@@ -841,7 +855,7 @@ static int preinit(const char *arg) {
       use_ol = 0;
     } else {
       uint32_t fmt = IMGFMT_BGR24;
-      mp_msg(MSGT_VO,MSGL_V,"VO: [dxr2] Sub vo %s inited\n",arg);
+      mp_msg(MSGT_VO,MSGL_V,"VO: [dxr2] Sub vo %s initialized\n",arg);
       if(sub_vo->control(VOCTRL_QUERY_FORMAT,&fmt) <= 0) {
 	mp_msg(MSGT_VO,MSGL_WARN,"VO: [dxr2] Sub vo %s doesn't support BGR24 => no overlay\n",arg);
 	sub_vo->uninit();

@@ -1,15 +1,28 @@
-/* 
- * Based on:
- *
- * test_av.c - Test program for new API
+/*
+ * based on: test_av.c - test program for new API
  *
  * Copyright (C) 2000 Ralph  Metzler <ralph@convergence.de>
  *                  & Marcus Metzler <marcus@convergence.de>
  *                    for convergence integrated media GmbH
  *
- * libav - MPEG-PS multiplexer, part of ffmpeg
- * Copyright Gerard Lantau  (see http://ffmpeg.sf.net)
+ * MPEG-PS multiplexer, part of FFmpeg
+ * Copyright Gerard Lantau (see http://ffmpeg.org)
  *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include "config.h"
@@ -23,12 +36,10 @@
 #include <unistd.h>
 
 #include "mp_msg.h"
-#ifdef HAVE_DVB_HEAD
-#define HAVE_DVB 1
-#endif
-#ifdef HAVE_DVB
-#ifndef HAVE_DVB_HEAD
-#include <sys/poll.h>
+
+#ifdef CONFIG_DVB
+#ifndef CONFIG_DVB_HEAD
+#include <poll.h>
 
 #include <sys/ioctl.h>
 #include <stdio.h>
@@ -43,7 +54,7 @@
 #else
 #define true 1
 #define false 0
-#include <sys/poll.h>
+#include <poll.h>
 
 #include <sys/ioctl.h>
 #include <stdio.h>
@@ -64,24 +75,24 @@
 int vo_mpegpes_fd=-1;
 extern int vo_mpegpes_fd2;
 
-static vo_info_t info = 
+static const vo_info_t info = 
 {
-#ifdef HAVE_DVB
-	"Mpeg-PES to DVB card",
+#ifdef CONFIG_DVB
+	"MPEG-PES to DVB card",
 #else
-	"Mpeg-PES file",
+	"MPEG-PES file",
 #endif
 	"mpegpes",
 	"A'rpi",
 	""
 };
 
-LIBVO_EXTERN (mpegpes)
+const LIBVO_EXTERN (mpegpes)
 
 static int
 config(uint32_t s_width, uint32_t s_height, uint32_t width, uint32_t height, uint32_t flags, char *title, uint32_t format)
 {
-#ifdef HAVE_DVB
+#ifdef CONFIG_DVB
     switch(s_height){
     case 288:
     case 576:
@@ -97,8 +108,8 @@ config(uint32_t s_width, uint32_t s_height, uint32_t width, uint32_t height, uin
 }
 
 static int preinit(const char *arg){
-#ifdef HAVE_DVB
-    int card = 0;
+#ifdef CONFIG_DVB
+    int card = -1;
     char vo_file[30], ao_file[30], *tmp;
     
     if(arg != NULL){
@@ -115,7 +126,22 @@ static int preinit(const char *arg){
     
     if(!arg){
     //|O_NONBLOCK
-#ifndef HAVE_DVB_HEAD
+        //search the first usable card
+        if(card==-1) {
+          int n;
+          for(n=0; n<4; n++) {
+            sprintf(vo_file, "/dev/dvb/adapter%d/video0", n);
+            if(access(vo_file, F_OK | W_OK)==0) {
+              card = n;
+              break;
+            }
+          }
+        }
+        if(card==-1) {
+          mp_msg(MSGT_VO,MSGL_INFO, "Couldn't find a usable dvb video device, exiting\n");
+          return -1;
+        }
+#ifndef CONFIG_DVB_HEAD
 	mp_msg(MSGT_VO,MSGL_INFO, "Opening /dev/ost/video+audio\n");
 	sprintf(vo_file, "/dev/ost/video");
 	sprintf(ao_file, "/dev/ost/audio");
@@ -161,7 +187,7 @@ static void draw_osd(void)
 
 static int my_write(unsigned char* data,int len){
     int orig_len = len;
-#ifdef HAVE_DVB
+#ifdef CONFIG_DVB
 #define NFD   2
     struct pollfd pfd[NFD];
 

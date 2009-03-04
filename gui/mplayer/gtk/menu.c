@@ -1,3 +1,20 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,55 +26,55 @@
 #include "mixer.h"
 
 #include "menu.h"
-#include "../widgets.h"
-#include "../gmplayer.h"
-#include "app.h"
+#include "gui/mplayer/widgets.h"
+#include "gui/mplayer/gmplayer.h"
+#include "gui/app.h"
 
 #include "stream/stream.h"
-#include "../libmpdemux/demuxer.h"
-#include "../libmpdemux/stheader.h"
+#include "libmpdemux/demuxer.h"
+#include "libmpdemux/stheader.h"
 
-#include "../pixmaps/ab.xpm"
-#include "../pixmaps/half.xpm"
-#include "../pixmaps/normal.xpm"
-#include "../pixmaps/double.xpm"
-#include "../pixmaps/fs.xpm"
-#include "../pixmaps/exit.xpm"
-#include "../pixmaps/prefs.xpm"
-#include "../pixmaps/eq.xpm"
-#include "../pixmaps/pl.xpm"
-#include "../pixmaps/skin.xpm"
-#include "../pixmaps/sound.xpm"
-#include "../pixmaps/open.xpm"
-#include "../pixmaps/play.xpm"
-#include "../pixmaps/stop2.xpm"
-#include "../pixmaps/pause.xpm"
-#include "../pixmaps/prev.xpm"
-#include "../pixmaps/next.xpm"
-#include "../pixmaps/aspect.xpm"
-#include "../pixmaps/a11.xpm"
-#include "../pixmaps/a169.xpm"
-#include "../pixmaps/a235.xpm"
-#include "../pixmaps/a43.xpm"
-#include "../pixmaps/file2.xpm"
-#include "../pixmaps/url.xpm"
-#include "../pixmaps/sub.xpm"
-#include "../pixmaps/delsub.xpm"
-#include "../pixmaps/empty.xpm"
-#include "../pixmaps/loadeaf.xpm"
-#include "../pixmaps/title.xpm"
-#ifdef USE_DVDREAD
-#include "../pixmaps/dvd.xpm"
-#include "../pixmaps/playdvd.xpm"
-#include "../pixmaps/chapter.xpm"
-#include "../pixmaps/dolby.xpm"
-#include "../pixmaps/tongue.xpm"
-#include "../pixmaps/tonguebla.xpm"
-#include "../pixmaps/empty1px.xpm"
+#include "gui/mplayer/pixmaps/ab.xpm"
+#include "gui/mplayer/pixmaps/half.xpm"
+#include "gui/mplayer/pixmaps/normal.xpm"
+#include "gui/mplayer/pixmaps/double.xpm"
+#include "gui/mplayer/pixmaps/fs.xpm"
+#include "gui/mplayer/pixmaps/exit.xpm"
+#include "gui/mplayer/pixmaps/prefs.xpm"
+#include "gui/mplayer/pixmaps/eq.xpm"
+#include "gui/mplayer/pixmaps/pl.xpm"
+#include "gui/mplayer/pixmaps/skin.xpm"
+#include "gui/mplayer/pixmaps/sound.xpm"
+#include "gui/mplayer/pixmaps/open.xpm"
+#include "gui/mplayer/pixmaps/play.xpm"
+#include "gui/mplayer/pixmaps/stop2.xpm"
+#include "gui/mplayer/pixmaps/pause.xpm"
+#include "gui/mplayer/pixmaps/prev.xpm"
+#include "gui/mplayer/pixmaps/next.xpm"
+#include "gui/mplayer/pixmaps/aspect.xpm"
+#include "gui/mplayer/pixmaps/a11.xpm"
+#include "gui/mplayer/pixmaps/a169.xpm"
+#include "gui/mplayer/pixmaps/a235.xpm"
+#include "gui/mplayer/pixmaps/a43.xpm"
+#include "gui/mplayer/pixmaps/file2.xpm"
+#include "gui/mplayer/pixmaps/url.xpm"
+#include "gui/mplayer/pixmaps/sub.xpm"
+#include "gui/mplayer/pixmaps/delsub.xpm"
+#include "gui/mplayer/pixmaps/empty.xpm"
+#include "gui/mplayer/pixmaps/loadeaf.xpm"
+#include "gui/mplayer/pixmaps/title.xpm"
+#ifdef CONFIG_DVDREAD
+#include "gui/mplayer/pixmaps/dvd.xpm"
+#include "gui/mplayer/pixmaps/playdvd.xpm"
+#include "gui/mplayer/pixmaps/chapter.xpm"
+#include "gui/mplayer/pixmaps/dolby.xpm"
+#include "gui/mplayer/pixmaps/tongue.xpm"
+#include "gui/mplayer/pixmaps/tonguebla.xpm"
+#include "gui/mplayer/pixmaps/empty1px.xpm"
 #endif
-#ifdef HAVE_VCD
-#include "../pixmaps/vcd.xpm"
-#include "../pixmaps/playvcd.xpm"
+#ifdef CONFIG_VCD
+#include "gui/mplayer/pixmaps/vcd.xpm"
+#include "gui/mplayer/pixmaps/playvcd.xpm"
 #endif
 
 void ActivateMenuItem( int Item )
@@ -360,7 +377,7 @@ static Languages_t Languages[] =
          };
 #undef lng
 
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 static char * ChannelTypes[] =
 	{ "Dolby Digital","","Mpeg1","Mpeg2","PCM","","Digital Theatre System" };
 static char * ChannelNumbers[] =
@@ -404,10 +421,10 @@ GtkWidget * create_PopUpMenu( void )
   AddSeparator( Menu );
    SubMenu=AddSubMenu( window1, (const char*)open_xpm, Menu,MSGTR_MENU_Open );
     AddMenuItem( window1, (const char*)file2_xpm, SubMenu,MSGTR_MENU_PlayFile"    ", evLoadPlay );
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
     AddMenuItem( window1, (const char*)playvcd_xpm, SubMenu,MSGTR_MENU_PlayVCD, evPlayVCD );
 #endif
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
     AddMenuItem( window1, (const char*)playdvd_xpm, SubMenu,MSGTR_MENU_PlayDVD, evPlayDVD );
 #endif
     AddMenuItem( window1, (const char*)url_xpm, SubMenu,MSGTR_MENU_PlayURL, evSetURL );
@@ -429,7 +446,7 @@ GtkWidget * create_PopUpMenu( void )
 //    AddMenuItem( SubMenu,MSGTR_MENU_NormalSize"      ", evNormalSize );
 //    AddMenuItem( SubMenu,MSGTR_MENU_DoubleSize, evDoubleSize );
 //    AddMenuItem( SubMenu,MSGTR_MENU_FullScreen, evFullScreen );
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
    VCDSubMenu=AddSubMenu( window1, (const char*)vcd_xpm, Menu,MSGTR_MENU_VCD );
     AddMenuItem( window1, (const char*)playvcd_xpm, VCDSubMenu,MSGTR_MENU_PlayDisc,evPlayVCD );
     AddSeparator( VCDSubMenu );
@@ -450,7 +467,7 @@ GtkWidget * create_PopUpMenu( void )
        gtk_widget_set_sensitive( MenuItem,FALSE );
       }
 #endif
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
    DVDSubMenu=AddSubMenu( window1, (const char*)dvd_xpm, Menu,MSGTR_MENU_DVD );
     AddMenuItem( window1, (const char*)playdvd_xpm, DVDSubMenu,MSGTR_MENU_PlayDisc"    ", evPlayDVD );
 //    AddMenuItem( DVDSubMenu,MSGTR_MENU_ShowDVDMenu, evNone );

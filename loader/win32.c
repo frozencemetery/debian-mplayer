@@ -14,13 +14,12 @@ for DLL to know too much about its environment.
 /*
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: win32.c 24421 2007-09-10 15:38:11Z diego $
  */
 
 #include "config.h"
 #include "mangle.h"
 
-#ifdef USE_QTX_CODECS
+#ifdef CONFIG_QTX_CODECS
 #define QTX
 #endif
 #define REALPLAYER
@@ -38,6 +37,7 @@ for DLL to know too much about its environment.
 #include "wine/debugtools.h"
 #include "wine/module.h"
 #include "wine/winuser.h"
+#include "wine/objbase.h"
 
 #include <stdio.h>
 #include "win32.h"
@@ -53,7 +53,7 @@ for DLL to know too much about its environment.
 #include <ctype.h>
 #include <pthread.h>
 #include <errno.h>
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 #include <time.h>
@@ -63,34 +63,22 @@ for DLL to know too much about its environment.
 #include <sys/types.h>
 #include <dirent.h>
 #include <sys/time.h>
-#include <sys/timeb.h>
 #ifdef	HAVE_KSTAT
 #include <kstat.h>
 #endif
 
+#ifdef HAVE_SYS_MMAN_H
 #include <sys/mman.h>
-#include "osdep/mmap_anon.h"
-
-#if HAVE_VSSCANF
-int vsscanf( const char *str, const char *format, va_list ap);
 #else
-/* system has no vsscanf.  try to provide one */
-static int vsscanf( const char *str, const char *format, va_list ap)
-{
-    long p1 = va_arg(ap, long);
-    long p2 = va_arg(ap, long);
-    long p3 = va_arg(ap, long);
-    long p4 = va_arg(ap, long);
-    long p5 = va_arg(ap, long);
-    return sscanf(str, format, p1, p2, p3, p4, p5);
-}
+#include "osdep/mmap.h"
 #endif
+#include "osdep/mmap_anon.h"
 
 char* def_path = WIN32_PATH;
 
 static void do_cpuid(unsigned int ax, unsigned int *regs)
 {
-    __asm__ __volatile__
+    __asm__ volatile
 	(
 	 "pushl %%ebx; pushl %%ecx; pushl %%edx;"
 	 ".byte  0x0f, 0xa2;"
@@ -106,7 +94,7 @@ static void do_cpuid(unsigned int ax, unsigned int *regs)
 static unsigned int c_localcount_tsc()
 {
     int a;
-    __asm__ __volatile__
+    __asm__ volatile
 	(
 	 "rdtsc\n\t"
 	 :"=a"(a)
@@ -117,7 +105,7 @@ static unsigned int c_localcount_tsc()
 }
 static void c_longcount_tsc(long long* z)
 {
-    __asm__ __volatile__
+    __asm__ volatile
 	(
 	 "pushl %%ebx\n\t"
 	 "movl %%eax, %%ebx\n\t"
@@ -245,11 +233,12 @@ typedef struct th_list_t{
 
 
 // have to be cleared by GARBAGE COLLECTOR
-static unsigned char* heap=NULL;
-static int heap_counter=0;
+//static unsigned char* heap=NULL;
+//static int heap_counter=0;
 static tls_t* g_tls=NULL;
 static th_list* list=NULL;
 
+#if 0
 static void test_heap(void)
 {
     int offset=0;
@@ -270,6 +259,7 @@ static void test_heap(void)
 	    printf("Free heap corruption at address %d\n", offset);
 	}
 }
+#endif
 #undef MEMORY_DEBUG
 
 #ifdef MEMORY_DEBUG
@@ -1168,7 +1158,7 @@ static HANDLE WINAPI expHeapCreate(long flags, long init_size, long max_size)
 // we will silently ignore this second call...
 static void* heapfreehack = 0;
 static int heapfreehackshown = 0;
-//extern void trapbug(void);
+//void trapbug(void);
 static void* WINAPI expHeapAlloc(HANDLE heap, int flags, int size)
 {
     void* z;
@@ -1267,8 +1257,8 @@ static int critsecs_get_pos(CRITICAL_SECTION *cs_win)
 
     for (i=0; i < CRITSECS_LIST_MAX; i++)
 	if (critsecs_list[i].cs_win == cs_win)
-	    return(i);
-    return(-1);
+	    return i;
+    return -1;
 }
 
 static int critsecs_get_unused(void)
@@ -1277,8 +1267,8 @@ static int critsecs_get_unused(void)
 
     for (i=0; i < CRITSECS_LIST_MAX; i++)
 	if (critsecs_list[i].cs_win == NULL)
-	    return(i);
-    return(-1);
+	    return i;
+    return -1;
 }
 
 struct CRITSECT *critsecs_get_unix(CRITICAL_SECTION *cs_win)
@@ -1287,8 +1277,8 @@ struct CRITSECT *critsecs_get_unix(CRITICAL_SECTION *cs_win)
 
     for (i=0; i < CRITSECS_LIST_MAX; i++)
 	if (critsecs_list[i].cs_win == cs_win && critsecs_list[i].cs_unix)
-	    return(critsecs_list[i].cs_unix);
-    return(NULL);
+	    return critsecs_list[i].cs_unix;
+    return NULL;
 }
 #endif
 
@@ -2799,16 +2789,16 @@ static int WINAPI expWritePrivateProfileStringA(const char* appname,
     return 0;
 }
 
-unsigned int _GetPrivateProfileIntA(const char* appname, const char* keyname, INT default_value, const char* filename)
+unsigned int GetPrivateProfileIntA_(const char* appname, const char* keyname, INT default_value, const char* filename)
 {
     return expGetPrivateProfileIntA(appname, keyname, default_value, filename);
 }
-int _GetPrivateProfileStringA(const char* appname, const char* keyname,
+int GetPrivateProfileStringA_(const char* appname, const char* keyname,
 			      const char* def_val, char* dest, unsigned int len, const char* filename)
 {
     return expGetPrivateProfileStringA(appname, keyname, def_val, dest, len, filename);
 }
-int _WritePrivateProfileStringA(const char* appname, const char* keyname,
+int WritePrivateProfileStringA_(const char* appname, const char* keyname,
 				const char* string, const char* filename)
 {
     return expWritePrivateProfileStringA(appname, keyname, string, filename);
@@ -2816,9 +2806,9 @@ int _WritePrivateProfileStringA(const char* appname, const char* keyname,
 
 
 
-static int WINAPI expDefDriverProc(int _private, int id, int msg, int arg1, int arg2)
+static int WINAPI expDefDriverProc(int private, int id, int msg, int arg1, int arg2)
 {
-    dbgprintf("DefDriverProc(0x%x, 0x%x, 0x%x, 0x%x, 0x%x) => 0\n", _private, id, msg, arg1, arg2);
+    dbgprintf("DefDriverProc(0x%x, 0x%x, 0x%x, 0x%x, 0x%x) => 0\n", private, id, msg, arg1, arg2);
     return 0;
 }
 
@@ -2876,7 +2866,7 @@ static int WINAPI expIsBadStringPtrA(const char* string, int nchars)
 static long WINAPI expInterlockedExchangeAdd( long* dest, long incr )
 {
     long ret;
-    __asm__ __volatile__
+    __asm__ volatile
 	(
 	 "lock; xaddl %0,(%1)"
 	 : "=r" (ret)
@@ -3037,7 +3027,7 @@ static int WINAPI expGetSystemPaletteEntries(int hdc, int iStartIndex, int nEntr
 }
 
 /*
- typedef struct _TIME_ZONE_INFORMATION {
+ typedef struct TIME_ZONE_INFORMATION {
  long Bias;
  char StandardName[32];
  SYSTEMTIME StandardDate;
@@ -3337,7 +3327,7 @@ static WIN_BOOL WINAPI expFindNextFileA(HANDLE h,LPWIN32_FIND_DATAA lpfd)
 	    strcpy(lpfd->cFileName,d->d_name);
 //	    sprintf(lpfd->cAlternateFileName,"%-8s.qtx",d->d_name);
 	    strcpy(lpfd->cAlternateFileName,"foobar.qtx");
-	    printf("### FindNext: %s\n",lpfd->cFileName);
+	    dbgprintf("### FindNext: %s\n",lpfd->cFileName);
 	    return 1;
 	}
 	closedir(qtx_dir); qtx_dir=NULL;
@@ -3354,7 +3344,7 @@ static HANDLE WINAPI expFindFirstFileA(LPCSTR s, LPWIN32_FIND_DATAA lpfd)
 #ifdef QTX
     if(strstr(s, "quicktime\\*.QTX")){
 	dbgprintf("FindFirstFileA(0x%x='%s', 0x%x) => QTX\n", s, s, lpfd);
-	printf("\n### Searching for QuickTime plugins (*.qtx) at %s...\n",def_path);
+	dbgprintf("\n### Searching for QuickTime plugins (*.qtx) at %s...\n",def_path);
 	qtx_dir=opendir(def_path);
 	if(!qtx_dir) return (HANDLE)-1;
 	memset(lpfd,0,sizeof(*lpfd));
@@ -3559,7 +3549,7 @@ static HANDLE WINAPI expCreateFileA(LPCSTR cs1,DWORD i1,DWORD i2,
     if (strstr(cs1, "WINNOV.bmp"))
     {
 	int r;
-	r=open("/dev/null", 0);
+	r=open("/dev/null", O_RDONLY);
 	return r;
     }
 
@@ -3660,7 +3650,7 @@ static WIN_BOOL WINAPI expWriteFile(HANDLE h,LPCVOID pv,DWORD size,LPDWORD wr,LP
 static DWORD  WINAPI expSetFilePointer(HANDLE h, LONG val, LPLONG ext, DWORD whence)
 {
     int wh;
-    dbgprintf("SetFilePointer(%d, 0x%x, 0x%x = %d, %d)\n", h, val, ext, *ext, whence);
+    dbgprintf("SetFilePointer(%d, 0x%x, 0x%x = %d, %d)\n", h, val, ext, ext ? *ext : NULL, whence);
     //why would DLL want temporary file with >2Gb size?
     switch(whence)
     {
@@ -3816,6 +3806,12 @@ static int WINAPI expDuplicateHandle(HANDLE hSourceProcessHandle,  // handle to 
     return 1;
 }
 
+static HRESULT WINAPI expCoInitializeEx(LPVOID lpReserved, DWORD dwCoInit)
+{
+    dbgprintf("CoInitializeEx(%p, %d) called\n", lpReserved, dwCoInit);
+    return S_OK;
+}
+
 // required by PIM1 codec (used by win98 PCTV Studio capture sw)
 static HRESULT WINAPI expCoInitialize(
 				      LPVOID lpReserved	/* [in] pointer to win32 malloc interface
@@ -3825,7 +3821,26 @@ static HRESULT WINAPI expCoInitialize(
     /*
      * Just delegate to the newer method.
      */
-    return 0; //CoInitializeEx(lpReserved, COINIT_APARTMENTTHREADED);
+    return expCoInitializeEx(lpReserved, COINIT_APARTMENTTHREADED);
+}
+
+static void WINAPI expCoUninitialize(void)
+{
+    dbgprintf("CoUninitialize() called\n");
+} 
+
+/* allow static linking */
+HRESULT WINAPI CoInitializeEx(LPVOID lpReserved, DWORD dwCoInit)
+{
+    return expCoInitializeEx(lpReserved, dwCoInit);
+}
+HRESULT WINAPI CoInitialize(LPVOID lpReserved)
+{
+    return expCoInitialize(lpReserved); 
+}
+void WINAPI CoUninitialize(void)
+{
+    return expCoUninitialize();
 }
 
 static DWORD WINAPI expSetThreadAffinityMask
@@ -3978,8 +3993,8 @@ static int exp_initterm(int v1, int v2)
 }
 #else
 /* merged from wine - 2002.04.21 */
-typedef void (*_INITTERMFUNC)();
-static int exp_initterm(_INITTERMFUNC *start, _INITTERMFUNC *end)
+typedef void (*INITTERMFUNC)();
+static int exp_initterm(INITTERMFUNC *start, INITTERMFUNC *end)
 {
     dbgprintf("_initterm(0x%x, 0x%x) %p\n", start, end, *start);
     while (start < end)
@@ -3990,7 +4005,7 @@ static int exp_initterm(_INITTERMFUNC *start, _INITTERMFUNC *end)
 	    // ok this trick with push/pop is necessary as otherwice
 	    // edi/esi registers are being trashed
 	    void* p = *start;
-	    __asm__ __volatile__
+	    __asm__ volatile
 		(
 		 "pushl %%ebx		\n\t"
 		 "pushl %%ecx		\n\t"
@@ -4014,6 +4029,16 @@ static int exp_initterm(_INITTERMFUNC *start, _INITTERMFUNC *end)
     return 0;
 }
 #endif
+
+/* Fake _initterm_e from msvcr80.dll, needed by sirenacm.dll
+ * NOTE: If I make this an alias for _initterm, then sirenacm.dll tries to call
+   other uninmplemented functions; keep this in mind if some future codec needs
+   a real implementation of this function */
+static int exp_initterm_e(INITTERMFUNC *start, INITTERMFUNC *end)
+{
+    dbgprintf("_initterm_e(0x%x, 0x%x)\n", start, end);
+    return 0;
+}
 
 static void* exp__dllonexit()
 {
@@ -4242,17 +4267,11 @@ static double expcos(double x)
     return cos(x);
 }
 
-/* doens't work */
-static long exp_ftol_wrong(double x)
-{
-    return (long) x;
-}
-
 #else
 
 static void explog10(void)
 {
-    __asm__ __volatile__
+    __asm__ volatile
 	(
 	 "fldl 8(%esp)	\n\t"
 	 "fldln2	\n\t"
@@ -4263,7 +4282,7 @@ static void explog10(void)
 
 static void expcos(void)
 {
-    __asm__ __volatile__
+    __asm__ volatile
 	(
 	 "fldl 8(%esp)	\n\t"
 	 "fcos		\n\t"
@@ -4280,7 +4299,7 @@ static void expcos(void)
 
 static void exp_ftol(void)
 {
-    __asm__ __volatile__
+    __asm__ volatile
 	(
 	 "sub $12, %esp		\n\t"
 	 "fstcw   -2(%ebp)	\n\t"
@@ -4299,8 +4318,8 @@ static void exp_ftol(void)
 }
 
 #define FPU_DOUBLES(var1,var2) double var1,var2; \
-  __asm__ __volatile__( "fstpl %0;fwait" : "=m" (var2) : ); \
-  __asm__ __volatile__( "fstpl %0;fwait" : "=m" (var1) : )
+  __asm__ volatile( "fstpl %0;fwait" : "=m" (var2) : ); \
+  __asm__ volatile( "fstpl %0;fwait" : "=m" (var1) : )
 
 static double exp_CIpow(void)
 {
@@ -4341,7 +4360,7 @@ static int exp_setjmp3(void* jmpbuf, int x)
 {
     //dbgprintf("!!!!UNIMPLEMENTED: setjmp3(%p, %d) => 0\n", jmpbuf, x);
     //return 0;
-    __asm__ __volatile__
+    __asm__ volatile
 	(
 	 //"mov 4(%%esp), %%edx	\n\t"
 	 "mov (%%esp), %%eax   \n\t"
@@ -4363,7 +4382,7 @@ static int exp_setjmp3(void* jmpbuf, int x)
 	 : "eax"
 	);
 #if 1
-    __asm__ __volatile__
+    __asm__ volatile
 	(
 	 "mov %%fs:0, %%eax	\n\t" // unsure
 	 "mov %%eax, 24(%%edx)	\n\t"
@@ -4549,7 +4568,7 @@ static INT WINAPI expMessageBoxA(HWND hWnd, LPCSTR text, LPCSTR title, UINT type
 void exp_EH_prolog(void *dest);
 //! just a dummy function that acts a container for the asm section
 void exp_EH_prolog_dummy(void) {
-  asm volatile (
+  __asm__ volatile (
 // take care, this "function" may not change flags or
 // registers besides eax (which is also why we can't use
 // exp_EH_prolog_dummy directly)
@@ -4742,7 +4761,7 @@ static double expfloor(double x)
 }
 
 #define FPU_DOUBLE(var) double var; \
-  __asm__ __volatile__( "fstpl %0;fwait" : "=m" (var) : )
+  __asm__ volatile( "fstpl %0;fwait" : "=m" (var) : )
 
 static double exp_CIcos(void)
 {
@@ -4792,6 +4811,30 @@ static WIN_BOOL WINAPI expEnumDisplaySettingsA(LPCSTR name ,DWORD n,
 {
     dbgprintf("EnumDisplaySettingsA (dummy) => 1\n");
     return 1;
+}
+
+// Fake implementation of _decode_pointer from msvcr80.dll, needed by sirenacm.dll
+// NOTE: undocumented function, probably the declaration is not right
+static int exp_decode_pointer(void *ptr)
+{
+    dbgprintf("_decode_pointer (0x%08x)\n", ptr);
+    return 0;
+}
+
+/* Fake implementation of sdt::_Lockit::_Lockit(void) from msvcp60.dll
+   Needed by SCLS.DLL */
+static int exp_0Lockit_dummy(void)
+{
+    dbgprintf("0Lockit_dummy (??0_Lockit@std@@QAE@XZ)\n");
+    return 0;
+}
+
+/* Fake implementation of sdt::_Lockit::~_Lockit(void) from msvcp60.dll
+   Needed by SCLS.DLL */
+static int exp_1Lockit_dummy(void)
+{
+    dbgprintf("1Lockit_dummy (??1_Lockit@std@@QAE@XZ)\n");
+    return 0;
 }
 
 struct exports
@@ -5132,6 +5175,8 @@ struct exports exp_ole32[]={
     FF(CoCreateFreeThreadedMarshaler,-1)
     FF(CoCreateInstance, -1)
     FF(CoInitialize, -1)
+    FF(CoInitializeEx, -1)
+    FF(CoUninitialize, -1)
     FF(CoTaskMemAlloc, -1)
     FF(CoTaskMemFree, -1)
     FF(StringFromGUID2, -1)
@@ -5220,6 +5265,22 @@ struct exports exp_shlwapi[]={
     FF(PathFindFileNameA, -1)
 };
 
+struct exports exp_msvcr80[]={
+    FF(_CIpow,-1)
+    FF(_CIsin,-1)
+    FF(_CIcos,-1)
+    FF(_CIsqrt,-1)
+    FF(memset,-1)
+    FF(_initterm_e, -1)
+    FF(_initterm, -1)
+    FF(_decode_pointer, -1)
+};
+
+struct exports exp_msvcp60[]={
+    {"??0_Lockit@std@@QAE@XZ", -1, exp_0Lockit_dummy},
+    {"??1_Lockit@std@@QAE@XZ", -1, exp_1Lockit_dummy}
+};
+
 #define LL(X) \
     {#X".dll", sizeof(exp_##X)/sizeof(struct exports), exp_##X},
 
@@ -5245,6 +5306,8 @@ struct libs libraries[]={
 #endif
     LL(comdlg32)
     LL(shlwapi)
+    LL(msvcr80)
+    LL(msvcp60)
 };
 
 static WIN_BOOL WINAPI ext_stubs(void)

@@ -1,7 +1,6 @@
 /*
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: cmediasample.c 24428 2007-09-10 23:14:17Z cehoyos $
  */
 
 #include "cmediasample.h"
@@ -504,12 +503,12 @@ static void CMediaSample_ResetPointer(CMediaSample* This)
  * \brief CMediaSample constructor
  *
  * \param[in] allocator IMemallocator interface of allocator to use
- * \param[in] _size size of internal buffer
+ * \param[in] size size of internal buffer
  *
  * \return pointer to CMediaSample object of NULL if error occured
  *
  */
-CMediaSample* CMediaSampleCreate(IMemAllocator* allocator, int _size)
+CMediaSample* CMediaSampleCreate(IMemAllocator* allocator, int size)
 {
     CMediaSample* This = (CMediaSample*) malloc(sizeof(CMediaSample));
     if (!This)
@@ -522,11 +521,11 @@ CMediaSample* CMediaSampleCreate(IMemAllocator* allocator, int _size)
     // anyway this is fixes the problem somehow with some reserves
     //
     // using different trick for now - in DS_Audio modify sample size
-    //if (_size < 0x1000)
-    //    _size = (_size + 0xfff) & ~0xfff;
+    //if (size < 0x1000)
+    //    size = (size + 0xfff) & ~0xfff;
 
     This->vt = (IMediaSample_vt*) malloc(sizeof(IMediaSample_vt));
-    This->own_block = (char*) malloc((size_t)_size + SAFETY_ACEL);
+    This->own_block = (char*) malloc((size_t)size + SAFETY_ACEL);
     This->media_type.pbFormat = 0;
     This->media_type.pUnk = 0;
 
@@ -557,7 +556,7 @@ CMediaSample* CMediaSampleCreate(IMemAllocator* allocator, int _size)
     This->vt->SetMediaTime = CMediaSample_SetMediaTime;
 
     This->all = allocator;
-    This->size = _size;
+    This->size = size;
     This->refcount = 0; // increased by MemAllocator
     This->actual_size = 0;
     This->isPreroll = 0;

@@ -60,11 +60,9 @@ typedef struct {
     int sub_errs;
 } sub_data;
 
-#ifdef  USE_FRIBIDI
 extern char *fribidi_charset;
 extern int flip_hebrew;
 extern int fribidi_flip_commas;
-#endif
 
 sub_data* sub_read_file (char *filename, float pts);
 subtitle* subcp_recode (subtitle *sub);
@@ -73,9 +71,9 @@ subtitle* subcp_recode (subtitle *sub);
 struct stream_st;
 void subcp_open (struct stream_st *st); /* for demux_ogg.c */
 void subcp_close (void); /* for demux_ogg.c */
-#ifdef HAVE_ENCA
-void* guess_buffer_cp(unsigned char* buffer, int buflen, char *preferred_language, char *fallback);
-void* guess_cp(struct stream_st *st, char *preferred_language, char *fallback);
+#ifdef CONFIG_ENCA
+const char* guess_buffer_cp(unsigned char* buffer, int buflen, const char *preferred_language, const char *fallback);
+const char* guess_cp(struct stream_st *st, const char *preferred_language, const char *fallback);
 #endif
 char ** sub_filenames(const char *path, char *fname);
 void list_sub_file(sub_data* subd);
@@ -89,4 +87,5 @@ void find_sub(sub_data* subd,int key);
 void step_sub(sub_data *subd, float pts, int movement);
 void sub_add_text(subtitle *sub, const char *txt, int len, double endpts);
 int sub_clear_text(subtitle *sub, double pts);
-#endif
+
+#endif /* MPLAYER_SUBREADER_H */

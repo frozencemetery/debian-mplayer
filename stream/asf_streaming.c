@@ -9,9 +9,7 @@
 #include "mp_msg.h"
 #include "help_mp.h"
 
-#ifndef HAVE_WINSOCK2
-#define closesocket close
-#else
+#if HAVE_WINSOCK2_H
 #include <winsock2.h>
 #endif
 
@@ -25,17 +23,28 @@
 #include "network.h"
 #include "tcp.h"
 
-#ifdef ARCH_X86
-#define	ASF_LOAD_GUID_PREFIX(guid)	(*(uint32_t *)(guid))
-#else
-#define	ASF_LOAD_GUID_PREFIX(guid)	\
-	((guid)[3] << 24 | (guid)[2] << 16 | (guid)[1] << 8 | (guid)[0])
-#endif
+#include "libavutil/intreadwrite.h"
+
+#include "libmpdemux/asfguid.h"
 
 extern int network_bandwidth;
 
 int asf_mmst_streaming_start( stream_t *stream );
 static int asf_http_streaming_start(stream_t *stream, int *demuxer_type);
+
+static int asf_read_wrapper(int fd, void *buffer, int len, streaming_ctrl_t *stream_ctrl) {
+    uint8_t *buf = buffer;
+    while (len > 0) {
+        int got = nop_streaming_read(fd, buf, len, stream_ctrl);
+        if (got <= 0) {
+            mp_msg(MSGT_NETWORK, MSGL_ERR, MSGTR_MPDEMUX_ASF_ErrReadingNetworkStream);
+            return got;
+        }
+        buf += got;
+        len -= got;
+    }
+    return 1;
+}
 
 // We can try several protocol for asf streaming
 // * first the UDP protcol, if there is a firewall, UDP
@@ -135,10 +144,6 @@ printf("0x%02X\n", stream_chunck->type );
 	return stream_chunck->size+4;
 }
 
-extern int find_asf_guid(char *buf, const char *guid, int cur_pos, int buf_len);
-extern const char asf_file_header_guid[];
-extern const char asf_stream_header_guid[];
-extern const char asf_stream_group_guid[];
 extern int audio_id;
 extern int video_id;
 
@@ -159,9 +164,8 @@ static int max_idx(int s_count, int *s_rates, int bound) {
 }
 
 static int asf_streaming_parse_header(int fd, streaming_ctrl_t* streaming_ctrl) {
-  ASF_header_t asfh;
   ASF_stream_chunck_t chunk;
-  asf_http_streaming_ctrl_t* asf_ctrl = (asf_http_streaming_ctrl_t*) streaming_ctrl->data;
+  asf_http_streaming_ctrl_t* asf_ctrl = streaming_ctrl->data;
   char* buffer=NULL, *chunk_buffer=NULL;
   int i,r,size,pos = 0;
   int start;
@@ -177,11 +181,8 @@ static int asf_streaming_parse_header(int fd, streaming_ctrl_t* streaming_ctrl) 
 	// is big, the ASF header will be split in 2 network chunk.
 	// So we need to retrieve all the chunk before starting to parse the header.
   do {
-	  for( r=0; r < (int)sizeof(ASF_stream_chunck_t) ; ) {
-		i = nop_streaming_read(fd,((char*)&chunk)+r,sizeof(ASF_stream_chunck_t) - r,streaming_ctrl);
-		if(i <= 0) return -1;
-		r += i;
-	  }
+	  if (asf_read_wrapper(fd, &chunk, sizeof(ASF_stream_chunck_t), streaming_ctrl) <= 0)
+	    return -1;
 	  // Endian handling of the stream chunk
 	  le2me_ASF_stream_chunck_t(&chunk);
 	  size = asf_streaming( &chunk, &r) - sizeof(ASF_stream_chunck_t);
@@ -197,7 +198,7 @@ static int asf_streaming_parse_header(int fd, streaming_ctrl_t* streaming_ctrl) 
 	  
 	  // audit: do not overflow buffer_size
 	  if (size > SIZE_MAX - buffer_size) return -1;
-	  buffer = (char*) malloc(size+buffer_size);
+	  buffer = malloc(size+buffer_size);
 	  if(buffer == NULL) {
 	    mp_msg(MSGT_NETWORK,MSGL_FATAL,MSGTR_MPDEMUX_ASF_BufferMallocFailed,size+buffer_size);
 	    return -1;
@@ -210,49 +211,36 @@ static int asf_streaming_parse_header(int fd, streaming_ctrl_t* streaming_ctrl) 
 	  buffer += buffer_size;
 	  buffer_size += size;
 	  
-	  for(r = 0; r < size;) {
-	    i = nop_streaming_read(fd,buffer+r,size-r,streaming_ctrl);
-	    if(i < 0) {
-		    mp_msg(MSGT_NETWORK,MSGL_ERR,MSGTR_MPDEMUX_ASF_ErrReadingNetworkStream);
-		    return -1;
-	    }
-	    r += i;
-	  }  
+	  if (asf_read_wrapper(fd, buffer, size, streaming_ctrl) <= 0)
+	    return -1;
 
 	  if( chunk_size2read==0 ) {
-		if(size < (int)sizeof(asfh)) {
+		ASF_header_t *asfh = (ASF_header_t *)buffer;
+		if(size < (int)sizeof(ASF_header_t)) {
 		    mp_msg(MSGT_NETWORK,MSGL_ERR,MSGTR_MPDEMUX_ASF_ErrChunk2Small);
 		    return -1;
 		} else mp_msg(MSGT_NETWORK,MSGL_DBG2,"Got chunk\n");
-	  	memcpy(&asfh,buffer,sizeof(asfh));
-	  	le2me_ASF_header_t(&asfh);
-		chunk_size2read = asfh.objh.size;
+		chunk_size2read = AV_RL64(&asfh->objh.size);
 		mp_msg(MSGT_NETWORK,MSGL_DBG2,"Size 2 read=%d\n", chunk_size2read);
 	  }
   } while( buffer_size<chunk_size2read);
   buffer = chunk_buffer;
   size = buffer_size;
 	  
-  if(asfh.cno > 256) {
-    mp_msg(MSGT_NETWORK,MSGL_ERR,MSGTR_MPDEMUX_ASF_ErrSubChunkNumberInvalid);
-    return -1;
-  }
-
-  start = sizeof(asfh);
+  start = sizeof(ASF_header_t);
   
   pos = find_asf_guid(buffer, asf_file_header_guid, start, size);
   if (pos >= 0) {
     ASF_file_header_t *fileh = (ASF_file_header_t *) &buffer[pos];
     pos += sizeof(ASF_file_header_t);
     if (pos > size) goto len_err_out;
-      le2me_ASF_file_header_t(fileh);
 /*
       if(fileh.packetsize != fileh.packetsize2) {
 	printf("Error packetsize check don't match\n");
 	return -1;
       }
 */
-      asf_ctrl->packet_size = fileh->max_packet_size;
+      asf_ctrl->packet_size = AV_RL32(&fileh->max_packet_size);
       // before playing. 
       // preroll: time in ms to bufferize before playing
       streaming_ctrl->prebuffer_size = (unsigned int)(((double)fileh->preroll/1000.0)*((double)fileh->max_bitrate/8.0));
@@ -264,7 +252,6 @@ static int asf_streaming_parse_header(int fd, streaming_ctrl_t* streaming_ctrl) 
     ASF_stream_header_t *streamh = (ASF_stream_header_t *)&buffer[pos];
     pos += sizeof(ASF_stream_header_t);
     if (pos > size) goto len_err_out;
-      le2me_ASF_stream_header_t(streamh);
       switch(ASF_LOAD_GUID_PREFIX(streamh->type)) {
       case 0xF8699E40 : // audio stream
 	if(asf_ctrl->audio_streams == NULL){
@@ -272,10 +259,10 @@ static int asf_streaming_parse_header(int fd, streaming_ctrl_t* streaming_ctrl) 
 	  asf_ctrl->n_audio = 1;
 	} else {
 	  asf_ctrl->n_audio++;
-	  asf_ctrl->audio_streams = (int*)realloc(asf_ctrl->audio_streams,
+	  asf_ctrl->audio_streams = realloc(asf_ctrl->audio_streams,
 						     asf_ctrl->n_audio*sizeof(int));
 	}
-	asf_ctrl->audio_streams[asf_ctrl->n_audio-1] = streamh->stream_no;
+	asf_ctrl->audio_streams[asf_ctrl->n_audio-1] = AV_RL16(&streamh->stream_no);
 	break;
       case 0xBC19EFC0 : // video stream
 	if(asf_ctrl->video_streams == NULL){
@@ -283,10 +270,10 @@ static int asf_streaming_parse_header(int fd, streaming_ctrl_t* streaming_ctrl) 
 	  asf_ctrl->n_video = 1;
 	} else {
 	  asf_ctrl->n_video++;
-	  asf_ctrl->video_streams = (int*)realloc(asf_ctrl->video_streams,
+	  asf_ctrl->video_streams = realloc(asf_ctrl->video_streams,
 						     asf_ctrl->n_video*sizeof(int));
 	}
-	asf_ctrl->video_streams[asf_ctrl->n_video-1] = streamh->stream_no;
+	asf_ctrl->video_streams[asf_ctrl->n_video-1] = AV_RL16(&streamh->stream_no);
 	break;
       }
   }
@@ -300,24 +287,23 @@ static int asf_streaming_parse_header(int fd, streaming_ctrl_t* streaming_ctrl) 
     // stream bitrate properties object
 	int stream_count;
 	char *ptr = &buffer[pos];
+	char *end = &buffer[size];
 	
 	mp_msg(MSGT_NETWORK, MSGL_V, "Stream bitrate properties object\n");
-		stream_count = le2me_16(*(uint16_t*)ptr);
-		ptr += sizeof(uint16_t);
-		if (ptr > &buffer[size]) goto len_err_out;
+		if (ptr + 2 > end) goto len_err_out;
+		stream_count = AV_RL16(ptr);
+		ptr += 2;
 		mp_msg(MSGT_NETWORK, MSGL_V, " stream count=[0x%x][%u]\n",
 		        stream_count, stream_count );
 		for( i=0 ; i<stream_count ; i++ ) {
 			uint32_t rate;
 			int id;
 			int j;
-			id = le2me_16(*(uint16_t*)ptr);
-			ptr += sizeof(uint16_t);
-			if (ptr > &buffer[size]) goto len_err_out;
-			memcpy(&rate, ptr, sizeof(uint32_t));// workaround unaligment bug on sparc
-			ptr += sizeof(uint32_t);
-			if (ptr > &buffer[size]) goto len_err_out;
-			rate = le2me_32(rate);
+			if (ptr + 6 > end) goto len_err_out;
+			id = AV_RL16(ptr);
+			ptr += 2;
+			rate = AV_RL32(ptr);
+			ptr += 4;
 			mp_msg(MSGT_NETWORK, MSGL_V,
                                 "  stream id=[0x%x][%u]\n", id, id);
 			mp_msg(MSGT_NETWORK, MSGL_V,
@@ -414,18 +400,8 @@ static int asf_http_streaming_read( int fd, char *buffer, int size, streaming_ct
 
   while(1) {
     if (rest == 0 && waiting == 0) {
-      read = 0;
-      while(read < (int)sizeof(ASF_stream_chunck_t)){
-	int r = nop_streaming_read( fd, ((char*)&chunk) + read, 
-				    sizeof(ASF_stream_chunck_t)-read, 
-				    streaming_ctrl );
-	if(r <= 0){
-	  if( r < 0) 
-	    mp_msg(MSGT_NETWORK,MSGL_ERR,MSGTR_MPDEMUX_ASF_ErrReadingChunkHeader);
-	  return -1;
-	}
-	read += r;
-      }
+      if (asf_read_wrapper(fd, &chunk, sizeof(ASF_stream_chunck_t), streaming_ctrl) <= 0)
+        return -1;
       
       // Endian handling of the stream chunk
       le2me_ASF_stream_chunck_t(&chunk);
@@ -457,15 +433,9 @@ static int asf_http_streaming_read( int fd, char *buffer, int size, streaming_ct
 	rest = chunk_size - size;
 	chunk_size = size;
       }
-      while(read < chunk_size) {
-	int got = nop_streaming_read( fd,buffer+read,chunk_size-read,streaming_ctrl );
-	if(got <= 0) {
-	  if(got < 0)
-	    mp_msg(MSGT_NETWORK,MSGL_ERR,MSGTR_MPDEMUX_ASF_ErrReadingChunk);
-	  return -1;
-	}
-	read += got;
-      }
+      if (asf_read_wrapper(fd, buffer, chunk_size, streaming_ctrl) <= 0)
+        return -1;
+      read = chunk_size;
       waiting -= read;
       if (drop_chunk) continue;
     }
@@ -613,7 +583,7 @@ static HTTP_header_t *asf_http_request(streaming_ctrl_t *streaming_ctrl) {
 						continue;
 					}
 					asf_nb_stream++;
-					ptr += sprintf(ptr, "ffff:%d:%d ", stream_id, enable);
+					ptr += sprintf(ptr, "ffff:%x:%d ", stream_id, enable);
 				}
 			}
 			if(asf_http_ctrl->n_video > 0) {
@@ -626,7 +596,7 @@ static HTTP_header_t *asf_http_request(streaming_ctrl_t *streaming_ctrl) {
 						continue;
 					}
 					asf_nb_stream++;
-					ptr += sprintf(ptr, "ffff:%d:%d ", stream_id, enable);
+					ptr += sprintf(ptr, "ffff:%x:%d ", stream_id, enable);
 				}
 			}
 			http_set_field( http_hdr, str );
@@ -864,13 +834,14 @@ static int open_s(stream_t *stream,int mode, void* opts, int* file_format) {
 		return STREAM_UNSUPPORTED;
 	}
 	
-	*file_format = DEMUXER_TYPE_ASF;
+	if (*file_format != DEMUXER_TYPE_PLAYLIST)
+		*file_format = DEMUXER_TYPE_ASF;
 	stream->type = STREAMTYPE_STREAM;
 	fixup_network_stream_cache(stream);
 	return STREAM_OK;
 }
 
-stream_info_t stream_info_asf = {
+const stream_info_t stream_info_asf = {
   "mms and mms over http streaming",
   "null",
   "Bertrand, Reimar Doeffinger, Albeu",

@@ -1,25 +1,25 @@
-/*****************************************************************************
+/*
+ * - XviD 1.x decoder module for mplayer/mencoder -
  *
- *  - XviD 1.x decoder module for mplayer/mencoder -
+ * Copyright(C) 2003      Marco Belli <elcabesa@inwind.it>
+ *              2003-2004 Edouard Gomez <ed.gomez@free.fr>
  *
- *  Copyright(C) 2003      Marco Belli <elcabesa@inwind.it>
- *               2003-2004 Edouard Gomez <ed.gomez@free.fr>
+ * This file is part of MPlayer.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 /*****************************************************************************
  * Includes
@@ -47,7 +47,7 @@ static int chromadeblock = 0;
 static int lumadering = 0;
 static int chromadering = 0;
 
-m_option_t xvid_dec_opts[] = {
+const m_option_t xvid_dec_opts[] = {
 	{ "dr2", &do_dr2, CONF_TYPE_FLAG, 0, 0, 1, NULL},
 	{ "nodr2", &do_dr2, CONF_TYPE_FLAG, 0, 1, 0, NULL},
 	{ "filmeffect", &filmeffect, CONF_TYPE_FLAG, 0, 0, 1, NULL},
@@ -86,7 +86,7 @@ static float stats2aspect(xvid_dec_stats_t *stats);
 
 static int control(sh_video_t *sh,int cmd,void* arg,...)
 {
-	return(CONTROL_UNKNOWN);
+	return CONTROL_UNKNOWN;
 }
 
 /*============================================================================
@@ -144,7 +144,7 @@ static int init(sh_video_t *sh)
 	default:
 		mp_msg(MSGT_DECVIDEO, MSGL_ERR, "Unsupported out_fmt: 0x%X\n",
 		       sh->codec->outfmt[sh->outfmtidx]);
-		return(0);
+		return 0;
 	}
 
 	/* Gather some information about the host library */
@@ -160,7 +160,7 @@ static int init(sh_video_t *sh)
 	
 	/* Initialize the xvidcore library */
 	if(xvid_global(NULL, XVID_GBL_INIT, &xvid_ini, NULL))
-		return(0);
+		return 0;
 
 	/* We use 0 width and height so xvidcore will resize its buffers
 	 * if required. That allows this vd plugin to do resize on first
@@ -171,7 +171,7 @@ static int init(sh_video_t *sh)
 	/* Get a decoder instance */
 	if(xvid_decore(0, XVID_DEC_CREATE, &dec_p, NULL)<0) {
 		mp_msg(MSGT_DECVIDEO, MSGL_ERR, "XviD init failed\n");
-		return(0);
+		return 0;
 	}
 
 	p = malloc(sizeof(priv_t));
@@ -192,7 +192,7 @@ static int init(sh_video_t *sh)
 		break;
 	}
 
-	return(1);
+	return 1;
 }
 
 /*============================================================================
@@ -221,7 +221,7 @@ static mp_image_t* decode(sh_video_t *sh, void* data, int len, int flags)
 
 
 	if(!data || len <= 0)
-		return(NULL);
+		return NULL;
 
 	memset(&dec,0,sizeof(xvid_dec_frame_t));
 	memset(&stats, 0, sizeof(xvid_dec_stats_t));
@@ -272,7 +272,7 @@ static mp_image_t* decode(sh_video_t *sh, void* data, int len, int flags)
 		consumed = xvid_decore(p->hdl, XVID_DEC_DECODE, &dec, &stats);
 		if (consumed < 0) {
 			mp_msg(MSGT_DECVIDEO, MSGL_ERR, "Decoding error\n");
-			return(NULL);
+			return NULL;
 		}
 
 		/* Found a VOL information stats, if VO plugin is not initialized
@@ -280,7 +280,7 @@ static mp_image_t* decode(sh_video_t *sh, void* data, int len, int flags)
 		if (stats.type == XVID_TYPE_VOL && !p->vo_initialized) {
 			sh->aspect = stats2aspect(&stats);
 			if(!mpcodecs_config_vo(sh, stats.data.vol.width, stats.data.vol.height, IMGFMT_YV12))
-				return(NULL);
+				return NULL;
 			
 			/* Don't take this path twice */
 			p->vo_initialized = !p->vo_initialized;
@@ -309,7 +309,7 @@ static mp_image_t* decode(sh_video_t *sh, void* data, int len, int flags)
 
 	/* If we got out the decoding loop because the buffer was empty and there was nothing
 	 * to output yet, then just return NULL */
-	return((stats.type == XVID_TYPE_NOTHING)? NULL: mpi);
+	return (stats.type == XVID_TYPE_NOTHING) ? NULL : mpi;
 }
 
 /*****************************************************************************
@@ -368,10 +368,10 @@ static float stats2aspect(xvid_dec_stats_t *stats)
 		dar  = ((float)stats->data.vol.width*wpar);
 		dar /= ((float)stats->data.vol.height*hpar);
 
-		return(dar);
+		return dar;
 	}
 
-	return(0.0f);
+	return 0.0f;
 }
 
 /*****************************************************************************

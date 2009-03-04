@@ -1,10 +1,23 @@
-/* 
- * ao_openal.c - OpenAL audio output driver for MPlayer
- *
- * This driver is under the same license as MPlayer.
- * (http://www.mplayerhq.hu)
+/*
+ * OpenAL audio output driver for MPlayer
  *
  * Copyleft 2006 by Reimar Döffinger (Reimar.Doeffinger@stud.uni-karlsruhe.de)
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * along with MPlayer; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "config.h"
@@ -159,12 +172,18 @@ static void uninit(int immed) {
 
 static void unqueue_buffers(void) {
   ALint p;
-  int s, i;
+  int s;
   for (s = 0;  s < ao_data.channels; s++) {
+    int till_wrap = NUM_BUF - unqueue_buf[s];
     alGetSourcei(sources[s], AL_BUFFERS_PROCESSED, &p);
-    for (i = 0; i < p; i++) {
-      alSourceUnqueueBuffers(sources[s], 1, &buffers[s][unqueue_buf[s]]);
-      unqueue_buf[s] = (unqueue_buf[s] + 1) % NUM_BUF;
+    if (p >= till_wrap) {
+      alSourceUnqueueBuffers(sources[s], till_wrap, &buffers[s][unqueue_buf[s]]);
+      unqueue_buf[s] = 0;
+      p -= till_wrap;
+    }
+    if (p) {
+      alSourceUnqueueBuffers(sources[s], p, &buffers[s][unqueue_buf[s]]);
+      unqueue_buf[s] += p;
     }
   }
 }
@@ -173,7 +192,7 @@ static void unqueue_buffers(void) {
  * \brief stop playing and empty buffers (for seeking/pause)
  */
 static void reset(void) {
-  alSourceRewindv(ao_data.channels, sources);
+  alSourceStopv(ao_data.channels, sources);
   unqueue_buffers();
 }
 
@@ -195,7 +214,9 @@ static int get_space(void) {
   ALint queued;
   unqueue_buffers();
   alGetSourcei(sources[0], AL_BUFFERS_QUEUED, &queued);
-  return (NUM_BUF - queued) * CHUNK_SIZE * ao_data.channels;
+  queued = NUM_BUF - queued - 3;
+  if (queued < 0) return 0;
+  return queued * CHUNK_SIZE * ao_data.channels;
 }
 
 /**
@@ -206,7 +227,7 @@ static int play(void *data, int len, int flags) {
   int i, j, k;
   int ch;
   int16_t *d = data;
-  len /= ao_data.outburst;
+  len /= ao_data.channels * CHUNK_SIZE;
   for (i = 0; i < len; i++) {
     for (ch = 0; ch < ao_data.channels; ch++) {
       for (j = 0, k = ch; j < CHUNK_SIZE / 2; j++, k += ao_data.channels)
@@ -221,7 +242,7 @@ static int play(void *data, int len, int flags) {
   alGetSourcei(sources[0], AL_SOURCE_STATE, &state);
   if (state != AL_PLAYING) // checked here in case of an underrun
     alSourcePlayv(ao_data.channels, sources);
-  return len * ao_data.outburst;
+  return len * ao_data.channels * CHUNK_SIZE;
 }
 
 static float get_delay(void) {

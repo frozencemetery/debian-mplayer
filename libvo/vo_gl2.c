@@ -1,7 +1,23 @@
 /*
- * video_out_gl.c, X11/OpenGL interface
+ * X11/OpenGL interface
  * based on video_out_x11 by Aaron Holtzman,
  * and WS opengl window manager by Pontscho/Fresh!
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <stdio.h>
@@ -17,12 +33,12 @@
 
 #include "gl_common.h"
 #include "aspect.h"
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 #include "gui/interface.h"
 #endif
 
 #undef TEXTUREFORMAT_ALWAYS
-#ifdef SYS_DARWIN
+#ifdef __APPLE__
 #define TEXTUREFORMAT_ALWAYS GL_RGBA8
 #endif
 
@@ -33,7 +49,7 @@
 #define TEXTURE_WIDTH 128
 #undef TEXTURE_WIDTH
 
-static vo_info_t info =
+static const vo_info_t info =
 {
   "X11 (OpenGL) - multiple textures version",
   "gl2",
@@ -41,7 +57,7 @@ static vo_info_t info =
   ""
 };
 
-LIBVO_EXTERN(gl2)
+const LIBVO_EXTERN(gl2)
 
 /* local data */
 static unsigned char *ImageData=NULL;
@@ -256,16 +272,16 @@ static int initTextures(void)
         ActiveTexture(GL_TEXTURE0);
       }
 
-      glCreateClearTex(GL_TEXTURE_2D, gl_internal_format, GL_LINEAR,
+      glCreateClearTex(GL_TEXTURE_2D, gl_internal_format, gl_bitmap_format,  gl_bitmap_type, GL_LINEAR,
                        texture_width, texture_height, 0);
 
       glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
       if (image_format == IMGFMT_YV12) {
         ActiveTexture(GL_TEXTURE1);
-        glCreateClearTex(GL_TEXTURE_2D, gl_internal_format, GL_LINEAR,
+        glCreateClearTex(GL_TEXTURE_2D, gl_internal_format, gl_bitmap_format,  gl_bitmap_type, GL_LINEAR,
                          texture_width / 2, texture_height / 2, 128);
         ActiveTexture(GL_TEXTURE2);
-        glCreateClearTex(GL_TEXTURE_2D, gl_internal_format, GL_LINEAR,
+        glCreateClearTex(GL_TEXTURE_2D, gl_internal_format, gl_bitmap_format,  gl_bitmap_type, GL_LINEAR,
                          texture_width / 2, texture_height / 2, 128);
         ActiveTexture(GL_TEXTURE0);
       }
@@ -521,13 +537,6 @@ static int choose_glx_visual(Display *dpy, int scr, XVisualInfo *res_vi)
 
 static int config_glx(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uint32_t flags, char *title, uint32_t format) {
   XVisualInfo *vinfo, vinfo_buf;
-  if (WinID >= 0) {
-    vo_window = WinID ? (Window)WinID : mRootWin;
-    vo_x11_selectinput_witherr(mDisplay, vo_window,
-             StructureNotifyMask | KeyPressMask | PointerMotionMask |
-             ButtonPressMask | ButtonReleaseMask | ExposureMask);
-    return 0;
-  }
     vinfo = choose_glx_visual(mDisplay,mScreen,&vinfo_buf) < 0 ? NULL : &vinfo_buf;
     if (vinfo == NULL) {
       mp_msg(MSGT_VO, MSGL_FATAL, "[gl2] no GLX support present\n");
@@ -541,7 +550,7 @@ static int config_glx(uint32_t width, uint32_t height, uint32_t d_width, uint32_
 }
 #endif
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
 static int config_glx_gui(uint32_t d_width, uint32_t d_height) {
   guiGetEvent( guiSetShVideo,0 ); // the GUI will set up / resize the window
   return 0;
@@ -560,6 +569,9 @@ static int initGl(uint32_t d_width, uint32_t d_height)
   glDisable(GL_CULL_FACE);
   glEnable (GL_TEXTURE_2D);
   if (image_format == IMGFMT_YV12) {
+    gl_conversion_params_t params = {GL_TEXTURE_2D, use_yuv,
+          0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0,
+          texture_width, texture_height};
     switch (use_yuv) {
       case YUV_CONVERSION_FRAGMENT_LOOKUP:
         glGenTextures(1, &lookupTex);
@@ -577,8 +589,7 @@ static int initGl(uint32_t d_width, uint32_t d_height)
         BindProgram(GL_FRAGMENT_PROGRAM, fragprog);
         break;
     }
-    glSetupYUVConversion(GL_TEXTURE_2D, use_yuv, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0,
-                         texture_width, texture_height);
+    glSetupYUVConversion(&params);
   }
 
   gl_set_antialias(0);
@@ -613,7 +624,7 @@ config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uin
 
   int_pause = 0;
 
-#ifdef HAVE_NEW_GUI
+#ifdef CONFIG_GUI
   if (use_gui) {
     if (config_glx_gui(d_width, d_height) == -1)
       return -1;
@@ -667,13 +678,11 @@ config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uin
 
   if (initGl(vo_dwidth, vo_dheight) == -1)
     return -1;
-#ifndef GL_WIN32
-  if (vo_ontop) vo_x11_setlayer(mDisplay,vo_window, vo_ontop);
-#endif
 
   return 0;
 }
 
+#ifndef GL_WIN32
 static int gl_handlekey(int key)
 {
   if(key=='a'||key=='A') {
@@ -685,6 +694,7 @@ static int gl_handlekey(int key)
   }
   return 1;
 }
+#endif
 
 static void check_events(void)
 {
@@ -808,7 +818,7 @@ query_format(uint32_t format)
         return VFCAP_CSP_SUPPORTED | VFCAP_CSP_SUPPORTED_BY_HW | VFCAP_OSD |
                VFCAP_HWSCALE_UP | VFCAP_HWSCALE_DOWN | VFCAP_ACCEPT_STRIDE;
       break;
-#ifdef SYS_DARWIN
+#ifdef __APPLE__
     case IMGFMT_RGB32:
 #else
     case IMGFMT_RGB24:
@@ -869,8 +879,10 @@ static int preinit(const char *arg)
 static int control(uint32_t request, void *data, ...)
 {
   switch (request) {
-    case VOCTRL_PAUSE: return (int_pause=1);
-    case VOCTRL_RESUME: return (int_pause=0);
+    case VOCTRL_PAUSE:
+    case VOCTRL_RESUME:
+      int_pause = (request == VOCTRL_PAUSE);
+      return VO_TRUE;
     case VOCTRL_QUERY_FORMAT:
       return query_format(*((uint32_t*)data));
     case VOCTRL_GUISUPPORT:
@@ -884,11 +896,9 @@ static int control(uint32_t request, void *data, ...)
         initGl(vo_dwidth, vo_dheight);
       resize(&vo_dwidth, &vo_dheight);
       return VO_TRUE;
-#ifdef GL_WIN32
     case VOCTRL_BORDER:
-      vo_w32_border();
+      vo_border();
       return VO_TRUE;
-#endif
     case VOCTRL_GET_PANSCAN:
       return VO_TRUE;
     case VOCTRL_SET_PANSCAN:

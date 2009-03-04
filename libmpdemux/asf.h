@@ -1,24 +1,10 @@
-#ifndef ASF_H
-#define ASF_H
+#ifndef MPLAYER_ASF_H
+#define MPLAYER_ASF_H
 
 //#include "config.h"	/* for WORDS_BIGENDIAN */
 #include <inttypes.h>
 #include "libavutil/common.h"
 #include "mpbswap.h"
-
-///////////////////////
-// MS GUID definition
-///////////////////////
-#ifndef GUID_DEFINED
-#define GUID_DEFINED
-// Size of GUID is 16 bytes!
-typedef struct __attribute__((packed)) {
-	uint32_t	Data1;		// 4 bytes
-	uint16_t	Data2;		// 2 bytes
-	uint16_t	Data3;		// 2 bytes
-	uint8_t		Data4[8];	// 8 bytes
-} GUID_t;
-#endif
 
 ///////////////////////
 // ASF Object Header 
@@ -244,4 +230,4 @@ struct asf_priv {
     unsigned bps;
 };
 
-#endif
+#endif /* MPLAYER_ASF_H */

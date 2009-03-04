@@ -1,11 +1,22 @@
 /*
- *  video_out_vesa.c
+ * copyright (C) 2001 Nick Kurshev <nickols_k@mail.ru>
+ * This file is partly based on vbetest.c from lrmi distributive.
  *
- *	Copyright (C) Nick Kurshev <nickols_k@mail.ru> - Oct 2001
+ * This file is part of MPlayer.
  *
- *  You can redistribute this file under terms and conditions
- *  of GNU General Public licence v2.
- *  This file is partly based on vbetest.c from lrmi distributive.
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /*
@@ -19,7 +30,7 @@
 #include "help_mp.h"
 #include "gtf.h"
 #include <stdio.h>
-#ifdef HAVE_MALLOC_H
+#if HAVE_MALLOC_H
 #include <malloc.h>
 #endif
 #include <stdlib.h>
@@ -52,14 +63,6 @@
 #include "libmpcodecs/vf_scale.h"
 
 
-#ifdef HAVE_PNG
-extern vo_functions_t video_out_png;
-#endif
-
-extern char *monitor_hfreq_str;
-extern char *monitor_vfreq_str;
-extern char *monitor_dotclock_str;
-
 #define MAX_BUFFERS 3
 
 #ifndef max
@@ -71,7 +74,7 @@ extern char *monitor_dotclock_str;
 
 #define UNUSED(x) ((void)(x)) /**< Removes warning about unused arguments */
 
-static vo_info_t info = 
+static const vo_info_t info = 
 {
 	"VESA VBE 2.0 video output",
 	"vesa",
@@ -178,7 +181,7 @@ static void vesa_term( void )
 #define VALID_WIN_FRAME(offset) (offset >= win.low && offset < win.high)
 #define VIDEO_PTR(offset) (win.ptr + offset - win.low)
 
-static inline void __vbeSwitchBank(unsigned long offset)
+static inline void vbeSwitchBank(unsigned long offset)
 {
   unsigned long gran;
   unsigned new_offset;
@@ -198,7 +201,7 @@ static inline void __vbeSwitchBank(unsigned long offset)
   win.high = win.low + video_mode_info.WinSize*1024;
 }
 
-static void __vbeSetPixel(int x, int y, int r, int g, int b)
+static void vbeSetPixel(int x, int y, int r, int g, int b)
 {
 	int x_res = video_mode_info.XResolution;
 	int y_res = video_mode_info.YResolution;
@@ -216,7 +219,7 @@ static void __vbeSetPixel(int x, int y, int r, int g, int b)
 	b >>= 8 - video_mode_info.BlueMaskSize;
 	color = (r << shift_r) | (g << shift_g) | (b << shift_b);
 	offset = y * bpl + (x * pixel_size);
-        if(!VALID_WIN_FRAME(offset)) __vbeSwitchBank(offset);
+        if(!VALID_WIN_FRAME(offset)) vbeSwitchBank(offset);
 	memcpy(VIDEO_PTR(offset), &color, pixel_size);
 }
 
@@ -224,17 +227,17 @@ static void __vbeSetPixel(int x, int y, int r, int g, int b)
   Copies part of frame to video memory. Data should be in the same format
   as video memory.
 */
-static void __vbeCopyBlockFast(unsigned long offset,uint8_t *image,unsigned long size)
+static void vbeCopyBlockFast(unsigned long offset,uint8_t *image,unsigned long size)
 {
   fast_memcpy(&win.ptr[offset],image,size);
 }
 
-static void __vbeCopyBlock(unsigned long offset,uint8_t *image,unsigned long size)
+static void vbeCopyBlock(unsigned long offset,uint8_t *image,unsigned long size)
 {
    unsigned long delta,src_idx = 0;
    while(size)
    {
-	if(!VALID_WIN_FRAME(offset)) __vbeSwitchBank(offset);
+	if(!VALID_WIN_FRAME(offset)) vbeSwitchBank(offset);
 	delta = min(size,win.high - offset);
 	fast_memcpy(VIDEO_PTR(offset),&image[src_idx],delta);
 	src_idx += delta;
@@ -252,7 +255,7 @@ static void __vbeCopyBlock(unsigned long offset,uint8_t *image,unsigned long siz
 #define SCREEN_LINE_SIZE(pixel_size) (video_mode_info.XResolution*(pixel_size) )
 #define IMAGE_LINE_SIZE(pixel_size) (dstW*(pixel_size))
 
-static void __vbeCopyData(uint8_t *image)
+static void vbeCopyData(uint8_t *image)
 {
    unsigned long i,j,image_offset,offset;
    unsigned pixel_size,image_line_size,screen_line_size,x_shift;
@@ -383,7 +386,7 @@ static void flip_page(void)
 	mp_msg(MSGT_VO,MSGL_DBG3, "vo_vesa: flip_page was called\n");
   if(flip_trigger) 
   {
-    if(!HAS_DGA()) __vbeCopyData(dga_buffer);
+    if(!HAS_DGA()) vbeCopyData(dga_buffer);
     flip_trigger = 0;
   }
   if(vo_doublebuffering && multi_size > 1)
@@ -468,7 +471,7 @@ static int query_format(uint32_t format)
     if( mp_msg_test(MSGT_VO,MSGL_DBG3) )
         mp_msg(MSGT_VO,MSGL_DBG3, "vo_vesa: query_format was called: %x (%s)\n",format,vo_format_name(format));
 #ifdef CONFIG_VIDIX
-    if(vidix_name)return(vidix_query_fourcc(format));
+    if(vidix_name) return vidix_query_fourcc(format);
 #endif
     if (format == IMGFMT_MPEGPES)
 	return 0;
@@ -499,7 +502,7 @@ static void paintBkGnd( void )
 		g = y * 255 / y_res;
 		b = 255 - y * 255 / y_res;
 	    }
-	    __vbeSetPixel(x, y, r, g, b);
+	    vbeSetPixel(x, y, r, g, b);
 	}
     }
 }
@@ -512,7 +515,7 @@ static void clear_screen( void )
 
     for (y = 0; y < y_res; ++y)
 	for (x = 0; x < x_res; ++x)
-	    __vbeSetPixel(x, y, 0, 0, 0);
+	    vbeSetPixel(x, y, 0, 0, 0);
 }
 
 static char *model2str(unsigned char type)
@@ -903,11 +906,11 @@ config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uin
 		if(HAS_DGA())
 		{
 		  dga_buffer = win.ptr; /* Trickly ;) */
-		  cpy_blk_fnc = __vbeCopyBlockFast;
+		  cpy_blk_fnc = vbeCopyBlockFast;
 		}
 		else
 		{
-		  cpy_blk_fnc = __vbeCopyBlock;
+		  cpy_blk_fnc = vbeCopyBlock;
 		  if(!lvo_name
 #ifdef CONFIG_VIDIX
 		   && !vidix_name
@@ -1054,7 +1057,7 @@ config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_height, uin
 static void
 uninit(void)
 {
-    // not inited
+    // not initialized
     vesa_term();
     if( mp_msg_test(MSGT_VO,MSGL_DBG3) )
         mp_msg(MSGT_VO,MSGL_DBG3, "vo_vesa: uninit was called\n");

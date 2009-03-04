@@ -9,6 +9,7 @@
 
 #include "mp_msg.h"
 #include "help_mp.h"
+#include "mpbswap.h"
 
 #include "vd_internal.h"
 #include "loader/wine/windef.h"
@@ -50,7 +51,7 @@ static unsigned long (*rvyuv_custom_message)(cmsg_data_t* ,void*);
 static unsigned long (*rvyuv_free)(void*);
 static unsigned long (*rvyuv_init)(void*, void*); // initdata,context
 static unsigned long (*rvyuv_transform)(char*, char*,transform_in_t*,unsigned int*,void*);
-#ifdef USE_WIN32DLL
+#ifdef CONFIG_WIN32DLL
 static unsigned long WINAPI (*wrvyuv_custom_message)(cmsg_data_t* ,void*);
 static unsigned long WINAPI (*wrvyuv_free)(void*);
 static unsigned long WINAPI (*wrvyuv_init)(void*, void*); // initdata,context
@@ -58,10 +59,10 @@ static unsigned long WINAPI (*wrvyuv_transform)(char*, char*,transform_in_t*,uns
 #endif
 
 static void *rv_handle=NULL;
-static int inited=0;
+static int initialized=0;
 static uint8_t *buffer = NULL;
 static int bufsz = 0;
-#ifdef USE_WIN32DLL
+#ifdef CONFIG_WIN32DLL
 static int dll_type = 0; /* 0 = unix dlopen, 1 = win32 dll */
 #endif
 
@@ -143,7 +144,7 @@ static int load_syms_linux(char *path) {
 }
 #endif
 
-#ifdef USE_WIN32DLL
+#ifdef CONFIG_WIN32DLL
 
 #ifdef WIN32_LOADER
 #include "loader/ldt_keeper.h"
@@ -204,9 +205,8 @@ static int load_syms_windows(char *path) {
 	rv_handle = handle;
 #ifndef WIN32_LOADER
 	{
-	    int patched = 0;
-	    // drv43260.dll
-	    if (wrvyuv_transform == (void *)0x634114d0) {
+	    if (strstr(path, "drv43260.dll")) {
+		int patched;
 		// patch away multithreaded decoding, it causes crashes
 		static const uint8_t oldcode[13] = {
 		    0x83, 0xbb, 0xf8, 0x05, 0x00, 0x00, 0x01,
@@ -215,15 +215,30 @@ static int load_syms_windows(char *path) {
 		    0x31, 0xc0,
 		    0x89, 0x83, 0xf8, 0x05, 0x00, 0x00,
 		    0xe9, 0xd0, 0x00, 0x00, 0x00 };
-		patched = patch_dll((void *)0x634132fa, oldcode, newcode,
-		                    sizeof(oldcode));
+		patched = patch_dll(
+			(char*)wrvyuv_transform + 0x634132fa - 0x634114d0,
+			oldcode, newcode, sizeof(oldcode));
+		if (!patched)
+		    mp_msg(MSGT_DECVIDEO, MSGL_WARN, "Could not patch Real codec, this might crash on multi-CPU systems\n");
 	    }
-	    if (!patched)
-		mp_msg(MSGT_DECVIDEO, MSGL_WARN, "Could not patch Real codec, this might crash on multi-CPU systems\n");
 	}
 #endif
 	return 1;
     }
+
+    wrvyuv_custom_message = GetProcAddress(handle, "RV40toYUV420CustomMessage");
+    wrvyuv_free = GetProcAddress(handle, "RV40toYUV420Free");
+    wrvyuv_init = GetProcAddress(handle, "RV40toYUV420Init");
+    wrvyuv_transform = GetProcAddress(handle, "RV40toYUV420Transform");
+    if(wrvyuv_custom_message &&
+       wrvyuv_free &&
+       wrvyuv_init &&
+       wrvyuv_transform) {
+	dll_type = 1;
+	rv_handle = handle;
+	return 1;
+    }
+
     mp_msg(MSGT_DECVIDEO,MSGL_WARN,"Error resolving symbols! (version incompatibility?)\n");
     FreeLibrary(handle);
     return 0; // error
@@ -269,7 +284,7 @@ static int init(sh_video_t *sh){
 #ifdef HAVE_LIBDL       
 	if(strstr(sh->codec->dll,".dll") || !load_syms_linux(path))
 #endif
-#ifdef USE_WIN32DLL
+#ifdef CONFIG_WIN32DLL
 	    if (!load_syms_windows(sh->codec->dll))
 #endif
 	{
@@ -283,7 +298,7 @@ static int init(sh_video_t *sh){
 //	if((sh->format!=0x30335652) && !mpcodecs_config_vo(sh,sh->disp_w,sh->disp_h,IMGFMT_I420)) return 0;
 	// init codec:
 	sh->context=NULL;
-#ifdef USE_WIN32DLL
+#ifdef CONFIG_WIN32DLL
 	if (dll_type == 1)
 	    result=(*wrvyuv_init)(&init_data, &sh->context);
 	else
@@ -310,7 +325,7 @@ static int init(sh_video_t *sh){
 	    if (extrahdr_size-8 > cmsg_cnt)
 	        mp_msg(MSGT_DECVIDEO,MSGL_WARN,"realvideo: %u bytes of unknown extradata remaining.\n",extrahdr_size-8-cmsg_cnt);
 
-#ifdef USE_WIN32DLL
+#ifdef CONFIG_WIN32DLL
 	    if (dll_type == 1)
 		(*wrvyuv_custom_message)(&cmsg_data,sh->context);
 	    else
@@ -323,7 +338,7 @@ static int init(sh_video_t *sh){
 
 // uninit driver
 static void uninit(sh_video_t *sh){
-#ifdef USE_WIN32DLL
+#ifdef CONFIG_WIN32DLL
 	if (dll_type == 1)
 	{
 	    if (wrvyuv_free) wrvyuv_free(sh->context);
@@ -331,7 +346,7 @@ static void uninit(sh_video_t *sh){
 #endif
 	if(rvyuv_free) rvyuv_free(sh->context);
 
-#ifdef USE_WIN32DLL
+#ifdef CONFIG_WIN32DLL
 	if (dll_type == 1)
 	{
 	    if (rv_handle) FreeLibrary(rv_handle);
@@ -341,37 +356,33 @@ static void uninit(sh_video_t *sh){
 	if(rv_handle) dlclose(rv_handle);
 #endif
 	rv_handle=NULL;
-	inited = 0;
+	initialized = 0;
 	if (buffer)
 	    free(buffer);
 	buffer = NULL;
 	bufsz = 0;
 }
 
-// copypaste from demux_real.c - it should match to get it working!
-typedef struct dp_hdr_s {
-    uint32_t chunks;	// number of chunks
-    uint32_t timestamp; // timestamp from packet header
-    uint32_t len;	// length of actual data
-    uint32_t chunktab;	// offset to chunk offset array
-} dp_hdr_t;
-
 // decode a frame
 static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags){
 	mp_image_t* mpi;
 	unsigned long result;
-	dp_hdr_t* dp_hdr=(dp_hdr_t*)data;
-	unsigned char* dp_data=((unsigned char*)data)+sizeof(dp_hdr_t);
-	uint32_t* extra=(uint32_t*)(((char*)data)+dp_hdr->chunktab);
+	uint8_t *buf = data;
+	int chunks = *buf++;
+	int extra_size = 8*(chunks+1);
+	uint32_t data_size = len-1-extra_size;
+	unsigned char* dp_data=buf+extra_size;
+	uint32_t* extra=(uint32_t*)buf;
+	int i;
 
 	unsigned int transform_out[5];
 	transform_in_t transform_in={
-		dp_hdr->len,	// length of the packet (sub-packets appended)
+		data_size,	// length of the packet (sub-packets appended)
 		0,		// unknown, seems to be unused
-		dp_hdr->chunks,	// number of sub-packets - 1
+		chunks,	// number of sub-packets - 1
 		extra,		// table of sub-packet offsets
 		0,		// unknown, seems to be unused
-		dp_hdr->timestamp,// timestamp (the integer value from the stream)
+		0,		// timestamp (should be unneded)
 	};
 
 	if(len<=0 || flags&2) return NULL; // skipped frame || hardframedrop
@@ -383,7 +394,10 @@ static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags){
 	    if (!buffer) return 0;
 	}
 	
-#ifdef USE_WIN32DLL
+	for (i=0; i<2*(chunks+1); i++)
+		extra[i] = le2me_32(extra[i]);
+
+#ifdef CONFIG_WIN32DLL
 	if (dll_type == 1)
 	    result=(*wrvyuv_transform)(dp_data, buffer, &transform_in,
 		transform_out, sh->context);
@@ -392,12 +406,12 @@ static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags){
 	result=(*rvyuv_transform)(dp_data, buffer, &transform_in,
 		transform_out, sh->context);
 
-	if(!inited){  // rv30 width/height now known
+	if(!initialized){  // rv30 width/height now known
 	    sh->aspect=(float)sh->disp_w/(float)sh->disp_h;
 	    sh->disp_w=transform_out[3];
 	    sh->disp_h=transform_out[4];
 	    if (!mpcodecs_config_vo(sh,sh->disp_w,sh->disp_h,IMGFMT_I420)) return 0;
-	    inited=1;
+	    initialized=1;
 	} 
 	    mpi=mpcodecs_get_image(sh, MP_IMGTYPE_EXPORT, 0 /*MP_IMGFLAG_ACCEPT_STRIDE*/,
 		    sh->disp_w, sh->disp_h);
@@ -411,7 +425,7 @@ static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags){
 
 	if(transform_out[0] &&
 	   (sh->disp_w != transform_out[3] || sh->disp_h != transform_out[4]))
-	    inited = 0;
+	    initialized = 0;
 	
-	return (result?NULL:mpi);
+	return result ? NULL : mpi;
 }

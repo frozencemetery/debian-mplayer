@@ -1,10 +1,19 @@
+#ifndef MPLAYER_VCD_READ_H
+#define MPLAYER_VCD_READ_H
+
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/ioctl.h>
+#include "mp_msg.h"
+#include "stream.h"
 #include "libavutil/intreadwrite.h"
 //=================== VideoCD ==========================
-#if	defined(linux) || defined(sun) || defined(__bsdi__)
+#if	defined(__linux__) || defined(sun) || defined(__bsdi__)
 
 typedef struct mp_vcd_priv_st mp_vcd_priv_t;
 
-#if	defined(linux)
+#if	defined(__linux__)
 #include <linux/cdrom.h>
 #elif	defined(sun)
 #include <sys/cdio.h>
@@ -17,6 +26,7 @@ struct mp_vcd_priv_st {
   int fd;
   struct cdrom_tocentry entry;
   char buf[VCD_SECTOR_SIZE];
+  struct cdrom_tochdr tochdr;
 };
 
 static inline void vcd_set_msf(mp_vcd_priv_t* vcd, unsigned int sect){
@@ -45,13 +55,8 @@ int vcd_seek_to_track(mp_vcd_priv_t* vcd,int track){
 }
 
 int vcd_get_track_end(mp_vcd_priv_t* vcd,int track){
-  struct cdrom_tochdr tochdr;
-  if (ioctl(vcd->fd,CDROMREADTOCHDR,&tochdr)==-1) {
-    mp_msg(MSGT_STREAM,MSGL_ERR,"read CDROM toc header: %s\n",strerror(errno));
-    return -1;
-  }
   vcd->entry.cdte_format = CDROM_MSF;
-  vcd->entry.cdte_track  = track<tochdr.cdth_trk1?(track+1):CDROM_LEADOUT;
+  vcd->entry.cdte_track  = track<vcd->tochdr.cdth_trk1?(track+1):CDROM_LEADOUT;
   if (ioctl(vcd->fd, CDROMREADTOCENTRY, &vcd->entry)) {
     mp_msg(MSGT_STREAM,MSGL_ERR,"ioctl dif2: %s\n",strerror(errno));
     return -1;
@@ -118,11 +123,12 @@ mp_vcd_priv_t* vcd_read_toc(int fd){
     }
   vcd = malloc(sizeof(mp_vcd_priv_t));
   vcd->fd = fd;
+  vcd->tochdr = tochdr;
   return vcd;
 }
 
 static int vcd_read(mp_vcd_priv_t* vcd,char *mem){
-#if	defined(linux) || defined(__bsdi__)
+#if	defined(__linux__) || defined(__bsdi__)
   memcpy(vcd->buf,&vcd->entry.cdte_addr.msf,sizeof(struct cdrom_msf));
   if(ioctl(vcd->fd,CDROMREADRAW,vcd->buf)==-1) return 0; // EOF?
   memcpy(mem,&vcd->buf[VCD_SECTOR_OFFS],VCD_SECTOR_DATA);
@@ -219,8 +225,10 @@ static int sun_vcd_read(mp_vcd_priv_t* vcd, int *offset)
 }
 #endif	/*sun*/
 
-#else /* linux || sun || __bsdi__ */
+#else /* __linux__ || sun || __bsdi__ */
 
 #error vcd is not yet supported on this arch...
 
 #endif
+
+#endif /* MPLAYER_VCD_READ_H */

@@ -12,18 +12,15 @@
 
 //===========================================================================//
 
-#define uint32 unsigned long
-#define uint16 unsigned short
-#define uint8 unsigned char
+/* FIXME: these all belong in the context, not as globals! */
 
-static uint32 colorMask = 0xF7DEF7DE;
-static uint32 lowPixelMask = 0x08210821;
-static uint32 qcolorMask = 0xE79CE79C;
-static uint32 qlowpixelMask = 0x18631863;
-static uint32 redblueMask = 0xF81F;
-static uint32 greenMask = 0x7E0;
+static uint32_t colorMask = 0xF7DEF7DE;
+static uint32_t lowPixelMask = 0x08210821;
+static uint32_t qcolorMask = 0xE79CE79C;
+static uint32_t qlowpixelMask = 0x18631863;
+static uint32_t redblueMask = 0xF81F;
+static uint32_t greenMask = 0x7E0;
 static int PixelsPerMask = 2;
-static int xsai_depth = 0;
 
 #define makecol(r,g,b) (r+(g<<8)+(b<<16))
 #define makecol_depth(d,r,g,b) (r+(g<<8)+(b<<16))
@@ -68,50 +65,7 @@ int Init_2xSaI(int d)
 //	TRACE("QColor Mask:      0x%lX\n", qcolorMask);
 //	TRACE("QLow Pixel Mask:  0x%lX\n", qlowpixelMask);
 	
-	xsai_depth = d;
-
 	return 0;
-}
-
-
-static int GetResult1(uint32 A, uint32 B, uint32 C, uint32 D)
-{
-	int x = 0;
-	int y = 0;
-	int r = 0;
-	if (A == C)
-		x += 1;
-	else if (B == C)
-		y += 1;
-	if (A == D)
-		x += 1;
-	else if (B == D)
-		y += 1;
-	if (x <= 1)
-		r += 1;
-	if (y <= 1)
-		r -= 1;
-	return r;
-}
-
-static int GetResult2(uint32 A, uint32 B, uint32 C, uint32 D, uint32 E)
-{
-	int x = 0;
-	int y = 0;
-	int r = 0;
-	if (A == C)
-		x += 1;
-	else if (B == C)
-		y += 1;
-	if (A == D)
-		x += 1;
-	else if (B == D)
-		y += 1;
-	if (x <= 1)
-		r -= 1;
-	if (y <= 1)
-		r += 1;
-	return r;
 }
 
 
@@ -123,15 +77,13 @@ static int GetResult2(uint32 A, uint32 B, uint32 C, uint32 D, uint32 E)
 	+ ((((A & qlowpixelMask) + (B & qlowpixelMask) + (C & qlowpixelMask) + (D & qlowpixelMask)) >> 2) & qlowpixelMask)
 
 
-static unsigned char *src_line[4];
-static unsigned char *dst_line[2];
-
-void Super2xSaI_ex(uint8 *src, uint32 src_pitch, 
-		   uint8 *dst, uint32 dst_pitch,
-		   uint32 width, uint32 height, int sbpp) {
+void Super2xSaI_ex(uint8_t *src, uint32_t src_pitch, 
+		   uint8_t *dst, uint32_t dst_pitch,
+		   uint32_t width, uint32_t height, int sbpp) {
 
 	unsigned int x, y;
-	unsigned long color[16];
+	uint32_t color[16];
+	unsigned char *src_line[4];
 
 	/* Point to the first 3 lines. */
 	src_line[0] = src;
@@ -152,17 +104,18 @@ void Super2xSaI_ex(uint8 *src, uint32 src_pitch,
 		color[12] = *sbp;    color[13] = color[12];   color[14] = *(sbp + 1); color[15] = *(sbp + 2);
 	}
 	else {
-		unsigned long *lbp;
-		lbp = (unsigned long*)src_line[0];
+		uint32_t *lbp;
+		lbp = (uint32_t*)src_line[0];
 		color[0] = *lbp;       color[1] = color[0];   color[2] = color[0];    color[3] = color[0];
 		color[4] = color[0];   color[5] = color[0];   color[6] = *(lbp + 1);  color[7] = *(lbp + 2);
-		lbp = (unsigned long*)src_line[2];
+		lbp = (uint32_t*)src_line[2];
 		color[8] = *lbp;     color[9] = color[8];     color[10] = *(lbp + 1); color[11] = *(lbp + 2);
-		lbp = (unsigned long*)src_line[3];
+		lbp = (uint32_t*)src_line[3];
 		color[12] = *lbp;    color[13] = color[12];   color[14] = *(lbp + 1); color[15] = *(lbp + 2);
 	}
 
 	for (y = 0; y < height; y++) {
+		unsigned char *dst_line[2];
 
 		dst_line[0] = dst + dst_pitch*2*y;
 		dst_line[1] = dst + dst_pitch*(2*y+1);
@@ -170,7 +123,7 @@ void Super2xSaI_ex(uint8 *src, uint32 src_pitch,
 		/* Todo: x = width - 2, x = width - 1 */
 		
 		for (x = 0; x < width; x++) {
-			unsigned long product1a, product1b, product2a, product2b;
+			uint32_t product1a, product1b, product2a, product2b;
 
 //---------------------------------------  B0 B1 B2 B3    0  1  2  3
 //                                         4  5* 6  S2 -> 4  5* 6  7
@@ -234,14 +187,14 @@ void Super2xSaI_ex(uint8 *src, uint32 src_pitch,
 				product1a = color[5];
 	
 			if (PixelsPerMask == 2) {
-				*((unsigned long *) (&dst_line[0][x * 4])) = product1a | (product1b << 16);
-				*((unsigned long *) (&dst_line[1][x * 4])) = product2a | (product2b << 16);
+				*((uint32_t *) (&dst_line[0][x * 4])) = product1a | (product1b << 16);
+				*((uint32_t *) (&dst_line[1][x * 4])) = product2a | (product2b << 16);
 			}
 			else {
-				*((unsigned long *) (&dst_line[0][x * 8])) = product1a;
-				*((unsigned long *) (&dst_line[0][x * 8 + 4])) = product1b;
-				*((unsigned long *) (&dst_line[1][x * 8])) = product2a;
-				*((unsigned long *) (&dst_line[1][x * 8 + 4])) = product2b;
+				*((uint32_t *) (&dst_line[0][x * 8])) = product1a;
+				*((uint32_t *) (&dst_line[0][x * 8 + 4])) = product1b;
+				*((uint32_t *) (&dst_line[1][x * 8])) = product2a;
+				*((uint32_t *) (&dst_line[1][x * 8 + 4])) = product2b;
 			}
 			
 			/* Move color matrix forward */
@@ -258,10 +211,10 @@ void Super2xSaI_ex(uint8 *src, uint32 src_pitch,
 					color[15] = *(((unsigned short*)src_line[3]) + x);
 				}
 				else {
-					color[3] = *(((unsigned long*)src_line[0]) + x);
-					color[7] = *(((unsigned long*)src_line[1]) + x);
-					color[11] = *(((unsigned long*)src_line[2]) + x);
-					color[15] = *(((unsigned long*)src_line[3]) + x);
+					color[3] = *(((uint32_t*)src_line[0]) + x);
+					color[7] = *(((uint32_t*)src_line[1]) + x);
+					color[11] = *(((uint32_t*)src_line[2]) + x);
+					color[15] = *(((uint32_t*)src_line[3]) + x);
 				}
 				x -= 3;
 			}
@@ -291,14 +244,14 @@ void Super2xSaI_ex(uint8 *src, uint32 src_pitch,
 			color[12] = *sbp;    color[13] = color[12];  color[14] = *(sbp + 1); color[15] = *(sbp + 2);
 		}
 		else {
-			unsigned long *lbp;
-			lbp = (unsigned long*)src_line[0];
+			uint32_t *lbp;
+			lbp = (uint32_t*)src_line[0];
 			color[0] = *lbp;     color[1] = color[0];    color[2] = *(lbp + 1);  color[3] = *(lbp + 2);
-			lbp = (unsigned long*)src_line[1];
+			lbp = (uint32_t*)src_line[1];
 			color[4] = *lbp;     color[5] = color[4];    color[6] = *(lbp + 1);  color[7] = *(lbp + 2);
-			lbp = (unsigned long*)src_line[2];
+			lbp = (uint32_t*)src_line[2];
 			color[8] = *lbp;     color[9] = color[9];    color[10] = *(lbp + 1); color[11] = *(lbp + 2);
-			lbp = (unsigned long*)src_line[3];
+			lbp = (uint32_t*)src_line[3];
 			color[12] = *lbp;    color[13] = color[12];  color[14] = *(lbp + 1); color[15] = *(lbp + 2);
 		}
 		
@@ -352,7 +305,7 @@ static int open(vf_instance_t *vf, char* args){
     return 1;
 }
 
-vf_info_t vf_info_2xsai = {
+const vf_info_t vf_info_2xsai = {
     "2xSai BGR bitmap 2x scaler",
     "2xsai",
     "A'rpi",

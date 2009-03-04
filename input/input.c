@@ -1,3 +1,21 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include "config.h"
 
 #include <stdlib.h>
@@ -5,7 +23,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
-#include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -21,6 +38,7 @@
 #include "osdep/getch2.h"
 #include "osdep/keycodes.h"
 #include "osdep/timer.h"
+#include "libavutil/avstring.h"
 #include "mp_msg.h"
 #include "help_mp.h"
 #include "m_config.h"
@@ -29,11 +47,11 @@
 
 #include "joystick.h"
 
-#ifdef HAVE_LIRC
+#ifdef CONFIG_LIRC
 #include "lirc.h"
 #endif
 
-#ifdef HAVE_LIRCC
+#ifdef CONFIG_LIRCC
 #include <lirc/lircc.h>
 #endif
 
@@ -50,8 +68,8 @@
 /// For the args, the first field is the type (actually int, float or string), the second
 /// is the default value wich is used for optional arguments
 
-static mp_cmd_t mp_cmds[] = {
-#ifdef USE_RADIO
+static const mp_cmd_t mp_cmds[] = {
+#ifdef CONFIG_RADIO
   { MP_CMD_RADIO_STEP_CHANNEL, "radio_step_channel", 1,  { { MP_CMD_ARG_INT ,{0}}, {-1,{0}} }},
   { MP_CMD_RADIO_SET_CHANNEL, "radio_set_channel", 1, { { MP_CMD_ARG_STRING, {0}}, {-1,{0}}  }},
   { MP_CMD_RADIO_SET_FREQ, "radio_set_freq", 1, { {MP_CMD_ARG_FLOAT,{0}}, {-1,{0}} } },
@@ -64,6 +82,7 @@ static mp_cmd_t mp_cmds[] = {
   { MP_CMD_SPEED_MULT, "speed_mult", 1, { {MP_CMD_ARG_FLOAT,{0}}, {-1,{0}} } },
   { MP_CMD_SPEED_SET, "speed_set", 1, { {MP_CMD_ARG_FLOAT,{0}}, {-1,{0}} } },
   { MP_CMD_QUIT, "quit", 0, { {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
+  { MP_CMD_STOP, "stop", 0, { {-1,{0}} } },
   { MP_CMD_PAUSE, "pause", 0, { {-1,{0}} } },
   { MP_CMD_FRAME_STEP, "frame_step", 0, { {-1,{0}} } },
   { MP_CMD_PLAY_TREE_STEP, "pt_step",1, { { MP_CMD_ARG_INT ,{0}}, { MP_CMD_ARG_INT ,{0}}, {-1,{0}} } },
@@ -92,8 +111,15 @@ static mp_cmd_t mp_cmds[] = {
   { MP_CMD_SUB_REMOVE, "sub_remove", 0, { {MP_CMD_ARG_INT,{-1}}, {-1,{0}} } },
   { MP_CMD_SUB_SELECT, "vobsub_lang", 0, { { MP_CMD_ARG_INT,{-2} }, {-1,{0}} } }, // for compatibility
   { MP_CMD_SUB_SELECT, "sub_select", 0, { { MP_CMD_ARG_INT,{-2} }, {-1,{0}} } },
+  { MP_CMD_SUB_SOURCE, "sub_source", 0, { { MP_CMD_ARG_INT,{-2} }, {-1,{0}} } },
+  { MP_CMD_SUB_VOB, "sub_vob", 0, { { MP_CMD_ARG_INT,{-2} }, {-1,{0}} } },
+  { MP_CMD_SUB_DEMUX, "sub_demux", 0, { { MP_CMD_ARG_INT,{-2} }, {-1,{0}} } },
+  { MP_CMD_SUB_FILE, "sub_file", 0, { { MP_CMD_ARG_INT,{-2} }, {-1,{0}} } },
   { MP_CMD_SUB_LOG, "sub_log", 0, { {-1,{0}} } },
   { MP_CMD_SUB_SCALE, "sub_scale",1, { {MP_CMD_ARG_FLOAT,{0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
+#ifdef CONFIG_ASS
+  { MP_CMD_ASS_USE_MARGINS, "ass_use_margins", 0, { {MP_CMD_ARG_INT,{-1}}, {-1,{0}} } },
+#endif
   { MP_CMD_GET_PERCENT_POS, "get_percent_pos", 0, { {-1,{0}} } },
   { MP_CMD_GET_TIME_POS, "get_time_pos", 0, { {-1,{0}} } },
   { MP_CMD_GET_TIME_LENGTH, "get_time_length", 0, { {-1,{0}} } },
@@ -112,7 +138,9 @@ static mp_cmd_t mp_cmds[] = {
   { MP_CMD_GET_META_TRACK, "get_meta_track", 0, { {-1,{0}} } },
   { MP_CMD_GET_META_GENRE, "get_meta_genre", 0, { {-1,{0}} } },
   { MP_CMD_SWITCH_AUDIO, "switch_audio", 0, { { MP_CMD_ARG_INT,{-1} }, {-1,{0}} } },
-#ifdef USE_TV
+  { MP_CMD_SWITCH_ANGLE, "switch_angle", 0, { { MP_CMD_ARG_INT,{-1} }, {-1,{0}} } },
+  { MP_CMD_SWITCH_TITLE, "switch_title", 0, { { MP_CMD_ARG_INT,{-1} }, {-1,{0}} } },
+#ifdef CONFIG_TV
   { MP_CMD_TV_START_SCAN, "tv_start_scan", 0,  { {-1,{0}} }},
   { MP_CMD_TV_STEP_CHANNEL, "tv_step_channel", 1,  { { MP_CMD_ARG_INT ,{0}}, {-1,{0}} }},
   { MP_CMD_TV_STEP_NORM, "tv_step_norm",0, { {-1,{0}} }  },
@@ -128,7 +156,7 @@ static mp_cmd_t mp_cmds[] = {
   { MP_CMD_TV_SET_SATURATION, "tv_set_saturation", 1,  { { MP_CMD_ARG_INT ,{0}}, { MP_CMD_ARG_INT,{1} }, {-1,{0}} }},
 #endif
   { MP_CMD_SUB_FORCED_ONLY, "forced_subs_only",  0, { {MP_CMD_ARG_INT,{-1}}, {-1,{0}} } },
-#ifdef HAS_DVBIN_SUPPORT
+#ifdef CONFIG_DVBIN
   { MP_CMD_DVB_SET_CHANNEL, "dvb_set_channel", 2, { {MP_CMD_ARG_INT,{0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}}}},
 #endif
   { MP_CMD_SWITCH_RATIO, "switch_ratio", 0, { {MP_CMD_ARG_FLOAT,{0}}, {-1,{0}} } },
@@ -144,12 +172,12 @@ static mp_cmd_t mp_cmds[] = {
   { MP_CMD_LOADLIST, "loadlist", 1, { {MP_CMD_ARG_STRING, {0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
   { MP_CMD_RUN, "run", 1, { {MP_CMD_ARG_STRING,{0}}, {-1,{0}} } },
   { MP_CMD_VF_CHANGE_RECTANGLE, "change_rectangle", 2, { {MP_CMD_ARG_INT,{0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}}}},
-#ifdef HAVE_TV_TELETEXT
+#ifdef CONFIG_TV_TELETEXT
   { MP_CMD_TV_TELETEXT_ADD_DEC, "teletext_add_dec", 1, { {MP_CMD_ARG_STRING,{0}}, {-1,{0}} } },
   { MP_CMD_TV_TELETEXT_GO_LINK, "teletext_go_link", 1, { {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
 #endif
 
-#ifdef HAVE_NEW_GUI  
+#ifdef CONFIG_GUI
   { MP_CMD_GUI_LOADFILE, "gui_loadfile", 0, { {-1,{0}} } },
   { MP_CMD_GUI_LOADSUBTITLE, "gui_loadsubtitle", 0, { {-1,{0}} } },
   { MP_CMD_GUI_ABOUT, "gui_about", 0, { {-1,{0}} } },
@@ -160,11 +188,11 @@ static mp_cmd_t mp_cmds[] = {
   { MP_CMD_GUI_SKINBROWSER, "gui_skinbrowser", 0, { {-1,{0}} } },
 #endif
 
-#ifdef USE_DVDNAV
-  { MP_CMD_DVDNAV, "dvdnav", 1, { {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
+#ifdef CONFIG_DVDNAV
+  { MP_CMD_DVDNAV, "dvdnav", 1, { {MP_CMD_ARG_STRING, {0}}, {-1,{0}} } },
 #endif
 
-#ifdef HAVE_MENU
+#ifdef CONFIG_MENU
   { MP_CMD_MENU, "menu",1,  { {MP_CMD_ARG_STRING, {0}}, {-1,{0}} } },
   { MP_CMD_SET_MENU, "set_menu",1,  { {MP_CMD_ARG_STRING, {0}},  {MP_CMD_ARG_STRING, {0}}, {-1,{0}} } },
   { MP_CMD_CHELP, "help", 0, { {-1,{0}} } },
@@ -188,7 +216,7 @@ static mp_cmd_t mp_cmds[] = {
 /// The names of the keys as used in input.conf
 /// If you add some new keys, you also need to add them here
 
-static mp_key_name_t key_names[] = {
+static const mp_key_name_t key_names[] = {
   { ' ', "SPACE" },
   { '#', "SHARP" },
   { KEY_ENTER, "ENTER" },
@@ -329,22 +357,22 @@ static mp_key_name_t key_names[] = {
 // The first arg is a null terminated array of key codes.
 // The second is the command
 
-static mp_cmd_bind_t def_cmd_binds[] = {
+static const mp_cmd_bind_t def_cmd_binds[] = {
 
   { {  MOUSE_BTN3, 0 }, "seek 10" },
   { {  MOUSE_BTN4, 0 }, "seek -10" },
   { {  MOUSE_BTN5, 0 }, "volume 1" },
   { {  MOUSE_BTN6, 0 }, "volume -1" },
   
-#ifdef USE_DVDNAV
-  { { KEY_KP8, 0 }, "dvdnav 1" },   // up
-  { { KEY_KP2, 0 }, "dvdnav 2" },   // down
-  { { KEY_KP4, 0 }, "dvdnav 3" },   // left
-  { { KEY_KP6, 0 }, "dvdnav 4" },   // right
-  { { KEY_KP5, 0 }, "dvdnav 5" },   // menu
-  { { KEY_KPENTER, 0 }, "dvdnav 6" },   // select
-  { { MOUSE_BTN0, 0 }, "dvdnav 8" },   //select
-  { { KEY_KP7, 0 }, "dvdnav 7" },   // previous menu
+#ifdef CONFIG_DVDNAV
+  { { KEY_KP8, 0 }, "dvdnav up" },   // up
+  { { KEY_KP2, 0 }, "dvdnav down" },   // down
+  { { KEY_KP4, 0 }, "dvdnav left" },   // left
+  { { KEY_KP6, 0 }, "dvdnav right" },   // right
+  { { KEY_KP5, 0 }, "dvdnav menu" },   // menu
+  { { KEY_KPENTER, 0 }, "dvdnav select" },   // select
+  { { MOUSE_BTN0, 0 }, "dvdnav mouse" },   //select
+  { { KEY_KP7, 0 }, "dvdnav prev" },   // previous menu
 #endif
 
   { { KEY_RIGHT, 0 }, "seek 10" },
@@ -405,18 +433,18 @@ static mp_cmd_bind_t def_cmd_binds[] = {
   { { '_', 0 }, "step_property switch_video" },
   { { KEY_TAB, 0 }, "step_property switch_program" },
   { { 'i', 0 }, "edl_mark" },
-#ifdef USE_TV
+#ifdef CONFIG_TV
   { { 'h', 0 }, "tv_step_channel 1" },
   { { 'k', 0 }, "tv_step_channel -1" },
   { { 'n', 0 }, "tv_step_norm" },
   { { 'u', 0 }, "tv_step_chanlist" },
 #endif
-#ifdef HAVE_TV_TELETEXT
+#ifdef CONFIG_TV_TELETEXT
   { { 'X', 0 }, "step_property teletext_mode 1" },
   { { 'W', 0 }, "step_property teletext_page 1" },
   { { 'Q', 0 }, "step_property teletext_page -1" },
 #endif
-#ifdef HAVE_JOYSTICK
+#ifdef CONFIG_JOYSTICK
   { { JOY_AXIS0_PLUS, 0 }, "seek 10" },
   { { JOY_AXIS0_MINUS, 0 }, "seek -10" },
   { { JOY_AXIS1_MINUS, 0 }, "seek 60" },
@@ -426,7 +454,7 @@ static mp_cmd_bind_t def_cmd_binds[] = {
   { { JOY_BTN2, 0 }, "volume 1"},
   { { JOY_BTN3, 0 }, "volume -1"},
 #endif
-#ifdef HAVE_APPLE_REMOTE
+#ifdef CONFIG_APPLE_REMOTE
   { { AR_PLAY, 0}, "pause" },
   { { AR_PLAY_HOLD, 0}, "quit" },
   { { AR_NEXT, 0 }, "seek 30" },
@@ -463,13 +491,15 @@ static mp_cmd_bind_t def_cmd_binds[] = {
   
   { { '!', 0 }, "seek_chapter -1" },
   { { '@', 0 }, "seek_chapter 1" },
+  { { 'A', 0 }, "switch_angle 1" },
+  { { 'U', 0 }, "stop" },
 
   { { 0 }, NULL }
 };
 
 
-#ifdef HAVE_NEW_GUI
-static mp_cmd_bind_t gui_def_cmd_binds[] = {
+#ifdef CONFIG_GUI
+static const mp_cmd_bind_t gui_def_cmd_binds[] = {
 
   { { 'l', 0 }, "gui_loadfile" },
   { { 't', 0 }, "gui_loadsubtitle" },
@@ -532,7 +562,9 @@ static mp_cmd_bind_t* cmd_binds_default = NULL;
 static mp_cmd_filter_t* cmd_filters = NULL;
 
 // Callback to allow the menu filter to grab the incoming keys
-void (*mp_input_key_cb)(int code) = NULL;
+int (*mp_input_key_cb)(int code) = NULL;
+
+int async_quit_request;
 
 static mp_input_fd_t key_fds[MP_MAX_KEY_FD];
 static unsigned int num_key_fd = 0;
@@ -554,9 +586,14 @@ static int use_joystick = 1, use_lirc = 1, use_lircc = 1;
 static char* config_file = "input.conf";
 
 /* Apple Remote */
+#ifdef CONFIG_APPLE_REMOTE
 static int use_ar = 1;
+#else
+static int use_ar = 0;
+#endif
 
 static char* js_dev = NULL;
+static char* ar_dev = NULL;
 
 static char* in_file = NULL;
 static int in_file_fd = -1;
@@ -567,6 +604,7 @@ static int mp_input_print_cmd_list(m_option_t* cfg);
 // Our command line options
 static m_option_t input_conf[] = {
   { "conf", &config_file, CONF_TYPE_STRING, CONF_GLOBAL, 0, 0, NULL },
+  { "ar-dev", &ar_dev, CONF_TYPE_STRING, CONF_GLOBAL, 0, 0, NULL },
   { "ar-delay", &ar_delay, CONF_TYPE_INT, CONF_GLOBAL, 0, 0, NULL },
   { "ar-rate", &ar_rate, CONF_TYPE_INT, CONF_GLOBAL, 0, 0, NULL },
   { "keylist", mp_input_print_key_list, CONF_TYPE_FUNC, CONF_GLOBAL, 0, 0, NULL },
@@ -703,17 +741,44 @@ void mp_input_rm_event_fd(int fd)
     mp_input_rm_key_fd(fd);
 }
 
+int mp_input_parse_and_queue_cmds(const char *str) {
+    int cmd_num = 0;
+
+    while (*str == '\n' || *str == '\r' || *str == ' ')
+        ++str;
+    while (*str) {
+        mp_cmd_t *cmd;
+        size_t len = strcspn(str, "\r\n");
+        char *cmdbuf = malloc(len+1);
+        av_strlcpy(cmdbuf, str, len+1);
+        cmd = mp_input_parse_cmd(cmdbuf);
+        if (cmd) {
+            mp_input_queue_cmd(cmd);
+            ++cmd_num;
+        }
+        str += len;
+        while (*str == '\n' || *str == '\r' || *str == ' ')
+            ++str;
+        free(cmdbuf);
+    }
+    return cmd_num;
+}
 
 mp_cmd_t*
 mp_input_parse_cmd(char* str) {
   int i,l;
   int pausing = 0;
   char *ptr,*e;
-  mp_cmd_t *cmd, *cmd_def;
+  mp_cmd_t *cmd;
+  const mp_cmd_t *cmd_def;
 
 #ifdef MP_DEBUG
   assert(str != NULL);
 #endif
+
+  // Ignore heading spaces.
+  while (str[0] == ' ' || str[0] == '\t')
+    ++str;
 
   if (strncmp(str, "pausing ", 8) == 0) {
     pausing = 1;
@@ -724,6 +789,9 @@ mp_input_parse_cmd(char* str) {
   } else if (strncmp(str, "pausing_toggle ", 15) == 0) {
     pausing = 3;
     str = &str[15];
+  } else if (strncmp(str, "pausing_keep_force ", 19) == 0) {
+    pausing = 4;
+    str = &str[19];
   }
 
   for(ptr = str ; ptr[0] != '\0'  && ptr[0] != '\t' && ptr[0] != ' ' ; ptr++)
@@ -754,10 +822,10 @@ mp_input_parse_cmd(char* str) {
   ptr = str;
 
   for(i=0; ptr && i < MP_CMD_MAX_ARGS; i++) {
-    ptr = strchr(ptr,' ');
-    if(!ptr) break;
-    while(ptr[0] == ' ' || ptr[0] == '\t') ptr++;
+    while(ptr[0] != ' ' && ptr[0] != '\t' && ptr[0] != '\0') ptr++;
     if(ptr[0] == '\0') break;
+    while(ptr[0] == ' ' || ptr[0] == '\t') ptr++;
+    if(ptr[0] == '\0' || ptr[0] == '#') break;
     cmd->args[i].type = cmd_def->args[i].type;
     switch(cmd_def->args[i].type) {
     case MP_CMD_ARG_INT:
@@ -951,7 +1019,7 @@ mp_input_add_cmd_filter(mp_input_cmd_filter func, void* ctx) {
   
 
 static char*
-mp_input_find_bind_for_key(mp_cmd_bind_t* binds, int n,int* keys) {
+mp_input_find_bind_for_key(const mp_cmd_bind_t* binds, int n,int* keys) {
   int j;
 
   if (n <= 0) return NULL;
@@ -1039,7 +1107,7 @@ interpret_key(int code, int paused)
       if (code & MP_KEY_DOWN)
 	  return NULL;
       code &= ~(MP_KEY_DOWN|MP_NO_REPEAT_KEY);
-      mp_input_key_cb(code);
+      if (mp_input_key_cb(code))
     return NULL;
   }
 
@@ -1176,7 +1244,7 @@ static mp_cmd_t *read_events(int time, int paused)
 	}
     }
 #else
-    if (!got_cmd)
+    if (!got_cmd && time)
 	usec_sleep(time * 1000);
 #endif
 
@@ -1244,7 +1312,7 @@ static mp_cmd_t *read_events(int time, int paused)
 
 int
 mp_input_queue_cmd(mp_cmd_t* cmd) {
-  if(cmd_queue_length  >= CMD_QUEUE_SIZE)
+  if(!cmd || cmd_queue_length  >= CMD_QUEUE_SIZE)
     return 0;
   cmd_queue[cmd_queue_end] = cmd;
   cmd_queue_end = (cmd_queue_end + 1) % CMD_QUEUE_SIZE;
@@ -1279,6 +1347,8 @@ mp_input_get_cmd(int time, int paused, int peek_only) {
   mp_cmd_filter_t* cf;
   int from_queue;
 
+  if (async_quit_request)
+    return mp_input_parse_cmd("quit 1");
   while(1) {
     from_queue = 1;
     ret = mp_input_get_queued_cmd(peek_only);
@@ -1294,8 +1364,13 @@ mp_input_get_cmd(int time, int paused, int peek_only) {
   if(!ret) return NULL;
 
   for(cf = cmd_filters ; cf ; cf = cf->next) {
-    if(cf->filter(ret,paused,cf->ctx))
+    if(cf->filter(ret,paused,cf->ctx)) {
+      if (peek_only && from_queue)
+        // The filter ate the cmd, so we remove it from queue
+        ret = mp_input_get_queued_cmd(0);
+      mp_cmd_free(ret);
       return NULL;
+    }
   }
 
   if (!from_queue && peek_only)
@@ -1364,8 +1439,8 @@ mp_input_get_key_name(int key) {
 
 }
 
-static int
-mp_input_get_key_from_name(char* name) {
+int
+mp_input_get_key_from_name(const char *name) {
   int i,ret = 0,len = strlen(name);
   if(len == 1) { // Direct key code
     ret = (unsigned char)name[0];
@@ -1412,7 +1487,7 @@ mp_input_get_input_from_name(char* name,int* keys) {
 #define SPACE_CHAR " \n\r\t"
 
 void
-mp_input_bind_keys(int keys[MP_MAX_KEY_DOWN+1], char* cmd) {
+mp_input_bind_keys(const int keys[MP_MAX_KEY_DOWN+1], char* cmd) {
   int i = 0,j;
   mp_cmd_bind_t* bind = NULL;
   mp_cmd_bind_section_t* bind_section = NULL;
@@ -1445,7 +1520,7 @@ mp_input_bind_keys(int keys[MP_MAX_KEY_DOWN+1], char* cmd) {
   }
   
   if(!bind) {
-    bind_section->cmd_binds = (mp_cmd_bind_t*)realloc(bind_section->cmd_binds,(i+2)*sizeof(mp_cmd_bind_t));
+    bind_section->cmd_binds = realloc(bind_section->cmd_binds,(i+2)*sizeof(mp_cmd_bind_t));
     memset(&bind_section->cmd_binds[i],0,2*sizeof(mp_cmd_bind_t));
     bind = &bind_section->cmd_binds[i];
   }
@@ -1456,7 +1531,7 @@ mp_input_bind_keys(int keys[MP_MAX_KEY_DOWN+1], char* cmd) {
 }
 
 void
-mp_input_add_binds(mp_cmd_bind_t* list) {
+mp_input_add_binds(const mp_cmd_bind_t* list) {
   int i;
   for(i = 0 ; list[i].cmd ; i++)
     mp_input_bind_keys(list[i].input,list[i].cmd);
@@ -1528,11 +1603,9 @@ mp_input_parse_config(char *file) {
       }
       iter++;
       r = strlen(iter);
-      if(r)
-	memmove(buffer,iter,r+1);
+      memmove(buffer,iter,r+1);
       bs = r+1;
-      if(iter[0] != '#')
-	comments = 0;
+      comments = 0;
       continue;
     }
 
@@ -1653,7 +1726,7 @@ void
 mp_input_init(int use_gui) {
   char* file;
 
-#ifdef HAVE_NEW_GUI  
+#ifdef CONFIG_GUI
   if(use_gui)
     mp_input_add_binds(gui_def_cmd_binds);
 #endif
@@ -1681,7 +1754,7 @@ mp_input_init(int use_gui) {
       free(file);
   }
 
-#ifdef HAVE_JOYSTICK
+#ifdef CONFIG_JOYSTICK
   if(use_joystick) {
     int fd = mp_input_joystick_init(js_dev);
     if(fd < 0)
@@ -1691,7 +1764,7 @@ mp_input_init(int use_gui) {
   }
 #endif
 
-#ifdef HAVE_LIRC
+#ifdef CONFIG_LIRC
   if(use_lirc) {
     int fd = mp_input_lirc_init();
     if(fd > 0)
@@ -1699,7 +1772,7 @@ mp_input_init(int use_gui) {
   }
 #endif
 
-#ifdef HAVE_LIRCC
+#ifdef CONFIG_LIRCC
   if(use_lircc) {
     int fd = lircc_init("mplayer", NULL);
     if(fd >= 0)
@@ -1707,7 +1780,7 @@ mp_input_init(int use_gui) {
   }
 #endif
 
-#ifdef HAVE_APPLE_REMOTE
+#ifdef CONFIG_APPLE_REMOTE
   if(use_ar) {
     if(mp_input_ar_init() < 0)
       mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_INPUT_ErrCantInitAppleRemote);
@@ -1716,6 +1789,16 @@ mp_input_init(int use_gui) {
   }
 #endif
 
+#ifdef CONFIG_APPLE_IR
+  if(use_ar) {
+    int fd = mp_input_appleir_init(ar_dev);
+    if(fd < 0)
+      mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_INPUT_ErrCantInitAppleRemote);
+    else
+      mp_input_add_key_fd(fd,1,mp_input_appleir_read,(mp_close_func_t)close);
+  }
+#endif
+  
   if(in_file) {
     struct stat st;
     if(stat(in_file,&st))
@@ -1769,7 +1852,7 @@ static int mp_input_print_key_list(m_option_t* cfg) {
 }
 
 static int mp_input_print_cmd_list(m_option_t* cfg) {
-  mp_cmd_t *cmd;
+  const mp_cmd_t *cmd;
   int i,j;
   const char* type;
 

@@ -27,7 +27,7 @@
 #define CHUNK_FDSC mmioFOURCC('F', 'D', 'S', 'C')
 #define CHUNK_STAB mmioFOURCC('S', 'T', 'A', 'B')
 
-typedef struct _film_chunk_t
+typedef struct film_chunk_t
 {
   off_t chunk_offset;
   int chunk_size;
@@ -37,7 +37,7 @@ typedef struct _film_chunk_t
   float pts;
 } film_chunk_t;
 
-typedef struct _film_data_t
+typedef struct film_data_t
 {
   unsigned int total_chunks;
   unsigned int current_chunk;
@@ -49,9 +49,9 @@ typedef struct _film_data_t
 static void demux_seek_film(demuxer_t *demuxer, float rel_seek_secs, float audio_delay, int flags)
 {
   film_data_t *film_data = (film_data_t *)demuxer->priv;
-  int new_current_chunk=(flags&1)?0:film_data->current_chunk;
+  int new_current_chunk=(flags&SEEK_ABSOLUTE)?0:film_data->current_chunk;
 
-  if(flags&2)
+  if(flags&SEEK_FACTOR)
       new_current_chunk += rel_seek_secs * film_data->total_chunks; // 0..1
   else
       new_current_chunk += rel_seek_secs * film_data->chunks_per_second; // secs
@@ -238,7 +238,7 @@ static demuxer_t* demux_open_film(demuxer_t* demuxer)
   {
     mp_msg(MSGT_DEMUX, MSGL_ERR, "Not a FILM file\n");
     free(film_data);
-    return(NULL);    
+    return NULL;
   }
 
   // get the header size, which implicitly points past the header and
@@ -307,6 +307,7 @@ static demuxer_t* demux_open_film(demuxer_t* demuxer)
         {
           // create and initialize the audio stream header
           sh_audio = new_sh_audio(demuxer, 0);
+          demuxer->audio->id = 0;
           demuxer->audio->sh = sh_audio;
           sh_audio->ds = demuxer->audio;
 
@@ -427,7 +428,7 @@ static demuxer_t* demux_open_film(demuxer_t* demuxer)
     default:
       mp_msg(MSGT_DEMUX, MSGL_ERR, "Unrecognized FILM header chunk: %08X\n",
         chunk_type);
-      return(NULL);    
+      return NULL;
       break;
     }
   }
@@ -460,7 +461,7 @@ static int film_check_file(demuxer_t* demuxer)
 }
 
 
-demuxer_desc_t demuxer_desc_film = {
+const demuxer_desc_t demuxer_desc_film = {
   "FILM/CPK demuxer for Sega Saturn CD-ROM games",
   "film",
   "FILM",

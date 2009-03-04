@@ -10,7 +10,7 @@
 
 #include "libvo/video_out.h"
 
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
 #include "libass/ass.h"
 #include "libass/ass_mp.h"
 extern ass_track_t* ass_track;
@@ -23,8 +23,8 @@ extern float sub_delay;
 
 struct vf_priv_s {
     double pts;
-    vo_functions_t *vo;
-#ifdef USE_ASS
+    const vo_functions_t *vo;
+#ifdef CONFIG_ASS
     ass_renderer_t* ass_priv;
     int prev_visibility;
 #endif
@@ -32,6 +32,7 @@ struct vf_priv_s {
 #define video_out (vf->priv->vo)
 
 static int query_format(struct vf_instance_s* vf, unsigned int fmt); /* forward declaration */
+static void draw_slice(struct vf_instance_s* vf, unsigned char** src, int* stride, int w,int h, int x, int y);
 
 static int config(struct vf_instance_s* vf,
         int width, int height, int d_width, int d_height,
@@ -61,11 +62,12 @@ static int config(struct vf_instance_s* vf,
 
     // save vo's stride capability for the wanted colorspace:
     vf->default_caps=query_format(vf,outfmt);
+    vf->draw_slice = (vf->default_caps & VOCAP_NOSLICES) ? NULL : draw_slice;
 
     if(config_video_out(video_out,width,height,d_width,d_height,flags,"MPlayer",outfmt))
 	return 0;
 
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
     if (vf->priv->ass_priv)
 	ass_configure(vf->priv->ass_priv, width, height, !!(vf->default_caps & VFCAP_EOSD_UNSCALED));
 #endif
@@ -103,15 +105,15 @@ static int control(struct vf_instance_s* vf, int request, void* data)
     {
 	vf_equalizer_t *eq=data;
 	if(!vo_config_count) return CONTROL_FALSE; // vo not configured?
-	return((video_out->control(VOCTRL_SET_EQUALIZER, eq->item, eq->value) == VO_TRUE) ? CONTROL_TRUE : CONTROL_FALSE);
+	return (video_out->control(VOCTRL_SET_EQUALIZER, eq->item, eq->value) == VO_TRUE) ? CONTROL_TRUE : CONTROL_FALSE;
     }
     case VFCTRL_GET_EQUALIZER:
     {
 	vf_equalizer_t *eq=data;
 	if(!vo_config_count) return CONTROL_FALSE; // vo not configured?
-	return((video_out->control(VOCTRL_GET_EQUALIZER, eq->item, &eq->value) == VO_TRUE) ? CONTROL_TRUE : CONTROL_FALSE);
+	return (video_out->control(VOCTRL_GET_EQUALIZER, eq->item, &eq->value) == VO_TRUE) ? CONTROL_TRUE : CONTROL_FALSE;
     }
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
     case VFCTRL_INIT_EOSD:
     {
         vf->priv->ass_priv = ass_renderer_init((ass_library_t*)data);
@@ -134,7 +136,7 @@ static int control(struct vf_instance_s* vf, int request, void* data)
                 ass_set_aspect_ratio(vf->priv->ass_priv, (double)res.w / res.h);
             }
 
-            images.imgs = ass_render_frame(vf->priv->ass_priv, ass_track, (pts+sub_delay) * 1000 + .5, &images.changed);
+            images.imgs = ass_mp_render_frame(vf->priv->ass_priv, ass_track, (pts+sub_delay) * 1000 + .5, &images.changed);
             if (!vf->priv->prev_visibility)
                 images.changed = 2;
             vf->priv->prev_visibility = 1;
@@ -165,7 +167,10 @@ static int query_format(struct vf_instance_s* vf, unsigned int fmt){
 
 static void get_image(struct vf_instance_s* vf,
         mp_image_t *mpi){
-    if(vo_directrendering && vo_config_count)
+    if(!vo_config_count) return;
+    // GET_IMAGE is required for hardware-accelerated formats
+    if(vo_directrendering ||
+       IMGFMT_IS_XVMC(mpi->imgfmt) || IMGFMT_IS_VDPAU(mpi->imgfmt))
 	video_out->control(VOCTRL_GET_IMAGE,mpi);
 }
 
@@ -203,7 +208,7 @@ static void draw_slice(struct vf_instance_s* vf,
 static void uninit(struct vf_instance_s* vf)
 {
     if (vf->priv) {
-#ifdef USE_ASS
+#ifdef CONFIG_ASS
         if (vf->priv->ass_priv)
             ass_renderer_done(vf->priv->ass_priv);
 #endif
@@ -222,13 +227,13 @@ static int open(vf_instance_t *vf, char* args){
     vf->start_slice=start_slice;
     vf->uninit=uninit;
     vf->priv=calloc(1, sizeof(struct vf_priv_s));
-    vf->priv->vo = (vo_functions_t *)args;
+    vf->priv->vo = (const vo_functions_t *)args;
     if(!video_out) return 0; // no vo ?
 //    if(video_out->preinit(args)) return 0; // preinit failed
     return 1;
 }
 
-vf_info_t vf_info_vo = {
+const vf_info_t vf_info_vo = {
     "libvo wrapper",
     "vo",
     "A'rpi",

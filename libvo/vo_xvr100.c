@@ -28,10 +28,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <stdlib.h>
@@ -49,17 +48,18 @@
 #include "aspect.h"
 #include "geometry.h"
 #include "fastmemcpy.h"
+#include "sub.h"
 #include "mp_msg.h"
 
 
-static vo_info_t info = {
+static const vo_info_t info = {
     "sun xvr-100",
     "xvr100",
     "Denes Balatoni",
     ""
 };
 
-LIBVO_EXTERN(xvr100)
+const LIBVO_EXTERN(xvr100)
 
 #define PFB_VRAM_MMAPBASE 0x08000000
 #define PFB_VRAM_MMAPLEN 0x04000000 /* depends on memory size */
@@ -135,8 +135,8 @@ static uint32_t pfb_colorkey;
 
 
 
-void pfb_overlay_on() {
-    int i, h_inc, h_step, ecp_div;
+void pfb_overlay_on(void) {
+    int h_inc, h_step, ecp_div;
 
     pfb_vregs[PFB_CLOCK_CNTL_INDEX] = (pfb_vregs[PFB_CLOCK_CNTL_INDEX] & ~0x0000003f) | 0x00000008;
     ecp_div = (pfb_vregs[PFB_CLOCK_CNTL_DATA] >> 8) & 0x3;
@@ -192,11 +192,11 @@ void pfb_overlay_on() {
     pfb_vregs[PFB_OV0_AUTO_FLIP_CNTL] = PFB_OV0_AUTO_FLIP_BUF0;
 }
 
-void pfb_overlay_off() {
+void pfb_overlay_off(void) {
     pfb_vregs[PFB_OV0_SCALE_CNTL] = 0;
 }
 
-void center_overlay() {
+void center_overlay(void) {
     if (pfb_xres > pfb_dstwidth) {
         pfb_wx0 = (pfb_xres - pfb_dstwidth) / 2;
         pfb_wx1 = pfb_wx0 + pfb_dstwidth;
@@ -321,7 +321,7 @@ static void uninit(void)
     munmap(pfb_vregs, PFB_REGS_MMAPLEN);
 }
 
-static uint32_t pfb_fullscreen() {
+static uint32_t pfb_fullscreen(void) {
     if (!pfb_fs) {
         aspect(&pfb_dstwidth,&pfb_dstheight, A_ZOOM);
         pfb_fs = 1;

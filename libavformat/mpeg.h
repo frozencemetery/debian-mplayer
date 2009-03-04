@@ -1,6 +1,6 @@
 /*
  * MPEG1/2 muxer and demuxer common defines
- * Copyright (c) 2000, 2001, 2002 Fabrice Bellard.
+ * Copyright (c) 2000, 2001, 2002 Fabrice Bellard
  *
  * This file is part of FFmpeg.
  *
@@ -21,6 +21,9 @@
 
 #ifndef AVFORMAT_MPEG_H
 #define AVFORMAT_MPEG_H
+
+#include <stdint.h>
+#include "libavutil/intreadwrite.h"
 
 #define PACK_START_CODE             ((unsigned int)0x000001ba)
 #define SYSTEM_HEADER_START_CODE    ((unsigned int)0x000001bb)
@@ -56,5 +59,14 @@
 #define STREAM_TYPE_AUDIO_DTS       0x8a
 
 static const int lpcm_freq_tab[4] = { 48000, 96000, 44100, 32000 };
+
+/**
+ * Parse MPEG-PES five-byte timestamp
+ */
+static inline int64_t ff_parse_pes_pts(uint8_t *buf) {
+    return (int64_t)(*buf & 0x0e) << 29 |
+            (AV_RB16(buf+1) >> 1) << 15 |
+             AV_RB16(buf+3) >> 1;
+}
 
 #endif /* AVFORMAT_MPEG_H */

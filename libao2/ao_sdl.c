@@ -1,13 +1,25 @@
-/* 
- * ao_sdl.c - libao2 SDLlib Audio Output Driver for MPlayer
- *
- * This driver is under the same license as MPlayer.
- * (http://www.mplayerhq.hu)
+/*
+ * SDLlib audio output driver for MPlayer
  *
  * Copyleft 2001 by Felix Bünemann (atmosfear@users.sf.net)
  *
  * Thanks to Arpi for nice ringbuffer-code!
  *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * along with MPlayer; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <stdio.h>
@@ -40,7 +52,7 @@ LIBAO_EXTERN(sdl)
 #undef USE_SDL_INTERNAL_MIXER
 
 // Samplesize used by the SDLlib AudioSpec struct
-#if defined(WIN32) || defined(SYS_AMIGAOS4)
+#if defined(__MINGW32__) || defined(__CYGWIN__) || defined(__AMIGAOS4__)
 #define SAMPLESIZE 2048
 #else
 #define SAMPLESIZE 1024
@@ -231,7 +243,7 @@ void callback(void *userdata, Uint8 *stream, int len); userdata is the pointer s
 	/* Open the audio device and start playing sound! */
 	if(SDL_OpenAudio(&aspec, &obtained) < 0) {
         	mp_msg(MSGT_AO,MSGL_ERR,MSGTR_AO_SDL_CantOpenAudio, SDL_GetError());
-        	return(0);
+        	return 0;
 	} 
 
 	/* did we got what we wanted ? */

@@ -30,13 +30,15 @@
 
 #include <sys/types.h>
 #include "config.h"
-#ifndef HAVE_WINSOCK2
+#if !HAVE_WINSOCK2_H
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #else
 #include <winsock2.h>
 #endif
+
+
 #include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -45,15 +47,16 @@
 #include <inttypes.h>
 
 #include "mp_msg.h"
-#include "../url.h"
-#include "../rtp.h"
 #include "rtsp.h"
 #include "rtsp_rtp.h"
 #include "rtsp_session.h"
-#include "../realrtsp/real.h"
-#include "../realrtsp/rmff.h"
-#include "../realrtsp/asmrp.h"
-#include "../realrtsp/xbuffer.h"
+#include "stream/network.h"
+#include "stream/url.h"
+#include "stream/rtp.h"
+#include "stream/realrtsp/real.h"
+#include "stream/realrtsp/rmff.h"
+#include "stream/realrtsp/asmrp.h"
+#include "stream/realrtsp/xbuffer.h"
 
 /*
 #define LOG
@@ -72,6 +75,29 @@ struct rtsp_session_s {
   struct real_rtsp_session_t* real_session;
   struct rtp_rtsp_session_t* rtp_session;
 };
+
+/*
+ * closes an rtsp connection 
+ */
+
+static void rtsp_close(rtsp_t *s) {
+
+  if (s->server_state)
+  {
+    if (s->server_state == RTSP_PLAYING)
+      rtsp_request_teardown (s, NULL);
+    closesocket (s->s);
+  }
+
+  if (s->path) free(s->path);
+  if (s->host) free(s->host);
+  if (s->mrl) free(s->mrl);
+  if (s->session) free(s->session);
+  if (s->user_agent) free(s->user_agent);
+  rtsp_free_answers(s);
+  rtsp_unschedule_all(s);
+  free(s);  
+}
 
 //rtsp_session_t *rtsp_session_start(char *mrl) {
 rtsp_session_t *rtsp_session_start(int fd, char **mrl, char *path, char *host,

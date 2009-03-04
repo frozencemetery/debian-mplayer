@@ -1,5 +1,9 @@
+#ifndef MPLAYER_AD_H
+#define MPLAYER_AD_H
 
 #include "mpc_info.h"
+#include "libmpdemux/stheader.h"
+
 typedef mp_codec_info_t ad_info_t;
 
 /* interface of video decoder drivers */
@@ -28,3 +32,4 @@ extern ad_functions_t* mpcodecs_ad_drivers[];
 // fallback: use hw mixer in libao
 #define ADCTRL_SET_VOLUME 4 /* set volume (used for mp3lib and liba52) */
 
+#endif /* MPLAYER_AD_H */

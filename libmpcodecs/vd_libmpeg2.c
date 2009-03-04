@@ -11,7 +11,7 @@
 
 static vd_info_t info = 
 {
-	"MPEG 1/2 Video decoder libmpeg2-v0.4.0b",
+	"libmpeg2 MPEG 1/2 Video decoder",
 	"libmpeg2",
 	"A'rpi & Fabian Franz",
 	"Aaron & Walken",
@@ -32,6 +32,10 @@ typedef struct {
     mpeg2dec_t *mpeg2dec;
     int quant_store_idx;
     char *quant_store[3];
+    int imgfmt;
+    int width;
+    int height;
+    double aspect;
 } vd_libmpeg2_ctx_t;
 
 // to set/get/query special features/parameters
@@ -70,9 +74,18 @@ static int init(sh_video_t *sh){
        accel |= MPEG2_ACCEL_X86_MMXEXT;
     if(gCpuCaps.has3DNow)
        accel |= MPEG2_ACCEL_X86_3DNOW;
+    if(gCpuCaps.hasSSE2)
+       accel |= MPEG2_ACCEL_X86_SSE2;
     if(gCpuCaps.hasAltiVec)
        accel |= MPEG2_ACCEL_PPC_ALTIVEC;
-    #ifdef HAVE_VIS
+    #if ARCH_ALPHA
+       accel |= MPEG2_ACCEL_ALPHA;
+    #elif ARCH_ARM
+       accel |= MPEG2_ACCEL_ARM;
+    #endif
+    #if HAVE_MVI
+       accel |= MPEG2_ACCEL_ALPHA_MVI;
+    #elif HAVE_VIS
        accel |= MPEG2_ACCEL_SPARC_VIS;
     #endif
     mpeg2_accel(accel);
@@ -157,6 +170,7 @@ static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags){
 	int type, use_callback;
 	mp_image_t* mpi_new;
 	unsigned long pw, ph;
+	int imgfmt;
 	
 	switch(state){
 	case STATE_BUFFER:
@@ -173,18 +187,27 @@ static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags){
 	    pw = info->sequence->display_width * info->sequence->pixel_width;
 	    ph = info->sequence->display_height * info->sequence->pixel_height;
 	    if(ph) sh->aspect = (float) pw / (float) ph;
-	    // video parameters inited/changed, (re)init libvo:
+	    // video parameters initialized/changed, (re)init libvo:
 	    if (info->sequence->width >> 1 == info->sequence->chroma_width &&
 		info->sequence->height >> 1 == info->sequence->chroma_height) {
-		if(!mpcodecs_config_vo(sh,
-				       info->sequence->picture_width,
-				       info->sequence->picture_height, IMGFMT_YV12)) return 0;
+		imgfmt = IMGFMT_YV12;
 	    } else if (info->sequence->width >> 1 == info->sequence->chroma_width &&
 		info->sequence->height == info->sequence->chroma_height) {
-		if(!mpcodecs_config_vo(sh,
-				       info->sequence->picture_width,
-				       info->sequence->picture_height, IMGFMT_422P)) return 0;
+		imgfmt = IMGFMT_422P;
 	    } else return 0;
+	    if (imgfmt == context->imgfmt &&
+	        info->sequence->picture_width == context->width &&
+	        info->sequence->picture_height == context->height &&
+	        sh->aspect == context->aspect)
+		break;
+	    if(!mpcodecs_config_vo(sh,
+	          info->sequence->picture_width,
+	          info->sequence->picture_height, imgfmt))
+		return 0;
+	    context->imgfmt = imgfmt;
+	    context->width = info->sequence->picture_width;
+	    context->height = info->sequence->picture_height;
+	    context->aspect = sh->aspect;
 	    break;
 	case STATE_PICTURE:
 	    type=info->current_picture->flags&PIC_MASK_CODING_TYPE;

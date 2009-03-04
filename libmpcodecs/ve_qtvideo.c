@@ -1,6 +1,24 @@
-/*qt video encoder using win32 libs
-  released under gnu gpl
-  (C)Sascha Sommer                 */
+/*
+ * QT video encoder using Win32 libs
+ *
+ * Copyright (C) 2002 Sascha Sommer
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #define MAX_IDSIZE 0x6F
 
@@ -10,7 +28,6 @@
 
 #include "config.h"
 #include "mp_msg.h"
-#include "libavutil/common.h"
 #include "mpbswap.h"
 
 #ifdef WIN32_LOADER 
@@ -150,7 +167,7 @@ static int config(struct vf_instance_s* vf,
     compressor=FindNextComponent(NULL,&cdesc);
     if(!compressor){
 	mp_msg(MSGT_MENCODER,MSGL_ERR,"Cannot find requested component\n");
-	return(0);
+	return 0;
     }
     mp_msg(MSGT_MENCODER,MSGL_DBG2,"Found it! ID = %p\n",compressor);
 
@@ -170,7 +187,7 @@ static int query_format(struct vf_instance_s* vf, unsigned int fmt){
     return 0;
 }
 
-static int codec_inited = 0;
+static int codec_initialized = 0;
 
 static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
 
@@ -182,7 +199,7 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
     int width = mpi->width;
     int height = mpi->height;
     int stride = width*2;
-if(!codec_inited){
+if(!codec_initialized){
     FrameRect.top=0;
     FrameRect.left=0;
     FrameRect.right=width;
@@ -243,7 +260,7 @@ if(!codec_inited){
     mp_msg(MSGT_MENCODER,MSGL_DBG2,"Sequence ID:%i\n",seq);
 
     dump_ImageDescription(*desc);
-    codec_inited++;
+    codec_initialized++;
 }
     cres = CompressSequenceFrame (
     	seq,

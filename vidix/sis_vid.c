@@ -1,6 +1,10 @@
 /*
  * VIDIX driver for SiS chipsets.
- * Copyright (C) 2003 Jake Page, Sugar Media.
+ * Based on SiS Xv driver
+ *
+ * Copyright (C) 2003 Jake Page, Sugar Media
+ * Copyright 2002-2003 by Thomas Winischhofer, Vienna, Austria
+ * 2003/10/08 integrated into mplayer/vidix architecture -- Alex Beregszaszi
  *
  * This file is part of MPlayer.
  *
@@ -14,13 +18,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
- * Based on SiS Xv driver
- * Copyright 2002-2003 by Thomas Winischhofer, Vienna, Austria.
- * 2003/10/08 integrated into mplayer/vidix architecture -- Alex Beregszaszi
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <errno.h>
@@ -30,13 +30,12 @@
 #include <inttypes.h>
 #include <unistd.h>
 
+#include "config.h"
 #include "vidix.h"
-#include "vidixlib.h"
 #include "fourcc.h"
 #include "dha.h"
 #include "pci_ids.h"
 #include "pci_names.h"
-#include "config.h"
 
 #include "sis_regs.h"
 #include "sis_defs.h"
@@ -168,7 +167,7 @@ static unsigned short sis_card_ids[] = {
 
 /** function declarations **/
 
-extern void sis_init_video_bridge(void);
+void sis_init_video_bridge(void);
 
 
 static void set_overlay(SISOverlayPtr pOverlay, int index);
@@ -190,7 +189,7 @@ static uint8_t getvideoreg(uint8_t reg)
 {
     uint8_t ret;
     inSISIDXREG(SISVID, reg, ret);
-    return (ret);
+    return ret;
 }
 
 static void setvideoreg(uint8_t reg, uint8_t data)
@@ -220,7 +219,7 @@ static void setsrregmask(uint8_t reg, uint8_t data, uint8_t mask)
 static uint8_t vblank_active_CRT1(void)
 {
     /* this may be too simplistic? */
-    return (inSISREG(SISINPSTAT) & 0x08);
+    return inSISREG(SISINPSTAT) & 0x08;
 }
 
 static uint8_t vblank_active_CRT2(void)
@@ -231,7 +230,7 @@ static uint8_t vblank_active_CRT2(void)
     } else {
 	inSISIDXREG(SISPART1, Index_CRT2_FC_VR, ret);
     }
-    return ((ret & 0x02) ^ 0x02);
+    return (ret & 0x02) ^ 0x02;
 }
 
 static int find_chip(unsigned chip_id)
@@ -344,13 +343,13 @@ static int sis_init(void)
 
     if (!sis_probed) {
 	printf("[SiS] driver was not probed but is being initialized\n");
-	return (EINTR);
+	return EINTR;
     }
 
     if (enable_app_io() != 0)
     {
       printf("[SiS] can't enable register I/O\n");
-      return(EINTR);
+      return EINTR;
     }
 
     /* JCP: this is WRONG.  Need to coordinate w/ sisfb to use correct mem */

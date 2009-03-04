@@ -16,7 +16,7 @@
  *
  * Modified for use with MPlayer, for details see the changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: dct36_3dnow.c 18786 2006-06-22 13:34:00Z diego $
+ * $Id: dct36_3dnow.c 28152 2008-12-15 16:13:41Z reimar $
  *
  * Original disclaimer:
  *  The author of this program disclaim whole expressed or implied
@@ -29,9 +29,10 @@
 
 #define real float /* ugly - but only way */
 
+#include "config.h"
 #include "mangle.h"
 
-#ifdef __DCT36_OPTIMIZE_FOR_K7
+#ifdef DCT36_OPTIMIZE_FOR_K7
 void dct36_3dnowex(real *inbuf, real *o1,
     real *o2, real *wintab, real *tsbuf)
 #else
@@ -39,7 +40,7 @@ void dct36_3dnow(real *inbuf, real *o1,
     real *o2, real *wintab, real *tsbuf)
 #endif
 {
-    __asm__ __volatile__(
+    __asm__ volatile(
 	"movq (%%eax),%%mm0\n\t"
 	"movq 4(%%eax),%%mm1\n\t"
 	"pfadd %%mm1,%%mm0\n\t"
@@ -171,7 +172,7 @@ void dct36_3dnow(real *inbuf, real *o1,
 	"movd 108(%%edx),%%mm6\n\t"
 	"punpckldq 104(%%edx),%%mm6\n\t"
 	"pfmul %%mm6,%%mm5\n\t"
-#ifdef __DCT36_OPTIMIZE_FOR_K7
+#ifdef DCT36_OPTIMIZE_FOR_K7
 	"pswapd %%mm5,%%mm5\n\t"
 	"movq %%mm5,32(%%ecx)\n\t"
 #else

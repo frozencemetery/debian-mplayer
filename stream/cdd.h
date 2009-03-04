@@ -1,8 +1,8 @@
-#ifndef CDD_H
-#define CDD_H
+#ifndef MPLAYER_CDD_H
+#define MPLAYER_CDD_H
 
 #include "config.h"
-#ifndef HAVE_LIBCDIO
+#ifndef CONFIG_LIBCDIO
 #include <cdda_interface.h>
 #include <cdda_paranoia.h>
 #else
@@ -54,7 +54,7 @@ typedef struct {
 } cd_info_t;
 
 typedef struct {
-#ifndef HAVE_LIBCDIO
+#ifndef CONFIG_LIBCDIO
 	cdrom_drive* cd;
 	cdrom_paranoia* cdp;
 #else
@@ -74,4 +74,4 @@ cd_track_t*	cd_info_get_track(cd_info_t *cd_info, unsigned int track_nb);
 
 void 		cd_info_debug(cd_info_t *cd_info);
 
-#endif /* CDD_H */
+#endif /* MPLAYER_CDD_H */

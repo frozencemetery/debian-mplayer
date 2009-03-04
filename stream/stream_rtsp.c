@@ -1,20 +1,23 @@
 /*
- *  Copyright (C) 2006 Benjamin Zores
- *   based on previous Real RTSP support from Roberto Togni and xine team.
+ * based on previous Real RTSP support from Roberto Togni and xine team.
  *
- *   This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * Copyright (C) 2006 Benjamin Zores
  *
- *   This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This file is part of MPlayer.
  *
- *   You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software Foundation,
- *  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <stdlib.h>
@@ -25,17 +28,17 @@
 #include <sys/types.h>
 #include <ctype.h>
 #include "config.h"
-#ifndef HAVE_WINSOCK2
+#if !HAVE_WINSOCK2_H
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#define closesocket close
 #else
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #endif
 #include <errno.h>
 
+#include "network.h"
 #include "stream.h"
 #include "tcp.h"
 #include "librtsp/rtsp.h"
@@ -167,7 +170,7 @@ rtsp_streaming_open (stream_t *stream, int mode, void *opts, int *file_format)
   return STREAM_OK;
 }
 
-stream_info_t stream_info_rtsp = {
+const stream_info_t stream_info_rtsp = {
   "RTSP streaming",
   "rtsp",
   "Benjamin Zores, Roberto Togni",

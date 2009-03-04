@@ -1,6 +1,9 @@
 /*
  * VIDIX driver for nVidia chipsets.
+ *
  * Copyright (C) 2003-2004 Sascha Sommer
+ * This file is based on sources from RIVATV (rivatv.sf.net)
+ * Multi buffer support and TNT2 fixes by Dmitry Baryshkov.
  *
  * This file is part of MPlayer.
  *
@@ -14,12 +17,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with MPlayer; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- *
- * This file is based on sources from RIVATV (rivatv.sf.net)
- * Multi buffer support and TNT2 fixes by Dmitry Baryshkov.
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <errno.h>
@@ -31,13 +31,12 @@
 #include <unistd.h>
 
 
+#include "config.h"
 #include "vidix.h"
-#include "vidixlib.h"
 #include "fourcc.h"
 #include "dha.h"
 #include "pci_ids.h"
 #include "pci_names.h"
-#include "config.h"
 #include "libavutil/common.h"
 #include "mpbswap.h"
 
@@ -115,7 +114,6 @@ static struct nvidia_cards nvidia_card_ids[] = {
   {DEVICE_NVIDIA_NV10DDR_GEFORCE_256,NV_ARCH_10},
   {DEVICE_NVIDIA_NV10GL_QUADRO,NV_ARCH_10},
   {DEVICE_NVIDIA_NV11_GEFORCE2_MX_MX,NV_ARCH_10},
-  {DEVICE_NVIDIA_NV11DDR_GEFORCE2_MX,NV_ARCH_10},
   {DEVICE_NVIDIA_NV11DDR_GEFORCE2_MX,NV_ARCH_10},
   {DEVICE_NVIDIA_NV11_GEFORCE2_GO,NV_ARCH_10},
   {DEVICE_NVIDIA_NV11GL_QUADRO2_MXR_EX_GO,NV_ARCH_10},
@@ -257,7 +255,6 @@ static struct nvidia_cards nvidia_card_ids[] = {
   {DEVICE_NVIDIA_NV41_QUADRO_FX,NV_ARCH_40},
   {DEVICE_NVIDIA_NV41_QUADRO_FX2,NV_ARCH_40},
   {DEVICE_NVIDIA_NV41GL_QUADRO_FX,NV_ARCH_40},
-  {DEVICE_NVIDIA_NV41GL_QUADRO_FX,NV_ARCH_40},
   {DEVICE_NVIDIA_NV40_GEFORCE_6800_GEFORCE,NV_ARCH_40},
   {DEVICE_NVIDIA_NV43_GEFORCE_6600_GEFORCE,NV_ARCH_40},
   {DEVICE_NVIDIA_NV43_GEFORCE_6600_GEFORCE2,NV_ARCH_40},
@@ -375,7 +372,7 @@ static int nv_probe(int verbose, int force){
  * PCI-Memory IO access macros.
  */
 
-#define MEM_BARRIER() __asm__ __volatile__ ("" : : : "memory")
+#define MEM_BARRIER() __asm__ volatile ("" : : : "memory")
 
 #undef	VID_WR08
 #define VID_WR08(p,i,val) ({ MEM_BARRIER(); ((uint8_t *)(p))[(i)]=(val); })
@@ -460,7 +457,7 @@ static unsigned long rivatv_fbsize_nv03 (struct rivatv_chip *chip){
 		if (((VID_RD32 (chip->PMC, 0) & 0xF0) == 0x20)
 		    && ((VID_RD32 (chip->PMC, 0) & 0x0F) >= 0x02)) {
 			/* SDRAM 128 ZX. */
-			return ((1 << (VID_RD32 (chip->PFB, 0) & 0x03)) * 1024 * 1024);
+			return (1 << (VID_RD32 (chip->PFB, 0) & 0x03)) * 1024 * 1024;
 		}
 		else {
 			return 1024 * 1024 * 8;
@@ -617,13 +614,14 @@ static void rivatv_overlay_colorkey (rivatv_info* info, unsigned int chromakey){
 	switch (info->depth) {
 	case 15:
 		key = ((r >> 3) << 10) | ((g >> 3) << 5) | ((b >> 3));
-#ifndef WIN32
+
+#if !defined(__MINGW32__) && !defined(__CYGWIN__)
         key = key | 0x00008000;
 #endif       
 		break;
 	case 16: // XXX unchecked
 		key = ((r >> 3) << 11) | ((g >> 2) << 5) | ((b >> 3));
-#ifndef WIN32
+#if !defined(__MINGW32__) && !defined(__CYGWIN__)
         key = key | 0x00008000;
 #endif       
 		break;
@@ -632,7 +630,7 @@ static void rivatv_overlay_colorkey (rivatv_info* info, unsigned int chromakey){
 		break;
 	case 32:
 		key = chromakey;
-#ifndef WIN32
+#if !defined(__MINGW32__) && !defined(__CYGWIN__)
         key = key | 0x80000000;
 #endif       
 		break;

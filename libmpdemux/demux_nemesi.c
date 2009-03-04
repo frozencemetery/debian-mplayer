@@ -1,30 +1,58 @@
 /*
- *  Copyright (C) 2007 Alessandro Molina <amol.wrk@gmail.com>
+ * Copyright (C) 2007 Alessandro Molina <amol.wrk@gmail.com>
  *
- *  MPlayer is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * This file is part of MPlayer.
  *
- *  MPlayer is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with MPlayer; if not, write to the Free Software Foundation,
- *  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
-#include "demux_nemesi.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include "stream/stream.h"
+#include "demuxer.h"
 #include "stheader.h"
 #define HAVE_STRUCT_SOCKADDR_STORAGE
 #include "nemesi/rtsp.h"
 #include "nemesi/rtp.h"
+#include <sched.h>
 
 int rtsp_transport_tcp = 0;
 int rtsp_transport_sctp = 0;
-// extern int rtsp_port;
+int rtsp_port = 0;
+
+typedef struct {
+    char * mime;
+    unsigned int fourcc;
+} MIMEto4CC;
+
+#define NMS_MAX_FORMATS 16
+
+MIMEto4CC supported_audio[NMS_MAX_FORMATS] = {
+    {"MPA", 0x55}, 
+    {"vorbis", mmioFOURCC('v','r','b','s')},
+    {"mpeg4-generic", mmioFOURCC('M','P','4','A')},
+    {NULL, 0},
+};
+
+MIMEto4CC supported_video[NMS_MAX_FORMATS] = {
+    {"MPV", mmioFOURCC('M','P','E','G')},
+    {"theora",mmioFOURCC('t','h','e','o')},
+    {"H264", mmioFOURCC('H','2','6','4')},
+    {"H263-1998", mmioFOURCC('H','2','6','3')},
+    {"MP4V-ES", mmioFOURCC('M','P','4','V')},
+    {NULL, 0},
+};
 
 typedef enum { NEMESI_SESSION_VIDEO,
                NEMESI_SESSION_AUDIO } Nemesi_SessionType;
@@ -37,41 +65,81 @@ typedef struct {
     double seek;
 } Nemesi_DemuxerStreamData;
 
+
+#define STYPE_TO_DS(demuxer, stype) \
+    ((stype) == NEMESI_SESSION_VIDEO ? (demuxer)->video : (demuxer)->audio)
+
+#define DS_TO_STYPE(demuxer, ds) \
+    ((ds) == (demuxer)->video ? NEMESI_SESSION_VIDEO : NEMESI_SESSION_AUDIO)
+
+#define INVERT_STYPE(stype) ((stype + 1) % 2)
+
+static unsigned int get4CC(MIMEto4CC * supported_formats, char const * format)
+{
+    unsigned i;
+
+    for(i = 0; i < NMS_MAX_FORMATS; ++i) {
+        if (!supported_formats[i].mime)
+            return 0;
+        else if ( strcmp(supported_formats[i].mime, format) == 0 )
+            return supported_formats[i].fourcc;
+    }
+
+    return 0;
+}
+
+static rtp_ssrc *wait_for_packets(Nemesi_DemuxerStreamData * ndsd, Nemesi_SessionType stype)
+{
+    rtp_ssrc *ssrc = NULL;
+
+    /* Wait for prebuffering (prebuffering must be enabled in nemesi) */
+    int terminated = rtp_fill_buffers(rtsp_get_rtp_th(ndsd->rtsp));
+
+    /* Wait for the ssrc to be registered, if prebuffering is on in nemesi
+       this will just get immediatly the correct ssrc */
+    if (!terminated) {
+        while ( !(ssrc = rtp_session_get_ssrc(ndsd->session[stype], ndsd->rtsp)) )
+            sched_yield();
+    }
+
+    return ssrc;
+}
+
 static void link_session_and_fetch_conf(Nemesi_DemuxerStreamData * ndsd,
                                         Nemesi_SessionType stype,
                                         rtp_session * sess,
                                         rtp_buff * buff, unsigned int * fps)
 {
-    extern float force_fps;
-    rtp_ssrc *ssrc;
-    rtsp_ctrl * ctl = ndsd->rtsp;
+    extern double force_fps;
+    rtp_ssrc *ssrc = NULL;
     rtp_frame * fr = &ndsd->first_pkt[stype];
     rtp_buff trash_buff;
+    int must_prefetch = ((fps != NULL) || (buff != NULL)) ? 1 : 0;
 
     ndsd->session[stype] = sess;
 
-    if (buff == NULL)
-        buff = &trash_buff;
+    ssrc = wait_for_packets(ndsd, stype);
 
-    if ( (buff != NULL) || (fps != NULL) ) {
-        rtp_fill_buffers(rtsp_get_rtp_th(ctl));
-        for (ssrc = rtp_active_ssrc_queue(rtsp_get_rtp_queue(ctl));
-             ssrc;
-             ssrc = rtp_next_active_ssrc(ssrc)) {
-            if (ssrc->rtp_sess == sess) {
-                rtp_fill_buffer(ssrc, fr, buff);
-                break;
+    if ( ((ssrc) && (must_prefetch)) ) {
+        if (buff == NULL)
+            buff = &trash_buff;
+
+        rtp_fill_buffer(ssrc, fr, buff); //Prefetch the first packet
+
+        /* Packet prefecthing must be done anyway or we won't be
+           able to get the metadata, but fps calculation happens
+           only if the user didn't specify the FPS */
+        if ( ((!force_fps) && (fps != NULL)) ) {
+            while ( *fps <= 0 ) {
+                //Wait more pkts to calculate FPS and try again
+                sched_yield();
+                *fps = rtp_get_fps(ssrc);
             }
-        }
-
-        if ( (force_fps == 0.0) && (fps != NULL) ) {
-            rtp_fill_buffers(rtsp_get_rtp_th(ctl));
-            *fps = rtp_get_fps(ssrc);
         }
     }
 }
 
-demuxer_t* demux_open_rtp(demuxer_t* demuxer)
+static demuxer_t* demux_open_rtp(demuxer_t* demuxer)
 {
     nms_rtsp_hints hints;
     char * url = demuxer->stream->streaming_ctrl->url->url;
@@ -81,7 +149,7 @@ demuxer_t* demux_open_rtp(demuxer_t* demuxer)
     Nemesi_DemuxerStreamData * ndsd = calloc(1, sizeof(Nemesi_DemuxerStreamData));
 
     memset(&hints,0,sizeof(hints));
-//  if (rtsp_port) hints.first_rtp_port = rtsp_port;
+    if (rtsp_port) hints.first_rtp_port = rtsp_port;
     if (rtsp_transport_tcp) {
         hints.pref_rtsp_proto = TCP;
         hints.pref_rtp_proto = TCP;
@@ -124,14 +192,20 @@ demuxer_t* demux_open_rtp(demuxer_t* demuxer)
         return demuxer;
     }
 
+    if (!ctl->rtsp_queue)
+        return demuxer;
+
     media = ctl->rtsp_queue->media_queue;
     for (; media; media=media->next) {
         sdp_medium_info * info = media->medium_info;
         rtp_session * sess = media->rtp_sess;
+        rtp_buff buff;
 
         int media_format = atoi(info->fmts);
         rtp_pt * ptinfo = rtp_get_pt_info(sess, media_format);
         char const * format_name = ptinfo ? ptinfo->name : NULL;
+
+        memset(&buff, 0, sizeof(rtp_buff));
 
         if (sess->parsers[media_format] == NULL) {
             mp_msg(MSGT_DEMUX, MSGL_ERR,
@@ -148,27 +222,31 @@ demuxer_t* demux_open_rtp(demuxer_t* demuxer)
         if (ptinfo->type == AU) {
             if (ndsd->session[NEMESI_SESSION_AUDIO] == NULL) {
                 sh_audio_t* sh_audio = new_sh_audio(demuxer,0);
-                WAVEFORMATEX* wf = calloc(1,sizeof(WAVEFORMATEX));
+                WAVEFORMATEX* wf;
                 demux_stream_t* d_audio = demuxer->audio;
+                demuxer->audio->id = 0;
 
                 mp_msg(MSGT_DEMUX, MSGL_INFO, "Detected as AUDIO stream...\n");
 
                 link_session_and_fetch_conf(ndsd, NEMESI_SESSION_AUDIO,
-                                            sess, NULL, NULL);
+                                            sess, &buff, NULL);
+
+                if (buff.len) {
+                    wf = calloc(1,sizeof(WAVEFORMATEX)+buff.len);
+                    wf->cbSize = buff.len;
+                    memcpy(wf+1, buff.data, buff.len);
+                } else {
+                    wf = calloc(1,sizeof(WAVEFORMATEX));
+                }
 
                 sh_audio->wf = wf;
                 d_audio->sh = sh_audio;
                 sh_audio->ds = d_audio;
                 wf->nSamplesPerSec = 0;
 
-                //List of known audio formats
-                if (!strcmp(format_name, "MPA"))
-                    wf->wFormatTag =
-                        sh_audio->format = 0x55;
-                else if (!strcmp(format_name, "vorbis"))
-                    wf->wFormatTag =
-                        sh_audio->format = mmioFOURCC('v','r','b','s');
-                else
+                wf->wFormatTag =
+                sh_audio->format = get4CC(supported_audio, format_name);
+                if ( !(wf->wFormatTag) )
                     mp_msg(MSGT_DEMUX, MSGL_WARN,
                            "Unknown MPlayer format code for MIME"
                            " type \"audio/%s\"\n", format_name);
@@ -178,12 +256,11 @@ demuxer_t* demux_open_rtp(demuxer_t* demuxer)
                        " ignoring...\n");
             }
         } else if (ptinfo->type == VI) {
-            if (ndsd->session[NEMESI_SESSION_AUDIO] == NULL) {
+            if (ndsd->session[NEMESI_SESSION_VIDEO] == NULL) {
                 sh_video_t* sh_video;
                 BITMAPINFOHEADER* bih;
                 demux_stream_t* d_video;
                 int fps = 0;
-                rtp_buff buff;
 
                 mp_msg(MSGT_DEMUX, MSGL_INFO, "Detected as VIDEO stream...\n");
 
@@ -205,20 +282,14 @@ demuxer_t* demux_open_rtp(demuxer_t* demuxer)
                 d_video->sh = sh_video;
                 sh_video->ds = d_video;
 
-                if (fps)
+                if (fps) {
                     sh_video->fps = fps;
+                    sh_video->frametime = 1.0/fps;
+                }
 
-                //List of known video formats
-                if (!strcmp(format_name, "MPV")) {
-                    bih->biCompression =
-                        sh_video->format = mmioFOURCC('M','P','E','G');
-                } else if (!strcmp(format_name, "H264")) {
-                    bih->biCompression =
-                        sh_video->format = mmioFOURCC('H','2','6','4');
-                } else if (!strcmp(format_name, "H263-1998")) {
-                    bih->biCompression =
-                        sh_video->format = mmioFOURCC('H','2','6','3');
-                } else {
+                bih->biCompression =
+                sh_video->format = get4CC(supported_video, format_name);
+                if ( !(bih->biCompression) ) {
                     mp_msg(MSGT_DEMUX, MSGL_WARN,
                         "Unknown MPlayer format code for MIME"
                         " type \"video/%s\"\n", format_name);
@@ -239,82 +310,77 @@ demuxer_t* demux_open_rtp(demuxer_t* demuxer)
 }
 
 static int get_data_for_session(Nemesi_DemuxerStreamData * ndsd,
-                                Nemesi_SessionType stype, rtp_frame * fr)
+                                Nemesi_SessionType stype, rtp_ssrc * ssrc,
+                                rtp_frame * fr)
 {
-    rtsp_ctrl * ctl = ndsd->rtsp;
-    rtp_ssrc *ssrc = NULL;
-
-    for (ssrc = rtp_active_ssrc_queue(rtsp_get_rtp_queue(ctl));
-         ssrc;
-         ssrc = rtp_next_active_ssrc(ssrc)) {
-        if (ssrc->rtp_sess == ndsd->session[stype]) {
-            if (ndsd->first_pkt[stype].len != 0) {
-                fr->data = ndsd->first_pkt[stype].data;
-                fr->time_sec = ndsd->first_pkt[stype].time_sec;
-                fr->len = ndsd->first_pkt[stype].len;
-                ndsd->first_pkt[stype].len = 0;
-                return RTP_FILL_OK;
-            } else {
-                rtp_buff buff;
-                return rtp_fill_buffer(ssrc, fr, &buff);
-            }
-        }
+    if (ndsd->first_pkt[stype].len != 0) {
+        fr->data = ndsd->first_pkt[stype].data;
+        fr->time_sec = ndsd->first_pkt[stype].time_sec;
+        fr->len = ndsd->first_pkt[stype].len;
+        ndsd->first_pkt[stype].len = 0;
+        return RTP_FILL_OK;
+    } else {
+        rtp_buff buff;
+        return rtp_fill_buffer(ssrc, fr, &buff);
     }
-
-    return RTP_SSRC_NOTVALID;
 }
 
-int demux_rtp_fill_buffer(demuxer_t* demuxer, demux_stream_t* ds)
+static void stream_add_packet(Nemesi_DemuxerStreamData * ndsd, 
+                              Nemesi_SessionType stype,
+                              demux_stream_t* ds, rtp_frame * fr)
+{
+    demux_packet_t* dp = new_demux_packet(fr->len);
+    memcpy(dp->buffer, fr->data, fr->len);
+
+    fr->time_sec += ndsd->seek;
+    ndsd->time[stype] = dp->pts = fr->time_sec;
+
+    ds_add_packet(ds, dp);
+}
+
+static int demux_rtp_fill_buffer(demuxer_t* demuxer, demux_stream_t* ds)
 {
     Nemesi_DemuxerStreamData * ndsd = demuxer->priv;
     Nemesi_SessionType stype;
-    rtsp_ctrl * ctl = ndsd->rtsp;
-    rtp_thread * rtp_th = rtsp_get_rtp_th(ctl);
+    rtp_ssrc * ssrc;
     rtp_frame fr;
 
-    demux_packet_t* dp;
-
-    if ( (!ctl->rtsp_queue) || (demuxer->stream->eof) || (rtp_fill_buffers(rtp_th)) ) {
+    if ( (!ndsd->rtsp->rtsp_queue) || (demuxer->stream->eof) ) {
         mp_msg(MSGT_DEMUX, MSGL_INFO, "End of Stream...\n");
         demuxer->stream->eof = 1;
         return 0;
     }
 
-    if (ds == demuxer->video)
-        stype = NEMESI_SESSION_VIDEO;
-    else if (ds == demuxer->audio)
-        stype = NEMESI_SESSION_AUDIO;
-    else
+    memset(&fr, 0, sizeof(fr));
+
+    stype = DS_TO_STYPE(demuxer, ds);
+    if ( (ssrc = wait_for_packets(ndsd, stype)) == NULL ) {
+        mp_msg(MSGT_DEMUX, MSGL_INFO, "Bye...\n");
+        demuxer->stream->eof = 1;
         return 0;
-
-    if(!get_data_for_session(ndsd, stype, &fr)) {
-        dp = new_demux_packet(fr.len);
-        memcpy(dp->buffer, fr.data, fr.len);
-        fr.time_sec += ndsd->seek;
-        ndsd->time[stype] = dp->pts = fr.time_sec;
-        ds_add_packet(ds, dp);
     }
-    else {
-        stype = (stype + 1) % 2;
-        if (stype == NEMESI_SESSION_VIDEO)
-            ds = demuxer->video;
-        else
-            ds = demuxer->audio;
 
-        if(!get_data_for_session(ndsd, stype, &fr)) {
-            dp = new_demux_packet(fr.len);
-            memcpy(dp->buffer, fr.data, fr.len);
-            fr.time_sec += ndsd->seek;
-            ndsd->time[stype] = dp->pts = fr.time_sec;
-            ds_add_packet(ds, dp);
-        }
+    if(!get_data_for_session(ndsd, stype, ssrc, &fr))
+        stream_add_packet(ndsd, stype, ds, &fr);
+    else {
+        stype = INVERT_STYPE(stype);
+
+        //Must check if we actually have a stream of the other type
+        if (!ndsd->session[stype])
+            return 1;
+
+        ds = STYPE_TO_DS(demuxer, stype);
+        ssrc = wait_for_packets(ndsd, stype);
+
+        if(!get_data_for_session(ndsd, stype, ssrc, &fr))
+            stream_add_packet(ndsd, stype, ds, &fr);
     }
 
     return 1;
 }
 
 
-void demux_close_rtp(demuxer_t* demuxer)
+static void demux_close_rtp(demuxer_t* demuxer)
 {
     Nemesi_DemuxerStreamData * ndsd = demuxer->priv;
     rtsp_ctrl * ctl = ndsd->rtsp;
@@ -425,13 +491,13 @@ static int demux_rtp_control(struct demuxer_st *demuxer, int cmd, void *arg)
     }
 }
 
-demuxer_desc_t demuxer_desc_rtp = {
-  "libNemesi demuxer",
-  "rtp",
+const demuxer_desc_t demuxer_desc_rtp_nemesi = {
+  "libnemesi RTP demuxer",
+  "nemesi",
   "",
   "Alessandro Molina",
-  "requires libNemesi",
-  DEMUXER_TYPE_RTP,
+  "requires libnemesi",
+  DEMUXER_TYPE_RTP_NEMESI,
   0, // no autodetect
   NULL,
   demux_rtp_fill_buffer,

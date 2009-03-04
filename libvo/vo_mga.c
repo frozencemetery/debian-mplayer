@@ -1,5 +1,21 @@
-/* 
- *    output through mga_vid kernel driver
+/*
+ * video output through mga_vid kernel driver
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <stdio.h>
@@ -22,7 +38,7 @@
 #include "sub.h"
 #include "aspect.h"
 
-static vo_info_t info = 
+static const vo_info_t info = 
 {
 	"Matrox G200/G4x0/G550 overlay (/dev/mga_vid)",
 	"mga",
@@ -30,7 +46,7 @@ static vo_info_t info =
 	"Based on some code by Aaron Holtzman <aholtzma@ess.engr.uvic.ca>"
 };
 
-LIBVO_EXTERN(mga)
+const LIBVO_EXTERN(mga)
 
 #include "mga_common.c"
 

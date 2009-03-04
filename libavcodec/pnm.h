@@ -1,6 +1,6 @@
 /*
  * PNM image format
- * Copyright (c) 2002, 2003 Fabrice Bellard.
+ * Copyright (c) 2002, 2003 Fabrice Bellard
  *
  * This file is part of FFmpeg.
  *
@@ -19,8 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef PNM_H
-#define PNM_H
+#ifndef AVCODEC_PNM_H
+#define AVCODEC_PNM_H
 
 #include "avcodec.h"
 
@@ -34,4 +34,4 @@ typedef struct PNMContext {
 
 int ff_pnm_decode_header(AVCodecContext *avctx, PNMContext * const s);
 
-#endif /* PNM_H */
+#endif /* AVCODEC_PNM_H */

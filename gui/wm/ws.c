@@ -1,8 +1,23 @@
-
-// --------------------------------------------------------------------------
-//  AutoSpace Window System for Linux/Win32 v0.85
-//   Writed by pontscho/fresh!mindworkz
-// --------------------------------------------------------------------------
+/*
+ * AutoSpace Window System for Linux/Win32 v0.85
+ * written by pontscho/fresh!mindworkz
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <X11/Xlib.h>
 #include <X11/Xproto.h>
@@ -18,30 +33,30 @@
 
 #include <inttypes.h>
 
-#include "../config.h"
-#include "../libvo/x11_common.h"
-#include "../libvo/video_out.h"
+#include "config.h"
+#include "libvo/x11_common.h"
+#include "libvo/video_out.h"
+#include "cpudetect.h"
+#include "libswscale/swscale.h"
+#include "libswscale/rgb2rgb.h"
+#include "libmpcodecs/vf_scale.h"
+#include "mp_msg.h"
+#include "help_mp.h"
+#include "mplayer.h"
+#include "mpbswap.h"
 #include "ws.h"
 #include "wsxdnd.h"
-#include "../cpudetect.h"
-#include "../libswscale/swscale.h"
-#include "../libswscale/rgb2rgb.h"
-#include "../libmpcodecs/vf_scale.h"
-#include "../mp_msg.h"
-#include "../help_mp.h"
-#include "../mplayer.h"
-#include "../mpbswap.h"
 
 #include <X11/extensions/XShm.h>
-#ifdef HAVE_XSHAPE
+#ifdef CONFIG_XSHAPE
 #include <X11/extensions/shape.h>
 #endif
 
-#ifdef HAVE_XINERAMA
+#ifdef CONFIG_XINERAMA
 #include <X11/extensions/Xinerama.h>
 #endif
 
-#ifdef HAVE_XF86VM
+#ifdef CONFIG_XF86VM
 #include <X11/extensions/xf86vmode.h>
 #endif
 
@@ -220,7 +235,7 @@ wsXDNDInitialize();
    mp_msg( MSGT_GPLAYER,MSGL_ERR,MSGTR_WS_NoXshm );
    wsUseXShm=0;
   }
-#ifdef HAVE_XSHAPE
+#ifdef CONFIG_XSHAPE
   if ( !XShapeQueryExtension( wsDisplay,&eventbase,&errorbase ) )
    {
     mp_msg( MSGT_GPLAYER,MSGL_ERR,MSGTR_WS_NoXshape );
@@ -234,7 +249,7 @@ wsXDNDInitialize();
 
  wsScreen=DefaultScreen( wsDisplay );
  wsRootWin=RootWindow( wsDisplay,wsScreen );
-#ifdef HAVE_XF86VM
+#ifdef CONFIG_XF86VM
     {
       int clock;
       XF86VidModeModeLine modeline;
@@ -263,7 +278,7 @@ wsXDNDInitialize();
    int minor,major,shp;
    mp_msg( MSGT_GPLAYER,MSGL_DBG2,"[ws] Screen depth: %d\n",wsDepthOnScreen );
    mp_msg( MSGT_GPLAYER,MSGL_DBG2,"[ws]  size: %dx%d\n",wsMaxX,wsMaxY );
-#ifdef HAVE_XINERAMA
+#ifdef CONFIG_XINERAMA
    mp_msg( MSGT_GPLAYER,MSGL_DBG2,"[ws]  origin: +%d+%d\n",wsOrgX,wsOrgY );
 #endif
    mp_msg( MSGT_GPLAYER,MSGL_DBG2,"[ws]  red mask: 0x%x\n",wsRedMask );
@@ -274,7 +289,7 @@ wsXDNDInitialize();
      XShmQueryVersion( wsDisplay,&major,&minor,&shp );
      mp_msg( MSGT_GPLAYER,MSGL_DBG2,"[ws] XShm version is %d.%d\n",major,minor );
     }
-   #ifdef HAVE_XSHAPE
+   #ifdef CONFIG_XSHAPE
     if ( wsUseXShape )
      {
       XShapeQueryVersion( wsDisplay,&major,&minor );
@@ -1205,7 +1220,7 @@ static int timeout_save=0;
 void wsScreenSaverOn( Display *mDisplay )
 {
  int nothing;
-#ifdef HAVE_XDPMS
+#ifdef CONFIG_XDPMS
  if ( dpms_disabled )
   {
    if ( DPMSQueryExtension( mDisplay,&nothing,&nothing ) )
@@ -1235,7 +1250,7 @@ void wsScreenSaverOn( Display *mDisplay )
 void wsScreenSaverOff( Display * mDisplay )
 {
  int interval,prefer_blank,allow_exp,nothing;
-#ifdef HAVE_XDPMS
+#ifdef CONFIG_XDPMS
  if ( DPMSQueryExtension( mDisplay,&nothing,&nothing ) )
   {
    BOOL onoff;
@@ -1258,7 +1273,7 @@ void wsScreenSaverOff( Display * mDisplay )
 
 void wsSetShape( wsTWindow * win,char * data )
 {
-#ifdef HAVE_XSHAPE
+#ifdef CONFIG_XSHAPE
  if ( !wsUseXShape ) return;
  if ( data )
   {

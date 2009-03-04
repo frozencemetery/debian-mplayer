@@ -20,15 +20,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * Modified for use with MPlayer, see libmpeg-0.4.1.diff for the exact changes.
- * detailed changelog at http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: idct_alpha.c 21542 2006-12-09 10:34:27Z henry $
  */
 
 #include "config.h"
 
-#ifdef ARCH_ALPHA
+#if ARCH_ALPHA
 
 #include <stdlib.h>
 #include <inttypes.h>
@@ -161,7 +157,6 @@ static inline void idct_col (int16_t * const block)
     block[8*7] = (a0 - b0) >> 17;
 }
 
-#ifdef CAN_COMPILE_ALPHA_MVI
 void mpeg2_idct_copy_mvi (int16_t * block, uint8_t * dest, const int stride)
 {
     uint64_t clampmask;
@@ -294,7 +289,6 @@ void mpeg2_idct_add_mvi (const int last, int16_t * block,
 	stq (p7, dest + 7 * stride);
     }
 }
-#endif
 
 void mpeg2_idct_copy_alpha (int16_t * block, uint8_t * dest, const int stride)
 {
@@ -370,8 +364,6 @@ void mpeg2_idct_add_alpha (const int last, int16_t * block,
 
 void mpeg2_idct_alpha_init (void)
 {
-    extern uint8_t mpeg2_scan_norm[64];
-    extern uint8_t mpeg2_scan_alt[64];
     int i, j;
 
     for (i = 0; i < 64; i++) {

@@ -1,11 +1,10 @@
 /*
  * Modified for use with MPlayer, detailed changelog at
  * http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: com.h 22343 2007-02-25 14:59:53Z voroshil $
  */
 
-#ifndef AVIFILE_COM_H
-#define AVIFILE_COM_H
+#ifndef MPLAYER_COM_H
+#define MPLAYER_COM_H
 
 #include "config.h"
 
@@ -18,8 +17,6 @@
 /**
  * Internal functions and structures for COM emulation code.
  */
-
-#if !defined(WIN32) || defined(__CYGWIN__) || defined(__MINGW32__)
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,9 +48,9 @@ struct IUnknown;
 struct IClassFactory;
 struct IUnknown_vt
 {
-    long STDCALL (*QueryInterface)(struct IUnknown* _this, const GUID* iid, void** ppv);
-    long STDCALL (*AddRef)(struct IUnknown* _this) ;
-    long STDCALL (*Release)(struct IUnknown* _this) ;
+    long STDCALL (*QueryInterface)(struct IUnknown* this, const GUID* iid, void** ppv);
+    long STDCALL (*AddRef)(struct IUnknown* this) ;
+    long STDCALL (*Release)(struct IUnknown* this) ;
 } ;
 
 typedef struct IUnknown
@@ -63,10 +60,10 @@ typedef struct IUnknown
 
 struct IClassFactory_vt
 {
-    long STDCALL (*QueryInterface)(struct IUnknown* _this, const GUID* iid, void** ppv);
-    long STDCALL (*AddRef)(struct IUnknown* _this) ;
-    long STDCALL (*Release)(struct IUnknown* _this) ;
-    long STDCALL (*CreateInstance)(struct IClassFactory* _this, struct IUnknown* pUnkOuter, const GUID* riid, void** ppvObject);
+    long STDCALL (*QueryInterface)(struct IUnknown* this, const GUID* iid, void** ppv);
+    long STDCALL (*AddRef)(struct IUnknown* this) ;
+    long STDCALL (*Release)(struct IUnknown* this) ;
+    long STDCALL (*CreateInstance)(struct IClassFactory* this, struct IUnknown* pUnkOuter, const GUID* riid, void** ppvObject);
 };
 
 struct IClassFactory
@@ -90,6 +87,4 @@ void  STDCALL  CoTaskMemFree(void*);
 };
 #endif /* __cplusplus */
 
-#endif /* WIN32 */
-
-#endif /* AVIFILE_COM_H */
+#endif /* MPLAYER_COM_H */

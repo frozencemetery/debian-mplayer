@@ -1,5 +1,22 @@
-
-// main window
+/*
+ * main window
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -8,35 +25,35 @@
 #include <unistd.h>
 #include <string.h>
 
+#include "config.h"
 #include "gmplayer.h"
-#include "app.h"
-#include "skin/font.h"
-#include "skin/skin.h"
-#include "wm/ws.h"
+#include "gui/app.h"
+#include "gui/skin/font.h"
+#include "gui/skin/skin.h"
+#include "gui/wm/ws.h"
 
-#include "../config.h"
-#include "../help_mp.h"
-#include "../libvo/x11_common.h"
-#include "../libvo/fastmemcpy.h"
+#include "help_mp.h"
+#include "libvo/x11_common.h"
+#include "libvo/fastmemcpy.h"
 
-#include "../stream/stream.h"
-#include "../stream/url.h"
-#include "../mixer.h"
-#include "../libvo/sub.h"
-#include "../access_mpcontext.h"
+#include "stream/stream.h"
+#include "stream/url.h"
+#include "mixer.h"
+#include "libvo/sub.h"
+#include "access_mpcontext.h"
 
-#include "../libmpdemux/demuxer.h"
-#include "../libmpdemux/stheader.h"
-#include "../codec-cfg.h"
-#include "../m_option.h"
-#include "../m_property.h"
+#include "libmpdemux/demuxer.h"
+#include "libmpdemux/stheader.h"
+#include "codec-cfg.h"
+#include "m_option.h"
+#include "m_property.h"
 
 #define GUI_REDRAW_WAIT 375
 
 #include "play.h"
 #include "widgets.h"
 
-extern unsigned int GetTimerMS( void );
+unsigned int GetTimerMS( void );
 
 unsigned char * mplDrawBuffer = NULL;
 int             mplMainRender = 1;
@@ -50,7 +67,7 @@ int             boxMoved = 0;
 int             sx = 0,sy = 0;
 int             i,pot = 0;
 
-#include "common.h"
+#include "gui_common.h"
 
 void mplMainDraw( void )
 {
@@ -111,7 +128,7 @@ void mplEventHandling( int msg,float param )
         mp_property_do("sub",M_PROPERTY_SET,&iparam,guiIntfStruct.mpcontext); 
 	break;
 
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
    case evSetVCDTrack:
         guiIntfStruct.Track=iparam;
    case evPlayVCD:
@@ -119,7 +136,7 @@ void mplEventHandling( int msg,float param )
 	guiIntfStruct.StreamType=STREAMTYPE_VCD;
 	goto play;
 #endif
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
    case evPlayDVD:
         guiIntfStruct.DVD.current_title=1;
         guiIntfStruct.DVD.current_chapter=1;
@@ -148,7 +165,7 @@ play:
 	  case STREAMTYPE_FILE:
 	       gtkSet( gtkClearStruct,0,(void *)(guiALL - guiFilenames) );
 	       break;
-#ifdef HAVE_VCD
+#ifdef CONFIG_VCD
           case STREAMTYPE_VCD:
 	       gtkSet( gtkClearStruct,0,(void *)(guiALL - guiVCD - guiFilenames) );
 	       if ( !cdrom_device ) cdrom_device=gstrdup( DEFAULT_CDROM_DEVICE );
@@ -164,7 +181,7 @@ play:
 		}
 	       break;
 #endif
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
           case STREAMTYPE_DVD:
 	       gtkSet( gtkClearStruct,0,(void *)(guiALL - guiDVD - guiFilenames) );
 	       if ( !dvd_device ) dvd_device=gstrdup( DEFAULT_DVD_DEVICE );
@@ -182,7 +199,7 @@ play:
 	guiIntfStruct.NewPlay=1;
         mplPlay();
         break;
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
    case evSetDVDSubtitle:
         dvdsub_id=iparam;
         goto play_dvd_2;
@@ -339,7 +356,7 @@ set_volume:
 	  default: movie_aspect=-1;
 	 }
 	wsClearWindow( appMPlayer.subWindow );
-#ifdef USE_DVDREAD
+#ifdef CONFIG_DVDREAD
 	if ( guiIntfStruct.StreamType == STREAMTYPE_DVD || guiIntfStruct.StreamType == STREAMTYPE_VCD ) goto play_dvd_2;
 	 else 
 #endif

@@ -1,20 +1,22 @@
 /*
-    Copyright (C) 2004 Michael Niedermayer <michaelni@gmx.at>
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-*/
+ * Copyright (C) 2004 Michael Niedermayer <michaelni@gmx.at>
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,34 +28,17 @@
 
 #include "mp_msg.h"
 #include "cpudetect.h"
-
-#if 1
-double ff_eval(char *s, double *const_value, const char **const_name,
-               double (**func1)(void *, double), const char **func1_name,
-               double (**func2)(void *, double, double), char **func2_name,
-               void *opaque);
-#endif
-
-// Needed to bring in lrintf.
-#define HAVE_AV_CONFIG_H
-
-#include "libavcodec/avcodec.h"
-#include "libavcodec/dsputil.h"
-#include "libavutil/common.h"
-
-/* FIXME: common.h defines fprintf away when HAVE_AV_CONFIG
- * is defined, but mp_image.h needs fprintf.
- */
-#undef fprintf
-
-#ifdef HAVE_MALLOC_H
-#include <malloc.h>
-#endif
-
 #include "img_format.h"
 #include "mp_image.h"
 #include "vf.h"
 #include "libvo/fastmemcpy.h"
+
+#include "libavcodec/avcodec.h"
+#include "libavcodec/eval.h"
+
+#if HAVE_MALLOC_H
+#include <malloc.h>
+#endif
 
 
 struct vf_priv_s {
@@ -88,7 +73,10 @@ static int config(struct vf_instance_s* vf,
                 NULL
             };
 
-            vf->priv->lut[i+129]= lrintf(ff_eval(vf->priv->eq, const_values, const_names, NULL, NULL, NULL, NULL, NULL));
+            const char *error = NULL;
+            vf->priv->lut[i+129]= lrintf(ff_eval2(vf->priv->eq, const_values, const_names, NULL, NULL, NULL, NULL, NULL, &error));
+            if (error)
+                mp_msg(MSGT_VFILTER, MSGL_ERR, "qp: Error evaluating \"%s\": %s\n", vf->priv->eq, error);
         }
 
 	return vf_next_config(vf,width,height,d_width,d_height,flags,outfmt);
@@ -180,7 +168,7 @@ static int open(vf_instance_t *vf, char* args){
     return 1;
 }
 
-vf_info_t vf_info_qp = {
+const vf_info_t vf_info_qp = {
     "QP changer",
     "qp",
     "Michael Niedermayer",
