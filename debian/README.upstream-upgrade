@@ -1,0 +1,43 @@
+Checklist and howto for mplayer upstream upgrades:
+
+Needed packages:
+
+  apt-get install devscripts git-buildpackage pristine-tar
+
+Stage in a tmp directory:
+
+  mkdir /tmp/m ; cd /tmp/m
+  git clone git://git.debian.org/git/pkg-multimedia/mplayer-debian.git
+  cd mplayer-debian
+  branches="master.unstripped pristine-tar upstream upstream.unstripped"
+  for b in $branches; do git checkout -b $b origin/$b ; done
+
+Prepare the environment:
+
+  SVNDATE=`date +%Y%m%d`
+  git checkout master
+
+Fetch and commit the new upstream version:
+
+  debian/rules get-orig-source SVN_VERSION=${SVNDATE}
+  git-import-orig \
+            --debian-branch=master \
+            --upstream-branch=upstream \
+            --pristine-tar \
+            --no-dch \
+            --upstream-tag=upstream/0.svn${SVNDATE} \
+            ../mplayer_0.svn${SVNDATE}.orig.tar.gz
+
+  git checkout master.unstripped
+  git-import-orig \
+            --debian-branch=master.unstripped \
+            --upstream-branch=upstream.unstripped \
+            --pristine-tar \
+            --no-dch \
+            --upstream-tag=upstream.unstripped/0.svn${SVNDATE}-unstripped \
+            --upstream-version=0.svn${SVNDATE}-unstripped \
+            ../mplayer-non-DFSG_0.svn${SVNDATE}.orig.tar.gz
+
+  git checkout master
+
+more comments will follow..
