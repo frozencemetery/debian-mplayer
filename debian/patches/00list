@@ -1,22 +1,4 @@
-10configure-alpha.dpatch
 11configure-mktemp.dpatch
-12configure-vidix-alpha.dpatch
 22disable-xscreensaver.dpatch
-24mplayer.desktop.dpatch
-25mplayer-desktop.dpatch
-25kFreeBDS.dpatch
-30vorbis-block-alloc.dpatch
-40rtsp_demux.dpatch
-51xsai.dpatch
-CVE-2008-0630.diff
-CVE-2008-0629--stream_cddb.c.diff
-CVE-2008-0073--rtsp_fix.diff
-demux_mov_fix_20080129.diff
-demux_audio_fix_20080129.diff
-mplayer-debug-printf.dpatch
-shared_linking_to_ffmpeg.dpatch
-to-ffmpeg-free-0.svn20080206.diff
-demux.patch
-theora_length_fix_svn27354.diff
-oCERT-2008-013--realfix.diff
-SA33136_demux_vqf.c.diff
+# mplayer-debug-printf.dpatch
+# shared_linking_to_ffmpeg.dpatch
