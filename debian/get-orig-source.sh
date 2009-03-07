@@ -99,7 +99,7 @@ done
 
 # this doesn't belong in strip.sh, because the unstripped source should
 # have this directory renamed as well.
-( cd ${TMPDIR}/${PACKAGENAME} && mv debian debian_upstream )
+( cd ${TMPDIR}/${PACKAGENAME} && rm -rfv debian )
 
 ( cd ${TMPDIR}/ && mv ${PACKAGENAME} ${PACKAGENAME}-${SVNDATE} )
 
