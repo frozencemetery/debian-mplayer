@@ -7,8 +7,8 @@ Needed packages:
 Stage in a tmp directory:
 
   mkdir /tmp/m ; cd /tmp/m
-  git clone git://git.debian.org/git/pkg-multimedia/mplayer-debian.git
-  cd mplayer-debian
+  git clone git://git.debian.org/git/pkg-multimedia/mplayer.git
+  cd mplayer
   branches="master.unstripped pristine-tar upstream upstream.unstripped"
   for b in $branches; do git checkout -b $b origin/$b ; done
 
