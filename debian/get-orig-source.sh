@@ -101,12 +101,13 @@ done
 # have this directory renamed as well.
 ( cd ${TMPDIR}/${PACKAGENAME} && mv debian debian_upstream )
 
+( cd ${TMPDIR}/ && mv ${PACKAGENAME} ${PACKAGENAME}-${SVNDATE} )
 
-tar czf ${TARBALL_UNSTRIPPED} -C ${TMPDIR} ${PACKAGENAME}
+tar czf ${TARBALL_UNSTRIPPED} -C ${TMPDIR} ${PACKAGENAME}-${SVNDATE}
 	
-( cd ${TMPDIR}/${PACKAGENAME} && sh ${CLEANUPSCRIPT} )
+( cd ${TMPDIR}/${PACKAGENAME}-${SVNDATE} && sh ${CLEANUPSCRIPT} )
 
-tar czf ${TARBALL} -C ${TMPDIR} ${PACKAGENAME}
+tar czf ${TARBALL} -C ${TMPDIR} ${PACKAGENAME}-${SVNDATE}
 
 # print diff
 ( cd ${TMPDIR} && ptardiff ${TARBALL_UNSTRIPPED} ) | tee ${TARBALL}.diff
