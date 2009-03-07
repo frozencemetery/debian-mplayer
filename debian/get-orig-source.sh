@@ -67,8 +67,8 @@ if [ -z $SVNDATE ]; then
 fi
 
 CLEANUPSCRIPT=`pwd`/debian/strip.sh
-TARBALL=`pwd`/../mplayer_1.0~svn${SVNDATE}.orig.tar.gz
-TARBALL_UNSTRIPPED=`pwd`/../mplayer-non-dfsg_1.0~svn${SVNDATE}.orig.tar.gz
+TARBALL=`pwd`/../mplayer_1.0~rc2+svn${SVNDATE}.orig.tar.gz
+TARBALL_UNSTRIPPED=`pwd`/../mplayer-non-dfsg_1.0~rc2+svn${SVNDATE}.orig.tar.gz
 PACKAGENAME=mplayer
 
 TMPDIR=`mktemp -d`
