@@ -1,6 +1,36 @@
 mplayer (1.0~rc2+svn20090303-1) UNRELEASED; urgency=low
 
-  * describe changes here.
+  * new upstream snapshot, Closes: #517774
+  * rebuild against new ffmpeg in unstable, Closes: #518670, #516933, #492229
+  * converted package to use git Closes: #508483
+  * completly reworked the way the .orig.tar.gz is created, please see
+    debian/README.upstream-upgrade and debian/get-orig-source.sh for details
+  * large refactoring of debian/control and debian/rules
+  * dropped many unnecessary versioned build dependencies
+  * bumped debhelper compatibility level 4->7
+  * replace patch system from dpatch to quilt
+  * dropped the following patches, merged upstream:
+        - 10configure-alpha.dpatch
+        - 12configure-vidix-alpha.dpatch
+        - 24mplayer.desktop.dpatch
+        - 25kFreeBDS.dpatch
+        - 25mplayer-desktop.dpatch
+        - 30vorbis-block-alloc.dpatch
+        - 40rtsp_demux.dpatch
+        - 51xsai.dpatch
+        - CVE-2008-0073--rtsp_fix.diff
+        - CVE-2008-0629--stream_cddb.c.diff
+        - CVE-2008-0630.diff
+        - SA33136_demux_vqf.c.diff
+        - demux.patch
+        - demux_audio_fix_20080129.diff
+        - demux_mov_fix_20080129.diff
+        - oCERT-2008-013--realfix.diff
+        - theora_length_fix_svn27354.diff
+        - to-ffmpeg-free-0.svn20080206.diff
+   * reworked the way the control file for the mplayer-non-dfsg package is
+     handled: it now copied from debian/control.mplayer-non-dfsg. Add a
+     debian/control target in debian rules.
 
  -- Reinhard Tartler <siretart@tauware.de>  Mon, 02 Mar 2009 22:19:20 +0100
 
