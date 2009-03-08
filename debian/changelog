@@ -1,7 +1,8 @@
 mplayer (1.0~rc2+svn20090303-1) UNRELEASED; urgency=low
 
   * new upstream snapshot, Closes: #517774
-  * rebuild against new ffmpeg in unstable, Closes: #518670, #516933, #492229
+  * rebuild against new ffmpeg in unstable,
+    Closes: #518670, #516933, #492229, #505048
   * converted package to use git Closes: #508483
   * completly reworked the way the .orig.tar.gz is created, please see
     debian/README.upstream-upgrade and debian/get-orig-source.sh for details
