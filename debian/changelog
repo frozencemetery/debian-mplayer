@@ -29,9 +29,10 @@ mplayer (1.0~rc2+svn20090303-1) UNRELEASED; urgency=low
         - oCERT-2008-013--realfix.diff
         - theora_length_fix_svn27354.diff
         - to-ffmpeg-free-0.svn20080206.diff
-   * reworked the way the control file for the mplayer-non-dfsg package is
-     handled: it now copied from debian/control.mplayer-non-dfsg. Add a
-     debian/control target in debian rules.
+  * reworked the way the control file for the mplayer-non-dfsg package is
+    handled: it now copied from debian/control.mplayer-non-dfsg. Add a
+    debian/control target in debian rules.
+  * do not run the actual rules of debian/rules in parallel, fixes FTBFS
 
  -- Reinhard Tartler <siretart@tauware.de>  Mon, 02 Mar 2009 22:19:20 +0100
 
