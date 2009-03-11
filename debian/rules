@@ -5,6 +5,10 @@ include /usr/share/quilt/quilt.make
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
+# do not run the actual rules of this makefile in parallel. sub-makes
+# can go in parallel
+.NOTPARALLEL:
+
 ############
 
 DEB_SOURCE := $(shell dpkg-parsechangelog | sed -n 's/^Source: //p')
