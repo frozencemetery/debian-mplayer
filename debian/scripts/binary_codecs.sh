@@ -180,7 +180,10 @@ case "$1" in
             INSTALL "$url"  "$dir"  "$file"
           fi
         done
-      if test "$dpkgarch" = powerpc && ! test -r /usr/lib/libstdc++.so.5 ; then
+      needlibstd=no
+      test "$dpkgarch" = "powerpc" && needlibstd=yes
+      test "$dpkgarch" = "i386" && needlibstd=yes
+      if test "$needlibstd" = "yes" && ! test -r /usr/lib/libstdc++.so.5 ; then
 	  echo 'Warning: you need to install libstdc++ 5 libraries'
 	  echo -n 'Do it now? '
 	  read R
