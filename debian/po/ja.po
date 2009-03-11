@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the mplayer package.
 # Noritada Kobayashi <noritadak@gmail.com>, 2007.
 # Hideki Yamane (Debian-JP) <henrich@debian.or.jp>, 2009.
-
 msgid ""
 msgstr ""
 "Project-Id-Version: mplayer 1.0~rc2-20\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-12-19 10:27+0100\n"
+"Report-Msgid-Bugs-To: mplayer@packages.debian.org\n"
+"POT-Creation-Date: 2009-03-12 00:04+0100\n"
 "PO-Revision-Date: 2009-01-05 22:44+0900\n"
 "Last-Translator: Hideki Yamane (Debian-JP) <henrich@debian.or.jp>\n"
 "Language-Team: Japanese <debian-japanese@lists.debian.org>\n"
@@ -16,52 +15,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:1001
-msgid "Detailed configuration needed for each user"
-msgstr "詳細設定はユーザごとに必要です"
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:1001
-msgid ""
-"The performance of MPlayer depends heavily on hardware; this means that it "
-"may benefit from tweaking options for every single machine it's installed on."
-msgstr ""
-"MPlayer のパフォーマンスはハードウェアに非常に依存します。この意味するところは、"
-"ソフトがインストールされている個々のマシンでオプションをいじくるのが役立つことが"
-"ある、ということです。"
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:1001
-msgid ""
-"You should read the documentation provided by the 'mplayer-doc' package."
-msgstr ""
-"「mplayer-doc」パッケージで提供されているドキュメントを参照しましょう。"
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:1001
-msgid ""
-"Now, some configuration options will be set for the entire system in /etc/"
-"mplayer/mplayer.conf which may be adapted later. Any user can also refine "
-"options in ~/.mplayer/config."
-msgstr ""
-"さて、/etc/mplayer/mplayer.conf にてシステム全体に設定される設定オプションですが"
-"、後ほど変更もできます。各ユーザが ~/.mplayer/config で設定を再定義することも可能"
-"です。"
-
 #. Type: boolean
 #. Description
-#: ../mplayer.templates:2001
+#: ../mplayer.templates:1001
 msgid "Replace existing configuration file?"
 msgstr "既存の設定ファイルを置き換えますか?"
 
 #. Type: boolean
 #. Description
-#: ../mplayer.templates:2001
+#: ../mplayer.templates:1001
 msgid ""
 "An /etc/mplayer/mplayer.conf file already exists on the system and does not "
 "contain an automatically-generated part. That file can be replaced by a "
@@ -69,151 +31,147 @@ msgid ""
 "debconf-old)."
 msgstr ""
 "ファイル /etc/mplayer/mplayer.conf が既にシステム上に存在していますが、この"
-"ファイルには自動生成された部分が含まれていません。このファイルを生成したファイル"
-"で置き換えることが可能です (古いファイルは /etc/mplayer/mplayer.conf.debconf-old "
-"に移動します)。"
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:3001
-msgid "Old configuration file kept"
-msgstr "以前の設定ファイルの保持"
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:3001
-msgid "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
-msgstr "既存の /etc/mplayer/mplayer.conf ファイルを置き換えないことを選択しました。"
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:3001
-msgid ""
-"That file can be generated automatically later by running 'dpkg-reconfigure "
-"mplayer'."
-msgstr ""
-"このファイルは後ほど「dpkg-reconfigure mplayer」を実行して自動的に生成できます。"
+"ファイルには自動生成された部分が含まれていません。このファイルを生成したファ"
+"イルで置き換えることが可能です (古いファイルは /etc/mplayer/mplayer.conf."
+"debconf-old に移動します)。"
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:4001
+#: ../mplayer.templates:2001
 msgid "MPlayer video output:"
 msgstr "MPlayer ビデオ出力:"
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:4001
+#: ../mplayer.templates:2001
 msgid ""
 "MPlayer can use a very wide range of video output drivers. The needed driver "
 "may be detected automatically or chosen manually."
 msgstr ""
-"MPlayer は非常に多くの種類のビデオ出力ドライバを扱えます。必要なドライバが自動的に"
-"検出されるはずですが、手動で選択しても構いません。"
+"MPlayer は非常に多くの種類のビデオ出力ドライバを扱えます。必要なドライバが自"
+"動的に検出されるはずですが、手動で選択しても構いません。"
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:4001
+#: ../mplayer.templates:2001
 msgid ""
 "If you prefer choosing the driver yourself, you first should choose an entry "
 "matching this system's video card. If none match and the card supports 'XV', "
 "choose that option (the 'xvinfo' command may help)."
 msgstr ""
-"ドライバを自分自身で選択したい場合は、まずこのシステムのビデオカードに一致するもの"
-"を選びましょう。どれも合わないがカードが「XV」をサポートしている場合は、「XV」を"
-"選んでください (「xvinfo」コマンドが役立つでしょう)。"
+"ドライバを自分自身で選択したい場合は、まずこのシステムのビデオカードに一致す"
+"るものを選びましょう。どれも合わないがカードが「XV」をサポートしている場合"
+"は、「XV」を選んでください (「xvinfo」コマンドが役立つでしょう)。"
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:4001
+#: ../mplayer.templates:2001
 msgid ""
 "Please read the /usr/share/doc/mplayer-doc/HTML/en/video.html file from the "
 "'mplayer-doc' package for more details."
 msgstr ""
-"詳細については mplayer-doc パッケージにある /usr/share/doc/mplayer-doc/HTML/en/"
-"video.html ファイルを参照してください。"
+"詳細については mplayer-doc パッケージにある /usr/share/doc/mplayer-doc/HTML/"
+"en/video.html ファイルを参照してください。"
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:5001
-msgid "Binary codecs download"
-msgstr "バイナリコーデックのダウンロード"
+#~ msgid "Detailed configuration needed for each user"
+#~ msgstr "詳細設定はユーザごとに必要です"
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:5001
-msgid "MPlayer supports most video formats without additional software."
-msgstr "MPlayer は追加ソフトウェアが無くてもほとんどのビデオ形式をサポートしています。"
+#~ msgid ""
+#~ "The performance of MPlayer depends heavily on hardware; this means that "
+#~ "it may benefit from tweaking options for every single machine it's "
+#~ "installed on."
+#~ msgstr ""
+#~ "MPlayer のパフォーマンスはハードウェアに非常に依存します。この意味するとこ"
+#~ "ろは、ソフトがインストールされている個々のマシンでオプションをいじくるのが"
+#~ "役立つことがある、ということです。"
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:5001
-msgid ""
-"Additional video formats, such as Real 3.0/4.0, Windows Media 9, or "
-"Quicktime, can be supported by using binary codecs."
-msgstr ""
-"Real 3.0/4.0、Windows Media 9、Quicktime などその他のビデオ形式はバイナリ"
-"コーデックを使うことで利用可能です。"
+#~ msgid ""
+#~ "You should read the documentation provided by the 'mplayer-doc' package."
+#~ msgstr ""
+#~ "「mplayer-doc」パッケージで提供されているドキュメントを参照しましょう。"
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:5001
-msgid ""
-"As such codecs are not free software, they are not distributed with this "
-"package but can be downloaded freely. The '/usr/share/mplayer/scripts/"
-"binary_codecs.sh' script is provided in this package to help downloading "
-"them from the MPlayer web site."
-msgstr ""
-"これらのコーデックはフリーソフトウェアでは無いので、このパッケージと共に配布は"
-"できませんが自由にダウンロード可能です。このパッケージで提供されている「/usr/"
-"share/mplayer/scripts/binary_codecs.sh」スクリプトは MPlayer のウェブサイト"
-"からコーデックをダウンロードするのに役立ちます。"
+#~ msgid ""
+#~ "Now, some configuration options will be set for the entire system in /etc/"
+#~ "mplayer/mplayer.conf which may be adapted later. Any user can also refine "
+#~ "options in ~/.mplayer/config."
+#~ msgstr ""
+#~ "さて、/etc/mplayer/mplayer.conf にてシステム全体に設定される設定オプション"
+#~ "ですが、後ほど変更もできます。各ユーザが ~/.mplayer/config で設定を再定義"
+#~ "することも可能です。"
 
-#. Type: string
-#. Description
-#: ../mplayer.templates:6001
-msgid "DVD device name:"
-msgstr "DVD デバイス名:"
+#~ msgid "Old configuration file kept"
+#~ msgstr "以前の設定ファイルの保持"
 
-#. Type: string
-#. Description
-#: ../mplayer.templates:6001
-msgid "Please enter the name of the device for your DVD player, if any."
-msgstr "(デバイスがある場合は) DVD プレイヤとして使うデバイスの名前を入力してください。"
+#~ msgid ""
+#~ "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
+#~ msgstr ""
+#~ "既存の /etc/mplayer/mplayer.conf ファイルを置き換えないことを選択しまし"
+#~ "た。"
 
-#. Type: select
-#. Description
-#: ../mplayer.templates:7001
-msgid "Font for On Screen Display:"
-msgstr "オンスクリーンディスプレイ用フォント:"
+#~ msgid ""
+#~ "That file can be generated automatically later by running 'dpkg-"
+#~ "reconfigure mplayer'."
+#~ msgstr ""
+#~ "このファイルは後ほど「dpkg-reconfigure mplayer」を実行して自動的に生成でき"
+#~ "ます。"
+
+#~ msgid "Binary codecs download"
+#~ msgstr "バイナリコーデックのダウンロード"
+
+#~ msgid "MPlayer supports most video formats without additional software."
+#~ msgstr ""
+#~ "MPlayer は追加ソフトウェアが無くてもほとんどのビデオ形式をサポートしていま"
+#~ "す。"
+
+#~ msgid ""
+#~ "Additional video formats, such as Real 3.0/4.0, Windows Media 9, or "
+#~ "Quicktime, can be supported by using binary codecs."
+#~ msgstr ""
+#~ "Real 3.0/4.0、Windows Media 9、Quicktime などその他のビデオ形式はバイナリ"
+#~ "コーデックを使うことで利用可能です。"
+
+#~ msgid ""
+#~ "As such codecs are not free software, they are not distributed with this "
+#~ "package but can be downloaded freely. The '/usr/share/mplayer/scripts/"
+#~ "binary_codecs.sh' script is provided in this package to help downloading "
+#~ "them from the MPlayer web site."
+#~ msgstr ""
+#~ "これらのコーデックはフリーソフトウェアでは無いので、このパッケージと共に配"
+#~ "布はできませんが自由にダウンロード可能です。このパッケージで提供されている"
+#~ "「/usr/share/mplayer/scripts/binary_codecs.sh」スクリプトは MPlayer のウェ"
+#~ "ブサイトからコーデックをダウンロードするのに役立ちます。"
+
+#~ msgid "DVD device name:"
+#~ msgstr "DVD デバイス名:"
+
+#~ msgid "Please enter the name of the device for your DVD player, if any."
+#~ msgstr ""
+#~ "(デバイスがある場合は) DVD プレイヤとして使うデバイスの名前を入力してくだ"
+#~ "さい。"
+
+#~ msgid "Font for On Screen Display:"
+#~ msgstr "オンスクリーンディスプレイ用フォント:"
 
 # FIXME: TrueType should be TrueType.
-#. Type: error
-#. Description
-#: ../mplayer.templates:8001
-msgid "No TrueType fonts found for On Screen Display"
-msgstr "オンスクリーンディスプレイ用 TrueType フォントが見つかりませんでした"
+#~ msgid "No TrueType fonts found for On Screen Display"
+#~ msgstr ""
+#~ "オンスクリーンディスプレイ用 TrueType フォントが見つかりませんでした"
 
 # FIXME: TrueType should be TrueType.
-#. Type: error
-#. Description
-#: ../mplayer.templates:8001
-msgid ""
-"MPlayer needs at least one TrueType font for its 'On Screen Display' feature."
-msgstr ""
-"MPlayer は「オンスクリーンディスプレイ (OSD)」機能には少なくとも一つの TrueType "
-"フォントが必要となります。"
+#~ msgid ""
+#~ "MPlayer needs at least one TrueType font for its 'On Screen Display' "
+#~ "feature."
+#~ msgstr ""
+#~ "MPlayer は「オンスクリーンディスプレイ (OSD)」機能には少なくとも一つの "
+#~ "TrueType フォントが必要となります。"
 
 # FIXME: "truetype" should be "TrueType".
 # FIXME: Remove white spaces after "such as" and "'ttf-bitstream-vera' or".
-#. Type: error
-#. Description
-#: ../mplayer.templates:8001
-msgid ""
-"You should install a package providing such fonts (such as 'ttf-freefont' or "
-"'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by running "
-"'dpkg-reconfigure mplayer')."
-msgstr ""
-"TrueType フォントを提供しているパッケージ ('ttf-freefont' や 'ttf-bitstream-"
-"vera'、'msttcorefonts' など) をインストールし、その上で、(「dpkg-reconfigure "
-"mplayer」を実行して) MPlayer を再設定してください。"
-
+#~ msgid ""
+#~ "You should install a package providing such fonts (such as 'ttf-freefont' "
+#~ "or 'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by "
+#~ "running 'dpkg-reconfigure mplayer')."
+#~ msgstr ""
+#~ "TrueType フォントを提供しているパッケージ ('ttf-freefont' や 'ttf-"
+#~ "bitstream-vera'、'msttcorefonts' など) をインストールし、その上で、"
+#~ "(「dpkg-reconfigure mplayer」を実行して) MPlayer を再設定してください。"

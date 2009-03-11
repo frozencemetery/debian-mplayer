@@ -8,8 +8,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: mplayer_1.0rc1-17_ru\n"
-"Report-Msgid-Bugs-To: mennucc1@debian.org\n"
-"POT-Creation-Date: 2007-10-28 09:36+0100\n"
+"Report-Msgid-Bugs-To: mplayer@packages.debian.org\n"
+"POT-Creation-Date: 2009-03-12 00:04+0100\n"
 "PO-Revision-Date: 2007-10-25 20:56+0400\n"
 "Last-Translator: Yuri Kozlov <kozlov.y@gmail.com>\n"
 "Language-Team: Russian <debian-l10n-russian@lists.debian.org>\n"
@@ -20,52 +20,15 @@ msgstr ""
 "Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
 "10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid "Detailed configuration needed for each user"
-msgstr "Более точная настройка"
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid ""
-"The performance of MPlayer depends heavily on hardware; this means that it "
-"may benefit from tweaking options for every single machine it's installed on."
-msgstr ""
-"Производительность MPlayer'а сильно зависит от оборудования. Это означает, "
-"что можно получить бОльшую производительность, настроив параметры под "
-"конкретную систему, на котором он установлен."
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid ""
-"You should read the documentation provided by the 'mplayer-doc' package."
-msgstr ""
-"Вам следует ознакомиться с документацией поставляемой пакетом 'mplayer-doc'."
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid ""
-"Now, some configuration options will be set for the entire system in /etc/"
-"mplayer/mplayer.conf which may be adapted later. Any user can also refine "
-"options in ~/.mplayer/config."
-msgstr ""
-"Сейчас будут установлены общесистемные настройки в файл /etc/mplayer/mplayer."
-"conf, которые позже можно изменить. Также любой пользователь может изменять "
-"эти параметры, редактируя свой файл ~/.mplayer/config."
-
 #. Type: boolean
 #. Description
-#: ../mplayer.templates:3001
+#: ../mplayer.templates:1001
 msgid "Replace existing configuration file?"
 msgstr "Заменить существующий файл конфигурации?"
 
 #. Type: boolean
 #. Description
-#: ../mplayer.templates:3001
+#: ../mplayer.templates:1001
 msgid ""
 "An /etc/mplayer/mplayer.conf file already exists on the system and does not "
 "contain an automatically-generated part. That file can be replaced by a "
@@ -77,37 +40,15 @@ msgstr ""
 "(существующий файл будет переименован в /etc/mplayer/mplayer.conf.debconf-"
 "old)."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:4001
-msgid "Old configuration file kept"
-msgstr "Будет использоваться существующий файл конфигурации"
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:4001
-msgid "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
-msgstr "Вы выбрали не заменять существующий файл /etc/mplayer/mplayer.conf."
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:4001
-msgid ""
-"That file can be generated automatically later by running 'dpkg-reconfigure "
-"mplayer'."
-msgstr ""
-"Позже этот файл может быть сгенерирован автоматически выполнением 'dpkg-"
-"reconfigure mplayer'."
-
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid "MPlayer video output:"
 msgstr "Видео вывод MPlayer:"
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid ""
 "MPlayer can use a very wide range of video output drivers. The needed driver "
 "may be detected automatically or chosen manually."
@@ -117,7 +58,7 @@ msgstr ""
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid ""
 "If you prefer choosing the driver yourself, you first should choose an entry "
 "matching this system's video card. If none match and the card supports 'XV', "
@@ -130,7 +71,7 @@ msgstr ""
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid ""
 "Please read the /usr/share/doc/mplayer-doc/HTML/en/video.html file from the "
 "'mplayer-doc' package for more details."
@@ -138,84 +79,96 @@ msgstr ""
 "Подробности ищите в файле /usr/share/doc/mplayer-doc/HTML/en/video.html из "
 "пакета 'mplayer-doc'."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid "Binary codecs download"
-msgstr "Загрузка бинарных кодеков"
+#~ msgid "Detailed configuration needed for each user"
+#~ msgstr "Более точная настройка"
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid "MPlayer supports most video formats without additional software."
-msgstr ""
-"MPlayer поддерживает большинство видео форматов без дополнительного "
-"программного обеспечения."
+#~ msgid ""
+#~ "The performance of MPlayer depends heavily on hardware; this means that "
+#~ "it may benefit from tweaking options for every single machine it's "
+#~ "installed on."
+#~ msgstr ""
+#~ "Производительность MPlayer'а сильно зависит от оборудования. Это "
+#~ "означает, что можно получить бОльшую производительность, настроив "
+#~ "параметры под конкретную систему, на котором он установлен."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid ""
-"Additional video formats, such as Real 3.0/4.0, Windows Media 9, or "
-"Quicktime, can be supported by using binary codecs."
-msgstr ""
-"Поддержка дополнительных видео форматов, таких как Real 3.0/4.0, Windows "
-"Media 9 или Quicktime, может быть осуществлена посредством использования "
-"бинарных кодеков."
+#~ msgid ""
+#~ "You should read the documentation provided by the 'mplayer-doc' package."
+#~ msgstr ""
+#~ "Вам следует ознакомиться с документацией поставляемой пакетом 'mplayer-"
+#~ "doc'."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid ""
-"As such codecs are not free software, they are not distributed with this "
-"package but can be downloaded freely. The '/usr/share/mplayer/scripts/"
-"binary_codecs.sh' script is provided in this package to help downloading "
-"them from the MPlayer web site."
-msgstr ""
-"Так как бинарные кодеки не являются свободным программным обеспечением, они "
-"не входят в этот пакет, но могут быть свободно загружены. Для загрузки "
-"бинарных кодеков с веб-сайта MPlayer в пакет добавлен скрипт '/usr/share/"
-"mplayer/scripts/binary_codecs.sh'"
+#~ msgid ""
+#~ "Now, some configuration options will be set for the entire system in /etc/"
+#~ "mplayer/mplayer.conf which may be adapted later. Any user can also refine "
+#~ "options in ~/.mplayer/config."
+#~ msgstr ""
+#~ "Сейчас будут установлены общесистемные настройки в файл /etc/mplayer/"
+#~ "mplayer.conf, которые позже можно изменить. Также любой пользователь "
+#~ "может изменять эти параметры, редактируя свой файл ~/.mplayer/config."
 
-#. Type: string
-#. Description
-#: ../mplayer.templates:7001
-msgid "DVD device name:"
-msgstr "Имя DVD-устройства:"
+#~ msgid "Old configuration file kept"
+#~ msgstr "Будет использоваться существующий файл конфигурации"
 
-#. Type: string
-#. Description
-#: ../mplayer.templates:7001
-msgid "Please enter the name of the device for your DVD player, if any."
-msgstr "Пожалуйста, введите имя устройства вашего DVD-плеера, если есть."
+#~ msgid ""
+#~ "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
+#~ msgstr "Вы выбрали не заменять существующий файл /etc/mplayer/mplayer.conf."
 
-#. Type: select
-#. Description
-#: ../mplayer.templates:8001
-msgid "Font for On Screen Display:"
-msgstr "Шрифт для OSD (отображение текста на экране):"
+#~ msgid ""
+#~ "That file can be generated automatically later by running 'dpkg-"
+#~ "reconfigure mplayer'."
+#~ msgstr ""
+#~ "Позже этот файл может быть сгенерирован автоматически выполнением 'dpkg-"
+#~ "reconfigure mplayer'."
 
-#. Type: error
-#. Description
-#: ../mplayer.templates:9001
-msgid "No TrueType fonts found for On Screen Display"
-msgstr "Не найдены TrueType-шрифты для OSD (отображения текста на экране)"
+#~ msgid "Binary codecs download"
+#~ msgstr "Загрузка бинарных кодеков"
 
-#. Type: error
-#. Description
-#: ../mplayer.templates:9001
-msgid ""
-"MPlayer needs at least one TrueType font for its 'On Screen Display' feature."
-msgstr "Для отображения текста на экране MPlayer требуются шрифты TrueType."
+#~ msgid "MPlayer supports most video formats without additional software."
+#~ msgstr ""
+#~ "MPlayer поддерживает большинство видео форматов без дополнительного "
+#~ "программного обеспечения."
 
-#. Type: error
-#. Description
-#: ../mplayer.templates:9001
-msgid ""
-"You should install a package providing such fonts (such as 'ttf-freefont' or "
-"'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by running "
-"'dpkg-reconfigure mplayer')."
-msgstr ""
-"Вам нужно установить пакет со шрифтами TrueType (например, 'ttf-freefont', "
-"'ttf-bitstream-vera' или 'msttcorefonts') и переконфигурировать MPlayer "
-"(выполнив 'dpkg-reconfigure mplayer')."
+#~ msgid ""
+#~ "Additional video formats, such as Real 3.0/4.0, Windows Media 9, or "
+#~ "Quicktime, can be supported by using binary codecs."
+#~ msgstr ""
+#~ "Поддержка дополнительных видео форматов, таких как Real 3.0/4.0, Windows "
+#~ "Media 9 или Quicktime, может быть осуществлена посредством использования "
+#~ "бинарных кодеков."
+
+#~ msgid ""
+#~ "As such codecs are not free software, they are not distributed with this "
+#~ "package but can be downloaded freely. The '/usr/share/mplayer/scripts/"
+#~ "binary_codecs.sh' script is provided in this package to help downloading "
+#~ "them from the MPlayer web site."
+#~ msgstr ""
+#~ "Так как бинарные кодеки не являются свободным программным обеспечением, "
+#~ "они не входят в этот пакет, но могут быть свободно загружены. Для "
+#~ "загрузки бинарных кодеков с веб-сайта MPlayer в пакет добавлен скрипт '/"
+#~ "usr/share/mplayer/scripts/binary_codecs.sh'"
+
+#~ msgid "DVD device name:"
+#~ msgstr "Имя DVD-устройства:"
+
+#~ msgid "Please enter the name of the device for your DVD player, if any."
+#~ msgstr "Пожалуйста, введите имя устройства вашего DVD-плеера, если есть."
+
+#~ msgid "Font for On Screen Display:"
+#~ msgstr "Шрифт для OSD (отображение текста на экране):"
+
+#~ msgid "No TrueType fonts found for On Screen Display"
+#~ msgstr "Не найдены TrueType-шрифты для OSD (отображения текста на экране)"
+
+#~ msgid ""
+#~ "MPlayer needs at least one TrueType font for its 'On Screen Display' "
+#~ "feature."
+#~ msgstr "Для отображения текста на экране MPlayer требуются шрифты TrueType."
+
+#~ msgid ""
+#~ "You should install a package providing such fonts (such as 'ttf-freefont' "
+#~ "or 'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by "
+#~ "running 'dpkg-reconfigure mplayer')."
+#~ msgstr ""
+#~ "Вам нужно установить пакет со шрифтами TrueType (например, 'ttf-"
+#~ "freefont', 'ttf-bitstream-vera' или 'msttcorefonts') и "
+#~ "переконфигурировать MPlayer (выполнив 'dpkg-reconfigure mplayer')."

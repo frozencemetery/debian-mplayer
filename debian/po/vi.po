@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: mplayer\n"
-"Report-Msgid-Bugs-To: mennucc1@debian.org\n"
-"POT-Creation-Date: 2007-10-18 10:01+0200\n"
+"Report-Msgid-Bugs-To: mplayer@packages.debian.org\n"
+"POT-Creation-Date: 2009-03-12 00:04+0100\n"
 "PO-Revision-Date: 2007-10-24 22:10+0930\n"
 "Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
 "Language-Team: Vietnamese <vi-VN@googlegroups.com>\n"
@@ -16,50 +16,15 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: LocFactoryEditor 1.7b1\n"
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid "Detailed configuration needed for each user"
-msgstr "Cấu hình chi tiết cần thiết cho mỗi người dùng"
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid ""
-"The performance of MPlayer depends heavily on hardware; this means that it "
-"may benefit from tweaking options for every single machine it's installed on."
-msgstr ""
-"Hiệu suất của MPlayer phụ thuộc nặng vào phần cứng: có nghĩa là nó có thể "
-"lợi dụng điều chỉnh các tùy chọn cho từng máy riêng rẽ trên đó nó đã cài đặt."
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid ""
-"You should read the documentation provided by the 'mplayer-doc' package."
-msgstr "Khuyên bạn đọc tài liệu hướng dẫn có sẵn trong gói « mplayer-doc »."
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid ""
-"Now, some configuration options will be set for the entire system in /etc/"
-"mplayer/mplayer.conf which may be adapted later. Any user can also refine "
-"options in ~/.mplayer/config."
-msgstr ""
-"Lúc này một số tùy chọn cấu hình sẽ được đặt cho toàn hệ thống trong tập tin "
-"« /etc/mplayer/mplayer.conf » mà cũng có thể sửa đổi sau. Bất cứ người dùng "
-"nào cũng có thể điều chỉnh các tùy chọn riêng trong « ~/.mplayer/config »."
-
 #. Type: boolean
 #. Description
-#: ../mplayer.templates:3001
+#: ../mplayer.templates:1001
 msgid "Replace existing configuration file?"
 msgstr "Thay thế tập tin cấu hình đã tồn tại không?"
 
 #. Type: boolean
 #. Description
-#: ../mplayer.templates:3001
+#: ../mplayer.templates:1001
 msgid ""
 "An /etc/mplayer/mplayer.conf file already exists on the system and does not "
 "contain an automatically-generated part. That file can be replaced by a "
@@ -70,38 +35,15 @@ msgstr ""
 "phần được tạo ra tự động. Có thể thay thế tập tin đó bằng tập tin đã tạo ra "
 "(tập tin cũ sẽ bị di chuyển sang « /etc/mplayer/mplayer.conf.debconf-old »)."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:4001
-msgid "Old configuration file kept"
-msgstr "Vẫn giữ tập tin cấu hình cũ"
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:4001
-msgid "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
-msgstr ""
-"Bạn đã chọn không thay thế tập tin « /etc/mplayer/mplayer.conf » đã có."
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:4001
-msgid ""
-"That file can be generated automatically later by running 'dpkg-reconfigure "
-"mplayer'."
-msgstr ""
-"Vẫn còn có thể tạo ra tự động tập tin đó về sau bằng cách chạy lệnh cấu hình "
-"lại gói « dpkg-reconfigure mplayer »."
-
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid "MPlayer video output:"
 msgstr "Ảnh động MPlayer xuất ra:"
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid ""
 "MPlayer can use a very wide range of video output drivers. The needed driver "
 "may be detected automatically or chosen manually."
@@ -112,7 +54,7 @@ msgstr ""
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid ""
 "If you prefer choosing the driver yourself, you first should choose an entry "
 "matching this system's video card. If none match and the card supports 'XV', "
@@ -124,93 +66,105 @@ msgstr ""
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid ""
 "Please read the /usr/share/doc/mplayer-doc/HTML/en/video.html file from the "
 "'mplayer-doc' package for more details."
 msgstr ""
-"Vui lòng đọc tập tin « /usr/share/doc/mplayer-doc/HTML/en/video.html » có "
-"sẵn trong gói tài liệu « mplayer-doc » để tìm thêm chi tiết."
+"Vui lòng đọc tập tin « /usr/share/doc/mplayer-doc/HTML/en/video.html » có sẵn "
+"trong gói tài liệu « mplayer-doc » để tìm thêm chi tiết."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid "Binary codecs download"
-msgstr "Tải xuống codec nhị phân"
+#~ msgid "Detailed configuration needed for each user"
+#~ msgstr "Cấu hình chi tiết cần thiết cho mỗi người dùng"
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid "MPlayer supports most video formats without additional software."
-msgstr ""
-"MPlayer hỗ trợ phần lớn định dạng ảnh động, không cần phần mềm bổ sung."
+#~ msgid ""
+#~ "The performance of MPlayer depends heavily on hardware; this means that "
+#~ "it may benefit from tweaking options for every single machine it's "
+#~ "installed on."
+#~ msgstr ""
+#~ "Hiệu suất của MPlayer phụ thuộc nặng vào phần cứng: có nghĩa là nó có thể "
+#~ "lợi dụng điều chỉnh các tùy chọn cho từng máy riêng rẽ trên đó nó đã cài "
+#~ "đặt."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid ""
-"Additional video formats, such as Real 3.0/4.0, Windows Media 9, or "
-"Quicktime, can be supported by using binary codecs."
-msgstr ""
-"Các định dạng ảnh động thêm, như Real 3.0/4.0, Windows Media 9, hoặc "
-"Quicktime, cũng hỗ trợ được bằng cách sử dụng codec nhị phân."
+#~ msgid ""
+#~ "You should read the documentation provided by the 'mplayer-doc' package."
+#~ msgstr "Khuyên bạn đọc tài liệu hướng dẫn có sẵn trong gói « mplayer-doc »."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid ""
-"As such codecs are not free software, they are not distributed with this "
-"package but can be downloaded freely. The '/usr/share/mplayer/scripts/"
-"binary_codecs.sh' script is provided in this package to help downloading "
-"them from the MPlayer web site."
-msgstr ""
-"Vì các codec như vậy không phải là phần mềm tự do, chúng không được phân "
-"phối cùng với gói này, nhưng vẫn có thể tải xuống miễn phí. Văn lệnh « usr/"
-"share/mplayer/scripts/binary_codecs.sh » được cung cấp trong gói này để giúp "
-"tải chúng xuống địa chỉ Web của MPlayer."
+#~ msgid ""
+#~ "Now, some configuration options will be set for the entire system in /etc/"
+#~ "mplayer/mplayer.conf which may be adapted later. Any user can also refine "
+#~ "options in ~/.mplayer/config."
+#~ msgstr ""
+#~ "Lúc này một số tùy chọn cấu hình sẽ được đặt cho toàn hệ thống trong tập "
+#~ "tin « /etc/mplayer/mplayer.conf » mà cũng có thể sửa đổi sau. Bất cứ người "
+#~ "dùng nào cũng có thể điều chỉnh các tùy chọn riêng trong « ~/.mplayer/"
+#~ "config »."
 
-#. Type: string
-#. Description
-#: ../mplayer.templates:7001
-msgid "DVD device name:"
-msgstr "Tên thiết bị DVD:"
+#~ msgid "Old configuration file kept"
+#~ msgstr "Vẫn giữ tập tin cấu hình cũ"
 
-#. Type: string
-#. Description
-#: ../mplayer.templates:7001
-msgid "Please enter the name of the device for your DVD player, if any."
-msgstr "Hãy gõ tên của thiết bị ổ đĩa DVD, nếu có."
+#~ msgid ""
+#~ "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
+#~ msgstr ""
+#~ "Bạn đã chọn không thay thế tập tin « /etc/mplayer/mplayer.conf » đã có."
 
-#. Type: select
-#. Description
-#: ../mplayer.templates:8001
-msgid "Font for On Screen Display:"
-msgstr "Phông để hiển thị trên màn hình:"
+#~ msgid ""
+#~ "That file can be generated automatically later by running 'dpkg-"
+#~ "reconfigure mplayer'."
+#~ msgstr ""
+#~ "Vẫn còn có thể tạo ra tự động tập tin đó về sau bằng cách chạy lệnh cấu "
+#~ "hình lại gói « dpkg-reconfigure mplayer »."
 
-#. Type: error
-#. Description
-#: ../mplayer.templates:9001
-msgid "No TrueType fonts found for On Screen Display"
-msgstr "Không tìm thấy phông TrueType để hiển thị trên màn hình"
+#~ msgid "Binary codecs download"
+#~ msgstr "Tải xuống codec nhị phân"
 
-#. Type: error
-#. Description
-#: ../mplayer.templates:9001
-msgid ""
-"MPlayer needs at least one TrueType font for its 'On Screen Display' feature."
-msgstr ""
-"MPlayer yêu cầu ít nhất một phông TrueType (.ttf) cho tính năng « Hiển thị "
-"trên màn hình » của nó."
+#~ msgid "MPlayer supports most video formats without additional software."
+#~ msgstr ""
+#~ "MPlayer hỗ trợ phần lớn định dạng ảnh động, không cần phần mềm bổ sung."
 
-#. Type: error
-#. Description
-#: ../mplayer.templates:9001
-msgid ""
-"You should install a package providing such fonts (such as 'ttf-freefont' or "
-"'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by running "
-"'dpkg-reconfigure mplayer')."
-msgstr ""
-"Bạn nên cài đặt một gói phông .ttf (v.d. URWVN [http://freshmeat.net/"
-"projects/urwvn/] hay DejaVu [http://dejavu.sourceforge.net/wiki/index.php/"
-"Main_Page], cả hai hiển thị đúng tiếng Việt UTF-8), rồi cấu hình lại MPlayer "
-"bằng cách chạy lệnh « dpkg-reconfigure mplayer »."
+#~ msgid ""
+#~ "Additional video formats, such as Real 3.0/4.0, Windows Media 9, or "
+#~ "Quicktime, can be supported by using binary codecs."
+#~ msgstr ""
+#~ "Các định dạng ảnh động thêm, như Real 3.0/4.0, Windows Media 9, hoặc "
+#~ "Quicktime, cũng hỗ trợ được bằng cách sử dụng codec nhị phân."
+
+#~ msgid ""
+#~ "As such codecs are not free software, they are not distributed with this "
+#~ "package but can be downloaded freely. The '/usr/share/mplayer/scripts/"
+#~ "binary_codecs.sh' script is provided in this package to help downloading "
+#~ "them from the MPlayer web site."
+#~ msgstr ""
+#~ "Vì các codec như vậy không phải là phần mềm tự do, chúng không được phân "
+#~ "phối cùng với gói này, nhưng vẫn có thể tải xuống miễn phí. Văn lệnh « usr/"
+#~ "share/mplayer/scripts/binary_codecs.sh » được cung cấp trong gói này để "
+#~ "giúp tải chúng xuống địa chỉ Web của MPlayer."
+
+#~ msgid "DVD device name:"
+#~ msgstr "Tên thiết bị DVD:"
+
+#~ msgid "Please enter the name of the device for your DVD player, if any."
+#~ msgstr "Hãy gõ tên của thiết bị ổ đĩa DVD, nếu có."
+
+#~ msgid "Font for On Screen Display:"
+#~ msgstr "Phông để hiển thị trên màn hình:"
+
+#~ msgid "No TrueType fonts found for On Screen Display"
+#~ msgstr "Không tìm thấy phông TrueType để hiển thị trên màn hình"
+
+#~ msgid ""
+#~ "MPlayer needs at least one TrueType font for its 'On Screen Display' "
+#~ "feature."
+#~ msgstr ""
+#~ "MPlayer yêu cầu ít nhất một phông TrueType (.ttf) cho tính năng « Hiển thị "
+#~ "trên màn hình » của nó."
+
+#~ msgid ""
+#~ "You should install a package providing such fonts (such as 'ttf-freefont' "
+#~ "or 'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by "
+#~ "running 'dpkg-reconfigure mplayer')."
+#~ msgstr ""
+#~ "Bạn nên cài đặt một gói phông .ttf (v.d. URWVN [http://freshmeat.net/"
+#~ "projects/urwvn/] hay DejaVu [http://dejavu.sourceforge.net/wiki/index.php/"
+#~ "Main_Page], cả hai hiển thị đúng tiếng Việt UTF-8), rồi cấu hình lại "
+#~ "MPlayer bằng cách chạy lệnh « dpkg-reconfigure mplayer »."

@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: mplayer\n"
-"Report-Msgid-Bugs-To: mennucc1@debian.org\n"
-"POT-Creation-Date: 2007-10-18 10:01+0200\n"
+"Report-Msgid-Bugs-To: mplayer@packages.debian.org\n"
+"POT-Creation-Date: 2009-03-12 00:04+0100\n"
 "PO-Revision-Date: 2007-10-21 10:35+0200\n"
 "Last-Translator: Miroslav Kure <kurem@debian.cz>\n"
 "Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
@@ -15,51 +15,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid "Detailed configuration needed for each user"
-msgstr "Jemnější nastavení pro každého uživatele"
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid ""
-"The performance of MPlayer depends heavily on hardware; this means that it "
-"may benefit from tweaking options for every single machine it's installed on."
-msgstr ""
-"Výkonnost MPlayeru silně závisí na hardwaru, což znamená, že může těžit z "
-"vyladění pro každý konkrétní počítač, na kterém je nainstalovaný."
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid ""
-"You should read the documentation provided by the 'mplayer-doc' package."
-msgstr "Měli byste si přečíst dokumentaci poskytovanou balíkem „mplayer-doc“."
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid ""
-"Now, some configuration options will be set for the entire system in /etc/"
-"mplayer/mplayer.conf which may be adapted later. Any user can also refine "
-"options in ~/.mplayer/config."
-msgstr ""
-"Nyní se nastaví některé konfigurační možnosti do celosystémového souboru /"
-"etc/mplayer/mplayer.conf. Nastavení můžete později upravit a také jednotliví "
-"uživatelé si mohou konfiguraci doladit dle potřeb v soukromém konfiguračním "
-"souboru ~/.mplayer/config."
-
 #. Type: boolean
 #. Description
-#: ../mplayer.templates:3001
+#: ../mplayer.templates:1001
 msgid "Replace existing configuration file?"
 msgstr "Nahradit stávající konfigurační soubor?"
 
 #. Type: boolean
 #. Description
-#: ../mplayer.templates:3001
+#: ../mplayer.templates:1001
 msgid ""
 "An /etc/mplayer/mplayer.conf file already exists on the system and does not "
 "contain an automatically-generated part. That file can be replaced by a "
@@ -70,39 +34,15 @@ msgstr ""
 "automaticky vygenerovanou část. Tento soubor může být nahrazen novějším "
 "(původní soubor bude zazálohován jako /etc/mplayer/mplayer.conf.debconf-old)."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:4001
-msgid "Old configuration file kept"
-msgstr "Stávající konfigurační soubor byl ponechán"
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:4001
-msgid "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
-msgstr ""
-"Zvolili jste, že se stávající konfigurační soubor /etc/mplayer/mplayer.conf "
-"nemá nahradit."
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:4001
-msgid ""
-"That file can be generated automatically later by running 'dpkg-reconfigure "
-"mplayer'."
-msgstr ""
-"Změníte-li později názor, můžete jej nahradit automaticky vygenerovanou "
-"verzí spuštěním příkazu „dpkg-reconfigure mplayer“."
-
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid "MPlayer video output:"
 msgstr "Video výstup MPlayeru:"
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid ""
 "MPlayer can use a very wide range of video output drivers. The needed driver "
 "may be detected automatically or chosen manually."
@@ -112,7 +52,7 @@ msgstr ""
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid ""
 "If you prefer choosing the driver yourself, you first should choose an entry "
 "matching this system's video card. If none match and the card supports 'XV', "
@@ -125,7 +65,7 @@ msgstr ""
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid ""
 "Please read the /usr/share/doc/mplayer-doc/HTML/en/video.html file from the "
 "'mplayer-doc' package for more details."
@@ -133,86 +73,101 @@ msgstr ""
 "Podrobnosti naleznete v souboru /usr/share/doc/mplayer-doc/HTML/en/video."
 "html (součást balíku „mplayer-doc“)."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid "Binary codecs download"
-msgstr "Stažení binárních kodeků"
+#~ msgid "Detailed configuration needed for each user"
+#~ msgstr "Jemnější nastavení pro každého uživatele"
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid "MPlayer supports most video formats without additional software."
-msgstr ""
-"MPlayer podporuje přímo bez dodatečného softwaru většinu většinu formátů "
-"videa."
+#~ msgid ""
+#~ "The performance of MPlayer depends heavily on hardware; this means that "
+#~ "it may benefit from tweaking options for every single machine it's "
+#~ "installed on."
+#~ msgstr ""
+#~ "Výkonnost MPlayeru silně závisí na hardwaru, což znamená, že může těžit z "
+#~ "vyladění pro každý konkrétní počítač, na kterém je nainstalovaný."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid ""
-"Additional video formats, such as Real 3.0/4.0, Windows Media 9, or "
-"Quicktime, can be supported by using binary codecs."
-msgstr ""
-"Podporu dodatečných formátů videa jako Real 3.0/4.0, Windows Media 9 nebo "
-"Quicktime mohou zajistit binární kodeky."
+#~ msgid ""
+#~ "You should read the documentation provided by the 'mplayer-doc' package."
+#~ msgstr ""
+#~ "Měli byste si přečíst dokumentaci poskytovanou balíkem „mplayer-doc“."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid ""
-"As such codecs are not free software, they are not distributed with this "
-"package but can be downloaded freely. The '/usr/share/mplayer/scripts/"
-"binary_codecs.sh' script is provided in this package to help downloading "
-"them from the MPlayer web site."
-msgstr ""
-"Tyto kodeky nejsou svobodným softwarem a Debian je proto nemůže "
-"distribuovat. Můžete si je však stáhnout z domovské stránky MPlayeru sami. "
-"Se stažením pomůže přibalený skript „/usr/share/mplayer/scripts/"
-"binary_codecs.sh“."
+#~ msgid ""
+#~ "Now, some configuration options will be set for the entire system in /etc/"
+#~ "mplayer/mplayer.conf which may be adapted later. Any user can also refine "
+#~ "options in ~/.mplayer/config."
+#~ msgstr ""
+#~ "Nyní se nastaví některé konfigurační možnosti do celosystémového souboru /"
+#~ "etc/mplayer/mplayer.conf. Nastavení můžete později upravit a také "
+#~ "jednotliví uživatelé si mohou konfiguraci doladit dle potřeb v soukromém "
+#~ "konfiguračním souboru ~/.mplayer/config."
 
-#. Type: string
-#. Description
-#: ../mplayer.templates:7001
-msgid "DVD device name:"
-msgstr "Jméno DVD zařízení:"
+#~ msgid "Old configuration file kept"
+#~ msgstr "Stávající konfigurační soubor byl ponechán"
 
-#. Type: string
-#. Description
-#: ../mplayer.templates:7001
-msgid "Please enter the name of the device for your DVD player, if any."
-msgstr "Zadejte prosím jméno zařízení vašeho DVD přehrávače (pokud existuje)."
+#~ msgid ""
+#~ "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
+#~ msgstr ""
+#~ "Zvolili jste, že se stávající konfigurační soubor /etc/mplayer/mplayer."
+#~ "conf nemá nahradit."
 
-#. Type: select
-#. Description
-#: ../mplayer.templates:8001
-msgid "Font for On Screen Display:"
-msgstr "Font pro On Screen Display:"
+#~ msgid ""
+#~ "That file can be generated automatically later by running 'dpkg-"
+#~ "reconfigure mplayer'."
+#~ msgstr ""
+#~ "Změníte-li později názor, můžete jej nahradit automaticky vygenerovanou "
+#~ "verzí spuštěním příkazu „dpkg-reconfigure mplayer“."
 
-#. Type: error
-#. Description
-#: ../mplayer.templates:9001
-msgid "No TrueType fonts found for On Screen Display"
-msgstr "Žádné True Type fonty pro On Screen Display nenalezeny"
+#~ msgid "Binary codecs download"
+#~ msgstr "Stažení binárních kodeků"
 
-#. Type: error
-#. Description
-#: ../mplayer.templates:9001
-msgid ""
-"MPlayer needs at least one TrueType font for its 'On Screen Display' feature."
-msgstr "MPlayer vyžaduje pro On Screen Display alespoň jeden True Typový font."
+#~ msgid "MPlayer supports most video formats without additional software."
+#~ msgstr ""
+#~ "MPlayer podporuje přímo bez dodatečného softwaru většinu většinu formátů "
+#~ "videa."
 
-#. Type: error
-#. Description
-#: ../mplayer.templates:9001
-msgid ""
-"You should install a package providing such fonts (such as 'ttf-freefont' or "
-"'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by running "
-"'dpkg-reconfigure mplayer')."
-msgstr ""
-"Měli byste nainstalovat balík, který poskytuje True Typové fonty (např. „ttf-"
-"freefont“ nebo „ttf-dejavu“) a znovu spustit konfiguraci MPlayeru příkazem "
-"„dpkg-reconfigure mplayer“."
+#~ msgid ""
+#~ "Additional video formats, such as Real 3.0/4.0, Windows Media 9, or "
+#~ "Quicktime, can be supported by using binary codecs."
+#~ msgstr ""
+#~ "Podporu dodatečných formátů videa jako Real 3.0/4.0, Windows Media 9 nebo "
+#~ "Quicktime mohou zajistit binární kodeky."
+
+#~ msgid ""
+#~ "As such codecs are not free software, they are not distributed with this "
+#~ "package but can be downloaded freely. The '/usr/share/mplayer/scripts/"
+#~ "binary_codecs.sh' script is provided in this package to help downloading "
+#~ "them from the MPlayer web site."
+#~ msgstr ""
+#~ "Tyto kodeky nejsou svobodným softwarem a Debian je proto nemůže "
+#~ "distribuovat. Můžete si je však stáhnout z domovské stránky MPlayeru "
+#~ "sami. Se stažením pomůže přibalený skript „/usr/share/mplayer/scripts/"
+#~ "binary_codecs.sh“."
+
+#~ msgid "DVD device name:"
+#~ msgstr "Jméno DVD zařízení:"
+
+#~ msgid "Please enter the name of the device for your DVD player, if any."
+#~ msgstr ""
+#~ "Zadejte prosím jméno zařízení vašeho DVD přehrávače (pokud existuje)."
+
+#~ msgid "Font for On Screen Display:"
+#~ msgstr "Font pro On Screen Display:"
+
+#~ msgid "No TrueType fonts found for On Screen Display"
+#~ msgstr "Žádné True Type fonty pro On Screen Display nenalezeny"
+
+#~ msgid ""
+#~ "MPlayer needs at least one TrueType font for its 'On Screen Display' "
+#~ "feature."
+#~ msgstr ""
+#~ "MPlayer vyžaduje pro On Screen Display alespoň jeden True Typový font."
+
+#~ msgid ""
+#~ "You should install a package providing such fonts (such as 'ttf-freefont' "
+#~ "or 'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by "
+#~ "running 'dpkg-reconfigure mplayer')."
+#~ msgstr ""
+#~ "Měli byste nainstalovat balík, který poskytuje True Typové fonty (např. "
+#~ "„ttf-freefont“ nebo „ttf-dejavu“) a znovu spustit konfiguraci MPlayeru "
+#~ "příkazem „dpkg-reconfigure mplayer“."
 
 #~ msgid ""
 #~ "Performance of MPlayer depends heavily on hardware - this means that it "

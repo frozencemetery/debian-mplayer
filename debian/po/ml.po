@@ -7,61 +7,26 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: mplayer_1.0~rc1-13_ml\n"
-"Report-Msgid-Bugs-To: mennucc1@debian.org\n"
-"POT-Creation-Date: 2007-10-18 10:01+0200\n"
+"Report-Msgid-Bugs-To: mplayer@packages.debian.org\n"
+"POT-Creation-Date: 2009-03-12 00:04+0100\n"
 "PO-Revision-Date: 2007-04-08 15:21-0400\n"
 "Last-Translator: Santhosh Thottingal <santhosh00@gmail.com>\n"
-"Language-Team: Swathanthra|സ്വതന്ത്ര Malayalam|മലയാളം Computing|കമ്പ്യൂട്ടിങ്ങ്  <smc-discuss@googlegroups.com>\n"
+"Language-Team: Swathanthra|സ്വതന്ത്ര Malayalam|മലയാളം Computing|കമ്പ്യൂട്ടിങ്ങ്  <smc-"
+"discuss@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid "Detailed configuration needed for each user"
-msgstr "ഓരോ ഉപയോക്താവിനും വിശദമായ സജ്ജീകരണം ആവശ്യമാണ്."
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid ""
-"The performance of MPlayer depends heavily on hardware; this means that it "
-"may benefit from tweaking options for every single machine it's installed on."
-msgstr ""
-"എംപ്ലയറിന്റെ പ്രകടനം പ്രധാനമായും ഹാര്‍ഡ്‌വെയറിനെ ആശ്രയിച്ചിരിക്കുന്നു. ഇതിനര്‍ത്ഥം അത് "
-"ഇന്‍സ്റ്റാള്‍ ചെയ്യുന്ന ഓരൊ മെഷീനിലേയും ഹാര്‍ഡ്‌വെയര്‍ പരുവപ്പെടുത്തലുകളെ നന്നായി  ഉപയോഗിക്കും എന്നാണ്."
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid ""
-"You should read the documentation provided by the 'mplayer-doc' package."
-msgstr ""
-"ഇതിന്റെ വിവരണങ്ങള്‍ 'mplayer-doc' എന്ന പാക്കേജില്‍  നിന്ന് നിങ്ങള്‍ക്ക് വായിക്കാവുന്നതാണ്."
- 
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid ""
-"Now, some configuration options will be set for the entire system in /etc/"
-"mplayer/mplayer.conf which may be adapted later. Any user can also refine "
-"options in  ~/.mplayer/config."
-msgstr "മുഴുവന്‍ സിസ്റ്റത്തിന്റേയും സജ്ജീകരണം /etc/mplayer/mplayer.conf എന്ന ഫയലിലാണുള്ളത്."
-"ഉപയോക്താക്കള്‍ക്ക്  ~/.mplayer/config എന്ന ഫയല്‍ ഉപയോഗിച്ച് ഇത് ഭേദപ്പെടുത്താവുന്നതാണ്."
-
-
 #. Type: boolean
 #. Description
-#: ../mplayer.templates:3001
+#: ../mplayer.templates:1001
 msgid "Replace existing configuration file?"
 msgstr "ഇപ്പോഴുള്ള സജ്ജീകരണ ഫയല്‍ മാറ്റിയെഴുതട്ടെ?"
 
 #. Type: boolean
 #. Description
-#: ../mplayer.templates:3001
+#: ../mplayer.templates:1001
 msgid ""
 "An /etc/mplayer/mplayer.conf file already exists on the system and does not "
 "contain an automatically-generated part. That file can be replaced by a "
@@ -72,137 +37,132 @@ msgstr ""
 "ഉണ്ടായ ഭാഗങ്ങള്‍ ഇല്ല. ഈ സ്ക്രിപ്റ്റ് ഒരു പുതിയ ഫയല്‍ ഉണ്ടാക്കും(പഴയ ഫയല്‍  /etc/mplayer/"
 "mplayer.conf.debconf-old എന്ന പേരിലേക്ക് മാറ്റപ്പെടും)."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:4001
-msgid "Old configuration file kept"
-msgstr "പഴയ സജ്ജീകരണ ഫയല്‍ അങ്ങനെത്തന്നെ വെച്ചു"
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:4001
-msgid "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
-msgstr "നിലവിലുള്ള /etc/mplayer/mplayer.conf ഫയല്‍ മാറ്റിയെഴുതേണ്ടെന്ന് തീരുമാനിച്ചു."
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:4001
-msgid ""
-"That file can be generated automatically later by running 'dpkg-reconfigure "
-"mplayer'."
-msgstr "ആ ഫയല്‍ പിന്നീട് 'dpkg-reconfigure mplayer' എന്ന ആജ്ഞ ഉപയോഗിച്ച് "
-"ഉണ്ടാക്കാവുന്നതാണ്."
-
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid "MPlayer video output:"
 msgstr "എംപ്ലയര്‍ ദൃശ്യ ഔട്ട്പുട്ട്:"
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid ""
 "MPlayer can use a very wide range of video output drivers. The needed driver "
 "may be detected automatically or chosen manually."
 msgstr ""
-"എംപ്ലയറിന്‌ വീഡിയോ ഔട്ട്പുട്ട് പ്രവര്‍ത്തകങ്ങളുടെ ഒരു വലിയ നിരതന്നെ ഉപയോഗിക്കാന്‍ കഴിയും. ആവശ്യമുള്ള ഡ്രൈവര്‍ സ്വയം കണ്ടുപിടിക്കുകയോ നിങ്ങള്‍ക്ക് സജ്ജീകരിക്കുകയോ ചെയ്യാം"
+"എംപ്ലയറിന്‌ വീഡിയോ ഔട്ട്പുട്ട് പ്രവര്‍ത്തകങ്ങളുടെ ഒരു വലിയ നിരതന്നെ ഉപയോഗിക്കാന്‍ കഴിയും. "
+"ആവശ്യമുള്ള ഡ്രൈവര്‍ സ്വയം കണ്ടുപിടിക്കുകയോ നിങ്ങള്‍ക്ക് സജ്ജീകരിക്കുകയോ ചെയ്യാം"
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid ""
 "If you prefer choosing the driver yourself, you first should choose an entry "
 "matching this system's video card. If none match and the card supports 'XV', "
 "choose that option (the 'xvinfo' command may help)."
-msgstr "ഡ്രൈവര്‍ നിങ്ങള്‍ സ്വയം തിരഞ്ഞെടുക്കുകയാണെങ്കില്‍, നിങ്ങളുടെ വീഡിയോ കാര്‍ഡിനനുയോജ്യമായ ഒന്ന് തിരഞ്ഞെടുക്കണം. ഒന്നും യോജ്യമല്ലാതെ വരികയും നിങ്ങളുടെ കാര്‍ഡ് 'XV' പിന്തുണക്കുകയും ചെയ്യുന്നുണ്ടെങ്കില്‍ അത് തിരഞ്ഞെടുക്കുക(xvinfo എന്ന ആജ്ഞ സഹായിച്ചേക്കാം)."
+msgstr ""
+"ഡ്രൈവര്‍ നിങ്ങള്‍ സ്വയം തിരഞ്ഞെടുക്കുകയാണെങ്കില്‍, നിങ്ങളുടെ വീഡിയോ കാര്‍ഡിനനുയോജ്യമായ ഒന്ന് "
+"തിരഞ്ഞെടുക്കണം. ഒന്നും യോജ്യമല്ലാതെ വരികയും നിങ്ങളുടെ കാര്‍ഡ് 'XV' പിന്തുണക്കുകയും "
+"ചെയ്യുന്നുണ്ടെങ്കില്‍ അത് തിരഞ്ഞെടുക്കുക(xvinfo എന്ന ആജ്ഞ സഹായിച്ചേക്കാം)."
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid ""
 "Please read the /usr/share/doc/mplayer-doc/HTML/en/video.html file from the "
 "'mplayer-doc' package for more details."
 msgstr ""
-"കൂടുതല്‍ വിവരങ്ങള്‍ക്ക് 'mplayer-doc' എന്ന പാക്കേജിലെ /usr/share/doc/mplayer-doc/HTML/en/video.html എന്ന ഫയല്‍ വായിക്കുക."
+"കൂടുതല്‍ വിവരങ്ങള്‍ക്ക് 'mplayer-doc' എന്ന പാക്കേജിലെ /usr/share/doc/mplayer-doc/HTML/"
+"en/video.html എന്ന ഫയല്‍ വായിക്കുക."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid "Binary codecs download"
-msgstr "ബൈനറി കൊഡെക്കുകളുടെ ഡൗണ്‍‌ലോഡ്"
+#~ msgid "Detailed configuration needed for each user"
+#~ msgstr "ഓരോ ഉപയോക്താവിനും വിശദമായ സജ്ജീകരണം ആവശ്യമാണ്."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid "MPlayer supports most video formats without additional software."
-msgstr "എംപ്ലയറിന്, പ്രത്യേകിച്ച് സോഫ്റ്റുവെയറുകള്‍ ഇല്ലെങ്കിലും മിക്ക വീഡിയോ ഫോര്‍മാറ്റുകളും പിന്തുണക്കാന്‍ കഴിയും."
+#~ msgid ""
+#~ "The performance of MPlayer depends heavily on hardware; this means that "
+#~ "it may benefit from tweaking options for every single machine it's "
+#~ "installed on."
+#~ msgstr ""
+#~ "എംപ്ലയറിന്റെ പ്രകടനം പ്രധാനമായും ഹാര്‍ഡ്‌വെയറിനെ ആശ്രയിച്ചിരിക്കുന്നു. ഇതിനര്‍ത്ഥം അത് "
+#~ "ഇന്‍സ്റ്റാള്‍ ചെയ്യുന്ന ഓരൊ മെഷീനിലേയും ഹാര്‍ഡ്‌വെയര്‍ പരുവപ്പെടുത്തലുകളെ നന്നായി  ഉപയോഗിക്കും "
+#~ "എന്നാണ്."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid ""
-"Additional video formats, such as Real 3.0/4.0, Windows Media 9, or "
-"Quicktime, can be supported by using binary codecs."
-msgstr ""
-"റിയല്‍ 3.0/4.0, വിന്‍ഡോസ് മീഡിയ 9, ക്വിക്ക് ടൈം, എന്നിവ ബൈനറി കോഡെക്കുകള്‍"
-"ഉപയോഗിച്ച് പിന്തുണയ്ക്കാവുന്നതാണ്."
+#~ msgid ""
+#~ "You should read the documentation provided by the 'mplayer-doc' package."
+#~ msgstr ""
+#~ "ഇതിന്റെ വിവരണങ്ങള്‍ 'mplayer-doc' എന്ന പാക്കേജില്‍  നിന്ന് നിങ്ങള്‍ക്ക് വായിക്കാവുന്നതാണ്."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid ""
-"As such codecs are not free software, they are not distributed with this "
-"package but can be downloaded freely. The '/usr/share/mplayer/scripts/"
-"binary_codecs.sh' script is provided in this package to help downloading "
-"them from the MPlayer web site."
-msgstr "അവ സ്വതന്ത്ര സോഫ്റ്റ്‌വെയറുകളല്ലാത്തതിനാല്‍, ഈ പാക്കേജിനൊപ്പം വിതരണം ചെയ്തിട്ടില്ല."
-"പക്ഷേ, സൗജന്യമായി അവ ഡൗണ്‍‌ലോഡ് ചെയ്യാവുന്നതാണ്. ഈ പാക്കേജിനോടൊപ്പം ഉള്ള"
-"'/usr/share/mplayer/scripts/binary_codecs.sh' എന്ന സ്ക്രിപ്റ്റ് എംപ്ലേയറിന്റെ വെബ്സൈറ്റില്‍ നിന്ന് അവ"
-"ഡൗണ്‍‌ലോഡ് ചെയ്യാന്‍ സഹായിക്കും"
+#~ msgid ""
+#~ "Now, some configuration options will be set for the entire system in /etc/"
+#~ "mplayer/mplayer.conf which may be adapted later. Any user can also refine "
+#~ "options in  ~/.mplayer/config."
+#~ msgstr ""
+#~ "മുഴുവന്‍ സിസ്റ്റത്തിന്റേയും സജ്ജീകരണം /etc/mplayer/mplayer.conf എന്ന ഫയലിലാണുള്ളത്."
+#~ "ഉപയോക്താക്കള്‍ക്ക്  ~/.mplayer/config എന്ന ഫയല്‍ ഉപയോഗിച്ച് ഇത് ഭേദപ്പെടുത്താവുന്നതാണ്."
 
-#. Type: string
-#. Description
-#: ../mplayer.templates:7001
-msgid "DVD device name:"
-msgstr "ഡി.വി.ഡി ഉപകരണനാമം:"
+#~ msgid "Old configuration file kept"
+#~ msgstr "പഴയ സജ്ജീകരണ ഫയല്‍ അങ്ങനെത്തന്നെ വെച്ചു"
 
-#. Type: string
-#. Description
-#: ../mplayer.templates:7001
-msgid "Please enter the name of the device for your DVD player, if any."
-msgstr "നിങ്ങളുടെ ഡി.വി.ഡി ഉപകരണത്തിന്റെ പേരെന്താണ് (ഉണ്ടെങ്കില്‍ മാത്രം):"
+#~ msgid ""
+#~ "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
+#~ msgstr "നിലവിലുള്ള /etc/mplayer/mplayer.conf ഫയല്‍ മാറ്റിയെഴുതേണ്ടെന്ന് തീരുമാനിച്ചു."
 
-#. Type: select
-#. Description
-#: ../mplayer.templates:8001
-msgid "Font for On Screen Display:"
-msgstr "സ്ക്രീനിലെ പ്രദര്‍ശനത്തിനായുള്ള അക്ഷരരൂപം:"
+#~ msgid ""
+#~ "That file can be generated automatically later by running 'dpkg-"
+#~ "reconfigure mplayer'."
+#~ msgstr ""
+#~ "ആ ഫയല്‍ പിന്നീട് 'dpkg-reconfigure mplayer' എന്ന ആജ്ഞ ഉപയോഗിച്ച് ഉണ്ടാക്കാവുന്നതാണ്."
 
-#. Type: error
-#. Description
-#: ../mplayer.templates:9001
-msgid "No TrueType fonts found for On Screen Display"
-msgstr "ട്രൂടൈപ്പ് അക്ഷരരൂപങ്ങള്‍ ഒന്നും കണ്ടുപിടിയ്ക്കാന്‍ കഴിഞ്ഞില്ല."
+#~ msgid "Binary codecs download"
+#~ msgstr "ബൈനറി കൊഡെക്കുകളുടെ ഡൗണ്‍‌ലോഡ്"
 
-#. Type: error
-#. Description
-#: ../mplayer.templates:9001
-msgid ""
-"MPlayer needs at least one TrueType font for its 'On Screen Display' feature."
-msgstr ""
-"എംപ്ലയറിന്‌  സ്ക്രീനിലെ പ്രദര്‍ശനത്തിന്‌  ട്രൂടൈപ്പ് അക്ഷരരൂപങ്ങള്‍ ആവശ്യമാണ്‌. നിങ്ങളുടെ പ്രിയപ്പെട്ടവ "
-"തിരഞ്ഞെടുക്കുക."
+#~ msgid "MPlayer supports most video formats without additional software."
+#~ msgstr ""
+#~ "എംപ്ലയറിന്, പ്രത്യേകിച്ച് സോഫ്റ്റുവെയറുകള്‍ ഇല്ലെങ്കിലും മിക്ക വീഡിയോ ഫോര്‍മാറ്റുകളും "
+#~ "പിന്തുണക്കാന്‍ കഴിയും."
 
-#. Type: error
-#. Description
-#: ../mplayer.templates:9001
-msgid ""
-"You should install a package providing such fonts (such as 'ttf-freefont' or "
-"'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by running "
-"'dpkg-reconfigure mplayer')."
-msgstr ""
-"ട്രൂടൈപ്പ് അക്ഷരരൂപങ്ങള്‍ ('ttf-dejavu' , 'ttf-bitstream-vera' ,  'msttcorefonts' "
-"എന്നിവ പോലത്തെ ) ഉള്ള ഒരു പാക്കേജ് നിങ്ങള്‍ ഇന്‍സ്റ്റാള്‍ ചെയ്തതിനു ശേഷം എംപ്ലയര്‍ "
-"പുനഃക്രമീകരിയ്ക്കുക (\"dpkg-reconfigure mplayer\"എന്ന ആജ്ഞ ഉപയോഗിച്ച്)"
+#~ msgid ""
+#~ "Additional video formats, such as Real 3.0/4.0, Windows Media 9, or "
+#~ "Quicktime, can be supported by using binary codecs."
+#~ msgstr ""
+#~ "റിയല്‍ 3.0/4.0, വിന്‍ഡോസ് മീഡിയ 9, ക്വിക്ക് ടൈം, എന്നിവ ബൈനറി കോഡെക്കുകള്‍ഉപയോഗിച്ച് "
+#~ "പിന്തുണയ്ക്കാവുന്നതാണ്."
 
+#~ msgid ""
+#~ "As such codecs are not free software, they are not distributed with this "
+#~ "package but can be downloaded freely. The '/usr/share/mplayer/scripts/"
+#~ "binary_codecs.sh' script is provided in this package to help downloading "
+#~ "them from the MPlayer web site."
+#~ msgstr ""
+#~ "അവ സ്വതന്ത്ര സോഫ്റ്റ്‌വെയറുകളല്ലാത്തതിനാല്‍, ഈ പാക്കേജിനൊപ്പം വിതരണം ചെയ്തിട്ടില്ല.പക്ഷേ, "
+#~ "സൗജന്യമായി അവ ഡൗണ്‍‌ലോഡ് ചെയ്യാവുന്നതാണ്. ഈ പാക്കേജിനോടൊപ്പം ഉള്ള'/usr/share/mplayer/"
+#~ "scripts/binary_codecs.sh' എന്ന സ്ക്രിപ്റ്റ് എംപ്ലേയറിന്റെ വെബ്സൈറ്റില്‍ നിന്ന് അവഡൗണ്‍‌ലോഡ് "
+#~ "ചെയ്യാന്‍ സഹായിക്കും"
+
+#~ msgid "DVD device name:"
+#~ msgstr "ഡി.വി.ഡി ഉപകരണനാമം:"
+
+#~ msgid "Please enter the name of the device for your DVD player, if any."
+#~ msgstr "നിങ്ങളുടെ ഡി.വി.ഡി ഉപകരണത്തിന്റെ പേരെന്താണ് (ഉണ്ടെങ്കില്‍ മാത്രം):"
+
+#~ msgid "Font for On Screen Display:"
+#~ msgstr "സ്ക്രീനിലെ പ്രദര്‍ശനത്തിനായുള്ള അക്ഷരരൂപം:"
+
+#~ msgid "No TrueType fonts found for On Screen Display"
+#~ msgstr "ട്രൂടൈപ്പ് അക്ഷരരൂപങ്ങള്‍ ഒന്നും കണ്ടുപിടിയ്ക്കാന്‍ കഴിഞ്ഞില്ല."
+
+#~ msgid ""
+#~ "MPlayer needs at least one TrueType font for its 'On Screen Display' "
+#~ "feature."
+#~ msgstr ""
+#~ "എംപ്ലയറിന്‌  സ്ക്രീനിലെ പ്രദര്‍ശനത്തിന്‌  ട്രൂടൈപ്പ് അക്ഷരരൂപങ്ങള്‍ ആവശ്യമാണ്‌. നിങ്ങളുടെ "
+#~ "പ്രിയപ്പെട്ടവ തിരഞ്ഞെടുക്കുക."
+
+#~ msgid ""
+#~ "You should install a package providing such fonts (such as 'ttf-freefont' "
+#~ "or 'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by "
+#~ "running 'dpkg-reconfigure mplayer')."
+#~ msgstr ""
+#~ "ട്രൂടൈപ്പ് അക്ഷരരൂപങ്ങള്‍ ('ttf-dejavu' , 'ttf-bitstream-vera' ,  'msttcorefonts' "
+#~ "എന്നിവ പോലത്തെ ) ഉള്ള ഒരു പാക്കേജ് നിങ്ങള്‍ ഇന്‍സ്റ്റാള്‍ ചെയ്തതിനു ശേഷം എംപ്ലയര്‍ "
+#~ "പുനഃക്രമീകരിയ്ക്കുക (\"dpkg-reconfigure mplayer\"എന്ന ആജ്ഞ ഉപയോഗിച്ച്)"

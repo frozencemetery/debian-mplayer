@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: mplayer 1.0~rc1-17\n"
-"Report-Msgid-Bugs-To: mennucc1@debian.org\n"
-"POT-Creation-Date: 2007-10-18 10:01+0200\n"
+"Report-Msgid-Bugs-To: mplayer@packages.debian.org\n"
+"POT-Creation-Date: 2009-03-12 00:04+0100\n"
 "PO-Revision-Date: 2007-10-27 15:25+0200\n"
 "Last-Translator: Helge Kreutzmann <debian@helgefjell.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
@@ -14,51 +14,15 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-15\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid "Detailed configuration needed for each user"
-msgstr "Für jeden Benutzer wird eine detaillierte Konfiguration benötigt"
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid ""
-"The performance of MPlayer depends heavily on hardware; this means that it "
-"may benefit from tweaking options for every single machine it's installed on."
-msgstr ""
-"Die Leistung von MPlayer hängt stark von der Hardware ab; das bedeutet, das "
-"MPlayer von der Anpassung auf jeder einzelnen Maschine profitiert, auf der "
-"es installiert ist."
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid ""
-"You should read the documentation provided by the 'mplayer-doc' package."
-msgstr "Sie sollten die im Paket »mplayer-doc« enthaltene Dokumentation lesen."
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:2001
-msgid ""
-"Now, some configuration options will be set for the entire system in /etc/"
-"mplayer/mplayer.conf which may be adapted later. Any user can also refine "
-"options in ~/.mplayer/config."
-msgstr ""
-"Jetzt werden einige Konfigurationsoptionen für das gesamte System in /etc/"
-"mplayer/mplayer.conf gesetzt, die später angepasst werden können. Jeder "
-"Benutzer kann die Optionen auch in ~/.mplayer/config anpassen."
-
 #. Type: boolean
 #. Description
-#: ../mplayer.templates:3001
+#: ../mplayer.templates:1001
 msgid "Replace existing configuration file?"
 msgstr "Vorhandene Konfigurationsdatei ersetzen?"
 
 #. Type: boolean
 #. Description
-#: ../mplayer.templates:3001
+#: ../mplayer.templates:1001
 msgid ""
 "An /etc/mplayer/mplayer.conf file already exists on the system and does not "
 "contain an automatically-generated part. That file can be replaced by a "
@@ -70,39 +34,15 @@ msgstr ""
 "generierte ersetzt werden (die alte Datei wird in /etc/mplayer/mplayer.conf."
 "debconf-old umbenannt)."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:4001
-msgid "Old configuration file kept"
-msgstr "Alte Konfigurationsdatei beibehalten"
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:4001
-msgid "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
-msgstr ""
-"Sie haben sich entschieden, die existierende Datei /etc/mplayer/mplayer.conf "
-"zu behalten."
-
-#. Type: note
-#. Description
-#: ../mplayer.templates:4001
-msgid ""
-"That file can be generated automatically later by running 'dpkg-reconfigure "
-"mplayer'."
-msgstr ""
-"Diese Datei kann später automatisch generiert werden, indem »dpkg-"
-"reconfigure mplayer« ausgeführt wird."
-
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid "MPlayer video output:"
 msgstr "Videoausgabe von MPlayer:"
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid ""
 "MPlayer can use a very wide range of video output drivers. The needed driver "
 "may be detected automatically or chosen manually."
@@ -112,7 +52,7 @@ msgstr ""
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid ""
 "If you prefer choosing the driver yourself, you first should choose an entry "
 "matching this system's video card. If none match and the card supports 'XV', "
@@ -120,12 +60,12 @@ msgid ""
 msgstr ""
 "Falls Sie den Treiber lieber selbst auswählen möchten, sollten Sie zuerst "
 "einen Eintrag auswählen, der zu der Grafikkarte dieses Systems passt. Falls "
-"keiner passt und die Karte »XV« unterstützt, wählen Sie diese Option "
-"(hierbei kann der Befehl »xvinfo« helfen)."
+"keiner passt und die Karte »XV« unterstützt, wählen Sie diese Option (hierbei "
+"kann der Befehl »xvinfo« helfen)."
 
 #. Type: select
 #. Description
-#: ../mplayer.templates:5001
+#: ../mplayer.templates:2001
 msgid ""
 "Please read the /usr/share/doc/mplayer-doc/HTML/en/video.html file from the "
 "'mplayer-doc' package for more details."
@@ -133,89 +73,103 @@ msgstr ""
 "Bitte lesen Sie die Datei /usr/share/doc/mplayer-doc/HTML/en/video.html im "
 "Paket »mplayer-doc« für weitere Details."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid "Binary codecs download"
-msgstr "Download von binären Codecs"
+#~ msgid "Detailed configuration needed for each user"
+#~ msgstr "Für jeden Benutzer wird eine detaillierte Konfiguration benötigt"
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid "MPlayer supports most video formats without additional software."
-msgstr ""
-"MPlayer unterstützt die meisten Videoformate ohne zusätzliche Software."
+#~ msgid ""
+#~ "The performance of MPlayer depends heavily on hardware; this means that "
+#~ "it may benefit from tweaking options for every single machine it's "
+#~ "installed on."
+#~ msgstr ""
+#~ "Die Leistung von MPlayer hängt stark von der Hardware ab; das bedeutet, "
+#~ "das MPlayer von der Anpassung auf jeder einzelnen Maschine profitiert, "
+#~ "auf der es installiert ist."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid ""
-"Additional video formats, such as Real 3.0/4.0, Windows Media 9, or "
-"Quicktime, can be supported by using binary codecs."
-msgstr ""
-"Zusätzliche Videoformate, wie Real 3.0/4.0, Windows Media 9 oder Quicktime "
-"können durch den Einsatz von binären Codecs unterstützt werden."
+#~ msgid ""
+#~ "You should read the documentation provided by the 'mplayer-doc' package."
+#~ msgstr ""
+#~ "Sie sollten die im Paket »mplayer-doc« enthaltene Dokumentation lesen."
 
-#. Type: note
-#. Description
-#: ../mplayer.templates:6001
-msgid ""
-"As such codecs are not free software, they are not distributed with this "
-"package but can be downloaded freely. The '/usr/share/mplayer/scripts/"
-"binary_codecs.sh' script is provided in this package to help downloading "
-"them from the MPlayer web site."
-msgstr ""
-"Da solche Codecs keine Freie Software sind, werden sie nicht mit diesem "
-"Paket vertrieben, können aber kostenfrei heruntergeladen werden. In diesem "
-"Paket wird das Skript »/usr/share/mplayer/scripts/binary_codecs.sh« "
-"bereitgestellt, um beim Herunterladen von der MPlayer-Website zu helfen."
+#~ msgid ""
+#~ "Now, some configuration options will be set for the entire system in /etc/"
+#~ "mplayer/mplayer.conf which may be adapted later. Any user can also refine "
+#~ "options in ~/.mplayer/config."
+#~ msgstr ""
+#~ "Jetzt werden einige Konfigurationsoptionen für das gesamte System in /etc/"
+#~ "mplayer/mplayer.conf gesetzt, die später angepasst werden können. Jeder "
+#~ "Benutzer kann die Optionen auch in ~/.mplayer/config anpassen."
 
-#. Type: string
-#. Description
-#: ../mplayer.templates:7001
-msgid "DVD device name:"
-msgstr "DVD-Gerätename:"
+#~ msgid "Old configuration file kept"
+#~ msgstr "Alte Konfigurationsdatei beibehalten"
 
-#. Type: string
-#. Description
-#: ../mplayer.templates:7001
-msgid "Please enter the name of the device for your DVD player, if any."
-msgstr ""
-"Bitte geben Sie - falls vorhanden - den Namen des Gerätes Ihres DVD-Spielers "
-"an."
+#~ msgid ""
+#~ "You chose not to replace the existing /etc/mplayer/mplayer.conf file."
+#~ msgstr ""
+#~ "Sie haben sich entschieden, die existierende Datei /etc/mplayer/mplayer."
+#~ "conf zu behalten."
 
-#. Type: select
-#. Description
-#: ../mplayer.templates:8001
-msgid "Font for On Screen Display:"
-msgstr "Schriften für eingeblendeten Text:"
+#~ msgid ""
+#~ "That file can be generated automatically later by running 'dpkg-"
+#~ "reconfigure mplayer'."
+#~ msgstr ""
+#~ "Diese Datei kann später automatisch generiert werden, indem »dpkg-"
+#~ "reconfigure mplayer« ausgeführt wird."
 
-#. Type: error
-#. Description
-#: ../mplayer.templates:9001
-msgid "No TrueType fonts found for On Screen Display"
-msgstr "Für eingeblendeten Text konnte keine TrueType-Schrift gefunden werden"
+#~ msgid "Binary codecs download"
+#~ msgstr "Download von binären Codecs"
 
-#. Type: error
-#. Description
-#: ../mplayer.templates:9001
-msgid ""
-"MPlayer needs at least one TrueType font for its 'On Screen Display' feature."
-msgstr ""
-"MPlayer benötigt mindestens eine TrueType-Schrift für seine Funktionalität "
-"»eingeblendeten Text« (»On Screen Display«)."
+#~ msgid "MPlayer supports most video formats without additional software."
+#~ msgstr ""
+#~ "MPlayer unterstützt die meisten Videoformate ohne zusätzliche Software."
 
-#. Type: error
-#. Description
-#: ../mplayer.templates:9001
-msgid ""
-"You should install a package providing such fonts (such as 'ttf-freefont' or "
-"'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by running "
-"'dpkg-reconfigure mplayer')."
-msgstr ""
-"Sie sollten ein Paket installieren, das solche Schriften enthält (wie »ttf-"
-"freefont« oder »ttf-bitstream-vera« oder »msttcorefonts«) und MPlayer "
-"rekonfigurieren (durch die Ausführung von »dpkg-reconfigure mplayer«)."
+#~ msgid ""
+#~ "Additional video formats, such as Real 3.0/4.0, Windows Media 9, or "
+#~ "Quicktime, can be supported by using binary codecs."
+#~ msgstr ""
+#~ "Zusätzliche Videoformate, wie Real 3.0/4.0, Windows Media 9 oder "
+#~ "Quicktime können durch den Einsatz von binären Codecs unterstützt werden."
+
+#~ msgid ""
+#~ "As such codecs are not free software, they are not distributed with this "
+#~ "package but can be downloaded freely. The '/usr/share/mplayer/scripts/"
+#~ "binary_codecs.sh' script is provided in this package to help downloading "
+#~ "them from the MPlayer web site."
+#~ msgstr ""
+#~ "Da solche Codecs keine Freie Software sind, werden sie nicht mit diesem "
+#~ "Paket vertrieben, können aber kostenfrei heruntergeladen werden. In "
+#~ "diesem Paket wird das Skript »/usr/share/mplayer/scripts/binary_codecs.sh« "
+#~ "bereitgestellt, um beim Herunterladen von der MPlayer-Website zu helfen."
+
+#~ msgid "DVD device name:"
+#~ msgstr "DVD-Gerätename:"
+
+#~ msgid "Please enter the name of the device for your DVD player, if any."
+#~ msgstr ""
+#~ "Bitte geben Sie - falls vorhanden - den Namen des Gerätes Ihres DVD-"
+#~ "Spielers an."
+
+#~ msgid "Font for On Screen Display:"
+#~ msgstr "Schriften für eingeblendeten Text:"
+
+#~ msgid "No TrueType fonts found for On Screen Display"
+#~ msgstr ""
+#~ "Für eingeblendeten Text konnte keine TrueType-Schrift gefunden werden"
+
+#~ msgid ""
+#~ "MPlayer needs at least one TrueType font for its 'On Screen Display' "
+#~ "feature."
+#~ msgstr ""
+#~ "MPlayer benötigt mindestens eine TrueType-Schrift für seine "
+#~ "Funktionalität »eingeblendeten Text« (»On Screen Display«)."
+
+#~ msgid ""
+#~ "You should install a package providing such fonts (such as 'ttf-freefont' "
+#~ "or 'ttf-bitstream-vera' or 'msttcorefonts') and reconfigure MPlayer (by "
+#~ "running 'dpkg-reconfigure mplayer')."
+#~ msgstr ""
+#~ "Sie sollten ein Paket installieren, das solche Schriften enthält (wie "
+#~ "»ttf-freefont« oder »ttf-bitstream-vera« oder »msttcorefonts«) und MPlayer "
+#~ "rekonfigurieren (durch die Ausführung von »dpkg-reconfigure mplayer«)."
 
 #~ msgid "Create your ~/.mplayer/config file"
 #~ msgstr "Erstelle Ihre ~/.mplayer/config-Datei"
@@ -287,8 +241,8 @@ msgstr ""
 #~ "bevorzugtes auswählen. Hier ist ein Ratgeber für die Wahl (in Reihenfolge "
 #~ "absteigender Geschwindigkeit): (1) falls Sie einen Eintrag sehen, der zu "
 #~ "Ihrer Videokarte passt, wählen Sie diesen; (2) falls Ihre Videokarte »XV« "
-#~ "unterstützt (mit »xvinfo« finden Sie dies heraus), verwenden Sie dies. "
-#~ "Sie sollten /usr/share/doc/mplayer-doc/HTML/de/video.html (aus dem Paket "
+#~ "unterstützt (mit »xvinfo« finden Sie dies heraus), verwenden Sie dies. Sie "
+#~ "sollten /usr/share/doc/mplayer-doc/HTML/de/video.html (aus dem Paket "
 #~ "»mplayer-doc«) lesen."
 
 #~ msgid "How to download binary codecs"
