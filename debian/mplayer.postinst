@@ -58,7 +58,7 @@ create_conf () {
  db_get "mplayer/dvd_device"
  if test "$RET" ; then
      echo "#device for dvd" >> $t
-     echo "dvd-device=${RET}" >> $t 
+     echo "dvd-device=/dev/dvd" >> $t 
      test -r "$RET" || message "Mplayer warning: dvd device '$RET' does not exist!\n"
  fi
  

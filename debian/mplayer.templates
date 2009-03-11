@@ -22,12 +22,6 @@ _Description: MPlayer video output:
  Please read the /usr/share/doc/mplayer-doc/HTML/en/video.html file from
  the 'mplayer-doc' package for more details.
 
-Template: mplayer/dvd_device
-Type: string
-Default: /dev/cdrom
-_Description: DVD device name:
- Please enter the name of the device for your DVD player, if any.
-
 Template: mplayer/ttfont
 Type: select
 Choices: ${ttfontchoices}
