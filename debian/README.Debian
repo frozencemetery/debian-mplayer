@@ -1,3 +1,16 @@
+--------------------- on mplayer configuration
+
+The performance of MPlayer depends heavily on hardware; this means that
+it may benefit from tweaking options for every single machine it's
+installed on.
+
+Please see also the documentation provided by the 'mplayer-doc' package.
+
+Now, some configuration options will be set for the entire system in
+/etc/mplayer/mplayer.conf which may be adapted later. Any user can also
+refine options in ~/.mplayer/config.
+
+
 --------------------- on debian-multimedia
 
 Christian Marillat  offers many multimedia-related packages in his repository,
@@ -109,4 +122,4 @@ but for the following notes and exceptions:
 *N* to avoid stripping, use DEB_BUILD_OPTIONS=nostrip
     to enable debugging, use DEB_BUILD_OPTIONS=nostrip,debug
 
- -- A Mennucc <debdev@tonelli.sns.it>, Fri, 15 Dec 2006 14:53:12 +0100
+ -- Reinhard Tartler <siretart@tauware.de>, Wed, 11 Mar 2009 21:20:16 +0100

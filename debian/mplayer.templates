@@ -1,17 +1,3 @@
-Template: mplayer/cfgnote
-Type: note
-_Description: Detailed configuration needed for each user
- The performance of MPlayer depends heavily on hardware; this means that
- it may benefit from tweaking options for every single machine it's
- installed on.
- .
- You should read the documentation provided by the
- 'mplayer-doc' package.
- .
- Now, some configuration options will be set for the entire system in
- /etc/mplayer/mplayer.conf which may be adapted later. Any user can also
- refine options in ~/.mplayer/config.
-
 Template: mplayer/replace-existing-files
 Type: boolean
 Default: false
