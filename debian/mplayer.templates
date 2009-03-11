@@ -22,19 +22,6 @@ _Description: MPlayer video output:
  Please read the /usr/share/doc/mplayer-doc/HTML/en/video.html file from
  the 'mplayer-doc' package for more details.
 
-Template: mplayer/install_codecs
-Type: note
-_Description: Binary codecs download
- MPlayer supports most video formats without additional software.
- .
- Additional video formats, such as Real 3.0/4.0, Windows Media 9, or Quicktime,
- can be supported by using binary codecs.
- .
- As such codecs are not free software, they are not distributed with
- this package but can be downloaded freely. The
- '/usr/share/mplayer/scripts/binary_codecs.sh' script is provided in
- this package to help downloading them from the MPlayer web site.
-
 Template: mplayer/dvd_device
 Type: string
 Default: /dev/cdrom
