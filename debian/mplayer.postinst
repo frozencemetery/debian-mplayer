@@ -62,12 +62,9 @@ create_conf () {
      test -r "$RET" || message "Mplayer warning: dvd device '$RET' does not exist!\n"
  fi
  
- db_get "mplayer/ttfont"
- if test "$RET" ; then
-     echo "#truetype font, using fontconfig" >> $t
-     echo "fontconfig=1" >> $t 
-     echo "font='${RET}'" >> $t
- fi
+ echo "#enable fontconfig" >> $t
+ echo "fontconfig=1" >> $t 
+ echo "font='sans'" >> $t
 
  echo "#if you do not like this default, override it by adding" >> $t
  echo "#  a ao= line below this debconf area" >> $t

@@ -21,18 +21,3 @@ _Description: MPlayer video output:
  .
  Please read the /usr/share/doc/mplayer-doc/HTML/en/video.html file from
  the 'mplayer-doc' package for more details.
-
-Template: mplayer/ttfont
-Type: select
-Choices: ${ttfontchoices}
-Default: ${ttfontdefault}
-_Description: Font for On Screen Display:
-
-Template: mplayer/no-ttfont
-Type: error
-_Description: No TrueType fonts found for On Screen Display
- MPlayer needs at least one TrueType font for its 'On Screen Display' feature.
- .
- You should install a package providing such fonts (such as
- 'ttf-freefont' or 'ttf-bitstream-vera' or 'msttcorefonts')
- and reconfigure MPlayer (by running 'dpkg-reconfigure mplayer').
