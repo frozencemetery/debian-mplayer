@@ -1,3 +1,9 @@
+mplayer (2:1.0~rc2+svn20090303-1~ppa2) intrepid; urgency=low
+
+  * do not run the actual rules of debian/rules in parallel, fixes FTBFS
+
+ -- Reinhard Tartler <siretart@tauware.de>  Wed, 11 Mar 2009 09:49:23 +0100
+
 mplayer (2:1.0~rc2+svn20090303-1~ppa1) intrepid; urgency=low
 
   * testbuild in my ppa against new ffmpeg
