@@ -7,15 +7,6 @@ _Description: Replace existing configuration file?
  by a generated one (the old file will be moved to
  /etc/mplayer/mplayer.conf.debconf-old).
 
-Template: mplayer/replace-existing-files-bail
-Type: note
-_Description: Old configuration file kept
- You chose not to replace the existing /etc/mplayer/mplayer.conf
- file.
- .
- That file can be generated automatically later by running
- 'dpkg-reconfigure mplayer'.
-
 Template: mplayer/voutput
 Type: select
 Default: autodetect
