@@ -55,12 +55,9 @@ create_conf () {
 	 echo "zoom=1" >> $t 
      fi
  fi
- db_get "mplayer/dvd_device"
- if test "$RET" ; then
-     echo "#device for dvd" >> $t
-     echo "dvd-device=/dev/dvd" >> $t 
-     test -r "$RET" || message "Mplayer warning: dvd device '$RET' does not exist!\n"
- fi
+
+ echo "#device for dvd" >> $t
+ echo "dvd-device=/dev/dvd" >> $t 
  
  echo "#enable fontconfig" >> $t
  echo "fontconfig=1" >> $t 
