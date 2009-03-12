@@ -1,8 +1,9 @@
-mplayer (1.0~rc2+svn20090303-1) UNRELEASED; urgency=low
+mplayer (1.0~rc2+svn20090303-1) unstable; urgency=low
 
-  * new upstream snapshot, Closes: #517774
+  * new upstream snapshot (Closes: #517774)
+  * this version has dvdnav:// support (Closes: #430211)
   * rebuild against new ffmpeg in unstable,
-    Closes: #518670, #516933, #492229, #505048
+    (Closes: #518670, #516933, #492229, #505048, #512892, #496709)
   * converted package to use git Closes: #508483
   * completly reworked the way the .orig.tar.gz is created, please see
     debian/README.upstream-upgrade and debian/get-orig-source.sh for details
@@ -33,8 +34,21 @@ mplayer (1.0~rc2+svn20090303-1) UNRELEASED; urgency=low
     handled: it now copied from debian/control.mplayer-non-dfsg. Add a
     debian/control target in debian rules.
   * do not run the actual rules of debian/rules in parallel, fixes FTBFS
+  * implement the debconf review by Josselin Mouette and Christian
+    Perrier. The last debconf question is mplayer/replace-existing-files
+    (which can be dropped after ucf is deployed in the package) and
+    mplayer/voutput, which needs more thought. (Closes: #445091)
+  * verified that http://oumph.free.fr/tmp/29761.h264 no longer crashes
+    mplayer (Closes: #497467)
+  * add japanese debconf translation, thanks to Hideki Yamane. 
+    (Closes: #512874)
+  * warn about libstdc++.so.5 when installing binary codecs in i386 as well
+    (Closes: #497787)
+  * add libpulse-dev to build dependencies to enable pulseaudio backend
+    (Closes: #468470)
+  * add libschroedinger-dev to build dependencies
 
- -- Reinhard Tartler <siretart@tauware.de>  Mon, 02 Mar 2009 22:19:20 +0100
+ -- Reinhard Tartler <siretart@tauware.de>  Wed, 11 Mar 2009 22:23:25 +0100
 
 mplayer (1.0~rc2-20) unstable; urgency=low
 
