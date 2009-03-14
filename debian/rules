@@ -147,7 +147,8 @@ COMMON_CONFIGURE_FLAGS = \
 	--enable-menu \
 	--enable-largefiles 
 
-# hi dpkg-buildpackage. nice to see you make the game tougher
+# See http://wiki.debian.org/Teams/Dpkg/DebianRules; #465282  and
+# https://wiki.ubuntu.com/DistCompilerFlags
 CLEAN_ENV=env -u CFLAGS -u CPPFLAGS -u LDFLAGS -u FFLAGS -u CXXFLAGS
 
 configure: configure-arch-stamp
