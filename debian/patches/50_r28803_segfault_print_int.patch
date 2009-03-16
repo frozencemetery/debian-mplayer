@@ -1,0 +1,17 @@
+------------------------------------------------------------------------
+r28803 | reimar | 2009-03-03 19:12:03 +0100 (Di, 03. Mär 2009) | 2 lines
+
+100l, remove a pointless opt = NULL assignment that made print_int crash since r28794
+
+------------------------------------------------------------------------
+
+--- mplayer-trunk/m_option.c	(Revision 28802)
++++ mplayer-trunk/m_option.c	(Revision 28803)
+@@ -173,7 +173,6 @@
+ }
+ 
+ static char* print_int(const m_option_t* opt,  const void* val) {
+-  opt = NULL;
+   if (opt->type->size == sizeof(int64_t))
+     return dup_printf("%"PRId64, *(const int64_t *)val);
+   return dup_printf("%d",VAL(val));
