@@ -1,41 +1,54 @@
---------------------- on mplayer configuration
-
-The performance of MPlayer depends heavily on hardware; this means that
-it may benefit from tweaking options for every single machine it's
-installed on.
-
-Please see also the documentation provided by the 'mplayer-doc' package.
-
-Now, some configuration options will be set for the entire system in
-/etc/mplayer/mplayer.conf which may be adapted later. Any user can also
-refine options in ~/.mplayer/config.
 
 
---------------------- on debian-multimedia
+MPlayer configuration
+=====================
 
-Christian Marillat  offers many multimedia-related packages in his repository,
-including, for example, 'mencoder' ;
-so you may want to add in  /etc/apt/sources.list   the line
-  deb http://www.debian-multimedia.org etch main
+The performance of MPlayer depends heavily on hardware. This means that
+it may benefit from tweaking options for every single machine it is
+installed on. Please refer to the documentation provided by the 'mplayer-doc'
+package.
 
-But! some packages are both in Debian  and in that repository;
-If the versions of packages from that repository are newer than
-those in Debian, you will substitute them; and this is the case of
-mplayer; so, if you do not wish this to happen, you may add 
-vvvvvvvvvvvv
-Package: *
-Pin: release o=Unofficial Multimedia Packages
-Pin-Priority: 450
-^^^^^^^^^^
-into /etc/apt/preferences. (This is called "apt pinning").  This will
-give preference to a Debian package.  (If you want to give preference
-to Christian's package, use Pin-Priority: 550 )
+Some configuration options for the entire system will be set in the file
+/etc/mplayer/mplayer.conf which may be adapted later. Each user can also
+define private options in ~/.mplayer/config.
 
 
-To know if the above works, you can use the command
-$ apt-cache policy mplayer
+Unofficial packages
+===================
+
+There are unofficial mplayer packages, courtesy of Christian Marillat,
+available at the following address:
+
+  http://www.debian-multimedia.org/
+
+As there are even packages providing the 'mencoder' application as well as
+many other multimedia-related software in this repository, you may want to add
+it to your /etc/apt/sources.list file following the instructions given on the
+Debian Multimedia homepage.
+
+WARNING: Some packages are both in the official Debian and in the unofficial
+         Debian Multimedia repository.
+
+If a package has a newer version in the unofficial repository than in Debian,
+this spackage will automatically be replaced with the unofficial version. This
+may also be the case for the mplayer package!
+
+In order to prevent this situation, you may want to apply a method called
+"apt-pinning" and add the following lines to your /etc/apt/preferences file:
+
+  Package: *
+  Pin: release o=Unofficial Multimedia Packages
+  Pin-Priority: 450
+
+This will give preference to the official Debian package. Otherwise, if you
+want to give preference to the Debian Multimedia packages, choose
+'Pin-Priority: 550'.
+
+To find out if apt-pinning works for you try the following command:
+
+  apt-cache policy mplayer
   mplayer:
-   Installed : ....
+    Installed : ....
     Candidate : 1.0~rc1-8
     Table de version :
      [version]  [??]
@@ -44,78 +57,89 @@ $ apt-cache policy mplayer
         500 http://ftp.de.debian.org ustable/main Packages
         100 /var/lib/dpkg/status
 
-Look where the *** are, and what "Candidate:..." says.
-(But, do not trust the output [??] in that list: see bug  254820).
+The line beginning with "Candidate" and the one containing the three asterisks
+"*" indicate the prefered package version. (However, due to bug #254820 the
+output of this command may be even wrong).
 
+Unfortunately, (due to bug #317186) the following apt-pinning does not
+currently work:
 
-Unfortunately, currently (see bug 317186), the following 
- "apt package pinning" does not work
-vvvvvvvvvvvv
-Package: mplayer
-Pin: release o=Unofficial Multimedia Packages
-Pin-Priority: 450
-^^^^^^^^^^
+  Package: mplayer
+  Pin: release o=Unofficial Multimedia Packages
+  Pin-Priority: 450
 
 a.
 
----------------------- on performance
+
+MPlayer Performance
+===================
 
 Most options are autodetected or configured during compilation; thus
 users get a better performance if they rebuild this package themselves.
 
 In case you would like to change the parameters passed to ./configure,
-set variable DEB_BUILD_CONFIGURE.  When this binary was compiled, the
+set variable DEB_BUILD_CONFIGURE. When this binary was compiled, the
 variable was set to
 
 DEB_BUILD_CONFIGURE=@DEB_BUILD_CONFIGURE@
 
-So, recommended method is running 
+The recommended method to rebuild the packages is running
 
-$  fakeroot debian/rules DEB_BUILD_CONFIGURE="" binary
+  fakeroot debian/rules DEB_BUILD_CONFIGURE="" binary
 
-in the top directory of source code: this will reset that variable,
-and will then optimize mplayer strictly for your CPU.
-  
-Dariush Pietrzak <eyck@ghost.anime.pl>  Sat Jan  5 20:28:23 CET 2002
+in the top directory of source code. This will reset the hard-coded configure
+flags used for the official Debian package and will optimize the mplayer build
+strictly for your CPU.
 
--------------------- on debugging
+Dariush Pietrzak <eyck@ghost.anime.pl> Sat Jan 5 20:28:23 CET 2002
 
-if you need to debug this package, you may recompile it with
- "debugging options"
 
-one way to do this is
-$ DEB_BUILD_OPTIONS=debug debuild binary
-this will compile the package passing '--enable-debug=-g3' :
-so the sources will be compiled with CFLAGS
-   CFLAGS="-W -Wall -O2 -g3 ...arch.. ..cpu.. "
-this is the "upstream preferred way" of debugging mplayer.
+Debugging
+=========
 
-I also implemented 
- DEB_BUILD_OPTIONS=noopt
-that will compile without '-O2' , as is recommended by the policy
+In order to debug the mplayer application, the entire packages need to be
+rebuilt with so called "debugging options" enabled.
 
-Whereas DEB_BUILD_OPTIONS=nostrip  will make sure that, in the final
-package, all binaries will be unstripped
+One way to achieve this is running
 
-One warning: the above requires a lot of disk space! the building tree 
-is ~380Mb , and the final mplayer is ~90Mb , so you need ~500Mb to
-to a successfull debug building
+  DEB_BUILD_OPTIONS=debug debuild binary
 
-There is moreover a huge catch: some code in mplayer (particularly,
-asm code for mmx/sse) does not compile on some
-architectures when optimizations is disabled; see
- http://gcc.gnu.org/bugzilla/show_bug.cgi?id=11203
- http://gcc.gnu.org/bugzilla/show_bug.cgi?id=13850
+which will compile the package passing '--enable-debug=-g3' to the configure
+flags. consequently the sources will be compiled with the following CFLAGS
 
-For this reason, I have hacked up workarounds
-(reenabling optimization for files that fail w/o it)
-but your mileage may vary)
+  CFLAGS="-W -Wall -O2 -g3 ...arch.. ..cpu.. "
+
+This is the method of debugging mplayer as prefered upstream.
+
+Another possible way is rebuilding with
+
+  DEB_BUILD_OPTIONS=noopt
+
+that will compile without '-O2', as recommended by the Debian policy.
+
+Whereas rebuilding with DEB_BUILD_OPTIONS=nostrip will make sure that all
+binaries will be unstripped in the resulting packages.
+
+WARNING: The above methods require a lot of disk space! The building tree will
+         be about 400 MB and the final mplayer will be about 100 MB, so about
+         500 MB of disk space will be needed for a successful debug building.
+
+Moreover, there is a huge catch: Some code in mplayer (particularly asm code
+for MMX/SSE) does not compile on some architectures when optimizations is
+disabled, see
+  http://gcc.gnu.org/bugzilla/show_bug.cgi?id=11203
+  http://gcc.gnu.org/bugzilla/show_bug.cgi?id=13850
+
+For this reason, I have hacked up workarounds (reenabling optimization for
+files that fail without it) but your mileage may vary...
 
 a.
 
---------------
 
-This binary conforms to 
+Compliance with the MPlayer binary packaging guide
+==================================================
+
+This binary conforms to
  http://www.mplayerhq.hu/DOCS/tech/binary-packaging.txt
 but for the following notes and exceptions:
 *E* the GUI does not come as a separate package (it would save no disk space!)

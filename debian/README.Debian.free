@@ -1,61 +1,64 @@
-#this part is conditionally added if the source was DFSG free
+The following part of the document is conditionally added for packages that
+are built from stripped sources.
 
--------------
+Stripping of the source code
+============================
 
-WARNING WARNING WARNING WARNING
+WARNING: The mplayer sources as published in the Debian 'main' component have
+         some parts "stripped", i.e. disabled or removed!
 
-The sources as published in debian/main have some parts removed!
-
-* In order to update the package yourself and/or review the changes done
+* In order to update the package yourself and/or to review the changes done
   to the source code, please see the files:
 
    debian/README.upstream-upgrade
    debian/get-orig-source.sh
    debian/strip.sh
 
-* In particular, the mpdvdkit internal library was deleted: so
-  mplayer.deb is uncapable to play encrypted DVDs ; if you want to
-  play encrypted DVDs (i.e. almost all video DVDs), see the file
-  /usr/share/doc/libdvdread3/README.Debian. This file contains
-  up-to-date instructions on how to obtain libdvdcss2.
+* In particular, the internal mpdvdkit library was deleted, so the mplayer
+  package provided by Debian is unable to play encrypted DVDs. If you want to
+  play encrypted DVDs (i.e. almost all available Video-DVDs), please follow
+  the instructions in /usr/share/doc/libdvdread3/README.Debian on how to
+  obtain the necessary libdvdcss2 package.
 
-* PLEASE DO NOT BOTHER UPSTREAM MPLAYER'S AUTHORS WITH BUGS AND REQUESTS
- FOR FEATURES, but, send bugs to Debian: indeed, missing features
- and/or bugs may be due to my butchering of the upstream code
+* Please refrain from bothering MPlayer's upstream authors with bug reports
+  and/or feature requests, but use the Debian bug tracking system instead.
+  Missing features and/or bugs may be results of Debian's stripping of the
+  source code.
 
-A. Mennucc with adaptions by Reinhard Tartler
+A. Mennucc with adaptions by Reinhard Tartler and Fabian Greffrath
 
--------------- on GPLv2 sec 2.a
 
-MPlayer contains source code from other GPL libraries, such as 
- FFMpeg - libavcodec
- mp3lib
- liba52
- ...
- 
-See file 'Copyright'.
+Compliance with the GPLv2, sec 2.a
+==================================
 
-During the flames in 2002-03 in debian-legal, it was pointed out 
-that mplayer may not be respecting the following section of the GPL v2:
+The MPlayer sources contain source code from other GPL libraries, such as
+libavcodec from the FFMpeg project, mp3lib, liba52 and others. Please see the
+file debian/copyright for detailed licensing information.
 
->2. You may modify your copy or copies of the Program or any portion of
->it, thus forming a work based on the Program, and copy and distribute
->such modifications or work under the terms of Section 1 above, provided
->that you also meet all of these conditions:
->
->a) You must cause the modified files to carry prominent notices stating
->that you changed the files and the date of any change.
+During the discussions on debian-legal in 2002-03, it was pointed out
+that MPlayer may not be respecting the following section of the GPL v2:
 
-this issue is e.g. pointed out in 
+  2. You may modify your copy or copies of the Program or any portion of
+  it, thus forming a work based on the Program, and copy and distribute
+  such modifications or work under the terms of Section 1 above, provided
+  that you also meet all of these conditions:
+
+  a) You must cause the modified files to carry prominent notices stating
+  that you changed the files and the date of any change.
+
+This issue is pointed out in detail in the following thread:
   http://lists.debian.org/debian-legal/2003/debian-legal-200301/msg00231.html
 
-Currently mplayer ships many files such as 
- liba52/liba52_changes.diff           libmpdvdkit2/libdvdread_changes.diff
- libfaad2/local_changes.diff          libmpeg2/libmpeg-0.4.0.diff
- libmpdvdkit2/libdvdcss_changes.diff  tremor/tremor.diff
+Currently mplayer ships files such as
+  liba52/liba52_changes.diff
+  libfaad2/local_changes.diff
+  libmpdvdkit2/libdvdcss_changes.diff
+  libmpdvdkit2/libdvdread_changes.diff
+  libmpeg2/libmpeg-0.4.0.diff
+  tremor/tremor.diff
 to comply with this request.
 
-Moreover all changes to the code are documented
-in the SVN public repository of MPlayer (that is publicly accessible).
+Moreover all changes to the code are documented in the publicly accessible SVN
+repository of MPlayer.
 
-A. Mennucc
+A. Mennucc with adaptions by Fabian Greffrath

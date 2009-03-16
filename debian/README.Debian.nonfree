@@ -1,8 +1,11 @@
-#this part is conditionally added if the source was not DFSG free
+The following part of the document is conditionally added for packages that
+are built from pristine upstream sources.
 
-This version of the mplayer binary and sources contains all the code
-found as published by the mplayer developer team,
+Pristine source code
+====================
 
-Debian has concern with distributing various bits of it, so it currently
-cannot be included into the debian archive.
+This version of the mplayer binary and source package contains the pristine
+source code as published by the MPlayer development team.
 
+Since Debian has concern with distributing various bits of the code, it
+cannot currently be included in the Debian 'main' component.

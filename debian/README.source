@@ -1,7 +1,9 @@
-hi
+This package uses quilt to manage all modifications to the upstream source.
+The fully patched source can be generated using the patch target provided by
+`debian/rules'.
 
-mplayer source tree uses 'dpatch'. To see the code that is actually compiled, 
-run  './debian/rules patch'
+If you want to know more about how to use quilt to manage Debian patches, read
+/usr/share/doc/quilt/README.source.
 
-moreover, the file debian/control is generated from debian/control.in
-(by means of the command './debian/rules autocontrol' )
+Moreover, the debian/control file is generated from debian/control.in using
+the debian/control target provided by `debian/rules'.
