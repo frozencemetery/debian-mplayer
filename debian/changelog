@@ -1,3 +1,9 @@
+mplayer (1.0~rc2+svn20090303-3) unstable; urgency=low
+
+  * try a fix for bug 520113
+
+ -- A Mennucc1 <mennucc1@debian.org>  Fri, 20 Mar 2009 18:23:35 +0100
+  
 mplayer (1.0~rc2+svn20090303-2) unstable; urgency=low
 
   * always build documentation. Fixes FTBFS.
