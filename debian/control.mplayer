@@ -73,7 +73,8 @@ Suggests: mplayer-doc,
 	  fontconfig
 Depends: debconf | debconf-2.0,
 	 mplayer-skin,
-	 ${shlibs:Depends}
+	 ${shlibs:Depends},
+	 ${misc:Depends}
 Description: movie player for Unix-like systems
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
@@ -95,7 +96,7 @@ Description: movie player for Unix-like systems
 Package: mplayer-dbg
 Architecture: any
 Priority: extra
-Depends: mplayer
+Depends: mplayer, ${misc:Depends}
 Description: debugging symbols for MPlayer
  This package contains the debugging symbols for MPlayer, a movie
  player for Unix-like systems. You only need these if you want to
@@ -104,6 +105,7 @@ Description: debugging symbols for MPlayer
 Package: mplayer-doc
 Architecture: all
 Recommends: mplayer
+Depends: ${misc:Depends}
 Section: doc
 Description: documentation for MPlayer
  This package contains the documentation for MPlayer, a movie player for
