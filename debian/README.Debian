@@ -58,7 +58,7 @@ To find out if apt-pinning works for you try the following command:
         100 /var/lib/dpkg/status
 
 The line beginning with "Candidate" and the one containing the three asterisks
-"*" indicate the prefered package version. (However, due to bug #254820 the
+"*" indicate the preferred package version. (However, due to bug #254820 the
 output of this command may be even wrong).
 
 Unfortunately, (due to bug #317186) the following apt-pinning does not
@@ -146,4 +146,4 @@ but for the following notes and exceptions:
 *N* to avoid stripping, use DEB_BUILD_OPTIONS=nostrip
     to enable debugging, use DEB_BUILD_OPTIONS=nostrip,debug
 
- -- Reinhard Tartler <siretart@tauware.de>, Wed, 11 Mar 2009 21:20:16 +0100
+ -- A Mennucc <mennucc1@debian.org>, Sun, 22 Mar 2009 15:49:03 +0100
