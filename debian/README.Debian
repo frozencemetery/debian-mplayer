@@ -93,45 +93,23 @@ strictly for your CPU.
 
 Dariush Pietrzak <eyck@ghost.anime.pl> Sat Jan 5 20:28:23 CET 2002
 
+Shared linking
+==============
+
+A factor affecting performance may be also that MPlayer in Debian
+is shared-linked to FFMpeg. To avoid it, delete the line
+30link-system-ffmpeg.patch from debian/patches/series
+
+a.
 
 Debugging
 =========
 
-In order to debug the mplayer application, the entire packages need to be
-rebuilt with so called "debugging options" enabled.
+Currently MPlayer in Debian is compiled with
+ ./configure --enable-debug
 
-One way to achieve this is running
-
-  DEB_BUILD_OPTIONS=debug debuild binary
-
-which will compile the package passing '--enable-debug=-g3' to the configure
-flags. consequently the sources will be compiled with the following CFLAGS
-
-  CFLAGS="-W -Wall -O2 -g3 ...arch.. ..cpu.. "
-
-This is the method of debugging mplayer as prefered upstream.
-
-Another possible way is rebuilding with
-
-  DEB_BUILD_OPTIONS=noopt
-
-that will compile without '-O2', as recommended by the Debian policy.
-
-Whereas rebuilding with DEB_BUILD_OPTIONS=nostrip will make sure that all
-binaries will be unstripped in the resulting packages.
-
-WARNING: The above methods require a lot of disk space! The building tree will
-         be about 400 MB and the final mplayer will be about 100 MB, so about
-         500 MB of disk space will be needed for a successful debug building.
-
-Moreover, there is a huge catch: Some code in mplayer (particularly asm code
-for MMX/SSE) does not compile on some architectures when optimizations is
-disabled, see
-  http://gcc.gnu.org/bugzilla/show_bug.cgi?id=11203
-  http://gcc.gnu.org/bugzilla/show_bug.cgi?id=13850
-
-For this reason, I have hacked up workarounds (reenabling optimization for
-files that fail without it) but your mileage may vary...
+Debugging symbols are stored into the package 'mplayer-dbg' and
+are automatically available to 'gdb' once that package is installed.
 
 a.
 
@@ -139,11 +117,8 @@ a.
 Compliance with the MPlayer binary packaging guide
 ==================================================
 
-This binary conforms to
+This binary roughly conforms to
  http://www.mplayerhq.hu/DOCS/tech/binary-packaging.txt
-but for the following notes and exceptions:
-*E* the GUI does not come as a separate package (it would save no disk space!)
-*N* to avoid stripping, use DEB_BUILD_OPTIONS=nostrip
-    to enable debugging, use DEB_BUILD_OPTIONS=nostrip,debug
+but it may better.
 
- -- A Mennucc <mennucc1@debian.org>, Sun, 22 Mar 2009 15:49:03 +0100
+ -- A Mennucc <mennucc1@debian.org>, Sun, 22 Mar 2009 16:04:44 +0100

@@ -99,6 +99,7 @@ Architecture: any
 Section: debug
 Priority: extra
 Depends: mplayer, ${misc:Depends}
+Recommends: ffmpeg-dbg
 Description: debugging symbols for MPlayer
  This package contains the debugging symbols for MPlayer, a movie
  player for Unix-like systems. You only need these if you want to
