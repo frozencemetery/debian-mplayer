@@ -1,3 +1,11 @@
+mplayer (1.0~rc2+svn20090303-4) unstable; urgency=low
+
+  * try another fix for bug 520113
+  * disable specific patch for powerpc, that was reducing optimization to -O
+    to avoid gcc bug 475153
+
+ -- A Mennucc1 <mennucc1@debian.org>  Sun, 22 Mar 2009 10:11:36 +0100
+
 mplayer (1.0~rc2+svn20090303-3) unstable; urgency=low
 
   * try a fix for bug 520113

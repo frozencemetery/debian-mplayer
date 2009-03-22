@@ -165,11 +165,6 @@ ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	mv config.mak  config.mak~~
 	sed '/FLAGS/s/ -O[0-9] /  /' config.mak~~ > config.mak
 endif
-	#workaround for gcc bug 475153 (hopefully)
-ifeq (powerpc,$(DEB_HOST_ARCH_CPU))
-	mv config.mak  config.mak~~
-	sed '/FLAGS/s/ -O[0-9] / -O /' config.mak~~ > config.mak
-endif
 	#workaround for bug 520113 (hopefully)
 ifeq (mips,$(DEB_HOST_ARCH_CPU))
 	mv config.mak  config.mak~~
