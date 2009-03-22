@@ -177,7 +177,7 @@ endif
 	#workaround for bug 520113 (hopefully)
 ifeq (mips,$(DEB_HOST_ARCH_CPU))
 	mv config.mak  config.mak~~
-	sed '/^CFLAGS =/s/=/= -fPIC /' config.mak~~ > config.mak
+	sed '/^CFLAGS =/s/=/= -fPIC -DPIC /' config.mak~~ > config.mak
 endif
 	touch configure-arch-stamp
 
