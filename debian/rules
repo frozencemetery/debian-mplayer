@@ -160,11 +160,7 @@ configure-arch-stamp: $(QUILT_STAMPFN)
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE)
 
 	#tweak config.mak on request
-ifneq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
-	mv config.mak  config.mak~~
-	sed 's/STRIPBINARIES.*/STRIPBINARIES = no/' config.mak~~ > config.mak
-	#dh_strip does(n't) the rest of the job
-endif
+	# FIXME: this debian/rules does not honor 'nostrip'
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	mv config.mak  config.mak~~
 	sed '/FLAGS/s/ -O[0-9] /  /' config.mak~~ > config.mak
