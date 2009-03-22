@@ -1,5 +1,5 @@
 Source: mplayer
-Section: graphics
+Section: video
 Priority: optional
 Maintainer: Debian multimedia packages maintainers <pkg-multimedia-maintainers@lists.alioth.debian.org>
 Uploaders: A Mennucc1 <mennucc1@debian.org>,
@@ -66,6 +66,7 @@ Build-Depends: debhelper (>= 7),
 
 Package: mplayer
 Architecture: any
+Section: video
 Suggests: mplayer-doc,
 	  ttf-freefont,
 	  netselect | fping,
@@ -94,6 +95,7 @@ Description: movie player for Unix-like systems
 
 Package: mplayer-dbg
 Architecture: any
+Section: debug
 Priority: extra
 Depends: mplayer
 Description: debugging symbols for MPlayer
