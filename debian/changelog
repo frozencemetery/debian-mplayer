@@ -1,3 +1,11 @@
+mplayer (1.0~rc2+svn20090303-5) unstable; urgency=low
+
+  * debian/control : move docbook-xml,docbook-xsl,xsltproc from 
+    Build-Depends-Indep to Build-Depends, since they are needed to run
+    configure
+
+ -- A Mennucc1 <mennucc1@debian.org>  Mon, 23 Mar 2009 10:05:45 +0100
+
 mplayer (1.0~rc2+svn20090303-4) unstable; urgency=low
 
   * try another fix for bug 520113
