@@ -23,20 +23,20 @@ choosemirror ()
 {
   cd $PREFDIR
 
-  #if [ ! -r mirrors ] || find  mirrors -mtime +20  ; then
+  #if [ ! -r mirrors ] || find mirrors -mtime +20 ; then
     echo Downloading mirrors list..
     wget -nv -N $MYSITE/mirrors || true
   #fi
   if [ ! -r bestsites ] || [ mirrors -nt bestsites ] || \
-    find  bestsites -mtime +20 | grep -q bestsites ; then
-    if which netselect > /dev/null  ; then
-      echo  Choosing best mirrors using netselect....
-      netselect  -s 5 -t 5  $( cat mirrors ) | awk '{print $2}' > bestsites
+    find bestsites -mtime +20 | grep -q bestsites ; then
+    if which netselect > /dev/null ; then
+      echo Choosing best mirrors using netselect....
+      netselect -s 5 -t 5 $( cat mirrors ) | awk '{print $2}' > bestsites
     elif which fping > /dev/null ; then
-     fping -C 1   $( sed   's#.*//##;s#/.*##' mirrors ) 2>&1 | \
-       egrep -v 'bytes.*loss' | sort -n -k3  | \
-       grep -v ': *-' |  awk '/:/{print $1}' | head -5 | ( while read mainsite ; do
-	   grep $mainsite $PREFDIR/mirrors ;    done ) > bestsites
+     fping -C 1  $( sed   's#.*//##;s#/.*##' mirrors ) 2>&1 | \
+       egrep -v 'bytes.*loss' | sort -n -k3 | \
+       grep -v ': *-' | awk '/:/{print $1}' | head -5 | ( while read mainsite ; do
+         grep $mainsite $PREFDIR/mirrors ; done ) > bestsites
     else
       echo "(If you install 'netselect' or 'fping', it will select the best mirror for you"
       echo "  you may wish to stop this script and rerun after installation)"
@@ -56,11 +56,11 @@ INSTALL () {
   cd $CODECDIR/mplayer_binary_codecs
 
   if [ -r $filename ] ; then
-    cp $filename  $filename.bak
+    cp $filename $filename.bak
   fi
 
-  if [  "$url" = @MAINSITE@ ] ; then
-    cat $PREFDIR/bestsites |   while read mainsite ; do
+  if [ "$url" = @MAINSITE@ ] ; then
+    cat $PREFDIR/bestsites | while read mainsite ; do
       echo Downloading $filename from $mainsite ...
       wget -c -N $mainsite/$dir/$filename || true
       if [ -r "$filename" ] ; then
@@ -70,7 +70,7 @@ INSTALL () {
     done
   else
     wget -c -N $url/$dir/$filename || true
-    if  [ -r "$filename" ] ; then
+    if [ -r "$filename" ] ; then
       UNPACK "$filename"
       return 0
     fi
@@ -83,25 +83,25 @@ INSTALL () {
 UNPACK ()
 {
   filename="$1"
-  if [ -r $filename.bak ] &&  cmp $filename.bak $filename && [  -r  $filename.list ] ; then
-    echo It appears that  $filename was already succesfully installed
+  if [ -r $filename.bak ] && cmp $filename.bak $filename && [ -r  $filename.list ] ; then
+    echo It appears that $filename was already succesfully installed
     [ -r $filename.bak ] && rm $filename.bak
   else
-    if grep -q "  $filename$" $PREFDIR/MD5SUMS ; then
-	echo Checking MD5 for $filename
-	grep "  $filename$" $PREFDIR/MD5SUMS | md5sum -c -
+    if grep -q " $filename$" $PREFDIR/MD5SUMS ; then
+      echo Checking MD5 for $filename
+      grep " $filename$" $PREFDIR/MD5SUMS | md5sum -c -
     else
-	echo Warning: no MD5 for $filename were found. Hit enter to continue.
-	read dummy
+      echo Warning: no MD5 for $filename were found. Hit enter to continue.
+      read dummy
     fi
-    echo Installing $filename  ...
-    if [ -r $filename.list  ] ; then
-      tr '\n' '\000' < $filename.list | xargs -r0 rm  || true
+    echo Installing $filename ...
+    if [ -r $filename.list ] ; then
+      tr '\n' '\000' < $filename.list | xargs -r0 rm || true
       UNLINK $filename.list
       rm $filename.list
     fi
 
-    tarfail () { echo FAILED $filename ;  rm $filename.list ; exit 1 ; }
+    tarfail () { echo FAILED $filename ; rm $filename.list ; exit 1 ; }
 
     case "$filename" in
       *.tar.gz)
@@ -113,7 +113,7 @@ UNPACK ()
         #rm $filename
         ;;
       *.tar.bz2)
-        tar  --bzip2 -xvf $filename > $filename.list || tarfail
+        tar --bzip2 -xvf $filename > $filename.list || tarfail
         #rm $filename
         ;;
     esac
@@ -149,49 +149,49 @@ fi
 case "$1" in
   install)
     if  test -x /bin/bzip2 || test -x /usr/bin/bzip2 ; then : ; else
-		echo You need to install bzip2
-		exit 1
+      echo You need to install bzip2
+      exit 1
     fi
     choosemirror
     cd $PREFDIR
-    #if [ ! -r codecs_list ] || find  codecs_list -mtime +20  ; then
-      echo 'Getting  codecs list ...'
+    #if [ ! -r codecs_list ] || find codecs_list -mtime +20 ; then
+      echo 'Getting codecs list ...'
       wget -nv -N $MYSITE/codecs_list || true
     #fi
-    
+
     cd $PREFDIR
     echo Downloading MD5 sums from main site
-    [ -r MD5SUMS ] &&  mv MD5SUMS MD5SUMS.bak
-    if wget -nv  -N http://www.mplayerhq.hu/MPlayer/releases/codecs/MD5SUMS ; then
-	[ -r MD5SUMS.bak ] && rm MD5SUMS.bak	
+    [ -r MD5SUMS ] && mv MD5SUMS MD5SUMS.bak
+    if wget -nv -N http://www.mplayerhq.hu/MPlayer/releases/codecs/MD5SUMS ; then
+      [ -r MD5SUMS.bak ] && rm MD5SUMS.bak
     else
-	echo failed... 
-	if [ -r MD5SUMS.bak ] ; then 
-	    echo trying to use backup ... ;
-	    mv MD5SUMS.bak MD5SUMS
-	fi
+      echo failed...
+      if [ -r MD5SUMS.bak ] ; then
+        echo trying to use backup ... ;
+        mv MD5SUMS.bak MD5SUMS
+      fi
     fi
-    
-    if  grep -q "^$dpkgarch" $PREFDIR/codecs_list  ; then
+
+    if grep -q "^$dpkgarch" $PREFDIR/codecs_list ; then
       egrep -v "^[[:space:]]*(#|$)" $PREFDIR/codecs_list | \
         while read arch url dir file info ; do
           if [ "$dpkgarch" = "$arch" ]; then
-            echo Downloading and installing $file  $info...
-            INSTALL "$url"  "$dir"  "$file"
+            echo Downloading and installing $file $info...
+            INSTALL "$url" "$dir" "$file"
           fi
         done
       needlibstd=no
       test "$dpkgarch" = "powerpc" && needlibstd=yes
       test "$dpkgarch" = "i386" && needlibstd=yes
       if test "$needlibstd" = "yes" && ! test -r /usr/lib/libstdc++.so.5 ; then
-	  echo 'Warning: you need to install libstdc++ 5 libraries'
-	  echo -n 'Do it now? '
-	  read R
-	  case $R in
-	      y*) apt-get install libstdc++5 ;;
-	      *) echo 'If you change your mind, use the command'
-		  echo '  apt-get install libstdc++5' ;;
-	  esac
+	echo 'Warning: you need to install libstdc++ 5 libraries'
+	echo -n 'Do it now? '
+	read R
+	case $R in
+         y*) apt-get install libstdc++5 ;;
+          *) echo 'If you change your mind, use the command'
+             echo '  apt-get install libstdc++5' ;;
+        esac
       fi
     else
       echo "Sorry, no codecs for your arch '$dpkgarch'. Sorry dude :("

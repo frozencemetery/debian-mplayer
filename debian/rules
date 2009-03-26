@@ -160,19 +160,15 @@ configure-arch-stamp: $(QUILT_STAMPFN)
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE)
 
 	#tweak config.mak on request
-ifneq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
-	mv config.mak  config.mak~~
-	sed 's/STRIPBINARIES.*/STRIPBINARIES = no/' config.mak~~ > config.mak
-	#dh_strip does(n't) the rest of the job
-endif
+	# FIXME: this debian/rules does not honor 'nostrip'
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	mv config.mak  config.mak~~
 	sed '/FLAGS/s/ -O[0-9] /  /' config.mak~~ > config.mak
 endif
-	#workaround for gcc bug 475153 (hopefully)
-ifeq (powerpc,$(DEB_HOST_ARCH_CPU))
+	#workaround for bug 520113 (hopefully)
+ifeq (mips,$(DEB_HOST_ARCH_CPU))
 	mv config.mak  config.mak~~
-	sed '/FLAGS/s/ -O[0-9] / -O /' config.mak~~ > config.mak
+	sed '/^CFLAGS =/s/=/= -fPIC -DPIC /' config.mak~~ > config.mak
 endif
 	touch configure-arch-stamp
 
@@ -277,6 +273,7 @@ binary-common:
 	dh_installmime
 	dh_installinit
 	dh_installman
+	dh_desktop
 #       dh_installcron
 #       dh_installinfo
 #       dh_undocumented
