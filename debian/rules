@@ -150,30 +150,12 @@ configure-arch-stamp: $(QUILT_STAMPFN)
 	# Add commands to configure the package here.
 	$(CLEAN_ENV) \
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE)
-	#tweak config.mak on request
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	mv config.mak  config.mak~~
-	sed '/FLAGS/s/ -O[0-9] /  /' config.mak~~ > config.mak
-endif
 	touch configure-arch-stamp
 
 # commands to compile the package
 build-arch: build-arch-stamp
 build-arch-stamp: configure-arch-stamp
 	dh_testdir
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-ifeq ($(DEB_HOST_ARCH),i386)
-	echo SORRY THIS DOES NOT WORK CURRENTLY
-	cd libvo && ${CLEAN_ENV} ${MAKE}  CC='gcc -O'  osd.o
-	cd libavcodec && ${CLEAN_ENV} ${MAKE} i386/dsputil_mmx.o cabac.o  OPTFLAGS=" -O2 -ffast-math -fomit-frame-pointer"
-	cd libpostproc && ${CLEAN_ENV} ${MAKE} postprocess.o  OPTFLAGS=" -O2 -ffast-math -fomit-frame-pointer"
-	cd mp3lib && ${CLEAN_ENV} ${MAKE} dct64_sse.o  OPTFLAGS=" -I.. -O2 -ffast-math -fomit-frame-pointer"
-	cd liba52 && ${CLEAN_ENV} ${MAKE} imdct.o  OPTFLAGS=" -I.. -O2 -ffast-math -fomit-frame-pointer"
-endif
-endif
-	#workaround for 478731 (hopefully)
-	#cd gui && ${CLEAN_ENV} ${MAKE} skin/skin.o skin/font.o   OPTFLAGS=" -I. -I.. -g -Wall"
-
 	$(CLEAN_ENV) \
 	$(MAKE)
 	touch build-arch-stamp
