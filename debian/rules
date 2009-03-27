@@ -181,8 +181,8 @@ clean: clean-real unpatch
 clean-real:
 	dh_testdir
 	dh_testroot
-	test -r config.mak && $(MAKE) -C DOCS/xml distclean || true
-	$(MAKE) distclean
+	[ ! -f config.mak ] || $(MAKE) -C DOCS/xml distclean || true
+	[ ! -f config.mak ] || $(MAKE) distclean
 	dh_clean config.h config.mak configure.log
 	dh_clean build-arch-stamp build-indep-stamp configure-arch-stamp snapshot_version
 	find -name '*.o' -or -name '*.a' -or -name '*~' \
