@@ -26,14 +26,11 @@ DFSG := $(shell test -d libdvdcss && echo 'This version of MPlayer contains libd
 
 destdir := $(shell pwd)/debian/$(DEB_SOURCE)
 
-arch   := $(shell dpkg-architecture -qDEB_HOST_ARCH)
-
-#FIXME: How shall this be used? MPlayer has a non-autoconf configure script.
 DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+DEB_HOST_ARCH       ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 DEB_HOST_ARCH_OS    ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
 DEB_HOST_ARCH_CPU   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_CPU)
-
 
 
 ## This can be overridden from the command line, see README.Debian.
@@ -59,33 +56,33 @@ DEB_BUILD_CONFIGURE = \
 with_real_and_xanim = false
 with_win32 = false
 
-ifeq ($(arch),i386)
+ifeq ($(DEB_HOST_ARCH),i386)
 #Avoid high optimization through gcc.
   archconf += --target=i586-linux
   with_real_and_xanim = true
   with_win32 = true
   DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
 endif
-ifeq ($(arch),amd64)
+ifeq ($(DEB_HOST_ARCH),amd64)
   #this needs the patch 
   # http://people.freedesktop.org/~jinghua/real64/mplayer-amd64-real-codecs.diff
   with_real_and_xanim = true
   #this does not compile, though : with_win32 = true
   DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
 endif
-ifeq ($(arch),kfreebsd-i386)
+ifeq ($(DEB_HOST_ARCH),kfreebsd-i386)
   with_real_and_xanim = true
   DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
 endif
-ifeq ($(arch),kfreebsd-amd64)
+ifeq ($(DEB_HOST_ARCH),kfreebsd-amd64)
   with_real_and_xanim = true
   DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
 endif
-ifeq ($(arch),powerpc)
+ifeq ($(DEB_HOST_ARCH),powerpc)
   with_real_and_xanim = true
   DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
 endif
-ifeq ($(arch),alpha)
+ifeq ($(DEB_HOST_ARCH),alpha)
 #Avoid high optimization through gcc.
 # see http://permalink.gmane.org/gmane.linux.debian.ports.alpha/7295
   archconf += --target=alpha_ev5-linux
@@ -178,7 +175,7 @@ build-arch: build-arch-stamp
 build-arch-stamp: configure-arch-stamp
 	dh_testdir
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-ifeq ($(arch),i386)
+ifeq ($(DEB_HOST_ARCH),i386)
 	echo SORRY THIS DOES NOT WORK CURRENTLY
 	cd libvo && ${CLEAN_ENV} ${MAKE}  CC='gcc -O'  osd.o
 	cd libavcodec && ${CLEAN_ENV} ${MAKE} i386/dsputil_mmx.o cabac.o  OPTFLAGS=" -O2 -ffast-math -fomit-frame-pointer"
