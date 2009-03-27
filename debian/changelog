@@ -1,3 +1,10 @@
+mplayer (1.0~rc2+svn20090303-6) unstable; urgency=low
+
+  * use ./configure flags to dynamically link FFmpeg,
+    delete patch  30link-system-ffmpeg.patch
+
+ --
+
 mplayer (1.0~rc2+svn20090303-5) unstable; urgency=low
 
   * debian/control : move docbook-xml,docbook-xsl,xsltproc from 
