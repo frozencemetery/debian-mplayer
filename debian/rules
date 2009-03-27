@@ -103,17 +103,11 @@ ifeq ($(DEB_SOURCE),mplayer)
 DEB_BUILD_CONFIGURE += --disable-libdvdcss-internal --enable-dvdread --disable-mencoder
 endif
 
-#generate debugging symbols for mplayer-dbg
+# generate debugging symbols for mplayer-dbg for all archs but mipsen,
+# see bug #520113
+ifneq (,$(findstring mips,$(DEB_HOST_ARCH)))
 DEB_BUILD_CONFIGURE += --enable-debug
-
-#ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-#DEB_BUILD_CONFIGURE += --enable-debug
-##some other stuff below
-#else
-#ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
-#DEB_BUILD_CONFIGURE += --enable-debug=3
-#endif
-#endif
+endif
 
 
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
@@ -156,17 +150,10 @@ configure-arch-stamp: $(QUILT_STAMPFN)
 	# Add commands to configure the package here.
 	$(CLEAN_ENV) \
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE)
-
 	#tweak config.mak on request
-	# FIXME: this debian/rules does not honor 'nostrip'
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	mv config.mak  config.mak~~
 	sed '/FLAGS/s/ -O[0-9] /  /' config.mak~~ > config.mak
-endif
-	#workaround for bug 520113 (hopefully)
-ifeq (mips,$(DEB_HOST_ARCH_CPU))
-	mv config.mak  config.mak~~
-	sed '/^CFLAGS =/s/=/= -fPIC -DPIC /' config.mak~~ > config.mak
 endif
 	touch configure-arch-stamp
 
