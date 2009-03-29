@@ -1,9 +1,21 @@
 mplayer (1.0~rc2+svn20090303-6) unstable; urgency=low
 
+  [ A Mennucc1 ]
+
   * use ./configure flags to dynamically link FFmpeg,
     delete patch  30link-system-ffmpeg.patch
 
- --
+  [ Reinhard Tartler ]
+
+  * cleanup debian/rules: use --enable-debug on all architectures but mips.
+    in order to fix a FTBFS. This results in making the -dbg package on mips
+    useless. If you are interested in having a usable mplayer-dbg package on
+    mips, please try enabling that switch in debian/rules and send us your
+    buildlog!
+  * run 'make distclean' only of config.mak exists
+  * cleanup debian/rules: remove unnecessary clean statements
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 28 Mar 2009 07:24:07 +0100
 
 mplayer (1.0~rc2+svn20090303-5) unstable; urgency=low
 
