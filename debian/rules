@@ -177,18 +177,12 @@ build: build-indep build-arch
 ################ clean
 
 clean: clean-real unpatch
-
 clean-real:
 	dh_testdir
 	dh_testroot
 	[ ! -f config.mak ] || $(MAKE) -C DOCS/xml distclean || true
 	[ ! -f config.mak ] || $(MAKE) distclean
-	dh_clean config.h config.mak configure.log
 	dh_clean build-arch-stamp build-indep-stamp configure-arch-stamp snapshot_version
-	find -name '*.o' -or -name '*.a' -or -name '*~' \
-		-or -name semantic.cache -print0 |\
-		xargs -r0 rm -v
-
 
 ##################### install
 
