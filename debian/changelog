@@ -1,3 +1,15 @@
+mplayer (1.0~rc2+svn20090303-7) unstable; urgency=low
+
+  * various cleanups in  debian/rules.
+  * as a side effect, DEB_BUILD_OPTIONS set to noopt no longer works. It
+    really needs to be implemented in ./configure instead of weird hackery
+    in debian/rules. patches welcome.
+  * run 'make distclean' only of config.mak exists.
+  * remove debian/control.mplayer* variants.
+  * don't --enable-debug on mipsen. This hopfully fixes the FTBFS on mipsen.
+
+ -- Reinhard Tartler <siretart@tauware.de>  Thu, 02 Apr 2009 18:48:07 +0200
+
 mplayer (1.0~rc2+svn20090303-6) unstable; urgency=low
 
   [ A Mennucc1 ]
