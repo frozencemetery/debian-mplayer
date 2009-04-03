@@ -105,7 +105,7 @@ endif
 
 # generate debugging symbols for mplayer-dbg for all archs but mipsen,
 # see bug #520113
-ifneq (,$(findstring mips,$(DEB_HOST_ARCH)))
+ifeq (,$(findstring mips,$(DEB_HOST_ARCH)))
 DEB_BUILD_CONFIGURE += --enable-debug
 endif
 
