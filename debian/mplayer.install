@@ -1,2 +1,3 @@
 debian/scripts usr/share/mplayer/
 debian/prefs var/lib/mplayer/
+etc/input.conf etc/menu.conf etc/mplayer

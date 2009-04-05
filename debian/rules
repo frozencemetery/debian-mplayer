@@ -190,14 +190,14 @@ clean-real:
 install-arch:  build-arch
 	dh_testdir
 	dh_prep -a
-# scripts
-	chmod a+x debian/scripts/*
-	dh_install
-
 	$(MAKE) install-gui DESTDIR=$(destdir)
 	$(MAKE) install-mplayer-gui-man DESTDIR=$(destdir)
 
-	dh_installdebconf -p $(DEB_SOURCE)
+# scripts
+	chmod a+x debian/scripts/*
+	dh_install
+	install -D -m 644 etc/example.conf $(destdir)/etc/mplayer/mplayer.conf
+
 	dh_installdocs -p $(DEB_SOURCE)
 	dh_installexamples
 
@@ -220,7 +220,6 @@ binary-common:
 	dh_installdocs
 	dh_installexamples
 	dh_installmenu
-	dh_installdebconf
 	dh_installmime
 	dh_installinit
 	dh_installman
@@ -231,8 +230,6 @@ binary-common:
 	dh_strip --dbg-package=mplayer-dbg
 	dh_link
 ###### non-orthodox mungling
-#	Add automatic vo list.
-	if test -r	debian/$(THISPACKAGE)/DEBIAN/config ; then sh -e debian/config.augmenter debian/$(THISPACKAGE)/DEBIAN/config ; fi
 #	Rewrite README.Debian and add free or non-free statement.
 ifeq ($(DEB_SOURCE),mplayer)
 	tail -n +2  debian/README.Debian.free \
