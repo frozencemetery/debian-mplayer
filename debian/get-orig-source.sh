@@ -67,14 +67,14 @@ if [ -z $SVNDATE ]; then
 fi
 
 CLEANUPSCRIPT=`pwd`/debian/strip.sh
-TARBALL=`pwd`/../mplayer_1.0~rc2+svn${SVNDATE}.orig.tar.gz
-TARBALL_UNSTRIPPED=`pwd`/../mplayer-non-dfsg_1.0~rc2+svn${SVNDATE}.orig.tar.gz
+TARBALL=`pwd`/../mplayer_1.0~rc3+svn${SVNDATE}.orig.tar.gz
+TARBALL_UNSTRIPPED=`pwd`/../mplayer-non-dfsg_1.0~rc3+svn${SVNDATE}.orig.tar.gz
 PACKAGENAME=mplayer
 
 TMPDIR=`mktemp -d`
 trap 'rm -rf ${TMPDIR}'  EXIT
 
-baseurl="svn://svn.mplayerhq.hu/mplayer/trunk"
+baseurl="svn://svn.mplayerhq.hu/mplayer/branches/1.0rc3"
 
 svn export -r{${SVNDATE}} \
 	--ignore-externals \
