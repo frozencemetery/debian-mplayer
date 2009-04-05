@@ -1,8 +1,12 @@
-mplayer (1.0~rc3+svn20090405-1) UNRELEASED; urgency=low
+mplayer (1.0~rc3+svn20090405-1) unstable; urgency=low
 
-  * document changes here
+  * New upstream version. Track the 1.0rc3 release branch for now.
+  * remove 50_r28803_segfault_print_int.patch, merged upstream.
+  * no longer remove the TOOLS subdirectory from the upstream source.
+  * make get-orig-source rule actually work.
+  * disable musepack support. Closes: #476384
 
- -- Reinhard Tartler <siretart@tauware.de>  Sun, 05 Apr 2009 11:24:25 +0200
+ -- Reinhard Tartler <siretart@tauware.de>  Sun, 05 Apr 2009 11:37:37 +0200
 
 mplayer (1.0~rc2+svn20090303-7) unstable; urgency=low
 
