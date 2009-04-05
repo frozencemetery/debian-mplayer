@@ -25,9 +25,9 @@ Fetch and commit the new upstream version:
             --upstream-branch=upstream \
             --pristine-tar \
             --no-dch \
-            --upstream-version=1.0~rc2+svn${SVNDATE} \
-            --upstream-tag=upstream/1.0rc2+svn${SVNDATE} \
-            ../mplayer_1.0~rc2+svn${SVNDATE}.orig.tar.gz
+            --upstream-version=1.0~rc3+svn${SVNDATE} \
+            --upstream-tag=upstream/1.0rc3+svn${SVNDATE} \
+            ../mplayer_1.0~rc3+svn${SVNDATE}.orig.tar.gz
 
   git checkout master.unstripped
   git-import-orig \
@@ -35,9 +35,9 @@ Fetch and commit the new upstream version:
             --upstream-branch=upstream.unstripped \
             --pristine-tar \
             --no-dch \
-            --upstream-tag=upstream.unstripped/1.0rc2+svn${SVNDATE}-unstripped \
-            --upstream-version=1.0~rc2+svn${SVNDATE}-unstripped \
-            ../mplayer-non-dfsg_1.0~rc2+svn${SVNDATE}.orig.tar.gz
+            --upstream-tag=upstream.unstripped/1.0rc3+svn${SVNDATE}-unstripped \
+            --upstream-version=1.0~rc3+svn${SVNDATE}-unstripped \
+            ../mplayer-non-dfsg_1.0~rc3+svn${SVNDATE}.orig.tar.gz
 
   git checkout master
 
