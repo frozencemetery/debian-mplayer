@@ -206,8 +206,7 @@ install-arch:  build-arch
 install-indep: build-indep 
 	dh_testdir
 	dh_prep -i
-	dh_installdocs  -p mplayer-doc Copyright DOCS/HTML DOCS/tech
-
+	dh_installdocs -i
 
 #####################################################
 ## this snippet again comes from debhelper-5.0.40/examples/rules.multi2
