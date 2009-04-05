@@ -85,15 +85,25 @@ svn info -r{${SVNDATE}} \
 	> ${TMPDIR}/${PACKAGENAME}/.svnrevision
 
 # get svn externals
-svn pg svn:externals $baseurl | \
+svn pg svn:externals $baseurl | grep -v libswscale | \
 while read external url; do
     [ -z $url ] && continue
     dest="${TMPDIR}/${PACKAGENAME}/${external}"
     svn export -r{${SVNDATE}} --ignore-externals $url $dest
     svn info $url -r{${SVNDATE}} \
-      | awk '/^Revision/ {print $2}' \
-      > ${TMPDIR}/${PACKAGENAME}/${external}/.svnrevision
+      | awk '/^Revision/ {print $2}' > ${dest}/.svnrevision
 done
+
+# for mplayer release branches, libswscale is special since it contains
+# svn revision options. The revision below needs manual syncing with
+# upstream's svn.
+
+# TODO: find some way to integrate this in the while loop above
+
+dest="${TMPDIR}/${PACKAGENAME}/libswscale"
+revision=28777
+svn export -r $revision svn://svn.ffmpeg.org/mplayer/trunk/libswscale $dest
+echo $revision > ${dest}/.svnrevision
 
 # this doesn't belong in strip.sh, because the unstripped source should
 # have this directory renamed as well.
