@@ -2,13 +2,13 @@
 // Dmitry Baryshkov <mitya@school.ioffe.ru>
 // Reworked by: Andrew Savchenko aka Bircoph <Bircoph[at]list[dot]ru>
 
-// Synced with help_mp-en.h: r28122
+// Synced with help_mp-en.h: r28860
 
 
 // ========================= MPlayer help ===========================
 
 #ifdef HELP_MP_DEFINE_STATIC
-static char help_text[]=
+static const char help_text[]=
 "Использование:   mplayer [опции] [URL|путь/]имя_файла\n"
 "\n"
 "Базовые опции: (полный список см. на man-странице)\n"

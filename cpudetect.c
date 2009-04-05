@@ -44,20 +44,15 @@ static void check_os_katmai_support( void );
 // return TRUE if cpuid supported
 static int has_cpuid(void)
 {
-	long a, c;
-
 // code from libavcodec:
 #if ARCH_X86_64
-#define PUSHF "pushfq\n\t"
-#define POPF "popfq\n\t"
+   return 1;
 #else
-#define PUSHF "pushfl\n\t"
-#define POPF "popfl\n\t"
-#endif
+	long a, c;
     __asm__ volatile (
                           /* See if CPUID instruction is supported ... */
                           /* ... Get copies of EFLAGS into eax and ecx */
-                          PUSHF
+                          "pushfl\n\t"
                           "pop %0\n\t"
                           "mov %0, %1\n\t"
                           
@@ -65,19 +60,18 @@ static int has_cpuid(void)
                           /*     to the EFLAGS reg */
                           "xor $0x200000, %0\n\t"
                           "push %0\n\t"
-                          POPF
+                          "popfl\n\t"
                           
                           /* ... Get the (hopefully modified) EFLAGS */
-                          PUSHF
+                          "pushfl\n\t"
                           "pop %0\n\t"
                           : "=a" (a), "=c" (c)
                           :
                           : "cc" 
                           );
-#undef PUSHF
-#undef POPF
 
 	return a != c;
+#endif
 }
 
 static void
@@ -143,6 +137,7 @@ void GetCpuCaps( CpuCaps *caps)
 		caps->hasMMX  = (regs2[3] & (1 << 23 )) >> 23; // 0x0800000
 		caps->hasSSE  = (regs2[3] & (1 << 25 )) >> 25; // 0x2000000
 		caps->hasSSE2 = (regs2[3] & (1 << 26 )) >> 26; // 0x4000000
+		caps->hasSSE3 = (regs2[2] & 1);                // 0x0000001
 		caps->hasSSSE3 = (regs2[2] & (1 << 9 )) >>  9; // 0x0000200
 		caps->hasMMX2 = caps->hasSSE; // SSE cpus supports mmxext too
 		cl_size = ((regs2[1] >> 8) & 0xFF)*8;
@@ -276,7 +271,7 @@ static void sigill_handler_sse( int signal, struct sigcontext sc )
 }
 #endif /* __linux__ && _POSIX_SOURCE */
 
-#if defined(__MINGW32__) || defined(__CYGWIN__)
+#if (defined(__MINGW32__) || defined(__CYGWIN__)) && !ARCH_X86_64
 LONG CALLBACK win32_sig_handler_sse(EXCEPTION_POINTERS* ep)
 {
    if(ep->ExceptionRecord->ExceptionCode==EXCEPTION_ILLEGAL_INSTRUCTION){
@@ -458,6 +453,7 @@ void GetCpuCaps( CpuCaps *caps)
 	caps->has3DNowExt=0;
 	caps->hasSSE=0;
 	caps->hasSSE2=0;
+	caps->hasSSE3=0;
 	caps->hasSSSE3=0;
 	caps->hasSSE4a=0;
 	caps->isX86=0;
