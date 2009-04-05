@@ -191,7 +191,7 @@ manlangs := $(notdir $(wildcard DOCS/man/*) )
 
 install-arch:  build-arch
 	dh_testdir
-	dh_clean -a -k
+	dh_prep -a
 # scripts
 	chmod a+x debian/scripts/*
 	dh_install debian/scripts usr/share/mplayer/
@@ -213,7 +213,7 @@ install-arch:  build-arch
 
 install-indep: build-indep 
 	dh_testdir
-	dh_clean -i -k
+	dh_prep -i
 	dh_installdocs  -p mplayer-doc Copyright DOCS/HTML DOCS/tech
 
 
