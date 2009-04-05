@@ -270,11 +270,6 @@ binary-arch: install-arch
 
 binary: binary-indep binary-arch
 
-#####################################################
-##This target generates debian/control. It is not automatically invoked.
-debian/control: debian/control.$(DEB_SOURCE)
-	cp -v $< $@
-
 ###############################################
 ##These targets generate the DFSG-free tar.gz.
 ## They are not automatically invoked.
