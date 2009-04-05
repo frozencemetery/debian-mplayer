@@ -43,6 +43,7 @@ DEB_BUILD_CONFIGURE = \
 	--disable-arts \
 	--disable-aa \
 	--disable-mad \
+	--disable-musepack \
 	--disable-libdv \
 	--disable-libavutil_a \
 	--disable-libavcodec_a \
