@@ -290,6 +290,6 @@ get-orig-source:
 	dh_testdir
 	# strip patented code
 	chmod +x debian/strip.sh
-	sh debian/get-orig-source.sh -d$(SVN_VERSION)
+	sh debian/get-orig-source.sh -d $(SVN_VERSION)
 
 .PHONY: build clean binary-indep binary-arch binary-common binary install binary binary-arch binary-indep clean checkroot get-orig-source autocontrol fix-orig-source copy-orig-from-svn download-and-unpack-orig
