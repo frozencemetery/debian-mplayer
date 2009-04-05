@@ -1,4 +1,3 @@
 11configure-mktemp.patch
 22disable-xscreensaver.patch
 23mplayer-debug-printf.patch
-50_r28803_segfault_print_int.patch
