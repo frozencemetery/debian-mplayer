@@ -192,14 +192,13 @@ install-arch:  build-arch
 	dh_prep -a
 # scripts
 	chmod a+x debian/scripts/*
-	dh_install debian/scripts usr/share/mplayer/
-	dh_install debian/prefs var/lib/mplayer/
+	dh_install
 
 	$(MAKE) install-gui DESTDIR=$(destdir)
 	$(MAKE) install-mplayer-gui-man DESTDIR=$(destdir)
 
 	dh_installdebconf -p $(DEB_SOURCE)
-	dh_installdocs  -p $(DEB_SOURCE) Copyright
+	dh_installdocs -p $(DEB_SOURCE)
 	dh_installexamples
 
 install-indep: build-indep 

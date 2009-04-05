@@ -1,0 +1,2 @@
+debian/scripts usr/share/mplayer/
+debian/prefs var/lib/mplayer/
