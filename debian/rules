@@ -200,8 +200,7 @@ install-arch:  build-arch
 
 	dh_installdebconf -p $(DEB_SOURCE)
 	dh_installdocs  -p $(DEB_SOURCE) Copyright
-
-	dh_installexamples etc/example.conf etc/menu.conf etc/input.conf
+	dh_installexamples
 
 install-indep: build-indep 
 	dh_testdir
