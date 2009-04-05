@@ -187,8 +187,6 @@ clean-real:
 
 ##################### install
 
-manlangs := $(notdir $(wildcard DOCS/man/*) )
-
 install-arch:  build-arch
 	dh_testdir
 	dh_prep -a
@@ -197,14 +195,8 @@ install-arch:  build-arch
 	dh_install debian/scripts usr/share/mplayer/
 	dh_install debian/prefs var/lib/mplayer/
 
-# commands to install the package into debian/<packagename>
-	${MAKE} prefix=$(destdir)/usr BINDIR=$(destdir)/usr/bin CONFDIR=$(destdir)/etc/mplayer LIBDIR=$(destdir)/usr/lib DATADIR=$(destdir)/usr/share/mplayer  MANDIR=$(destdir)/usr/share/man  install
-
-	dh_link usr/bin/mplayer usr/bin/gmplayer
-	dh_link usr/share/man/man1/mplayer.1.gz usr/share/man/man1/gmplayer.1.gz
-
-# Install man pages.
-	set -e && for i in $(manlangs) ; do mkdir -p $(destdir)/usr/share/man/$$i/man1/ && cp DOCS/man/$$i/mplayer.1 $(destdir)/usr/share/man/$$i/man1/ && dh_link usr/share/man/$$i/man1/mplayer.1.gz usr/share/man/$$i/man1/gmplayer.1.gz ; done
+	$(MAKE) install-gui DESTDIR=$(destdir)
+	$(MAKE) install-mplayer-gui-man DESTDIR=$(destdir)
 
 	dh_installdebconf -p $(DEB_SOURCE)
 	dh_installdocs  -p $(DEB_SOURCE) Copyright
