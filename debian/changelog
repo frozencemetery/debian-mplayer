@@ -1,3 +1,13 @@
+mplayer (1.0~rc1-12etch5) stable-security; urgency=high
+
+  * Non-maintainer upload by the security team.  Thanks to A Mennucc1
+    for preparing the fix.
+  * fix oCERT-2008-013 Mplayer real demuxer heap.
+    Thanks to Felipe Andres Manzano, Andrea Barisani,
+     Steffen Joeris, Reimar Döffinger.
+  
+ -- Devin Carraway <devin@debian.org>  Mon, 29 Sep 2008 12:27:01 +0200
+
 mplayer (1.0~rc1-12etch3) stable-security; urgency=low
 
   * fix CVE-2008-0073, remote code execution via crafted rtsp stream,
