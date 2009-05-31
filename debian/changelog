@@ -1,3 +1,9 @@
+mplayer (1.0~rc3+svn20090405-2) unstable; urgency=low
+
+  * prepare new upload.
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sun, 31 May 2009 08:14:50 +0200
+
 mplayer (1.0~rc3+svn20090405-1) unstable; urgency=low
 
   * New upstream version. Track the 1.0rc3 release branch for now.
