@@ -135,7 +135,6 @@ COMMON_CONFIGURE_FLAGS = \
 	--enable-sdl \
 	--enable-ossaudio \
 	--enable-lirc \
-	--enable-gui \
 	--enable-freetype \
 	--enable-menu \
 	--enable-largefiles 
@@ -154,12 +153,13 @@ configure-arch-stamp: $(QUILT_STAMPFN)
 	touch configure-arch-stamp
 
 # commands to compile the package
-build-arch: build-arch-stamp
-build-arch-stamp: configure-arch-stamp
+build-common:
 	dh_testdir
+	[ ! -f config.mak ] || $(MAKE) distclean
+	$(CLEAN_ENV) \
+	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) $(GUI_FLAG)
 	$(CLEAN_ENV) \
 	$(MAKE)
-	touch build-arch-stamp
 
 ###### build-indep
 
@@ -171,9 +171,6 @@ build-indep-stamp:
 	$(CLEAN_ENV) \
 	$(MAKE) -C DOCS/xml html-chunked
 	touch build-indep-stamp
-
-build: build-indep build-arch
-
 
 ################ clean
 
@@ -187,23 +184,31 @@ clean-real:
 
 ##################### install
 
-install-arch:  build-arch
+install-nogui:
+	$(MAKE) -f debian/rules GUI_FLAG=--disable-gui build-common
+
 	dh_testdir
 	dh_prep -a
-	$(MAKE) install-gui DESTDIR=$(destdir)
-	$(MAKE) install-mplayer-gui-man DESTDIR=$(destdir)
+	$(MAKE) install-mplayer DESTDIR=$(CURDIR)/debian/mplayer-nogui
+	$(MAKE) install-mplayer-man-en DESTDIR=$(CURDIR)/debian/mplayer-nogui
 
 # scripts
 	chmod a+x debian/scripts/*
-	dh_install
-	install -D -m 644 etc/example.conf $(destdir)/etc/mplayer/mplayer.conf
+	install -D -m 644 etc/example.conf $(CURDIR)/debian/mplayer-nogui/etc/mplayer/mplayer.conf
 
-	dh_installdocs -p $(DEB_SOURCE)
-	dh_installexamples
+install-gui: 
+	$(MAKE) -f debian/rules GUI_FLAG=--enable-gui build-common
+
+	install -D -m 755 mplayer $(CURDIR)/debian/mplayer/usr/bin/gmplayer
+	install -D -m 644 DOCS/man/en/mplayer.1 $(CURDIR)/debian/mplayer/usr/share/man/man1/gmplayer.1
 
 install-indep: build-indep 
 	dh_testdir
 	dh_prep -i
+	$(MAKE) install-mplayer-gui-man DESTDIR=$(CURDIR)/debian/mplayer-doc
+	# Drop the english manpage, installed in each mplayer package
+	rm -rf $(CURDIR)/debian/mplayer-doc/usr/share/man/mplayer.1
+	
 	dh_installdocs -i
 
 #####################################################
@@ -216,6 +221,7 @@ install-indep: build-indep
 binary-common:
 	dh_testdir
 	dh_testroot
+	dh_install
 	dh_installchangelogs
 	dh_installdocs
 	dh_installexamples
@@ -259,8 +265,12 @@ binary-indep: install-indep
 	$(MAKE) -f debian/rules DH_OPTIONS=-i THISPACKAGE=mplayer-doc binary-common
 
 # Build architecture-dependent packages using the common target.
-binary-arch: install-arch
+binary-arch: binary-nogui binary-gui
+binary-gui: install-gui
 	$(MAKE) -f debian/rules DH_OPTIONS=-a THISPACKAGE=mplayer binary-common
+
+binary-nogui: install-nogui
+	$(MAKE) -f debian/rules DH_OPTIONS=-a THISPACKAGE=mplayer-nogui binary-common
 
 binary: binary-indep binary-arch
 
@@ -274,4 +284,4 @@ get-orig-source:
 	chmod +x debian/strip.sh
 	sh debian/get-orig-source.sh -d $(SVN_VERSION)
 
-.PHONY: build clean binary-indep binary-arch binary-common binary install binary binary-arch binary-indep clean checkroot get-orig-source autocontrol fix-orig-source copy-orig-from-svn download-and-unpack-orig
+.PHONY: build clean binary-indep binary-arch binary-common binary install binary binary-arch binary-indep clean checkroot get-orig-source autocontrol fix-orig-source copy-orig-from-svn download-and-unpack-orig build-gui build-nogui install-gui install-nogui
