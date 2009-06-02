@@ -179,22 +179,18 @@ install-arch:
 ###### build-indep
 
 # commands to compile the documentation
-build-indep: configure-arch-stamp build-indep-stamp
-build-indep-stamp:
+install-indep: install-indep-stamp
+install-indep-stamp: configure-arch-stamp build-indep-stamp
 	dh_testdir
 	cd DOCS/xml && ./configure
 	$(CLEAN_ENV) \
 	$(MAKE) -C DOCS/xml html-chunked
-	touch build-indep-stamp
-
-install-indep: build-indep 
-	dh_testdir
 	dh_prep -i
 	$(MAKE) install-mplayer-gui-man DESTDIR=$(CURDIR)/debian/mplayer-doc
 	# Drop the english manpage, installed in each mplayer package
 	rm -rf $(CURDIR)/debian/mplayer-doc/usr/share/man/mplayer.1
 	dh_installdocs -i
-
+	touch $@
 
 ################ clean
 
