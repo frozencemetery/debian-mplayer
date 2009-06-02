@@ -151,32 +151,27 @@ configure-arch-stamp: $(QUILT_STAMPFN)
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE)
 	touch configure-arch-stamp
 
-install-common:
+install-arch:
 	dh_testdir
 	[ ! -f config.mak ] || $(MAKE) distclean
 	$(CLEAN_ENV) \
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) $(GUI_FLAG)
 	$(CLEAN_ENV) \
 	$(MAKE)
-
-##################### install
-
-install-nogui:
-	$(MAKE) -f debian/rules GUI_FLAG=--disable-gui build-common
-
-	dh_testdir
+	# build non-gui version
 	dh_prep -a
 	$(MAKE) install-mplayer DESTDIR=$(CURDIR)/debian/mplayer-nogui
 	$(MAKE) install-mplayer-man-en DESTDIR=$(CURDIR)/debian/mplayer-nogui
-
 # scripts
 	chmod a+x debian/scripts/*
 	install -D -m 644 etc/example.conf \
 	                  $(CURDIR)/debian/mplayer-nogui/etc/mplayer/mplayer.conf
-
-install-gui: 
-	$(MAKE) -f debian/rules GUI_FLAG=--enable-gui build-common
-
+	# build gui version
+	[ ! -f config.mak ] || $(MAKE) distclean
+	$(CLEAN_ENV) \
+	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) $(GUI_FLAG)
+	$(CLEAN_ENV) \
+	$(MAKE)
 	install -D -m 755 mplayer $(CURDIR)/debian/mplayer/usr/bin/gmplayer
 	install -D -m 644 DOCS/man/en/mplayer.1 \
 	                  $(CURDIR)/debian/mplayer/usr/share/man/man1/gmplayer.1
@@ -255,11 +250,7 @@ binary-indep: install-indep
 	$(MAKE) -f debian/rules DH_OPTIONS=-i binary-common
 
 # Build architecture-dependent packages using the common target.
-binary-arch: binary-nogui binary-gui
-binary-gui: install-gui
-	$(MAKE) -f debian/rules DH_OPTIONS=-a binary-common
-
-binary-nogui: install-nogui
+binary-arch: install-arch
 	$(MAKE) -f debian/rules DH_OPTIONS=-a binary-common
 
 binary: binary-indep binary-arch
