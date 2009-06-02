@@ -210,9 +210,22 @@ clean-real:
 	[ ! -f config.mak ] || $(MAKE) -C DOCS/xml distclean || true
 	[ ! -f config.mak ] || $(MAKE) distclean
 	dh_clean build-arch-stamp build-indep-stamp configure-arch-stamp snapshot_version
+	dh_clean debian/README.Debian
 
+###### 	Write README.Debian and add free or non-free statement.
+debian/README.Debian:
+ifeq ($(DEB_SOURCE),mplayer)
+	tail -n +4  debian/README.Debian.free > $@
+else
+	tail -n +4  debian/README.Debian.nonfree > $@
+endif
+	cat debian/README.Debian.all >> $@
+	sed 's!@DEB_BUILD_CONFIGURE@!$(DEB_BUILD_CONFIGURE)!' \
+	  <  debian/README.Debian \
+	  >> $@.tmp
+	mv $@.tmp $@
 
-binary-common:
+binary-common: debian/README.Debian
 	dh_testdir
 	dh_testroot
 	dh_install
@@ -226,20 +239,6 @@ binary-common:
 	dh_desktop
 	dh_strip --dbg-package=mplayer-dbg
 	dh_link
-###### non-orthodox mungling
-#	Rewrite README.Debian and add free or non-free statement.
-ifeq ($(DEB_SOURCE),mplayer)
-	tail -n +2  debian/README.Debian.free \
-	  > debian/$(THISPACKAGE)/usr/share/doc/$(THISPACKAGE)/README.Debian
-else
-	tail -n +2  debian/README.Debian.nonfree \
-	  > debian/$(THISPACKAGE)/usr/share/doc/$(THISPACKAGE)/README.Debian
-endif
-	sed 's!@DEB_BUILD_CONFIGURE@!$(DEB_BUILD_CONFIGURE)!' \
-	  <  debian/README.Debian \
-	  >> debian/$(THISPACKAGE)/usr/share/doc/$(THISPACKAGE)/README.Debian
-
-########
 	dh_compress
 	dh_fixperms
 	dh_makeshlibs
@@ -253,15 +252,15 @@ endif
 
 # Build architecture-independent packages using the common target.
 binary-indep: install-indep
-	$(MAKE) -f debian/rules DH_OPTIONS=-i THISPACKAGE=mplayer-doc binary-common
+	$(MAKE) -f debian/rules DH_OPTIONS=-i binary-common
 
 # Build architecture-dependent packages using the common target.
 binary-arch: binary-nogui binary-gui
 binary-gui: install-gui
-	$(MAKE) -f debian/rules DH_OPTIONS=-a THISPACKAGE=mplayer binary-common
+	$(MAKE) -f debian/rules DH_OPTIONS=-a binary-common
 
 binary-nogui: install-nogui
-	$(MAKE) -f debian/rules DH_OPTIONS=-a THISPACKAGE=mplayer-nogui binary-common
+	$(MAKE) -f debian/rules DH_OPTIONS=-a binary-common
 
 binary: binary-indep binary-arch
 
@@ -278,6 +277,6 @@ get-orig-source:
 PHONY += build clean binary-indep binary-arch binary-common binary 
 PHONY += install binary binary-arch binary-indep clean checkroot get-orig-source
 PHONY += autocontrol fix-orig-source copy-orig-from-svn download-and-unpack-orig
-PHONY += build-gui build-nogui install-gui install-nogui
+PHONY += build-gui build-nogui install-gui install-nogui debian/README.Debian
 
 .PHONY: $(PHONY)
