@@ -20,12 +20,6 @@ SVN_VERSION := $(shell echo $(UPSTREAM_VERSION) | sed -nr 's/^[0-9.:-~]+svn([0-9
 #UPSTREAMSOURCE := upstream SVN repository
 UPSTREAMSOURCE := http://www1.mplayerhq.hu/MPlayer/releases/MPlayer-1.0rc1.tar.bz2
 
-#Was troublesome stuff removed ?
-# See target "fix-orig-source" in this makefile.
-DFSG := $(shell test -d libdvdcss && echo 'This version of MPlayer contains libdvdcss.' )
-
-destdir := $(shell pwd)/debian/$(DEB_SOURCE)
-
 DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 DEB_HOST_ARCH       ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
@@ -157,8 +151,7 @@ configure-arch-stamp: $(QUILT_STAMPFN)
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE)
 	touch configure-arch-stamp
 
-# commands to compile the package
-build-common:
+install-common:
 	dh_testdir
 	[ ! -f config.mak ] || $(MAKE) distclean
 	$(CLEAN_ENV) \
@@ -190,7 +183,7 @@ install-gui:
 
 ###### build-indep
 
-# commands to compile the docs
+# commands to compile the documentation
 build-indep: configure-arch-stamp build-indep-stamp
 build-indep-stamp:
 	dh_testdir
@@ -219,13 +212,6 @@ clean-real:
 	dh_clean build-arch-stamp build-indep-stamp configure-arch-stamp snapshot_version
 
 
-#####################################################
-## this snippet again comes from debhelper-5.0.40/examples/rules.multi2
-
-# This single target is used to build all the packages, all at once, or
-# one at a time. So keep in mind: any options passed to commands here will
-# affect _all_ packages. Anything you want to only affect one package
-# should be put in another target, such as the install target.
 binary-common:
 	dh_testdir
 	dh_testroot
@@ -238,9 +224,6 @@ binary-common:
 	dh_installinit
 	dh_installman
 	dh_desktop
-#       dh_installcron
-#       dh_installinfo
-#       dh_undocumented
 	dh_strip --dbg-package=mplayer-dbg
 	dh_link
 ###### non-orthodox mungling
