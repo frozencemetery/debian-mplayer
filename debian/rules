@@ -143,6 +143,10 @@ COMMON_CONFIGURE_FLAGS = \
 # https://wiki.ubuntu.com/DistCompilerFlags
 CLEAN_ENV=env -u CFLAGS -u CPPFLAGS -u LDFLAGS -u FFLAGS -u CXXFLAGS
 
+
+# this rule is used for both architecture independent and dependent
+# builds. When building only the doc package, it still needs the first
+# configure run done.
 configure: configure-arch-stamp
 configure-arch-stamp: $(QUILT_STAMPFN)
 	dh_testdir
@@ -160,27 +164,6 @@ build-common:
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) $(GUI_FLAG)
 	$(CLEAN_ENV) \
 	$(MAKE)
-
-###### build-indep
-
-# commands to compile the docs
-build-indep: configure-arch-stamp build-indep-stamp
-build-indep-stamp:
-	dh_testdir
-	cd DOCS/xml && ./configure
-	$(CLEAN_ENV) \
-	$(MAKE) -C DOCS/xml html-chunked
-	touch build-indep-stamp
-
-################ clean
-
-clean: clean-real unpatch
-clean-real:
-	dh_testdir
-	dh_testroot
-	[ ! -f config.mak ] || $(MAKE) -C DOCS/xml distclean || true
-	[ ! -f config.mak ] || $(MAKE) distclean
-	dh_clean build-arch-stamp build-indep-stamp configure-arch-stamp snapshot_version
 
 ##################### install
 
@@ -202,14 +185,36 @@ install-gui:
 	install -D -m 755 mplayer $(CURDIR)/debian/mplayer/usr/bin/gmplayer
 	install -D -m 644 DOCS/man/en/mplayer.1 $(CURDIR)/debian/mplayer/usr/share/man/man1/gmplayer.1
 
+###### build-indep
+
+# commands to compile the docs
+build-indep: configure-arch-stamp build-indep-stamp
+build-indep-stamp:
+	dh_testdir
+	cd DOCS/xml && ./configure
+	$(CLEAN_ENV) \
+	$(MAKE) -C DOCS/xml html-chunked
+	touch build-indep-stamp
+
 install-indep: build-indep 
 	dh_testdir
 	dh_prep -i
 	$(MAKE) install-mplayer-gui-man DESTDIR=$(CURDIR)/debian/mplayer-doc
 	# Drop the english manpage, installed in each mplayer package
 	rm -rf $(CURDIR)/debian/mplayer-doc/usr/share/man/mplayer.1
-	
 	dh_installdocs -i
+
+
+################ clean
+
+clean: clean-real unpatch
+clean-real:
+	dh_testdir
+	dh_testroot
+	[ ! -f config.mak ] || $(MAKE) -C DOCS/xml distclean || true
+	[ ! -f config.mak ] || $(MAKE) distclean
+	dh_clean build-arch-stamp build-indep-stamp configure-arch-stamp snapshot_version
+
 
 #####################################################
 ## this snippet again comes from debhelper-5.0.40/examples/rules.multi2
