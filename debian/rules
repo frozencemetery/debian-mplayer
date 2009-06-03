@@ -155,7 +155,7 @@ install-arch:
 	dh_testdir
 	[ ! -f config.mak ] || $(MAKE) distclean
 	$(CLEAN_ENV) \
-	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) $(GUI_FLAG)
+	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --disable-gui
 	$(CLEAN_ENV) \
 	$(MAKE)
 	# build non-gui version
@@ -169,7 +169,7 @@ install-arch:
 	# build gui version
 	[ ! -f config.mak ] || $(MAKE) distclean
 	$(CLEAN_ENV) \
-	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) $(GUI_FLAG)
+	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --enable-gui
 	$(CLEAN_ENV) \
 	$(MAKE)
 	install -D -m 755 mplayer $(CURDIR)/debian/mplayer/usr/bin/gmplayer
