@@ -63,7 +63,7 @@
 #define UNUSED(x) ((void)(x))
 
 #if LIBAVCODEC_BUILD < ((51<<16)+(40<<8)+2)
-#error You need at least libavcodecs v51.40.2
+#error You need at least libavcodec v51.40.2
 #endif
 
 
@@ -226,7 +226,7 @@ return -1;//fail
 //print all info needed to add new format
 static void print_xvimage_format_values(XvImageFormatValues *xifv){
     int i;
-    const msgl=MSGL_DBG4;
+    const int msgl=MSGL_DBG4;
 
     mp_msg(MSGT_VO,msgl,"Format_ID = 0x%X\n",xifv->id);
 
@@ -379,7 +379,7 @@ static int preinit(const char *arg){
     int mc_ver,mc_rev;
     strarg_t ck_src_arg = { 0, NULL };
     strarg_t ck_method_arg = { 0, NULL };
-    opt_t subopts [] =
+    const opt_t subopts [] =
     {
         /* name         arg type      arg var           test */
         {  "port",      OPT_ARG_INT,  &xv_port_request, (opt_test_f)int_pos },
@@ -663,8 +663,6 @@ skip_surface_allocation:
         }
 #endif
     }
-
-    if ((flags & VOFLAG_FULLSCREEN) && WinID <= 0) vo_fs = 1;
 
 //end vo_xv
 
