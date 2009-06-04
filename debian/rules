@@ -162,8 +162,6 @@ install-arch:
 	dh_prep -a
 	$(MAKE) install-mplayer DESTDIR=$(CURDIR)/debian/mplayer-nogui
 	$(MAKE) install-mplayer-man-en DESTDIR=$(CURDIR)/debian/mplayer-nogui
-# scripts
-	chmod a+x debian/scripts/*
 	install -D -m 644 etc/example.conf \
 	                  $(CURDIR)/debian/mplayer-nogui/etc/mplayer/mplayer.conf
 	# build gui version
