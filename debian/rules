@@ -95,7 +95,7 @@ else
 endif
 
 ifeq ($(DEB_SOURCE),mplayer)
-DEB_BUILD_CONFIGURE += --disable-libdvdcss-internal --enable-dvdread --disable-mencoder
+DEB_BUILD_CONFIGURE += --disable-libdvdcss-internal --enable-dvdread
 endif
 
 # generate debugging symbols for mplayer-dbg for all archs but mipsen,
