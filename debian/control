@@ -105,6 +105,8 @@ Suggests: mplayer-doc,
 Depends: debconf | debconf-2.0,
 	 ${shlibs:Depends},
 	 ${misc:Depends}
+Replaces: mplayer (<< 1.0~rc3+svn20090426-1),
+	  mplayer-doc (<< 1.0~rc3+svn20090426-1)
 Description: movie player for Unix-like systems
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
@@ -141,6 +143,7 @@ Architecture: all
 Section: doc
 Recommends: mplayer
 Depends: ${misc:Depends}
+Replaces: mplayer (<< 1.0~rc3+svn20090426-1)
 Description: documentation for MPlayer
  This package contains the documentation for MPlayer, a movie player for
  Unix-like systems.
