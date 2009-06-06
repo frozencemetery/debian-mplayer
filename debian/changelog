@@ -1,3 +1,9 @@
+mplayer (1.0~rc3+svn20090426-1ubuntu1) karmic; urgency=low
+
+  * prepare upload to karmic
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 06 Jun 2009 23:01:52 +0200
+
 mplayer (1.0~rc3+svn20090426-1) unstable; urgency=low
 
   [ fabrice ]
