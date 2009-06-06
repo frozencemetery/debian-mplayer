@@ -94,6 +94,30 @@ Description: movie player for Unix-like systems
  Not all of the upstream code is distributed in the source tarball.
  See the README.Debian and copyright files for details.
 
+Package: mencoder
+Architecture: any
+Section: video
+Suggests: mplayer-doc,
+	  ttf-freefont,
+	  bzip2,
+	  fontconfig
+Depends: debconf | debconf-2.0,
+	 mplayer-nogui,
+	 ${shlibs:Depends},
+	 ${misc:Depends}
+Description: MPlayer's Movie Encoder
+ MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
+ ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
+ supported by many native, XAnim, RealPlayer, and Win32 DLL codecs. It can
+ also play VideoCD, SVCD, DVD, 3ivx, RealMedia, and DivX movies.
+ .
+ This package contains menconder, a simple movie encoder, designed to
+ encode MPlayer-playable movies
+ (AVI/ASF/OGG/DVD/VCD/VOB/MPG/MOV/VIV/FLI/RM/NUV/NET) to other
+ MPlayer-playable formats. It can encode with various codecs, like DivX4
+ (1 or 2 passes), libavcodec, PCM/MP3/VBRMP3 audio. Also has stream
+ copying and video resizing abilities.
+
 Package: mplayer-nogui
 Architecture: any
 Section: video
