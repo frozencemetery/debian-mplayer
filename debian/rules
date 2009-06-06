@@ -170,9 +170,10 @@ install-arch:
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --enable-gui
 	$(CLEAN_ENV) \
 	$(MAKE)
+	# install mplayer binary with gui support as ./usr/bin/gmplayer
 	install -D -m 755 mplayer $(CURDIR)/debian/mplayer/usr/bin/gmplayer
-	install -D -m 644 DOCS/man/en/mplayer.1 \
-	                  $(CURDIR)/debian/mplayer/usr/share/man/man1/gmplayer.1
+	# use upstream's Makefile to install the manpage
+	$(MAKE) install-mplayer-man-en DESTDIR=$(CURDIR)/debian/mplayer
 
 ###### build-indep
 
