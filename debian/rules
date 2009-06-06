@@ -164,6 +164,9 @@ install-arch:
 	$(MAKE) install-mplayer-man-en DESTDIR=$(CURDIR)/debian/mplayer-nogui
 	install -D -m 644 etc/example.conf \
 	                  $(CURDIR)/debian/mplayer-nogui/etc/mplayer/mplayer.conf
+	#install mencoder
+	$(MAKE) install-mencoder DESTDIR=$(CURDIR)/debian/mencoder
+	dh_link -p mencoder usr/share/man/man1/mplayer.1.gz usr/share/man/man1/mencoder.1.gz
 	# build gui version
 	[ ! -f config.mak ] || $(MAKE) distclean
 	$(CLEAN_ENV) \
@@ -186,8 +189,10 @@ install-indep-stamp: configure-arch-stamp
 	$(MAKE) -C DOCS/xml html-chunked
 	dh_prep -i
 	$(MAKE) install-mplayer-gui-man DESTDIR=$(CURDIR)/debian/mplayer-doc
+	$(MAKE) install-mencoder-man DESTDIR=$(CURDIR)/debian/mplayer-doc
 	# Drop the english manpage, installed in each mplayer package
 	rm -v $(CURDIR)/debian/mplayer-doc/usr/share/man/man1/mplayer.1
+	rm -v $(CURDIR)/debian/mplayer-doc/usr/share/man/man1/mencoder.1
 	dh_installdocs -i
 	touch $@
 
