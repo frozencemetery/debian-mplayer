@@ -1,10 +1,11 @@
-mplayer (1.0~rc3+svn20090426-1ubuntu1) karmic; urgency=low
+mplayer (2:1.0~rc3+svn20090426-1ubuntu1) karmic; urgency=low
 
   * Switch to debian packaging for the mplayer package
   * New upstream release, LP: #336697, #260918, #246675, #243453, #74282
   * Fixes security issues: CVE-2008-5616, LP: #308939
   * many flv fixes LP: #73271, #347021
-  * Build and install mencoder.
+  * Build and install mencoder
+  * Bump epoch
 
  -- Reinhard Tartler <siretart@tauware.de>  Sat, 06 Jun 2009 23:01:52 +0200
 
