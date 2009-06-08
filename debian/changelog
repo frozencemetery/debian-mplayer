@@ -1,6 +1,7 @@
 mplayer (2:1.0~rc3+svn20090426-1ubuntu2) karmic; urgency=low
 
-  * prepare new upload
+  * Bump epoch in debian/control as well, so that the Replaces field has
+    any effect in ubuntu
 
  -- Reinhard Tartler <siretart@tauware.de>  Mon, 08 Jun 2009 07:51:12 +0200
 
