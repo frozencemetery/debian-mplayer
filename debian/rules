@@ -44,7 +44,11 @@ DEB_BUILD_CONFIGURE = \
 	--disable-libavformat_a \
 	--disable-libpostproc_a \
 	--disable-libswscale_a \
-	--enable-faad \
+	--enable-faac-lavc \
+	--enable-x264-lavc \
+	--enable-mp3lame-lavc \
+	--enable-libdirac-lavc \
+	--enable-libschroedinger-lavc \
 	$(archconf)
 
 # Choose whether we want binary codec support (default on unknown archs: no).
