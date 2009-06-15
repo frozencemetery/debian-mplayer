@@ -1,3 +1,17 @@
+mplayer (2:1.0~rc3+svn20090426-1ubuntu3) karmic; urgency=low
+
+  [ Reinhard Tartler ]
+  * add additional build dependencies that are available in
+    ubuntu/multiverse LP: #386449
+  * prefer auto-detection and lavc variants of many codecs in debian/rules
+  * install .desktop and .xpm file in the mplayer package
+
+  [ Siegfried Gevatter ]
+  * improve desktop file to conform (more) to the freedesktop file
+    specification LP: #386505
+
+ -- Reinhard Tartler <siretart@tauware.de>  Mon, 15 Jun 2009 23:24:25 +0200
+
 mplayer (2:1.0~rc3+svn20090426-1ubuntu2) karmic; urgency=low
 
   * Bump epoch in debian/control as well, so that the Replaces field has
