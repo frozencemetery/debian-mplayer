@@ -178,6 +178,10 @@ install-arch:
 	$(CLEAN_ENV) \
 	$(MAKE)
 	install -D -m 755 mplayer $(CURDIR)/debian/mplayer/usr/bin/gmplayer
+	install -D -m 655 etc/mplayer.desktop \
+	                  $(CURDIR)/debian/mplayer/usr/share/applications/mplayer.desktop
+	install -D -m 655 etc/mplayer.xpm \
+	                  $(CURDIR)/debian/mplayer/usr/share/pixmaps/mplayer.xpm
 	install -D -m 644 DOCS/man/en/mplayer.1 \
 	                  $(CURDIR)/debian/mplayer/usr/share/man/man1/gmplayer.1
 
