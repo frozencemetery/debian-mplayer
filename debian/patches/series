@@ -1,5 +1,4 @@
 11configure-mktemp.patch
-22disable-xscreensaver.patch
 23mplayer-debug-printf.patch
 30_add_gmplayer_man_rules.diff
 40_improve_desktop_file.patch
