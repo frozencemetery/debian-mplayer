@@ -1,3 +1,12 @@
+mplayer (2:1.0~rc3+svn20090426-1ubuntu4) karmic; urgency=low
+
+  * remove 22disable-xscreensaver.patch. Patch is not working properly 
+    anyways and actually potentially dangerous because it is faking input
+    activity.
+  * enable fontconfig by default.
+
+ -- Reinhard Tartler <siretart@tauware.de>  Thu, 18 Jun 2009 16:09:33 +0200
+
 mplayer (2:1.0~rc3+svn20090426-1ubuntu3) karmic; urgency=low
 
   [ Reinhard Tartler ]
