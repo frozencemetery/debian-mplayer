@@ -101,7 +101,8 @@ Suggests: mplayer-doc,
 	  ttf-freefont,
 	  netselect | fping,
 	  bzip2,
-	  fontconfig
+	  fontconfig,
+	  nvidia-libvdpau1 | nvidia-libvdpau
 Depends: debconf | debconf-2.0,
 	 ${shlibs:Depends},
 	 ${misc:Depends}
