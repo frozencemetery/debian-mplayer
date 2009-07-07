@@ -1,3 +1,9 @@
+mplayer (1.0~rc3+svn20090426-2) UNRELEASED; urgency=low
+
+  * Bump version for new release.
+
+ -- Andres Mejia <mcitadel@gmail.com>  Mon, 06 Jul 2009 22:48:20 -0400
+
 mplayer (1.0~rc3+svn20090426-1) unstable; urgency=low
 
   [ fabrice ]
