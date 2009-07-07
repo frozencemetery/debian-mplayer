@@ -176,8 +176,6 @@ install-arch:
 	$(MAKE)
 	# install mplayer binary with gui support as ./usr/bin/gmplayer
 	install -D -m 755 mplayer $(CURDIR)/debian/mplayer/usr/bin/gmplayer
-	# use upstream's Makefile to install the manpage
-	$(MAKE) install-mplayer-man-en DESTDIR=$(CURDIR)/debian/mplayer
 
 ###### build-indep
 
