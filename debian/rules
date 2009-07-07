@@ -127,12 +127,16 @@ COMMON_CONFIGURE_FLAGS = \
 	--datadir=/usr/share/mplayer \
 	--codecsdir=/usr/lib/codecs \
 	--enable-xvmc \
+	--enable-vdpau \
 	--enable-sdl \
 	--enable-ossaudio \
 	--enable-lirc \
 	--enable-freetype \
 	--enable-menu \
-	--enable-largefiles 
+	--enable-largefiles
+
+# We add vdpau headers ourselves so mplayer can stay in main
+COMMON_CONFIGURE_FLAGS += --extra-cflags="-I$(CURDIR)/debian/include"
 
 # See http://wiki.debian.org/Teams/Dpkg/DebianRules; #465282  and
 # https://wiki.ubuntu.com/DistCompilerFlags
