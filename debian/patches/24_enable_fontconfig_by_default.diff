@@ -1,0 +1,30 @@
+Enable fontconfig support by default.
+
+taken from upstream:
+
+------------------------------------------------------------------------
+r29370 | siretart | 2009-06-17 11:16:19 +0200 (Mi, 17. Jun 2009) | 8 lines
+
+Enable fontconfig support by default. This change takes only in effect,
+if fontconfig support is actually compiled in. If freetype is not
+enabled, this patch should have no effect as well.
+
+The visible result of this patch is to avoid the warning about a missing
+~/.mplayer/subfont.ttf when starting mplayer (or gmplayer) without
+parameters, like done from the .desktop file.
+
+------------------------------------------------------------------------
+
+Index: libvo/font_load_ft.c
+===================================================================
+--- libvo/font_load_ft.c	(Revision 29369)
++++ libvo/font_load_ft.c	(Revision 29370)
+@@ -71,7 +71,7 @@
+ int force_load_font;
+ 
+ int using_freetype = 0;
+-int font_fontconfig = 0;
++int font_fontconfig = 1;
+ 
+ //// constants
+ static unsigned int const colors = 256;
