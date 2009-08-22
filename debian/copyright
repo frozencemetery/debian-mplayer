@@ -203,14 +203,6 @@ Copyright (C) 2000-2002 by Christian Scheurer (www.ChristianScheurer.ch)
   UNIX port copyright (c) 2000-2002 by Johannes Winkelmann (jw@tks6.net)
 License:    GNU General Public License / UniquE RAR File Library License
 
-File:	    mmx.h
-Copyright: 1997-99 by H. Dietz and R. Fisher
-License:   
-        THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY
-        EXPRESS OR IMPLIED WARRANTIES, INCLUDING, WITHOUT
-        LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY
-        AND FITNESS FOR ANY PARTICULAR PURPOSE.
-
 Name:       uCIFS library
 Version:    development files as of september 2004
 Homepage:   http://ubiqx.org/libcifs/
