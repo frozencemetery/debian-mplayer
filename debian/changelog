@@ -1,3 +1,9 @@
+mplayer (2:1.0~rc3+svn20090426-1ubuntu5) karmic; urgency=low
+
+  * No-change rebuild to pick up new ffmpeg shlibs file.
+
+ -- Stefan Potyra <sistpoty@ubuntu.com>  Fri, 28 Aug 2009 21:04:38 +0200
+
 mplayer (2:1.0~rc3+svn20090426-1ubuntu4) karmic; urgency=low
 
   * remove 22disable-xscreensaver.patch. Patch is not working properly 
