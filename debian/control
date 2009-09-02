@@ -3,83 +3,83 @@ Section: video
 Priority: optional
 Maintainer: Debian multimedia packages maintainers <pkg-multimedia-maintainers@lists.alioth.debian.org>
 Uploaders: A Mennucc1 <mennucc1@debian.org>,
-	   Reinhard Tartler <siretart@tauware.de>,
-	   Andres Mejia <mcitadel@gmail.com>
+           Reinhard Tartler <siretart@tauware.de>,
+           Andres Mejia <mcitadel@gmail.com>
 DM-Upload-Allowed: yes
 Standards-Version: 3.8.1
 Vcs-Git: git://git.debian.org/git/pkg-multimedia/mplayer.git
 Vcs-Browser: http://git.debian.org/?p=pkg-multimedia/mplayer.git;a=summary
 Homepage: http://www.mplayerhq.hu/
 Build-Depends: debhelper (>= 7),
-	       ladspa-sdk,
-	       libasound2-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386],
-	       libaudio-dev,
-	       libavcodec-dev (>= 0.svn20080206),
-	       libavdevice-dev,
-	       libavformat-dev,
-	       libavutil-dev,
-	       libcaca-dev,
-	       libcdparanoia-dev | libcdparanoia0-dev,
-	       libdirectfb-dev,
-	       libdts-dev,
-	       libdvdread-dev,
-	       libesd0-dev,
-	       libfontconfig1-dev,
-	       libfreetype6-dev,
-	       libfribidi-dev,
-	       libgif-dev,
-	       libgl1-mesa-dev,
-	       libgtk2.0-dev,
-	       libjack-dev,
-	       libjpeg62-dev,
-	       liblircclient-dev,
-	       liblivemedia-dev,
-	       liblzo2-dev,
+               ladspa-sdk,
+               libasound2-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386],
+               libaudio-dev,
+               libavcodec-dev (>= 0.svn20080206),
+               libavdevice-dev,
+               libavformat-dev,
+               libavutil-dev,
+               libcaca-dev,
+               libcdparanoia-dev | libcdparanoia0-dev,
+               libdirectfb-dev,
+               libdts-dev,
+               libdvdread-dev,
+               libesd0-dev,
+               libfontconfig1-dev,
+               libfreetype6-dev,
+               libfribidi-dev,
+               libgif-dev,
+               libgl1-mesa-dev,
+               libgtk2.0-dev,
+               libjack-dev,
+               libjpeg62-dev,
+               liblircclient-dev,
+               liblivemedia-dev,
+               liblzo2-dev,
                libmad0-dev,
-	       libncurses5-dev,
-	       libopenal-dev,
-	       libpng12-dev | libpng-dev,
-	       libpulse-dev,
-	       libpostproc-dev,
-	       libschroedinger-dev,
-	       libsdl1.2-dev | libsdl1.1-dev,
-	       libsmbclient-dev,
-	       libspeex-dev,
-	       libsvga1-dev [i386 amd64],
-	       libswscale-dev,
-	       libtheora-dev (>= 1.0~beta1),
-	       libvorbis-dev,
-	       libvorbisidec-dev,
-	       libx11-dev,
-	       libxext-dev,
-	       libxinerama-dev,
-	       libxv-dev,
-	       libxvmc-dev,
-	       libxxf86dga-dev,
-	       libxxf86vm-dev,
-	       pkg-config,
-	       po-debconf,
-	       quilt,
-	       vstream-client-dev,
-	       x11proto-core-dev,
-	       zlib1g-dev,
-	       docbook-xml,
-	       docbook-xsl,
-	       xsltproc
+               libncurses5-dev,
+               libopenal-dev,
+               libpng12-dev | libpng-dev,
+               libpulse-dev,
+               libpostproc-dev,
+               libschroedinger-dev,
+               libsdl1.2-dev | libsdl1.1-dev,
+               libsmbclient-dev,
+               libspeex-dev,
+               libsvga1-dev [i386 amd64],
+               libswscale-dev,
+               libtheora-dev (>= 1.0~beta1),
+               libvorbis-dev,
+               libvorbisidec-dev,
+               libx11-dev,
+               libxext-dev,
+               libxinerama-dev,
+               libxv-dev,
+               libxvmc-dev,
+               libxxf86dga-dev,
+               libxxf86vm-dev,
+               pkg-config,
+               po-debconf,
+               quilt,
+               vstream-client-dev,
+               x11proto-core-dev,
+               zlib1g-dev,
+               docbook-xml,
+               docbook-xsl,
+               xsltproc
 
 Package: mplayer
 Architecture: any
 Section: video
 Suggests: mplayer-doc,
-	  ttf-freefont,
-	  netselect | fping,
-	  bzip2,
-	  fontconfig
+          ttf-freefont,
+          netselect | fping,
+          bzip2,
+          fontconfig
 Depends: debconf | debconf-2.0,
-	 mplayer-skin,
-	 mplayer-nogui,
-	 ${shlibs:Depends},
-	 ${misc:Depends}
+         mplayer-skin,
+         mplayer-nogui,
+         ${shlibs:Depends},
+         ${misc:Depends}
 Description: movie player for Unix-like systems
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
@@ -93,7 +93,7 @@ Description: movie player for Unix-like systems
  and Permedia3). Most of them support software or hardware scaling,
  therefore allowing fullscreen display.  MPlayer is also able
  to use some hardware MPEG decoder boards, such as the DVB
- and DXR3/Hollywood+. 
+ and DXR3/Hollywood+.
  .
  Not all of the upstream code is distributed in the source tarball.
  See the README.Debian and copyright files for details.
@@ -102,16 +102,16 @@ Package: mplayer-nogui
 Architecture: any
 Section: video
 Suggests: mplayer-doc,
-	  ttf-freefont,
-	  netselect | fping,
-	  bzip2,
-	  fontconfig,
-	  nvidia-libvdpau1 | nvidia-libvdpau
+          ttf-freefont,
+          netselect | fping,
+          bzip2,
+          fontconfig,
+          nvidia-libvdpau1 | nvidia-libvdpau
 Depends: debconf | debconf-2.0,
-	 ${shlibs:Depends},
-	 ${misc:Depends}
+         ${shlibs:Depends},
+         ${misc:Depends}
 Replaces: mplayer (<< 1.0~rc3+svn20090426-1),
-	  mplayer-doc (<< 1.0~rc3+svn20090426-1)
+          mplayer-doc (<< 1.0~rc3+svn20090426-1)
 Description: movie player for Unix-like systems
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
@@ -125,7 +125,7 @@ Description: movie player for Unix-like systems
  and Permedia3). Most of them support software or hardware scaling,
  therefore allowing fullscreen display.  MPlayer is also able
  to use some hardware MPEG decoder boards, such as the DVB
- and DXR3/Hollywood+. 
+ and DXR3/Hollywood+.
  .
  Not all of the upstream code is distributed in the source tarball.
  See the README.Debian and copyright files for details.
