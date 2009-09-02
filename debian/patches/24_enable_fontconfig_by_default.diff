@@ -15,10 +15,8 @@ parameters, like done from the .desktop file.
 
 ------------------------------------------------------------------------
 
-Index: libvo/font_load_ft.c
-===================================================================
---- libvo/font_load_ft.c	(Revision 29369)
-+++ libvo/font_load_ft.c	(Revision 29370)
+--- mplayer.orig/libvo/font_load_ft.c
++++ mplayer/libvo/font_load_ft.c
 @@ -71,7 +71,7 @@
  int force_load_font;
  
