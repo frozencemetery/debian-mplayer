@@ -1,5 +1,5 @@
 Author: <mennucc1@debian.org>
-Description: This patch avoids xscreensaver from blanking onto your favorite movie ; it was made by me, based on code posted in mplayer-dev-eng by Adam  Tlałka
+Description: This patch avoids xscreensaver from blanking onto your favorite movie ; it was made by me, based on code posted in mplayer-dev-eng by Adam  Tlałka . It works as follows: when the cursor is inside the MPlayer window, and it is hidden, then the cursor is artificially moved  a bit every 10seconds (+-), so as to disable the screensaver. Of course, it would be a VERY bad idea to move aroundthe cursor when it is in another window (e.g. the user may end up clicking the wrong button)- so it does not work when the cursor is outside the MPlayer window.
 --- a/libvo/x11_common.c
 +++ b/libvo/x11_common.c
 @@ -177,6 +177,9 @@ void vo_x11_ewmh_fullscreen(int action)
@@ -64,3 +64,19 @@ Description: This patch avoids xscreensaver from blanking onto your favorite mov
  }
  
  static int xss_suspend(Bool suspend)
+--- a/DOCS/man/en/mplayer.1
++++ b/DOCS/man/en/mplayer.1
+@@ -3257,10 +3257,12 @@ Specify the screen width for video output drivers which
+ do not know the screen resolution like fbdev, x11 and TV-out.
+ .
+ .TP
+-.B \-stop\-xscreensaver (X11 only)
++.B \-stop\-xscreensaver (X11 , KDE and GNOME only)
+ Turns off xscreensaver at startup and turns it on again on exit.
++Note that the GNOME screensaver is disabled only as long
++as the mouse cursor is kept inside the MPlayer window.
+ If your screensaver supports neither the XSS nor XResetScreenSaver
+ API please use \-heartbeat\-cmd instead.
+ .
+ .TP
+ .B "\-vm \ \ \ "
