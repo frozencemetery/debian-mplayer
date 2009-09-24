@@ -1,3 +1,20 @@
+mplayer (2:1.0~rc3+svn20090426-1ubuntu6) karmic; urgency=low
+
+  [ Andres Mejia ]
+  * Enable VDPAU support by including vdpau headers in deb packaging.
+
+  [ Reinhard Tartler ]
+  * sort build dependencies alphabetically
+  * avoid using tabs - prefer space instead
+  * reenable 22disable-xscreensaver.patch. The patch does work, but you
+    need to have the mouse cursor INSIDE the window
+  * don't build-depend on libmad, the internal mp3lib library is superiour
+    for most cases these days, according to upstream. LP: #111025, #163382
+  * add clarifications to the libgsm license.
+  * install the TOOLS/midentify.sh script LP: #333828
+
+ -- Reinhard Tartler <siretart@tauware.de>  Thu, 24 Sep 2009 21:09:24 +0200
+
 mplayer (2:1.0~rc3+svn20090426-1ubuntu5) karmic; urgency=low
 
   * No-change rebuild to pick up new ffmpeg shlibs file.
