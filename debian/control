@@ -4,7 +4,9 @@ Priority: optional
 Maintainer: Ubuntu MOTU Developers <ubuntu-motu@lists.ubuntu.com>
 XSBC-Original-Maintainer: Debian multimedia packages maintainers <pkg-multimedia-maintainers@lists.alioth.debian.org>
 Uploaders: A Mennucc1 <mennucc1@debian.org>,
-	   Reinhard Tartler <siretart@tauware.de>
+           Reinhard Tartler <siretart@tauware.de>,
+           Andres Mejia <mcitadel@gmail.com>
+DM-Upload-Allowed: yes
 Standards-Version: 3.8.1
 Vcs-Git: git://git.debian.org/git/pkg-multimedia/mplayer.git
 Vcs-Browser: http://git.debian.org/?p=pkg-multimedia/mplayer.git;a=summary
@@ -38,7 +40,6 @@ Build-Depends: debhelper (>= 7),
                liblircclient-dev,
                liblivemedia-dev,
                liblzo2-dev,
-               libmp3lame-dev,
                libncurses5-dev,
                libopenal-dev,
                libpng12-dev | libpng-dev,
@@ -52,6 +53,7 @@ Build-Depends: debhelper (>= 7),
                libswscale-dev,
                libtheora-dev (>= 1.0~beta1),
                libvorbis-dev,
+               libvorbisidec-dev,
                libx11-dev,
                libx264-dev,
                libxext-dev,
@@ -73,15 +75,15 @@ Package: mplayer
 Architecture: any
 Section: video
 Suggests: mplayer-doc,
-	  ttf-freefont,
-	  netselect | fping,
-	  bzip2,
-	  fontconfig
+          ttf-freefont,
+          netselect | fping,
+          bzip2,
+          fontconfig
 Depends: debconf | debconf-2.0,
-	 mplayer-skin,
-	 mplayer-nogui,
-	 ${shlibs:Depends},
-	 ${misc:Depends}
+         mplayer-skin,
+         mplayer-nogui,
+         ${shlibs:Depends},
+         ${misc:Depends}
 Description: movie player for Unix-like systems
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
@@ -95,7 +97,7 @@ Description: movie player for Unix-like systems
  and Permedia3). Most of them support software or hardware scaling,
  therefore allowing fullscreen display.  MPlayer is also able
  to use some hardware MPEG decoder boards, such as the DVB
- and DXR3/Hollywood+. 
+ and DXR3/Hollywood+.
  .
  Not all of the upstream code is distributed in the source tarball.
  See the README.Debian and copyright files for details.
@@ -128,15 +130,16 @@ Package: mplayer-nogui
 Architecture: any
 Section: video
 Suggests: mplayer-doc,
-	  ttf-freefont,
-	  netselect | fping,
-	  bzip2,
-	  fontconfig
+          ttf-freefont,
+          netselect | fping,
+          bzip2,
+          fontconfig,
+          nvidia-libvdpau1 | nvidia-libvdpau
 Depends: debconf | debconf-2.0,
-	 ${shlibs:Depends},
-	 ${misc:Depends}
+         ${shlibs:Depends},
+         ${misc:Depends}
 Replaces: mplayer (<< 2:1.0~rc3+svn20090426-1),
-	  mplayer-doc (<< 2:1.0~rc3+svn20090426-1)
+          mplayer-doc (<< 1.0~rc3+svn20090426-1)
 Description: movie player for Unix-like systems
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
@@ -150,7 +153,7 @@ Description: movie player for Unix-like systems
  and Permedia3). Most of them support software or hardware scaling,
  therefore allowing fullscreen display.  MPlayer is also able
  to use some hardware MPEG decoder boards, such as the DVB
- and DXR3/Hollywood+. 
+ and DXR3/Hollywood+.
  .
  Not all of the upstream code is distributed in the source tarball.
  See the README.Debian and copyright files for details.

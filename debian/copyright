@@ -84,6 +84,26 @@ License:
  As a matter of courtesy, the authors request to be informed about
  uses this software has found, about bugs in this software, and about
  any improvements that may be of general interest.
+ .
+ As of the libgsm debian package version 1.0.13-1, the following
+ copyright addition has been made to the libgsm package:
+ .
+ Since the original terms of 15 years ago maybe do not make our
+ intentions completely clear given today's refined usage of the legal
+ terms, we append this additional permission:
+ .
+      Permission to use, copy, modify, and distribute this software
+      for any purpose with or without fee is hereby granted,
+      provided that this notice is not removed and that neither
+      the authors nor the Technische Universitaet Berlin are
+      deemed to have made any representations as to the suitability
+      of this software for any purpose nor are held responsible
+      for any defects of this software.  THERE IS ABSOLUTELY NO
+      WARRANTY FOR THIS SOFTWARE.
+ .
+ Berkeley/Bremen, 05.04.2009
+ Jutta Degener
+ Carsten Bormann
 
 Name:       miniLZO
 Version:    1.07
@@ -202,14 +222,6 @@ File:	    unrarlib.[ch]
 Copyright (C) 2000-2002 by Christian Scheurer (www.ChristianScheurer.ch)
   UNIX port copyright (c) 2000-2002 by Johannes Winkelmann (jw@tks6.net)
 License:    GNU General Public License / UniquE RAR File Library License
-
-File:	    mmx.h
-Copyright: 1997-99 by H. Dietz and R. Fisher
-License:   
-        THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY
-        EXPRESS OR IMPLIED WARRANTIES, INCLUDING, WITHOUT
-        LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY
-        AND FITNESS FOR ANY PARTICULAR PURPOSE.
 
 Name:       uCIFS library
 Version:    development files as of september 2004

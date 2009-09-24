@@ -1,5 +1,7 @@
 11configure-mktemp.patch
+22disable-xscreensaver.patch
 23mplayer-debug-printf.patch
+24_enable_fontconfig_by_default.diff
 30_add_gmplayer_man_rules.diff
 40_improve_desktop_file.patch
 41_use_fontconfig_by_default.patch
