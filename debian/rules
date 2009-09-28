@@ -61,6 +61,7 @@ ifeq ($(DEB_HOST_ARCH),i386)
   with_real_and_xanim = true
   with_win32 = true
   DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
+  DEB_BUILD_CONFIGURE += --enable-vdpau
 endif
 ifeq ($(DEB_HOST_ARCH),amd64)
   #this needs the patch 
@@ -68,6 +69,7 @@ ifeq ($(DEB_HOST_ARCH),amd64)
   with_real_and_xanim = true
   #this does not compile, though : with_win32 = true
   DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
+  DEB_BUILD_CONFIGURE += --enable-vdpau
 endif
 ifeq ($(DEB_HOST_ARCH),kfreebsd-i386)
   with_real_and_xanim = true
