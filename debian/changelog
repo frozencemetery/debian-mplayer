@@ -1,3 +1,10 @@
+mplayer (2:1.0~rc3+svn20090426-1ubuntu7) karmic; urgency=low
+
+  * remove 41_use_fontconfig_by_default.patch, doesn't apply
+  * enable VDPAU on i386 and amd64 (LP: #437039)
+
+ -- Reinhard Tartler <siretart@tauware.de>  Mon, 28 Sep 2009 19:32:29 +0000
+
 mplayer (2:1.0~rc3+svn20090426-1ubuntu6) karmic; urgency=low
 
   [ Andres Mejia ]
