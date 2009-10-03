@@ -1,3 +1,10 @@
+mplayer (2:1.0~rc3+svn20090426-1ubuntu8) karmic; urgency=low
+
+  * build depend on nvidia-185-libvdpau-dev only on i386 and amd64
+  * add ubuntu specific configuration file. LP: #276957, #440343
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 03 Oct 2009 10:45:23 +0200
+
 mplayer (2:1.0~rc3+svn20090426-1ubuntu7) karmic; urgency=low
 
   * remove 41_use_fontconfig_by_default.patch, doesn't apply
