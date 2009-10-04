@@ -31,7 +31,6 @@ DEB_HOST_ARCH_CPU   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_CPU)
 DEB_BUILD_CONFIGURE = \
 	--disable-bitmap-font \
 	--disable-ggi \
-	--disable-xvid \
 	--language=all \
 	--disable-xmms \
 	--disable-arts \
