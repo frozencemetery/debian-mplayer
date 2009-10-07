@@ -43,6 +43,7 @@ DEB_BUILD_CONFIGURE = \
 	--disable-libavformat_a \
 	--disable-libpostproc_a \
 	--disable-libswscale_a \
+	--enable-mp3lame \
 	--enable-faac-lavc \
 	--enable-x264-lavc \
 	--enable-mp3lame-lavc \
