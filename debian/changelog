@@ -1,3 +1,16 @@
+mplayer (2:1.0~rc3+svn20090426-1ubuntu9) karmic; urgency=low
+  
+  [ Julien Lavergne ]
+  * Renable xvid support by removing --disable-xvid in debian/rules.
+
+  [ Reinhard Tartler ]
+  * Also enable mp3lame support (at least for now) LP: #386449
+  * don't override the mplayer built-in defaults for the vo module LP: #446040
+  * verified that mennuc's screensaver patch is enabled and works in the default
+    configuration. LP: #439787
+
+ -- Reinhard Tartler <siretart@tauware.de>  Thu, 08 Oct 2009 09:23:29 +0200
+
 mplayer (2:1.0~rc3+svn20090426-1ubuntu8) karmic; urgency=low
 
   * build depend on nvidia-185-libvdpau-dev only on i386 and amd64
