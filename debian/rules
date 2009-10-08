@@ -174,6 +174,8 @@ install-arch:
 	$(MAKE) install-mplayer-man-en DESTDIR=$(CURDIR)/debian/mplayer-nogui
 	install -D -m 644 debian/mplayer.conf \
 	                  $(CURDIR)/debian/mplayer-nogui/etc/mplayer/mplayer.conf
+	install -D -m 644 debian/apport-hook.py \
+	                  $(CURDIR)/debian/mplayer-nogui/usr/share/apport/package-hooks/source_mplayer.py
 	#install mencoder
 	$(MAKE) install-mencoder DESTDIR=$(CURDIR)/debian/mencoder
 	dh_link -p mencoder usr/share/man/man1/mplayer.1.gz usr/share/man/man1/mencoder.1.gz
