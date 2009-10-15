@@ -1,3 +1,10 @@
+mplayer (2:1.0~rc3+svn20090426-1ubuntu10) karmic; urgency=low
+
+  * make sure that patches are applied for non-i386 builds as well.
+    Fixes: LP: #390398, #448603, #448595, #441566, #440346
+
+ -- Reinhard Tartler <siretart@tauware.de>  Thu, 15 Oct 2009 17:55:21 +0200
+
 mplayer (2:1.0~rc3+svn20090426-1ubuntu9) karmic; urgency=low
   
   [ Julien Lavergne ]
