@@ -161,7 +161,7 @@ configure-arch-stamp: $(QUILT_STAMPFN)
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE)
 	touch configure-arch-stamp
 
-install-arch:
+install-arch: $(QUILT_STAMPFN)
 	dh_testdir
 	[ ! -f config.mak ] || $(MAKE) distclean
 	$(CLEAN_ENV) \
