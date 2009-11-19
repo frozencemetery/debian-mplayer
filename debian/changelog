@@ -1,10 +1,10 @@
-mplayer (2:1.0~rc3+svn20090426-1ubuntu10.1) karmic-proposed; urgency=low
+mplayer (2:1.0~rc3+svn20090426-1ubuntu11) lucid; urgency=low
 
-  * debian/patches/41_fix_forcedsubsonly.patch: fix the forcedsubsonly
-    option. This fixes a problem with ogmrip always encoding with
-    subtitles. (LP: #458129).
+  * Add 50_fix_initial_volume_setting_pulse_output.patch to resolve the
+    stream volume being set to max upon each mplayer invocation
+    (LP: #482408)
 
- -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Tue, 24 Nov 2009 08:26:53 -0500
+ -- Daniel T Chen <crimsun@ubuntu.com>  Wed, 18 Nov 2009 19:42:09 -0500
 
 mplayer (2:1.0~rc3+svn20090426-1ubuntu10) karmic; urgency=low
 
