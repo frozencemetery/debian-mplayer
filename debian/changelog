@@ -1,3 +1,13 @@
+mplayer (2:1.0~rc3+svn20090426-1ubuntu12) lucid; urgency=low
+
+  * debian/patches/41_fix_forcedsubsonly.patch: fix the forcedsubsonly
+    option. This fixes a problem with ogmrip always encoding with
+    subtitles. (LP: #458129).
+  * debian/control: Change build-dep libxvidcore4-dev to libxvidcore-dev.
+    (LP: #486169)
+
+ -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Mon, 23 Nov 2009 20:11:33 -0500
+
 mplayer (2:1.0~rc3+svn20090426-1ubuntu11) lucid; urgency=low
 
   * Add 50_fix_initial_volume_setting_pulse_output.patch to resolve the

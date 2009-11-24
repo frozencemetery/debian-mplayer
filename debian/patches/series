@@ -4,4 +4,5 @@
 24_enable_fontconfig_by_default.diff
 30_add_gmplayer_man_rules.diff
 40_improve_desktop_file.patch
+41_fix_forcedsubsonly.patch
 50_fix_initial_volume_setting_pulse_output.patch
