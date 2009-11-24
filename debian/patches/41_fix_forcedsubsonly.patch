@@ -1,0 +1,40 @@
+#
+# Description: fix the forcedsubsonly option
+# Upstream: http://lists.mplayerhq.hu/pipermail/mplayer-users/2009-March/076362.html
+# Patch: http://lists.mplayerhq.hu/pipermail/mplayer-cvslog/2009-March/036924.html
+#
+diff -Nur mplayer-1.0~rc3+svn20090426/mencoder.c mplayer-1.0~rc3+svn20090426.new/mencoder.c
+--- mplayer-1.0~rc3+svn20090426/mencoder.c	2009-02-10 10:34:44.000000000 -0500
++++ mplayer-1.0~rc3+svn20090426.new/mencoder.c	2009-11-01 19:39:50.000000000 -0500
+@@ -698,6 +698,8 @@
+                            sh_video->disp_w, sh_video->disp_h, NULL, 0);
+ }
+ #endif
++if (vo_spudec)
++  spudec_set_forced_subs_only(vo_spudec, forced_subs_only);
+ }
+ 
+ ostream = open_output_stream(out_filename, 0);
+diff -Nur mplayer-1.0~rc3+svn20090426/mplayer.c mplayer-1.0~rc3+svn20090426.new/mplayer.c
+--- mplayer-1.0~rc3+svn20090426/mplayer.c	2009-11-01 19:37:44.000000000 -0500
++++ mplayer-1.0~rc3+svn20090426.new/mplayer.c	2009-11-01 19:39:22.000000000 -0500
+@@ -1128,8 +1128,10 @@
+     spudec_set_font_factor(vo_spudec,font_factor);
+   }
+ 
+-  if (vo_spudec!=NULL)
++  if (vo_spudec!=NULL) {
+     initialized_flags|=INITIALIZED_SPUDEC;
++    mp_property_do("sub_forced_only", M_PROPERTY_SET, &forced_subs_only, mpctx);
++  }
+ }
+ 
+ /*
+@@ -3069,6 +3071,7 @@
+     if(vo_vobsub){
+       initialized_flags|=INITIALIZED_VOBSUB;
+       vobsub_set_from_lang(vo_vobsub, dvdsub_lang);
++      mp_property_do("sub_forced_only", M_PROPERTY_SET, &forced_subs_only, mpctx);
+ 
+       // setup global sub numbering
+       mpctx->global_sub_indices[SUB_SOURCE_VOBSUB] = mpctx->global_sub_size; // the global # of the first vobsub.

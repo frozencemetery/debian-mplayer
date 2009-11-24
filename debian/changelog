@@ -1,3 +1,11 @@
+mplayer (2:1.0~rc3+svn20090426-1ubuntu10.1) karmic-proposed; urgency=low
+
+  * debian/patches/41_fix_forcedsubsonly.patch: fix the forcedsubsonly
+    option. This fixes a problem with ogmrip always encoding with
+    subtitles. (LP: #458129).
+
+ -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Tue, 24 Nov 2009 08:26:53 -0500
+
 mplayer (2:1.0~rc3+svn20090426-1ubuntu10) karmic; urgency=low
 
   * make sure that patches are applied for non-i386 builds as well.
