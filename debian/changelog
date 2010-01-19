@@ -1,3 +1,9 @@
+mplayer (2:1.0~rc3+svn20090426-1ubuntu13) lucid; urgency=low
+
+  * rebuild for ffmpeg versioned symbols
+
+ -- Reinhard Tartler <siretart@tauware.de>  Tue, 19 Jan 2010 21:31:51 +0100
+
 mplayer (2:1.0~rc3+svn20090426-1ubuntu12) lucid; urgency=low
 
   * debian/patches/41_fix_forcedsubsonly.patch: fix the forcedsubsonly
