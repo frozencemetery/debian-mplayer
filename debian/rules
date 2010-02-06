@@ -42,11 +42,9 @@ ifeq ($(DEB_HOST_ARCH),i386)
 #in order to build a generic binary, avoid non-standard opcodes through gcc
   archconf += --target=i586-linux
   DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
-  DEB_BUILD_CONFIGURE += --enable-vdpau
 endif
 ifeq ($(DEB_HOST_ARCH),amd64)
   DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
-  DEB_BUILD_CONFIGURE += --enable-vdpau
 endif
 ifeq ($(DEB_HOST_ARCH),kfreebsd-i386)
   DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
@@ -92,9 +90,6 @@ COMMON_CONFIGURE_FLAGS = \
 	--enable-menu \
 	--enable-largefiles
 	# XXX enable-menu is frowned upon by upstream
-
-# We add vdpau headers ourselves so mplayer can stay in main
-COMMON_CONFIGURE_FLAGS += --extra-cflags="-I$(CURDIR)/debian/include"
 
 # See http://wiki.debian.org/Teams/Dpkg/DebianRules; #465282  and
 # https://wiki.ubuntu.com/DistCompilerFlags
