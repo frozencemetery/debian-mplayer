@@ -76,7 +76,7 @@ Build-Depends: debhelper (>= 7),
                xsltproc,
                zlib1g-dev
 
-Package: mplayer
+Package: mplayer-gui
 Architecture: any
 Section: video
 Suggests: mplayer-doc,
@@ -86,9 +86,10 @@ Suggests: mplayer-doc,
           fontconfig
 Depends: debconf | debconf-2.0,
          mplayer-skin,
-         mplayer-nogui,
+         mplayer,
          ${shlibs:Depends},
          ${misc:Depends}
+Replaces: mplayer-doc (<< 2:1.0~rc3+svn20090426-1ubuntu14)
 Description: movie player for Unix-like systems
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
@@ -111,13 +112,13 @@ Package: mencoder
 Architecture: any
 Section: video
 Suggests: mplayer-doc,
-	  ttf-freefont,
-	  bzip2,
-	  fontconfig
+          ttf-freefont,
+          bzip2,
+         fontconfig
 Depends: debconf | debconf-2.0,
-	 mplayer-nogui,
-	 ${shlibs:Depends},
-	 ${misc:Depends}
+         mplayer-nogui,
+         ${shlibs:Depends},
+         ${misc:Depends}
 Description: MPlayer's Movie Encoder
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
@@ -131,7 +132,7 @@ Description: MPlayer's Movie Encoder
  (1 or 2 passes), libavcodec, PCM/MP3/VBRMP3 audio. Also has stream
  copying and video resizing abilities.
 
-Package: mplayer-nogui
+Package: mplayer
 Architecture: any
 Section: video
 Suggests: mplayer-doc,
@@ -142,8 +143,7 @@ Suggests: mplayer-doc,
 Depends: debconf | debconf-2.0,
          ${shlibs:Depends},
          ${misc:Depends}
-Replaces: mplayer (<< 2:1.0~rc3+svn20090426-1),
-          mplayer-doc (<< 1.0~rc3+svn20090426-1)
+Replaces: mplayer-doc (<< 2:1.0~rc3+svn20090426-1ubuntu14)
 Description: movie player for Unix-like systems
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
@@ -168,7 +168,9 @@ Package: mplayer-dbg
 Architecture: any
 Section: debug
 Priority: extra
-Depends: mplayer, ${misc:Depends}
+Depends: mplayer,
+         mencoder,
+         ${misc:Depends}
 Recommends: ffmpeg-dbg
 Description: debugging symbols for MPlayer
  This package contains the debugging symbols for MPlayer, a movie
@@ -184,3 +186,11 @@ Replaces: mplayer (<< 2:1.0~rc3+svn20090426-1)
 Description: documentation for MPlayer
  This package contains the documentation for MPlayer, a movie player for
  Unix-like systems.
+
+Package: mplayer-nogui
+Architecture: all
+Depends: mplayer,
+         ${misc:Depends}
+Description: movie player for Unix-like systems (transitional package)
+ This is a transitional package to assist with upgrading from older
+ versions of mplayer. It can be safely removed.
