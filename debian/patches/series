@@ -6,3 +6,4 @@
 40_improve_desktop_file.patch
 41_fix_forcedsubsonly.patch
 50_fix_initial_volume_setting_pulse_output.patch
+80_allow_compilation_with_newer_x264.patch
