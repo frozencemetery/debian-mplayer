@@ -27,9 +27,16 @@ DEB_HOST_ARCH_OS    ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
 DEB_HOST_ARCH_CPU   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_CPU)
 
 
-## This can be overridden from the command line, see README.Debian.
+# XXX enable-menu is frowned upon by upstream
 DEB_BUILD_CONFIGURE = \
+	--prefix=/usr \
+	--confdir=/etc/mplayer \
+	--enable-xvmc \
+	--enable-menu \
+	--enable-largefiles \
 	--language=all \
+	--disable-libdvdcss-internal \
+	--disable-dvdread-internal \
 	--disable-libavutil_a \
 	--disable-libavcodec_a \
 	--disable-libavformat_a \
@@ -61,8 +68,6 @@ ifeq ($(DEB_HOST_ARCH),alpha)
   archconf += --target=alpha_ev5-linux
 endif
 
-DEB_BUILD_CONFIGURE += --disable-libdvdcss-internal --disable-dvdread-internal
-
 # generate debugging symbols for mplayer-dbg for all archs but mipsen,
 # see bug #520113
 ifeq (,$(findstring mips,$(DEB_HOST_ARCH)))
@@ -77,19 +82,11 @@ endif
 
 
 ifeq (linux,$(DEB_HOST_ARCH_OS))
-    DEB_BUILD_CONFIGURE += --enable-mga
-    DEB_BUILD_CONFIGURE += --enable-3dfx --enable-tdfxfb
+    DEB_BUILD_CONFIGURE += --enable-mga --enable-3dfx --enable-tdfxfb
 endif
 
 ####### build-arch
 
-COMMON_CONFIGURE_FLAGS = \
-	--prefix=/usr \
-	--confdir=/etc/mplayer \
-	--enable-xvmc \
-	--enable-menu \
-	--enable-largefiles
-	# XXX enable-menu is frowned upon by upstream
 
 # See http://wiki.debian.org/Teams/Dpkg/DebianRules; #465282  and
 # https://wiki.ubuntu.com/DistCompilerFlags
@@ -167,22 +164,8 @@ clean-real:
 	[ ! -f config.mak ] || $(MAKE) -C DOCS/xml distclean || true
 	[ ! -f config.mak ] || $(MAKE) distclean
 	dh_clean build-arch-stamp configure-arch-stamp snapshot_version
-	dh_clean debian/README.Debian
 
-###### 	Write README.Debian and add free or non-free statement.
-debian/README.Debian:
-ifeq ($(DEB_SOURCE),mplayer)
-	tail -n +4  debian/README.Debian.free > $@
-else
-	tail -n +4  debian/README.Debian.nonfree > $@
-endif
-	cat debian/README.Debian.all >> $@
-	sed 's!@DEB_BUILD_CONFIGURE@!$(DEB_BUILD_CONFIGURE)!' \
-	  <  debian/README.Debian \
-	  >> $@.tmp
-	mv $@.tmp $@
-
-binary-common: debian/README.Debian
+binary-common:
 	dh_testdir
 	dh_testroot
 	dh_install
@@ -230,6 +213,6 @@ get-orig-source:
 PHONY += build clean binary-indep binary-arch binary-common binary 
 PHONY += install binary binary-arch binary-indep clean checkroot get-orig-source
 PHONY += autocontrol fix-orig-source copy-orig-from-svn download-and-unpack-orig
-PHONY += build-gui build-nogui install-gui install-nogui debian/README.Debian
+PHONY += build-gui build-nogui install-gui install-nogui
 
 .PHONY: $(PHONY)
