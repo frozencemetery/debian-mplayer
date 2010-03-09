@@ -93,27 +93,15 @@ endif
 CLEAN_ENV=env -u CFLAGS -u CPPFLAGS -u LDFLAGS -u FFLAGS -u CXXFLAGS
 
 
-# this rule is used for both architecture independent and dependent
-# builds. When building only the doc package, it still needs the first
-# configure run done.
-configure: configure-arch-stamp
-configure-arch-stamp: $(QUILT_STAMPFN)
-	dh_testdir
-	test -r .svnrevision && cp .svnrevision snapshot_version
-	# Add commands to configure the package here.
-	$(CLEAN_ENV) \
-	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE)
-	touch configure-arch-stamp
-
 install-arch: $(QUILT_STAMPFN)
 	dh_testdir
+	dh_prep -a
 	[ ! -f config.mak ] || $(MAKE) distclean
 	$(CLEAN_ENV) \
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --disable-gui
 	$(CLEAN_ENV) \
 	$(MAKE)
 	# build non-gui version
-	dh_prep -a
 	$(MAKE) install-mplayer DESTDIR=$(CURDIR)/debian/mplayer
 	$(MAKE) install-mplayer-man-en DESTDIR=$(CURDIR)/debian/mplayer
 	install -D -m 644 debian/mplayer.conf \
@@ -122,36 +110,30 @@ install-arch: $(QUILT_STAMPFN)
 	                  $(CURDIR)/debian/mplayer-nogui/usr/share/apport/package-hooks/source_mplayer.py
 	#install mencoder
 	$(MAKE) install-mencoder DESTDIR=$(CURDIR)/debian/mencoder
-	dh_link -p mencoder usr/share/man/man1/mplayer.1.gz usr/share/man/man1/mencoder.1.gz
+	$(MAKE) install-mencoder-man DESTDIR=$(CURDIR)/debian/mencoder
 	# build gui version
 	[ ! -f config.mak ] || $(MAKE) distclean
 	$(CLEAN_ENV) \
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --enable-gui
 	$(CLEAN_ENV) \
 	$(MAKE)
+	$(MAKE) install-mplayer-gui-man DESTDIR=$(CURDIR)/debian/mplayer-gui
 	install -D -m 755 mplayer $(CURDIR)/debian/mplayer-gui/usr/bin/gmplayer
 	install -D -m 644 etc/mplayer.desktop \
 	                  $(CURDIR)/debian/mplayer-gui/usr/share/applications/mplayer.desktop
 	install -D -m 644 etc/mplayer.xpm \
 	                  $(CURDIR)/debian/mplayer-gui/usr/share/pixmaps/mplayer.xpm
-	install -D -m 644 DOCS/man/en/mplayer.1 \
-	                  $(CURDIR)/debian/mplayer-gui/usr/share/man/man1/gmplayer.1
 
 ###### build-indep
 
 # commands to compile the documentation
 install-indep: install-indep-stamp
-install-indep-stamp: configure-arch-stamp
+install-indep-stamp:
 	dh_testdir
+	sh debian/all-lang-config-mak.sh > config.mak
 	cd DOCS/xml && ./configure
-	$(CLEAN_ENV) \
 	$(MAKE) -C DOCS/xml html-chunked
-	dh_prep -i
-	$(MAKE) install-mplayer-gui-man DESTDIR=$(CURDIR)/debian/mplayer-doc
-	$(MAKE) install-mencoder-man DESTDIR=$(CURDIR)/debian/mplayer-doc
-	# Drop the english manpage, installed in each mplayer package
-	rm -v $(CURDIR)/debian/mplayer-doc/usr/share/man/man1/mplayer.1
-	rm -v $(CURDIR)/debian/mplayer-doc/usr/share/man/man1/mencoder.1
+	dh_installchangelogs -i
 	dh_installdocs -i
 	touch $@
 
@@ -165,18 +147,20 @@ clean-real:
 	[ ! -f config.mak ] || $(MAKE) distclean
 	dh_clean build-arch-stamp configure-arch-stamp snapshot_version
 
-binary-common:
+# Build architecture-independent packages
+binary-indep: install-indep
+
+# Build architecture-dependent packages
+binary-arch: install-arch
 	dh_testdir
 	dh_testroot
-	dh_install
-	dh_installchangelogs
-	dh_installdocs
-	dh_installexamples
-	dh_installmenu
-	dh_installmime
-	dh_installinit
-	dh_installman
-	dh_desktop
+	dh_install -a
+	dh_installchangelogs -a
+	dh_installdocs -a
+	dh_installexamples -a
+	dh_installmenu -a
+	dh_installmime -a
+	dh_installman -a
 	dh_strip --dbg-package=mplayer-dbg
 	dh_link
 	dh_compress
@@ -187,16 +171,6 @@ binary-common:
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
-
-
-
-# Build architecture-independent packages using the common target.
-binary-indep: install-indep
-	$(MAKE) -f debian/rules DH_OPTIONS=-i binary-common
-
-# Build architecture-dependent packages using the common target.
-binary-arch: install-arch
-	$(MAKE) -f debian/rules DH_OPTIONS=-a binary-common
 
 binary: binary-indep binary-arch
 
