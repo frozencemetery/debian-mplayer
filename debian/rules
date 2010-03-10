@@ -103,21 +103,20 @@ install-arch: $(QUILT_STAMPFN)
 	$(MAKE)
 	# build non-gui version
 	$(MAKE) install-mplayer DESTDIR=$(CURDIR)/debian/mplayer
-	$(MAKE) install-mplayer-man-en DESTDIR=$(CURDIR)/debian/mplayer
+	$(MAKE) install-mplayer-man DESTDIR=$(CURDIR)/debian/mplayer
+	$(MAKE) install-mencoder-man DESTDIR=$(CURDIR)/debian/mplayer
 	install -D -m 644 debian/mplayer.conf \
 	                  $(CURDIR)/debian/mplayer-nogui/etc/mplayer/mplayer.conf
 	install -D -m 644 debian/apport-hook.py \
 	                  $(CURDIR)/debian/mplayer-nogui/usr/share/apport/package-hooks/source_mplayer.py
 	#install mencoder
 	$(MAKE) install-mencoder DESTDIR=$(CURDIR)/debian/mencoder
-	$(MAKE) install-mencoder-man DESTDIR=$(CURDIR)/debian/mencoder
 	# build gui version
 	[ ! -f config.mak ] || $(MAKE) distclean
 	$(CLEAN_ENV) \
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --enable-gui
 	$(CLEAN_ENV) \
 	$(MAKE)
-	$(MAKE) install-mplayer-gui-man DESTDIR=$(CURDIR)/debian/mplayer-gui
 	install -D -m 755 mplayer $(CURDIR)/debian/mplayer-gui/usr/bin/gmplayer
 	install -D -m 644 etc/mplayer.desktop \
 	                  $(CURDIR)/debian/mplayer-gui/usr/share/applications/mplayer.desktop
@@ -135,6 +134,8 @@ install-indep-stamp:
 	$(MAKE) -C DOCS/xml html-chunked
 	dh_installchangelogs -i
 	dh_installdocs -i
+	dh_compress -i
+	dh_fixperms -i
 	touch $@
 
 ################ clean
@@ -161,11 +162,11 @@ binary-arch: install-arch
 	dh_installmenu -a
 	dh_installmime -a
 	dh_installman -a
-	dh_strip --dbg-package=mplayer-dbg
+	dh_strip -a --dbg-package=mplayer-dbg
 	dh_link
-	dh_compress
-	dh_fixperms
-	dh_makeshlibs
+	dh_compress -a
+	dh_fixperms -a
+	dh_makeshlibs -a
 	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol

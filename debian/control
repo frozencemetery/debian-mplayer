@@ -113,8 +113,8 @@ Section: video
 Suggests: mplayer-doc,
           ttf-freefont,
           bzip2,
-         fontconfig
-Depends: mplayer-nogui,
+          fontconfig
+Depends: mplayer,
          ${shlibs:Depends},
          ${misc:Depends}
 Description: MPlayer's Movie Encoder
