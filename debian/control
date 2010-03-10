@@ -87,7 +87,8 @@ Depends: mplayer-skin,
          mplayer,
          ${shlibs:Depends},
          ${misc:Depends}
-Replaces: mplayer-doc (<< 2:1.0~rc3+svn20090426-1ubuntu14)
+Replaces: mplayer-doc (<< 2:1.0~rc3+svn20090426-1ubuntu14),
+          mplayer (<< 2:1.0~rc3+svn20090426-1ubuntu14)
 Description: movie player for Unix-like systems
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
@@ -139,7 +140,9 @@ Suggests: mplayer-doc,
           fontconfig
 Depends: ${shlibs:Depends},
          ${misc:Depends}
-Replaces: mplayer-doc (<< 2:1.0~rc3+svn20090426-1ubuntu14)
+Replaces: mplayer-doc (<< 2:1.0~rc3+svn20090426-1ubuntu14),
+          mplayer-nogui (<< 2:1.0~rc3+svn20090426-1ubuntu14),
+          mencoder (<< 2:1.0~rc3+svn20090426-1ubuntu14)
 Description: movie player for Unix-like systems
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
