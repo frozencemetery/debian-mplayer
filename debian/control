@@ -69,7 +69,6 @@ Build-Depends: debhelper (>= 7),
                libxxf86vm-dev,
                libvdpau-dev [i386 amd64],
                pkg-config,
-               po-debconf,
                quilt,
                vstream-client-dev,
                x11proto-core-dev,
@@ -84,8 +83,7 @@ Suggests: mplayer-doc,
           netselect | fping,
           bzip2,
           fontconfig
-Depends: debconf | debconf-2.0,
-         mplayer-skin,
+Depends: mplayer-skin,
          mplayer,
          ${shlibs:Depends},
          ${misc:Depends}
@@ -115,8 +113,7 @@ Suggests: mplayer-doc,
           ttf-freefont,
           bzip2,
          fontconfig
-Depends: debconf | debconf-2.0,
-         mplayer-nogui,
+Depends: mplayer-nogui,
          ${shlibs:Depends},
          ${misc:Depends}
 Description: MPlayer's Movie Encoder
@@ -140,8 +137,7 @@ Suggests: mplayer-doc,
           netselect | fping,
           bzip2,
           fontconfig
-Depends: debconf | debconf-2.0,
-         ${shlibs:Depends},
+Depends: ${shlibs:Depends},
          ${misc:Depends}
 Replaces: mplayer-doc (<< 2:1.0~rc3+svn20090426-1ubuntu14)
 Description: movie player for Unix-like systems
