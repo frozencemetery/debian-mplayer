@@ -1,8 +1,24 @@
 mplayer (2:1.0~rc3+svn20090426-1ubuntu14) lucid; urgency=low
 
-  * prepare new upload
+  * cleanup --configure flags
+  * drop VDPAU build hacks, Closes: #566868, LP: #530481, #532007
+  * enable musepack support
+  * enable libaa support, LP: #502767, #455535
+  * enable enca support, LP: #115519
+  * remove DEB_BUILD_CONFIGURE override hack
+  * fix weird permission bits for mplayer.desktop and mplayer.xpm
+  * reorganize binary packages to no longer install the gui version by
+    default
+  * refactor debian/rules to avoid sub makes
+  * add patch to allow compilation with newer x264
+  * use mp_msg instead of printf in debug help message
+  * bump standards version
+  * as no longer used, remove dependencies on debconf
+  * Fix possible crashes with invalid SDPs, LP: #519579
+  * add missing replaces
+  * install manpages in the 'mplayer' package. and only there
 
- -- Reinhard Tartler <siretart@tauware.de>  Tue, 09 Mar 2010 18:52:09 +0100
+ -- Reinhard Tartler <siretart@tauware.de>  Thu, 11 Mar 2010 12:45:55 +0100
 
 mplayer (2:1.0~rc3+svn20090426-1ubuntu13) lucid; urgency=low
 
