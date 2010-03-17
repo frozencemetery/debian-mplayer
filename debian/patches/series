@@ -7,4 +7,4 @@
 41_fix_forcedsubsonly.patch
 50_fix_initial_volume_setting_pulse_output.patch
 50_fix_crashes_with_invalid_SDPs.patch
-80_allow_compilation_with_newer_x264.patch
+60_backport_x264_wrapper.patch
