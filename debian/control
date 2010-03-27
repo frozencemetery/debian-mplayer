@@ -141,7 +141,7 @@ Suggests: mplayer-doc,
 Depends: ${shlibs:Depends},
          ${misc:Depends}
 Replaces: mplayer-doc (<< 2:1.0~rc3+svn20090426-1ubuntu14),
-          mplayer-nogui (<< 2:1.0~rc3+svn20090426-1ubuntu14),
+          mplayer-nogui (<< 2:1.0~rc3+svn20090426-1ubuntu16),
           mencoder (<< 2:1.0~rc3+svn20090426-1ubuntu14)
 Description: movie player for Unix-like systems
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
