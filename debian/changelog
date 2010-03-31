@@ -1,8 +1,12 @@
 mplayer (2:1.0~rc3+svn20090426-1ubuntu16) lucid; urgency=low
 
-  * prepare new upload
+  * move config file and apport hook 'mplayer-nogui'->'mplayer' 
+    LP: #540491, #549613
+  * improve mplayer version output
+  * no longer build depend on libfaac, see LP #374900 for details
+  * attach alsa_information in the apport hook
 
- -- Reinhard Tartler <siretart@tauware.de>  Wed, 31 Mar 2010 15:26:27 +0200
+ -- Reinhard Tartler <siretart@tauware.de>  Wed, 31 Mar 2010 19:54:53 +0200
 
 mplayer (2:1.0~rc3+svn20090426-1ubuntu15) lucid; urgency=low
 
