@@ -1,3 +1,9 @@
+mplayer (2:1.0~rc3+svn20090426-1ubuntu16) lucid; urgency=low
+
+  * prepare new upload
+
+ -- Reinhard Tartler <siretart@tauware.de>  Wed, 31 Mar 2010 15:26:27 +0200
+
 mplayer (2:1.0~rc3+svn20090426-1ubuntu15) lucid; urgency=low
 
   * backport newer libx264 wrapper, LP: #539555
