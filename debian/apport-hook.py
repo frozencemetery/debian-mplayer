@@ -19,6 +19,7 @@ def add_info(report):
             
     attach_file_if_exists(report, path.expanduser('~/.mplayer/config'), 'UserConf')
     attach_file(report, '/etc/mplayer/mplayer.conf', 'SystemConf')
+    attach_alsa(report)
 
 ## DEBUGING ##
 if __name__ == '__main__':
