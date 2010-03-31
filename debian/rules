@@ -97,6 +97,7 @@ install-arch: $(QUILT_STAMPFN)
 	dh_testdir
 	dh_prep -a
 	[ ! -f config.mak ] || $(MAKE) distclean
+	echo "$(UPSTREAM_VERSION)" > snapshot_version
 	$(CLEAN_ENV) \
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --disable-gui
 	$(CLEAN_ENV) \
