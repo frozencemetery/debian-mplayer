@@ -1,31 +1,9 @@
-The following part of the document is conditionally added for packages that
-are built from stripped sources.
+MPlayer configuration
+=====================
 
-Stripping of the source code
-============================
-
-WARNING: The mplayer sources as published in the Debian 'main' component have
-         some parts "stripped", i.e. disabled or removed!
-
-* In order to update the package yourself and/or to review the changes done
-  to the source code, please see the files:
-
-   debian/README.upstream-upgrade
-   debian/get-orig-source.sh
-   debian/strip.sh
-
-* In particular, the internal mpdvdkit library was deleted, so the mplayer
-  package provided by Debian is unable to play encrypted DVDs. If you want to
-  play encrypted DVDs (i.e. almost all available Video-DVDs), please follow
-  the instructions in /usr/share/doc/libdvdread3/README.Debian on how to
-  obtain the necessary libdvdcss2 package.
-
-* Please refrain from bothering MPlayer's upstream authors with bug reports
-  and/or feature requests, but use the Debian bug tracking system instead.
-  Missing features and/or bugs may be results of Debian's stripping of the
-  source code.
-
-A. Mennucc with adaptions by Reinhard Tartler and Fabian Greffrath
+Some configuration options for the entire system will be set in the file
+/etc/mplayer/mplayer.conf which may be adapted later. Each user can also
+define private options in ~/.mplayer/config.
 
 
 Compliance with the GPLv2, sec 2.a
@@ -62,3 +40,5 @@ Moreover all changes to the code are documented in the publicly accessible SVN
 repository of MPlayer.
 
 A. Mennucc with adaptions by Fabian Greffrath
+
+ -- Reinhard Tartler <siretart@tauware.de>, Tue,  9 Mar 2010 18:41:50 +0100

@@ -1,8 +1,168 @@
-mplayer (1.0~rc3+svn20090426-2) UNRELEASED; urgency=low
+mplayer (2:1.0~rc3+svn20090426-2) unstable; urgency=low
 
-  * Bump version for new release.
+  * preparing new upload
 
- -- Andres Mejia <mcitadel@gmail.com>  Mon, 06 Jul 2009 22:48:20 -0400
+ -- Reinhard Tartler <siretart@tauware.de>  Fri, 16 Apr 2010 13:59:32 +0200
+
+mplayer (2:1.0~rc3+svn20090426-1ubuntu16) lucid; urgency=low
+
+  * move config file and apport hook 'mplayer-nogui'->'mplayer' 
+    LP: #540491, #549613
+  * improve mplayer version output
+  * no longer build depend on libfaac, see LP #374900 for details
+  * attach alsa_information in the apport hook
+
+ -- Reinhard Tartler <siretart@tauware.de>  Wed, 31 Mar 2010 19:54:53 +0200
+
+mplayer (2:1.0~rc3+svn20090426-1ubuntu15) lucid; urgency=low
+
+  * backport newer libx264 wrapper, LP: #539555
+
+ -- Reinhard Tartler <siretart@tauware.de>  Wed, 17 Mar 2010 13:39:44 +0100
+
+mplayer (2:1.0~rc3+svn20090426-1ubuntu14) lucid; urgency=low
+
+  * cleanup --configure flags
+  * drop VDPAU build hacks, Closes: #566868, LP: #530481, #532007
+  * enable musepack support
+  * enable libaa support, LP: #502767, #455535
+  * enable enca support, LP: #115519
+  * remove DEB_BUILD_CONFIGURE override hack
+  * fix weird permission bits for mplayer.desktop and mplayer.xpm
+  * reorganize binary packages to no longer install the gui version by
+    default
+  * refactor debian/rules to avoid sub makes
+  * add patch to allow compilation with newer x264
+  * use mp_msg instead of printf in debug help message
+  * bump standards version
+  * as no longer used, remove dependencies on debconf
+  * Fix possible crashes with invalid SDPs, LP: #519579
+  * add missing replaces
+  * install manpages in the 'mplayer' package. and only there
+
+ -- Reinhard Tartler <siretart@tauware.de>  Thu, 11 Mar 2010 12:45:55 +0100
+
+mplayer (2:1.0~rc3+svn20090426-1ubuntu13) lucid; urgency=low
+
+  * rebuild for ffmpeg versioned symbols
+
+ -- Reinhard Tartler <siretart@tauware.de>  Tue, 19 Jan 2010 21:31:51 +0100
+
+mplayer (2:1.0~rc3+svn20090426-1ubuntu12) lucid; urgency=low
+
+  * debian/patches/41_fix_forcedsubsonly.patch: fix the forcedsubsonly
+    option. This fixes a problem with ogmrip always encoding with
+    subtitles. (LP: #458129).
+  * debian/control: Change build-dep libxvidcore4-dev to libxvidcore-dev.
+    (LP: #486169)
+
+ -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Mon, 23 Nov 2009 20:11:33 -0500
+
+mplayer (2:1.0~rc3+svn20090426-1ubuntu11) lucid; urgency=low
+
+  * Add 50_fix_initial_volume_setting_pulse_output.patch to resolve the
+    stream volume being set to max upon each mplayer invocation
+    (LP: #482408)
+
+ -- Daniel T Chen <crimsun@ubuntu.com>  Wed, 18 Nov 2009 19:42:09 -0500
+
+mplayer (2:1.0~rc3+svn20090426-1ubuntu10) karmic; urgency=low
+
+  * make sure that patches are applied for non-i386 builds as well.
+    Fixes: LP: #390398, #448603, #448595, #441566, #440346
+
+ -- Reinhard Tartler <siretart@tauware.de>  Thu, 15 Oct 2009 17:55:21 +0200
+
+mplayer (2:1.0~rc3+svn20090426-1ubuntu9) karmic; urgency=low
+  
+  [ Julien Lavergne ]
+  * Renable xvid support by removing --disable-xvid in debian/rules.
+
+  [ Reinhard Tartler ]
+  * Also enable mp3lame support (at least for now) LP: #386449
+  * don't override the mplayer built-in defaults for the vo module LP: #446040
+  * verified that mennuc's screensaver patch is enabled and works in the default
+    configuration. LP: #439787
+
+ -- Reinhard Tartler <siretart@tauware.de>  Thu, 08 Oct 2009 09:23:29 +0200
+
+mplayer (2:1.0~rc3+svn20090426-1ubuntu8) karmic; urgency=low
+
+  * build depend on nvidia-185-libvdpau-dev only on i386 and amd64
+  * add ubuntu specific configuration file. LP: #276957, #440343
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 03 Oct 2009 10:45:23 +0200
+
+mplayer (2:1.0~rc3+svn20090426-1ubuntu7) karmic; urgency=low
+
+  * remove 41_use_fontconfig_by_default.patch, doesn't apply
+  * enable VDPAU on i386 and amd64 (LP: #437039)
+
+ -- Reinhard Tartler <siretart@tauware.de>  Mon, 28 Sep 2009 19:32:29 +0000
+
+mplayer (2:1.0~rc3+svn20090426-1ubuntu6) karmic; urgency=low
+
+  [ Andres Mejia ]
+  * Enable VDPAU support by including vdpau headers in deb packaging.
+
+  [ Reinhard Tartler ]
+  * sort build dependencies alphabetically
+  * avoid using tabs - prefer space instead
+  * reenable 22disable-xscreensaver.patch. The patch does work, but you
+    need to have the mouse cursor INSIDE the window
+  * don't build-depend on libmad, the internal mp3lib library is superiour
+    for most cases these days, according to upstream. LP: #111025, #163382
+  * add clarifications to the libgsm license.
+  * install the TOOLS/midentify.sh script LP: #333828
+
+ -- Reinhard Tartler <siretart@tauware.de>  Thu, 24 Sep 2009 21:09:24 +0200
+
+mplayer (2:1.0~rc3+svn20090426-1ubuntu5) karmic; urgency=low
+
+  * No-change rebuild to pick up new ffmpeg shlibs file.
+
+ -- Stefan Potyra <sistpoty@ubuntu.com>  Fri, 28 Aug 2009 21:04:38 +0200
+
+mplayer (2:1.0~rc3+svn20090426-1ubuntu4) karmic; urgency=low
+
+  * remove 22disable-xscreensaver.patch. Patch is not working properly 
+    anyways and actually potentially dangerous because it is faking input
+    activity.
+  * enable fontconfig by default.
+
+ -- Reinhard Tartler <siretart@tauware.de>  Thu, 18 Jun 2009 16:09:33 +0200
+
+mplayer (2:1.0~rc3+svn20090426-1ubuntu3) karmic; urgency=low
+
+  [ Reinhard Tartler ]
+  * add additional build dependencies that are available in
+    ubuntu/multiverse LP: #386449
+  * prefer auto-detection and lavc variants of many codecs in debian/rules
+  * install .desktop and .xpm file in the mplayer package
+
+  [ Siegfried Gevatter ]
+  * improve desktop file to conform (more) to the freedesktop file
+    specification LP: #386505
+
+ -- Reinhard Tartler <siretart@tauware.de>  Mon, 15 Jun 2009 23:24:25 +0200
+
+mplayer (2:1.0~rc3+svn20090426-1ubuntu2) karmic; urgency=low
+
+  * Bump epoch in debian/control as well, so that the Replaces field has
+    any effect in ubuntu
+
+ -- Reinhard Tartler <siretart@tauware.de>  Mon, 08 Jun 2009 07:51:12 +0200
+
+mplayer (2:1.0~rc3+svn20090426-1ubuntu1) karmic; urgency=low
+
+  * Switch to debian packaging for the mplayer package
+  * New upstream release, LP: #336697, #260918, #246675, #243453, #74282
+  * Fixes security issues: CVE-2008-5616, LP: #308939
+  * many flv fixes LP: #73271, #347021
+  * Build and install mencoder
+  * Bump epoch
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 06 Jun 2009 23:01:52 +0200
 
 mplayer (1.0~rc3+svn20090426-1) unstable; urgency=low
 

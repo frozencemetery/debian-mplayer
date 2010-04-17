@@ -6,7 +6,7 @@ Uploaders: A Mennucc1 <mennucc1@debian.org>,
            Reinhard Tartler <siretart@tauware.de>,
            Andres Mejia <mcitadel@gmail.com>
 DM-Upload-Allowed: yes
-Standards-Version: 3.8.1
+Standards-Version: 3.8.4
 Vcs-Git: git://git.debian.org/git/pkg-multimedia/mplayer.git
 Vcs-Browser: http://git.debian.org/?p=pkg-multimedia/mplayer.git;a=summary
 Homepage: http://www.mplayerhq.hu/
@@ -14,6 +14,8 @@ Build-Depends: debhelper (>= 7),
                docbook-xml,
                docbook-xsl,
                ladspa-sdk,
+               libenca-dev,
+               libaa1-dev,
                libasound2-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386],
                libaudio-dev,
                libavcodec-dev (>= 0.svn20080206),
@@ -26,6 +28,7 @@ Build-Depends: debhelper (>= 7),
                libdts-dev,
                libdvdread-dev,
                libesd0-dev,
+               libfaad-dev,
                libfontconfig1-dev,
                libfreetype6-dev,
                libfribidi-dev,
@@ -37,6 +40,7 @@ Build-Depends: debhelper (>= 7),
                liblircclient-dev,
                liblivemedia-dev,
                liblzo2-dev,
+               libmpcdec-dev,
                libncurses5-dev,
                libopenal-dev,
                libpng12-dev | libpng-dev,
@@ -58,15 +62,15 @@ Build-Depends: debhelper (>= 7),
                libxvmc-dev,
                libxxf86dga-dev,
                libxxf86vm-dev,
+               libvdpau-dev [i386 amd64],
                pkg-config,
-               po-debconf,
                quilt,
                vstream-client-dev,
                x11proto-core-dev,
                xsltproc,
                zlib1g-dev
 
-Package: mplayer
+Package: mplayer-gui
 Architecture: any
 Section: video
 Suggests: mplayer-doc,
@@ -74,11 +78,12 @@ Suggests: mplayer-doc,
           netselect | fping,
           bzip2,
           fontconfig
-Depends: debconf | debconf-2.0,
-         mplayer-skin,
-         mplayer-nogui,
+Depends: mplayer-skin,
+         mplayer,
          ${shlibs:Depends},
          ${misc:Depends}
+Replaces: mplayer-doc (<< 2:1.0~rc3+svn20090426-2),
+          mplayer (<< 2:1.0~rc3+svn20090426-2)
 Description: movie player for Unix-like systems
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
@@ -97,20 +102,42 @@ Description: movie player for Unix-like systems
  Not all of the upstream code is distributed in the source tarball.
  See the README.Debian and copyright files for details.
 
-Package: mplayer-nogui
+Package: mencoder
+Architecture: any
+Section: video
+Suggests: mplayer-doc,
+          ttf-freefont,
+          bzip2,
+          fontconfig
+Depends: mplayer,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: MPlayer's Movie Encoder
+ MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
+ ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
+ supported by many native, XAnim, RealPlayer, and Win32 DLL codecs. It can
+ also play VideoCD, SVCD, DVD, 3ivx, RealMedia, and DivX movies.
+ .
+ This package contains menconder, a simple movie encoder, designed to
+ encode MPlayer-playable movies
+ (AVI/ASF/OGG/DVD/VCD/VOB/MPG/MOV/VIV/FLI/RM/NUV/NET) to other
+ MPlayer-playable formats. It can encode with various codecs, like DivX4
+ (1 or 2 passes), libavcodec, PCM/MP3/VBRMP3 audio. Also has stream
+ copying and video resizing abilities.
+
+Package: mplayer
 Architecture: any
 Section: video
 Suggests: mplayer-doc,
           ttf-freefont,
           netselect | fping,
           bzip2,
-          fontconfig,
-          nvidia-libvdpau1 | nvidia-libvdpau
-Depends: debconf | debconf-2.0,
-         ${shlibs:Depends},
+          fontconfig
+Depends: ${shlibs:Depends},
          ${misc:Depends}
-Replaces: mplayer (<< 1.0~rc3+svn20090426-1),
-          mplayer-doc (<< 1.0~rc3+svn20090426-1)
+Replaces: mplayer-doc (<< 2:1.0~rc3+svn20090426-2),
+          mplayer-nogui (<< 2:1.0~rc3+svn20090426-2),
+          mencoder (<< 2:1.0~rc3+svn20090426-2)
 Description: movie player for Unix-like systems
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
@@ -135,7 +162,9 @@ Package: mplayer-dbg
 Architecture: any
 Section: debug
 Priority: extra
-Depends: mplayer, ${misc:Depends}
+Depends: mplayer,
+         mencoder,
+         ${misc:Depends}
 Recommends: ffmpeg-dbg
 Description: debugging symbols for MPlayer
  This package contains the debugging symbols for MPlayer, a movie
@@ -147,7 +176,15 @@ Architecture: all
 Section: doc
 Recommends: mplayer
 Depends: ${misc:Depends}
-Replaces: mplayer (<< 1.0~rc3+svn20090426-1)
+Replaces: mplayer (<< 2:1.0~rc3+svn20090426-1)
 Description: documentation for MPlayer
  This package contains the documentation for MPlayer, a movie player for
  Unix-like systems.
+
+Package: mplayer-nogui
+Architecture: all
+Depends: mplayer,
+         ${misc:Depends}
+Description: movie player for Unix-like systems (transitional package)
+ This is a transitional package to assist with upgrading from older
+ versions of mplayer. It can be safely removed.

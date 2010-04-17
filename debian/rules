@@ -27,75 +27,45 @@ DEB_HOST_ARCH_OS    ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
 DEB_HOST_ARCH_CPU   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_CPU)
 
 
-## This can be overridden from the command line, see README.Debian.
+# XXX enable-menu is frowned upon by upstream
 DEB_BUILD_CONFIGURE = \
-	--disable-bitmap-font \
-	--disable-ggi \
-	--disable-xvid \
+	--prefix=/usr \
+	--confdir=/etc/mplayer \
+	--enable-xvmc \
+	--enable-menu \
+	--enable-largefiles \
 	--language=all \
-	--disable-xmms \
-	--disable-arts \
-	--disable-aa \
-	--disable-mad \
-	--disable-musepack \
-	--disable-libdv \
+	--disable-libdvdcss-internal \
+	--disable-dvdread-internal \
 	--disable-libavutil_a \
 	--disable-libavcodec_a \
 	--disable-libavformat_a \
 	--disable-libpostproc_a \
 	--disable-libswscale_a \
-	--enable-faad \
 	$(archconf)
 
-# Choose whether we want binary codec support (default on unknown archs: no).
-with_real_and_xanim = false
-with_win32 = false
-
 ifeq ($(DEB_HOST_ARCH),i386)
-#Avoid high optimization through gcc.
+#configure optimizes for the cpu detected at ./configure time
+#in order to build a generic binary, avoid non-standard opcodes through gcc
   archconf += --target=i586-linux
-  with_real_and_xanim = true
-  with_win32 = true
   DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
 endif
 ifeq ($(DEB_HOST_ARCH),amd64)
-  #this needs the patch 
-  # http://people.freedesktop.org/~jinghua/real64/mplayer-amd64-real-codecs.diff
-  with_real_and_xanim = true
-  #this does not compile, though : with_win32 = true
   DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
 endif
 ifeq ($(DEB_HOST_ARCH),kfreebsd-i386)
-  with_real_and_xanim = true
   DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
 endif
 ifeq ($(DEB_HOST_ARCH),kfreebsd-amd64)
-  with_real_and_xanim = true
   DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
 endif
 ifeq ($(DEB_HOST_ARCH),powerpc)
-  with_real_and_xanim = true
   DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
 endif
 ifeq ($(DEB_HOST_ARCH),alpha)
 #Avoid high optimization through gcc.
 # see http://permalink.gmane.org/gmane.linux.debian.ports.alpha/7295
   archconf += --target=alpha_ev5-linux
-  with_real_and_xanim = true
-endif
-ifeq ($(with_win32),false)
-  archconf += --disable-win32dll
-else
-  archconf += --enable-win32dll
-endif
-ifeq ($(with_real_and_xanim),false)
-  archconf += --disable-real --disable-xanim
-else
-  archconf += --enable-real --enable-xanim
-endif
-
-ifeq ($(DEB_SOURCE),mplayer)
-DEB_BUILD_CONFIGURE += --disable-libdvdcss-internal --enable-dvdread --disable-mencoder
 endif
 
 # generate debugging symbols for mplayer-dbg for all archs but mipsen,
@@ -112,85 +82,61 @@ endif
 
 
 ifeq (linux,$(DEB_HOST_ARCH_OS))
-    DEB_BUILD_CONFIGURE += --enable-tv-v4l2 --enable-xmga --enable-mga
-    DEB_BUILD_CONFIGURE += --enable-3dfx --enable-tdfxfb --enable-fbdev
-endif
-ifeq (kfreebsd,$(DEB_HOST_ARCH_OS))
-    DEB_BUILD_CONFIGURE += --enable-tv-bsdbt848 --disable-directfb
+    DEB_BUILD_CONFIGURE += --enable-mga --enable-3dfx --enable-tdfxfb
 endif
 
 ####### build-arch
 
-COMMON_CONFIGURE_FLAGS = \
-	--prefix=/usr \
-	--confdir=/etc/mplayer \
-	--datadir=/usr/share/mplayer \
-	--codecsdir=/usr/lib/codecs \
-	--enable-xvmc \
-	--enable-vdpau \
-	--enable-sdl \
-	--enable-ossaudio \
-	--enable-lirc \
-	--enable-freetype \
-	--enable-menu \
-	--enable-largefiles
-
-# We add vdpau headers ourselves so mplayer can stay in main
-COMMON_CONFIGURE_FLAGS += --extra-cflags="-I$(CURDIR)/debian/include"
 
 # See http://wiki.debian.org/Teams/Dpkg/DebianRules; #465282  and
 # https://wiki.ubuntu.com/DistCompilerFlags
 CLEAN_ENV=env -u CFLAGS -u CPPFLAGS -u LDFLAGS -u FFLAGS -u CXXFLAGS
 
 
-# this rule is used for both architecture independent and dependent
-# builds. When building only the doc package, it still needs the first
-# configure run done.
-configure: configure-arch-stamp
-configure-arch-stamp: $(QUILT_STAMPFN)
+install-arch: $(QUILT_STAMPFN)
 	dh_testdir
-	test -r .svnrevision && cp .svnrevision snapshot_version
-	# Add commands to configure the package here.
-	$(CLEAN_ENV) \
-	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE)
-	touch configure-arch-stamp
-
-install-arch:
-	dh_testdir
+	dh_prep -a
 	[ ! -f config.mak ] || $(MAKE) distclean
+	echo "$(UPSTREAM_VERSION)" > snapshot_version
 	$(CLEAN_ENV) \
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --disable-gui
 	$(CLEAN_ENV) \
 	$(MAKE)
 	# build non-gui version
-	dh_prep -a
-	$(MAKE) install-mplayer DESTDIR=$(CURDIR)/debian/mplayer-nogui
-	$(MAKE) install-mplayer-man-en DESTDIR=$(CURDIR)/debian/mplayer-nogui
-	install -D -m 644 etc/example.conf \
-	                  $(CURDIR)/debian/mplayer-nogui/etc/mplayer/mplayer.conf
+	$(MAKE) install-mplayer DESTDIR=$(CURDIR)/debian/mplayer
+	$(MAKE) install-mplayer-man DESTDIR=$(CURDIR)/debian/mplayer
+	$(MAKE) install-mencoder-man DESTDIR=$(CURDIR)/debian/mplayer
+	install -D -m 644 debian/mplayer.conf \
+	                  $(CURDIR)/debian/mplayer/etc/mplayer/mplayer.conf
+	install -D -m 644 debian/apport-hook.py \
+	                  $(CURDIR)/debian/mplayer/usr/share/apport/package-hooks/source_mplayer.py
+	#install mencoder
+	$(MAKE) install-mencoder DESTDIR=$(CURDIR)/debian/mencoder
 	# build gui version
 	[ ! -f config.mak ] || $(MAKE) distclean
 	$(CLEAN_ENV) \
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --enable-gui
 	$(CLEAN_ENV) \
 	$(MAKE)
-	# install mplayer binary with gui support as ./usr/bin/gmplayer
-	install -D -m 755 mplayer $(CURDIR)/debian/mplayer/usr/bin/gmplayer
+	install -D -m 755 mplayer $(CURDIR)/debian/mplayer-gui/usr/bin/gmplayer
+	install -D -m 644 etc/mplayer.desktop \
+	                  $(CURDIR)/debian/mplayer-gui/usr/share/applications/mplayer.desktop
+	install -D -m 644 etc/mplayer.xpm \
+	                  $(CURDIR)/debian/mplayer-gui/usr/share/pixmaps/mplayer.xpm
 
 ###### build-indep
 
 # commands to compile the documentation
 install-indep: install-indep-stamp
-install-indep-stamp: configure-arch-stamp
+install-indep-stamp:
 	dh_testdir
+	sh debian/all-lang-config-mak.sh > config.mak
 	cd DOCS/xml && ./configure
-	$(CLEAN_ENV) \
 	$(MAKE) -C DOCS/xml html-chunked
-	dh_prep -i
-	$(MAKE) install-mplayer-gui-man DESTDIR=$(CURDIR)/debian/mplayer-doc
-	# Drop the english manpage, installed in each mplayer package
-	rm -v $(CURDIR)/debian/mplayer-doc/usr/share/man/man1/mplayer.1
+	dh_installchangelogs -i
 	dh_installdocs -i
+	dh_compress -i
+	dh_fixperms -i
 	touch $@
 
 ################ clean
@@ -202,53 +148,31 @@ clean-real:
 	[ ! -f config.mak ] || $(MAKE) -C DOCS/xml distclean || true
 	[ ! -f config.mak ] || $(MAKE) distclean
 	dh_clean build-arch-stamp configure-arch-stamp snapshot_version
-	dh_clean debian/README.Debian
 
-###### 	Write README.Debian and add free or non-free statement.
-debian/README.Debian:
-ifeq ($(DEB_SOURCE),mplayer)
-	tail -n +4  debian/README.Debian.free > $@
-else
-	tail -n +4  debian/README.Debian.nonfree > $@
-endif
-	cat debian/README.Debian.all >> $@
-	sed 's!@DEB_BUILD_CONFIGURE@!$(DEB_BUILD_CONFIGURE)!' \
-	  <  debian/README.Debian \
-	  >> $@.tmp
-	mv $@.tmp $@
+# Build architecture-independent packages
+binary-indep: install-indep
 
-binary-common: debian/README.Debian
+# Build architecture-dependent packages
+binary-arch: install-arch
 	dh_testdir
 	dh_testroot
-	dh_install
-	dh_installchangelogs
-	dh_installdocs
-	dh_installexamples
-	dh_installmenu
-	dh_installmime
-	dh_installinit
-	dh_installman
-	dh_desktop
-	dh_strip --dbg-package=mplayer-dbg
+	dh_install -a
+	dh_installchangelogs -a
+	dh_installdocs -a
+	dh_installexamples -a
+	dh_installmenu -a
+	dh_installmime -a
+	dh_installman -a
+	dh_strip -a --dbg-package=mplayer-dbg
 	dh_link
-	dh_compress
-	dh_fixperms
-	dh_makeshlibs
+	dh_compress -a
+	dh_fixperms -a
+	dh_makeshlibs -a
 	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
-
-
-
-# Build architecture-independent packages using the common target.
-binary-indep: install-indep
-	$(MAKE) -f debian/rules DH_OPTIONS=-i binary-common
-
-# Build architecture-dependent packages using the common target.
-binary-arch: install-arch
-	$(MAKE) -f debian/rules DH_OPTIONS=-a binary-common
 
 binary: binary-indep binary-arch
 
@@ -265,6 +189,6 @@ get-orig-source:
 PHONY += build clean binary-indep binary-arch binary-common binary 
 PHONY += install binary binary-arch binary-indep clean checkroot get-orig-source
 PHONY += autocontrol fix-orig-source copy-orig-from-svn download-and-unpack-orig
-PHONY += build-gui build-nogui install-gui install-nogui debian/README.Debian
+PHONY += build-gui build-nogui install-gui install-nogui
 
 .PHONY: $(PHONY)
