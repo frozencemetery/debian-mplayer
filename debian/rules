@@ -111,17 +111,17 @@ install-arch: $(QUILT_STAMPFN)
 	# don't build/install mencoder and gui variant to skip binary NEW
 	# #install mencoder
 	# $(MAKE) install-mencoder DESTDIR=$(CURDIR)/debian/mencoder
-	# # build gui version
-	# [ ! -f config.mak ] || $(MAKE) distclean
-	# $(CLEAN_ENV) \
-	# ./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --enable-gui
-	# $(CLEAN_ENV) \
-	# $(MAKE)
-	# install -D -m 755 mplayer $(CURDIR)/debian/mplayer-gui/usr/bin/gmplayer
-	# install -D -m 644 etc/mplayer.desktop \
-	#                   $(CURDIR)/debian/mplayer-gui/usr/share/applications/mplayer.desktop
-	# install -D -m 644 etc/mplayer.xpm \
-	#                   $(CURDIR)/debian/mplayer-gui/usr/share/pixmaps/mplayer.xpm
+	# build gui version
+	[ ! -f config.mak ] || $(MAKE) distclean
+	$(CLEAN_ENV) \
+	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --enable-gui
+	$(CLEAN_ENV) \
+	$(MAKE) mplayer
+	install -D -m 755 mplayer $(CURDIR)/debian/mplayer/usr/bin/gmplayer
+	install -D -m 644 etc/mplayer.desktop \
+	                  $(CURDIR)/debian/mplayer/usr/share/applications/mplayer.desktop
+	install -D -m 644 etc/mplayer.xpm \
+	                  $(CURDIR)/debian/mplayer/usr/share/pixmaps/mplayer.xpm
 
 ###### build-indep
 
