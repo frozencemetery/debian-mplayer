@@ -1,0 +1,33 @@
+From: diego <subversion@mplayerhq.hu>
+Subject: r31057 - trunk/configure
+Newsgroups: gmane.comp.video.mplayer.cvs
+To: mplayer-cvslog@mplayerhq.hu
+Date: Thu, 22 Apr 2010 16:02:20 +0200 (CEST)
+Reply-To: MPlayer CVS changelogs and discussion <mplayer-cvslog@mplayerhq.hu>
+
+Author: diego
+Date: Thu Apr 22 16:02:20 2010
+New Revision: 31057
+
+Log:
+VIDIX only works for Linux on the x86_64 architecture, not on other OSes.
+Fixes Debian bug #578622.
+
+Modified:
+   trunk/configure
+
+adapted for rc3 by siretart@tauware.de
+
+Modified: trunk/configure
+==============================================================================
+--- a/configure
++++ b/configure
+@@ -4537,7 +4537,7 @@ if test "$_vidix" = auto ; then
+   _vidix=no
+   x86 && (linux || freebsd || netbsd || openbsd || dragonfly || sunos || win32) \
+     && _vidix=yes
+-  (ppc || alpha) && linux && _vidix=yes
++  x86_64 && ! linux && _vidix=no
+ fi
+ echores "$_vidix"
+ 
