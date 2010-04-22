@@ -2,11 +2,9 @@ From: Reinhard Tartler <siretart@tauware.de>
 Subject: rename 'struct keypad' -> 'struct m_keypad' to avoid FTBFS on kFreeBSD/amd64
 Forwarded: http://permalink.gmane.org/gmane.comp.video.mplayer.devel/55700
 
-diff --git a/libvo/video_out.c b/libvo/video_out.c
-index fac5ed9..05bafa0 100644
 --- a/libvo/video_out.c
 +++ b/libvo/video_out.c
-@@ -358,7 +358,7 @@ int config_video_out(const vo_functions_t *vo, uint32_t width, uint32_t height,
+@@ -358,7 +358,7 @@ int config_video_out(const vo_functions_
   * \result translation corresponding to key or "to" value of last mapping
   *         if not found.
   */
@@ -15,8 +13,6 @@ index fac5ed9..05bafa0 100644
    while (map->from && map->from != key) map++;
    return map->to;
  }
-diff --git a/libvo/video_out.h b/libvo/video_out.h
-index f90123d..5615471 100644
 --- a/libvo/video_out.h
 +++ b/libvo/video_out.h
 @@ -264,11 +264,11 @@ extern char *monitor_hfreq_str;
@@ -33,8 +29,6 @@ index f90123d..5615471 100644
  struct vo_rect {
    int left, right, top, bottom, width, height;
  };
-diff --git a/libvo/vo_directfb2.c b/libvo/vo_directfb2.c
-index 7aafe09..7139ad6 100644
 --- a/libvo/vo_directfb2.c
 +++ b/libvo/vo_directfb2.c
 @@ -34,7 +34,7 @@
@@ -46,8 +40,6 @@ index 7aafe09..7139ad6 100644
  #include <sys/kd.h>
  #else
  #include <linux/kd.h>
-diff --git a/libvo/vo_kva.c b/libvo/vo_kva.c
-index 57df14b..199dee9 100644
 --- a/libvo/vo_kva.c
 +++ b/libvo/vo_kva.c
 @@ -70,7 +70,7 @@ LIBVO_EXTERN(kva)
@@ -59,7 +51,7 @@ index 57df14b..199dee9 100644
      {VK_NEWLINE, KEY_ENTER}, {VK_TAB, KEY_TAB}, {VK_SPACE, ' '},
  
      // control keys
-@@ -92,7 +92,7 @@ static const struct keymap m_vk_map[] = {
+@@ -92,7 +92,7 @@ static const struct keymap m_vk_map[] =
      {0, 0}
  };
  
@@ -68,7 +60,7 @@ index 57df14b..199dee9 100644
      // keypad keys
      {0x52, KEY_KP0}, {0x4F, KEY_KP1}, {0x50, KEY_KP2},   {0x51, KEY_KP3},
      {0x4B, KEY_KP4}, {0x4C, KEY_KP5}, {0x4D, KEY_KP6},   {0x47, KEY_KP7},
-@@ -101,7 +101,7 @@ static const struct keymap m_keypad_map[] = {
+@@ -101,7 +101,7 @@ static const struct keymap m_keypad_map[
      {0, 0}
  };
  
@@ -77,11 +69,9 @@ index 57df14b..199dee9 100644
      {WM_BUTTON1DOWN,   MOUSE_BTN0},
      {WM_BUTTON3DOWN,   MOUSE_BTN1},
      {WM_BUTTON2DOWN,   MOUSE_BTN2},
-diff --git a/libvo/w32_common.c b/libvo/w32_common.c
-index a9abab2..f0f1ed4 100644
 --- a/libvo/w32_common.c
 +++ b/libvo/w32_common.c
-@@ -58,7 +58,7 @@ static HMONITOR (WINAPI* myMonitorFromWindow)(HWND, DWORD);
+@@ -58,7 +58,7 @@ static HMONITOR (WINAPI* myMonitorFromWi
  static BOOL (WINAPI* myGetMonitorInfo)(HMONITOR, LPMONITORINFO);
  static BOOL (WINAPI* myEnumDisplayMonitors)(HDC, LPCRECT, MONITORENUMPROC, LPARAM);
  
@@ -89,4 +79,24 @@ index a9abab2..f0f1ed4 100644
 +static const struct m_keymap vk_map[] = {
      // special keys
      {VK_ESCAPE, KEY_ESC}, {VK_BACK, KEY_BS}, {VK_TAB, KEY_TAB}, {VK_CONTROL, KEY_CTRL},
+ 
+--- a/libvo/x11_common.c
++++ b/libvo/x11_common.c
+@@ -566,7 +566,7 @@ void vo_uninit(void)
+ #include "wskeys.h"
+ 
+ #ifdef XF86XK_AudioPause
+-static const struct keymap keysym_map[] = {
++static const struct m_keymap keysym_map[] = {
+     {XF86XK_MenuKB, KEY_MENU},
+     {XF86XK_AudioPlay, KEY_PLAY}, {XF86XK_AudioPause, KEY_PAUSE}, {XF86XK_AudioStop, KEY_STOP},
+     {XF86XK_AudioPrev, KEY_PREV}, {XF86XK_AudioNext, KEY_NEXT},
+@@ -582,7 +582,7 @@ static void vo_x11_putkey_ext(int keysym
+ }
+ #endif
+ 
+-static const struct keymap keymap[] = {
++static const struct m_keymap keymap[] = {
+     // special keys
+     {wsEscape, KEY_ESC}, {wsBackSpace, KEY_BS}, {wsTab, KEY_TAB}, {wsEnter, KEY_ENTER},
  
