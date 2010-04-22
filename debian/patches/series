@@ -10,3 +10,4 @@
 60_backport_x264_wrapper.patch
 61-malloc-bsd.patch
 62-disable-vidix-on-kfreebsd-amd64.patch
+63-rename-struct-keypad-for-kfreebsd.patch
