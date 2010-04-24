@@ -1,8 +1,16 @@
 mplayer (2:1.0~rc3+svn20090426-2) unstable; urgency=low
 
-  * preparing new upload
+  * don't install apport hook
+  * gross hack to avoid building mplayer-nogui and mplayer-gui packages
+  * add md5sum to remove to avoid spurious conffile prompt, Closes: #568272
+  * Make mplayer build on kFreeBSD (backports from upstream), Closes: #578622
+    - Revert obscure hack that disables the malloc.h check on certain BSD
+      platforms. 
+    - disable vidix on kFreeBSD-amd64
+    - rename 'struct keypad' -> 'struct m_keypad' to avoid FTBFS on
+      kFreeBSD/amd64
 
- -- Reinhard Tartler <siretart@tauware.de>  Fri, 16 Apr 2010 13:59:32 +0200
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 24 Apr 2010 11:34:51 +0200
 
 mplayer (2:1.0~rc3+svn20090426-1ubuntu16) lucid; urgency=low
 
@@ -128,7 +136,7 @@ mplayer (2:1.0~rc3+svn20090426-1ubuntu4) karmic; urgency=low
   * remove 22disable-xscreensaver.patch. Patch is not working properly 
     anyways and actually potentially dangerous because it is faking input
     activity.
-  * enable fontconfig by default.
+  * enable fontconfig by default. (Closes: #573257)
 
  -- Reinhard Tartler <siretart@tauware.de>  Thu, 18 Jun 2009 16:09:33 +0200
 
