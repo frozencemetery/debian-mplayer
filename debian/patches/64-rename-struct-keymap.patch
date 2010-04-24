@@ -1,6 +1,32 @@
-From: Reinhard Tartler <siretart@tauware.de>
-Subject: rename 'struct keypad' -> 'struct m_keypad' to avoid FTBFS on kFreeBSD/amd64
-Forwarded: http://permalink.gmane.org/gmane.comp.video.mplayer.devel/55700
+From: siretart <subversion@mplayerhq.hu>
+Subject: r31059 - in trunk/libvo: osx_common.c video_out.c video_out.h vo_kva.c w32_common.c x11_common.c
+Newsgroups: gmane.comp.video.mplayer.cvs
+To: mplayer-cvslog@mplayerhq.hu
+Date: Fri, 23 Apr 2010 12:22:44 +0200 (CEST)
+Reply-To: MPlayer CVS changelogs and discussion <mplayer-cvslog@mplayerhq.hu>
+
+Author: siretart
+Date: Fri Apr 23 12:22:44 2010
+New Revision: 31059
+
+Log:
+rename 'struct keymap' -> 'struct mp_keymap'
+
+This avoids the compilation failure on kFreeBSD (at least amd64):
+
+  In file included from libvo/vo_directfb2.c:44:
+  libvo/video_out.h:267: error: redefinition of 'struct keymap'
+
+This is because libvo/vo_directfb2.c #includes sys/kd.h, which in turn
+includes sys/kbio.h, which defines another 'struct keymap'.
+
+Modified:
+   trunk/libvo/osx_common.c
+   trunk/libvo/video_out.c
+   trunk/libvo/video_out.h
+   trunk/libvo/vo_kva.c
+   trunk/libvo/w32_common.c
+   trunk/libvo/x11_common.c
 
 --- a/libvo/video_out.c
 +++ b/libvo/video_out.c
@@ -9,7 +35,7 @@ Forwarded: http://permalink.gmane.org/gmane.comp.video.mplayer.devel/55700
   *         if not found.
   */
 -int lookup_keymap_table(const struct keymap *map, int key) {
-+int lookup_keymap_table(const struct m_keymap *map, int key) {
++int lookup_keymap_table(const struct mp_keymap *map, int key) {
    while (map->from && map->from != key) map++;
    return map->to;
  }
@@ -20,26 +46,15 @@ Forwarded: http://permalink.gmane.org/gmane.comp.video.mplayer.devel/55700
  extern char *monitor_dotclock_str;
  
 -struct keymap {
-+struct m_keymap {
++struct mp_keymap {
    int from;
    int to;
  };
 -int lookup_keymap_table(const struct keymap *map, int key);
-+int lookup_keymap_table(const struct m_keymap *map, int key);
++int lookup_keymap_table(const struct mp_keymap *map, int key);
  struct vo_rect {
    int left, right, top, bottom, width, height;
  };
---- a/libvo/vo_directfb2.c
-+++ b/libvo/vo_directfb2.c
-@@ -34,7 +34,7 @@
- #include <stdlib.h>
- #include <string.h>
- 
--#ifdef __linux__
-+#ifndef __linux__
- #include <sys/kd.h>
- #else
- #include <linux/kd.h>
 --- a/libvo/vo_kva.c
 +++ b/libvo/vo_kva.c
 @@ -70,7 +70,7 @@ LIBVO_EXTERN(kva)
@@ -47,16 +62,16 @@ Forwarded: http://permalink.gmane.org/gmane.comp.video.mplayer.devel/55700
  #define HWNDFROMWINID(wid)    ((wid) + 0x80000000UL)
  
 -static const struct keymap m_vk_map[] = {
-+static const struct m_keymap m_vk_map[] = {
++static const struct mp_keymap m_vk_map[] = {
      {VK_NEWLINE, KEY_ENTER}, {VK_TAB, KEY_TAB}, {VK_SPACE, ' '},
  
      // control keys
-@@ -92,7 +92,7 @@ static const struct keymap m_vk_map[] =
+@@ -92,7 +92,7 @@ static const struct keymap m_vk_map[] = 
      {0, 0}
  };
  
 -static const struct keymap m_keypad_map[] = {
-+static const struct m_keymap m_keypad_map[] = {
++static const struct mp_keymap m_keypad_map[] = {
      // keypad keys
      {0x52, KEY_KP0}, {0x4F, KEY_KP1}, {0x50, KEY_KP2},   {0x51, KEY_KP3},
      {0x4B, KEY_KP4}, {0x4C, KEY_KP5}, {0x4D, KEY_KP6},   {0x47, KEY_KP7},
@@ -65,7 +80,7 @@ Forwarded: http://permalink.gmane.org/gmane.comp.video.mplayer.devel/55700
  };
  
 -static const struct keymap m_mouse_map[] = {
-+static const struct m_keymap m_mouse_map[] = {
++static const struct mp_keymap m_mouse_map[] = {
      {WM_BUTTON1DOWN,   MOUSE_BTN0},
      {WM_BUTTON3DOWN,   MOUSE_BTN1},
      {WM_BUTTON2DOWN,   MOUSE_BTN2},
@@ -76,7 +91,7 @@ Forwarded: http://permalink.gmane.org/gmane.comp.video.mplayer.devel/55700
  static BOOL (WINAPI* myEnumDisplayMonitors)(HDC, LPCRECT, MONITORENUMPROC, LPARAM);
  
 -static const struct keymap vk_map[] = {
-+static const struct m_keymap vk_map[] = {
++static const struct mp_keymap vk_map[] = {
      // special keys
      {VK_ESCAPE, KEY_ESC}, {VK_BACK, KEY_BS}, {VK_TAB, KEY_TAB}, {VK_CONTROL, KEY_CTRL},
  
@@ -87,7 +102,7 @@ Forwarded: http://permalink.gmane.org/gmane.comp.video.mplayer.devel/55700
  
  #ifdef XF86XK_AudioPause
 -static const struct keymap keysym_map[] = {
-+static const struct m_keymap keysym_map[] = {
++static const struct mp_keymap keysym_map[] = {
      {XF86XK_MenuKB, KEY_MENU},
      {XF86XK_AudioPlay, KEY_PLAY}, {XF86XK_AudioPause, KEY_PAUSE}, {XF86XK_AudioStop, KEY_STOP},
      {XF86XK_AudioPrev, KEY_PREV}, {XF86XK_AudioNext, KEY_NEXT},
@@ -96,7 +111,7 @@ Forwarded: http://permalink.gmane.org/gmane.comp.video.mplayer.devel/55700
  #endif
  
 -static const struct keymap keymap[] = {
-+static const struct m_keymap keymap[] = {
++static const struct mp_keymap keymap[] = {
      // special keys
      {wsEscape, KEY_ESC}, {wsBackSpace, KEY_BS}, {wsTab, KEY_TAB}, {wsEnter, KEY_ENTER},
  
