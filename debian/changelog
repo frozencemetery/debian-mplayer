@@ -1,3 +1,20 @@
+mplayer (2:1.0~rc3+svn20100502-1) unstable; urgency=low
+
+  * new upstream snapshot from rc3 branch.
+  * remove patches applied upstream:
+    
+    - 24_enable_fontconfig_by_default.diff
+    - 30_add_gmplayer_man_rules.diff
+    - 40_improve_desktop_file.patch
+    - 41_fix_forcedsubsonly.patch
+    - 50_fix_crashes_with_invalid_SDPs.patch
+    - 50_fix_initial_volume_setting_pulse_output.patch
+    - 61-malloc-bsd.patch
+    - 62-disable-vidix-on-kfreebsd-amd64.patch
+    - 63-sys-kd-include.patch
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 01 May 2010 21:31:58 +0200
+
 mplayer (2:1.0~rc3+svn20090426-2) unstable; urgency=low
 
   * don't install apport hook
