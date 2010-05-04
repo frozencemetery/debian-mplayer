@@ -165,7 +165,6 @@ Architecture: any
 Section: debug
 Priority: extra
 Depends: mplayer,
-         mencoder,
          ${misc:Depends}
 Recommends: ffmpeg-dbg
 Description: debugging symbols for MPlayer
