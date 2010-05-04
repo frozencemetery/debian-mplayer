@@ -1,8 +1,8 @@
-mplayer (2:1.0~rc3+svn20100502-2) UNRELEASED; urgency=low
+mplayer (2:1.0~rc3+svn20100502-2) unstable; urgency=low
 
-  * Prepare new release.
+  * Remove mencoder from Depends in mplayer-dbg package.
 
- -- Andres Mejia <mcitadel@gmail.com>  Mon, 03 May 2010 20:14:33 -0400
+ -- Andres Mejia <mcitadel@gmail.com>  Mon, 03 May 2010 20:19:41 -0400
 
 mplayer (2:1.0~rc3+svn20100502-1) unstable; urgency=low
 
