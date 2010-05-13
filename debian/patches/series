@@ -1,4 +1,5 @@
 11configure-mktemp.patch
 22disable-xscreensaver.patch
 23mplayer-debug-printf.patch
+20upstream-rtsp-underflow-fix-r29447.patch
 60_backport_x264_wrapper.patch
