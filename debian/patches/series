@@ -5,3 +5,4 @@
 23mplayer-debug-printf.patch
 60_backport_x264_wrapper.patch
 61_backport_ao_pulse.patch
+62_backport_fribidi_detection.patch
