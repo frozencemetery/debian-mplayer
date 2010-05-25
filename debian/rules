@@ -33,6 +33,7 @@ DEB_BUILD_CONFIGURE = \
 	--confdir=/etc/mplayer \
 	--enable-xvmc \
 	--enable-menu \
+	--disable-arts \
 	--enable-largefiles \
 	--language=all \
 	--disable-libdvdcss-internal \
