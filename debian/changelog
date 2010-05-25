@@ -1,4 +1,4 @@
-mplayer (2:1.0~rc3+svn20100502-3) unstable; urgency=low
+mplayer (2:1.0~rc3+svn20100502-3) medium; urgency=low
 
   * Fix rtsp vulnerability. Patch applied by DSA. Closes: #581245
   * Fix another integer overflow, Closes: #524805
@@ -6,6 +6,12 @@ mplayer (2:1.0~rc3+svn20100502-3) unstable; urgency=low
   * sync libao2/ao_pulse.c with svn r30062, Closes: #558196, #580113
   * make configure use pkg-config for fribidi checks. Closes: #582784,
     LP: #556200
+  * document 23mplayer-debug-printf.patch
+  * avoid mentioning of GTK frontend in mplayer description
+  * improve package descriptions of mplayer-doc and mplayer-dbg
+  * medium urgency because of fixed security issue
+  * fix SVN_VERION regex in debian rules to unbreak get-orig-source
+    target. Closes: #582369
 
  -- Reinhard Tartler <siretart@tauware.de>  Mon, 24 May 2010 22:53:29 +0200
 
