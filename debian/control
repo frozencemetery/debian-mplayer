@@ -164,8 +164,10 @@ Depends: mplayer,
 Recommends: ffmpeg-dbg
 Description: debugging symbols for MPlayer
  This package contains the debugging symbols for MPlayer, a movie
- player for Unix-like systems. You only need these if you want to
- generate debugging backtraces.
+ player for Unix-like systems.
+ .
+ You only need these if you want to generate usefule debugging
+ backtraces.
 
 Package: mplayer-doc
 Architecture: all
@@ -174,8 +176,11 @@ Recommends: mplayer
 Depends: ${misc:Depends}
 Replaces: mplayer (<< 2:1.0~rc3+svn20090426-1)
 Description: documentation for MPlayer
- This package contains the documentation for MPlayer, a movie player for
- Unix-like systems.
+ This package contains the HTML documentation for MPlayer, a movie player for
+ Unix-like systems. It is available in several languages.
+ .
+ You only need this package if you want to read the mplayer manual. The manpages
+ are included in the regular mplayer package.
 
 # disabled to avoid binary NEW
 # Package: mplayer-nogui
