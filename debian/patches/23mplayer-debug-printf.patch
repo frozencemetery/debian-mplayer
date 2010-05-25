@@ -1,3 +1,7 @@
+From: Reinhard Tartler <siretart@tauware.de>
+Subject: in case of crash, suggest installing package mplayer-dbg for debugging symbols
+Forwarded: not-needed
+
 --- a/mplayer.c
 +++ b/mplayer.c
 @@ -801,6 +801,10 @@ static void exit_sighandler(int x){
