@@ -73,7 +73,6 @@ Build-Depends: debhelper (>= 7),
 # disabled to avoid binary NEW
 # Package: mplayer-gui
 # Architecture: any
-# Section: video
 # Suggests: mplayer-doc,
 #           ttf-freefont,
 #           netselect | fping,
@@ -106,7 +105,6 @@ Build-Depends: debhelper (>= 7),
 # disabled to avoid binary NEW
 # Package: mencoder
 # Architecture: any
-# Section: video
 # Suggests: mplayer-doc,
 #           ttf-freefont,
 #           bzip2,
@@ -129,7 +127,6 @@ Build-Depends: debhelper (>= 7),
 
 Package: mplayer
 Architecture: any
-Section: video
 Suggests: mplayer-doc,
           ttf-freefont,
           netselect | fping,
