@@ -154,8 +154,6 @@ Description: movie player for Unix-like systems
  .
  Not all of the upstream code is distributed in the source tarball.
  See the README.Debian and copyright files for details.
- .
- Version without the GUI in GTK
 
 Package: mplayer-dbg
 Architecture: any
