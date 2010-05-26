@@ -93,8 +93,12 @@ endif
 # https://wiki.ubuntu.com/DistCompilerFlags
 CLEAN_ENV=env -u CFLAGS -u CPPFLAGS -u LDFLAGS -u FFLAGS -u CXXFLAGS
 
+# cowboy in mencoder.c manually fetched from upstream to avoid having to reroll
+# a new upstream tarball. Will be dropped with a new upstream upgrade
+mencoder.c: debian/mencoder.c
+	cp $^ $@
 
-install-arch: $(QUILT_STAMPFN)
+install-arch: mencoder.c $(QUILT_STAMPFN)
 	dh_testdir
 	dh_prep -a
 	[ ! -f config.mak ] || $(MAKE) distclean
@@ -148,6 +152,7 @@ clean-real:
 	[ ! -f config.mak ] || $(MAKE) -C DOCS/xml distclean || true
 	[ ! -f config.mak ] || $(MAKE) distclean
 	dh_clean build-arch-stamp configure-arch-stamp snapshot_version
+	dh_clean mencoder.c # cleanup cowboyed mencoder.c
 
 # Build architecture-independent packages
 binary-indep: install-indep
