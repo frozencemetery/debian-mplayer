@@ -103,30 +103,28 @@ install-arch: mencoder.c $(QUILT_STAMPFN)
 	dh_prep -a
 	[ ! -f config.mak ] || $(MAKE) distclean
 	echo "$(UPSTREAM_VERSION)" > snapshot_version
+	# build non-gui version
 	$(CLEAN_ENV) \
-	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --disable-gui --disable-mencoder
+	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --disable-gui
 	$(CLEAN_ENV) \
 	$(MAKE)
-	# build non-gui version
 	$(MAKE) install-mplayer DESTDIR=$(CURDIR)/debian/mplayer
 	$(MAKE) install-mplayer-man DESTDIR=$(CURDIR)/debian/mplayer
 	$(MAKE) install-mencoder-man DESTDIR=$(CURDIR)/debian/mplayer
 	install -D -m 644 debian/mplayer.conf \
 	                  $(CURDIR)/debian/mplayer/etc/mplayer/mplayer.conf
-	# don't build/install mencoder and gui variant to skip binary NEW
-	# #install mencoder
-	# $(MAKE) install-mencoder DESTDIR=$(CURDIR)/debian/mencoder
-	# # build gui version
-	# [ ! -f config.mak ] || $(MAKE) distclean
-	# $(CLEAN_ENV) \
-	# ./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --enable-gui
-	# $(CLEAN_ENV) \
-	# $(MAKE)
-	# install -D -m 755 mplayer $(CURDIR)/debian/mplayer-gui/usr/bin/gmplayer
-	# install -D -m 644 etc/mplayer.desktop \
-	#                   $(CURDIR)/debian/mplayer-gui/usr/share/applications/mplayer.desktop
-	# install -D -m 644 etc/mplayer.xpm \
-	#                   $(CURDIR)/debian/mplayer-gui/usr/share/pixmaps/mplayer.xpm
+	#install mencoder
+	$(MAKE) install-mencoder DESTDIR=$(CURDIR)/debian/mencoder
+	# build gui version
+	$(CLEAN_ENV) \
+	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --enable-gui
+	$(CLEAN_ENV) \
+	$(MAKE) mplayer
+	install -D -m 755 mplayer $(CURDIR)/debian/mplayer-gui/usr/bin/gmplayer
+	install -D -m 644 etc/mplayer.desktop \
+	                  $(CURDIR)/debian/mplayer-gui/usr/share/applications/mplayer.desktop
+	install -D -m 644 etc/mplayer.xpm \
+	                  $(CURDIR)/debian/mplayer-gui/usr/share/pixmaps/mplayer.xpm
 
 ###### build-indep
 
@@ -194,6 +192,5 @@ get-orig-source:
 PHONY += build clean binary-indep binary-arch binary-common binary 
 PHONY += install binary binary-arch binary-indep clean checkroot get-orig-source
 PHONY += autocontrol fix-orig-source copy-orig-from-svn download-and-unpack-orig
-PHONY += build-gui build-nogui install-gui install-nogui
 
 .PHONY: $(PHONY)
