@@ -14,7 +14,7 @@ export DH_OPTIONS
 DEB_SOURCE := $(shell dpkg-parsechangelog | sed -n 's/^Source: //p')
 DEB_VERSION := $(shell dpkg-parsechangelog | sed -n 's/^Version: //p')
 UPSTREAM_VERSION := $(shell echo $(DEB_VERSION) | sed -r 's/[^:]+://; s/-[^-]+$$//')
-SVN_VERSION := $(shell echo $(UPSTREAM_VERSION) | sed -nr 's/^[0-9.:-~]+svn([0-9]+)$$/\1/p')
+SVN_VERSION := $(shell echo $(UPSTREAM_VERSION) | sed -nr 's/^[0-9.:-~]+\+svn([0-9]+)$$/\1/p')
 
 
 #UPSTREAMSOURCE := upstream SVN repository
@@ -33,6 +33,7 @@ DEB_BUILD_CONFIGURE = \
 	--confdir=/etc/mplayer \
 	--enable-xvmc \
 	--enable-menu \
+	--disable-arts \
 	--enable-largefiles \
 	--language=all \
 	--disable-libdvdcss-internal \
@@ -92,32 +93,33 @@ endif
 # https://wiki.ubuntu.com/DistCompilerFlags
 CLEAN_ENV=env -u CFLAGS -u CPPFLAGS -u LDFLAGS -u FFLAGS -u CXXFLAGS
 
+# cowboy in mencoder.c manually fetched from upstream to avoid having to reroll
+# a new upstream tarball. Will be dropped with a new upstream upgrade
+mencoder.c: debian/mencoder.c
+	cp $^ $@
 
-install-arch: $(QUILT_STAMPFN)
+install-arch: mencoder.c $(QUILT_STAMPFN)
 	dh_testdir
 	dh_prep -a
 	[ ! -f config.mak ] || $(MAKE) distclean
 	echo "$(UPSTREAM_VERSION)" > snapshot_version
+	# build non-gui version
 	$(CLEAN_ENV) \
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --disable-gui
 	$(CLEAN_ENV) \
 	$(MAKE)
-	# build non-gui version
 	$(MAKE) install-mplayer DESTDIR=$(CURDIR)/debian/mplayer
 	$(MAKE) install-mplayer-man DESTDIR=$(CURDIR)/debian/mplayer
 	$(MAKE) install-mencoder-man DESTDIR=$(CURDIR)/debian/mplayer
 	install -D -m 644 debian/mplayer.conf \
 	                  $(CURDIR)/debian/mplayer/etc/mplayer/mplayer.conf
-	install -D -m 644 debian/apport-hook.py \
-	                  $(CURDIR)/debian/mplayer/usr/share/apport/package-hooks/source_mplayer.py
 	#install mencoder
 	$(MAKE) install-mencoder DESTDIR=$(CURDIR)/debian/mencoder
 	# build gui version
-	[ ! -f config.mak ] || $(MAKE) distclean
 	$(CLEAN_ENV) \
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --enable-gui
 	$(CLEAN_ENV) \
-	$(MAKE)
+	$(MAKE) mplayer
 	install -D -m 755 mplayer $(CURDIR)/debian/mplayer-gui/usr/bin/gmplayer
 	install -D -m 644 etc/mplayer.desktop \
 	                  $(CURDIR)/debian/mplayer-gui/usr/share/applications/mplayer.desktop
@@ -148,6 +150,7 @@ clean-real:
 	[ ! -f config.mak ] || $(MAKE) -C DOCS/xml distclean || true
 	[ ! -f config.mak ] || $(MAKE) distclean
 	dh_clean build-arch-stamp configure-arch-stamp snapshot_version
+	dh_clean mencoder.c # cleanup cowboyed mencoder.c
 
 # Build architecture-independent packages
 binary-indep: install-indep
@@ -189,6 +192,5 @@ get-orig-source:
 PHONY += build clean binary-indep binary-arch binary-common binary 
 PHONY += install binary binary-arch binary-indep clean checkroot get-orig-source
 PHONY += autocontrol fix-orig-source copy-orig-from-svn download-and-unpack-orig
-PHONY += build-gui build-nogui install-gui install-nogui
 
 .PHONY: $(PHONY)

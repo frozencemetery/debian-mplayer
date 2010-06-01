@@ -1,3 +1,66 @@
+mplayer (2:1.0~rc3+svn20100502-4) unstable; urgency=low
+
+  * copy in mencoder.c from upstream
+  * enable mplayer-gui (Closes: #579925) and mencoder packages. 
+    (Closes: #396954, #400940, #580168)
+
+ -- Reinhard Tartler <siretart@tauware.de>  Wed, 26 May 2010 08:57:28 +0200
+
+mplayer (2:1.0~rc3+svn20100502-3) medium; urgency=low
+
+  * Fix rtsp vulnerability. Patch applied by DSA. Closes: #581245
+  * Fix another integer overflow, Closes: #524805
+  * prepare new upload
+  * sync libao2/ao_pulse.c with svn r30062, Closes: #558196, #580113
+  * make configure use pkg-config for fribidi checks. Closes: #582784,
+    LP: #556200
+  * document 23mplayer-debug-printf.patch
+  * avoid mentioning of GTK frontend in mplayer description
+  * improve package descriptions of mplayer-doc and mplayer-dbg
+  * medium urgency because of fixed security issue
+  * fix SVN_VERION regex in debian rules to unbreak get-orig-source
+    target. Closes: #582369
+  * forcefully disable arts support. Closes: #581225
+
+ -- Reinhard Tartler <siretart@tauware.de>  Tue, 25 May 2010 20:18:08 +0200
+
+mplayer (2:1.0~rc3+svn20100502-2) unstable; urgency=low
+
+  * Remove mencoder from Depends in mplayer-dbg package.
+
+ -- Andres Mejia <mcitadel@gmail.com>  Mon, 03 May 2010 20:19:41 -0400
+
+mplayer (2:1.0~rc3+svn20100502-1) unstable; urgency=low
+
+  * new upstream snapshot from rc3 branch.
+  * remove patches applied upstream:
+    
+    - 24_enable_fontconfig_by_default.diff
+    - 30_add_gmplayer_man_rules.diff
+    - 40_improve_desktop_file.patch
+    - 41_fix_forcedsubsonly.patch
+    - 50_fix_crashes_with_invalid_SDPs.patch
+    - 50_fix_initial_volume_setting_pulse_output.patch
+    - 61-malloc-bsd.patch
+    - 62-disable-vidix-on-kfreebsd-amd64.patch
+    - 63-sys-kd-include.patch
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 01 May 2010 21:31:58 +0200
+
+mplayer (2:1.0~rc3+svn20090426-2) unstable; urgency=low
+
+  * don't install apport hook
+  * gross hack to avoid building mplayer-nogui and mplayer-gui packages
+  * add md5sum to remove to avoid spurious conffile prompt, Closes: #568272
+  * Make mplayer build on kFreeBSD (backports from upstream), Closes: #578622
+    - Revert obscure hack that disables the malloc.h check on certain BSD
+      platforms. 
+    - disable vidix on kFreeBSD-amd64
+    - rename 'struct keypad' -> 'struct m_keypad' to avoid FTBFS on
+      kFreeBSD/amd64
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 24 Apr 2010 11:34:51 +0200
+
 mplayer (2:1.0~rc3+svn20090426-1ubuntu16) lucid; urgency=low
 
   * move config file and apport hook 'mplayer-nogui'->'mplayer' 
@@ -122,7 +185,7 @@ mplayer (2:1.0~rc3+svn20090426-1ubuntu4) karmic; urgency=low
   * remove 22disable-xscreensaver.patch. Patch is not working properly 
     anyways and actually potentially dangerous because it is faking input
     activity.
-  * enable fontconfig by default.
+  * enable fontconfig by default. (Closes: #573257)
 
  -- Reinhard Tartler <siretart@tauware.de>  Thu, 18 Jun 2009 16:09:33 +0200
 

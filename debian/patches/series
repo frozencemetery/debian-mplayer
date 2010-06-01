@@ -1,10 +1,8 @@
 11configure-mktemp.patch
+20upstream-rtsp-underflow-fix-r29447.patch
+21upstream-trsp-underflow-fix-r29455.patch
 22disable-xscreensaver.patch
 23mplayer-debug-printf.patch
-24_enable_fontconfig_by_default.diff
-30_add_gmplayer_man_rules.diff
-40_improve_desktop_file.patch
-41_fix_forcedsubsonly.patch
-50_fix_initial_volume_setting_pulse_output.patch
-50_fix_crashes_with_invalid_SDPs.patch
 60_backport_x264_wrapper.patch
+61_backport_ao_pulse.patch
+62_backport_fribidi_detection.patch

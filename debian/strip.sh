@@ -5,6 +5,10 @@
 #    http://www.debian-unofficial.org/   :-)
 rm -rfv libdvdcss
 
+# play the most safe game at this point, remove mencoder.c from the
+# orig.tar.gz (again)
+rm -rfv mencoder.c
+
 # strip/clean the code from potentially dangerous patented code
 # KEEP THIS IN SYNC WITH THE ffmpeg-debian PACKAGE!
 for codec in 'h263.*' 'h264.*' mpeg2video mpeg4 'msmpeg4.*'; do
