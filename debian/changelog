@@ -1,3 +1,9 @@
+mplayer (2:1.0~rc3++final-0ubuntu1) maverick; urgency=low
+
+  * New upstream version
+
+ -- Reinhard Tartler <siretart@tauware.de>  Tue, 01 Jun 2010 22:59:06 +0200
+
 mplayer (2:1.0~rc3+svn20100502-4) unstable; urgency=low
 
   * copy in mencoder.c from upstream
