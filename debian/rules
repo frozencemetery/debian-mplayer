@@ -38,6 +38,11 @@ DEB_BUILD_CONFIGURE = \
 	--language=all \
 	--disable-libdvdcss-internal \
 	--disable-dvdread-internal \
+	--disable-libavutil_a \
+	--disable-libavcodec_a \
+	--disable-libavformat_a \
+	--disable-libpostproc_a \
+	--disable-libswscale_a \
 	$(archconf)
 
 ifeq ($(DEB_HOST_ARCH),i386)
