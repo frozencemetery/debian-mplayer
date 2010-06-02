@@ -1,7 +1,5 @@
 #!/usr/bin/make -f
 
-include /usr/share/quilt/quilt.make
-
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
@@ -88,7 +86,7 @@ endif
 # https://wiki.ubuntu.com/DistCompilerFlags
 CLEAN_ENV=env -u CFLAGS -u CPPFLAGS -u LDFLAGS -u FFLAGS -u CXXFLAGS
 
-install-arch: $(QUILT_STAMPFN)
+install-arch:
 	dh_testdir
 	dh_prep -a
 	[ ! -f config.mak ] || $(MAKE) distclean
@@ -133,12 +131,12 @@ install-indep-stamp:
 
 ################ clean
 
-clean: clean-real unpatch
-clean-real:
+clean:
 	dh_testdir
 	dh_testroot
 	[ ! -f config.mak ] || $(MAKE) distclean
 	dh_clean build-arch-stamp configure-arch-stamp snapshot_version
+	! test -d .git || quilt pop -a || test $$? = 2
 
 # Build architecture-independent packages
 binary-indep: install-indep
