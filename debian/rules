@@ -137,7 +137,6 @@ clean: clean-real unpatch
 clean-real:
 	dh_testdir
 	dh_testroot
-	[ ! -f config.mak ] || $(MAKE) -C DOCS/xml distclean || true
 	[ ! -f config.mak ] || $(MAKE) distclean
 	dh_clean build-arch-stamp configure-arch-stamp snapshot_version
 
