@@ -142,9 +142,10 @@ install-arch: build-arch
 
 build-indep:
 	dh_testdir
-	sh debian/all-lang-config-mak.sh > config.mak
-	cd DOCS/xml && ./configure
-	$(MAKE) -C DOCS/xml html-chunked
+#	disable for release tarballs
+#	sh debian/all-lang-config-mak.sh > config.mak
+#	cd DOCS/xml && ./configure
+#	$(MAKE) -C DOCS/xml html-chunked
 	dh_installchangelogs -i
 	dh_installdocs -i
 	dh_compress -i
