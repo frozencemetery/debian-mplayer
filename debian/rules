@@ -139,13 +139,18 @@ debian/mplayer-gui/usr/bin/gmplayer:
 install-arch: build-arch
 
 ###### build-indep
+DOCS/HTML/en/index.html:
+	sh debian/all-lang-config-mak.sh > config.mak
+	cd DOCS/xml && ./configure
+	$(MAKE) -C DOCS/xml html-chunked
 
 build-indep:
 	dh_testdir
-#	disable for release tarballs
-#	sh debian/all-lang-config-mak.sh > config.mak
-#	cd DOCS/xml && ./configure
-#	$(MAKE) -C DOCS/xml html-chunked
+	dh_prep -i
+	test ! -f DOCS/HTML/en/index.html || $(MAKE) debian/rules DOCS/HTML/en/index.html
+
+# commands to compile the documentation
+install-indep: build-indep
 	dh_installchangelogs -i
 	dh_installdocs -i
 	dh_compress -i
