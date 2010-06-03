@@ -111,7 +111,7 @@ build-arch:
 debian/mplayer/usr/bin/mplayer debian/mencoder/usr/bin/mencoder:
 	dh_testdir
 	$(CLEAN_ENV) \
-	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --disable-gui
+	./configure $(DEB_BUILD_CONFIGURE) --disable-gui
 	$(CLEAN_ENV) \
 	$(MAKE) $(NUMJOBS) mplayer mencoder
 	$(MAKE) install-mplayer DESTDIR=$(CURDIR)/debian/mplayer
@@ -125,7 +125,7 @@ debian/mplayer/usr/bin/mplayer debian/mencoder/usr/bin/mencoder:
 debian/mplayer-gui/usr/bin/gmplayer:
 	dh_testdir
 	$(CLEAN_ENV) \
-	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --enable-gui
+	./configure $(DEB_BUILD_CONFIGURE) --enable-gui
 	$(CLEAN_ENV) \
 	$(MAKE) $(NUMJOBS) mplayer
 	install -D -m 755 mplayer $(CURDIR)/debian/mplayer-gui/usr/bin/gmplayer
