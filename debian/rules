@@ -79,31 +79,44 @@ ifeq (linux,$(DEB_HOST_ARCH_OS))
     DEB_BUILD_CONFIGURE += --enable-mga --enable-3dfx --enable-tdfxfb
 endif
 
-####### build-arch
-
-
 # See http://wiki.debian.org/Teams/Dpkg/DebianRules; #465282  and
 # https://wiki.ubuntu.com/DistCompilerFlags
 CLEAN_ENV=env -u CFLAGS -u CPPFLAGS -u LDFLAGS -u FFLAGS -u CXXFLAGS
 
-install-arch:
+build: build-arch build-indep
+
+####### build-arch
+build-arch:
 	dh_testdir
 	dh_prep -a
-	[ ! -f config.mak ] || $(MAKE) distclean
-	echo "$(UPSTREAM_VERSION)" > snapshot_version
-	# build non-gui version
+	$(MAKE) -f debian/rules debian/mplayer/usr/bin/mplayer
+	$(MAKE) -f debian/rules debian/mencoder/usr/bin/mencoder
+	$(MAKE) -f debian/rules debian/mplayer-gui/usr/bin/gmplayer
+
+# build non-gui version
+debian/mplayer/usr/bin/mplayer:
+	dh_testdir
 	$(CLEAN_ENV) \
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --disable-gui
 	$(CLEAN_ENV) \
-	$(MAKE)
+	$(MAKE) mplayer
 	$(MAKE) install-mplayer DESTDIR=$(CURDIR)/debian/mplayer
 	$(MAKE) install-mplayer-man DESTDIR=$(CURDIR)/debian/mplayer
 	$(MAKE) install-mencoder-man DESTDIR=$(CURDIR)/debian/mplayer
 	install -D -m 644 debian/mplayer.conf \
 	                  $(CURDIR)/debian/mplayer/etc/mplayer/mplayer.conf
-	#install mencoder
+
+# build & install mencoder
+debian/mencoder/usr/bin/mencoder:
+	dh_testdir
+	$(CLEAN_ENV) \
+	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --disable-gui
+	$(MAKE) mencoder
 	$(MAKE) install-mencoder DESTDIR=$(CURDIR)/debian/mencoder
-	# build gui version
+
+# build gui version
+debian/mplayer-gui/usr/bin/gmplayer:
+	dh_testdir
 	$(CLEAN_ENV) \
 	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --enable-gui
 	$(CLEAN_ENV) \
@@ -114,11 +127,13 @@ install-arch:
 	install -D -m 644 etc/mplayer.xpm \
 	                  $(CURDIR)/debian/mplayer-gui/usr/share/pixmaps/mplayer.xpm
 
+
+# binaries already installed via build rules as we have to build several flavors
+install-arch: build-arch
+
 ###### build-indep
 
-# commands to compile the documentation
-install-indep: install-indep-stamp
-install-indep-stamp:
+build-indep:
 	dh_testdir
 	sh debian/all-lang-config-mak.sh > config.mak
 	cd DOCS/xml && ./configure
@@ -127,7 +142,6 @@ install-indep-stamp:
 	dh_installdocs -i
 	dh_compress -i
 	dh_fixperms -i
-	touch $@
 
 ################ clean
 
@@ -135,7 +149,7 @@ clean:
 	dh_testdir
 	dh_testroot
 	[ ! -f config.mak ] || $(MAKE) distclean
-	dh_clean build-arch-stamp configure-arch-stamp snapshot_version
+	dh_clean snapshot_version
 	! test -d .git || quilt pop -a || test $$? = 2
 
 # Build architecture-independent packages
