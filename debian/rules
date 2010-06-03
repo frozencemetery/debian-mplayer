@@ -192,14 +192,8 @@ binary-arch: install-arch
 
 binary: binary-indep binary-arch
 
-###############################################
-##These targets generate the DFSG-free tar.gz.
-## They are not automatically invoked.
-
 get-orig-source:
 	dh_testdir
-	# strip patented code
-	chmod +x debian/strip.sh
 	sh debian/get-orig-source.sh -d $(SVN_VERSION)
 
 PHONY += build clean binary-indep binary-arch binary-common binary 
