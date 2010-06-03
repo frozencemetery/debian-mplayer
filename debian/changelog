@@ -1,6 +1,24 @@
 mplayer (2:1.0~rc3++final-0ubuntu1) maverick; urgency=low
 
   * New upstream version
+  * compile against internal ffmpeg for now, LP: #587203, #588097
+  * recompile for directfb transtion, LP: #587163
+  * remove patches that were merged upstream
+  * avoid removing DOCS/html directory. it is included in release
+    tarball
+  * convert to source Format: 3.0 (quilt)
+  * refreshed patches
+  * remove files that are included in upstream tarball
+  * rework debian/rules file
+    - support parallel building
+    - merge build rules for mplayer and mencoder package
+    - remove unreferenced COMMON_CONFIGURE_FLAGS macro
+    - rename DEB_BUILD_CONFIGURE -> CONFIGURE_FLAGS
+    - don't build documentation - release tarballs have them prebuilt
+    - build HTML documentation only if not already avaiable in the build
+      tree
+    - remove remaining references to debian/strip.sh from debian/rules
+  * remove copied vdpau headers
 
  -- Reinhard Tartler <siretart@tauware.de>  Tue, 01 Jun 2010 22:59:06 +0200
 
