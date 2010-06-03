@@ -39,7 +39,7 @@ DEB_HOST_ARCH_CPU   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_CPU)
 
 
 # XXX enable-menu is frowned upon by upstream
-DEB_BUILD_CONFIGURE = \
+CONFIGURE_FLAGS = \
 	--prefix=/usr \
 	--confdir=/etc/mplayer \
 	--enable-xvmc \
@@ -55,19 +55,19 @@ ifeq ($(DEB_HOST_ARCH),i386)
 #configure optimizes for the cpu detected at ./configure time
 #in order to build a generic binary, avoid non-standard opcodes through gcc
   archconf += --target=i586-linux
-  DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
+  CONFIGURE_FLAGS += --enable-runtime-cpudetection
 endif
 ifeq ($(DEB_HOST_ARCH),amd64)
-  DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
+  CONFIGURE_FLAGS += --enable-runtime-cpudetection
 endif
 ifeq ($(DEB_HOST_ARCH),kfreebsd-i386)
-  DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
+  CONFIGURE_FLAGS += --enable-runtime-cpudetection
 endif
 ifeq ($(DEB_HOST_ARCH),kfreebsd-amd64)
-  DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
+  CONFIGURE_FLAGS += --enable-runtime-cpudetection
 endif
 ifeq ($(DEB_HOST_ARCH),powerpc)
-  DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
+  CONFIGURE_FLAGS += --enable-runtime-cpudetection
 endif
 ifeq ($(DEB_HOST_ARCH),alpha)
 #Avoid high optimization through gcc.
@@ -78,7 +78,7 @@ endif
 # generate debugging symbols for mplayer-dbg for all archs but mipsen,
 # see bug #520113
 ifeq (,$(findstring mips,$(DEB_HOST_ARCH)))
-DEB_BUILD_CONFIGURE += --enable-debug
+CONFIGURE_FLAGS += --enable-debug
 endif
 
 
@@ -89,7 +89,7 @@ endif
 
 
 ifeq (linux,$(DEB_HOST_ARCH_OS))
-    DEB_BUILD_CONFIGURE += --enable-mga --enable-3dfx --enable-tdfxfb
+    CONFIGURE_FLAGS += --enable-mga --enable-3dfx --enable-tdfxfb
 endif
 
 # See http://wiki.debian.org/Teams/Dpkg/DebianRules; #465282  and
@@ -111,7 +111,7 @@ build-arch:
 debian/mplayer/usr/bin/mplayer debian/mencoder/usr/bin/mencoder:
 	dh_testdir
 	$(CLEAN_ENV) \
-	./configure $(DEB_BUILD_CONFIGURE) --disable-gui
+	./configure $(CONFIGURE_FLAGS) --disable-gui
 	$(CLEAN_ENV) \
 	$(MAKE) $(NUMJOBS) mplayer mencoder
 	$(MAKE) install-mplayer DESTDIR=$(CURDIR)/debian/mplayer
@@ -125,7 +125,7 @@ debian/mplayer/usr/bin/mplayer debian/mencoder/usr/bin/mencoder:
 debian/mplayer-gui/usr/bin/gmplayer:
 	dh_testdir
 	$(CLEAN_ENV) \
-	./configure $(DEB_BUILD_CONFIGURE) --enable-gui
+	./configure $(CONFIGURE_FLAGS) --enable-gui
 	$(CLEAN_ENV) \
 	$(MAKE) $(NUMJOBS) mplayer
 	install -D -m 755 mplayer $(CURDIR)/debian/mplayer-gui/usr/bin/gmplayer
