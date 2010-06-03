@@ -81,13 +81,6 @@ ifeq (,$(findstring mips,$(DEB_HOST_ARCH)))
 CONFIGURE_FLAGS += --enable-debug
 endif
 
-
-ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
-         NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
-         MAKEFLAGS += -j$(NUMJOBS)
-endif
-
-
 ifeq (linux,$(DEB_HOST_ARCH_OS))
     CONFIGURE_FLAGS += --enable-mga --enable-3dfx --enable-tdfxfb
 endif
