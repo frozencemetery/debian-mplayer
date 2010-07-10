@@ -1,9 +1,47 @@
-mplayer (2:1.0~rc3+svn20100502-3exp1) experimental; urgency=low
+mplayer (2:1.0~rc3++final-1~exp1) experimental; urgency=low
 
   * build mplayer against internal ffmpeg to workaround interoperability
     problems with FFmpeg 0.6
 
- -- Reinhard Tartler <siretart@tauware.de>  Wed, 26 May 2010 08:13:21 +0200
+ -- Reinhard Tartler <siretart@tauware.de>  Thu, 03 Jun 2010 18:25:34 +0200
+
+mplayer (2:1.0~rc3++final-0ubuntu2) maverick; urgency=low
+
+  * remove old parallel building mechanism, fixes FTBFS
+
+ -- Reinhard Tartler <siretart@tauware.de>  Thu, 03 Jun 2010 14:59:41 +0200
+
+mplayer (2:1.0~rc3++final-0ubuntu1) maverick; urgency=low
+
+  * New upstream version
+  * compile against internal ffmpeg for now, LP: #587203, #588097
+  * recompile for directfb transtion, LP: #587163
+  * remove patches that were merged upstream
+  * avoid removing DOCS/html directory. it is included in release
+    tarball
+  * convert to source Format: 3.0 (quilt)
+  * refreshed patches
+  * remove files that are included in upstream tarball
+  * rework debian/rules file
+    - support parallel building
+    - merge build rules for mplayer and mencoder package
+    - remove unreferenced COMMON_CONFIGURE_FLAGS macro
+    - rename DEB_BUILD_CONFIGURE -> CONFIGURE_FLAGS
+    - don't build documentation - release tarballs have them prebuilt
+    - build HTML documentation only if not already avaiable in the build
+      tree
+    - remove remaining references to debian/strip.sh from debian/rules
+  * remove copied vdpau headers
+
+ -- Reinhard Tartler <siretart@tauware.de>  Tue, 01 Jun 2010 22:59:06 +0200
+
+mplayer (2:1.0~rc3+svn20100502-4) unstable; urgency=low
+
+  * copy in mencoder.c from upstream
+  * enable mplayer-gui (Closes: #579925) and mencoder packages. 
+    (Closes: #396954, #400940, #580168)
+
+ -- Reinhard Tartler <siretart@tauware.de>  Wed, 26 May 2010 08:57:28 +0200
 
 mplayer (2:1.0~rc3+svn20100502-3) medium; urgency=low
 

@@ -2,7 +2,7 @@ Author: <debdev@pingu>
 Description: use mktemp for temp files
 --- a/configure
 +++ b/configure
-@@ -1477,6 +1477,10 @@ for I in "$TMPDIR" "$TEMPDIR" "/tmp" ; d
+@@ -1475,6 +1475,10 @@ for I in "$TMPDIR" "$TEMPDIR" "/tmp" ; d
    test "$I" && break
  done
  

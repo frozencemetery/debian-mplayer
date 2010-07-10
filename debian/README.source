@@ -1,13 +1,10 @@
 This package uses quilt to manage all modifications to the upstream source.
-The fully patched source can be generated using the patch target provided by
-`debian/rules'.
-
 If you want to know more about how to use quilt to manage Debian patches, read
 /usr/share/doc/quilt/README.source.
 
-Moreover, the debian/control file is generated from debian/control.in using
-the debian/control target provided by `debian/rules'.
-
+Only if you are building from the packaging gut branch, then the package
+expects you to have the quilt package installed.  For this reason, quilt
+is not an explicit build dependency.
 
 NB: The sources of this mplayer package have some parts removed!
 
@@ -26,4 +23,4 @@ NB: The sources of this mplayer package have some parts removed!
 
 A. Mennucc with adaptions by Reinhard Tartler and Fabian Greffrath
 
- -- Reinhard Tartler <siretart@tauware.de>, Tue,  9 Mar 2010 18:42:04 +0100
+ -- Reinhard Tartler <siretart@tauware.de>, Thu,  3 Jun 2010 18:25:09 +0200

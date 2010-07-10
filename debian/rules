@@ -1,9 +1,20 @@
 #!/usr/bin/make -f
 
-include /usr/share/quilt/quilt.make
-
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
+
+# Support multiple makes at once
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+NUMJOBS = -j$(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+else
+# on i386 and amd64, we query the system unless overriden by DEB_BUILD_OPTIONS
+ifeq      ($(DEB_BUILD_ARCH),i386)
+NUMJOBS := -j$(shell getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)
+else ifeq ($(DEB_BUILD_ARCH),amd64)
+NUMJOBS := -j$(shell getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)
+endif
+endif
+
 
 # do not run the actual rules of this makefile in parallel. sub-makes
 # can go in parallel
@@ -28,7 +39,7 @@ DEB_HOST_ARCH_CPU   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_CPU)
 
 
 # XXX enable-menu is frowned upon by upstream
-DEB_BUILD_CONFIGURE = \
+CONFIGURE_FLAGS = \
 	--prefix=/usr \
 	--confdir=/etc/mplayer \
 	--enable-xvmc \
@@ -44,19 +55,19 @@ ifeq ($(DEB_HOST_ARCH),i386)
 #configure optimizes for the cpu detected at ./configure time
 #in order to build a generic binary, avoid non-standard opcodes through gcc
   archconf += --target=i586-linux
-  DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
+  CONFIGURE_FLAGS += --enable-runtime-cpudetection
 endif
 ifeq ($(DEB_HOST_ARCH),amd64)
-  DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
+  CONFIGURE_FLAGS += --enable-runtime-cpudetection
 endif
 ifeq ($(DEB_HOST_ARCH),kfreebsd-i386)
-  DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
+  CONFIGURE_FLAGS += --enable-runtime-cpudetection
 endif
 ifeq ($(DEB_HOST_ARCH),kfreebsd-amd64)
-  DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
+  CONFIGURE_FLAGS += --enable-runtime-cpudetection
 endif
 ifeq ($(DEB_HOST_ARCH),powerpc)
-  DEB_BUILD_CONFIGURE += --enable-runtime-cpudetection
+  CONFIGURE_FLAGS += --enable-runtime-cpudetection
 endif
 ifeq ($(DEB_HOST_ARCH),alpha)
 #Avoid high optimization through gcc.
@@ -67,82 +78,85 @@ endif
 # generate debugging symbols for mplayer-dbg for all archs but mipsen,
 # see bug #520113
 ifeq (,$(findstring mips,$(DEB_HOST_ARCH)))
-DEB_BUILD_CONFIGURE += --enable-debug
+CONFIGURE_FLAGS += --enable-debug
 endif
-
-
-ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
-         NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
-         MAKEFLAGS += -j$(NUMJOBS)
-endif
-
 
 ifeq (linux,$(DEB_HOST_ARCH_OS))
-    DEB_BUILD_CONFIGURE += --enable-mga --enable-3dfx --enable-tdfxfb
+    CONFIGURE_FLAGS += --enable-mga --enable-3dfx --enable-tdfxfb
 endif
-
-####### build-arch
-
 
 # See http://wiki.debian.org/Teams/Dpkg/DebianRules; #465282  and
 # https://wiki.ubuntu.com/DistCompilerFlags
 CLEAN_ENV=env -u CFLAGS -u CPPFLAGS -u LDFLAGS -u FFLAGS -u CXXFLAGS
 
+build: build-arch build-indep
 
-install-arch: $(QUILT_STAMPFN)
+####### build-arch
+build-arch:
 	dh_testdir
 	dh_prep -a
-	[ ! -f config.mak ] || $(MAKE) distclean
-	echo "$(UPSTREAM_VERSION)" > snapshot_version
+	$(MAKE) -f debian/rules debian/mplayer/usr/bin/mplayer
+	$(MAKE) -f debian/rules debian/mencoder/usr/bin/mencoder
+	$(MAKE) -f debian/rules debian/mplayer-gui/usr/bin/gmplayer
+
+# build non-gui version
+# & mencoder
+debian/mplayer/usr/bin/mplayer debian/mencoder/usr/bin/mencoder:
+	dh_testdir
 	$(CLEAN_ENV) \
-	./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --disable-gui --disable-mencoder
+	./configure $(CONFIGURE_FLAGS) --disable-gui
 	$(CLEAN_ENV) \
-	$(MAKE)
-	# build non-gui version
+	$(MAKE) $(NUMJOBS) mplayer mencoder
 	$(MAKE) install-mplayer DESTDIR=$(CURDIR)/debian/mplayer
 	$(MAKE) install-mplayer-man DESTDIR=$(CURDIR)/debian/mplayer
+	$(MAKE) install-mencoder DESTDIR=$(CURDIR)/debian/mencoder
 	$(MAKE) install-mencoder-man DESTDIR=$(CURDIR)/debian/mplayer
 	install -D -m 644 debian/mplayer.conf \
 	                  $(CURDIR)/debian/mplayer/etc/mplayer/mplayer.conf
-	# don't build/install mencoder and gui variant to skip binary NEW
-	# #install mencoder
-	# $(MAKE) install-mencoder DESTDIR=$(CURDIR)/debian/mencoder
-	# # build gui version
-	# [ ! -f config.mak ] || $(MAKE) distclean
-	# $(CLEAN_ENV) \
-	# ./configure $(COMMON_CONFIGURE_FLAGS) $(DEB_BUILD_CONFIGURE) --enable-gui
-	# $(CLEAN_ENV) \
-	# $(MAKE)
-	# install -D -m 755 mplayer $(CURDIR)/debian/mplayer-gui/usr/bin/gmplayer
-	# install -D -m 644 etc/mplayer.desktop \
-	#                   $(CURDIR)/debian/mplayer-gui/usr/share/applications/mplayer.desktop
-	# install -D -m 644 etc/mplayer.xpm \
-	#                   $(CURDIR)/debian/mplayer-gui/usr/share/pixmaps/mplayer.xpm
+
+# build gui version
+debian/mplayer-gui/usr/bin/gmplayer:
+	dh_testdir
+	$(CLEAN_ENV) \
+	./configure $(CONFIGURE_FLAGS) --enable-gui
+	$(CLEAN_ENV) \
+	$(MAKE) $(NUMJOBS) mplayer
+	install -D -m 755 mplayer $(CURDIR)/debian/mplayer-gui/usr/bin/gmplayer
+	install -D -m 644 etc/mplayer.desktop \
+	                  $(CURDIR)/debian/mplayer-gui/usr/share/applications/mplayer.desktop
+	install -D -m 644 etc/mplayer.xpm \
+	                  $(CURDIR)/debian/mplayer-gui/usr/share/pixmaps/mplayer.xpm
+
+
+# binaries already installed via build rules as we have to build several flavors
+install-arch: build-arch
 
 ###### build-indep
-
-# commands to compile the documentation
-install-indep: install-indep-stamp
-install-indep-stamp:
-	dh_testdir
+DOCS/HTML/en/index.html:
 	sh debian/all-lang-config-mak.sh > config.mak
 	cd DOCS/xml && ./configure
 	$(MAKE) -C DOCS/xml html-chunked
+
+build-indep:
+	dh_testdir
+	dh_prep -i
+	test ! -f DOCS/HTML/en/index.html || $(MAKE) debian/rules DOCS/HTML/en/index.html
+
+# commands to compile the documentation
+install-indep: build-indep
 	dh_installchangelogs -i
 	dh_installdocs -i
 	dh_compress -i
 	dh_fixperms -i
-	touch $@
 
 ################ clean
 
-clean: clean-real unpatch
-clean-real:
+clean:
 	dh_testdir
 	dh_testroot
-	[ ! -f config.mak ] || $(MAKE) -C DOCS/xml distclean || true
 	[ ! -f config.mak ] || $(MAKE) distclean
-	dh_clean build-arch-stamp configure-arch-stamp snapshot_version
+	dh_clean snapshot_version
+	! test -d .git || quilt pop -a || test $$? = 2
 
 # Build architecture-independent packages
 binary-indep: install-indep
@@ -171,19 +185,12 @@ binary-arch: install-arch
 
 binary: binary-indep binary-arch
 
-###############################################
-##These targets generate the DFSG-free tar.gz.
-## They are not automatically invoked.
-
 get-orig-source:
 	dh_testdir
-	# strip patented code
-	chmod +x debian/strip.sh
 	sh debian/get-orig-source.sh -d $(SVN_VERSION)
 
 PHONY += build clean binary-indep binary-arch binary-common binary 
 PHONY += install binary binary-arch binary-indep clean checkroot get-orig-source
 PHONY += autocontrol fix-orig-source copy-orig-from-svn download-and-unpack-orig
-PHONY += build-gui build-nogui install-gui install-nogui
 
 .PHONY: $(PHONY)
