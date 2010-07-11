@@ -1,3 +1,4 @@
 11configure-mktemp.patch
 22disable-xscreensaver.patch
 23mplayer-debug-printf.patch
+24forgotten-bgr15-format.patch
