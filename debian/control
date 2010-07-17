@@ -68,7 +68,6 @@ Build-Depends: debhelper (>= 7),
                xsltproc,
                zlib1g-dev
 
-# disabled to avoid binary NEW
 Package: mplayer-gui
 Architecture: any
 Suggests: mplayer-doc,
