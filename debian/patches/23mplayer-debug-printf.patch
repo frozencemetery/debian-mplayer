@@ -4,7 +4,7 @@ Forwarded: not-needed
 
 --- a/mplayer.c
 +++ b/mplayer.c
-@@ -800,6 +800,10 @@ static void exit_sighandler(int x){
+@@ -845,6 +845,10 @@ static void exit_sighandler(int x){
        mp_msg(MSGT_CPLAYER,MSGL_FATAL,MSGTR_Exit_SIGSEGV_SIGFPE);
    default:
        mp_msg(MSGT_CPLAYER,MSGL_FATAL,MSGTR_Exit_SIGCRASH);
@@ -14,4 +14,4 @@ Forwarded: not-needed
 +             "   'mplayer-dbg'.]\n");
  #ifdef CONFIG_CRASH_DEBUG
        if (crash_debug) {
- 	int gdb_pid;
+         int gdb_pid;
