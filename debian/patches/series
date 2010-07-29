@@ -1,2 +1,3 @@
 23mplayer-debug-printf.patch
 50clean-avcommon.h
+60eval-api.patch
