@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "config.h"
+#include "strsep.h"
 
 char *strsep(char **stringp, const char *delim) {
   char *begin, *end;
@@ -53,6 +54,6 @@ char *strsep(char **stringp, const char *delim) {
   }
   else
     *stringp = NULL;
- 
+
   return begin;
 }

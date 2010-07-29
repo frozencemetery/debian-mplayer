@@ -1,14 +1,19 @@
 MPlayer was originally written by Árpád Gereöffy and has been extended and
 worked on by many more since then, see the AUTHORS file for an (incomplete)
-list. You are free to use it under the terms of the GNU General Public License,
-as described in the LICENSE file.
+list. MPlayer as a whole is copyrighted by the MPlayer team. Individual
+copyright notices can be found in file headers.
 
-MPlayer as a whole is copyrighted by the MPlayer team. Individual copyright
-notices can be found in the file headers. Furthermore, MPlayer includes code
-from several external sources:
+Most files in MPlayer are licensed under the GNU General Public License,
+version 2 with an explicit "or later" clause or a compatible license. An
+exception is the file libmpdemux/demux_ty_osd.c, which is version 2 only.
+Thus MPlayer as a whole can be redistributed under the terms of the GNU
+General Public License, version 2, see the LICENSE file for details.
+
+MPlayer includes code from several external sources. General information and
+license details are listed below:
 
 Name:       FFmpeg
-Version:    0.5
+Version:    Subversion HEAD
 URL:        http://www.ffmpeg.org
 Directory:  libavcodec, libavformat, libavutil, libpostproc
 Copyright:  Many, see individual files for copyright notices.
@@ -24,28 +29,8 @@ Copyright:  2003-2004 M. Bakker, Ahead Software AG, http://www.nero.com
 License:    GNU General Public License
 
 
-Name:       GSM 06.10 library
-Version:    patchlevel 10
-URL:        http://kbs.cs.tu-berlin.de/~jutta/toast.html
-Directory:  libmpcodecs/native/
-Copyright:  1992 by Jutta Degener and Carsten Bormann, TU Berlin
-License:    permissive, see libmpcodecs/native/xa_gsm.c
-
-
-Name:       liba52
-Version:    0.7.4 + patches
-URL:        http://liba52.sourceforge.net/
-Directory:  liba52
-Copyright:  1999-2000 Aaron Holtzman <aholtzma@ess.engr.uvic.ca>
-            2000-2001 Michel Lespinasse <walken@zoy.org>
-            2000 Yuqing Deng <Yuqing_Deng@brown.edu>
-            2002 Nick Kurshev
-            2004 Romain Dolbeau <romain@dolbeau.org>
-License:    GNU General Public License
-
-
 Name:       libdvdcss
-Version:    1.2.10
+Version:    Subversion r231
 URL:        http://developers.videolan.org/libdvdcss/
 Directory:  libdvdcss
 Copyright:  1998-2008 VideoLAN
@@ -123,7 +108,7 @@ License:    GNU General Public License
 Name:       dvbstream
 Version:    0.4.3-pre3 (CVS checkout)
 URL:        http://sourceforge.net/projects/dvbtools/
-Directory:  stream/dvbin.h stream/rtp.[ch] stream/stream_dvb.c
+Directory:  stream/dvbin.h stream/rtp.c stream/stream_dvb.c
 Copyright:  2001-2002 Dave Chapman <dave@dchapman.com>
 License:    GNU General Public License
 

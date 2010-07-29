@@ -31,7 +31,7 @@
 #define mp_msg(t, l, ...) fprintf(stderr, __VA_ARGS__)
 #endif
 
-#include "get_path.c"
+#include "path.c"
 
 static void remove_key(long handle, const char* name) {
     int i, len;
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
         if (c == EOF)
             break;
         switch(c) {
-          case 'r': 
+          case 'r':
             localregpathname = optarg;
             break;
           case 'l':
@@ -180,4 +180,3 @@ int main(int argc, char *argv[]) {
     }
     return 0;
 }
-

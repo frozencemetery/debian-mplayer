@@ -1,3 +1,21 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include <stdlib.h>
 #include <sys/time.h>
 
@@ -75,7 +93,7 @@ static const struct CHANLIST ntsc_bcast[] = {
     { "67",	789250 },
     { "68",	795250 },
     { "69",	801250 },
- 
+
     { "70",	807250 },
     { "71",	813250 },
     { "72",	819250 },
@@ -115,7 +133,7 @@ static const struct CHANLIST ntsc_cable[] = {
     { "18",	145250 },
     { "19",	151250 },
     { "20",	157250 },
- 
+
     { "21",	163250 },
     { "22",	169250 },
     { "23",	217250 },
@@ -165,7 +183,7 @@ static const struct CHANLIST ntsc_cable[] = {
     { "67",	481250 },
     { "68",	487250 },
     { "69",	493250 },
- 
+
     { "70",	499250 },
     { "71",	505250 },
     { "72",	511250 },
@@ -222,7 +240,7 @@ static const struct CHANLIST ntsc_cable[] = {
     { "123",	787250 },
     { "124",	793250 },
     { "125",	799250 },
- 
+
     { "T7", 	  8250 },
     { "T8",	 14250 },
     { "T9",	 20250 },
@@ -236,11 +254,11 @@ static const struct CHANLIST ntsc_cable[] = {
 /* US HRC */
 static const struct CHANLIST ntsc_hrc[] = {
     { "1",	  72000 },
-    { "2",	  54000 }, 
-    { "3",	  60000 }, 
-    { "4",	  66000 }, 
-    { "5",	  78000 }, 
-    { "6",	  84000 }, 
+    { "2",	  54000 },
+    { "3",	  60000 },
+    { "4",	  66000 },
+    { "5",	  78000 },
+    { "6",	  84000 },
     { "7",	 174000 },
     { "8",	 180000 },
     { "9",	 186000 },
@@ -256,7 +274,7 @@ static const struct CHANLIST ntsc_hrc[] = {
     { "18",	 144000 },
     { "19",	 150000 },
     { "20",	 156000 },
- 
+
     { "21",	 162000 },
     { "22",	 168000 },
     { "23",	 216000 },
@@ -306,7 +324,7 @@ static const struct CHANLIST ntsc_hrc[] = {
     { "67",	 480000 },
     { "68",	 486000 },
     { "69",	 492000 },
- 
+
     { "70",	 498000 },
     { "71",	 504000 },
     { "72",	 510000 },
@@ -363,15 +381,15 @@ static const struct CHANLIST ntsc_hrc[] = {
     { "123",	 786000 },
     { "124",	 792000 },
     { "125",	 798000 },
- 
-    { "T7",	   7000 },  
-    { "T8",	  13000 }, 
-    { "T9",	  19000 }, 
-    { "T10",	  25000 }, 
-    { "T11",	  31000 }, 
-    { "T12",	  37000 }, 
-    { "T13",	  43000 }, 
-    { "T14",	  49000 }, 
+
+    { "T7",	   7000 },
+    { "T8",	  13000 },
+    { "T9",	  19000 },
+    { "T10",	  25000 },
+    { "T11",	  31000 },
+    { "T12",	  37000 },
+    { "T13",	  43000 },
+    { "T14",	  49000 },
 };
 
 /* --------------------------------------------------------------------- */
@@ -454,7 +472,7 @@ static const struct CHANLIST ntsc_cable_jp[] = {
     { "18",	139250 },
     { "19",	145250 },
     { "20",	151250 },
- 
+
     { "21",	157250 },
     { "22",	165250 },
     { "23",	223250 },
@@ -840,8 +858,8 @@ static const struct CHANLIST secam_france[] = {
 /* --------------------------------------------------------------------- */
 
 static const struct CHANLIST pal_newzealand[] = {
-    { "1", 	  45250 }, 
-    { "2",	  55250 }, 
+    { "1", 	  45250 },
+    { "2",	  55250 },
     { "3",	  62250 },
     { "4",	 175250 },
     { "5",	 182250 },

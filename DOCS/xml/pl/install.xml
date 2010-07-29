@@ -174,13 +174,13 @@ w głównym katalogu <application>MPlayera</application>. Przeczytaj rozdział
 <para>
 <emphasis role="bold">Zawsze przejrzyj wyniki</emphasis>
 <filename>./configure</filename> i plik
-<filename>configure.log</filename>, zawierają one informacje o tym, co będzie zbudowane,
+<filename>config.log</filename>, zawierają one informacje o tym, co będzie zbudowane,
 a co nie. Możesz również obejrzeć pliki
 <filename>config.h</filename> i <filename>config.mak</filename>.
 Jeżeli masz zainstalowane jakieś biblioteki, ale nie są one wykrywane przez
 <filename>./configure</filename>, sprawdź czy masz również odpowiednie
 pliki nagłówkowe (przeważnie pakiety -dev) i ich wersje się zgadzają. Plik
-<filename>configure.log</filename> zazwyczaj powie Ci, czego brakuje.
+<filename>config.log</filename> zazwyczaj powie Ci, czego brakuje.
 </para>
 
 <para>
@@ -255,7 +255,7 @@ Ta opcja jest też dobrym kandydatem do włożenie w plik konfiguracyjny
 (szczegóły na stronie man).
 Drugi to stworzenie dowiązania symbolicznego (symlink) o nazwie
 <filename>subfont.ttf</filename> wskazującego na wybraną czcionkę.
-Albo 
+Albo
 <screen>
 ln -s <replaceable>/ścieżka/do/przykładowej_czcionki.ttf</replaceable> ~/.mplayer/subfont.ttf
 </screen>
@@ -268,7 +268,7 @@ ln -s <replaceable>/ścieżka/do/przykładowej_czcionki.ttf</replaceable> $PREFI
 <para>
 Jeśli <application>MPlayer</application> był skompilowany z obsługą
 <systemitem class="library">fontconfig</systemitem>, te metody nie zadziałają,
-zamiast tego <option>-font</option> oczekuje nazwy czcionki według 
+zamiast tego <option>-font</option> oczekuje nazwy czcionki według
 <systemitem class="library">fontconfig</systemitem> i domyślnie bierze
 czcionkę sans-serif.
 Przykład:

@@ -30,8 +30,6 @@
 #include "w32_common.h"
 #include "mp_fifo.h"
 
-extern int enable_mouse_movements;
-
 #ifndef MONITOR_DEFAULTTOPRIMARY
 #define MONITOR_DEFAULTTOPRIMARY 1
 #endif
@@ -51,6 +49,8 @@ static uint32_t o_dheight;
 static HINSTANCE hInstance;
 #define vo_window vo_w32_window
 HWND vo_window = 0;
+/** HDC used when rendering to a device instead of window */
+static HDC dev_hdc;
 static int event_flags;
 static int mon_cnt;
 
@@ -58,7 +58,7 @@ static HMONITOR (WINAPI* myMonitorFromWindow)(HWND, DWORD);
 static BOOL (WINAPI* myGetMonitorInfo)(HMONITOR, LPMONITORINFO);
 static BOOL (WINAPI* myEnumDisplayMonitors)(HDC, LPCRECT, MONITORENUMPROC, LPARAM);
 
-static const struct keymap vk_map[] = {
+static const struct mp_keymap vk_map[] = {
     // special keys
     {VK_ESCAPE, KEY_ESC}, {VK_BACK, KEY_BS}, {VK_TAB, KEY_TAB}, {VK_CONTROL, KEY_CTRL},
 
@@ -106,7 +106,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
             vo_dheight = r.bottom;
             break;
         case WM_WINDOWPOSCHANGING:
-            if (vo_keepaspect && !vo_fs) {
+            if (vo_keepaspect && !vo_fs && WinID < 0) {
               WINDOWPOS *wpos = lParam;
               int xborder, yborder;
               r.left = r.top = 0;
@@ -159,12 +159,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
                 mplayer_put_key(MOUSE_BTN2);
             break;
         case WM_MOUSEMOVE:
-            if (enable_mouse_movements) {
-                char cmd_str[40];
-                snprintf(cmd_str, sizeof(cmd_str), "set_mouse_pos %i %i",
-                        GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-                mp_input_queue_cmd(mp_input_parse_cmd(cmd_str));
-            }
+            vo_mouse_movement(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
             break;
         case WM_MOUSEWHEEL:
             if (!vo_nomouse_input) {
@@ -176,7 +171,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
                 break;
             }
     }
-    
+
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
@@ -205,17 +200,21 @@ int vo_w32_check_events(void) {
         DispatchMessage(&msg);
     }
     if (WinID >= 0) {
+        BOOL res;
         RECT r;
-        GetClientRect(vo_window, &r);
-        if (r.right != vo_dwidth || r.bottom != vo_dheight) {
+        res = GetClientRect(vo_window, &r);
+        if (res && (r.right != vo_dwidth || r.bottom != vo_dheight)) {
             vo_dwidth = r.right; vo_dheight = r.bottom;
             event_flags |= VO_EVENT_RESIZE;
         }
-        GetClientRect(WinID, &r);
-        if (r.right != vo_dwidth || r.bottom != vo_dheight)
+        res = GetClientRect(WinID, &r);
+        if (res && (r.right != vo_dwidth || r.bottom != vo_dheight))
             MoveWindow(vo_window, 0, 0, r.right, r.bottom, FALSE);
+        if (!IsWindow(WinID))
+            // Window has probably been closed, e.g. due to program crash
+            mplayer_put_key(KEY_CLOSE_WIN);
     }
-    
+
     return event_flags;
 }
 
@@ -327,10 +326,7 @@ static void resetMode(void) {
 
 static int createRenderingContext(void) {
     HWND layer = HWND_NOTOPMOST;
-    PIXELFORMATDESCRIPTOR pfd;
-    HDC vo_hdc = GetDC(vo_window);
     RECT r;
-    int pf;
   if (WinID < 0) {
     int style = (vo_border && !vo_fs) ?
                 (WS_OVERLAPPEDWINDOW | WS_SIZEBOX) : WS_POPUP;
@@ -376,26 +372,6 @@ static int createRenderingContext(void) {
     AdjustWindowRect(&r, style, 0);
     SetWindowPos(vo_window, layer, r.left, r.top, r.right - r.left, r.bottom - r.top, SWP_SHOWWINDOW);
   }
-
-    memset(&pfd, 0, sizeof pfd);
-    pfd.nSize = sizeof pfd;
-    pfd.nVersion = 1;
-    pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-    pfd.iPixelType = PFD_TYPE_RGBA;
-    pfd.cColorBits = 24;
-    pfd.iLayerType = PFD_MAIN_PLANE;
-    pf = ChoosePixelFormat(vo_hdc, &pfd);
-    if (!pf) {
-            mp_msg(MSGT_VO, MSGL_ERR, "vo: win32: unable to select a valid pixel format!\n");
-        ReleaseDC(vo_window, vo_hdc);
-        return 0;
-    }
-
-    SetPixelFormat(vo_hdc, pf, &pfd);
-    
-    mp_msg(MSGT_VO, MSGL_V, "vo: win32: running at %dx%d with depth %d\n", vo_screenwidth, vo_screenheight, vo_depthonscreen);
-
-    ReleaseDC(vo_window, vo_hdc);
     return 1;
 }
 
@@ -412,6 +388,9 @@ static int createRenderingContext(void) {
  * \return 1 - Success, 0 - Failure
  */
 int vo_w32_config(uint32_t width, uint32_t height, uint32_t flags) {
+    // we already have a fully initialized window, so nothing needs to be done
+    if (flags & VOFLAG_HIDDEN)
+        return 1;
     // store original size for videomode switching
     o_dwidth = width;
     o_dheight = height;
@@ -427,6 +406,19 @@ int vo_w32_config(uint32_t width, uint32_t height, uint32_t flags) {
     vo_fs = flags & VOFLAG_FULLSCREEN;
     vo_vm = flags & VOFLAG_MODESWITCHING;
     return createRenderingContext();
+}
+
+/**
+ * \brief return the name of the selected device if it is indepedant
+ * \return pointer to string, must be freed.
+ */
+static char *get_display_name(void) {
+    DISPLAY_DEVICE disp;
+    disp.cb = sizeof(disp);
+    EnumDisplayDevices(NULL, vo_adapter_num, &disp, 0);
+    if (disp.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP)
+        return NULL;
+    return strdup(disp.DeviceName);
 }
 
 /**
@@ -447,15 +439,19 @@ int vo_w32_config(uint32_t width, uint32_t height, uint32_t flags) {
  * \return 1 = Success, 0 = Failure
  */
 int vo_w32_init(void) {
+    PIXELFORMATDESCRIPTOR pfd;
+    HDC vo_hdc;
+    int pf;
     HICON mplayerIcon = 0;
     char exedir[MAX_PATH];
     HINSTANCE user32;
+    char *dev;
 
     if (vo_window)
         return 1;
 
     hInstance = GetModuleHandle(0);
-    
+
     if (GetModuleFileName(0, exedir, MAX_PATH))
         mplayerIcon = ExtractIcon(hInstance, exedir, 0);
     if (!mplayerIcon)
@@ -497,7 +493,31 @@ int vo_w32_init(void) {
         myGetMonitorInfo = GetProcAddress(user32, "GetMonitorInfoA");
         myEnumDisplayMonitors = GetProcAddress(user32, "EnumDisplayMonitors");
     }
+    dev_hdc = 0;
+    dev = get_display_name();
+    if (dev) dev_hdc = CreateDC(dev, NULL, NULL, NULL);
+    free(dev);
     updateScreenProperties();
+
+    vo_hdc = vo_w32_get_dc(vo_window);
+    memset(&pfd, 0, sizeof pfd);
+    pfd.nSize = sizeof pfd;
+    pfd.nVersion = 1;
+    pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+    pfd.iPixelType = PFD_TYPE_RGBA;
+    pfd.cColorBits = 24;
+    pfd.iLayerType = PFD_MAIN_PLANE;
+    pf = ChoosePixelFormat(vo_hdc, &pfd);
+    if (!pf) {
+            mp_msg(MSGT_VO, MSGL_ERR, "vo: win32: unable to select a valid pixel format!\n");
+        vo_w32_release_dc(vo_window, vo_hdc);
+        return 0;
+    }
+
+    SetPixelFormat(vo_hdc, pf, &pfd);
+    vo_w32_release_dc(vo_window, vo_hdc);
+
+    mp_msg(MSGT_VO, MSGL_V, "vo: win32: running at %dx%d with depth %d\n", vo_screenwidth, vo_screenheight, vo_depthonscreen);
 
     return 1;
 }
@@ -564,7 +584,29 @@ void vo_w32_uninit(void) {
     resetMode();
     ShowCursor(1);
     vo_depthonscreen = 0;
+    if (dev_hdc) DeleteDC(dev_hdc);
+    dev_hdc = 0;
     DestroyWindow(vo_window);
     vo_window = 0;
     UnregisterClass(classname, 0);
+}
+
+/**
+ * \brief get a device context to draw in
+ *
+ * \param wnd window the DC should belong to if it makes sense
+ */
+HDC vo_w32_get_dc(HWND wnd) {
+    if (dev_hdc) return dev_hdc;
+    return GetDC(wnd);
+}
+
+/**
+ * \brief release a device context
+ *
+ * \param wnd window the DC probably belongs to
+ */
+void vo_w32_release_dc(HWND wnd, HDC dc) {
+    if (dev_hdc) return;
+    ReleaseDC(wnd, dc);
 }

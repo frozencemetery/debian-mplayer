@@ -94,6 +94,7 @@ static void rtsp_close(rtsp_t *s) {
   if (s->mrl) free(s->mrl);
   if (s->session) free(s->session);
   if (s->user_agent) free(s->user_agent);
+  free(s->server);
   rtsp_free_answers(s);
   rtsp_unschedule_all(s);
   free(s);
@@ -106,7 +107,6 @@ rtsp_session_t *rtsp_session_start(int fd, char **mrl, char *path, char *host,
   rtsp_session_t *rtsp_session = NULL;
   char *server;
   char *mrl_line = NULL;
-  rmff_header_t *h;
 
   rtsp_session = malloc (sizeof (rtsp_session_t));
   rtsp_session->s = NULL;
@@ -138,31 +138,31 @@ rtsp_session_t *rtsp_session_start(int fd, char **mrl, char *path, char *host,
   {
     /* we are talking to a real server ... */
 
-    h=real_setup_and_get_header(rtsp_session->s, bandwidth, user, pass);
+    rmff_header_t *h=real_setup_and_get_header(rtsp_session->s, bandwidth, user, pass);
     if (!h || !h->streams[0]) {
       rmff_free_header(h);
       /* got an redirect? */
       if (rtsp_search_answers(rtsp_session->s, RTSP_OPTIONS_LOCATION))
       {
-	free(mrl_line);
+        free(mrl_line);
 	mrl_line=strdup(rtsp_search_answers(rtsp_session->s, RTSP_OPTIONS_LOCATION));
-	mp_msg (MSGT_OPEN, MSGL_INFO,"rtsp_session: redirected to %s\n", mrl_line);
+        mp_msg (MSGT_OPEN, MSGL_INFO,"rtsp_session: redirected to %s\n", mrl_line);
 	rtsp_close(rtsp_session->s);
 	free(server);
-	free(*mrl);
-	free(rtsp_session);
-	/* tell the caller to redirect, return url to redirect to in mrl */
-	*mrl = mrl_line;
-	*redir = 1;
-	return NULL;
+        free(*mrl);
+        free(rtsp_session);
+        /* tell the caller to redirect, return url to redirect to in mrl */
+        *mrl = mrl_line;
+        *redir = 1;
+        return NULL;
 //	goto connect; /* *shudder* i made a design mistake somewhere */
       } else
       {
-	mp_msg (MSGT_OPEN, MSGL_ERR,"rtsp_session: session can not be established.\n");
-	rtsp_close(rtsp_session->s);
-	free (server);
-	free(rtsp_session);
-	return NULL;
+        mp_msg (MSGT_OPEN, MSGL_ERR,"rtsp_session: session can not be established.\n");
+        rtsp_close(rtsp_session->s);
+        free (server);
+        free(rtsp_session);
+        return NULL;
       }
     }
 
@@ -175,27 +175,28 @@ rtsp_session_t *rtsp_session_start(int fd, char **mrl, char *path, char *host,
       mp_msg(MSGT_OPEN, MSGL_V, "smil-over-realrtsp playlist, switching to raw rdt mode\n");
     } else {
     rtsp_session->real_session->header_len =
-      rmff_dump_header (h, (char *) rtsp_session->real_session->header, HEADER_SIZE);
+      rmff_dump_header (h, (char *) rtsp_session->real_session->header, RTSP_HEADER_SIZE);
 
       if (rtsp_session->real_session->header_len < 0) {
-	mp_msg (MSGT_OPEN, MSGL_ERR,"rtsp_session: error while dumping RMFF headers, session can not be established.\n");
-	free_real_rtsp_session(rtsp_session->real_session);
-	rtsp_close(rtsp_session->s);
-	free (server);
-	free (mrl_line);
-	free(rtsp_session);
-	return NULL;
+        mp_msg (MSGT_OPEN, MSGL_ERR,"rtsp_session: error while dumping RMFF headers, session can not be established.\n");
+        free_real_rtsp_session(rtsp_session->real_session);
+        rtsp_close(rtsp_session->s);
+        free (server);
+        free (mrl_line);
+        free(rtsp_session);
+        return NULL;
       }
 
     rtsp_session->real_session->recv =
       xbuffer_copyin (rtsp_session->real_session->recv, 0,
-		      rtsp_session->real_session->header,
-		      rtsp_session->real_session->header_len);
+                      rtsp_session->real_session->header,
+                      rtsp_session->real_session->header_len);
 
     rtsp_session->real_session->recv_size =
       rtsp_session->real_session->header_len;
     }
     rtsp_session->real_session->recv_read = 0;
+    rmff_free_header(h);
   } else /* not a Real server : try RTP instead */
   {
     char *public = NULL;
@@ -212,12 +213,12 @@ rtsp_session_t *rtsp_session_start(int fd, char **mrl, char *path, char *host,
 
     /* check for minimalistic RTSP RFC compliance */
     if (!strstr (public, RTSP_METHOD_DESCRIBE)
-	|| !strstr (public, RTSP_METHOD_SETUP)
-	|| !strstr (public, RTSP_METHOD_PLAY)
-	|| !strstr (public, RTSP_METHOD_TEARDOWN))
+        || !strstr (public, RTSP_METHOD_SETUP)
+        || !strstr (public, RTSP_METHOD_PLAY)
+        || !strstr (public, RTSP_METHOD_TEARDOWN))
     {
       mp_msg (MSGT_OPEN, MSGL_ERR,
-	      "Remote server does not meet minimal RTSP 1.0 compliance.\n");
+              "Remote server does not meet minimal RTSP 1.0 compliance.\n");
       rtsp_close (rtsp_session->s);
       free (server);
       free (mrl_line);

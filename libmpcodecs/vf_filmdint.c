@@ -1,3 +1,21 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,6 +27,7 @@
 
 #include "img_format.h"
 #include "mp_image.h"
+#include "vd.h"
 #include "vf.h"
 #include "cmmx.h"
 
@@ -78,9 +97,6 @@ struct vf_priv_s {
 #define PPR { 2000, 2000, 0, 2000 }
 static const struct frame_stats ppzs = {PPZ,PPZ,PPZ,PPZ,PPZ,PPZ,PPZ,0,0,9999};
 static const struct frame_stats pprs = {PPR,PPR,PPR,PPR,PPR,PPR,PPR,0,0,9999};
-
-extern int opt_screen_size_x;
-extern int opt_screen_size_y;
 
 #ifndef MIN
 #define        MIN(a,b) (((a)<(b))?(a):(b))
@@ -245,7 +261,7 @@ get_metrics_faster_c(unsigned char *a, unsigned char *b, int as, int bs,
 	a += 2*as;
 	b += 2*bs;
     } while (--lines);
-    
+
 }
 
 static inline void
@@ -424,7 +440,7 @@ block_metrics_faster_c(unsigned char *a, unsigned char *b, int as, int bs,
 	    "paddusw %%mm2, %%mm7\n\t"					     \
 	    "paddusw %%mm1, %%mm7\n\t"					     \
 	    : "=r" (a), "=r" (b)					     \
-	    : "r"((long)as), "r"((long)bs), "m" (ones), "0"(a), "1"(b), "X"(*a), "X"(*b) \
+	    : "r"((x86_reg)as), "r"((x86_reg)bs), "m" (ones), "0"(a), "1"(b), "X"(*a), "X"(*b) \
 	    );								     \
     } while (--lines);
 
@@ -466,8 +482,8 @@ block_metrics_mmx2(unsigned char *a, unsigned char *b, int as, int bs,
     mp_msg(MSGT_VFILTER, MSGL_FATAL, "block_metrics_mmx2: internal error\n");
 #else
     static const unsigned long long ones = 0x0101010101010101ull;
-    unsigned long interlaced;
-    unsigned long prefetch_line = (((long)a>>3) & 7) + 10;
+    x86_reg interlaced;
+    x86_reg prefetch_line = (((long)a>>3) & 7) + 10;
 #ifdef DEBUG
     struct frame_stats ts = *s;
 #endif
@@ -633,7 +649,7 @@ dint_copy_line_mmx2(unsigned char *dst, unsigned char *a, long bos,
 	    "por %%mm3, %%mm1 \n\t"     /* avg if >= threshold */
 	    "movq %%mm1, (%2,%4) \n\t"
 	    : /* no output */
-	    : "r" (a), "r" (bos), "r" (dst), "r" ((long)ss), "r" ((long)ds), "r" (cos)
+	    : "r" (a), "r" ((x86_reg)bos), "r" ((x86_reg)dst), "r" ((x86_reg)ss), "r" ((x86_reg)ds), "r" ((x86_reg)cos)
 	    );
 	a += 8;
 	dst += 8;
@@ -916,7 +932,7 @@ static inline double get_time(void)
     return tv.tv_sec + tv.tv_usec * 1e-6;
 }
 
-static void get_image(struct vf_instance_s* vf, mp_image_t *mpi)
+static void get_image(struct vf_instance *vf, mp_image_t *mpi)
 {
     struct vf_priv_s *p = vf->priv;
     static unsigned char **planes, planes_idx;
@@ -1120,7 +1136,7 @@ find_breaks(struct vf_priv_s *p, struct frame_stats *s)
 
 #define ITOC(X) (!(X) ? ' ' : (X) + ((X)>9 ? 'a'-10 : '0'))
 
-static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts)
+static int put_image(struct vf_instance *vf, mp_image_t *mpi, double pts)
 {
     mp_image_t *dmpi;
     struct vf_priv_s *p = vf->priv;
@@ -1318,7 +1334,7 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts)
     return show_fields ? vf_next_put_image(vf, dmpi, MP_NOPTS_VALUE) : 0;
 }
 
-static int query_format(struct vf_instance_s* vf, unsigned int fmt)
+static int query_format(struct vf_instance *vf, unsigned int fmt)
 {
     /* FIXME - support more formats */
     switch (fmt) {
@@ -1333,7 +1349,7 @@ static int query_format(struct vf_instance_s* vf, unsigned int fmt)
     return 0;
 }
 
-static int config(struct vf_instance_s* vf,
+static int config(struct vf_instance *vf,
 		  int width, int height, int d_width, int d_height,
 		  unsigned int flags, unsigned int outfmt)
 {
@@ -1378,7 +1394,7 @@ static int config(struct vf_instance_s* vf,
     return vf_next_config(vf, p->w, p->h, d_width, d_height, flags, outfmt);
 }
 
-static void uninit(struct vf_instance_s* vf)
+static void uninit(struct vf_instance *vf)
 {
     struct vf_priv_s *p = vf->priv;
     mp_msg(MSGT_VFILTER, MSGL_INFO, "diff_time: %.3f, merge_time: %.3f, "
@@ -1388,7 +1404,7 @@ static void uninit(struct vf_instance_s* vf)
     free(p);
 }
 
-static int open(vf_instance_t *vf, char* args)
+static int vf_open(vf_instance_t *vf, char *args)
 {
     struct vf_priv_s *p;
     vf->get_image = get_image;
@@ -1440,6 +1456,6 @@ const vf_info_t vf_info_filmdint = {
     "filmdint",
     "Zoltan Hidvegi",
     "",
-    open,
+    vf_open,
     NULL
 };

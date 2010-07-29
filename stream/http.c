@@ -1,7 +1,23 @@
-/* 
+/*
  * HTTP Helper
- * by Bertrand Baudet <bertrand_baudet@yahoo.com>
- * (C) 2001, MPlayer team.
+ *
+ * Copyright (C) 2001 Bertrand Baudet <bertrand_baudet@yahoo.com>
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include "config.h"
@@ -29,9 +45,6 @@
 
 extern const mime_struct_t mime_type_table[];
 extern int stream_cache_size;
-extern int network_bandwidth;
-
-int http_seek(stream_t *stream, off_t pos);
 
 typedef struct {
   unsigned metaint;
@@ -110,8 +123,13 @@ static void scast_meta_read(int fd, streaming_ctrl_t *sc) {
   my_read(fd, &tmp, 1, sc);
   metalen = tmp * 16;
   if (metalen > 0) {
-    char *info = malloc(metalen + 1);
+    int i;
+    uint8_t *info = malloc(metalen + 1);
     unsigned nlen = my_read(fd, info, metalen, sc);
+    // avoid breaking the user's terminal too much
+    if (nlen > 256) nlen = 256;
+    for (i = 0; i < nlen; i++)
+      if (info[i] && info[i] < 32) info[i] = '?';
     info[nlen] = 0;
     mp_msg(MSGT_DEMUXER, MSGL_INFO, "\nICY Info: %s\n", info);
     free(info);
@@ -204,7 +222,7 @@ static int nop_streaming_start( stream_t *stream ) {
 
 	fd = stream->fd;
 	if( fd<0 ) {
-		fd = http_send_request( stream->streaming_ctrl->url, 0 ); 
+		fd = http_send_request( stream->streaming_ctrl->url, 0 );
 		if( fd<0 ) return -1;
 		http_hdr = http_read_response( fd );
 		if( http_hdr==NULL ) return -1;
@@ -233,7 +251,7 @@ static int nop_streaming_start( stream_t *stream ) {
 				if (next_url != NULL && rd_url != NULL) {
 					mp_msg(MSGT_NETWORK,MSGL_STATUS,"Redirected: Using this url instead %s\n",next_url);
 							stream->streaming_ctrl->url=check4proxies(rd_url);
-					ret=nop_streaming_start(stream); //recursively get streaming started 
+					ret=nop_streaming_start(stream); //recursively get streaming started
 				} else {
 					mp_msg(MSGT_NETWORK,MSGL_ERR,"Redirection failed\n");
 					closesocket( fd );
@@ -318,7 +336,7 @@ http_response_append( HTTP_header_t *http_hdr, char *response, int length ) {
 		mp_msg(MSGT_NETWORK,MSGL_FATAL,"Bad size in memory (re)allocation\n");
 		return -1;
 	}
-	http_hdr->buffer = (char*)realloc( http_hdr->buffer, http_hdr->buffer_size+length+1 );
+	http_hdr->buffer = realloc( http_hdr->buffer, http_hdr->buffer_size+length+1 );
 	if( http_hdr->buffer==NULL ) {
 		mp_msg(MSGT_NETWORK,MSGL_FATAL,"Memory (re)allocation failed\n");
 		return -1;
@@ -333,7 +351,7 @@ int
 http_is_header_entire( HTTP_header_t *http_hdr ) {
 	if( http_hdr==NULL ) return -1;
 	if( http_hdr->buffer==NULL ) return 0; // empty
-	
+
 	if( strstr(http_hdr->buffer, "\r\n\r\n")==NULL &&
 	    strstr(http_hdr->buffer, "\n\n")==NULL ) return 0;
 	return 1;
@@ -414,7 +432,7 @@ http_response_parse( HTTP_header_t *http_hdr ) {
 		while( *ptr!='\r' && *ptr!='\n' ) ptr++;
 		len = ptr-hdr_ptr;
 		if( len==0 ) break;
-		field = (char*)realloc(field, len+1);
+		field = realloc(field, len+1);
 		if( field==NULL ) {
 			mp_msg(MSGT_NETWORK,MSGL_ERR,"Memory allocation failed\n");
 			return -1;
@@ -424,7 +442,7 @@ http_response_parse( HTTP_header_t *http_hdr ) {
 		http_set_field( http_hdr, field );
 		hdr_ptr = ptr+((*ptr=='\r')?2:1);
 	} while( hdr_ptr<(http_hdr->buffer+pos_hdr_sep) );
-	
+
 	if( field!=NULL ) free( field );
 
 	if( pos_hdr_sep+hdr_sep_len<http_hdr->buffer_size ) {
@@ -459,7 +477,7 @@ http_build_request( HTTP_header_t *http_hdr ) {
 	// Add the Method line
 	len = strlen(http_hdr->method)+strlen(uri)+12;
 	// Add the fields
-	field = http_hdr->first_field; 
+	field = http_hdr->first_field;
 	while( field!=NULL ) {
 		len += strlen(field->field_name)+2;
 		field = field->next;
@@ -499,14 +517,14 @@ http_build_request( HTTP_header_t *http_hdr ) {
 	}
 
 	if( uri ) free( uri );
-	return http_hdr->buffer;	
+	return http_hdr->buffer;
 }
 
 char *
 http_get_field( HTTP_header_t *http_hdr, const char *field_name ) {
 	if( http_hdr==NULL || field_name==NULL ) return NULL;
 	http_hdr->field_search_pos = http_hdr->first_field;
-	http_hdr->field_search = (char*)realloc( http_hdr->field_search, strlen(field_name)+1 );
+	http_hdr->field_search = realloc( http_hdr->field_search, strlen(field_name)+1 );
 	if( http_hdr->field_search==NULL ) {
 		mp_msg(MSGT_NETWORK,MSGL_FATAL,"Memory allocation failed\n");
 		return NULL;
@@ -522,7 +540,7 @@ http_get_next_field( HTTP_header_t *http_hdr ) {
 	if( http_hdr==NULL ) return NULL;
 
 	field = http_hdr->field_search_pos;
-	while( field!=NULL ) { 
+	while( field!=NULL ) {
 		ptr = strstr( field->field_name, ":" );
 		if( ptr==NULL ) return NULL;
 		if( !strncasecmp( field->field_name, http_hdr->field_search, ptr-(field->field_name) ) ) {
@@ -598,7 +616,7 @@ http_add_basic_authentication( HTTP_header_t *http_hdr, const char *username, co
 	if( password!=NULL ) {
 		pass_len = strlen(password);
 	}
-	
+
 	usr_pass = malloc(strlen(username)+pass_len+2);
 	if( usr_pass==NULL ) {
 		mp_msg(MSGT_NETWORK,MSGL_FATAL,"Memory allocation failed\n");
@@ -622,22 +640,22 @@ http_add_basic_authentication( HTTP_header_t *http_hdr, const char *username, co
 	}
 
 	b64_usr_pass[out_len]='\0';
-	
+
 	auth = malloc(encoded_len+22);
 	if( auth==NULL ) {
 		mp_msg(MSGT_NETWORK,MSGL_FATAL,"Memory allocation failed\n");
 		goto out;
 	}
-	
+
 	sprintf( auth, "Authorization: Basic %s", b64_usr_pass);
 	http_set_field( http_hdr, auth );
 	res = 0;
-	
+
 out:
 	free( usr_pass );
 	free( b64_usr_pass );
 	free( auth );
-	
+
 	return res;
 }
 
@@ -665,7 +683,7 @@ http_debug_hdr( HTTP_header_t *http_hdr ) {
 	mp_msg(MSGT_NETWORK,MSGL_V,"--- HTTP DEBUG HEADER --- END ---\n");
 }
 
-int 
+int
 base64_encode(const void *enc, int encLen, char *out, int outMax) {
 	static const char	b64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -743,6 +761,7 @@ static int http_streaming_start(stream_t *stream, int* file_format) {
 	int auth_retry=0;
 	int seekable=0;
 	char *content_type;
+	const char *content_length;
 	char *next_url;
 	URL_t *url = stream->streaming_ctrl->url;
 
@@ -764,12 +783,15 @@ static int http_streaming_start(stream_t *stream, int* file_format) {
 		if( mp_msg_test(MSGT_NETWORK,MSGL_V) ) {
 			http_debug_hdr( http_hdr );
 		}
-		
+
 		// Check if we can make partial content requests and thus seek in http-streams
 		if( http_hdr!=NULL && http_hdr->status_code==200 ) {
-		    char *accept_ranges;
-		    if( (accept_ranges = http_get_field(http_hdr,"Accept-Ranges")) != NULL )
+		    const char *accept_ranges = http_get_field(http_hdr,"Accept-Ranges");
+		    const char *server = http_get_field(http_hdr, "Server");
+		    if (accept_ranges)
 			seekable = strncmp(accept_ranges,"bytes",5)==0;
+		    else if (server && strcmp(server, "gvs 1.0") == 0)
+			seekable = 1; // HACK for youtube incorrectly claiming not to support seeking
 		}
 
 		print_icy_metadata(http_hdr);
@@ -780,8 +802,8 @@ static int http_streaming_start(stream_t *stream, int* file_format) {
 			switch( http_hdr->status_code ) {
 				case 200: { // OK
 					char *field_data;
-					// If content-type == video/nsv we most likely have a winamp video stream 
-					// otherwise it should be mp3. if there are more types consider adding mime type 
+					// If content-type == video/nsv we most likely have a winamp video stream
+					// otherwise it should be mp3. if there are more types consider adding mime type
 					// handling like later
 					if ( (field_data = http_get_field(http_hdr, "content-type")) != NULL && (!strcmp(field_data, "video/nsv") || !strcmp(field_data, "misc/ultravox")))
 						*file_format = DEMUXER_TYPE_NSV;
@@ -810,18 +832,18 @@ static int http_streaming_start(stream_t *stream, int* file_format) {
 			}
 		}
 
-		// Assume standard http if not ICY			
+		// Assume standard http if not ICY
 		switch( http_hdr->status_code ) {
 			case 200: // OK
+				content_length = http_get_field(http_hdr, "Content-Length");
+				if (content_length) {
+					mp_msg(MSGT_NETWORK,MSGL_V,"Content-Length: [%s]\n", content_length);
+					stream->end_pos = atoll(content_length);
+				}
 				// Look if we can use the Content-Type
 				content_type = http_get_field( http_hdr, "Content-Type" );
 				if( content_type!=NULL ) {
-					char *content_length = NULL;
 					mp_msg(MSGT_NETWORK,MSGL_V,"Content-Type: [%s]\n", content_type );
-					if( (content_length = http_get_field(http_hdr, "Content-Length")) != NULL) {
-						mp_msg(MSGT_NETWORK,MSGL_V,"Content-Length: [%s]\n", http_get_field(http_hdr, "Content-Length"));
-						stream->end_pos = atoi(content_length);
-					}
 					// Check in the mime type table for a demuxer type
 					i = 0;
 					while(mime_type_table[i].mime_type != NULL) {
@@ -858,7 +880,7 @@ static int http_streaming_start(stream_t *stream, int* file_format) {
 						free(url->protocol);
 						url->protocol = strdup("unsv");
 					}
-					redirect = 1;	
+					redirect = 1;
 				}
 				break;
 			case 401: // Authentication required
@@ -891,7 +913,7 @@ static int fixup_open(stream_t *stream,int seekable) {
 	stream->type = STREAMTYPE_STREAM;
 	if(!is_icy && !is_ultravox && seekable)
 	{
-		stream->flags |= STREAM_SEEK;
+		stream->flags |= MP_STREAM_SEEK;
 		stream->seek = http_seek;
 	}
 	stream->streaming_ctrl->bandwidth = network_bandwidth;
@@ -922,7 +944,7 @@ static int open_s1(stream_t *stream,int mode, void* opts, int* file_format) {
 	url = url_new(stream->url);
 	stream->streaming_ctrl->url = check4proxies(url);
 	url_free(url);
-	
+
 	mp_msg(MSGT_OPEN, MSGL_V, "STREAM_HTTP(1), URL: %s\n", stream->url);
 	seekable = http_streaming_start(stream, file_format);
 	if((seekable < 0) || (*file_format == DEMUXER_TYPE_ASF)) {
@@ -951,7 +973,7 @@ static int open_s2(stream_t *stream,int mode, void* opts, int* file_format) {
 	url = url_new(stream->url);
 	stream->streaming_ctrl->url = check4proxies(url);
 	url_free(url);
-	
+
 	mp_msg(MSGT_OPEN, MSGL_V, "STREAM_HTTP(2), URL: %s\n", stream->url);
 	seekable = http_streaming_start(stream, file_format);
 	if(seekable < 0) {

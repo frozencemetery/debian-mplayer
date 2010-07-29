@@ -1,3 +1,21 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include <string.h>
 #ifndef __MINGW32__
 #include <sys/ioctl.h>
@@ -112,7 +130,7 @@ void mixer_mute(mixer_t *mixer)
 {
  if (mixer->muted) mixer_setvolume(mixer, mixer->last_l, mixer->last_r);
   else
-   { 
+   {
     mixer_getvolume(mixer, &mixer->last_l, &mixer->last_r);
     mixer_setvolume(mixer, 0, 0);
     mixer->muted=1;
@@ -160,4 +178,3 @@ void mixer_setbalance(mixer_t *mixer, float val)
   af_pan_balance->control(af_pan_balance,
       AF_CONTROL_PAN_BALANCE | AF_CONTROL_SET, &val);
 }
-

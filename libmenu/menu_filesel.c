@@ -64,7 +64,7 @@ struct menu_priv_s {
   char* file_action;
   char* dir_action;
   char** actions;
-  char* filter; 
+  char* filter;
 };
 
 static struct menu_priv_s cfg_dflt = {
@@ -81,7 +81,7 @@ static struct menu_priv_s cfg_dflt = {
 
 #define ST_OFF(m) M_ST_OFF(struct menu_priv_s,m)
 
-static m_option_t cfg_fields[] = {
+static const m_option_t cfg_fields[] = {
   MENU_LIST_PRIV_FIELDS,
   { "path", ST_OFF(path),  CONF_TYPE_STRING, 0, 0, 0, NULL },
   { "title", ST_OFF(title),  CONF_TYPE_STRING, 0, 0, 0, NULL },
@@ -104,7 +104,7 @@ static char* replace_path(char* title , char* dir , int escape) {
   if(p) {
     int tl = strlen(title);
     int dl = strlen(dir);
-    int t1l = p-title; 
+    int t1l = p-title;
     int l = tl - 2 + dl;
     char *r, *n, *d = dir;
 
@@ -147,14 +147,14 @@ static int mylstat(char *dir, char *file,struct stat* st) {
     char *slash;
     l -= 3;
     strcpy(s, dir);
-#if defined(__MINGW32__) || defined(__CYGWIN__)
+#if HAVE_DOS_PATHS
     if (s[l] == '/' || s[l] == '\\')
 #else
     if (s[l] == '/')
 #endif
       s[l] = '\0';
     slash = strrchr(s, '/');
-#if defined(__MINGW32__) || defined(__CYGWIN__)
+#if HAVE_DOS_PATHS
     if (!slash)
       slash = strrchr(s,'\\');
 #endif
@@ -193,7 +193,7 @@ static char **get_extensions(menu_t *menu){
   if(!fp)
     return NULL;
 
-  extensions = (char **) malloc(sizeof(*extensions));
+  extensions = malloc(sizeof(*extensions));
   *extensions = NULL;
 
   while(fgets(ext,sizeof(ext),fp)) {
@@ -204,9 +204,9 @@ static char **get_extensions(menu_t *menu){
       ext[s-1] = '\0';
       s--;
     }
-    e = (char *) malloc(s+1);
-    extensions = (char **) realloc(extensions, ++n * sizeof(*extensions));
-    extensions = (char **) realloc(extensions, ++n * sizeof(*extensions));
+    e = malloc(s+1);
+    extensions = realloc(extensions, ++n * sizeof(*extensions));
+    extensions = realloc(extensions, ++n * sizeof(*extensions));
     strcpy (e, ext);
     for (l=extensions; *l; l++);
     *l++ = e;
@@ -262,7 +262,7 @@ static int open_dir(menu_t* menu,char* args) {
     }
   }
 
-  namelist = (char **) malloc(sizeof(char *));
+  namelist = malloc(sizeof(char *));
   extensions = get_extensions(menu);
 
   n=0;
@@ -290,22 +290,22 @@ static int open_dir(menu_t* menu,char* args) {
         continue;
     }
     if(n%20 == 0){ // Get some more mem
-      if((tp = (char **) realloc(namelist, (n+20) * sizeof (char *)))
+      if((tp = realloc(namelist, (n+20) * sizeof (char *)))
          == NULL) {
         mp_msg(MSGT_GLOBAL,MSGL_ERR,MSGTR_LIBMENU_ReallocError, strerror(errno));
 	n--;
         goto bailout;
-      } 
+      }
       namelist=tp;
     }
 
-    namelist[n] = (char *) malloc(strlen(dp->d_name) + 2);
+    namelist[n] = malloc(strlen(dp->d_name) + 2);
     if(namelist[n] == NULL){
       mp_msg(MSGT_GLOBAL,MSGL_ERR,MSGTR_LIBMENU_MallocError, strerror(errno));
       n--;
       goto bailout;
     }
-     
+
     strcpy(namelist[n], dp->d_name);
     if(S_ISDIR(st.st_mode))
       strcat(namelist[n], "/");
@@ -356,7 +356,7 @@ static void read_cmd(menu_t* menu,int cmd) {
 	  if(l <= 1) break;
 	  mpriv->dir[l-1] = '\0';
 	  slash = strrchr(mpriv->dir,'/');
-#if defined(__MINGW32__) || defined(__CYGWIN__)
+#if HAVE_DOS_PATHS
 	  if (!slash)
 	    slash = strrchr(mpriv->dir,'\\');
 #endif
@@ -433,7 +433,7 @@ static int open_fs(menu_t* menu, char* args) {
     if (!path || path[0] == '\0') {
       struct stat st;
       int path_fp;
-      
+
       path_fp = open (MENU_KEEP_PATH, O_RDONLY);
       if (path_fp >= 0) {
         if (!fstat (path_fp, &st) && (st.st_size > 0)) {
@@ -449,14 +449,14 @@ static int open_fs(menu_t* menu, char* args) {
       }
     }
   }
-  
+
   getcwd(wd,PATH_MAX);
   if (!path || path[0] == '\0') {
 #if 0
     char *slash = NULL;
     if (filename && !strstr(filename, "://") && (path=realpath(filename, b))) {
       slash = strrchr(path, '/');
-#if defined(__MINGW32__) || defined(__CYGWIN__)
+#if HAVE_DOS_PATHS
       // FIXME: Do we need and can convert all '\\' in path to '/' on win32?
       if (!slash)
         slash = strrchr(path, '\\');
@@ -495,7 +495,7 @@ static int open_fs(menu_t* menu, char* args) {
 
   return r;
 }
-  
+
 const menu_info_t menu_info_filesel = {
   "File seletor menu",
   "filesel",

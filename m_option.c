@@ -1,3 +1,20 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 /// \file
 /// \ingroup Options
@@ -40,13 +57,13 @@ const m_option_t* m_option_list_find(const m_option_t* list,const char* name) {
 
 // Default function that just does a memcpy
 
-static void copy_opt(const m_option_t* opt,void* dst,void* src) {
+static void copy_opt(const m_option_t* opt,void* dst,const void* src) {
   if(dst && src)
     memcpy(dst,src,opt->type->size);
 }
 
 // Helper for the print funcs (from man printf)
-static char* dup_printf(const char *fmt, ...) {       
+static char* dup_printf(const char *fmt, ...) {
   /* Guess we need no more than 50 bytes. */
   int n, size = 50;
   char *p;
@@ -59,7 +76,7 @@ static char* dup_printf(const char *fmt, ...) {
     n = vsnprintf (p, size, fmt, ap);
     va_end(ap);
     /* If that worked, return the string. */
-    if (n > -1 && n < size)      
+    if (n > -1 && n < size)
       return p;
     /* Else try again with more space. */
     if (n > -1)    /* glibc 2.1 */
@@ -76,7 +93,7 @@ static char* dup_printf(const char *fmt, ...) {
 
 #define VAL(x) (*(int*)(x))
 
-static int parse_flag(const m_option_t* opt,const char *name, char *param, void* dst, int src) {
+static int parse_flag(const m_option_t* opt,const char *name, const char *param, void* dst, int src) {
   if (src == M_CONFIG_FILE) {
     if(!param) return M_OPT_MISSING_PARAM;
     if (!strcasecmp(param, "yes") ||	/* any other language? */
@@ -136,7 +153,7 @@ const m_option_type_t m_option_type_flag = {
 
 // Integer
 
-static int parse_int(const m_option_t* opt,const char *name, char *param, void* dst, int src) {
+static int parse_int(const m_option_t* opt,const char *name, const char *param, void* dst, int src) {
   long long tmp_int;
   char *endptr;
   src = 0;
@@ -209,7 +226,7 @@ const m_option_type_t m_option_type_int64 = {
 #undef VAL
 #define VAL(x) (*(double*)(x))
 
-static int parse_double(const m_option_t* opt,const char *name, char *param, void* dst, int src) {
+static int parse_double(const m_option_t* opt,const char *name, const char *param, void* dst, int src) {
   double tmp_float;
   char* endptr;
   src = 0;
@@ -279,7 +296,7 @@ const m_option_type_t m_option_type_double = {
 #undef VAL
 #define VAL(x) (*(float*)(x))
 
-static int parse_float(const m_option_t* opt,const char *name, char *param, void* dst, int src) {
+static int parse_float(const m_option_t* opt,const char *name, const char *param, void* dst, int src) {
     double tmp;
     int r= parse_double(opt, name, param, &tmp, src);
     if(r==1 && dst) VAL(dst) = tmp;
@@ -308,7 +325,7 @@ const m_option_type_t m_option_type_float = {
 #undef VAL
 #define VAL(x) (*(off_t*)(x))
 
-static int parse_position(const m_option_t* opt,const char *name, char *param, void* dst, int src) {
+static int parse_position(const m_option_t* opt,const char *name, const char *param, void* dst, int src) {
   off_t tmp_off;
   char dummy;
 
@@ -364,8 +381,8 @@ const m_option_type_t m_option_type_position = {
 #undef VAL
 #define VAL(x) (*(char**)(x))
 
-static int parse_str(const m_option_t* opt,const char *name, char *param, void* dst, int src) {
-  
+static int parse_str(const m_option_t* opt,const char *name, const char *param, void* dst, int src) {
+
 
   if (param == NULL)
       return M_OPT_MISSING_PARAM;
@@ -396,7 +413,7 @@ static char* print_str(const m_option_t* opt,  const void* val) {
   return (val && VAL(val) && strlen(VAL(val)) > 0) ? strdup(VAL(val)) : NULL;
 }
 
-static void copy_str(const m_option_t* opt,void* dst, void* src) {
+static void copy_str(const m_option_t* opt,void* dst, const void* src) {
   if(dst && src) {
 #ifndef NO_FREE
     if(VAL(dst)) free(VAL(dst)); //FIXME!!!
@@ -404,7 +421,7 @@ static void copy_str(const m_option_t* opt,void* dst, void* src) {
     VAL(dst) = VAL(src) ? strdup(VAL(src)) : NULL;
   }
 }
-  
+
 static void free_str(void* src) {
   if(src && VAL(src)){
 #ifndef NO_FREE
@@ -426,7 +443,7 @@ const m_option_type_t m_option_type_string = {
   copy_str,
   free_str
 };
-  
+
 //////////// String list
 
 #define LIST_SEPARATOR ','
@@ -466,17 +483,19 @@ static int str_list_add(char** add, int n,void* dst,int pre) {
     /**/;
 
   lst = realloc(lst,(n+ln+1)*sizeof(char*));
-  
+
   if(pre) {
-    memmove(&lst[n],lst,(ln+1)*sizeof(char*));
+    memmove(&lst[n],lst,ln*sizeof(char*));
     memcpy(lst,add,n*sizeof(char*));
-  } else 
-    memcpy(&lst[ln],add,(n+1)*sizeof(char*));
+  } else
+    memcpy(&lst[ln],add,n*sizeof(char*));
+  // (re-)add NULL-termination
+  lst[ln+n] = NULL;
 
   free(add);
 
   VAL(dst) = lst;
-  
+
   return 1;
 }
 
@@ -484,7 +503,7 @@ static int str_list_del(char** del, int n,void* dst) {
   char **lst,*ep,**d;
   int i,ln,s;
   long idx;
-  
+
   if(!dst) return M_OPT_PARSER_ERR;
   lst = VAL(dst);
 
@@ -530,7 +549,7 @@ static int str_list_del(char** del, int n,void* dst) {
 
   return 1;
 }
-  
+
 static char *get_nextsep(char *ptr, char sep, int modify) {
     char *last_ptr = ptr;
     for(;;){
@@ -544,10 +563,10 @@ static char *get_nextsep(char *ptr, char sep, int modify) {
     return ptr;
 }
 
-static int parse_str_list(const m_option_t* opt,const char *name, char *param, void* dst, int src) {
+static int parse_str_list(const m_option_t* opt,const char *name, const char *param, void* dst, int src) {
   int n = 0,len = strlen(opt->name);
   char *str;
-  char *ptr = param, *last_ptr, **res;
+  char *ptr = (char *)param, *last_ptr, **res;
   int op = OP_NONE;
 
   if(opt->name[len-1] == '*' && ((int)strlen(name) > len - 1)) {
@@ -587,7 +606,7 @@ static int parse_str_list(const m_option_t* opt,const char *name, char *param, v
   }
   if(n == 0)
     return M_OPT_INVALID;
-  if( ((opt->flags & M_OPT_MIN) && (n < opt->min)) || 
+  if( ((opt->flags & M_OPT_MIN) && (n < opt->min)) ||
       ((opt->flags & M_OPT_MAX) && (n > opt->max)) )
     return M_OPT_OUT_OF_RANGE;
 
@@ -630,8 +649,8 @@ static int parse_str_list(const m_option_t* opt,const char *name, char *param, v
 
   return 1;
 }
-  
-static void copy_str_list(const m_option_t* opt,void* dst, void* src) {
+
+static void copy_str_list(const m_option_t* opt,void* dst, const void* src) {
   int n;
   char **d,**s;
 
@@ -659,7 +678,7 @@ static char* print_str_list(const m_option_t* opt, const void* src) {
   char **lst = NULL;
   char *ret = NULL,*last = NULL;
   int i;
-  
+
   if(!(src && VAL(src))) return NULL;
   lst = VAL(src);
 
@@ -683,7 +702,7 @@ const m_option_type_t m_option_type_string_list = {
   "\t-pre: Add the given parameters at the beginning of the list.\n"
   "\t-del: Remove the entry at the given indices.\n"
   "\t-clr: Clear the list.\n"
-  "e.g: -vf-add flip,mirror -vf-del 2,5\n",  
+  "e.g: -vf-add flip,mirror -vf-del 2,5\n",
   sizeof(char**),
   M_OPT_TYPE_DYNAMIC | M_OPT_TYPE_ALLOW_WILDCARD,
   parse_str_list,
@@ -693,8 +712,8 @@ const m_option_type_t m_option_type_string_list = {
   copy_str_list,
   free_str_list
 };
- 
- 
+
+
 ///////////////////  Func based options
 
 // A chained list to save the various calls for func_param and func_full
@@ -714,7 +733,7 @@ static void free_func_pf(void* src) {
   if(!src) return;
 
   s = VAL(src);
-  
+
   while(s) {
     n = s->next;
     free(s->name);
@@ -726,7 +745,7 @@ static void free_func_pf(void* src) {
 }
 
 // Parser for func_param and func_full
-static int parse_func_pf(const m_option_t* opt,const char *name, char *param, void* dst, int src) {
+static int parse_func_pf(const m_option_t* opt,const char *name, const char *param, void* dst, int src) {
   m_func_save_t *s,*p;
 
   if(!dst)
@@ -747,7 +766,7 @@ static int parse_func_pf(const m_option_t* opt,const char *name, char *param, vo
   return 1;
 }
 
-static void copy_func_pf(const m_option_t* opt,void* dst, void* src) {
+static void copy_func_pf(const m_option_t* opt,void* dst, const void* src) {
   m_func_save_t *d = NULL, *s,* last = NULL;
 
   if(!(dst && src)) return;
@@ -767,18 +786,18 @@ static void copy_func_pf(const m_option_t* opt,void* dst, void* src) {
     last = d;
     s = s->next;
   }
-  
-    
+
+
 }
 
 /////////////////// Func_param
 
-static void set_func_param(const m_option_t* opt, void* dst, void* src) {
+static void set_func_param(const m_option_t* opt, void* dst, const void* src) {
   m_func_save_t* s;
 
   if(!src) return;
   s = VAL(src);
-  
+
   if(!s) return;
 
   // Revert if needed
@@ -802,7 +821,7 @@ const m_option_type_t m_option_type_func_param = {
 
 /////////////////// Func_full
 
-static void set_func_full(const m_option_t* opt, void* dst, void* src) {
+static void set_func_full(const m_option_t* opt, void* dst, const void* src) {
   m_func_save_t* s;
 
   if(!src) return;
@@ -832,13 +851,13 @@ const m_option_type_t m_option_type_func_full = {
 #undef VAL
 #define VAL(x) (*(int*)(x))
 
-static int parse_func(const m_option_t* opt,const char *name, char *param, void* dst, int src) {
+static int parse_func(const m_option_t* opt,const char *name, const char *param, void* dst, int src) {
   if(dst)
     VAL(dst) += 1;
   return 0;
 }
 
-static void set_func(const m_option_t* opt,void* dst, void* src) {
+static void set_func(const m_option_t* opt,void* dst, const void* src) {
   int i;
   if(opt->priv) ((m_opt_default_func_t)opt->priv)(opt,opt->name);
   for(i = 0 ; i < VAL(src) ; i++)
@@ -860,8 +879,8 @@ const m_option_type_t m_option_type_func = {
 
 /////////////////// Print
 
-static int parse_print(const m_option_t* opt,const char *name, char *param, void* dst, int src) {
-  if(opt->type == CONF_TYPE_PRINT_INDIRECT) 
+static int parse_print(const m_option_t* opt,const char *name, const char *param, void* dst, int src) {
+  if(opt->type == CONF_TYPE_PRINT_INDIRECT)
     mp_msg(MSGT_CFGPARSER, MSGL_INFO, "%s", *(char **) opt->p);
   else if(opt->type == CONF_TYPE_PRINT_FUNC)
     return ((m_opt_func_full_t) opt->p)(opt,name,param);
@@ -917,7 +936,7 @@ const m_option_type_t m_option_type_print_func = {
 #undef VAL
 #define VAL(x) (*(char***)(x))
 
-static int parse_subconf(const m_option_t* opt,const char *name, char *param, void* dst, int src) {
+static int parse_subconf(const m_option_t* opt,const char *name, const char *param, void* dst, int src) {
   char *subparam;
   char *subopt;
   int nr = 0,i,r;
@@ -977,7 +996,7 @@ static int parse_subconf(const m_option_t* opt,const char *name, char *param, vo
         mp_msg(MSGT_CFGPARSER, MSGL_ERR, "Incorrect termination for '%s'\n", subopt);
         return M_OPT_INVALID;
       }
-			    
+
       switch(sscanf_ret)
 	{
 	case 1:
@@ -994,7 +1013,7 @@ static int parse_subconf(const m_option_t* opt,const char *name, char *param, vo
 			     subparam[0] == 0 ? NULL : subparam,NULL,src);
 	  if(r < 0) return r;
 	  if(dst) {
-	    lst = (char**)realloc(lst,2 * (nr+2) * sizeof(char*));
+	    lst = realloc(lst,2 * (nr+2) * sizeof(char*));
 	    lst[2*nr] = strdup(subopt);
 	    lst[2*nr+1] = subparam[0] == 0 ? NULL : strdup(subparam);
 	    memset(&lst[2*(nr+1)],0,2*sizeof(char*));
@@ -1032,9 +1051,20 @@ static struct {
   const char* name;
   unsigned int fmt;
 } mp_imgfmt_list[] = {
+  {"444p16le", IMGFMT_444P16_LE},
+  {"444p16be", IMGFMT_444P16_BE},
+  {"422p16le", IMGFMT_422P16_LE},
+  {"422p16be", IMGFMT_422P16_BE},
+  {"420p16le", IMGFMT_420P16_LE},
+  {"420p16be", IMGFMT_420P16_BE},
+  {"444p16", IMGFMT_444P16},
+  {"422p16", IMGFMT_422P16},
+  {"420p16", IMGFMT_420P16},
+  {"420a", IMGFMT_420A},
   {"444p", IMGFMT_444P},
   {"422p", IMGFMT_422P},
   {"411p", IMGFMT_411P},
+  {"440p", IMGFMT_440P},
   {"yuy2", IMGFMT_YUY2},
   {"uyvy", IMGFMT_UYVY},
   {"yvu9", IMGFMT_YVU9},
@@ -1052,14 +1082,19 @@ static struct {
   {"bgr32", IMGFMT_BGR32},
   {"bgr16", IMGFMT_BGR16},
   {"bgr15", IMGFMT_BGR15},
+  {"bgr12", IMGFMT_BGR12},
   {"bgr8", IMGFMT_BGR8},
   {"bgr4", IMGFMT_BGR4},
   {"bg4b", IMGFMT_BG4B},
   {"bgr1", IMGFMT_BGR1},
+  {"rgb48be", IMGFMT_RGB48BE},
+  {"rgb48le", IMGFMT_RGB48LE},
+  {"rgb48ne", IMGFMT_RGB48NE},
   {"rgb24", IMGFMT_RGB24},
   {"rgb32", IMGFMT_RGB32},
   {"rgb16", IMGFMT_RGB16},
   {"rgb15", IMGFMT_RGB15},
+  {"rgb12", IMGFMT_RGB12},
   {"rgb8", IMGFMT_RGB8},
   {"rgb4", IMGFMT_RGB4},
   {"rg4b", IMGFMT_RG4B},
@@ -1073,7 +1108,7 @@ static struct {
   { NULL, 0 }
 };
 
-static int parse_imgfmt(const m_option_t* opt,const char *name, char *param, void* dst, int src) {
+static int parse_imgfmt(const m_option_t* opt,const char *name, const char *param, void* dst, int src) {
   uint32_t fmt = 0;
   int i;
 
@@ -1087,7 +1122,7 @@ static int parse_imgfmt(const m_option_t* opt,const char *name, char *param, voi
     mp_msg(MSGT_CFGPARSER, MSGL_INFO, "\n");
     return M_OPT_EXIT - 1;
   }
-  
+
   if (sscanf(param, "0x%x", &fmt) != 1)
   {
   for(i = 0 ; mp_imgfmt_list[i].name ; i++) {
@@ -1132,7 +1167,9 @@ static struct {
   {"mulaw", AF_FORMAT_MU_LAW},
   {"alaw", AF_FORMAT_A_LAW},
   {"mpeg2", AF_FORMAT_MPEG2},
-  {"ac3", AF_FORMAT_AC3},
+  {"ac3le", AF_FORMAT_AC3_LE},
+  {"ac3be", AF_FORMAT_AC3_BE},
+  {"ac3ne", AF_FORMAT_AC3_NE},
   {"imaadpcm", AF_FORMAT_IMA_ADPCM},
   // ORIDNARY
   {"u8", AF_FORMAT_U8},
@@ -1161,7 +1198,7 @@ static struct {
   { NULL, 0 }
 };
 
-static int parse_afmt(const m_option_t* opt,const char *name, char *param, void* dst, int src) {
+static int parse_afmt(const m_option_t* opt,const char *name, const char *param, void* dst, int src) {
   uint32_t fmt = 0;
   int i;
 
@@ -1175,7 +1212,7 @@ static int parse_afmt(const m_option_t* opt,const char *name, char *param, void*
     mp_msg(MSGT_CFGPARSER, MSGL_INFO, "\n");
     return M_OPT_EXIT - 1;
   }
-  
+
   if (sscanf(param, "0x%x", &fmt) != 1)
   {
   for(i = 0 ; mp_afmt_list[i].name ; i++) {
@@ -1222,22 +1259,22 @@ static double parse_timestring(const char *str)
     return d;
   return -1e100;
 }
-    
 
-static int parse_time(const m_option_t* opt,const char *name, char *param, void* dst, int src)
+
+static int parse_time(const m_option_t* opt,const char *name, const char *param, void* dst, int src)
 {
   double time;
 
   if (param == NULL || strlen(param) == 0)
     return M_OPT_MISSING_PARAM;
-  
+
   time = parse_timestring(param);
   if (time == -1e100) {
     mp_msg(MSGT_CFGPARSER, MSGL_ERR, "Option %s: invalid time: '%s'\n",
            name,param);
     return M_OPT_INVALID;
   }
-  
+
   if (dst)
     *(double *)dst = time;
   return 1;
@@ -1259,14 +1296,14 @@ const m_option_type_t m_option_type_time = {
 
 // Time or size (-endpos)
 
-static int parse_time_size(const m_option_t* opt,const char *name, char *param, void* dst, int src) {
+static int parse_time_size(const m_option_t* opt,const char *name, const char *param, void* dst, int src) {
   m_time_size_t ts;
   char unit[4];
   double end_at;
 
   if (param == NULL || strlen(param) == 0)
     return M_OPT_MISSING_PARAM;
-  
+
   ts.pos=0;
   /* End at size parsing */
   if(sscanf(param, "%lf%3s", &end_at, unit) == 2) {
@@ -1295,7 +1332,7 @@ static int parse_time_size(const m_option_t* opt,const char *name, char *param, 
            name,param);
     return M_OPT_INVALID;
   }
-  
+
   ts.type = END_AT_TIME;
   ts.pos  = end_at;
 out:
@@ -1317,7 +1354,7 @@ const m_option_type_t m_option_type_time_size = {
   NULL
 };
 
- 
+
 //// Objects (i.e. filters, etc) settings
 
 #include "m_struct.h"
@@ -1465,7 +1502,7 @@ static int get_obj_params(const char* opt_name, const char* name,char* params,
   ret = malloc((n+2)*2*sizeof(char*));
   n = nold = 0;
   last_ptr = params;
-  
+
   while(last_ptr && last_ptr[0] != '\0') {
     ptr = strchr(last_ptr,separator);
     if(!ptr) {
@@ -1483,24 +1520,24 @@ static int get_obj_params(const char* opt_name, const char* name,char* params,
     n++;
     last_ptr = ptr+1;
   }
-  ret[n*2] = ret[n*2+1] = NULL;  
+  ret[n*2] = ret[n*2+1] = NULL;
   *_ret = ret;
-  
+
   return 1;
 }
 
 static int parse_obj_params(const m_option_t* opt,const char *name,
-			    char *param, void* dst, int src) {
+			    const char *param, void* dst, int src) {
   char** opts;
   int r;
   m_obj_params_t* p = opt->priv;
   const m_struct_t* desc;
   char* cpy;
-  
+
   // We need the object desc
   if(!p)
     return M_OPT_INVALID;
-  
+
   desc = p->desc;
   cpy = strdup(param);
   r = get_obj_params(name,desc->name,cpy,desc,p->separator,dst ? &opts : NULL);
@@ -1515,7 +1552,7 @@ static int parse_obj_params(const m_option_t* opt,const char *name,
   for(r = 0 ; opts[r] ; r += 2)
     m_struct_set(desc,dst,opts[r],opts[r+1]);
 
-  return 1;     
+  return 1;
 }
 
 
@@ -1558,7 +1595,7 @@ static int parse_obj_settings(const char* opt,char* str,const m_obj_list_t* list
   char *param,**plist = NULL;
   const m_struct_t* desc;
   m_obj_settings_t *ret = _ret ? *_ret : NULL;
-  
+
 
   // Now check that the object exists
   param = strchr(str,'=');
@@ -1604,7 +1641,7 @@ static int parse_obj_settings(const char* opt,char* str,const m_obj_list_t* list
 
 static void free_obj_settings_list(void* dst);
 
-static int obj_settings_list_del(const char *opt_name,char *param,void* dst, int src) {
+static int obj_settings_list_del(const char *opt_name,const char *param,void* dst, int src) {
   char** str_list = NULL;
   int r,i,idx_max = 0;
   char* rem_id = "_removed_marker_";
@@ -1663,7 +1700,7 @@ static int obj_settings_list_del(const char *opt_name,char *param,void* dst, int
 }
 
 static int parse_obj_settings_list(const m_option_t* opt,const char *name,
-				   char *param, void* dst, int src) {
+				   const char *param, void* dst, int src) {
   int n = 0,r,len = strlen(opt->name);
   char *str;
   char *ptr, *last_ptr;
@@ -1699,7 +1736,7 @@ static int parse_obj_settings_list(const m_option_t* opt,const char *name,
 	     " Negative index can be used (i.e. -1 is the last element)\n\n"
 	     "  %s-clr\n"
 	     " Clear the current list.\n",name,n,prefix,prefix,prefix,prefix);
-      
+
       return M_OPT_UNKNOWN;
     }
   }
@@ -1771,10 +1808,10 @@ static int parse_obj_settings_list(const m_option_t* opt,const char *name,
   if(n == 0)
     return M_OPT_INVALID;
 
-  if( ((opt->flags & M_OPT_MIN) && (n < opt->min)) || 
+  if( ((opt->flags & M_OPT_MIN) && (n < opt->min)) ||
       ((opt->flags & M_OPT_MAX) && (n > opt->max)) )
     return M_OPT_OUT_OF_RANGE;
-  
+
   if(dst) {
     if(queue) {
       int qsize;
@@ -1793,7 +1830,7 @@ static int parse_obj_settings_list(const m_option_t* opt,const char *name,
       memcpy(&head[hsize],res,(n+1)*sizeof(m_obj_settings_t));
       free(res);
       res = head;
-    }      
+    }
     VAL(dst) = res;
   }
   return 1;
@@ -1816,7 +1853,7 @@ static void free_obj_settings_list(void* dst) {
   VAL(dst) = NULL;
 }
 
-static void copy_obj_settings_list(const m_option_t* opt,void* dst, void* src) {
+static void copy_obj_settings_list(const m_option_t* opt,void* dst, const void* src) {
   m_obj_settings_t *d,*s;
   int n;
 
@@ -1828,9 +1865,9 @@ static void copy_obj_settings_list(const m_option_t* opt,void* dst, void* src) {
   if(VAL(dst))
     free_obj_settings_list(dst);
   if(!s) return;
-    
-    
-  
+
+
+
   for(n = 0 ; s[n].name ; n++)
     /* NOP */;
   d = malloc((n+1)*sizeof(m_obj_settings_t));
@@ -1860,7 +1897,7 @@ const m_option_type_t m_option_type_obj_settings_list = {
 
 
 static int parse_obj_presets(const m_option_t* opt,const char *name,
-			    char *param, void* dst, int src) {
+			    const char *param, void* dst, int src) {
   m_obj_presets_t* obj_p = (m_obj_presets_t*)opt->priv;
   m_struct_t *in_desc,*out_desc;
   int s,i;
@@ -1882,8 +1919,8 @@ static int parse_obj_presets(const m_option_t* opt,const char *name,
 
   if(!strcmp(param,"help")) {
     mp_msg(MSGT_CFGPARSER, MSGL_INFO, "Available presets for %s->%s:",out_desc->name,name);
-    for(pre = obj_p->presets;(pre_name = M_ST_MB(char*,pre,obj_p->name_off)) ; 
-	pre +=  s) 
+    for(pre = obj_p->presets;(pre_name = M_ST_MB(char*,pre,obj_p->name_off)) ;
+	pre +=  s)
       mp_msg(MSGT_CFGPARSER, MSGL_ERR, " %s",pre_name);
     mp_msg(MSGT_CFGPARSER, MSGL_ERR, "\n");
     return M_OPT_EXIT - 1;
@@ -1896,15 +1933,15 @@ static int parse_obj_presets(const m_option_t* opt,const char *name,
   if(!pre_name) {
     mp_msg(MSGT_CFGPARSER, MSGL_ERR, "Option %s: There is no preset named %s\n"
 	   "Available presets are:",name,param);
-    for(pre = obj_p->presets;(pre_name = M_ST_MB(char*,pre,obj_p->name_off)) ; 
-	pre +=  s) 
+    for(pre = obj_p->presets;(pre_name = M_ST_MB(char*,pre,obj_p->name_off)) ;
+	pre +=  s)
       mp_msg(MSGT_CFGPARSER, MSGL_ERR, " %s",pre_name);
     mp_msg(MSGT_CFGPARSER, MSGL_ERR, "\n");
     return M_OPT_INVALID;
   }
 
   if(!dst) return 1;
-  
+
   for(i = 0 ; in_desc->fields[i].name ; i++) {
     const m_option_t* out_opt = m_option_list_find(out_desc->fields,
 					     in_desc->fields[i].name);
@@ -1932,11 +1969,11 @@ const m_option_type_t m_option_type_obj_presets = {
 };
 
 static int parse_custom_url(const m_option_t* opt,const char *name,
-			    char *url, void* dst, int src) {
+			    const char *url, void* dst, int src) {
   int pos1, pos2, r, v6addr = 0;
   char *ptr1=NULL, *ptr2=NULL, *ptr3=NULL, *ptr4=NULL;
   m_struct_t* desc = opt->priv;
-  
+
   if(!desc) {
     mp_msg(MSGT_CFGPARSER, MSGL_ERR, "Option %s: Custom URL needs a pointer to a m_struct_t in the priv field.\n",name);
     return M_OPT_PARSER_ERR;
@@ -1982,7 +2019,7 @@ static int parse_custom_url(const m_option_t* opt,const char *name,
     ptr2 = NULL;
   }
   if( ptr2!=NULL ) {
-    
+
     // We got something, at least a username...
     if(!m_option_list_find(desc->fields,"username")) {
       mp_msg(MSGT_CFGPARSER, MSGL_WARN, "Option %s: This URL doesn't have a username part.\n",name);
@@ -1994,7 +2031,7 @@ static int parse_custom_url(const m_option_t* opt,const char *name,
 	if(!m_option_list_find(desc->fields,"password")) {
 	  mp_msg(MSGT_CFGPARSER, MSGL_WARN, "Option %s: This URL doesn't have a password part.\n",name);
 	  // skip
-	} else { // Username and password   
+	} else { // Username and password
 	  if(dst) {
 	    ptr3[0] = '\0';
 	    r = m_struct_set(desc,dst,"username",ptr1);
@@ -2039,7 +2076,7 @@ static int parse_custom_url(const m_option_t* opt,const char *name,
     ptr2 = ptr3;
     v6addr = 1;
   } else {
-    ptr2 = ptr1;  
+    ptr2 = ptr1;
   }
 
   // look if the port is given
@@ -2139,4 +2176,4 @@ const m_option_type_t m_option_type_custom_url = {
   NULL,
   NULL,
   NULL
-};	
+};

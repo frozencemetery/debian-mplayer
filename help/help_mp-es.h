@@ -1,10 +1,10 @@
-// Spanish translation by 
+// Spanish translation by
 //
 // Diego Biurrun
 // Reynaldo H. Verdejo Pinochet
 //
 // Original work done by:
-// 
+//
 // Leandro Lucarella <leandro at lucarella.com.ar>,
 // Jesús Climent <jesus.climent at hispalinux.es>,
 // Sefanja Ruijsenaars <sefanja at gmx.net>,
@@ -16,7 +16,6 @@
 
 // ========================= MPlayer help ===========================
 
-#ifdef HELP_MP_DEFINE_STATIC
 static const char help_text[]=
 "Uso:   mplayer [opciones] [url o ruta del archivo]\n"
 "\n"
@@ -57,7 +56,6 @@ static const char help_text[]=
 "\n"
 " *** REVISE EL MANUAL PARA OTROS DETALLES, OPCIONES (AVANZADAS) Y TECLAS DE CONTROL ***\n"
 "\n";
-#endif
 
 // ========================= MPlayer messages ===========================
 
@@ -71,7 +69,7 @@ static const char help_text[]=
 #define MSGTR_NoHomeDir "No se puede encontrar el directorio HOME.\n"
 #define MSGTR_GetpathProblem "Problema en get_path(\"config\").\n"
 #define MSGTR_CreatingCfgFile "Creando archivo de configuración: %s.\n"
-#define MSGTR_BuiltinCodecsConf "Usando codecs.conf interno por omisión.\n" 
+#define MSGTR_BuiltinCodecsConf "Usando codecs.conf interno por omisión.\n"
 #define MSGTR_CantLoadFont "No se pudo cargar typografía: %s.\n"
 #define MSGTR_CantLoadSub "No se pudo cargar subtítulo: %s.\n"
 #define MSGTR_DumpSelectedStreamMissing "dump: FATAL: No se encuentró el stream seleccionado.\n"
@@ -79,7 +77,6 @@ static const char help_text[]=
 #define MSGTR_CoreDumped "Core dumped ;)\n"
 #define MSGTR_FPSnotspecified "FPS no especificado (o inválido) en la cabecera! Usa la opción -fps.\n"
 #define MSGTR_TryForceAudioFmtStr "Tratando de forzar la familia de codecs de audio %s...\n"
-#define MSGTR_RTFMCodecs "Revise el archivo DOCS/HTML/es/codecs.html!\n"
 #define MSGTR_CantFindAudioCodec "No se encontró codec para el formato de audio 0x%X!\n"
 #define MSGTR_TryForceVideoFmtStr "Tratando de forzar la familia de codecs de video %s...\n"
 #define MSGTR_CantFindVideoCodec "No se encontró codec para el formato de video 0x%X!\n"
@@ -263,7 +260,7 @@ static const char help_text[]=
 #define MSGTR_SubScale "Escalado de subtítulos: %s"
 #define MSGTR_SubVisibleStatus "Subtítulos: %s"
 #define MSGTR_SubForcedOnlyStatus "Sólo subtítulos forzados: %s"
- 
+
 // mencoder.c
 #define MSGTR_UsingPass3ControlFile "Usando el archivo de control pass3: %s\n"
 #define MSGTR_MissingFilename "\nFalta el nombre del archivo.\n\n"
@@ -478,7 +475,7 @@ static const char help_text[]=
 "                 (320 kbps de tasa de bits)\n"\
 "                 <8-320>: codificación ABR con tasa de bits en promedio en los kbps dados.\n\n"
 
-// codec-cfg.c 
+// codec-cfg.c
 #define MSGTR_DuplicateFourcc "FourCC duplicado"
 #define MSGTR_TooManyFourccs "demasiados FourCCs/formatos..."
 #define MSGTR_ParseError "error en el analísis"
@@ -843,8 +840,6 @@ static const char help_text[]=
 #define MSGTR_VO_CantCreateDirectory "No es posible crear el directorio de salida."
 #define MSGTR_VO_CantCreateFile "No es posible crear archivo de salida."
 #define MSGTR_VO_DirectoryCreateSuccess "Directorio de salida creado exitosamente."
-#define MSGTR_VO_ParsingSuboptions "Analizando subopciones."
-#define MSGTR_VO_SuboptionsParsedOK "Subopciones analizadas correctamente."
 #define MSGTR_VO_ValueOutOfRange "Valor fuera de rango"
 #define MSGTR_VO_NoValueSpecified "Valor no especificado."
 #define MSGTR_VO_UnknownSuboptions "Subopción(es) desconocida(s)"
@@ -943,7 +938,7 @@ static const char help_text[]=
 #define MSGTR_LIBVO_DXR3_XCorrection "[VO_DXR3] Xcorrection: %d.\n"
 #define MSGTR_LIBVO_DXR3_FailedSetSignalMix "[VO_DXR3] Fallé seteando el signal mix!\n"
 
-// vo_jpeg.c 
+// vo_jpeg.c
 #define MSGTR_VO_JPEG_ProgressiveJPEG "JPEG progresivo habilitado."
 #define MSGTR_VO_JPEG_NoProgressiveJPEG "JPEG progresivo deshabilitado."
 #define MSGTR_VO_JPEG_BaselineJPEG "Baseline JPEG habilitado."
@@ -953,7 +948,7 @@ static const char help_text[]=
 #define MSGTR_LIBVO_MGA_AspectResized "[VO_MGA] aspect(): redimencionado a %dx%d.\n"
 #define MSGTR_LIBVO_MGA_Uninit "[VO] uninit!\n"
 
-// mga_common.c
+// mga_template.c
 #define MSGTR_LIBVO_MGA_ErrorInConfigIoctl "[MGA] Error en mga_vid_config ioctl (versión de mga_vid.o erronea?)"
 #define MSGTR_LIBVO_MGA_CouldNotGetLumaValuesFromTheKernelModule "[MGA] No pude obtener los valores de luma desde el módulo del kernel!\n"
 #define MSGTR_LIBVO_MGA_CouldNotSetLumaValuesFromTheKernelModule "[MGA] No pude setear los valores de luma que obtuve desde el módulo del kernel!\n"
@@ -996,7 +991,7 @@ static const char help_text[]=
 #define MSGTR_LIBVO_SDL_BlitFailed "[VO_SDL] Blit falló: %s.\n"
 #define MSGTR_LIBVO_SDL_InitializationFailed "[VO_SDL] Fallo la inicialización de SDL: %s.\n"
 #define MSGTR_LIBVO_SDL_UsingDriver "[VO_SDL] Utilizando el driver: %s.\n"
- 
+
 // vo_svga.c
 #define MSGTR_LIBVO_SVGA_ForcedVidmodeNotAvailable "[VO_SVGA] El vid_mode forzado %d (%s) no esta disponible.\n"
 #define MSGTR_LIBVO_SVGA_ForcedVidmodeTooSmall "[VO_SVGA] El vid_mode forzado %d (%s) es muy pequeño.\n"
@@ -1194,7 +1189,7 @@ static const char help_text[]=
 // ao_mpegpes.c
 #define MSGTR_AO_MPEGPES_CantSetMixer "[AO MPEGPES] Fallo configurando mezclador de audio DVB:%s\n"
 #define MSGTR_AO_MPEGPES_UnsupSamplerate "[AO MPEGPES] %d Hz no soportado, trate de resamplear...\n"
- 
+
 // ao_pcm.c
 #define MSGTR_AO_PCM_FileInfo "[AO PCM] Archivo: %s (%s)\nPCM: Samplerate: %iHz Canales: %s Formato %s\n"
 #define MSGTR_AO_PCM_HintInfo "[AO PCM] Info: El volcado más rápido se logra con -vc null -vo null\nPCM: Info: Para escribir archivos de onda (WAVE) use -ao pcm:waveheader (valor por omisión).\n"
@@ -1284,10 +1279,7 @@ static const char help_text[]=
 #define MSGTR_AO_ALSA_UnableToDisableResampling "[AO_ALSA] Incapaz de deshabilitar el resampling:  %s\n"
 #define MSGTR_AO_ALSA_UnableToSetSamplerate2 "[AO_ALSA] Incapaz de establecer el samplerate-2: %s\n"
 #define MSGTR_AO_ALSA_UnableToSetBufferTimeNear "[AO_ALSA] Incapaz de establecer el tiempo del buffer: %s\n"
-#define MSGTR_AO_ALSA_UnableToSetPeriodTime "[AO_ALSA] Incapaz de establecer el período de tiempo: %s\n"
-#define MSGTR_AO_ALSA_BufferTimePeriodTime "[AO_ALSA] tiempo_buffer: %d, tiempo_período :%d\n"
 #define MSGTR_AO_ALSA_UnableToGetPeriodSize "[AO ALSA] Incapaz de obtener el tamaño del período: %s\n"
-#define MSGTR_AO_ALSA_UnableToSetPeriodSize "[AO ALSA] Incapaz de establecer el tamaño del período(%ld): %s\n"
 #define MSGTR_AO_ALSA_UnableToSetPeriods "[AO_ALSA] Incapaz de establecer períodos: %s\n"
 #define MSGTR_AO_ALSA_UnableToSetHwParameters "[AO_ALSA] Incapaz de establecer parámatros de hw: %s\n"
 #define MSGTR_AO_ALSA_UnableToGetBufferSize "[AO_ALSA] Incapaz de obtener el tamaño del buffer: %s\n"
@@ -1381,7 +1373,7 @@ static const char help_text[]=
 #define MSGTR_INPUT_INPUT_ErrCantOpenFile "No se puede abrir %s: %s\n"
 #define MSGTR_INPUT_INPUT_ErrCantInitAppleRemote "No se puede inicializar la entrada del Apple Remote.\n"
 
-// lirc.c 
+// lirc.c
 #define MSGTR_SettingUpLIRC "Configurando soporte para LIRC...\n"
 #define MSGTR_LIRCopenfailed "Fallo al abrir el soporte para LIRC.\n"
 #define MSGTR_LIRCcfgerr "Fallo al leer archivo de configuración de LIRC %s.\n"
@@ -1407,7 +1399,7 @@ static const char help_text[]=
 #define MSGTR_TooManyAudioInBuffer "\nDEMUXER: Demasiados (%d en %d bytes) paquetes de audio en el buffer!\n"
 #define MSGTR_TooManyVideoInBuffer "\nDEMUXER: Demasiados (%d en %d bytes) paquetes de video en el buffer!\n"
 #define MSGTR_MaybeNI "¿Estás reproduciendo un stream o archivo 'non-interleaved' o falló el codec?\n " \
-		"Para archivos .AVI, intente forzar el modo 'non-interleaved' con la opción -ni.\n"
+                "Para archivos .AVI, intente forzar el modo 'non-interleaved' con la opción -ni.\n"
 #define MSGTR_WorkAroundBlockAlignHeaderBug "AVI: Rodeo CBR-MP3 nBlockAlign"
 #define MSGTR_SwitchToNi "\nDetectado .AVI mal interleaveado - cambiando al modo -ni!\n"
 #define MSGTR_InvalidAudioStreamNosound "AVI: flujo de audio inválido ID: %d - ignorado (sin sonido)\n"
@@ -1619,8 +1611,6 @@ static const char help_text[]=
 
 // vd.c
 #define MSGTR_CodecDidNotSet "VDec: el codec no declaró sh->disp_w y sh->disp_h, intentando solucionarlo!\n"
-#define MSGTR_VoConfigRequest "VDec: vo solicitud de config - %d x %d (csp preferida: %s).\n"
-#define MSGTR_UsingXAsOutputCspNoY "VDec: usando %s como salida csp (no %d)\n"
 #define MSGTR_CouldNotFindColorspace "No se pudo encontrar colorspace concordante - reintentando escalado -vf...\n"
 #define MSGTR_MovieAspectIsSet "Aspecto es %.2f:1 - prescalando a aspecto correcto.\n"
 #define MSGTR_MovieAspectUndefined "Aspecto de película no es definido - no se ha aplicado prescalado.\n"
@@ -1737,7 +1727,7 @@ static const char help_text[]=
 
 #define MSGTR_MPDEMUX_CDDA_CantOpenCDDADevice "No puede abrir el dispositivo CDA.\n"
 #define MSGTR_MPDEMUX_CDDA_CantOpenDisc "No pude abrir el disco.\n"
-#define MSGTR_MPDEMUX_CDDA_AudioCDFoundWithNTracks "Encontre un disco de audio con %ld pistas.\n"
+#define MSGTR_MPDEMUX_CDDA_AudioCDFoundWithNTracks "Encontre un disco de audio con %d pistas.\n"
 
 // cddb.c
 
@@ -2083,7 +2073,7 @@ static const char help_text[]=
 #define MSGTR_LIBASS_ErrorRecodingFile "[ass] error recodificando el fichero.\n"
 #define MSGTR_LIBASS_FopenFailed "[ass] ass_read_file(%s): fopen ha fallado\n"
 #define MSGTR_LIBASS_FseekFailed "[ass] ass_read_file(%s): fseek ha fallado\n"
-#define MSGTR_LIBASS_RefusingToLoadSubtitlesLargerThan10M "[ass] ass_read_file(%s): No se pueden cargar ficheros de subtítulos mayores de 10M\n"
+#define MSGTR_LIBASS_RefusingToLoadSubtitlesLargerThan100M "[ass] ass_read_file(%s): No se pueden cargar ficheros de subtítulos mayores de 100M\n"
 #define MSGTR_LIBASS_ReadFailed "La lectura ha fallado, %d: %s\n"
 #define MSGTR_LIBASS_AddedSubtitleFileMemory "[ass] Añadido fichero de subtítulos: <memoria> (%d estilos, %d eventos)\n"
 #define MSGTR_LIBASS_AddedSubtitleFileFname "[ass] Añadido fichero de subtítulos: %s (%d estilos, %d eventos)\n"
@@ -2131,4 +2121,3 @@ static const char help_text[]=
 #define MSGTR_LIBASS_ErrorOpeningMemoryFont "[ass] Error abriendo la fuente en memoria: %s\n"
 #define MSGTR_LIBASS_NoCharmaps "[ass] Este font face no tiene charmaps\n"
 #define MSGTR_LIBASS_NoCharmapAutodetected "[ass] No se detectó un charmap automaticamente, probando con el primero\n"
-

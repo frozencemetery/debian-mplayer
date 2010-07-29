@@ -40,7 +40,7 @@
 #include "mp_msg.h"
 #include "video_out.h"
 #include "video_out_internal.h"
-#include "mplayer.h"			/* for exit_player() */
+#include "mp_core.h"			/* for exit_player() */
 #include "help_mp.h"
 #include "libavutil/md5.h"
 
@@ -86,7 +86,7 @@ int framenum = 0;
 
 static void md5sum_write_error(void) {
     mp_msg(MSGT_VO, MSGL_ERR, MSGTR_ErrorWritingFile, info.short_name);
-    exit_player(MSGTR_Exit_error);
+    exit_player(EXIT_ERROR);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -112,8 +112,8 @@ static int preinit(const char *arg)
         {NULL, 0, NULL, NULL}
     };
 
-    mp_msg(MSGT_VO, MSGL_INFO, "%s: %s\n", info.short_name,
-                                            MSGTR_VO_ParsingSuboptions);
+    mp_msg(MSGT_VO, MSGL_V, "%s: %s\n", info.short_name,
+           "Parsing suboptions.");
 
     md5sum_outfile = strdup("md5sums");
     if (subopt_parse(arg, subopts) != 0) {
@@ -123,8 +123,8 @@ static int preinit(const char *arg)
     mp_msg(MSGT_VO, MSGL_V, "%s: outfile --> %s\n", info.short_name,
                                                             md5sum_outfile);
 
-    mp_msg(MSGT_VO, MSGL_INFO, "%s: %s\n", info.short_name,
-                                            MSGTR_VO_SuboptionsParsedOK);
+    mp_msg(MSGT_VO, MSGL_V, "%s: %s\n", info.short_name,
+           "Suboptions parsed OK.");
     return 0;
 }
 
@@ -152,7 +152,7 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
                 MSGTR_VO_CantCreateFile);
         mp_msg(MSGT_VO, MSGL_ERR, "%s: %s: %s\n",
                 info.short_name, MSGTR_VO_GenericError, strerror(errno) );
-        exit_player(MSGTR_Exit_error);
+        exit_player(EXIT_ERROR);
     }
 
     return 0;
@@ -219,6 +219,8 @@ static uint32_t draw_image(mp_image_t *mpi)
             h = h / 2;
             for (i=0; i<h; i++) {
                 av_md5_update(md5_context, planeU + i * strideU, w);
+            }
+            for (i=0; i<h; i++) {
                 av_md5_update(md5_context, planeV + i * strideV, w);
             }
             av_md5_final(md5_context, md5sum);
@@ -229,7 +231,7 @@ static uint32_t draw_image(mp_image_t *mpi)
         }
     } else { /* Packed */
         if (mpi->flags & MP_IMGFLAG_YUV) { /* Packed YUV */
-            
+
             return VO_FALSE;
         } else { /* Packed RGB */
             av_md5_sum(md5sum, rgbimage, mpi->w * (mpi->bpp >> 3) * mpi->h);
@@ -311,4 +313,3 @@ static void flip_page (void)
 #undef MD5SUM_YUV_MODE
 
 /* ------------------------------------------------------------------------- */
-

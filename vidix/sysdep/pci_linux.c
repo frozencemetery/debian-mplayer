@@ -27,17 +27,15 @@
  */
 
 #include <errno.h>
-#ifdef __i386__
+#if ARCH_X86
 //#include <sys/perm.h> doesn't exist on libc5 systems
-int iopl();
+int iopl(int level);
+#elif defined(__sh__)
+#define iopl(x) 1
 #else
 #if !defined(__sparc__) && !defined(__powerpc__) && !defined(__x86_64__)
 #include <sys/io.h>
 #endif
-#endif
-
-#ifdef __sh__
-#define iopl(x) 1
 #endif
 
 #include "config.h"
@@ -50,9 +48,7 @@ int dhahelper_fd = 0;
 
 #ifdef CONFIG_SVGAHELPER
 #include <svgalib_helper.h>
-#ifdef __linux__
 #include <linux/ioctl.h>
-#endif
 #include <fcntl.h>
 #ifndef SVGALIB_HELPER_IOC_MAGIC
 /* svgalib 1.9.18+ compatibility ::atmos */
@@ -69,14 +65,14 @@ static int pci_config_type(void)
 static long pci_config_read_long(
           unsigned char bus,
           unsigned char dev,
-          int func, 
+          int func,
           unsigned cmd)
 {
     pcic_t p;
-    
+
     p.address = cmd;
     p.pcipos = (bus << 8) | dev | (func << 5);
-    
+
     if (ioctl(svgahelper_fd, SVGALIB_HELPER_IOCGPCIINL, &p))
 	return -1;
 
@@ -114,12 +110,12 @@ static __inline__ int enable_os_io(void)
     dhahelper_initialized = -1;
 #endif
 
-#if defined(__powerpc__) && defined(__linux__)
+#ifdef __powerpc__
 /* should be fixed? */
-#else    
+#else
     if (iopl(3) != 0)
 	return errno;
-#endif    
+#endif
     return 0;
 }
 
@@ -135,25 +131,25 @@ static __inline__ int disable_os_io(void)
 	close(dhahelper_fd);
     else
 #endif
-#if defined(__powerpc__) && defined(__linux__)
+#ifdef __powerpc__
 /* should be fixed? */
-#else    
+#else
     if (iopl(0) != 0)
 	return errno;
-#endif    
+#endif
     return 0;
 }
 
 #if (defined(__powerpc__) || defined(__sparc__) || defined(__sparc64__) \
-    || defined(__x86_64__) || defined(__sh__)) && defined(__linux__) && !defined(CONFIG_SVGAHELPER)
+    || defined(__x86_64__) || defined(__sh__)) && !defined(CONFIG_SVGAHELPER)
 #define CONFIG_PCI_LINUX_PROC
 #endif
 
 #if defined(CONFIG_PCI_LINUX_PROC)
 static int pci_config_type( void ) { return 1; }
 
-/* pci operations for (powerpc) Linux 
-   questions, suggestions etc: 
+/* pci operations for (powerpc) Linux
+   questions, suggestions etc:
    mplayer-dev-eng@mplayerhq.hu, colin@colino.net*/
 #include <fcntl.h>
 //#include <sys/io.h>
@@ -179,11 +175,11 @@ static int pci_get_vendor(
              pread(fd, &device, 2, PCI_DEVICE_ID) == 2) {
 	    vendor = le2me_16(vendor);
 	    device = le2me_16(device);
-	    retval = vendor + (device<<16); /*no worries about byte order, 
+	    retval = vendor + (device<<16); /*no worries about byte order,
 	    				      all ppc are bigendian*/
     } else {
 	    retval = 0xFFFF;
-    }   
+    }
     if (fd > 0) {
 	    close(fd);
     }
@@ -193,7 +189,7 @@ static int pci_get_vendor(
 static long pci_config_read_long(
           unsigned char bus,
           unsigned char dev,
-          int func, 
+          int func,
           unsigned cmd)
 {
     long retval;
@@ -208,7 +204,7 @@ static long pci_config_read_long(
 	    retval = le2me_32(retval);
     } else {
 	    retval = 0;
-    }   
+    }
     if (fd > 0) {
 	    close(fd);
     }

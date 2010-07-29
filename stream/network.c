@@ -1,7 +1,23 @@
 /*
  * Network layer for MPlayer
- * by Bertrand BAUDET <bertrand_baudet@yahoo.com>
- * (C) 2001, MPlayer team.
+ *
+ * Copyright (C) 2001 Bertrand Baudet <bertrand_baudet@yahoo.com>
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 //#define DUMP2FILE
@@ -27,14 +43,12 @@
 #include "stream.h"
 #include "libmpdemux/demuxer.h"
 #include "m_config.h"
-
+#include "mpcommon.h"
 #include "network.h"
 #include "tcp.h"
 #include "http.h"
 #include "cookies.h"
 #include "url.h"
-
-#include "version.h"
 
 extern int stream_cache_size;
 
@@ -46,12 +60,22 @@ char *network_password=NULL;
 int   network_bandwidth=0;
 int   network_cookies_enabled = 0;
 char *network_useragent=NULL;
+char *network_referrer=NULL;
 
 /* IPv6 options */
 int   network_ipv4_only_proxy = 0;
 
 
 const mime_struct_t mime_type_table[] = {
+#ifdef CONFIG_LIBAVFORMAT
+	// Flash Video
+	{ "video/x-flv", DEMUXER_TYPE_LAVF_PREFERRED},
+	// do not force any demuxer in this case!
+	// we want the lavf demuxer to be tried first (happens automatically anyway),
+	// but for mov reference files to work we must also try
+	// the native demuxer if lavf fails.
+	{ "video/quicktime", 0 },
+#endif
 	// MP3 streaming, some MP3 streaming server answer with audio/mpeg
 	{ "audio/mpeg", DEMUXER_TYPE_AUDIO },
 	// MPEG streaming
@@ -85,10 +109,6 @@ const mime_struct_t mime_type_table[] = {
 	// NullSoft Streaming Video
 	{ "video/nsv", DEMUXER_TYPE_NSV},
 	{ "misc/ultravox", DEMUXER_TYPE_NSV},
-#ifdef CONFIG_LIBAVFORMAT
-	// Flash Video
-	{ "video/x-flv", DEMUXER_TYPE_LAVF},
-#endif
 	{ NULL, DEMUXER_TYPE_UNKNOWN},
 };
 
@@ -139,7 +159,7 @@ check4proxies( URL_t *url ) {
 					MSGTR_MPDEMUX_NW_InvalidProxySettingTryingWithout);
 				return url_out;
 			}
-			
+
 #ifdef HAVE_AF_INET6
 			if (network_ipv4_only_proxy && (gethostbyname(url->hostname)==NULL)) {
 				mp_msg(MSGT_NETWORK,MSGL_WARN,
@@ -198,24 +218,39 @@ http_send_request( URL_t *url, off_t pos ) {
 	    snprintf(str, 256, "Host: %s", server_url->hostname );
 	http_set_field( http_hdr, str);
 	if (network_useragent)
-	{
 	    snprintf(str, 256, "User-Agent: %s", network_useragent);
-	    http_set_field(http_hdr, str);
-	}
 	else
-	    http_set_field( http_hdr, "User-Agent: MPlayer/"VERSION);
+	    snprintf(str, 256, "User-Agent: %s", mplayer_version);
+        http_set_field(http_hdr, str);
+
+	if (network_referrer) {
+	    char *referrer = NULL;
+	    size_t len = strlen(network_referrer) + 10;
+
+	    // Check len to ensure we don't do something really bad in case of an overflow
+	    if (len > 10)
+		referrer = malloc(len);
+
+	    if (referrer == NULL) {
+		mp_msg(MSGT_NETWORK, MSGL_FATAL, MSGTR_MemAllocFailed);
+	    } else {
+		snprintf(referrer, len, "Referer: %s", network_referrer);
+		http_set_field(http_hdr, referrer);
+		free(referrer);
+	    }
+	}
 
 	if( strcasecmp(url->protocol, "noicyx") )
 	    http_set_field(http_hdr, "Icy-MetaData: 1");
 
-	if(pos>0) { 
+	if(pos>0) {
 	// Extend http_send_request with possibility to do partial content retrieval
 	    snprintf(str, 256, "Range: bytes=%"PRId64"-", (int64_t)pos);
 	    http_set_field(http_hdr, str);
 	}
-	    
+
 	if (network_cookies_enabled) cookies_set( http_hdr, server_url->hostname, server_url->url );
-	
+
 	http_set_field( http_hdr, "Connection: close");
 	http_add_basic_authentication( http_hdr, url->username, url->password );
 	if( http_build_request( http_hdr )==NULL ) {
@@ -235,13 +270,13 @@ http_send_request( URL_t *url, off_t pos ) {
 		goto err_out;
 	}
 	mp_msg(MSGT_NETWORK,MSGL_DBG2,"Request: [%s]\n", http_hdr->buffer );
-	
-	ret = send( fd, http_hdr->buffer, http_hdr->buffer_size, 0 );
+
+	ret = send( fd, http_hdr->buffer, http_hdr->buffer_size, DEFAULT_SEND_FLAGS );
 	if( ret!=(int)http_hdr->buffer_size ) {
 		mp_msg(MSGT_NETWORK,MSGL_ERR,MSGTR_MPDEMUX_NW_ErrSendingHTTPRequest);
 		goto err_out;
 	}
-	
+
 	http_free( http_hdr );
 
 	return fd;
@@ -265,7 +300,7 @@ http_read_response( int fd ) {
 	}
 
 	do {
-		i = recv( fd, response, BUFFER_SIZE, 0 ); 
+		i = recv( fd, response, BUFFER_SIZE, 0 );
 		if( i<0 ) {
 			mp_msg(MSGT_NETWORK,MSGL_ERR,MSGTR_MPDEMUX_NW_ReadFailed);
 			http_free( http_hdr );
@@ -277,8 +312,11 @@ http_read_response( int fd ) {
 			return NULL;
 		}
 		http_response_append( http_hdr, response, i );
-	} while( !http_is_header_entire( http_hdr ) ); 
-	http_response_parse( http_hdr );
+	} while( !http_is_header_entire( http_hdr ) );
+	if (http_response_parse( http_hdr ) < 0) {
+		http_free( http_hdr );
+		return NULL;
+	}
 	return http_hdr;
 }
 
@@ -340,12 +378,15 @@ http_seek( stream_t *stream, off_t pos ) {
 	if( stream==NULL ) return 0;
 
 	if( stream->fd>0 ) closesocket(stream->fd); // need to reconnect to seek in http-stream
-	fd = http_send_request( stream->streaming_ctrl->url, pos ); 
+	fd = http_send_request( stream->streaming_ctrl->url, pos );
 	if( fd<0 ) return 0;
 
 	http_hdr = http_read_response( fd );
 
 	if( http_hdr==NULL ) return 0;
+
+	if( mp_msg_test(MSGT_NETWORK,MSGL_V) )
+		http_debug_hdr( http_hdr );
 
 	switch( http_hdr->status_code ) {
 		case 200:
@@ -361,7 +402,7 @@ http_seek( stream_t *stream, off_t pos ) {
 			break;
 		default:
 			mp_msg(MSGT_NETWORK,MSGL_ERR,MSGTR_MPDEMUX_NW_ErrServerReturned, http_hdr->status_code, http_hdr->reason_phrase );
-			close( fd );
+			closesocket( fd );
 			fd = -1;
 	}
 	stream->fd = fd;
@@ -420,7 +461,7 @@ nop_streaming_read( int fd, char *buffer, int size, streaming_ctrl_t *stream_ctr
 		len += ret;
 //printf("read %d bytes from network\n", len );
 	}
-	
+
 	return len;
 }
 
@@ -446,9 +487,3 @@ void fixup_network_stream_cache(stream_t *stream) {
   }
 }
 
-
-int
-streaming_stop( stream_t *stream ) {
-	stream->streaming_ctrl->status = streaming_stopped_e;
-	return 0;
-}

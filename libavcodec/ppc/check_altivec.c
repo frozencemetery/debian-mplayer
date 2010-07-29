@@ -18,7 +18,7 @@
 
 
 /**
- * @file libavcodec/ppc/check_altivec.c
+ * @file
  * Checks for AltiVec presence.
  */
 
@@ -34,6 +34,9 @@
 #include <interfaces/exec.h>
 #include <proto/exec.h>
 #endif /* __APPLE__ */
+
+#include "config.h"
+#include "dsputil_altivec.h"
 
 /**
  * This function MAY rely on signal() or fork() in order to make sure AltiVec

@@ -1,3 +1,20 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include "config.h"
 #include "mp_msg.h"
@@ -22,7 +39,7 @@ demuxer_t*  new_demuxers_demuxer(demuxer_t* vd, demuxer_t* ad, demuxer_t* sd) {
   dd_priv_t* priv;
 
   ret = calloc(1,sizeof(demuxer_t));
-  
+
   priv = malloc(sizeof(dd_priv_t));
   priv->vd = vd;
   priv->ad = ad;
@@ -33,10 +50,19 @@ demuxer_t*  new_demuxers_demuxer(demuxer_t* vd, demuxer_t* ad, demuxer_t* sd) {
   // Video is the most important :-)
   ret->stream = vd->stream;
   ret->seekable = vd->seekable && ad->seekable && sd->seekable;
- 
+
   ret->video = vd->video;
   ret->audio = ad->audio;
   ret->sub = sd->sub;
+  if (sd && sd != vd && sd != ad) sd->sub->non_interleaved = 1;
+
+  // without these, demux_demuxers_fill_buffer will never be called,
+  // but they break the demuxer-specific code in video.c
+#if 0
+  if (vd) vd->video->demuxer = ret;
+  if (ad) ad->audio->demuxer = ret;
+  if (sd) sd->sub->demuxer = ret;
+#endif
 
   // HACK?, necessary for subtitle (and audio and video when implemented) switching
   memcpy(ret->v_streams, vd->v_streams, sizeof(ret->v_streams));
@@ -53,13 +79,17 @@ static int demux_demuxers_fill_buffer(demuxer_t *demux,demux_stream_t *ds) {
 
   priv=demux->priv;
 
-  if(ds->demuxer == priv->vd)
+  // HACK: make sure the subtitles get properly interleaved if with -subfile
+  if (priv->sd && priv->sd->sub != ds &&
+      priv->sd != priv->vd && priv->sd != priv->ad)
+    ds_get_next_pts(priv->sd->sub);
+  if(priv->vd && priv->vd->video == ds)
     return demux_fill_buffer(priv->vd,ds);
-  else if(ds->demuxer == priv->ad)
+  else if(priv->ad && priv->ad->audio == ds)
     return demux_fill_buffer(priv->ad,ds);
-  else if(ds->demuxer == priv->sd)
+  else if(priv->sd && priv->sd->sub == ds)
     return demux_fill_buffer(priv->sd,ds);
- 
+
   mp_msg(MSGT_DEMUX,MSGL_WARN,MSGTR_MPDEMUX_DEMUXERS_FillBufferError);
   return 0;
 }
@@ -115,7 +145,7 @@ static void demux_close_demuxers(demuxer_t* demuxer) {
 
   free(priv);
 }
-  
+
 
 static int demux_demuxers_control(demuxer_t *demuxer,int cmd, void *arg){
   dd_priv_t* priv = demuxer->priv;

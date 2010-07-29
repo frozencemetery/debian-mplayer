@@ -7,7 +7,6 @@
 
 // ========================= Aide MPlayer ===========================
 
-#ifdef HELP_MP_DEFINE_STATIC
 static const char help_text[]=
 "Utilisation :      mplayer [options] [url|répertoire/]fichier\n"
 "\n"
@@ -47,13 +46,12 @@ static const char help_text[]=
 "\n"
 " * * * VOIR PAGE MAN POUR DÉTAILS, AUTRES OPTIONS (AVANCÉES) ET TOUCHES * * *\n"
 "\n";
-#endif
 
 #define MSGTR_SamplesWanted "Échantillons ce format demandés pour améliorer support. Contacter developpeurs.\n"
 
 // ========================= Messages MPlayer ===========================
 
-// mplayer.c: 
+// mplayer.c:
 
 #define MSGTR_Exiting "\nSortie...\n"
 #define MSGTR_ExitingHow "\nSortie... (%s)\n"
@@ -73,7 +71,6 @@ static const char help_text[]=
 #define MSGTR_FPSnotspecified "FPS non spécifié dans l'entête ou invalide ! Utilisez l'option -fps.\n"
 #define MSGTR_TryForceAudioFmtStr "Tente de forcer la famille de codecs audio %s ...\n"
 #define MSGTR_CantFindAudioCodec "Ne peut trouver de codec pour le format audio 0x%X.\n"
-#define MSGTR_RTFMCodecs "Veuillez lire DOCS/HTML/fr/codecs.html !\n"
 #define MSGTR_TryForceVideoFmtStr "Tente de forcer la famille de codecs vidéo %s  ...\n"
 #define MSGTR_CantFindVideoCodec "Ne peut trouver codec pour format -vo sélectionné et vidéo 0x%X.\n"
 #define MSGTR_CannotInitVO "FATAL : Ne peut initialiser le pilote vidéo.\n"
@@ -689,7 +686,6 @@ static const char help_text[]=
 
 // vd.c
 #define MSGTR_CodecDidNotSet "VDec : le codec n'a pas défini sh->disp_w et sh->disp_h, essai de contournement !\n"
-#define MSGTR_VoConfigRequest "VDec : requête de config de vo - %d x %d (espace colorimétrique préferé : %s)\n"
 #define MSGTR_CouldNotFindColorspace "N'a pas pu trouver espace colorimétrique correspondant - nouvel essai avec -vf scale...\n"
 #define MSGTR_MovieAspectIsSet "L'aspect du film est %.2f:1 - pré-redimensionnement à l'aspect correct.\n"
 #define MSGTR_MovieAspectUndefined "L'aspect du film est indéfini - pas de pré-dimensionnement appliqué.\n"
@@ -1017,8 +1013,6 @@ static const char help_text[]=
 #define MSGTR_VO_CantCreateDirectory "Impossible de créer répertoire de sortie."
 #define MSGTR_VO_CantCreateFile "Impossible de créer fichier de sortie."
 #define MSGTR_VO_DirectoryCreateSuccess "Répertoire de sortie créé avec succès."
-#define MSGTR_VO_ParsingSuboptions "Analyse de sous-options."
-#define MSGTR_VO_SuboptionsParsedOK "sous-options analysées OK."
 #define MSGTR_VO_ValueOutOfRange "Valeur hors plage"
 #define MSGTR_VO_NoValueSpecified "Aucune valeur spécifiée."
 #define MSGTR_VO_UnknownSuboptions "Sous-option(s) inconnue(s)"
@@ -1084,7 +1078,7 @@ static const char help_text[]=
 
 // ======================= AO Pilote Sortie Audio ========================
 
-// libao2 
+// libao2
 
 // audio_out.c
 #define MSGTR_AO_ALSA9_1x_Removed "audio_out : modules alsa9 et alsa1x enlevés, utiliser plutôt -ao alsa.\n"
@@ -1213,10 +1207,7 @@ static const char help_text[]=
 #define MSGTR_AO_ALSA_UnableToDisableResampling "[AO_ALSA] Impossible de désactiver resampling : %s\n"
 #define MSGTR_AO_ALSA_UnableToSetSamplerate2 "[AO_ALSA] Impossible de fixer samplerate-2 : %s\n"
 #define MSGTR_AO_ALSA_UnableToSetBufferTimeNear "[AO_ALSA] Impossible de fixer le temps du tampon le plus poche : %s\n"
-#define MSGTR_AO_ALSA_UnableToSetPeriodTime "[AO_ALSA] Impossible de fixer la durée de la période : %s\n"
-#define MSGTR_AO_ALSA_BufferTimePeriodTime "[AO_ALSA] Tampon/temps : %d, période/temps : %d\n"
 #define MSGTR_AO_ALSA_UnableToGetPeriodSize "[AO ALSA] Obtention impossible de la grandeur de la période : %s\n"
-#define MSGTR_AO_ALSA_UnableToSetPeriodSize "[AO ALSA] Impossible de fixer la taille de la période(%ld) : %s\n"
 #define MSGTR_AO_ALSA_UnableToSetPeriods "[AO_ALSA] Impossible de fixer les périodes : %s\n"
 #define MSGTR_AO_ALSA_UnableToSetHwParameters "[AO_ALSA] Impossible de fixer hw-parameters : %s\n"
 #define MSGTR_AO_ALSA_UnableToGetBufferSize "[AO_ALSA] Obtention impossible de la taille du tampon : %s\n"
@@ -1245,7 +1236,7 @@ static const char help_text[]=
 
 // ======================= AF Filtres Audio ================================
 
-// libaf 
+// libaf
 #define MSGTR_AF_ValueOutOfRange MSGTR_VO_ValueOutOfRange
 
 // af_ladspa.c
@@ -1464,7 +1455,7 @@ static const char help_text[]=
 
 #define MSGTR_MPDEMUX_CDDA_CantOpenCDDADevice "Impossible ouvrir périphérique CDDA.\n"
 #define MSGTR_MPDEMUX_CDDA_CantOpenDisc "Impossible ouvrir disque.\n"
-#define MSGTR_MPDEMUX_CDDA_AudioCDFoundWithNTracks "CD audio trouvé avec %ld pistes.\n"
+#define MSGTR_MPDEMUX_CDDA_AudioCDFoundWithNTracks "CD audio trouvé avec %d pistes.\n"
 
 // cddb.c
 
@@ -1686,7 +1677,7 @@ static const char help_text[]=
 
 // ================================== LIBMPVO ====================================
 
-// mga_common.c
+// mga_template.c
 
 #define MSGTR_LIBVO_MGA_ErrorInConfigIoctl "[MGA] Erreur dans mga_vid_config ioctl (mauvaise version de mga_vid.o ?)"
 #define MSGTR_LIBVO_MGA_CouldNotGetLumaValuesFromTheKernelModule "[MGA] Impossible d'avoir les valeurs de luma depuis le module du noyau !\n"
@@ -2010,7 +2001,7 @@ static const char help_text[]=
 #define MSGTR_LIBASS_ErrorRecodingFile "[ass] erreur lors de l'enregistrement du fichier.\n"
 #define MSGTR_LIBASS_FopenFailed "[ass] ass_read_file(%s) : fopen a échoué\n"
 #define MSGTR_LIBASS_FseekFailed "[ass] ass_read_file(%s) : fseek à échoué\n"
-#define MSGTR_LIBASS_RefusingToLoadSubtitlesLargerThan10M "[ass] ass_read_file(%s) : Chargement des fichiers plus grands que 10Mo refusé\n"
+#define MSGTR_LIBASS_RefusingToLoadSubtitlesLargerThan100M "[ass] ass_read_file(%s) : Chargement des fichiers plus grands que 100Mo refusé\n"
 #define MSGTR_LIBASS_ReadFailed "Lecture impossible, %d: %s\n"
 #define MSGTR_LIBASS_AddedSubtitleFileMemory "[ass] Ajout d'un fichier de sous-titres : <memory> (%d styles, %d évènements)\n"
 #define MSGTR_LIBASS_AddedSubtitleFileFname "[ass] Ajout d'un fichier de sous-titres : %s (%d styles, %d events)\n"
