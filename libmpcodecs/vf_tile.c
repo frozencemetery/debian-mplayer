@@ -28,7 +28,23 @@
  *
  * Probably is good to put the scale filter before the tile :-)
  *
- *     Daniele Forghieri ( guru@digitalfantasy.it )
+ * copyright (c) 2003 Daniele Forghieri ( guru@digitalfantasy.it )
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 // strtoi memcpy_pic
@@ -68,7 +84,7 @@ struct vf_priv_s {
 };
 
 
-static int config(struct vf_instance_s* vf,
+static int config(struct vf_instance *vf,
                   int width, int height, int d_width, int d_height,
 	          unsigned int flags, unsigned int outfmt){
 
@@ -91,7 +107,7 @@ static int config(struct vf_instance_s* vf,
 }
 
 /* Filter handler */
-static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts)
+static int put_image(struct vf_instance *vf, mp_image_t *mpi, double pts)
 {
     mp_image_t        *dmpi;
     struct vf_priv_s  *priv;
@@ -176,22 +192,24 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts)
     }
 }
 
-static void uninit(struct vf_instance_s* vf)
+static void uninit(struct vf_instance *vf)
 {
     /* free local data */
     free(vf->priv);
 }
 
-/* rgb/bgr 15->32 supported & some Yxxx */
-static int query_format(struct vf_instance_s* vf, unsigned int fmt)
+/* rgb/bgr 12...32 supported & some Yxxx */
+static int query_format(struct vf_instance *vf, unsigned int fmt)
 {
 	switch (fmt) {
-        /* rgb 15 -> 32 bit */
+        /* rgb 12...32 bit */
+        case IMGFMT_RGB12:
         case IMGFMT_RGB15:
 	case IMGFMT_RGB16:
 	case IMGFMT_RGB24:
         case IMGFMT_RGB32:
-        /* bgr 15 -> 32 bit */
+        /* bgr 12...32 bit */
+        case IMGFMT_BGR12:
 	case IMGFMT_BGR15:
 	case IMGFMT_BGR16:
 	case IMGFMT_BGR24:
@@ -215,7 +233,7 @@ static int query_format(struct vf_instance_s* vf, unsigned int fmt)
  * If the value is less then 0 def_val is used.
  * Return 0 for ok
  *
- * Look below ( in open(...) ) for a use ...
+ * Look below ( in vf_open(...) ) for a use ...
  */
 static int parse_int(char **s, int *rt, int def_val)
 {
@@ -250,7 +268,7 @@ static int parse_int(char **s, int *rt, int def_val)
 }
 
 /* Main entry funct for the filter */
-static int open(vf_instance_t *vf, char* args)
+static int vf_open(vf_instance_t *vf, char *args)
 {
     struct vf_priv_s *p;
     int              er;
@@ -307,6 +325,6 @@ const vf_info_t vf_info_tile = {
     "tile",
     "Daniele Forghieri",
     "",
-    open,
+    vf_open,
     NULL
 };

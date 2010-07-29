@@ -1,16 +1,32 @@
-/* SPUdec.c
-   Skeleton of function spudec_process_controll() is from xine sources.
-   Further works:
-   LGB,... (yeah, try to improve it and insert your name here! ;-)
-
-   Kim Minh Kaplan
-   implement fragments reassembly, RLE decoding.
-   read brightness from the IFO.
-
-   For information on SPU format see <URL:http://sam.zoy.org/doc/dvd/subtitles/>
-   and <URL:http://members.aol.com/mpucoder/DVD/spu.html>
-
+/*
+ * Skeleton of function spudec_process_controll() is from xine sources.
+ * Further works:
+ * LGB,... (yeah, try to improve it and insert your name here! ;-)
+ *
+ * Kim Minh Kaplan
+ * implement fragments reassembly, RLE decoding.
+ * read brightness from the IFO.
+ *
+ * For information on SPU format see <URL:http://sam.zoy.org/doc/dvd/subtitles/>
+ * and <URL:http://members.aol.com/mpucoder/DVD/spu.html>
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 #include "config.h"
 #include "mp_msg.h"
 
@@ -21,6 +37,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
+#include "libvo/sub.h"
 #include "libvo/video_out.h"
 #include "spudec.h"
 #include "vobsub.h"
@@ -39,7 +56,6 @@
 int spu_aamode = 3;
 int spu_alignment = -1;
 float spu_gaussvar = 1.0;
-extern int sub_pos;
 
 typedef struct packet_t packet_t;
 struct packet_t {
@@ -158,15 +174,10 @@ static inline unsigned char get_nibble(packet_t *packet)
 static inline int mkalpha(int i)
 {
   /* In mplayer's alpha planes, 0 is transparent, then 1 is nearly
-     opaque upto 255 which is transparent */
-  switch (i) {
-  case 0xf:
-    return 1;
-  case 0:
-    return 0;
-  default:
-    return (0xf - i) << 4;
-  }
+     opaque upto 255 which is fully opaque */
+  // extend 4 -> 8 bit
+  i |= i << 4;
+  return (uint8_t)(-i);
 }
 
 /* Cut the sub to visible part */
@@ -196,7 +207,7 @@ static inline void spudec_cut_image(spudec_handle_t *this)
 	  this->image_size = 0;
 	  return;
   }
-  
+
 //  printf("new h %d new start %d (sz %d st %d)---\n\n", this->height, this->start_row, this->image_size, this->stride);
 
   image = malloc(2 * this->stride * this->height);
@@ -211,6 +222,27 @@ static inline void spudec_cut_image(spudec_handle_t *this)
   } else {
     mp_msg(MSGT_SPUDEC, MSGL_FATAL, "Fatal: update_spu: malloc requested %d bytes\n", 2 * this->stride * this->height);
   }
+}
+
+
+static int spudec_alloc_image(spudec_handle_t *this, int stride, int height)
+{
+  if (this->width > stride) // just a safeguard
+    this->width = stride;
+  this->stride = stride;
+  this->height = height;
+  if (this->image_size < this->stride * this->height) {
+    if (this->image != NULL) {
+      free(this->image);
+      this->image_size = 0;
+    }
+    this->image = malloc(2 * this->stride * this->height);
+    if (this->image) {
+      this->image_size = this->stride * this->height;
+      this->aimage = this->image + this->image_size;
+    }
+  }
+  return this->image != NULL;
 }
 
 static void spudec_process_data(spudec_handle_t *this, packet_t *packet)
@@ -245,18 +277,7 @@ static void spudec_process_data(spudec_handle_t *this, packet_t *packet)
     }
   }
 
-  if (this->image_size < this->stride * this->height) {
-    if (this->image != NULL) {
-      free(this->image);
-      this->image_size = 0;
-    }
-    this->image = malloc(2 * this->stride * this->height);
-    if (this->image) {
-      this->image_size = this->stride * this->height;
-      this->aimage = this->image + this->image_size;
-    }
-  }
-  if (this->image == NULL)
+  if (!spudec_alloc_image(this, this->stride, this->height))
     return;
 
   /* Kludge: draw_alpha needs width multiple of 8. */
@@ -343,7 +364,7 @@ static void compute_palette(spudec_handle_t *this, packet_t *packet)
 
 static void spudec_process_control(spudec_handle_t *this, int pts100)
 {
-  int a,b; /* Temporary vars */
+  int a,b,c,d; /* Temporary vars */
   unsigned int date, type;
   unsigned int off;
   unsigned int start_off = 0;
@@ -406,10 +427,22 @@ static void spudec_process_control(spudec_handle_t *this, int pts100)
 	break;
       case 0x04:
 	/* Alpha */
-	this->alpha[0] = this->packet[off] >> 4;
-	this->alpha[1] = this->packet[off] & 0xf;
-	this->alpha[2] = this->packet[off + 1] >> 4;
-	this->alpha[3] = this->packet[off + 1] & 0xf;
+	a = this->packet[off] >> 4;
+	b = this->packet[off] & 0xf;
+	c = this->packet[off + 1] >> 4;
+	d = this->packet[off + 1] & 0xf;
+	// Note: some DVDs change these values to create a fade-in/fade-out effect
+	// We can not handle this, so just keep the highest value during the display time.
+	if (display) {
+		a = FFMAX(a, this->alpha[0]);
+		b = FFMAX(b, this->alpha[1]);
+		c = FFMAX(c, this->alpha[2]);
+		d = FFMAX(d, this->alpha[3]);
+	}
+	this->alpha[0] = a;
+	this->alpha[1] = b;
+	this->alpha[2] = c;
+	this->alpha[3] = d;
 	mp_msg(MSGT_SPUDEC,MSGL_DBG2,"Alpha %d, %d, %d, %d\n",
 	       this->alpha[0], this->alpha[1], this->alpha[2], this->alpha[3]);
 	off+=2;
@@ -510,12 +543,6 @@ void spudec_assemble(void *this, unsigned char *packet, unsigned int len, int pt
       mp_msg(MSGT_SPUDEC,MSGL_WARN,"SPUasm: packet too short\n");
       return;
   }
-#if 0
-  if ((spu->packet_pts + 10000) < pts100) {
-    // [cb] too long since last fragment: force new packet
-    spu->packet_offset = 0;
-  }
-#endif
   spu->packet_pts = pts100;
   if (spu->packet_offset == 0) {
     unsigned int len2 = get_be16(packet);
@@ -593,10 +620,11 @@ void spudec_reset(void *this)	// called after seek
 }
 
 void spudec_heartbeat(void *this, unsigned int pts100)
-{ 
+{
   spudec_handle_t *spu = (spudec_handle_t*) this;
   spu->now_pts = pts100;
 
+  // TODO: detect and handle broken timestamps (e.g. due to wrapping)
   while (spu->queue_head != NULL && pts100 >= spu->queue_head->start_pts) {
     packet_t *packet = spudec_dequeue_packet(spu);
     spu->start_pts = packet->start_pts;
@@ -629,7 +657,7 @@ void spudec_set_forced_subs_only(void * const this, const unsigned int flag)
 void spudec_draw(void *this, void (*draw_alpha)(int x0,int y0, int w,int h, unsigned char* src, unsigned char *srca, int stride))
 {
     spudec_handle_t *spu = (spudec_handle_t *)this;
-    if (spu->start_pts <= spu->now_pts && spu->now_pts < spu->end_pts && spu->image)
+    if (spudec_visible(spu))
     {
 	draw_alpha(spu->start_col, spu->start_row, spu->width, spu->height,
 		   spu->image, spu->aimage, spu->stride);
@@ -679,6 +707,9 @@ void spudec_calc_bbox(void *me, unsigned int dxs, unsigned int dys, unsigned int
       bbox[3] = spu->start_row * scaley / 0x100 + spu->height * scaley / 0x100;
       break;
     }
+  } else {
+    mp_msg(MSGT_SPUDEC, MSGL_ERR, "Bad values in spudec_calc_bbox\n");
+    bbox[0] = bbox[1] = bbox[2] = bbox[3] = 0;
   }
 }
 /* transform mplayer's alpha value into an opacity value that is linear */
@@ -744,8 +775,9 @@ static void scale_image(int x, int y, scale_pixel* table_x, scale_pixel* table_y
   }
 }
 
-void sws_spu_image(unsigned char *d1, unsigned char *d2, int dw, int dh, int ds,
-	unsigned char *s1, unsigned char *s2, int sw, int sh, int ss)
+static void sws_spu_image(unsigned char *d1, unsigned char *d2, int dw, int dh,
+                          int ds, unsigned char *s1, unsigned char *s2, int sw,
+                          int sh, int ss)
 {
 	struct SwsContext *ctx;
 	static SwsFilter filter;
@@ -761,7 +793,7 @@ void sws_spu_image(unsigned char *d1, unsigned char *d2, int dw, int dh, int ds,
 		firsttime = 0;
 		oldvar = spu_gaussvar;
 	}
-	
+
 	ctx=sws_getContext(sw, sh, PIX_FMT_GRAY8, dw, dh, PIX_FMT_GRAY8, SWS_GAUSS, &filter, NULL, NULL);
 	sws_scale(ctx,&s1,&ss,0,sh,&d1,&ds);
 	for (i=ss*sh-1; i>=0; i--) if (!s2[i]) s2[i] = 255; //else s2[i] = 1;
@@ -776,10 +808,10 @@ void spudec_draw_scaled(void *me, unsigned int dxs, unsigned int dys, void (*dra
   scale_pixel *table_x;
   scale_pixel *table_y;
 
-  if (spu->start_pts <= spu->now_pts && spu->now_pts < spu->end_pts) {
+  if (spudec_visible(spu)) {
 
-    // check if only forced subtitles are requested 
-    if( (spu->forced_subs_only) && !(spu->is_forced_sub) ){ 
+    // check if only forced subtitles are requested
+    if( (spu->forced_subs_only) && !(spu->is_forced_sub) ){
 	return;
     }
 
@@ -903,7 +935,7 @@ void spudec_draw_scaled(void *me, unsigned int dxs, unsigned int dys, void (*dra
 
 	       The original rectangular region that the scaled pixel
 	       represents is cut in 9 rectangular areas like this:
-	       
+
 	       +---+-----------------+---+
 	       | 1 |        2        | 3 |
 	       +---+-----------------+---+
@@ -1012,7 +1044,7 @@ void spudec_draw_scaled(void *me, unsigned int dxs, unsigned int dys, void (*dra
 		      alpha += tmp;
 		      color += tmp * spu->image[base + walkx];
 		    }
-		  }		    
+		  }
 		}
 		/* 6: center right part */
 		if (right > 0.0 && height > 0) {
@@ -1138,9 +1170,13 @@ static void spudec_parse_extradata(spudec_handle_t *this,
   buffer[extradata_len] = 0;
 
   do {
-    sscanf(ptr, "size: %dx%d", &this->orig_frame_width, &this->orig_frame_height);
-    if (sscanf(ptr, "palette: %x, %x, %x, %x, %x, %x, %x, %x,"
-                            " %x, %x, %x, %x, %x, %x, %x, %x",
+    if (*ptr == '#')
+        continue;
+    if (!strncmp(ptr, "size: ", 6))
+        sscanf(ptr + 6, "%dx%d", &this->orig_frame_width, &this->orig_frame_height);
+    if (!strncmp(ptr, "palette: ", 9) &&
+        sscanf(ptr + 9, "%x, %x, %x, %x, %x, %x, %x, %x, "
+                        "%x, %x, %x, %x, %x, %x, %x, %x",
                &pal[ 0], &pal[ 1], &pal[ 2], &pal[ 3],
                &pal[ 4], &pal[ 5], &pal[ 6], &pal[ 7],
                &pal[ 8], &pal[ 9], &pal[10], &pal[11],
@@ -1151,7 +1187,8 @@ static void spudec_parse_extradata(spudec_handle_t *this,
     }
     if (!strncasecmp(ptr, "forced subs: on", 15))
       this->forced_subs_only = 1;
-    if (sscanf(ptr, "custom colors: ON, tridx: %x, colors: %x, %x, %x, %x",
+    if (!strncmp(ptr, "custom colors: ON, tridx: ", 26) &&
+        sscanf(ptr + 26, "%x, colors: %x, %x, %x, %x",
                &tridx, cuspal+0, cuspal+1, cuspal+2, cuspal+3) == 5) {
       for (i=0; i<4; i++) {
         cuspal[i] = vobsub_rgb_to_yuv(cuspal[i]);
@@ -1179,11 +1216,15 @@ void *spudec_new_scaled(unsigned int *palette, unsigned int frame_width, unsigne
       spudec_parse_extradata(this, extradata, extradata_len);
     /* XXX Although the video frame is some size, the SPU frame is
        always maximum size i.e. 720 wide and 576 or 480 high */
-    this->orig_frame_width = 720;
-    if (this->orig_frame_height == 480 || this->orig_frame_height == 240)
-      this->orig_frame_height = 480;
-    else
-      this->orig_frame_height = 576;
+    // For HD files in MKV the VobSub resolution can be higher though,
+    // see largeres_vobsub.mkv
+    if (this->orig_frame_width <= 720 && this->orig_frame_height <= 576) {
+      this->orig_frame_width = 720;
+      if (this->orig_frame_height == 480 || this->orig_frame_height == 240)
+        this->orig_frame_height = 480;
+      else
+        this->orig_frame_height = 576;
+    }
   }
   else
     mp_msg(MSGT_SPUDEC,MSGL_FATAL, "FATAL: spudec_init: calloc");

@@ -141,7 +141,6 @@ static int init(int rate_hz, int channels, int format, int flags) {
     char *host = NULL;
     char *sink = NULL;
     const char *version = pa_get_library_version();
-    struct pa_cvolume volume;
 
     if (ao_subdevice) {
         devarg = strdup(ao_subdevice);

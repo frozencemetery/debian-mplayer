@@ -47,14 +47,13 @@ typedef struct ao_functions_s
 } ao_functions_t;
 
 /* global data used by mplayer and plugins */
-typedef struct ao_data_s
-{
+typedef struct ao_data {
   int samplerate;
   int channels;
   int format;
   int bps;
-  int outburst; 	  
-  int buffersize;         
+  int outburst;
+  int buffersize;
   int pts;
 } ao_data_t;
 

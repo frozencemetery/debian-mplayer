@@ -37,6 +37,7 @@
 #include "pci_ids.h"
 #include "pci_names.h"
 
+#include "sis_bridge.h"
 #include "sis_regs.h"
 #include "sis_defs.h"
 
@@ -92,7 +93,7 @@ typedef struct {
 
     uint8_t lineBufSize;
 
-     uint8_t(*VBlankActiveFunc) ();
+     uint8_t(*VBlankActiveFunc)(void);
 
     uint16_t SCREENheight;
 
@@ -166,9 +167,6 @@ static unsigned short sis_card_ids[] = {
 };
 
 /** function declarations **/
-
-void sis_init_video_bridge(void);
-
 
 static void set_overlay(SISOverlayPtr pOverlay, int index);
 static void close_overlay(void);
@@ -1494,7 +1492,7 @@ static void set_hue(uint8_t hue)
 VDXDriver sis_drv = {
   "sis",
   NULL,
-    
+
   .probe = sis_probe,
   .get_caps = sis_get_caps,
   .query_fourcc = sis_query_fourcc,

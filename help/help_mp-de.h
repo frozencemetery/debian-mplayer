@@ -11,7 +11,6 @@
 
 // ========================= MPlayer help ===========================
 
-#ifdef HELP_MP_DEFINE_STATIC
 static const char help_text[]=
 "Verwendung:   mplayer [Optionen] [URL|Verzeichnis/]Dateiname\n"
 "\n"
@@ -52,7 +51,6 @@ static const char help_text[]=
 "\n"
 " * * * SIEHE MANPAGE FÜR DETAILS, WEITERE OPTIONEN UND TASTEN * * *\n"
 "\n";
-#endif
 
 // libmpcodecs/ad_dvdpcm.c
 #define MSGTR_SamplesWanted "Beispiele für dieses Format werden gebraucht, um die Unterstützung zu verbessern. Bitte kontaktiere die Entwickler.\n"
@@ -79,7 +77,6 @@ static const char help_text[]=
 #define MSGTR_FPSnotspecified "FPS ist im Header nicht angegeben (oder ungültig)! Benutze die Option -fps!\n"
 #define MSGTR_TryForceAudioFmtStr "Versuche Audiocodecfamilie %s zu erzwingen...\n"
 #define MSGTR_CantFindAudioCodec "Kann Codec für Audioformat 0x%X nicht finden!\n"
-#define MSGTR_RTFMCodecs "Lies DOCS/HTML/de/codecs.html!\n"
 #define MSGTR_TryForceVideoFmtStr "Versuche Videocodecfamilie %s zu erzwingen...\n"
 #define MSGTR_CantFindVideoCodec "Kann keinen Codec finden, der zu gewählter Option -vo und Videoformat 0x%X passt!\n"
 #define MSGTR_CannotInitVO "FATAL: Kann Videoausgabetreiber nicht initialisieren!\n"
@@ -715,8 +712,6 @@ static const char help_text[]=
 
 // vd.c
 #define MSGTR_CodecDidNotSet "VDec: Codec hat sh->disp_w und sh->disp_h nicht gesetzt!\nVersuche Problem zu umgehen..\n"
-#define MSGTR_VoConfigRequest "VDec: VO wird versucht, auf %d x %d (Bevorzugter Farbraum: %s) zu setzen.\n"
-#define MSGTR_UsingXAsOutputCspNoY "VDec: Verwende %s als Ausgabefarbraum (Nummer %d).\n"
 #define MSGTR_CouldNotFindColorspace "Konnte keinen passenden Farbraum finden - neuer Versuch mit '-vf scale'...\n"
 #define MSGTR_MovieAspectIsSet "Film-Aspekt ist %.2f:1 - Vorskalierung zur Korrektur der Seitenverhältnisse.\n"
 #define MSGTR_MovieAspectUndefined "Film-Aspekt ist undefiniert - keine Vorskalierung durchgeführt.\n"
@@ -1046,8 +1041,6 @@ static const char help_text[]=
 #define MSGTR_VO_CantCreateDirectory "Kann Ausgabeverzeichnis nicht erstellen."
 #define MSGTR_VO_CantCreateFile "Kann Ausgabedatei nicht erstellen."
 #define MSGTR_VO_DirectoryCreateSuccess "Ausgabeverzeichnis erfolgreich erstellt."
-#define MSGTR_VO_ParsingSuboptions "Unteroptionen werden geparst."
-#define MSGTR_VO_SuboptionsParsedOK "Parsen der Unteroptionen OK."
 #define MSGTR_VO_ValueOutOfRange "Wert außerhalb des gültigen Bereichs"
 #define MSGTR_VO_NoValueSpecified "Kein Wert angegeben."
 #define MSGTR_VO_UnknownSuboptions "unbekannte Unteroption(en)"
@@ -1257,10 +1250,7 @@ static const char help_text[]=
 #define MSGTR_AO_ALSA_UnableToDisableResampling "[AO_ALSA] Kann Resampling nicht deaktivieren: %s\n"
 #define MSGTR_AO_ALSA_UnableToSetSamplerate2 "[AO_ALSA] Kann samplerate-2 nicht setzen: %s\n"
 #define MSGTR_AO_ALSA_UnableToSetBufferTimeNear "[AO_ALSA] Kann Puffer-Zeit in Nähe von %s nicht setzen.\n"
-#define MSGTR_AO_ALSA_UnableToSetPeriodTime "[AO_ALSA] Kann Periodenzeit nicht setzen: %s\n"
-#define MSGTR_AO_ALSA_BufferTimePeriodTime "[AO_ALSA] Pufferzeit: %d, Periodenzeit: %d\n"
 #define MSGTR_AO_ALSA_UnableToGetPeriodSize "[AO ALSA] Kann Periodenzeit nicht ermitteln: %s\n"
-#define MSGTR_AO_ALSA_UnableToSetPeriodSize "[AO ALSA] Kann Periodenzeit (%ld) nicht setzen: %s\n"
 #define MSGTR_AO_ALSA_UnableToSetPeriods "[AO_ALSA] Kann Perioden nicht setzen: %s\n"
 #define MSGTR_AO_ALSA_UnableToSetHwParameters "[AO_ALSA] Kann Hardwareparameter nicht setzen: %s\n"
 #define MSGTR_AO_ALSA_UnableToGetBufferSize "[AO_ALSA] Kann Puffergröße nicht ermitteln: %s\n"
@@ -1424,7 +1414,7 @@ static const char help_text[]=
 #define MSGTR_MPDEMUX_MMST_UnknownObject "unbekanntes Objekt\n"
 #define MSGTR_MPDEMUX_MMST_MediaDataReadFailed "Konnte Mediendaten nicht lesen.\n"
 #define MSGTR_MPDEMUX_MMST_MissingSignature "fehlende Signatur\n"
-#define MSGTR_MPDEMUX_MMST_PatentedTechnologyJoke "Alles fertig. Vielen dank, dass Du eine prorietäre und patentierte Technologie beinhaltende Mediendatei heruntergeladen hast.\n"
+#define MSGTR_MPDEMUX_MMST_PatentedTechnologyJoke "Alles fertig. Vielen Dank, dass Du eine proprietäre und patentierte Technologie beinhaltende Mediendatei heruntergeladen hast.\n"
 #define MSGTR_MPDEMUX_MMST_UnknownCmd "Unbekanntes Kommando %02x\n"
 #define MSGTR_MPDEMUX_MMST_GetMediaPacketErr "get_media_packet lieferte Fehler zurück: %s\n"
 #define MSGTR_MPDEMUX_MMST_Connected "Verbunden.\n"
@@ -1497,7 +1487,7 @@ static const char help_text[]=
 // cdda.c
 #define MSGTR_MPDEMUX_CDDA_CantOpenCDDADevice "Kann CDDA-Gerät nicht öffnen.\n"
 #define MSGTR_MPDEMUX_CDDA_CantOpenDisc "Kann CD nicht öffnen.\n"
-#define MSGTR_MPDEMUX_CDDA_AudioCDFoundWithNTracks "Musik-CD mit %ld Titeln gefunden.\n"
+#define MSGTR_MPDEMUX_CDDA_AudioCDFoundWithNTracks "Musik-CD mit %d Titeln gefunden.\n"
 
 // cddb.c
 #define MSGTR_MPDEMUX_CDDB_FailedToReadTOC "Konnte Inhaltsverzeichnis der CD nicht lesen.\n"
@@ -1717,7 +1707,7 @@ static const char help_text[]=
 
 // ================================== LIBVO ====================================
 
-// mga_common.c
+// mga_template.c
 #define MSGTR_LIBVO_MGA_ErrorInConfigIoctl "[MGA] Fehler im ioctl von mga_vid_config (falsche mga_vid.o-Version?)"
 #define MSGTR_LIBVO_MGA_CouldNotGetLumaValuesFromTheKernelModule "[MGA] Konnte die Helligkeitswerte vom Kernelmodul nicht ermitteln!\n"
 #define MSGTR_LIBVO_MGA_CouldNotSetLumaValuesFromTheKernelModule "[MGA] Konnte die Helligkeitswerte vom Kernelmodul nicht setzen!\n"
@@ -2045,7 +2035,7 @@ static const char help_text[]=
 #define MSGTR_LIBASS_ErrorRecodingFile "[ass] Fehler bei Recodierung der Datei.\n"
 #define MSGTR_LIBASS_FopenFailed "[ass] ass_read_file(%s): fopen fehlgeschlagen\n"
 #define MSGTR_LIBASS_FseekFailed "[ass] ass_read_file(%s): fseek fehlgeschlagen\n"
-#define MSGTR_LIBASS_RefusingToLoadSubtitlesLargerThan10M "[ass] ass_read_file(%s): Laden von Untertiteln größer als 10M verweigert.\n"
+#define MSGTR_LIBASS_RefusingToLoadSubtitlesLargerThan100M "[ass] ass_read_file(%s): Laden von Untertiteln größer als 100M verweigert.\n"
 #define MSGTR_LIBASS_ReadFailed "Lesen fehlgeschlagen, %d: %s\n"
 #define MSGTR_LIBASS_AddedSubtitleFileMemory "[ass] Hinzugefügte Untertiteldatei: <Speicher> (%d Styles, %d Ereignisse)\n"
 #define MSGTR_LIBASS_AddedSubtitleFileFname "[ass]  Hinzugefügte Untertiteldatei: %s (%d Styles, %d Ereignisse)\n"

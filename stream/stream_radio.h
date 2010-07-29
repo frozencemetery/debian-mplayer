@@ -1,6 +1,25 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #ifndef MPLAYER_STREAM_RADIO_H
 #define MPLAYER_STREAM_RADIO_H
 
+#include "config.h"
 #include "stream.h"
 
 #define RADIO_CHANNEL_LOWER 1
@@ -36,11 +55,11 @@ typedef struct radio_param_s{
 
 extern radio_param_t stream_radio_defaults;
 
-int radio_set_freq(struct stream_st *stream, float freq);
-int radio_get_freq(struct stream_st *stream, float* freq);
-char* radio_get_channel_name(struct stream_st *stream);
-int radio_set_channel(struct stream_st *stream, char *channel);
-int radio_step_channel(struct stream_st *stream, int direction);
-int radio_step_freq(struct stream_st *stream, float step_interval);
+int radio_set_freq(struct stream *stream, float freq);
+int radio_get_freq(struct stream *stream, float* freq);
+char* radio_get_channel_name(struct stream *stream);
+int radio_set_channel(struct stream *stream, char *channel);
+int radio_step_channel(struct stream *stream, int direction);
+int radio_step_freq(struct stream *stream, float step_interval);
 
 #endif /* MPLAYER_STREAM_RADIO_H */

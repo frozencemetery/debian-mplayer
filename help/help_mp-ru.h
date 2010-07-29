@@ -7,7 +7,6 @@
 
 // ========================= MPlayer help ===========================
 
-#ifdef HELP_MP_DEFINE_STATIC
 static const char help_text[]=
 "Использование:   mplayer [опции] [URL|путь/]имя_файла\n"
 "\n"
@@ -47,7 +46,6 @@ static const char help_text[]=
 "\n"
 " * * * ПОДРОБНЕЕ СМ. ДОКУМЕНТАЦИЮ, О ДОПОЛНИТЕЛЬНЫХ ОПЦИЯХ И КЛЮЧАХ! * * *\n"
 "\n";
-#endif
 
 
 // ========================= MPlayer messages ===========================
@@ -71,7 +69,6 @@ static const char help_text[]=
 #define MSGTR_FPSnotspecified "В заголовке кадры/сек не указаны (или недопустимые)! Используйте опцию -fps!\n"
 #define MSGTR_TryForceAudioFmtStr "Попытка форсировать семейство аудиокодеков %s...\n"
 #define MSGTR_CantFindAudioCodec "Не могу найти кодек для аудиоформата 0x%X!\n"
-#define MSGTR_RTFMCodecs "Прочтите DOCS/HTML/ru/codecs.html!\n"
 #define MSGTR_TryForceVideoFmtStr "Попытка форсировать семейство видеокодеков %s...\n"
 #define MSGTR_CantFindVideoCodec "Не могу найти кодек для выбранного -vo и видеоформата 0x%X!\n"
 #define MSGTR_CannotInitVO "ФАТАЛЬНАЯ ОШИБКА: Не могу инициализировать видеодрайвер!\n"
@@ -772,7 +769,7 @@ static const char help_text[]=
 #define MSGTR_PREFERENCES_FPS "FPS фильма:"
 #define MSGTR_PREFERENCES_ShowVideoWindow "Показывать окно видео, когда неактивен"
 #define MSGTR_PREFERENCES_ArtsBroken "Новые версии aRts несовместимы с GTK 1.x "\
-	   "и приведут к фатальной ошибке GMPlayer!"
+           "и приведут к фатальной ошибке GMPlayer!"
 
 // --- aboutbox
 #define MSGTR_ABOUT_UHU "Разработка GUI спонсирована UHU Linux\n"
@@ -832,8 +829,6 @@ static const char help_text[]=
 #define MSGTR_VO_CantCreateDirectory "Не могу создать директорию вывода."
 #define MSGTR_VO_CantCreateFile "Не могу создать выходной файл."
 #define MSGTR_VO_DirectoryCreateSuccess "Директория вывода успешно создана."
-#define MSGTR_VO_ParsingSuboptions "Разбираю синтаксис субопций."
-#define MSGTR_VO_SuboptionsParsedOK "Синтаксис субопций разобран успешно."
 #define MSGTR_VO_ValueOutOfRange "значение вне допустимого диапазона"
 #define MSGTR_VO_NoValueSpecified "Значение не указано."
 #define MSGTR_VO_UnknownSuboptions "Неизвестная(ые) субопция(и)"
@@ -942,7 +937,7 @@ static const char help_text[]=
 #define MSGTR_LIBVO_MGA_AspectResized "[VO_MGA] aspect(): изменён размер в %dx%d.\n"
 #define MSGTR_LIBVO_MGA_Uninit "[VO] деинициализация!\n"
 
-// mga_common.c
+// mga_template.c
 #define MSGTR_LIBVO_MGA_ErrorInConfigIoctl "[MGA] ошибка в mga_vid_config ioctl (неверная версия mga_vid.o?)"
 #define MSGTR_LIBVO_MGA_CouldNotGetLumaValuesFromTheKernelModule "[MGA] Не могу получить значения люмы из модуля ядра!\n"
 #define MSGTR_LIBVO_MGA_CouldNotSetLumaValuesFromTheKernelModule "[MGA] Не могу установить значения люмы из модуля ядра!\n"
@@ -1274,10 +1269,7 @@ static const char help_text[]=
 #define MSGTR_AO_ALSA_UnableToDisableResampling "[AO_ALSA] Невозможно отключить ресэмплинг: %s\n"
 #define MSGTR_AO_ALSA_UnableToSetSamplerate2 "[AO_ALSA] Невозможно установить частоту дискретизации-2: %s\n"
 #define MSGTR_AO_ALSA_UnableToSetBufferTimeNear "[AO_ALSA] Невозможно установить примерное время буфера: %s\n"
-#define MSGTR_AO_ALSA_UnableToSetPeriodTime "[AO_ALSA] Невозможно установить время периода: %s\n"
-#define MSGTR_AO_ALSA_BufferTimePeriodTime "[AO_ALSA] время_буфера: %d, время_периода :%d\n"
 #define MSGTR_AO_ALSA_UnableToGetPeriodSize "[AO ALSA] Невозможно получить время периода: %s\n"
-#define MSGTR_AO_ALSA_UnableToSetPeriodSize "[AO ALSA] Невозможно установить размер периода(%ld): %s\n"
 #define MSGTR_AO_ALSA_UnableToSetPeriods "[AO_ALSA] Невозможно установить периоды: %s\n"
 #define MSGTR_AO_ALSA_UnableToSetHwParameters "[AO_ALSA] Невозможно установить hw-параметры: %s\n"
 #define MSGTR_AO_ALSA_UnableToGetBufferSize "[AO_ALSA] Невозможно получить размер буфера: %s\n"
@@ -1408,7 +1400,7 @@ static const char help_text[]=
 #define MSGTR_NotSystemStream "Не MPEG System Stream формат... (возможно, Transport Stream?)\n"
 #define MSGTR_InvalidMPEGES "Недопустимый MPEG-ES поток??? свяжитесь с автором, это может быть ошибкой :(\n"
 #define MSGTR_FormatNotRecognized "======= Извините, формат этого файла не распознан/не поддерживается ==========\n"\
-				  "===== Если это AVI, ASF или MPEG поток, пожалуйста свяжитесь с автором! ======\n"
+                                  "===== Если это AVI, ASF или MPEG поток, пожалуйста свяжитесь с автором! ======\n"
 #define MSGTR_SettingProcessPriority "Устанавливаю приоритет процесса: %s\n"
 #define MSGTR_FilefmtFourccSizeFpsFtime "[V] формат:%d  fourcc:0x%X  размер:%dx%d  fps:%5.3f  ftime:=%6.4f\n"
 #define MSGTR_CannotInitializeMuxer "Невозможно инициализировать мультиплексор."
@@ -1671,8 +1663,6 @@ static const char help_text[]=
 
 // vd.c
 #define MSGTR_CodecDidNotSet "VDec: Кодек не установил sh->disp_w и sh->disp_h, пытаюсь обойти.\n"
-#define MSGTR_VoConfigRequest "VDec: запрос vo config - %d x %d (предпочитаемое цветовое пространство: %s)\n"
-#define MSGTR_UsingXAsOutputCspNoY "VDec: использую %s в качестве выходного csp (не %d)\n"
 #define MSGTR_CouldNotFindColorspace "Не могу найти подходящее цветовое пространство - попытаюсь с -vf scale...\n"
 #define MSGTR_MovieAspectIsSet "Movie-Aspect - %.2f:1 - выполняю предварительное масштабирование\nдля коррекции соотношения сторон фильма.\n"
 #define MSGTR_MovieAspectUndefined "Movie-Aspect не определён - предварительное масштабирование не применяется.\n"
@@ -1756,7 +1746,7 @@ static const char help_text[]=
 #define MSGTR_LIBASS_ErrorRecodingFile "[ass] ошибка записи файла.\n"
 #define MSGTR_LIBASS_FopenFailed "[ass] ass_read_file(%s): сбой fopen\n"
 #define MSGTR_LIBASS_FseekFailed "[ass] ass_read_file(%s): сбой fseek\n"
-#define MSGTR_LIBASS_RefusingToLoadSubtitlesLargerThan10M "[ass] ass_read_file(%s): Отклонение загрузки субтитров больше 10M\n"
+#define MSGTR_LIBASS_RefusingToLoadSubtitlesLargerThan100M "[ass] ass_read_file(%s): Отклонение загрузки субтитров больше 100M\n"
 #define MSGTR_LIBASS_ReadFailed "Ошибка чтения, %d: %s\n"
 #define MSGTR_LIBASS_AddedSubtitleFileMemory "[ass] Добавлен файл субтитров: <память> (стилей: %d, событий: %d)\n"
 #define MSGTR_LIBASS_AddedSubtitleFileFname "[ass] Добавлен файл субтитров: %s (стилей: %d, событий: %d)\n"
@@ -1906,7 +1896,7 @@ static const char help_text[]=
 // stream_cdda.c
 #define MSGTR_MPDEMUX_CDDA_CantOpenCDDADevice "Не могу открыть устройство CDDA.\n"
 #define MSGTR_MPDEMUX_CDDA_CantOpenDisc "Не могу открыть диск.\n"
-#define MSGTR_MPDEMUX_CDDA_AudioCDFoundWithNTracks "Найден аудио CD с %ld дорожками.\n"
+#define MSGTR_MPDEMUX_CDDA_AudioCDFoundWithNTracks "Найден аудио CD с %d дорожками.\n"
 
 // stream_cddb.c
 #define MSGTR_MPDEMUX_CDDB_FailedToReadTOC "Не могу прочитать TOC.\n"
@@ -2117,4 +2107,3 @@ static const char help_text[]=
 
 // url.c
 #define MSGTR_MPDEMUX_URL_StringAlreadyEscaped "Похоже, что строка уже пропущена в url_escape %c%c1%c2\n"
-

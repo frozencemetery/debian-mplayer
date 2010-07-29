@@ -13,14 +13,6 @@
 
 # include "config.h"
 
-#ifdef _EGCS_
-#define __stdcall
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* Misc. constants. */
 
 #ifdef FALSE
@@ -91,15 +83,13 @@ extern "C" {
 
 #ifdef __i386__
 # if defined(__GNUC__) && ((__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 7)))
-#  ifndef _EGCS_ 
 #define __stdcall __attribute__((__stdcall__))
 #define __cdecl   __attribute__((__cdecl__))
 #  define RESTORE_ES  __asm__ volatile("pushl %ds\n\tpopl %es")
-#  endif
 # else
 // #  error You need gcc >= 2.7 to build Wine on a 386
 # endif
-#else 
+#else
 # define __stdcall
 # define __cdecl
 # define RESTORE_ES
@@ -311,8 +301,9 @@ typedef LRESULT CALLBACK (*DRIVERPROC)(DWORD,HDRVR,UINT,LPARAM,LPARAM);
 typedef INT     CALLBACK (*EDITWORDBREAKPROCA)(LPSTR,INT,INT,INT);
 typedef INT     CALLBACK (*EDITWORDBREAKPROCW)(LPWSTR,INT,INT,INT);
 DECL_WINELIB_TYPE_AW(EDITWORDBREAKPROC)
-typedef LRESULT CALLBACK (*FARPROC)();
-typedef INT     CALLBACK (*PROC)();
+/* Parameter list (sometimes incorrectly) declared void to silence warnings. */
+typedef LRESULT CALLBACK (*FARPROC)(void);
+typedef INT     CALLBACK (*PROC)(void);
 typedef WIN_BOOL    CALLBACK (*GRAYSTRINGPROC)(HDC,LPARAM,INT);
 typedef LRESULT CALLBACK (*HOOKPROC)(INT,WPARAM,LPARAM);
 typedef WIN_BOOL    CALLBACK (*PROPENUMPROCA)(HWND,LPCSTR,HANDLE);
@@ -360,7 +351,7 @@ typedef UINT16         *LPUINT16;
 	typedef HANDLE16 a##16; \
 	typedef a##16 *P##a##16; \
 	typedef a##16 *NP##a##16; \
-	typedef a##16 *LP##a##16 
+	typedef a##16 *LP##a##16
 
 DECLARE_HANDLE16(HACMDRIVERID);
 DECLARE_HANDLE16(HACMDRIVER);
@@ -444,8 +435,9 @@ typedef struct
 typedef LRESULT CALLBACK (*DRIVERPROC16)(DWORD,HDRVR16,UINT16,LPARAM,LPARAM);
 typedef WIN_BOOL16  CALLBACK (*DLGPROC16)(HWND16,UINT16,WPARAM16,LPARAM);
 typedef INT16   CALLBACK (*EDITWORDBREAKPROC16)(LPSTR,INT16,INT16,INT16);
-typedef LRESULT CALLBACK (*FARPROC16)();
-typedef INT16   CALLBACK (*PROC16)();
+/* Parameter list (sometimes incorrectly) declared void to silence warnings. */
+typedef LRESULT CALLBACK (*FARPROC16)(void);
+typedef INT16   CALLBACK (*PROC16)(void);
 typedef WIN_BOOL16  CALLBACK (*GRAYSTRINGPROC16)(HDC16,LPARAM,INT16);
 typedef LRESULT CALLBACK (*HOOKPROC16)(INT16,WPARAM16,LPARAM);
 typedef WIN_BOOL16  CALLBACK (*PROPENUMPROC16)(HWND16,SEGPTR,HANDLE16);
@@ -460,11 +452,9 @@ typedef LRESULT CALLBACK (*WNDPROC16)(HWND16,UINT16,WPARAM16,LPARAM);
 /* Macro for structure packing. */
 
 #ifdef __GNUC__
-#ifndef _EGCS_
 #define WINE_PACKED   __attribute__((packed))
 #define WINE_UNUSED   __attribute__((unused))
 #define WINE_NORETURN __attribute__((noreturn))
-#endif
 #else
 #define WINE_PACKED    /* nothing */
 #define WINE_UNUSED    /* nothing */
@@ -500,15 +490,15 @@ typedef LRESULT CALLBACK (*WNDPROC16)(HWND16,UINT16,WPARAM16,LPARAM);
 
 /* Macros to access unaligned or wrong-endian WORDs and DWORDs. */
 /* Note: These macros are semantically broken, at least for wrc.  wrc
-   spits out data in the platform's current binary format, *not* in 
+   spits out data in the platform's current binary format, *not* in
    little-endian format.  These macros are used throughout the resource
-   code to load and store data to the resources.  Since it is unlikely 
-   that we'll ever be dealing with little-endian resource data, the 
-   byte-swapping nature of these macros has been disabled.  Rather than 
+   code to load and store data to the resources.  Since it is unlikely
+   that we'll ever be dealing with little-endian resource data, the
+   byte-swapping nature of these macros has been disabled.  Rather than
    remove the use of these macros from the resource loading code, the
-   macros have simply been disabled.  In the future, someone may want 
+   macros have simply been disabled.  In the future, someone may want
    to reactivate these macros for other purposes.  In that case, the
-   resource code will have to be modified to use different macros. */ 
+   resource code will have to be modified to use different macros. */
 
 #if 1
 #define PUT_WORD(ptr,w)   (*(WORD *)(ptr) = (w))
@@ -619,7 +609,7 @@ typedef const RECT *LPCRECT;
 typedef struct tagRECTL
 {
     LONG left;
-    LONG top;  
+    LONG top;
     LONG right;
     LONG bottom;
 } RECTL, *PRECTL, *LPRECTL;
@@ -632,9 +622,5 @@ typedef const RECTL *LPCRECTL;
 #define CONV_RECT32TO16(r32,r16) \
     ((r16)->left  = (INT16)(r32)->left,  (r16)->top    = (INT16)(r32)->top, \
      (r16)->right = (INT16)(r32)->right, (r16)->bottom = (INT16)(r32)->bottom)
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* MPLAYER_WINDEF_H */

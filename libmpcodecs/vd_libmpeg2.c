@@ -1,3 +1,21 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -9,7 +27,7 @@
 
 //#undef MPEG12_POSTPROC
 
-static vd_info_t info = 
+static const vd_info_t info =
 {
 	"libmpeg2 MPEG 1/2 Video decoder",
 	"libmpeg2",
@@ -19,8 +37,6 @@ static vd_info_t info =
 };
 
 LIBVD_EXTERN(libmpeg2)
-
-//#include "libvo/video_out.h"	// FIXME!!!
 
 #include "libmpeg2/mpeg2.h"
 #include "libmpeg2/attributes.h"
@@ -36,6 +52,8 @@ typedef struct {
     int width;
     int height;
     double aspect;
+    unsigned char *pending_buffer;
+    int pending_length;
 } vd_libmpeg2_ctx_t;
 
 // to set/get/query special features/parameters
@@ -56,7 +74,7 @@ static int control(sh_video_t *sh,int cmd,void* arg,...){
 	    return CONTROL_TRUE;
 	return CONTROL_FALSE;
     }
-    
+
     return CONTROL_UNKNOWN;
 }
 
@@ -64,7 +82,6 @@ static int control(sh_video_t *sh,int cmd,void* arg,...){
 static int init(sh_video_t *sh){
     vd_libmpeg2_ctx_t *context;
     mpeg2dec_t * mpeg2dec;
-//    const mpeg2_info_t * info;
     int accel;
 
     accel = 0;
@@ -100,9 +117,6 @@ static int init(sh_video_t *sh){
     context->mpeg2dec = mpeg2dec;
     sh->context = context;
 
-    mpeg2dec->pending_buffer = 0;
-    mpeg2dec->pending_length = 0;
-
     return 1;
 }
 
@@ -111,7 +125,7 @@ static void uninit(sh_video_t *sh){
     int i;
     vd_libmpeg2_ctx_t *context = sh->context;
     mpeg2dec_t * mpeg2dec = context->mpeg2dec;
-    if (mpeg2dec->pending_buffer) free(mpeg2dec->pending_buffer);
+    if (context->pending_buffer) free(context->pending_buffer);
     mpeg2dec->decoder.convert=NULL;
     mpeg2dec->decoder.convert_id=NULL;
     mpeg2_close (mpeg2dec);
@@ -120,19 +134,15 @@ static void uninit(sh_video_t *sh){
     free(sh->context);
 }
 
-static void draw_slice (void * _sh, uint8_t * const * src, unsigned int y){ 
+static void draw_slice (void * _sh, uint8_t * const * src, unsigned int y){
     sh_video_t* sh = (sh_video_t*) _sh;
     vd_libmpeg2_ctx_t *context = sh->context;
     mpeg2dec_t* mpeg2dec = context->mpeg2dec;
     const mpeg2_info_t * info = mpeg2_info (mpeg2dec);
-    int stride[3];
+    int stride[MP_MAX_PLANES] = {mpeg2dec->decoder.stride, mpeg2dec->decoder.uv_stride, mpeg2dec->decoder.uv_stride};
+    uint8_t *srcs[MP_MAX_PLANES] = {src[0], src[1], src[2]};
 
-//  printf("draw_slice() y=%d  \n",y);
-
-    stride[0]=mpeg2dec->decoder.stride;
-    stride[1]=stride[2]=mpeg2dec->decoder.uv_stride;
-
-    mpcodecs_draw_slice(sh, (uint8_t **)src,
+    mpcodecs_draw_slice(sh, srcs,
 		stride, info->sequence->picture_width,
 		(y+16<=info->sequence->picture_height) ? 16 :
 		    info->sequence->picture_height-y,
@@ -149,9 +159,9 @@ static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags){
     // MPlayer registers its own draw_slice callback, prevent libmpeg2 from freeing the context
     mpeg2dec->decoder.convert=NULL;
     mpeg2dec->decoder.convert_id=NULL;
-    
+
     if(len<=0) return NULL; // skipped null frame
-    
+
     // append extra 'end of frame' code:
     ((char*)data+len)[0]=0;
     ((char*)data+len)[1]=0;
@@ -159,24 +169,24 @@ static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags){
     ((char*)data+len)[3]=0xff;
     len+=4;
 
-    if (mpeg2dec->pending_length) {
-	mpeg2_buffer (mpeg2dec, mpeg2dec->pending_buffer, mpeg2dec->pending_buffer + mpeg2dec->pending_length);
+    if (context->pending_length) {
+	mpeg2_buffer (mpeg2dec, context->pending_buffer, context->pending_buffer + context->pending_length);
     } else {
         mpeg2_buffer (mpeg2dec, data, (uint8_t *)data+len);
     }
-    
+
     while(1){
 	int state=mpeg2_parse (mpeg2dec);
 	int type, use_callback;
 	mp_image_t* mpi_new;
 	unsigned long pw, ph;
 	int imgfmt;
-	
+
 	switch(state){
 	case STATE_BUFFER:
-	    if (mpeg2dec->pending_length) {
+	    if (context->pending_length) {
 		// just finished the pending data, continue with processing of the passed buffer
-		mpeg2dec->pending_length = 0;
+		context->pending_length = 0;
     		mpeg2_buffer (mpeg2dec, data, (uint8_t *)data+len);
     	    } else {
 	        // parsing of the passed buffer finished, return.
@@ -211,12 +221,11 @@ static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags){
 	    break;
 	case STATE_PICTURE:
 	    type=info->current_picture->flags&PIC_MASK_CODING_TYPE;
-	    
+
 	    drop_frame = framedrop && (mpeg2dec->decoder.coding_type == B_TYPE);
             drop_frame |= framedrop>=2; // hard drop
             if (drop_frame) {
                mpeg2_skip(mpeg2dec, 1);
-	       //printf("Dropping Frame ...\n");
 	       break;
 	    }
             mpeg2_skip(mpeg2dec, 0); //mpeg2skip skips frames until set again to 0
@@ -246,8 +255,11 @@ static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags){
 	    mpi_new->fields |= MP_IMGFIELD_ORDERED;
             if (!(info->current_picture->flags&PIC_FLAG_PROGRESSIVE_FRAME))
                 mpi_new->fields |= MP_IMGFIELD_INTERLACED;
-
-#ifdef MPEG12_POSTPROC
+/*
+ * internal libmpeg2 does export quantization values per slice
+ * we let postproc know them to fine tune it's strength
+ */
+#if defined(MPEG12_POSTPROC) && defined(CONFIG_LIBMPEG2_INTERNAL)
 	    mpi_new->qstride=info->sequence->width>>4;
 	    {
 	    char **p = &context->quant_store[type==PIC_FLAG_CODING_TYPE_B ?
@@ -270,7 +282,7 @@ static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags){
 	        mpeg2dec->decoder.convert=NULL;
 	        mpeg2dec->decoder.convert_id=NULL;
 	    }
-	    
+
 	    break;
 	case STATE_SLICE:
 	case STATE_END:
@@ -278,19 +290,18 @@ static mp_image_t* decode(sh_video_t *sh,void* data,int len,int flags){
 	    // decoding done:
 	    if(info->display_fbuf) {
 		mp_image_t* mpi = info->display_fbuf->id;
-		if (mpeg2dec->pending_length == 0) {
-		    mpeg2dec->pending_length = mpeg2dec->buf_end - mpeg2dec->buf_start;
-		    mpeg2dec->pending_buffer = realloc(mpeg2dec->pending_buffer, mpeg2dec->pending_length);
-		    memcpy(mpeg2dec->pending_buffer, mpeg2dec->buf_start, mpeg2dec->pending_length);
+		if (context->pending_length == 0) {
+		    context->pending_length = mpeg2dec->buf_end - mpeg2dec->buf_start;
+		    context->pending_buffer = realloc(context->pending_buffer, context->pending_length);
+		    memcpy(context->pending_buffer, mpeg2dec->buf_start, context->pending_length);
 		} else {
 		    // still some data in the pending buffer, shouldn't happen
-		    mpeg2dec->pending_length = mpeg2dec->buf_end - mpeg2dec->buf_start;
-		    memmove(mpeg2dec->pending_buffer, mpeg2dec->buf_start, mpeg2dec->pending_length);
-		    mpeg2dec->pending_buffer = realloc(mpeg2dec->pending_buffer, mpeg2dec->pending_length + len);
-		    memcpy(mpeg2dec->pending_buffer+mpeg2dec->pending_length, data, len);
-		    mpeg2dec->pending_length += len;
+		    context->pending_length = mpeg2dec->buf_end - mpeg2dec->buf_start;
+		    memmove(context->pending_buffer, mpeg2dec->buf_start, context->pending_length);
+		    context->pending_buffer = realloc(context->pending_buffer, context->pending_length + len);
+		    memcpy(context->pending_buffer+context->pending_length, data, len);
+		    context->pending_length += len;
 		}
-//		fprintf(stderr, "pending = %d\n", mpeg2dec->pending_length);
 		return mpi;
 	    }
 	}

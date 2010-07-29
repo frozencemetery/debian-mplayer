@@ -1,3 +1,21 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,8 +28,9 @@
 #include "img_format.h"
 #include "mp_image.h"
 #include "vf.h"
+#include "mpbswap.h"
 
-#include "libswscale/rgb2rgb.h"
+#include "libswscale/swscale.h"
 
 //===========================================================================//
 
@@ -19,14 +38,14 @@
 // routines are incorrrect.  they assume the palette to be of the same
 // depth as the output, which is incorrect. --Joey
 
-static unsigned int bgr_list[]={
+static const unsigned int bgr_list[]={
     IMGFMT_BGR32,
     IMGFMT_BGR24,
 //    IMGFMT_BGR16,
 //    IMGFMT_BGR15,
     0
 };
-static unsigned int rgb_list[]={
+static const unsigned int rgb_list[]={
     IMGFMT_RGB32,
     IMGFMT_RGB24,
 //    IMGFMT_RGB16,
@@ -34,12 +53,29 @@ static unsigned int rgb_list[]={
     0
 };
 
+/**
+ * Palette is assumed to contain BGR16, see rgb32to16 to convert the palette.
+ */
+static void palette8torgb16(const uint8_t *src, uint8_t *dst, long num_pixels, const uint8_t *palette)
+{
+    long i;
+    for (i=0; i<num_pixels; i++)
+        ((uint16_t *)dst)[i] = ((const uint16_t *)palette)[src[i]];
+}
+
+static void palette8tobgr16(const uint8_t *src, uint8_t *dst, long num_pixels, const uint8_t *palette)
+{
+    long i;
+    for (i=0; i<num_pixels; i++)
+        ((uint16_t *)dst)[i] = bswap_16(((const uint16_t *)palette)[src[i]]);
+}
+
 static unsigned int gray_pal[256];
 
-static unsigned int find_best(struct vf_instance_s* vf, unsigned int fmt){
+static unsigned int find_best(struct vf_instance *vf, unsigned int fmt){
     unsigned int best=0;
     int ret;
-    unsigned int* p;
+    const unsigned int* p;
     if(fmt==IMGFMT_BGR8) p=bgr_list;
     else if(fmt==IMGFMT_RGB8) p=rgb_list;
     else return 0;
@@ -60,7 +96,7 @@ struct vf_priv_s {
     int pal_msg;
 };
 
-static int config(struct vf_instance_s* vf,
+static int config(struct vf_instance *vf,
         int width, int height, int d_width, int d_height,
 	unsigned int flags, unsigned int outfmt){
     if (!vf->priv->fmt)
@@ -74,9 +110,10 @@ static int config(struct vf_instance_s* vf,
     return vf_next_config(vf,width,height,d_width,d_height,flags,vf->priv->fmt);
 }
 
-static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
+static int put_image(struct vf_instance *vf, mp_image_t *mpi, double pts){
     mp_image_t *dmpi;
-    
+    uint8_t *old_palette = mpi->planes[1];
+
     // hope we'll get DR buffer:
     dmpi=vf_get_image(vf->next,vf->priv->fmt,
 	MP_IMGTYPE_TEMP, MP_IMGFLAG_ACCEPT_STRIDE,
@@ -95,11 +132,6 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
 	// no stride conversion needed
 	switch(IMGFMT_RGB_DEPTH(dmpi->imgfmt)){
 	case 15:
-	    if (IMGFMT_IS_BGR(dmpi->imgfmt))
-		palette8tobgr15(mpi->planes[0],dmpi->planes[0],mpi->h*mpi->w,mpi->planes[1]);
-	    else
-		palette8torgb15(mpi->planes[0],dmpi->planes[0],mpi->h*mpi->w,mpi->planes[1]);
-	    break;
 	case 16:
 	    if (IMGFMT_IS_BGR(dmpi->imgfmt))
 		palette8tobgr16(mpi->planes[0],dmpi->planes[0],mpi->h*mpi->w,mpi->planes[1]);
@@ -108,15 +140,15 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
 	    break;
 	case 24:
 	    if (IMGFMT_IS_BGR(dmpi->imgfmt))
-		palette8topacked24(mpi->planes[0],dmpi->planes[0],mpi->h*mpi->w,mpi->planes[1]);
+		sws_convertPalette8ToPacked24(mpi->planes[0],dmpi->planes[0],mpi->h*mpi->w,mpi->planes[1]);
 	    else
-		palette8topacked24(mpi->planes[0],dmpi->planes[0],mpi->h*mpi->w,mpi->planes[1]);
+		sws_convertPalette8ToPacked24(mpi->planes[0],dmpi->planes[0],mpi->h*mpi->w,mpi->planes[1]);
 	    break;
 	case 32:
 	    if (IMGFMT_IS_BGR(dmpi->imgfmt))
-		palette8topacked32(mpi->planes[0],dmpi->planes[0],mpi->h*mpi->w,mpi->planes[1]);
+		sws_convertPalette8ToPacked32(mpi->planes[0],dmpi->planes[0],mpi->h*mpi->w,mpi->planes[1]);
 	    else
-		palette8topacked32(mpi->planes[0],dmpi->planes[0],mpi->h*mpi->w,mpi->planes[1]);
+		sws_convertPalette8ToPacked32(mpi->planes[0],dmpi->planes[0],mpi->h*mpi->w,mpi->planes[1]);
 	    break;
 	}
     } else {
@@ -126,11 +158,6 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
 	    unsigned char* dst=dmpi->planes[0]+y*dmpi->stride[0];
 	    switch(IMGFMT_RGB_DEPTH(dmpi->imgfmt)){
 	    case 15:
-		if (IMGFMT_IS_BGR(dmpi->imgfmt))
-		    palette8tobgr15(src,dst,mpi->w,mpi->planes[1]);
-		else
-		    palette8torgb15(src,dst,mpi->w,mpi->planes[1]);
-		break;
 	    case 16:
 		if (IMGFMT_IS_BGR(dmpi->imgfmt))
 		    palette8tobgr16(src,dst,mpi->w,mpi->planes[1]);
@@ -139,26 +166,27 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
 		break;
 	    case 24:
 		if (IMGFMT_IS_BGR(dmpi->imgfmt))
-		    palette8topacked24(src,dst,mpi->w,mpi->planes[1]);
+		    sws_convertPalette8ToPacked24(src,dst,mpi->w,mpi->planes[1]);
 		else
-		    palette8topacked24(src,dst,mpi->w,mpi->planes[1]);
+		    sws_convertPalette8ToPacked24(src,dst,mpi->w,mpi->planes[1]);
 		break;
 	    case 32:
 		if (IMGFMT_IS_BGR(dmpi->imgfmt))
-		    palette8topacked32(src,dst,mpi->w,mpi->planes[1]);
+		    sws_convertPalette8ToPacked32(src,dst,mpi->w,mpi->planes[1]);
 		else
-		    palette8topacked32(src,dst,mpi->w,mpi->planes[1]);
+		    sws_convertPalette8ToPacked32(src,dst,mpi->w,mpi->planes[1]);
 		break;
 	    }
 	}
     }
-    
+    mpi->planes[1] = old_palette;
+
     return vf_next_put_image(vf,dmpi, pts);
 }
 
 //===========================================================================//
 
-static int query_format(struct vf_instance_s* vf, unsigned int fmt){
+static int query_format(struct vf_instance *vf, unsigned int fmt){
     int best=find_best(vf,fmt);
     if(!best) return 0; // no match
     return vf->next->query_format(vf->next,best);
@@ -168,7 +196,7 @@ static void uninit(vf_instance_t *vf) {
   free(vf->priv);
 }
 
-static int open(vf_instance_t *vf, char* args){
+static int vf_open(vf_instance_t *vf, char *args){
     unsigned int i;
     vf->config=config;
     vf->uninit=uninit;
@@ -200,7 +228,7 @@ const vf_info_t vf_info_palette = {
     "palette",
     "A'rpi & Alex",
     "",
-    open,
+    vf_open,
     NULL
 };
 

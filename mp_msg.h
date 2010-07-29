@@ -1,3 +1,21 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #ifndef MPLAYER_MP_MSG_H
 #define MPLAYER_MP_MSG_H
 
@@ -104,7 +122,18 @@ extern int verbose;
 
 #define MSGT_STATUSLINE 45 // playback/encoding status line
 
+#define MSGT_TELETEXT 46       // Teletext decoder
+
 #define MSGT_MAX 64
+
+
+extern char *mp_msg_charset;
+extern int mp_msg_color;
+extern int mp_msg_module;
+
+extern int mp_msg_levels[MSGT_MAX];
+extern int mp_msg_level_all;
+
 
 void mp_msg_init(void);
 int mp_msg_test(int mod, int lev);

@@ -1,3 +1,9 @@
+mplayer (2:1.0~rc4~try1-1) experimental; urgency=low
+
+  * prepare new upload
+
+ -- Reinhard Tartler <siretart@tauware.de>  Wed, 28 Jul 2010 21:04:54 -0400
+
 mplayer (2:1.0~rc3++final-1~exp1) experimental; urgency=low
 
   * build mplayer against internal ffmpeg to workaround interoperability

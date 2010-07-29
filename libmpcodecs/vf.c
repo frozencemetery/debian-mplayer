@@ -1,3 +1,21 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,6 +40,7 @@
 #include "vf.h"
 
 #include "libvo/fastmemcpy.h"
+#include "libavutil/mem.h"
 
 extern const vf_info_t vf_info_vo;
 extern const vf_info_t vf_info_rectangle;
@@ -32,9 +51,7 @@ extern const vf_info_t vf_info_pp;
 extern const vf_info_t vf_info_scale;
 extern const vf_info_t vf_info_format;
 extern const vf_info_t vf_info_noformat;
-extern const vf_info_t vf_info_yuy2;
 extern const vf_info_t vf_info_flip;
-extern const vf_info_t vf_info_rgb2bgr;
 extern const vf_info_t vf_info_rotate;
 extern const vf_info_t vf_info_mirror;
 extern const vf_info_t vf_info_palette;
@@ -48,6 +65,7 @@ extern const vf_info_t vf_info_yvu9;
 extern const vf_info_t vf_info_lavcdeint;
 extern const vf_info_t vf_info_eq;
 extern const vf_info_t vf_info_eq2;
+extern const vf_info_t vf_info_gradfun;
 extern const vf_info_t vf_info_halfpack;
 extern const vf_info_t vf_info_dint;
 extern const vf_info_t vf_info_1bpp;
@@ -99,6 +117,7 @@ extern const vf_info_t vf_info_yadif;
 extern const vf_info_t vf_info_blackframe;
 extern const vf_info_t vf_info_geq;
 extern const vf_info_t vf_info_ow;
+extern const vf_info_t vf_info_fixpts;
 
 // list of available filters:
 static const vf_info_t* const filter_list[]={
@@ -116,9 +135,7 @@ static const vf_info_t* const filter_list[]={
     &vf_info_vo,
     &vf_info_format,
     &vf_info_noformat,
-    &vf_info_yuy2,
     &vf_info_flip,
-    &vf_info_rgb2bgr,
     &vf_info_rotate,
     &vf_info_mirror,
     &vf_info_palette,
@@ -138,6 +155,7 @@ static const vf_info_t* const filter_list[]={
     &vf_info_yvu9,
     &vf_info_eq,
     &vf_info_eq2,
+    &vf_info_gradfun,
     &vf_info_halfpack,
     &vf_info_dint,
     &vf_info_1bpp,
@@ -191,6 +209,7 @@ static const vf_info_t* const filter_list[]={
     &vf_info_yadif,
     &vf_info_blackframe,
     &vf_info_ow,
+    &vf_info_fixpts,
     NULL
 };
 
@@ -231,7 +250,7 @@ void vf_mpi_clear(mp_image_t* mpi,int x0,int y0,int w,int h){
 	    unsigned int* p=(unsigned int*) dst;
 	    int size=(mpi->bpp>>3)*w/4;
 	    int i;
-#ifdef WORDS_BIGENDIAN
+#if HAVE_BIGENDIAN
 #define CLEAR_PACKEDYUV_PATTERN 0x00800080
 #define CLEAR_PACKEDYUV_PATTERN_SWAPPED 0x80008000
 #else
@@ -268,12 +287,12 @@ mp_image_t* vf_get_image(vf_instance_t* vf, unsigned int outfmt, int mp_imgtype,
   if (h == -1) h = vf->h;
 
   w2=(mp_imgflag&MP_IMGFLAG_ACCEPT_ALIGNED_STRIDE)?((w+15)&(~15)):w;
-  
+
   if(vf->put_image==vf_next_put_image){
       // passthru mode, if the filter uses the fallback/default put_image() code
       return vf_get_image(vf->next,outfmt,mp_imgtype,mp_imgflag,w,h);
   }
-  
+
   // Note: we should call libvo first to check if it supports direct rendering
   // and if not, then fallback to software buffers:
   switch(mp_imgtype & 0xff){
@@ -320,15 +339,15 @@ mp_image_t* vf_get_image(vf_instance_t* vf, unsigned int outfmt, int mp_imgtype,
     // keep buffer allocation status & color flags only:
 //    mpi->flags&=~(MP_IMGFLAG_PRESERVE|MP_IMGFLAG_READABLE|MP_IMGFLAG_DIRECT);
     mpi->flags&=MP_IMGFLAG_ALLOCATED|MP_IMGFLAG_TYPE_DISPLAYED|MP_IMGFLAGMASK_COLORS;
-    // accept restrictions & draw_slice flags only:
-    mpi->flags|=mp_imgflag&(MP_IMGFLAGMASK_RESTRICTIONS|MP_IMGFLAG_DRAW_CALLBACK);
+    // accept restrictions, draw_slice and palette flags only:
+    mpi->flags|=mp_imgflag&(MP_IMGFLAGMASK_RESTRICTIONS|MP_IMGFLAG_DRAW_CALLBACK|MP_IMGFLAG_RGB_PALETTE);
     if(!vf->draw_slice) mpi->flags&=~MP_IMGFLAG_DRAW_CALLBACK;
     if(mpi->width!=w2 || mpi->height!=h){
 //	printf("vf.c: MPI parameters changed!  %dx%d -> %dx%d   \n", mpi->width,mpi->height,w2,h);
 	if(mpi->flags&MP_IMGFLAG_ALLOCATED){
 	    if(mpi->width<w2 || mpi->height<h){
 		// need to re-allocate buffer memory:
-		free(mpi->planes[0]);
+		av_free(mpi->planes[0]);
 		mpi->flags&=~MP_IMGFLAG_ALLOCATED;
 		mp_msg(MSGT_VFILTER,MSGL_V,"vf.c: have to REALLOCATE buffer memory :(\n");
 	    }
@@ -343,7 +362,7 @@ mp_image_t* vf_get_image(vf_instance_t* vf, unsigned int outfmt, int mp_imgtype,
 
 	// check libvo first!
 	if(vf->get_image) vf->get_image(vf,mpi);
-	
+
         if(!(mpi->flags&MP_IMGFLAG_DIRECT)){
           // non-direct and not yet allocated image. allocate it!
           if (!mpi->bpp) { // no way we can allocate this
@@ -351,8 +370,8 @@ mp_image_t* vf_get_image(vf_instance_t* vf, unsigned int outfmt, int mp_imgtype,
                      "vf_get_image: Tried to allocate a format that can not be allocated!\n");
               return NULL;
           }
-	  
-	  // check if codec prefer aligned stride:  
+
+	  // check if codec prefer aligned stride:
 	  if(mp_imgflag&MP_IMGFLAG_PREFER_ALIGNED_STRIDE){
 	      int align=(mpi->flags&MP_IMGFLAG_PLANAR &&
 	                 mpi->flags&MP_IMGFLAG_YUV) ?
@@ -369,45 +388,10 @@ mp_image_t* vf_get_image(vf_instance_t* vf, unsigned int outfmt, int mp_imgtype,
 		  }
 	      }
 	  }
-	  
-	  // IF09 - allocate space for 4. plane delta info - unused
-	  if (mpi->imgfmt == IMGFMT_IF09)
-	  {
-	     mpi->planes[0]=memalign(64, mpi->bpp*mpi->width*(mpi->height+2)/8+
-	    				mpi->chroma_width*mpi->chroma_height);
-	     /* export delta table */
-	     mpi->planes[3]=mpi->planes[0]+(mpi->width*mpi->height)+2*(mpi->chroma_width*mpi->chroma_height);
-	  }
-	  else
-	     mpi->planes[0]=memalign(64, mpi->bpp*mpi->width*(mpi->height+2)/8);
-	  if(mpi->flags&MP_IMGFLAG_PLANAR){
-	      // YV12/I420/YVU9/IF09. feel free to add other planar formats here...
-	      //if(!mpi->stride[0]) 
-	      mpi->stride[0]=mpi->width;
-	      //if(!mpi->stride[1]) 
-	      if(mpi->num_planes > 2){
-	      mpi->stride[1]=mpi->stride[2]=mpi->chroma_width;
-	      if(mpi->flags&MP_IMGFLAG_SWAPPED){
-	          // I420/IYUV  (Y,U,V)
-	          mpi->planes[1]=mpi->planes[0]+mpi->width*mpi->height;
-	          mpi->planes[2]=mpi->planes[1]+mpi->chroma_width*mpi->chroma_height;
-	      } else {
-	          // YV12,YVU9,IF09  (Y,V,U)
-	          mpi->planes[2]=mpi->planes[0]+mpi->width*mpi->height;
-	          mpi->planes[1]=mpi->planes[2]+mpi->chroma_width*mpi->chroma_height;
-	      }
-	      } else {
-	          // NV12/NV21
-	          mpi->stride[1]=mpi->chroma_width;
-	          mpi->planes[1]=mpi->planes[0]+mpi->width*mpi->height;
-	      }
-	  } else {
-	      //if(!mpi->stride[0]) 
-	      mpi->stride[0]=mpi->width*mpi->bpp/8;
-	  }
+
+	  mp_image_alloc_planes(mpi);
 //	  printf("clearing img!\n");
 	  vf_mpi_clear(mpi,0,0,mpi->width,mpi->height);
-	  mpi->flags|=MP_IMGFLAG_ALLOCATED;
         }
     }
     if(mpi->flags&MP_IMGFLAG_DRAW_CALLBACK)
@@ -441,7 +425,7 @@ mp_image_t* vf_get_image(vf_instance_t* vf, unsigned int outfmt, int mp_imgtype,
 //============================================================================
 
 // By default vf doesn't accept MPEGPES
-static int vf_default_query_format(struct vf_instance_s* vf, unsigned int fmt){
+static int vf_default_query_format(struct vf_instance *vf, unsigned int fmt){
   if(fmt == IMGFMT_MPEGPES) return 0;
   return vf_next_query_format(vf,fmt);
 }
@@ -479,7 +463,7 @@ vf_instance_t* vf_open_plugin(const vf_info_t* const* filter_list, vf_instance_t
 	args = (char**)args[1];
       else
 	args = NULL;
-    if(vf->info->open(vf,(char*)args)>0) return vf; // Success!
+    if(vf->info->vf_open(vf,(char*)args)>0) return vf; // Success!
     free(vf);
     mp_msg(MSGT_VFILTER,MSGL_ERR,MSGTR_CouldNotOpenVideoFilter,name);
     return NULL;
@@ -622,7 +606,7 @@ int vf_output_queued_frame(vf_instance_t *vf)
  * are unchanged, and returns either success or error.
  *
 */
-int vf_config_wrapper(struct vf_instance_s* vf,
+int vf_config_wrapper(struct vf_instance *vf,
 		    int width, int height, int d_width, int d_height,
 		    unsigned int flags, unsigned int outfmt)
 {
@@ -645,7 +629,7 @@ int vf_config_wrapper(struct vf_instance_s* vf,
     return r;
 }
 
-int vf_next_config(struct vf_instance_s* vf,
+int vf_next_config(struct vf_instance *vf,
         int width, int height, int d_width, int d_height,
 	unsigned int voflags, unsigned int outfmt){
     int miss;
@@ -677,11 +661,11 @@ int vf_next_config(struct vf_instance_s* vf,
     return vf_config_wrapper(vf->next,width,height,d_width,d_height,voflags,outfmt);
 }
 
-int vf_next_control(struct vf_instance_s* vf, int request, void* data){
+int vf_next_control(struct vf_instance *vf, int request, void* data){
     return vf->next->control(vf->next,request,data);
 }
 
-void vf_extra_flip(struct vf_instance_s* vf) {
+void vf_extra_flip(struct vf_instance *vf) {
     vf_next_control(vf, VFCTRL_DRAW_OSD, NULL);
 #ifdef CONFIG_ASS
     vf_next_control(vf, VFCTRL_DRAW_EOSD, NULL);
@@ -689,17 +673,17 @@ void vf_extra_flip(struct vf_instance_s* vf) {
     vf_next_control(vf, VFCTRL_FLIP_PAGE, NULL);
 }
 
-int vf_next_query_format(struct vf_instance_s* vf, unsigned int fmt){
+int vf_next_query_format(struct vf_instance *vf, unsigned int fmt){
     int flags=vf->next->query_format(vf->next,fmt);
     if(flags) flags|=vf->default_caps;
     return flags;
 }
 
-int vf_next_put_image(struct vf_instance_s* vf,mp_image_t *mpi, double pts){
+int vf_next_put_image(struct vf_instance *vf,mp_image_t *mpi, double pts){
     return vf->next->put_image(vf->next,mpi, pts);
 }
 
-void vf_next_draw_slice(struct vf_instance_s* vf,unsigned char** src, int * stride,int w, int h, int x, int y){
+void vf_next_draw_slice(struct vf_instance *vf,unsigned char** src, int * stride,int w, int h, int x, int y){
     if (vf->next->draw_slice) {
 	vf->next->draw_slice(vf->next,src,stride,w,h,x,y);
 	return;
@@ -725,7 +709,7 @@ void vf_next_draw_slice(struct vf_instance_s* vf,unsigned char** src, int * stri
 
 vf_instance_t* append_filters(vf_instance_t* last){
   vf_instance_t* vf;
-  int i; 
+  int i;
 
   if(vf_settings) {
     // We want to add them in the 'right order'

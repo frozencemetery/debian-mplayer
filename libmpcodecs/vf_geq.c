@@ -34,21 +34,21 @@
 #include "vf.h"
 
 #include "libavcodec/avcodec.h"
-#include "libavcodec/eval.h"
+#include "libavutil/eval.h"
 
 struct vf_priv_s {
-    AVEvalExpr * e[3];
+    AVExpr * e[3];
     int framenum;
     mp_image_t *mpi;
 };
 
-static int config(struct vf_instance_s* vf,
+static int config(struct vf_instance *vf,
         int width, int height, int d_width, int d_height,
         unsigned int flags, unsigned int outfmt){
     return vf_next_config(vf,width,height,d_width,d_height,flags,outfmt);
 }
 
-static inline double getpix(struct vf_instance_s* vf, double x, double y, int plane){
+static inline double getpix(struct vf_instance *vf, double x, double y, int plane){
     int xi, yi;
     mp_image_t *mpi= vf->priv->mpi;
     int stride= mpi->stride[plane];
@@ -66,19 +66,19 @@ static inline double getpix(struct vf_instance_s* vf, double x, double y, int pl
 
 //FIXME cubic interpolate
 //FIXME keep the last few frames
-static double lum(struct vf_instance_s* vf, double x, double y){
+static double lum(void *vf, double x, double y){
     return getpix(vf, x, y, 0);
 }
 
-static double cb(struct vf_instance_s* vf, double x, double y){
+static double cb(void *vf, double x, double y){
     return getpix(vf, x, y, 1);
 }
 
-static double cr(struct vf_instance_s* vf, double x, double y){
+static double cr(void *vf, double x, double y){
     return getpix(vf, x, y, 2);
 }
 
-static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
+static int put_image(struct vf_instance *vf, mp_image_t *mpi, double pts){
     mp_image_t *dmpi;
     int x,y, plane;
 
@@ -116,7 +116,8 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
             const_values[3]=y;
             for(x=0; x<w; x++){
                 const_values[2]=x;
-                dst[x+y* dst_stride]= ff_parse_eval(vf->priv->e[plane], const_values, vf);
+                dst[x + y * dst_stride] = av_eval_expr(vf->priv->e[plane],
+                                                       const_values, vf);
             }
         }
     }
@@ -126,7 +127,7 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
     return vf_next_put_image(vf,dmpi, pts);
 }
 
-static void uninit(struct vf_instance_s* vf){
+static void uninit(struct vf_instance *vf){
     if(!vf->priv) return;
 
     av_free(vf->priv);
@@ -134,9 +135,9 @@ static void uninit(struct vf_instance_s* vf){
 }
 
 //===========================================================================//
-static int open(vf_instance_t *vf, char* args){
+static int vf_open(vf_instance_t *vf, char *args){
     char eq[3][2000] = { { 0 }, { 0 }, { 0 } };
-    int plane;
+    int plane, res;
 
     vf->config=config;
     vf->put_image=put_image;
@@ -177,11 +178,11 @@ static int open(vf_instance_t *vf, char* args){
             plane==0 ? lum : (plane==1 ? cb : cr),
             NULL
         };
-        char * a;
-        vf->priv->e[plane] = ff_parse(eq[plane], const_names, NULL, NULL, func2, func2_names, &a);
+        res = av_parse_expr(&vf->priv->e[plane], eq[plane], const_names, NULL, NULL, func2_names, func2, 0, NULL);
 
-        if (!vf->priv->e[plane]) {
-            mp_msg(MSGT_VFILTER, MSGL_ERR, "geq: error loading equation `%s': %s\n", eq[plane], a);
+        if (res < 0) {
+            mp_msg(MSGT_VFILTER, MSGL_ERR, "geq: error loading equation `%s'\n", eq[plane]);
+            return 0;
         }
     }
 
@@ -193,6 +194,6 @@ const vf_info_t vf_info_geq = {
     "geq",
     "Michael Niedermayer",
     "",
-    open,
+    vf_open,
     NULL
 };

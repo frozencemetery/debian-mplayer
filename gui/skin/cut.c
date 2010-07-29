@@ -19,6 +19,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "cut.h"
+
 void cutItem( char * in,char * out,char sep,int num )
 {
  int i,n,c;
@@ -34,14 +36,14 @@ void cutItem( char * in,char * out,char sep,int num )
 int cutItemToInt( char * in,char sep,int num )
 {
  char tmp[512];
- cutItem( in,tmp,sep,num ); 
+ cutItem( in,tmp,sep,num );
  return atoi( tmp );
 }
 
 float cutItemToFloat( char * in,char sep,int num )
 {
  char tmp[512];
- cutItem( in,tmp,sep,num ); 
+ cutItem( in,tmp,sep,num );
  return atof( tmp );
 }
 
@@ -50,4 +52,3 @@ void cutChunk( char * in,char * s1 )
  cutItem( in,s1,'=',0 );
  memmove( in,strchr( in,'=' )+1,strlen( in ) - strlen( s1 ) );
 }
-

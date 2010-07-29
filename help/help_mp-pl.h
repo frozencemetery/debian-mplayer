@@ -5,7 +5,6 @@
 
 // ========================= MPlayer help ===========================
 
-#ifdef HELP_MP_DEFINE_STATIC
 static const char help_text[]=
 "Użycie:   mplayer [opcje] [url|ścieżka/]plik\n"
 "\n"
@@ -45,7 +44,6 @@ static const char help_text[]=
 "\n"
 " * * * WIĘCEJ OPCJI DOSTĘPNYCH NA STRONIE PODRĘCZNIKA MAN * * *\n"
 "\n";
-#endif
 
 // libmpcodecs/ad_dvdpcm.c:
 #define MSGTR_SamplesWanted "By poprawić obsługę tego formatu potrzebne są próbki. Proszę skontaktować się z twórcami.\n"
@@ -72,7 +70,6 @@ static const char help_text[]=
 #define MSGTR_FPSnotspecified "Brak wartości FPS w nagłówku lub jest ona nieprawidłowa, użyj opcji -fps <ilość_klatek>.\n"
 #define MSGTR_TryForceAudioFmtStr "Próbuję wymusić kodek audio z rodziny %s...\n"
 #define MSGTR_CantFindAudioCodec "Nie mogę odnaleźć kodeka audio 0x%X.\n"
-#define MSGTR_RTFMCodecs "Zobacz DOCS/HTML/en/codecs.html!\n"
 #define MSGTR_TryForceVideoFmtStr "Próbuję wymusić kodek video z rodziny %s...\n"
 #define MSGTR_CantFindVideoCodec "Nie mogę odnaleźć kodeka video pasującego do wybranego -vo i formatu video 0x%X.\n"
 #define MSGTR_CannotInitVO "Błąd krytyczny: Nie mogę uruchomić sterownika video.\n"
@@ -436,7 +433,7 @@ static const char help_text[]=
 "                2: dostosuj\n"\
 "\n"\
 " fast          Ustaw szybsze kodowanie na następnych ustawieniach VBR,\n"\
-"		nieznacznie niższa jakość i wyższy bitrate.\n"\
+"                nieznacznie niższa jakość i wyższy bitrate.\n"\
 "\n"\
 " preset=<value> Ustaw możliwie najwyższe ustawienia jakości.\n"\
 "                 medium:  kodowanie VBR,  dobra jakość\n"\
@@ -490,7 +487,7 @@ static const char help_text[]=
 #define MSGTR_OptionListHeader "\n Nazwa                 Typ            Min        Max      Ogólnie  CL    Cfg\n\n"
 #define MSGTR_TotalOptions "\nRazem: %d opcji\n"
 #define MSGTR_ProfileInclusionTooDeep "Ostrzeżenie: Profile inclusion too deep.\n"
-//nope? 
+//nope?
 #define MSGTR_NoProfileDefined "Brak zdefiniowanych profili.\n"
 #define MSGTR_AvailableProfiles "Dostępne profile:\n"
 #define MSGTR_UnknownProfile "Nieznany profil '%s'.\n"
@@ -555,14 +552,14 @@ static const char help_text[]=
 #define MSGTR_TooManyAudioInBuffer "\nZa dużo pakietów audio w buforze: (%d w %d bajtach).\n"
 #define MSGTR_TooManyVideoInBuffer "\nZa dużo pakietów video w buforze: (%d w %d bajtach).\n"
 #define MSGTR_MaybeNI "Może odtwarzasz strumień/plik bez przeplotu (non-interleaved) albo kodek nie działa?\n" \
-		      "Spróbuj wymusić tryb bez przeplotu dla plików AVI opcją -ni.\n"
+                      "Spróbuj wymusić tryb bez przeplotu dla plików AVI opcją -ni.\n"
 #define MSGTR_SwitchToNi "\nWykryłem plik AVI z błędnym przeplotem - przełączam na tryb -ni...\n"
 #define MSGTR_Detected_XXX_FileFormat "Wykryto format pliku %s.\n"
 #define MSGTR_DetectedAudiofile "Wykryto plik audio.\n"
 #define MSGTR_NotSystemStream "Strumień nie w formacie MPEG... (może Transport Stream?)\n"
 #define MSGTR_InvalidMPEGES "Błędny strumień MPEG-ES??? Skontaktuj się z autorem, to może być błąd :(\n"
 #define MSGTR_FormatNotRecognized "============ Niestety, ten format pliku jest nieobsługiwany =============\n"\
-				  "=== Jeśli plik to AVI lub strumień ASF, MPEG proszę skontaktuj się z autorem! ===\n"
+                                  "=== Jeśli plik to AVI lub strumień ASF, MPEG proszę skontaktuj się z autorem! ===\n"
 #define MSGTR_MissingVideoStream "Brak strumienia video.\n"
 #define MSGTR_MissingAudioStream "Brak strumienia audio -> brak dźwięku.\n"
 #define MSGTR_MissingVideoStreamBug "Brak strumienia video!? Skontaktuj się z autorem, to może być błąd :(\n"
@@ -625,8 +622,8 @@ static const char help_text[]=
 #define MSGTR_UsingExternalPP "[PP] Używam zewnętrznego filtra postprocessing, max q = %d.\n"
 #define MSGTR_UsingCodecPP "[PP] Używam filtra postprocessing kodeka, max q = %d.\n"
 #define MSGTR_VideoAttributeNotSupportedByVO_VD "Atrybut video '%s' nie jest obsługiwany przez wybrany vo & vd.\n"
-#define MSGTR_VideoCodecFamilyNotAvailableStr "Zarządano rodziny kodeków video [%s] (vfm=%s) niedostępna.\nWłącz ją przy kompilacji.\n"
-#define MSGTR_AudioCodecFamilyNotAvailableStr "Zarządano rodziny kodeków audio [%s] (afm=%s) niedostępna.\nWłącz ją przy kompilacji.\n"
+#define MSGTR_VideoCodecFamilyNotAvailableStr "Zażądano rodziny kodeków video [%s] (vfm=%s) niedostępna.\nWłącz ją przy kompilacji.\n"
+#define MSGTR_AudioCodecFamilyNotAvailableStr "Zażądano rodziny kodeków audio [%s] (afm=%s) niedostępna.\nWłącz ją przy kompilacji.\n"
 #define MSGTR_OpeningVideoDecoder "Otwieram dekoder video: [%s] %s\n"
 #define MSGTR_SelectedVideoCodec "Wybrany kodek video: [%s] vfm: %s (%s)\n"
 #define MSGTR_OpeningAudioDecoder "Otwieram dekoder audio: [%s] %s\n"
@@ -653,7 +650,6 @@ static const char help_text[]=
 
 // vd.c
 #define MSGTR_CodecDidNotSet "VDec: Kodek nie ustawił sh->disp_w i sh->disp_h, próbuję obejścia.\n"
-#define MSGTR_VoConfigRequest "VDec: wymagana konfiguracja vo - %d x %d (preferowana przestrzeń kolorów: %s)\n"
 #define MSGTR_CouldNotFindColorspace "Nie mogłem odnaleźć pasującej przestrzeni kolorów - próbuję ponownie z opcją -vf scale...\n"
 #define MSGTR_MovieAspectIsSet "Format filmu to %.2f:1 - zmieniam do poprawnego formatu filmu.\n"
 #define MSGTR_MovieAspectUndefined "Format filmu nie zdefiniowany - nie stosuję zmiany formatu.\n"
@@ -985,8 +981,6 @@ static const char help_text[]=
 #define MSGTR_VO_CantCreateDirectory "Nie mogę stworzyć folderu wyjściowego."
 #define MSGTR_VO_CantCreateFile "Nie mogę stworzyć pliku wyjściowego."
 #define MSGTR_VO_DirectoryCreateSuccess "Folder wyjściowy utworzony pomyślnie."
-#define MSGTR_VO_ParsingSuboptions "Interpretuję podopcje."
-#define MSGTR_VO_SuboptionsParsedOK "Pomyślnie zinterpretowano podopcje."
 #define MSGTR_VO_ValueOutOfRange "wartość poza zakresem."
 #define MSGTR_VO_NoValueSpecified "Nie podano wartości."
 #define MSGTR_VO_UnknownSuboptions "nieznana podopcja(e)"
@@ -1050,7 +1044,7 @@ static const char help_text[]=
 
 // ======================= AO Audio Output drivers ========================
 
-// libao2 
+// libao2
 
 // audio_out.c
 #define MSGTR_AO_ALSA9_1x_Removed "audio_out: moduły alsa9 i alsa1x zostały usunięte, użyj w zamian -ao alsa.\n"
@@ -1156,7 +1150,7 @@ static const char help_text[]=
 
 // ======================= AF Audio Filters ================================
 
-// libaf 
+// libaf
 
 // af_ladspa.c
 
@@ -1367,7 +1361,7 @@ static const char help_text[]=
 
 #define MSGTR_MPDEMUX_CDDA_CantOpenCDDADevice "Nie omgę otworzyć urządzenia CDDA.\n"
 #define MSGTR_MPDEMUX_CDDA_CantOpenDisc "Nie mogę otworzyć płyty.\n"
-#define MSGTR_MPDEMUX_CDDA_AudioCDFoundWithNTracks "Znalazłem płytę audio z %ld ścieżkami.\n"
+#define MSGTR_MPDEMUX_CDDA_AudioCDFoundWithNTracks "Znalazłem płytę audio z %d ścieżkami.\n"
 
 // cddb.c
 
@@ -1566,7 +1560,7 @@ static const char help_text[]=
 
 // ================================== LIBMPVO ====================================
 
-// mga_common.c
+// mga_template.c
 
 #define MSGTR_LIBVO_MGA_ErrorInConfigIoctl "[MGA] błąd w mga_vid_config ioctl (zła wersja mga_vid.o ?)"
 #define MSGTR_LIBVO_MGA_CouldNotGetLumaValuesFromTheKernelModule "[MGA] Nie mogłem pobrać wartości luma z modułu jądra!\n"
@@ -1839,4 +1833,3 @@ static const char help_text[]=
 #define MSGTR_RADIO_DriverUnknownStr "[radio] Nieznana nazwa sterownika: %s\n"
 #define MSGTR_RADIO_DriverV4L2 "[radio] Używam interfejsu radiowego V4Lv2.\n"
 #define MSGTR_RADIO_DriverV4L "[radio] Używam interfejsu radiowego V4Lv1.\n"
-

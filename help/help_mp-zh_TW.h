@@ -8,7 +8,6 @@
 
 // ========================= MPlayer help ===========================
 
-#ifdef HELP_MP_DEFINE_STATIC
 static const char help_text[]=
 "用法:   mplayer [選項] [URL|路徑/]文件名\n"
 "\n"
@@ -48,7 +47,6 @@ static const char help_text[]=
 "\n"
 " * * *  詳細内容，更多的(高級)選項和控製鍵，請參見手册頁  * * *\n"
 "\n";
-#endif
 
 // libmpcodecs/ad_dvdpcm.c:
 #define MSGTR_SamplesWanted "這個格式的采様需要更好的支持。請聯係開發者。\n"
@@ -75,7 +73,6 @@ static const char help_text[]=
 #define MSGTR_FPSnotspecified "FPS 在文件頭中没有指定或者無效，用 -fps 選項。\n"
 #define MSGTR_TryForceAudioFmtStr "嘗試鎖定為音頻編解碼器驅動族 %s...\n"
 #define MSGTR_CantFindAudioCodec "找不到音頻格式 0x%X 的編解碼器。\n"
-#define MSGTR_RTFMCodecs "請閲讀 DOCS/zh/codecs.html!\n"
 #define MSGTR_TryForceVideoFmtStr "嘗試鎖定為視頻編解碼器驅動族 %s...\n"
 #define MSGTR_CantFindVideoCodec "找不到匹配 -vo 所選的和視頻格式 0x%X 的編解碼器。\n"
 #define MSGTR_CannotInitVO "致命錯誤: 無法初始化視頻驅動!\n"
@@ -568,7 +565,7 @@ static const char help_text[]=
 #define MSGTR_TooManyAudioInBuffer "\n緩衝中音頻包太多(%d in %d 字節)。\n"
 #define MSGTR_TooManyVideoInBuffer "\n緩衝中視頻包太多(%d in %d 字節)。\n"
 #define MSGTR_MaybeNI "(也許你播放了一個非交錯的流/文件或者是編解碼失敗)?\n" \
-		      "對于 AVI 文件, 嘗試用 -ni 選項鎖定非交錯模式。\n"
+                      "對于 AVI 文件, 嘗試用 -ni 選項鎖定非交錯模式。\n"
 #define MSGTR_WorkAroundBlockAlignHeaderBug "AVI: 繞過 CBR-MP3 nBlockAlign 頭部錯誤!\n"
 #define MSGTR_SwitchToNi "\n檢測到糟糕的交錯格式的 AVI 文件 - 切換到 -ni 模式...\n"
 #define MSGTR_InvalidAudioStreamNosound "AVI: 無效的音頻流 ID: %d - 忽略 (nosound)\n"
@@ -579,7 +576,7 @@ static const char help_text[]=
 #define MSGTR_NotSystemStream "非 MPEG 係統的流格式... (可能是輸送流?)\n"
 #define MSGTR_InvalidMPEGES "MPEG-ES 流無效??? 請聯係作者, 這可能是個錯誤:(\n"
 #define MSGTR_FormatNotRecognized "============= 抱歉, 此文件格式無法辨認或支持 ===============\n"\
-				  "===     如果此文件是一個 AVI, ASF 或 MPEG 流, 請聯係作者!    ===\n"
+                                  "===     如果此文件是一個 AVI, ASF 或 MPEG 流, 請聯係作者!    ===\n"
 #define MSGTR_SettingProcessPriority "設置進程優先級: %s\n"
 #define MSGTR_FilefmtFourccSizeFpsFtime "[V] 文件格式:%d  fourcc:0x%X  大小:%dx%d  幀速:%5.3f  幀時間:=%6.4f\n"
 #define MSGTR_CannotInitializeMuxer "不能初始化muxer。"
@@ -671,8 +668,6 @@ static const char help_text[]=
 
 // vd.c
 #define MSGTR_CodecDidNotSet "VDec: 編解碼器無法設置 sh->disp_w 和 sh->disp_h, 嘗試繞過。\n"
-#define MSGTR_VoConfigRequest "VDec: vo 配置請求 - %d x %d (色彩空間首選項: %s)\n"
-#define MSGTR_UsingXAsOutputCspNoY "VDec: 使用 %s 作為輸出 csp (没有 %d)\n"
 #define MSGTR_CouldNotFindColorspace "找不到匹配的色彩空間 - 重新嘗試 -vf scale...\n"
 #define MSGTR_MovieAspectIsSet "電影寬高比為 %.2f:1 - 預放大到正確的電影寬高比。\n"
 #define MSGTR_MovieAspectUndefined "電影寬高比未定義 - 没使用預放大。\n"
@@ -1004,8 +999,6 @@ static const char help_text[]=
 #define MSGTR_VO_CantCreateDirectory "無法創建輸出目録。"
 #define MSGTR_VO_CantCreateFile "無法創建輸出文件。"
 #define MSGTR_VO_DirectoryCreateSuccess "輸出目録創建成功。"
-#define MSGTR_VO_ParsingSuboptions "解析子選項。"
-#define MSGTR_VO_SuboptionsParsedOK "子選項解析成功。"
 #define MSGTR_VO_ValueOutOfRange "值超出範圍"
 #define MSGTR_VO_NoValueSpecified "没有指定值。"
 #define MSGTR_VO_UnknownSuboptions "未知子選項"
@@ -1199,10 +1192,7 @@ static const char help_text[]=
 #define MSGTR_AO_ALSA_UnableToDisableResampling "[AO_ALSA] 無法停用再抽様: %s\n"
 #define MSGTR_AO_ALSA_UnableToSetSamplerate2 "[AO_ALSA] 無法設置 采様率-2: %s\n"
 #define MSGTR_AO_ALSA_UnableToSetBufferTimeNear "[AO_ALSA] 無法設置緩衝時間約: %s\n"
-#define MSGTR_AO_ALSA_UnableToSetPeriodTime "[AO_ALSA] 無法設置區段時間: %s\n"
-#define MSGTR_AO_ALSA_BufferTimePeriodTime "[AO_ALSA] buffer_time: %d, period_time :%d\n"
 #define MSGTR_AO_ALSA_UnableToGetPeriodSize "[AO ALSA] 無法取得區段大小: %s\n"
-#define MSGTR_AO_ALSA_UnableToSetPeriodSize "[AO ALSA] 無法設置區段大小(%ld): %s\n"
 #define MSGTR_AO_ALSA_UnableToSetPeriods "[AO_ALSA] 無法設置區段: %s\n"
 #define MSGTR_AO_ALSA_UnableToSetHwParameters "[AO_ALSA] 無法設置 hw-parameters: %s\n"
 #define MSGTR_AO_ALSA_UnableToGetBufferSize "[AO_ALSA] 無法取得緩衝大小: %s\n"
@@ -1230,7 +1220,7 @@ static const char help_text[]=
 
 // ======================= AF Audio Filters ================================
 
-// libaf 
+// libaf
 
 // af_ladspa.c
 
@@ -1440,7 +1430,7 @@ static const char help_text[]=
 
 #define MSGTR_MPDEMUX_CDDA_CantOpenCDDADevice "打不開 CDDA 設備。\n"
 #define MSGTR_MPDEMUX_CDDA_CantOpenDisc "打不開盤。\n"
-#define MSGTR_MPDEMUX_CDDA_AudioCDFoundWithNTracks "發現音頻 CD，共 %ld 音軌。\n"
+#define MSGTR_MPDEMUX_CDDA_AudioCDFoundWithNTracks "發現音頻 CD，共 %d 音軌。\n"
 
 // cddb.c
 
@@ -1660,7 +1650,7 @@ static const char help_text[]=
 
 // ================================== LIBMPVO ====================================
 
-// mga_common.c
+// mga_template.c
 
 #define MSGTR_LIBVO_MGA_ErrorInConfigIoctl "[MGA] mga_vid_config ioctl 錯誤 (mga_vid.o 版本錯誤?)"
 #define MSGTR_LIBVO_MGA_CouldNotGetLumaValuesFromTheKernelModule "[MGA] 無法在内核模塊中獲得 luma 值!\n"
@@ -1748,7 +1738,7 @@ static const char help_text[]=
 // libvo/vo_null.c
 
 #define MSGTR_LIBVO_NULL_UnknownSubdevice "[VO_NULL] 未知子設備: %s。\n"
-															
+
 // libvo/vo_png.c
 
 #define MSGTR_LIBVO_PNG_Warning1 "[VO_PNG] 警告: 壓縮級别設置為 0, 停用壓縮!\n"
@@ -1971,7 +1961,7 @@ static const char help_text[]=
 #define MSGTR_LIBASS_ErrorRecodingFile "[ass] 記録到文件出錯。\n"
 #define MSGTR_LIBASS_FopenFailed "[ass] ass_read_file(%s): 文件打開(fopen)失敗\n"
 #define MSGTR_LIBASS_FseekFailed "[ass] ass_read_file(%s): 文件定位(fseek)失敗\n"
-#define MSGTR_LIBASS_RefusingToLoadSubtitlesLargerThan10M "[ass] ass_read_file(%s): 拒絶裝入大于10M的字幕\n"
+#define MSGTR_LIBASS_RefusingToLoadSubtitlesLargerThan100M "[ass] ass_read_file(%s): 拒絶裝入大于100M的字幕\n"
 #define MSGTR_LIBASS_ReadFailed "讀失敗, %d: %s\n"
 #define MSGTR_LIBASS_AddedSubtitleFileMemory "[ass] 已加入字幕文件: <内存> (%d styles, %d events)\n"
 #define MSGTR_LIBASS_AddedSubtitleFileFname "[ass] 已加入字幕文件: %s (%d styles, %d events)\n"

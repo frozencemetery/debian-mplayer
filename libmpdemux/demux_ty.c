@@ -41,6 +41,7 @@
 
 #include "stream/stream.h"
 #include "demuxer.h"
+#include "demux_ty_osd.h"
 #include "parse_es.h"
 #include "stheader.h"
 #include "sub_cc.h"
@@ -86,6 +87,7 @@ typedef struct
 typedef struct
 {
    int             whichChunk;
+   unsigned char   chunk[ CHUNKSIZE ];
 
    unsigned char   lastAudio[ MAX_AUDIO_BUFFER ];
    int             lastAudioEnd;
@@ -102,9 +104,6 @@ typedef struct
    tmf_fileParts   tmfparts[ MAX_TMF_PARTS ];
    int             tmf_totalparts;
 } TiVoInfo;
-
-off_t vstream_streamsize( );
-void ty_ClearOSD( int start );
 
 // ===========================================================================
 #define TMF_SIG "showing.xml"
@@ -338,7 +337,6 @@ static int demux_ty_fill_buffer( demuxer_t *demux, demux_stream_t *dsds )
    int              errorHeader = 0;
    int              recordsDecoded = 0;
 
-   unsigned char    chunk[ CHUNKSIZE ];
    int              readSize;
 
    int              numberRecs;
@@ -350,6 +348,7 @@ static int demux_ty_fill_buffer( demuxer_t *demux, demux_stream_t *dsds )
    int              aid;
 
    TiVoInfo         *tivo = demux->priv;
+   unsigned char    *chunk = tivo->chunk;
 
    if ( demux->stream->type == STREAMTYPE_DVD )
       return 0;
@@ -361,16 +360,14 @@ static int demux_ty_fill_buffer( demuxer_t *demux, demux_stream_t *dsds )
    // ======================================================================
    // If we haven't figured out the size of the stream, let's do so
    // ======================================================================
-#ifdef STREAMTYPE_STREAM_TY
-   if ( demux->stream->type == STREAMTYPE_STREAM_TY )
+   if ( demux->stream->type == STREAMTYPE_VSTREAM )
    {
       // The vstream code figures out the exact size of the stream
       demux->movi_start = 0;
-      demux->movi_end = vstream_streamsize();
-      tivo->size = vstream_streamsize();
+      demux->movi_end = demux->stream->end_pos;
+      tivo->size = demux->stream->end_pos;
    }
    else
-#endif
    {
       // If its a local file, try to find the Part Headers, so we can
       // calculate the ACTUAL stream size
