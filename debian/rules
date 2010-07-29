@@ -159,7 +159,7 @@ install-indep: build-indep
 clean:
 	dh_testdir
 	dh_testroot
-	[ ! -f config.mak ] || $(MAKE) distclean
+	[ ! -f config.mak ] || $(MAKE) -C DOCS/xml releaseclean && $(MAKE) distclean
 	dh_clean snapshot_version
 	! test -d .git || quilt pop -a || test $$? = 2
 
