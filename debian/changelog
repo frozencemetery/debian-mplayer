@@ -1,3 +1,12 @@
+mplayer (2:1.0~rc4~try1-1ubuntu1) maverick; urgency=low
+
+  * merge from debian/experimental, remaining changes:
+    - build depend against, lame, x264, xvid
+    - enable mencoder and mplayer-gui
+  * ensure that quilt patches are actually applied
+
+ -- Reinhard Tartler <siretart@tauware.de>  Thu, 29 Jul 2010 07:25:31 -0400
+
 mplayer (2:1.0~rc4~try1-1) experimental; urgency=low
 
   * New Upstream Version, LP: #539315
