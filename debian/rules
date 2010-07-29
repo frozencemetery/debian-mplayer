@@ -103,6 +103,7 @@ build-arch:
 # & mencoder
 debian/mplayer/usr/bin/mplayer debian/mencoder/usr/bin/mencoder:
 	dh_testdir
+	! test -d .git || quilt push -a
 	$(CLEAN_ENV) \
 	./configure $(CONFIGURE_FLAGS) --disable-gui
 	$(CLEAN_ENV) \
@@ -117,6 +118,7 @@ debian/mplayer/usr/bin/mplayer debian/mencoder/usr/bin/mencoder:
 # build gui version
 debian/mplayer-gui/usr/bin/gmplayer:
 	dh_testdir
+	! test -d .git || quilt push -a
 	$(CLEAN_ENV) \
 	./configure $(CONFIGURE_FLAGS) --enable-gui
 	$(CLEAN_ENV) \
