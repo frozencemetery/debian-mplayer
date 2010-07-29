@@ -5,15 +5,15 @@
   Если Вы хотите установить <span class="application">MEncoder</span> (наш великолепный многоцелевой кодировщик),
 читайте <a class="link" href="mencoder.html" title="Глава 9. Основы использования MEncoder">секцию <span class="application">MEncoder</span></a>.
 </p></li><li class="listitem"><p>
-  Если у Вас есть V4L совместимый <span class="bold"><strong>TV тюнер</strong></span>, и Вы хотите 
-  смотреть/захватывать и кодировать MPlayer'ом фильмы, читайте секцию 
+  Если у Вас есть V4L совместимый <span class="bold"><strong>TV тюнер</strong></span>, и Вы хотите
+  смотреть/захватывать и кодировать MPlayer'ом фильмы, читайте секцию
   <a class="link" href="tv-input.html" title="5.1. TV вход">TV вход</a>.
 </p></li><li class="listitem"><p>
   Если у вас есть V4L совместимый <span class="bold"><strong>Radio тюнер</strong></span>,
-  и вы хотите слушать/записывать MPlayer'ом радиопередачи, читайте секцию 
+  и вы хотите слушать/записывать MPlayer'ом радиопередачи, читайте секцию
   <a class="link" href="radio.html" title="Глава 6. Радио">Радио</a>.
 </p></li><li class="listitem"><p>
-  Существует изящное <span class="bold"><strong>OSD Меню</strong></span> готовое для использования. 
+  Существует изящное <span class="bold"><strong>OSD Меню</strong></span> готовое для использования.
   Проверьте секцию <a class="link" href="subosd.html" title="3.2. Субтитры и OSD">OSD Меню</a>.
 </p></li></ul></div><p>
 Теперь соберите <span class="application">MPlayer</span>:
@@ -28,7 +28,7 @@ make install
 (<tt class="filename">~/.mplayer/codecs.conf</tt>) оставленный от предыдущих версий MPlayer'а,
 и удалите его.
 </p><p>
-Обратите внимание на то, что если у Вас в <tt class="filename">~/.mplayer/</tt> есть 
+Обратите внимание на то, что если у Вас в <tt class="filename">~/.mplayer/</tt> есть
 файл <tt class="filename">codecs.conf</tt>, то встроенный и системный файлы
 <tt class="filename">codecs.conf</tt> будут полностью игнорированы. Не делайте
 этого, если только Вы не собираетесь развлекаться со внутренностями <span class="application">MPlayer</span>'а,
@@ -43,13 +43,13 @@ make install
 в разделе <a class="link" href="linux.html#debian" title="8.1.1. Debian пакеты">Создание Debian пакетов</a>.
 </p><p>
 <span class="bold"><strong>Всегда просматривайте вывод</strong></span> <tt class="filename">./configure</tt>, и файл
-<tt class="filename">configure.log</tt>, они содержат информацию о том, что будет собрано,
+<tt class="filename">config.log</tt>, они содержат информацию о том, что будет собрано,
 а что нет. Возможно Вы захотите просмотреть файлы <tt class="filename">config.h</tt> и
 <tt class="filename">config.mak</tt>.
-Если у Вас стоят какие-то библиотеки, которые не определяются 
+Если у Вас стоят какие-то библиотеки, которые не определяются
 <tt class="filename">./configure</tt>, проверьте, что у Вас установлены соответствующие
 заголовки[header files] (обычно это -dev пакеты) и их версии совпадают. Файл
-<tt class="filename">configure.log</tt> Обычно сообщит Вам, чего не хватает для сборки.
+<tt class="filename">config.log</tt> Обычно сообщит Вам, чего не хватает для сборки.
 </p><p>
 Хотя это не обязательно, но чтобы получить функционирующие OSD и субтитры,
 должны быть установлены шрифты. Рекомендуемый метод - установка TTF шрифта и

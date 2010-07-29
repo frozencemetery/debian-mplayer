@@ -36,17 +36,17 @@ To encode with the Video for Windows codecs, you will need to set bitrate
 and other options. This is known to work on x86 on both *NIX and Windows.
 </p><p>
 First you must build the <span class="application">vfw2menc</span> program.
-It is located in the <tt class="filename">TOOLS</tt> subdirectory 
+It is located in the <tt class="filename">TOOLS</tt> subdirectory
 of the MPlayer source tree.
 To build on Linux, this can be done using <span class="application">Wine</span>:
 </p><pre class="screen">winegcc vfw2menc.c -o vfw2menc -lwinmm -lole32</pre><p>
 
-To build on Windows in <span class="application">MinGW</span> or 
+To build on Windows in <span class="application">MinGW</span> or
 <span class="application">Cygwin</span> use:
 </p><pre class="screen">gcc vfw2menc.c -o vfw2menc.exe -lwinmm -lole32</pre><p>
 
 To build on <span class="application">MSVC</span> you will need getopt.
-Getopt can be found in the original <span class="application">vfw2menc</span> 
+Getopt can be found in the original <span class="application">vfw2menc</span>
 archive available at:
 The <a class="ulink" href="http://oss.netfarm.it/mplayer-win32.php" target="_top">MPlayer on win32</a> project.
 </p><div class="informalexample"><p>
@@ -54,11 +54,11 @@ Below is an example with the VP6 codec.
 </p><pre class="screen">
 vfw2menc -f VP62 -d vp6vfw.dll -s firstpass.mcf
 </pre><p>
-This will open the VP6 codec dialog window. 
+This will open the VP6 codec dialog window.
 Repeat this step for the second pass
 and use <tt class="option">-s <em class="replaceable"><code>secondpass.mcf</code></em></tt>.
 </p></div><p>
-Windows users can use 
+Windows users can use
 <tt class="option">-xvfwopts codec=vp6vfw.dll:compdata=dialog</tt> to have
 the codec dialog display before encoding starts.
 </p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="menc-feat-x264.html">Poprzedni</a> </td><td width="20%" align="center"><a accesskey="u" href="encoding-guide.html">Początek rozdziału</a></td><td width="40%" align="right"> <a accesskey="n" href="menc-feat-quicktime-7.html">Następny</a></td></tr><tr><td width="40%" align="left" valign="top">10.5. Encoding with the

@@ -16,7 +16,7 @@ redimensionneur YUV des cartes G200/G400/G450/G550) ne fonctionne pas
 dessus ! Le pilote Windows contourne cela, probablement en utilisant le
 moteur 3D pour zoomer, et le framebuffer YUV pour afficher l'image zoomée.
 Si vous voulez vraiment utiliser X, utilisez les options
-    <tt class="option">-vo x11 -fs -zoom</tt>, mais ce sera 
+    <tt class="option">-vo x11 -fs -zoom</tt>, mais ce sera
     <span class="bold"><strong>LENT</strong></span>, et aura la protection anticopie
     <span class="bold"><strong>Macrovision</strong></span> activée
     (vous pouvez "contourner" Macrovision en utilisant ce
@@ -148,20 +148,20 @@ l'exemple suivant (adaptez à votre carte/TV) :
 
 </p><pre class="programlisting">
 Section "Device"
-	Identifier      "GeForce"
-	VendorName      "ASUS"
-	BoardName       "nVidia GeForce2/MX 400"
-	pilote          "nvidia"
-	#Option         "NvAGP" "1"
-	Option          "NoLogo"
-	Option          "CursorShadow"  "on"
+        Identifier      "GeForce"
+        VendorName      "ASUS"
+        BoardName       "nVidia GeForce2/MX 400"
+        pilote          "nvidia"
+        #Option         "NvAGP" "1"
+        Option          "NoLogo"
+        Option          "CursorShadow"  "on"
 
-	Option          "TwinView"
-	Option          "TwinViewOrientation" "Clone"
-	Option          "MetaModes" "1024x768,640x480"
-	Option          "ConnectedMonitor" "CRT, TV"
-	Option          "TVStandard" "PAL-B"
-	Option          "TVOutFormat" "Composite"
+        Option          "TwinView"
+        Option          "TwinViewOrientation" "Clone"
+        Option          "MetaModes" "1024x768,640x480"
+        Option          "ConnectedMonitor" "CRT, TV"
+        Option          "TVStandard" "PAL-B"
+        Option          "TVOutFormat" "Composite"
 
 EndSection
 </pre><p>

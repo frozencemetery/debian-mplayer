@@ -3,7 +3,7 @@ Bajo Linux tiene dos maneras de que la salida de TV de la G400 funcione:
 </p><div class="important" title="Importante" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Importante</h3><p>
 para instrucciones sobre salida-TV de Matrox G450/G550 , ¡vaya a la sección siguiente!
 </p></div><div class="variablelist"><dl><dt><span class="term">XFree86</span></dt><dd><p>
-    Usando el controladoro y el módulo HAL, disponible en 
+    Usando el controladoro y el módulo HAL, disponible en
     <a class="ulink" href="http://www.matrox.com" target="_top">el sitio web  de Matrox</a>.
     Esto hará que tenga salida de TV bajo X.
     </p><p>
@@ -54,7 +54,7 @@ para instrucciones sobre salida-TV de Matrox G450/G550 , ¡vaya a la sección si
       Bueno. La siguiente tarea es hacer que el cursor en tty1 (o donde sea)
       desaparezca, y desactive el apagado automático del monitor. Ejecute
       las siguientes órdenes:
-      
+
       </p><pre class="screen">
 echo -e '\033[?25l'
 setterm -blank 0</pre><p>
@@ -71,7 +71,7 @@ setterm -blank 0</pre><p>
       Muy bien chaval. Inicie la reproducción con
       </p><pre class="screen">
 mplayer -vo mga -fs -screenw 640 -screenh 512 <em class="replaceable"><code>nombrearchivo</code></em></pre><p>
-   
+
       (Si usa X, ahora cambie a matroxfb con por ejemplo
       <span class="keycap"><b>Ctrl</b></span>+<span class="keycap"><b>Alt</b></span>+<span class="keycap"><b>F1</b></span>.)
       Cambie <code class="literal">640</code> y <code class="literal">512</code> si establece
@@ -135,7 +135,7 @@ se inicializa por sí misma solo una vez durante el proceso POST.
 </p></div><div class="sect2" title="6.5.4. Voodoo 3"><div class="titlepage"><div><div><h3 class="title"><a name="tvout-voodoo"></a>6.5.4. Voodoo 3</h3></div></div></div><p>
 Consulte <a class="ulink" href="http://www.iki.fi/too/tvout-voodoo3-3000-xfree" target="_top">esta URL</a>.
 </p></div><div class="sect2" title="6.5.5. nVidia"><div class="titlepage"><div><div><h3 class="title"><a name="tvout-nvidia"></a>6.5.5. nVidia</h3></div></div></div><p>
-Lo primero, DEBE descargar los controladores de fuente-cerrada desde 
+Lo primero, DEBE descargar los controladores de fuente-cerrada desde
 <a class="ulink" href="http://nvidia.com" target="_top">http://nvidia.com</a>. No voy a describir el proceso de instalación y configuración
 porque no es el objetivo que pretende cubrir esta documentación.
 </p><p>
@@ -171,7 +171,7 @@ Evítelo si es posible.
 Debe usar <tt class="option">-vo vesa</tt>. El chip probado tiene capacidad solo para
 una relación de aspecto 1.333333, por lo que debe asegurarse de que usa
 las opciones <tt class="option">-x</tt>, <tt class="option">-y</tt> y/o los filtros
-<tt class="option">-vf scale,crop,expand</tt> si la imagen no le deja habilitar 
+<tt class="option">-vf scale,crop,expand</tt> si la imagen no le deja habilitar
 la salida de TV. La resolución máxima es 720*576 a 16bpp.
 </p><p>
 Problemas conocidos: solo-VESA, limitación 1.33333, la imagen no está siempre

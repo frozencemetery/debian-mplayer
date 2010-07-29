@@ -37,7 +37,7 @@ Tworzenie plików MPEG-4 z jawnie podanej listy plików JPEG (list.txt w aktualn
 katalogu, zawiera listę plików, które mają zostać użyte jako źródło, po jednym
 w każdym wierszu):
 </p><pre class="screen">
-mencoder mf://<em class="replaceable"><code>@list.txt</code></em> -mf w=800:h=600:fps=25:type=jpg \ 
+mencoder mf://<em class="replaceable"><code>@list.txt</code></em> -mf w=800:h=600:fps=25:type=jpg \
     -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o <em class="replaceable"><code>wyjście.avi</code></em>
 </pre><p>
 </p></div><p title="Przykłady">

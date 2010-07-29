@@ -3,8 +3,6 @@
  *
  * Copyleft 2001 by Felix Bünemann (atmosfear@users.sf.net)
  *
- * Thanks to Arpi for nice ringbuffer-code!
- *
  * This file is part of MPlayer.
  *
  * MPlayer is free software; you can redistribute it and/or modify
@@ -33,12 +31,16 @@
 #include "audio_out.h"
 #include "audio_out_internal.h"
 #include "libaf/af_format.h"
+#ifdef CONFIG_SDL_SDL_H
+#include <SDL/SDL.h>
+#else
 #include <SDL.h>
+#endif
 #include "osdep/timer.h"
 
-#include "libvo/fastmemcpy.h"
+#include "libavutil/fifo.h"
 
-static const ao_info_t info = 
+static const ao_info_t info =
 {
 	"SDLlib audio output",
 	"sdl",
@@ -60,75 +62,34 @@ LIBAO_EXTERN(sdl)
 
 #define CHUNK_SIZE 4096
 #define NUM_CHUNKS 8
-// This type of ring buffer may never fill up completely, at least
-// one byte must always be unused.
-// For performance reasons (alignment etc.) one whole chunk always stays
-// empty, not only one byte.
-#define BUFFSIZE ((NUM_CHUNKS + 1) * CHUNK_SIZE)
+#define BUFFSIZE (NUM_CHUNKS * CHUNK_SIZE)
 
-static unsigned char *buffer;
+static AVFifoBuffer *buffer;
 
-// may only be modified by SDL's playback thread or while it is stopped
-static volatile int read_pos;
-// may only be modified by mplayer's thread
-static volatile int write_pos;
 #ifdef USE_SDL_INTERNAL_MIXER
 static unsigned char volume=SDL_MIX_MAXVOLUME;
 #endif
 
-// may only be called by mplayer's thread
-// return value may change between immediately following two calls,
-// and the real number of free bytes might be larger!
-static int buf_free(void) {
-  int free = read_pos - write_pos - CHUNK_SIZE;
-  if (free < 0) free += BUFFSIZE;
-  return free;
-}
-
-// may only be called by SDL's playback thread
-// return value may change between immediately following two calls,
-// and the real number of buffered bytes might be larger!
-static int buf_used(void) {
-  int used = write_pos - read_pos;
-  if (used < 0) used += BUFFSIZE;
-  return used;
-}
-
 static int write_buffer(unsigned char* data,int len){
-  int first_len = BUFFSIZE - write_pos;
-  int free = buf_free();
+  int free = av_fifo_space(buffer);
   if (len > free) len = free;
-  if (first_len > len) first_len = len;
-  // till end of buffer
-  fast_memcpy (&buffer[write_pos], data, first_len);
-  if (len > first_len) { // we have to wrap around
-    // remaining part from beginning of buffer
-    fast_memcpy (buffer, &data[first_len], len - first_len);
-  }
-  write_pos = (write_pos + len) % BUFFSIZE;
-  return len;
+  return av_fifo_generic_write(buffer, data, len, NULL);
 }
+
+#ifdef USE_SDL_INTERNAL_MIXER
+static void mix_audio(void *dst, void *src, int len) {
+  SDL_MixAudio(dst, src, len, volume);
+}
+#endif
 
 static int read_buffer(unsigned char* data,int len){
-  int first_len = BUFFSIZE - read_pos;
-  int buffered = buf_used();
+  int buffered = av_fifo_size(buffer);
   if (len > buffered) len = buffered;
-  if (first_len > len) first_len = len;
-  // till end of buffer
 #ifdef USE_SDL_INTERNAL_MIXER
-  SDL_MixAudio (data, &buffer[read_pos], first_len, volume);
+  av_fifo_generic_read(buffer, data, len, mix_audio);
 #else
-  fast_memcpy (data, &buffer[read_pos], first_len);
+  av_fifo_generic_read(buffer, data, len, NULL);
 #endif
-  if (len > first_len) { // we have to wrap around
-    // remaining part from beginning of buffer
-#ifdef USE_SDL_INTERNAL_MIXER
-    SDL_MixAudio (&data[first_len], buffer, len - first_len, volume);
-#else
-    fast_memcpy (&data[first_len], buffer, len - first_len);
-#endif
-  }
-  read_pos = (read_pos + len) % BUFFSIZE;
   return len;
 }
 
@@ -159,7 +120,8 @@ static int control(int cmd,void *arg){
 }
 
 // SDL Callback function
-void outputaudio(void *unused, Uint8 *stream, int len) {
+static void outputaudio(void *unused, Uint8 *stream, int len)
+{
 	//SDL_MixAudio(stream, read_buffer(buffers, len), len, SDL_MIX_MAXVOLUME);
 	//if(!full_buffers) printf("SDL: Buffer underrun!\n");
 
@@ -173,9 +135,9 @@ static int init(int rate,int channels,int format,int flags){
 
 	/* SDL Audio Specifications */
 	SDL_AudioSpec aspec, obtained;
-	
+
 	/* Allocate ring-buffer memory */
-	buffer = (unsigned char *) malloc(BUFFSIZE);
+	buffer = av_fifo_alloc(BUFFSIZE);
 
 	mp_msg(MSGT_AO,MSGL_INFO,MSGTR_AO_SDL_INFO, rate, (channels > 1) ? "Stereo" : "Mono", af_fmt2str_short(format));
 
@@ -191,7 +153,7 @@ static int init(int rate,int channels,int format,int flags){
 	ao_data.bps=channels*rate;
 	if(format != AF_FORMAT_U8 && format != AF_FORMAT_S8)
 	  ao_data.bps*=2;
-	
+
 	/* The desired audio format (see SDL_AudioSpec) */
 	switch(format) {
 	    case AF_FORMAT_U8:
@@ -244,7 +206,7 @@ void callback(void *userdata, Uint8 *stream, int len); userdata is the pointer s
 	if(SDL_OpenAudio(&aspec, &obtained) < 0) {
         	mp_msg(MSGT_AO,MSGL_ERR,MSGTR_AO_SDL_CantOpenAudio, SDL_GetError());
         	return 0;
-	} 
+	}
 
 	/* did we got what we wanted ? */
 	ao_data.channels=obtained.channels;
@@ -277,8 +239,7 @@ void callback(void *userdata, Uint8 *stream, int len); userdata is the pointer s
 	mp_msg(MSGT_AO,MSGL_V,"SDL: buf size = %d\n",obtained.size);
 	ao_data.buffersize=obtained.size;
 	ao_data.outburst = CHUNK_SIZE;
-	
-	reset();
+
 	/* unsilence audio, if callback is ready */
 	SDL_PauseAudio(0);
 
@@ -292,17 +253,17 @@ static void uninit(int immed){
 	  usec_sleep(get_delay() * 1000 * 1000);
 	SDL_CloseAudio();
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
+	av_fifo_free(buffer);
 }
 
 // stop playing and empty buffers (for seeking/pause)
 static void reset(void){
 
-	//printf("SDL: reset called!\n");	
+	//printf("SDL: reset called!\n");
 
 	SDL_PauseAudio(1);
 	/* Reset ring-buffer state */
-	read_pos = 0;
-	write_pos = 0;
+	av_fifo_reset(buffer);
 	SDL_PauseAudio(0);
 }
 
@@ -310,22 +271,22 @@ static void reset(void){
 static void audio_pause(void)
 {
 
-	//printf("SDL: audio_pause called!\n");	
+	//printf("SDL: audio_pause called!\n");
 	SDL_PauseAudio(1);
-	
+
 }
 
 // resume playing, after audio_pause()
 static void audio_resume(void)
 {
-	//printf("SDL: audio_resume called!\n");	
+	//printf("SDL: audio_resume called!\n");
 	SDL_PauseAudio(0);
 }
 
 
 // return: how many bytes can be played without blocking
 static int get_space(void){
-    return buf_free();
+    return av_fifo_space(buffer);
 }
 
 // plays 'len' bytes of 'data'
@@ -335,12 +296,12 @@ static int play(void* data,int len,int flags){
 
 	if (!(flags & AOPLAY_FINAL_CHUNK))
 	len = (len/ao_data.outburst)*ao_data.outburst;
-#if 0	
+#if 0
 	int ret;
 
 	/* Audio locking prohibits call of outputaudio */
 	SDL_LockAudio();
-	// copy audio stream into ring-buffer 
+	// copy audio stream into ring-buffer
 	ret = write_buffer(data, len);
 	SDL_UnlockAudio();
 
@@ -352,12 +313,6 @@ static int play(void* data,int len,int flags){
 
 // return: delay in seconds between first and last sample in buffer
 static float get_delay(void){
-    int buffered = BUFFSIZE - CHUNK_SIZE - buf_free(); // could be less
+    int buffered = av_fifo_size(buffer); // could be less
     return (float)(buffered + ao_data.buffersize)/(float)ao_data.bps;
 }
-
-
-
-
-
-

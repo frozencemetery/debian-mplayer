@@ -3,40 +3,40 @@
 поддерживаются следующие форматы:
 </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>VOBsub</p></li><li class="listitem"><p>OGM</p></li><li class="listitem"><p>CC (closed caption[скрытые титры])</p></li><li class="listitem"><p>MicroDVD</p></li><li class="listitem"><p>SubRip</p></li><li class="listitem"><p>SubViewer</p></li><li class="listitem"><p>Sami</p></li><li class="listitem"><p>VPlayer</p></li><li class="listitem"><p>RT</p></li><li class="listitem"><p>SSA</p></li><li class="listitem"><p>PJS (Phoenix Japanimation Society)</p></li><li class="listitem"><p>&gt;MPsub</p></li><li class="listitem"><p>AQTitle</p></li><li class="listitem"><p><a class="ulink" href="http://unicorn.us.com/jacosub/" target="_top">JACOsub</a></p></li></ul></div><p>
 </p><p>
-<span class="application">MPlayer</span> может конвертировать вышеперечисленные форматы 
-субтитров (<span class="bold"><strong>кроме первых трёх</strong></span>) в следующие форматы 
+<span class="application">MPlayer</span> может конвертировать вышеперечисленные форматы
+субтитров (<span class="bold"><strong>кроме первых трёх</strong></span>) в следующие форматы
 с помощью соответствующих опций:
 </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>MPsub: <tt class="option">-dumpmpsub</tt></p></li><li class="listitem"><p>SubRip: <tt class="option">-dumpsrtsub</tt></p></li><li class="listitem"><p>MicroDVD: <tt class="option">-dumpmicrodvdsub</tt></p></li><li class="listitem"><p>JACOsub: <tt class="option">-dumpjacosub</tt></p></li><li class="listitem"><p>Sami: <tt class="option">-dumpsami</tt></p></li></ul></div><p>
 </p><p>
-<span class="application">MEncoder</span> может выдавать DVD субтитры 
+<span class="application">MEncoder</span> может выдавать DVD субтитры
 в <a class="link" href="menc-feat-extractsub.html" title="9.9. Извлечение DVD субтитров в файл VOBsub">VOBsub</a> формате.
 </p><p>
 Опции значительно различаются для различных форматов:
 </p><p title="VOBsub субтитры"><b>VOBsub субтитры. </b>
-VOBsub субтитры состоят из большого (несколько мегабайт) <tt class="filename">.SUB</tt> файла, 
+VOBsub субтитры состоят из большого (несколько мегабайт) <tt class="filename">.SUB</tt> файла,
 и необязательных
 <tt class="filename">.IDX</tt> и/или <tt class="filename">.IFO</tt> файлов.
 Использование: если у Вас, например, есть файлы
 <tt class="filename"><em class="replaceable"><code>sample.sub</code></em></tt>,
-<tt class="filename"><em class="replaceable"><code>sample.ifo</code></em></tt> (необязательно), 
+<tt class="filename"><em class="replaceable"><code>sample.ifo</code></em></tt> (необязательно),
 <tt class="filename"><em class="replaceable"><code>sample.idx</code></em></tt> - Вы должны указать
 <span class="application">MPlayer</span>'у опции <tt class="option">-vobsub sample [-vobsubid <em class="replaceable"><code>id</code></em>]</tt> (можно указать полный путь).
 Опция <tt class="option">-vobsubid</tt> похожа на <tt class="option">-sid</tt>
 для DVD, с её помощью, Вы можете выбирать между дорожками субтитров (языками).
 В случае, если <tt class="option">-vobsubid</tt> пропущена, MPlayer попытается использовать
-языки, полученные через опцию <tt class="option">-slang</tt> и перейти к пункту 
+языки, полученные через опцию <tt class="option">-slang</tt> и перейти к пункту
 <code class="systemitem">langidx</code> в <tt class="filename">.IDX</tt> файле, чтобы выбрать язык субтитров. Если и это
 не удаётся, то субтитров не будет.
 </p><p title="Другие субтитры"><b>Другие субтитры. </b>
 Прочие форматы субтитров состоят из единого текстового файла, содержащего информацию
 о синхронизации, местоположении и тексте субтитра.
 Использование: Если у Вас есть, например, файл
-<tt class="filename"><em class="replaceable"><code>sample.txt</code></em></tt>, 
+<tt class="filename"><em class="replaceable"><code>sample.txt</code></em></tt>,
 Вы должны указать опцию <tt class="option">-sub <em class="replaceable"><code>sample.txt</code></em></tt>
 (можно указать полный путь).
 </p><div class="variablelist" title="Регулировка синхронизации и местоположения субтитров:"><p class="title"><b>Регулировка синхронизации и местоположения субтитров:</b></p><dl><dt><span class="term"><tt class="option">-subdelay <em class="replaceable"><code>sec</code></em></tt></span></dt><dd><p>
     Задерживает субтитры на <tt class="option"><em class="replaceable"><code>sec</code></em></tt>
-	секунд. Это значение может быть отрицательным.
+    секунд. Это значение может быть отрицательным.
   </p></dd><dt><span class="term"><tt class="option">-subfps <em class="replaceable"><code>RATE</code></em></tt></span></dt><dd><p>
     Указывает количество кадров/сек для файла субтитров (вещественное число)
   </p></dd><dt><span class="term"><tt class="option">-subpos <em class="replaceable"><code>0-100</code></em></tt></span></dt><dd><p>
@@ -45,12 +45,12 @@ VOBsub субтитры состоят из большого (несколько
 Если Вы наблюдаете увеличивающуюся задержку между фильмом и субтитрами, используя
 файл субтитров в формате MicroDVD, наиболее вероятно, что частота кадров у фильма и файла
 субтитров не совпадают. Пожалуйста, обратите внимание, что формат MicroDVD
-использует абсолютные номера кадров для синхронизации, но в нем нет информациио частоте кадров 
+использует абсолютные номера кадров для синхронизации, но в нем нет информациио частоте кадров
 и поэтому опция
-<tt class="option">-subfps</tt> не может использоваться с этим форматом. 
+<tt class="option">-subfps</tt> не может использоваться с этим форматом.
 Вы должны, если хотите навсегда решить эту проблему, вручную конвертировать
 частоту кадров файла субтитров.
-<span class="application">MPlayer</span> может сделать для вас это преобразование: 
+<span class="application">MPlayer</span> может сделать для вас это преобразование:
 </p><pre class="screen">
 mplayer -dumpmicrodvdsub -fps <em class="replaceable"><code>subtitles_fps</code></em> -subfps <em class="replaceable"><code>avi_fps</code></em> \
     -sub <em class="replaceable"><code>subtitle_filename</code></em> <em class="replaceable"><code>dummy.avi</code></em>

@@ -14,9 +14,9 @@ tamaño de VCD y escalar a menor tamaño del original las películas.
 </p><p>
 Este controlador se comunica con el controlador del kernel disponible en
 <a class="ulink" href="http://mjpeg.sourceforge.net" target="_top">http://mjpeg.sourceforge.net</a>, por eso
-antes de nada deberá tener este funcionando. La presencia de una tarjeta MJPEG 
+antes de nada deberá tener este funcionando. La presencia de una tarjeta MJPEG
 es autodetectada por el script <tt class="filename">configure</tt>, si la autodetección
-falla, fuércela con 
+falla, fuércela con
 </p><pre class="screen">./configure --enable-zr</pre><p>
 </p><p>
 La salida puede ser controlada con varias opciones, una descripción larga
@@ -53,8 +53,8 @@ la derecha en blanco y negro y el otro debe tener imágenes JPEG con calidad 10,
 todo esto deberá usar la siguiente órden
 </p><pre class="screen">
 mplayer -vo zr -zrdev /dev/video0 -zrcrop 352x288+352+0 -zrxdoff 0 -zrbw \
-          -zrcrop 352x288+0+0 -zrdev /dev/video1 -zrquality 10 \
-	  <em class="replaceable"><code>movie.avi</code></em>
+    -zrcrop 352x288+0+0 -zrdev /dev/video1 -zrquality 10 \
+        <em class="replaceable"><code>movie.avi</code></em>
 </pre><p>
 </p><p>
 Puede ver que las opciones que aparecen antes del segundo <tt class="option">-zrcrop</tt>

@@ -30,7 +30,7 @@ En Solaris x86, necesita el ensamblador GNU y el compilador GNU C/C++,
 <span class="application">MPlayer</span> en la plataforma
 x86 hace dificil el uso de las instrucciones de MMX, SSE y 3DNOW! que no puede
 ser compilado usando el ensamblador de Sun <tt class="filename">/usr/ccs/bin/as</tt>.
-</p><p>El script <tt class="filename">configure</tt> intenta encontrarlo, qué 
+</p><p>El script <tt class="filename">configure</tt> intenta encontrarlo, qué
 programa ensamblador es usado por tu órden "gcc" (en caso de que la
 autodetección falle, use la opción
 <tt class="option">--as=<em class="replaceable"><code>/donde/este/instalado/gnu-as</code></em></tt>
@@ -47,7 +47,7 @@ usando GCC sin el ensamblador GNU:
 </pre><p>
 (Solución: Instalar y usar un gcc configurado con <tt class="option">--with-as=gas</tt>)
 </p><p>
-Error típico que se obtiene cuando se construye con un compilador GNU C que no 
+Error típico que se obtiene cuando se construye con un compilador GNU C que no
 usa GNU as:
 </p><pre class="screen">
    % gmake
@@ -56,7 +56,7 @@ usa GNU as:
         -fomit-frame-pointer  -I/usr/local/include   -o mplayer.o mplayer.c
    Assembler: mplayer.c
    "(stdin)", line 3567 : Illegal mnemonic
-   "(stdin)", line 3567 : Error de sintaxis 
+   "(stdin)", line 3567 : Error de sintaxis
    ... más errores "Illegal mnemonic" y "Error de sintaxis" ...
 </pre><p>
 </p><p>

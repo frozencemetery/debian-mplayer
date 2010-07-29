@@ -33,7 +33,7 @@ Vytvoření MPEG-4 souboru ze seznamu vyjmenovaných JPEG souborů
 (seznam.txt v aktuálním adresáři obsahuje seznam souborů k použití
 jako zdroj, každý soubor na samostatném řádku):
 </p><pre class="screen">
-mencoder mf://<em class="replaceable"><code>@seznam.txt</code></em> -mf w=800:h=600:fps=25:type=jpg \ 
+mencoder mf://<em class="replaceable"><code>@seznam.txt</code></em> -mf w=800:h=600:fps=25:type=jpg \
     -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o <em class="replaceable"><code>výstup.avi</code></em>
 </pre><p>
 </p></div><p title="Příklady">

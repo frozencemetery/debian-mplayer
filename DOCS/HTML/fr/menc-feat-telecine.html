@@ -63,7 +63,7 @@
 <code class="systemitem">libavcodec</code> pour atteindre une qualité optimum sont des
   questions en dehors des propos de cette section.
   Référez-vous aux autres sections contenues dans
-  <a class="link" href="encoding-guide.html" title="Chapitre 10. L'encodage avec MEncoder">L'encodage avec 
+  <a class="link" href="encoding-guide.html" title="Chapitre 10. L'encodage avec MEncoder">L'encodage avec
 <span class="application">MPlayer</span></a>.
   </p></li><li class="listitem"><p>
   Il y a quelques notes en bas de page spécifiques à ce guide, elles sont
@@ -168,7 +168,7 @@
   qu'il n'y a pas de trace de téléciné.
 </p></div></div><div class="sect2" title="10.2.3. Comment encoder chaque catégorie ?"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-telecine-encode"></a>10.2.3. Comment encoder chaque catégorie ?</h3></div></div></div><p>
   Comme évoqué au départ, les exemples de lignes de commande
-  <span class="application">MEncoder</span> ne doivent <span class="bold"><strong>pas</strong></span> être utilisés tels quels; 
+  <span class="application">MEncoder</span> ne doivent <span class="bold"><strong>pas</strong></span> être utilisés tels quels;
   ils fournissent uniquement les paramètres minimum pour encoder chaque catégorie.
 </p><div class="sect3" title="10.2.3.1. Progressive"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-encode-progressive"></a>10.2.3.1. Progressive</h4></div></div></div><p>
   La vidéo progressive ne nécessite pas de filtrage particulier pour l'encodage.
@@ -213,10 +213,10 @@
   Consultez <tt class="option">mplayer -pphelp</tt> et <tt class="option">mplayer -vf help</tt>
   pour voir lesquels sont
   disponibles (selectionnez les lignes contenant "deint" avec grep),
-  lisez <a class="ulink" href="http://guru.multimedia.cx/deinterlacing-filters/" target="_top">comparaison des filtres de désentrelacement</a> 
+  lisez <a class="ulink" href="http://guru.multimedia.cx/deinterlacing-filters/" target="_top">comparaison des filtres de désentrelacement</a>
   de Michael Niedermayer,
   et fouillez dans les
-  <a class="ulink" href="http://www.mplayerhq.hu/design7/info.html#mailing_lists" target="_top">
+  <a class="ulink" href="http://www.mplayerhq.hu/design7/mailing_lists.html" target="_top">
   listes de diffusion MPlayer</a>, vous trouverez nombres de discussions sur les
   différents filtres.
   Encore une fois, le nombre d'images par seconde ne change pas, donc l'option
@@ -249,7 +249,7 @@
   et <tt class="option">-ofps</tt> à deux fois le nombre d'image par seconde de votre source originale.
 
   </p><pre class="screen">mencoder dvd://1 -oac copy -vf tfields=2 -ovc lavc \
-	-fps 60000/1001 -ofps 60000/1001</pre><p>
+  -fps 60000/1001 -ofps 60000/1001</pre><p>
   </p></li><li class="listitem"><p>
   Si vous avez prévu de beaucoup réduire la taille, vous pouvez
   n'extraire et n'encoder qu'une des deux trames. Bien sûr, vous perdrez la
@@ -282,7 +282,7 @@
   -ovc lavc -ofps 24000/1001
 </pre><p>
   </p></li><li class="listitem"><p>
-      <tt class="option">-vf filmdint</tt> est similaire à 
+      <tt class="option">-vf filmdint</tt> est similaire à
       <tt class="option">-vf pullup</tt> : les deux filtres tentent d'appairer
       deux demi-trames pour construire une trame complète.
       Néanmoins, <tt class="option">filmdint</tt> desentrelacera les demi-trames
@@ -316,7 +316,7 @@
   -ovc lavc -ofps 24000/1001
 </pre><p>
   </p></li></ul></div></div><div class="sect3" title="10.2.3.5. Mélange de progressive et d'entrelacée"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-encode-mixedpi"></a>10.2.3.5. Mélange de progressive et d'entrelacée</h4></div></div></div><p>
-  Il y a deux façons de gérer cette catégorie, chacune étant un 
+  Il y a deux façons de gérer cette catégorie, chacune étant un
   compromis. Vous devez faire votre choix en vous basant sur la durée/localisation
   de chaque type.
 </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>

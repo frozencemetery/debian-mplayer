@@ -1,3 +1,20 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include "config.h"
 
@@ -32,7 +49,7 @@ static const struct m_struct_st stream_opts = {
   sizeof(struct stream_priv_s),
   &stream_priv_dflts,
   stream_opts_fields
-};  
+};
 
 static int fill_buffer(stream_t *s, char* buffer, int max_len){
   int r = read(s->fd,buffer,max_len);
@@ -113,29 +130,27 @@ static int open_f(stream_t *stream,int mode, void* opts, int* file_format) {
     return STREAM_ERROR;
   }
 
-#if defined(__MINGW32__) || defined(__CYGWIN__) || defined(__OS2__)
+#if HAVE_DOS_PATHS
   // extract '/' from '/x:/path'
   if( filename[ 0 ] == '/' && filename[ 1 ] && filename[ 2 ] == ':' )
     filename++;
 #endif
 
-#if defined(__CYGWIN__)|| defined(__MINGW32__)
   m |= O_BINARY;
-#endif    
 
   if(!strcmp(filename,"-")){
     if(mode == STREAM_READ) {
       // read from stdin
       mp_msg(MSGT_OPEN,MSGL_INFO,MSGTR_ReadSTDIN);
       f=0; // 0=stdin
-#ifdef __MINGW32__
-	  setmode(fileno(stdin),O_BINARY);
+#if HAVE_SETMODE
+      setmode(fileno(stdin),O_BINARY);
 #endif
     } else {
       mp_msg(MSGT_OPEN,MSGL_INFO,"Writing to stdout\n");
       f=1;
-#ifdef __MINGW32__
-	  setmode(fileno(stdout),O_BINARY);
+#if HAVE_SETMODE
+      setmode(fileno(stdout),O_BINARY);
 #endif
     }
   } else {
@@ -159,7 +174,7 @@ static int open_f(stream_t *stream,int mode, void* opts, int* file_format) {
 #endif
     if(mode == STREAM_READ) stream->seek = seek_forward;
     stream->type = STREAMTYPE_STREAM; // Must be move to STREAMTYPE_FILE
-    stream->flags |= STREAM_SEEK_FW;
+    stream->flags |= MP_STREAM_SEEK_FW;
   } else if(len >= 0) {
     stream->seek = seek;
     stream->end_pos = len;

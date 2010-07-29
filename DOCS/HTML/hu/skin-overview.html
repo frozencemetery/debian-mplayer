@@ -1,34 +1,4 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>B.1. Áttekintés</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"><link rel="home" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="skin.html" title="B. függelék - MPlayer skin formátum"><link rel="prev" href="skin.html" title="B. függelék - MPlayer skin formátum"><link rel="next" href="skin-file.html" title="B.2. A skin fájl"><link rel="preface" href="howtoread.html" title="Hogyan olvasd ezt a dokumentációt"><link rel="chapter" href="intro.html" title="1. fejezet - Bevezetés"><link rel="chapter" href="install.html" title="2. fejezet - Telepítés"><link rel="chapter" href="usage.html" title="3. fejezet - Használat"><link rel="chapter" href="advaudio.html" title="4. fejezet - Továbbfejlesztett audió használata"><link rel="chapter" href="cd-dvd.html" title="5. fejezet - CD/DVD használat"><link rel="chapter" href="tv.html" title="6. fejezet - TV"><link rel="chapter" href="radio.html" title="7. fejezet - Rádió"><link rel="chapter" href="video.html" title="8. fejezet - Videó kimeneti eszközök"><link rel="chapter" href="ports.html" title="9. fejezet - Portok"><link rel="chapter" href="mencoder.html" title="10. fejezet - A MEncoder használatának alapjai"><link rel="chapter" href="encoding-guide.html" title="11. fejezet - Kódolás a MEncoderrel"><link rel="chapter" href="faq.html" title="12. fejezet - Gyakran ismételt kérdések"><link rel="appendix" href="bugreports.html" title="A. függelék - Hogyan jelentsd a hibákat"><link rel="appendix" href="skin.html" title="B. függelék - MPlayer skin formátum"><link rel="subsection" href="skin-overview.html#skin-overview-directories" title="B.1.1. Könyvtárak"><link rel="subsection" href="skin-overview.html#skin-overview-formats" title="B.1.2. Képformátumok"><link rel="subsection" href="skin-overview.html#skin-overview-components" title="B.1.3. Skin komponensek"><link rel="subsection" href="skin-overview.html#skin-files" title="B.1.4. Fájlok"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">B.1. Áttekintés</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="skin.html">Előző</a> </td><th width="60%" align="center">B. függelék - <span class="application">MPlayer</span> skin formátum</th><td width="20%" align="right"> <a accesskey="n" href="skin-file.html">Következő</a></td></tr></table><hr></div><div class="sect1" title="B.1. Áttekintés"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="skin-overview"></a>B.1. Áttekintés</h2></div></div></div><p>
-Igazából ennek nincs köze a skin formátumához, de tudnod kell, hogy
-az <span class="application">MPlayer</span>nek
-<span class="bold"><strong>nincs</strong></span> beépített skin-je,
-így <span class="bold"><strong>legalább egy skin-nek telepítve kell
-lennie, hogy használni tudd a GUI-t.</strong></span>
-</p><div class="sect2" title="B.1.1. Könyvtárak"><div class="titlepage"><div><div><h3 class="title"><a name="skin-overview-directories"></a>B.1.1. Könyvtárak</h3></div></div></div><p>
-Az alábbi könyvtárak kerülnek átvizsgálásra (sorrendben):
-</p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
-  <tt class="filename">$(DATADIR)/skins/</tt>
-</p></li><li class="listitem"><p>
-  <tt class="filename">$(PREFIX)/share/mplayer/skins/</tt>
-</p></li><li class="listitem"><p>
-  <tt class="filename">~/.mplayer/skins/</tt>
-</p></li></ol></div><p>
-</p><p>
-Figyelj rá, hogy az első elérési út változhat az
-<span class="application">MPlayer</span> konfigurációjának megfelelően
-(lásd a <span class="command"><strong>configure</strong></span> script
-<tt class="option">--prefix</tt> és <tt class="option">--datadir</tt> kapcsolóit).
-</p><p>
-Minden skin a saját könyvtárába kerül telepítésre a fent felsorolt könyvtárakon
-belül, például:
-</p><pre class="screen">$(PREFIX)/share/mplayer/skins/default/</pre><p>
-</p></div><div class="sect2" title="B.1.2. Képformátumok"><div class="titlepage"><div><div><h3 class="title"><a name="skin-overview-formats"></a>B.1.2. Képformátumok</h3></div></div></div><p>A képeknek truecolor-os (24 vagy 32 bpp) PNG-knek kell lenniük.</p><p>
-A fő ablakban és a playbar-on (lásd lejjebb) használhatsz transzparens képeket:
-Az #FF00FF (bíborvörös) színnel feltöltött területek teljesen
-transzparensek lesznek, ha az <span class="application">MPlayer</span>-rel
-nézed. Ez azt jelenti, hogy formázott ablakjaid is lehetnek, ha az X
-szerverednek van XShape kiterjesztése.
-</p></div><div class="sect2" title="B.1.3. Skin komponensek"><div class="titlepage"><div><div><h3 class="title"><a name="skin-overview-components"></a>B.1.3. Skin komponensek</h3></div></div></div><p>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>B.1. Áttekintés</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"><link rel="home" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="skin.html" title="B. függelék - MPlayer skin formátum"><link rel="prev" href="skin.html" title="B. függelék - MPlayer skin formátum"><link rel="next" href="skin-file.html" title="B.2. A skin fájl"><link rel="preface" href="howtoread.html" title="Hogyan olvasd ezt a dokumentációt"><link rel="chapter" href="intro.html" title="1. fejezet - Bevezetés"><link rel="chapter" href="install.html" title="2. fejezet - Telepítés"><link rel="chapter" href="usage.html" title="3. fejezet - Használat"><link rel="chapter" href="advaudio.html" title="4. fejezet - Továbbfejlesztett audió használata"><link rel="chapter" href="cd-dvd.html" title="5. fejezet - CD/DVD használat"><link rel="chapter" href="tv-input.html" title="6. fejezet - TV bemenet"><link rel="chapter" href="tv-teletext.html" title="7. fejezet - Teletext"><link rel="chapter" href="radio.html" title="8. fejezet - Rádió"><link rel="chapter" href="video.html" title="9. fejezet - Videó kimeneti eszközök"><link rel="chapter" href="ports.html" title="10. fejezet - Portok"><link rel="chapter" href="mencoder.html" title="11. fejezet - A MEncoder használatának alapjai"><link rel="chapter" href="encoding-guide.html" title="12. fejezet - Kódolás a MEncoderrel"><link rel="chapter" href="faq.html" title="13. fejezet - Gyakran ismételt kérdések"><link rel="appendix" href="bugreports.html" title="A. függelék - Hogyan jelentsd a hibákat"><link rel="appendix" href="skin.html" title="B. függelék - MPlayer skin formátum"><link rel="subsection" href="skin-overview.html#skin-overview-components" title="B.1.1. Skin komponensek"><link rel="subsection" href="skin-overview.html#skin-overview-formats" title="B.1.2. Képformátumok"><link rel="subsection" href="skin-overview.html#skin-files" title="B.1.3. Fájlok"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">B.1. Áttekintés</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="skin.html">Előző</a> </td><th width="60%" align="center">B. függelék - <span class="application">MPlayer</span> skin formátum</th><td width="20%" align="right"> <a accesskey="n" href="skin-file.html">Következő</a></td></tr></table><hr></div><div class="sect1" title="B.1. Áttekintés"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="skin-overview"></a>B.1. Áttekintés</h2></div></div></div><div class="sect2" title="B.1.1. Skin komponensek"><div class="titlepage"><div><div><h3 class="title"><a name="skin-overview-components"></a>B.1.1. Skin komponensek</h3></div></div></div><p>
 A Skin-ek eléggé szabad formátumúak (nem mint például a
 <span class="application">Winamp</span>/<span class="application">XMMS</span>,
 fix formátumú skin-jei), tehát csak rajtad múlik, hogy valami
@@ -100,7 +70,13 @@ Van egy fontos dolog, amiről eddig nem beszéltünk: a gombokhoz, potméterekhe
 hogy mit csináljon, ha rákattintanak. Ez <a class="link" href="skin-gui.html" title="B.4. GUI üzenetek">üzenetekkel</a>
 (eseményekkel) van megvalósítva. Minden elemhez meg kell adnod, hogy milyen
 üzenetet generál, amikor kattintanak rá.
-</p></div><div class="sect2" title="B.1.4. Fájlok"><div class="titlepage"><div><div><h3 class="title"><a name="skin-files"></a>B.1.4. Fájlok</h3></div></div></div><p>
+</p></div><div class="sect2" title="B.1.2. Képformátumok"><div class="titlepage"><div><div><h3 class="title"><a name="skin-overview-formats"></a>B.1.2. Képformátumok</h3></div></div></div><p>A képeknek truecolor-os (24 vagy 32 bpp) PNG-knek kell lenniük.</p><p>
+A fő ablakban és a playbar-on (lásd lejjebb) használhatsz transzparens képeket:
+Az #FF00FF (bíborvörös) színnel feltöltött területek teljesen
+transzparensek lesznek, ha az <span class="application">MPlayer</span>-rel
+nézed. Ez azt jelenti, hogy formázott ablakjaid is lehetnek, ha az X
+szerverednek van XShape kiterjesztése.
+</p></div><div class="sect2" title="B.1.3. Fájlok"><div class="titlepage"><div><div><h3 class="title"><a name="skin-files"></a>B.1.3. Fájlok</h3></div></div></div><p>
 A következő fájlokra lesz szükséges, hogy el tudj készíteni egy skin-t:
 </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
   A konfigurációs fájl, aminek <a class="link" href="skin-file.html" title="B.2. A skin fájl">skin</a> a neve,

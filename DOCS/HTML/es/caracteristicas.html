@@ -39,7 +39,7 @@ o <tt class="option">-afm</tt> en la línea de órdenes o en su archivo de
 configuración (vea la página de manual).
 </p><p>
 Los usuarios de Debian pueden construir un paquete .deb, es muy simple.
-Simplemente ejecute 
+Simplemente ejecute
 </p><pre class="screen">fakeroot debian/rules binary</pre><p>
 en el directorio raíz de <span class="application">MPlayer</span>. Vea la
 sección <a class="link" href="linux.html#debian" title="7.1.1. Empaquetado para Debian">paquetes de Debian</a> para instrucciones
@@ -47,13 +47,13 @@ más detalladas.
 </p><p>
 <span class="bold"><strong>Siempre revise la salida de</strong></span>
 <tt class="filename">./configure</tt>, y el archivo
-<tt class="filename">configure.log</tt>, ellos contienen información acerca
+<tt class="filename">config.log</tt>, ellos contienen información acerca
 de lo que se compilará, y que no. Quizá quiera ver también los archivos
 <tt class="filename">config.h</tt> y <tt class="filename">config.mak</tt>.
 Si alguna de las librerías que tiene instaladas no fueron detectadas
 por <tt class="filename">./configure</tt>, por favor revise si tiene los
 archivos de encabezados correspondientes (normalmente los paquetes -dev)
-y que sus versiones sean las mismas. El archivo <tt class="filename">configure.log</tt>
+y que sus versiones sean las mismas. El archivo <tt class="filename">config.log</tt>
 normalmente dice que falta.
 </p><p>
 Aunque no es obligatorio, las fuentes deberían ser instaladas para poder usar

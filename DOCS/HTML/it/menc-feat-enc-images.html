@@ -33,7 +33,7 @@ Creare un file MPEG-4 da una lista definita di file JPEG (lista.txt nella
 directory corrente contiene la lista dei file da usare come sorgente, uno per
 riga):
 </p><pre class="screen">
-mencoder mf://<em class="replaceable"><code>@lista.txt</code></em> -mf w=800:h=600:fps=25:type=jpg \ 
+mencoder mf://<em class="replaceable"><code>@lista.txt</code></em> -mf w=800:h=600:fps=25:type=jpg \
     -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o <em class="replaceable"><code>output.avi</code></em>
 </pre><p>
 </p></div><p title="Esempi">

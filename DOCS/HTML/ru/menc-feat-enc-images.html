@@ -4,7 +4,7 @@ JPEG, PNG, TGA или других файлов изображений. Прос
 (Motion JPEG), MPNG (Motion PNG) или MTGA (Motion TGA) файлы.
 </p><div class="orderedlist" title="Разъяснение процесса:"><p class="title"><b>Разъяснение процесса:</b></p><ol class="orderedlist" type="1"><li class="listitem"><p>
   <span class="application">MEncoder</span> <span class="emphasis"><em>декодирует</em></span> изображение(я) с помощью
-  <code class="systemitem">libjpeg</code> (при декодировании PNG, он будет 
+  <code class="systemitem">libjpeg</code> (при декодировании PNG, он будет
   использовать <code class="systemitem">libpng</code>).
 </p></li><li class="listitem"><p>
   <span class="application">MEncoder</span> затем скармливает декодированное изображение выбранному
@@ -29,10 +29,10 @@ mencoder mf://<em class="replaceable"><code>frame001.jpg,frame002.jpg</code></em
 </p></div><p title="примеры">
 
 </p><div class="informalexample"><p>
-Создание файла MPEG-4 из явного списка JPEG файлов (list.txt в текущем каталоге содержит 
+Создание файла MPEG-4 из явного списка JPEG файлов (list.txt в текущем каталоге содержит
 список файлов, используемых в качестве источника, по одному в строке):
 </p><pre class="screen">
-mencoder mf://<em class="replaceable"><code>@list.txt</code></em> -mf w=800:h=600:fps=25:type=jpg \ 
+mencoder mf://<em class="replaceable"><code>@list.txt</code></em> -mf w=800:h=600:fps=25:type=jpg \
     -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o <em class="replaceable"><code>output.avi</code></em>
 </pre><p>
 </p></div><p title="примеры">

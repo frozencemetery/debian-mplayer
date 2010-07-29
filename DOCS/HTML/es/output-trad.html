@@ -311,7 +311,7 @@ funciona bien con todos los controladores de chipsets para XFree existentes.
   </p></li><li class="listitem"><p>
   Algunos controladores símplemente fallan al volver a la resolución
   normal (use
-  <span class="keycap"><b>Ctrl</b></span>+<span class="keycap"><b>Alt</b></span>+<span class="keycap"><b>Keypad +</b></span> y 
+  <span class="keycap"><b>Ctrl</b></span>+<span class="keycap"><b>Alt</b></span>+<span class="keycap"><b>Keypad +</b></span> y
   <span class="keycap"><b>Ctrl</b></span>+<span class="keycap"><b>Alt</b></span>+<span class="keycap"><b>Keypad -</b></span>
   para volver al modo normal de manera manual).
   </p></li><li class="listitem"><p>
@@ -470,7 +470,7 @@ con triple buffering. Funciona tanto en consola con frambuffer como bajo X.
 </p><div class="warning" title="Aviso" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Aviso</h3><p>
 ¡Esto es solo en Linux! En sistemas no-Linux (probado en FreeBSD), puede
 usar en su lugar <a class="link" href="output-trad.html#vidix" title="6.2.13. VIDIX">VIDIX</a>!
-</p></div><div class="procedure" title="Instalación:"><a name="id454461"></a><p class="title"><b>Instalación:</b></p><ol class="procedure" type="1"><li class="step" title="Paso 1"><p>
+</p></div><div class="procedure" title="Instalación:"><a name="id2881533"></a><p class="title"><b>Instalación:</b></p><ol class="procedure" type="1"><li class="step" title="Paso 1"><p>
   Para usarlo, primero tendrá que compilar <tt class="filename">mga_vid.o</tt>:
   </p><pre class="screen">
 cd drivers
@@ -491,7 +491,7 @@ make</pre><p>
   Para que se cargue/descargue automáticamente cuando sea necesario,
   primero inserte la siguiente línea al final de
   <tt class="filename">/etc/modules.conf</tt>:
-  
+
   </p><pre class="programlisting">alias char-major-178 mga_vid</pre><p>
 
   Después copie el módulo <tt class="filename">mga_vid.o</tt> al lugar
@@ -502,7 +502,7 @@ make</pre><p>
   </p><pre class="screen">depmod -a</pre><p>
   </p></li><li class="step" title="Paso 5"><p>
   Ahora deberá (re)compilar <span class="application">MPlayer</span>,
-  <tt class="filename">./configure</tt> detectará 
+  <tt class="filename">./configure</tt> detectará
   <tt class="filename">/dev/mga_vid</tt> y construirá el controlador 'mga'.
   Luego lo podrá usar con <span class="application">MPlayer</span> mediante
   <tt class="option">-vo mga</tt> si tiene una consola matroxfb, o
@@ -545,7 +545,7 @@ una variable de entorno (por lo menos con nVidia):
 </p></div><div class="sect2" title="6.2.9. AAlib - reproduciendo en modo texto"><div class="titlepage"><div><div><h3 class="title"><a name="aalib"></a>6.2.9. AAlib - reproduciendo en modo texto</h3></div></div></div><p>
 AAlib es una biblioteca para mostrar gráficos en modo texto, usando un
 render ASCII potente. Hay <span class="emphasis"><em>montones</em></span> de programas que
-tienen soporte para AAlib, como Doom, Quake, etc. 
+tienen soporte para AAlib, como Doom, Quake, etc.
 <span class="application">MPlayer</span> contiene un controlador que funciona
 bastante bien para ello. Si <tt class="filename">./configure</tt> detecta
 que aalib está instalado, el controlador aalib libvo será compilado.
@@ -557,7 +557,7 @@ de renderizado:
   </td></tr><tr><td><span class="keycap"><b>2</b></span></td><td>
   aumentar contraste
   </td></tr><tr><td><span class="keycap"><b>3</b></span></td><td>
-  reducir brillo 
+  reducir brillo
   </td></tr><tr><td><span class="keycap"><b>4</b></span></td><td>
   aumentar brillo
   </td></tr><tr><td><span class="keycap"><b>5</b></span></td><td>
@@ -570,7 +570,7 @@ de renderizado:
   </td></tr><tr><td><span class="keycap"><b>8</b></span></td><td>
   cambia entre control de aa y <span class="application">MPlayer</span>
   </td></tr></tbody></table></div><div class="variablelist" title="Pueden usarse las siguientes opciones en la línea de órdenes:"><p class="title"><b>Pueden usarse las siguientes opciones en la línea de órdenes:</b></p><dl><dt><span class="term"><tt class="option">-aaosdcolor=<em class="replaceable"><code>V</code></em></tt></span></dt><dd><p>
-    cambia el color OSD 
+    cambia el color OSD
     </p></dd><dt><span class="term"><tt class="option">-aasubcolor=<em class="replaceable"><code>V</code></em></tt></span></dt><dd><p>
     cambia el color de los subtítulos
     </p><p>
@@ -767,7 +767,7 @@ DGA</a>, e insertela en su <tt class="filename">XF86Config</tt>.
   Con XFree86 3.x.x: tiene que cambiar entre las resoluciones disponibles
   con las teclas
   <span class="keycap"><b>Ctrl</b></span>+<span class="keycap"><b>Alt</b></span>+<span class="keycap"><b>plus</b></span>
-  y 
+  y
   <span class="keycap"><b>Ctrl</b></span>+<span class="keycap"><b>Alt</b></span>+<span class="keycap"><b>minus</b></span>.
   </p></li></ul></div><p>
 </p><p>
@@ -775,7 +775,7 @@ Si no puede encontrar los modos que ha insertado, consule la salida de
 XFree86. Algunos controladores no pueden usar pixelclocks bajos que son
 necesarios para modos de video de baja resolución.
 </p></div><div class="sect2" title="6.2.13. VIDIX"><div class="titlepage"><div><div><h3 class="title"><a name="vidix"></a>6.2.13. VIDIX</h3></div></div></div><p title="PREÁMBULO"><b>PREÁMBULO. </b>
-<acronym class="acronym">VIDIX</acronym> es la abreviatura para 
+<acronym class="acronym">VIDIX</acronym> es la abreviatura para
 <span class="bold"><strong>VID</strong></span>eo<span class="bold"><strong>I</strong></span>nterface
 para *ni<span class="bold"><strong>X</strong></span>.
 VIDIX ha sido diseñado e introducido como una interfaz para los controladores de
@@ -901,7 +901,7 @@ El controlador soporta ecualizadores de video y debe ser casi tan rápido como e
 Hay un controlador disponible para los chipset Trident Ciberblade/i1, que
 puede ser encontrado en las placas base VIA Epia.
 </p><p>
-El controlador ha sido escrito y es mantenido por, 
+El controlador ha sido escrito y es mantenido por,
 <a class="ulink" href="http://www.blackfiveservices.co.uk/EPIAVidix.shtml" target="_top">Alastair M.
 Robinson</a>.
 </p></div><div class="sect3" title="6.2.13.4. Tarjetas 3DLabs"><div class="titlepage"><div><div><h4 class="title"><a name="vidix-3dlabs"></a>6.2.13.4. Tarjetas 3DLabs</h4></div></div></div><p>
@@ -960,14 +960,14 @@ de DirectFB en la línea de órdenes, usando la opción <tt class="option">-dfbo
 La capa de selección puede hacerse con el método de subdispositivo, p.e.:
 <tt class="option">-vo directfb:2</tt> (la capa -1 se usa por defecto: autodetectado)
 </p></div><div class="sect2" title="6.2.15. DirectFB/Matrox (dfbmga)"><div class="titlepage"><div><div><h3 class="title"><a name="dfbmga"></a>6.2.15. DirectFB/Matrox (dfbmga)</h3></div></div></div><p>
-Lea por favor la sección <a class="link" href="output-trad.html#directfb" title="6.2.14. DirectFB">principal de DirectFB</a> para 
+Lea por favor la sección <a class="link" href="output-trad.html#directfb" title="6.2.14. DirectFB">principal de DirectFB</a> para
 información general.
 </p><p>
 Este controlador de salida de video activa CRTC2 (en un segundo monitor) en la
 tarjeta G400/G450/G550, mostrando video <span class="bold"><strong>independiente</strong></span>
 en el monitor principal.
 </p><p>
-Ville Syrjala tiene un 
+Ville Syrjala tiene un
 <a class="ulink" href="http://www.sci.fi/~syrjala/directfb/Matrox_TV-out_README.txt" target="_top">LEAME</a>
 y un
 <a class="ulink" href="http://www.sci.fi/~syrjala/directfb/matrox_tv-out_howto" target="_top">COMO</a>

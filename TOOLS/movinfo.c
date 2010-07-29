@@ -1,5 +1,20 @@
-// show QuickTime .mov file structure     (C) 2001. by A'rpi/ESP-team
-// various hacks by alex@naxine.org
+/* show QuickTime .mov file structure     (C) 2001. by A'rpi/ESP-team
+ * various hacks by alex@naxine.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 /*
   Blocks: 4bytes atom_size
@@ -8,9 +23,9 @@
 
   By older files, mdat is at the beginning, and moov follows it later,
   by newer files, moov is at the begininng.
-  
+
   Fontosabb typeok:
-  
+
   trak: track: ezeken belul van egy-egy stream (video/audio)
   tkhd: track header: fps (video esten picture size is itt van)
   vmhd: video media handler (video stream informaciok)
@@ -113,7 +128,7 @@ static void userdata_info(FILE *f, int len, int pos, int level)
   {
     atom_size=read_dword(f);//  if(fread(&atom_size_b,4,1,f)<=0) break;
     if(fread(&atom_type,4,1,f)<=0) break;
-  
+
     if(atom_size<8) break; // error
 
 //    printf("%08X:  %*s %.4s (%08X) %05d (begin: %08X)\n",pos,level*2,"",
@@ -124,7 +139,7 @@ static void userdata_info(FILE *f, int len, int pos, int level)
       case 0x797063A9: /* cpy (copyright) */
         {
 	  char *data = malloc(atom_size-8);
-	  
+
 	  fseek(f, pos+6, SEEK_SET);
 	  fread(data, atom_size-8, 1, f);
 	  printf(" Copyright: %s\n", data);
@@ -134,7 +149,7 @@ static void userdata_info(FILE *f, int len, int pos, int level)
       case 0x666E69A9: /* inf (information) */
         {
 	  char data[atom_size-8];
-	  
+
 	  fread(&data, 1, atom_size-8, f);
 	  printf(" Owner: %s\n", &data);
 	}
@@ -142,7 +157,7 @@ static void userdata_info(FILE *f, int len, int pos, int level)
       case 0x6D616EA9: /* nam (name) */
         {
 	  char data[atom_size-8];
-	  
+
 	  fread(&data, 1, atom_size-8, f);
 	  printf(" Name: %s\n", &data);
 	}
@@ -164,9 +179,9 @@ static void lschunks(FILE *f,int level,unsigned int endpos){
   pos=ftell(f);
   atom_size=read_dword(f);//  if(fread(&atom_size_b,4,1,f)<=0) break;
   if(fread(&atom_type,4,1,f)<=0) break;
-  
+
   if(atom_size<8) break; // error
-  
+
   printf("%08X:  %*s %.4s (%08X) %05d [%s] (begin: %08X)\n",pos,level*2,"",&atom_type,atom_type,atom_size,
     atom2human_type(atom_type), pos+8); // 8: atom_size fields (4) + atom_type fields (4)
 
@@ -177,7 +192,7 @@ static void lschunks(FILE *f,int level,unsigned int endpos){
   if (atom_type == 0x6468646D)
   {
     char data[4];
-    
+
     fread(&data, 1, 1, f); // char
     printf("mdhd version %d\n", data[0]);
     fread(&data, 3, 1, f); // int24
@@ -196,7 +211,7 @@ static void lschunks(FILE *f,int level,unsigned int endpos){
     stream = S_VIDEO;
     printf(" Found VIDEO Stream #%d\n", v_stream++);
   }
-  
+
   if (atom_type == 0x64686D73)
   {
     stream = S_AUDIO;
@@ -219,7 +234,7 @@ static void lschunks(FILE *f,int level,unsigned int endpos){
     if (x == 0 && y == 0)
 	printf(" Possible audio stream!\n");
   }
-  
+
   if(atom_type==0x64737473) {  // stsd
     unsigned int tmp;
     unsigned int count;
@@ -240,7 +255,7 @@ static void lschunks(FILE *f,int level,unsigned int endpos){
       fseek(f,len-8,SEEK_CUR);
     }
   }
-  
+
   if(atom_type==0x6F637473) {  // stco
     int len,i;
     read_dword(f);
@@ -292,7 +307,7 @@ static void lschunks(FILE *f,int level,unsigned int endpos){
     }
   }
 #endif
-  
+
 #if 1
   switch(atom_type){
   case 0x7461646D: // mdat  Movie data
@@ -326,7 +341,7 @@ static void lschunks(FILE *f,int level,unsigned int endpos){
 int main(int argc,char* argv[])
 {
     FILE *f;
-    
+
     if ((f = fopen(argc>1?argv[1]:"Akira.mov","rb")) == NULL)
 	return 1;
 

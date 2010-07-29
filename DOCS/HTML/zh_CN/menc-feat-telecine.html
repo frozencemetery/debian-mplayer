@@ -1,4 +1,4 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>11.2. How to deal with telecine and interlacing within NTSC DVDs</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"><link rel="home" href="index.html" title="MPlayer - 电影播放器"><link rel="up" href="encoding-guide.html" title="第 11 章 Encoding with MEncoder"><link rel="prev" href="menc-feat-dvd-mpeg4.html" title='11.1. Making a high quality MPEG-4 ("DivX") rip of a DVD movie'><link rel="next" href="menc-feat-enc-libavcodec.html" title="11.3. Encoding with the libavcodec codec family"><link rel="preface" href="howtoread.html" title="如何阅读此文档"><link rel="chapter" href="intro.html" title="第 1 章 介绍"><link rel="chapter" href="install.html" title="第 2 章 Installation"><link rel="chapter" href="usage.html" title="第 3 章 Usage"><link rel="chapter" href="advaudio.html" title="第 4 章 Advanced audio usage"><link rel="chapter" href="cd-dvd.html" title="第 5 章 CD/DVD用法"><link rel="chapter" href="video.html" title="第 6 章 Video output devices"><link rel="chapter" href="tv.html" title="第 7 章 TV"><link rel="chapter" href="radio.html" title="第 8 章 广播电台"><link rel="chapter" href="ports.html" title="第 9 章 Ports"><link rel="chapter" href="mencoder.html" title="第 10 章 MEncoder的基础用法"><link rel="chapter" href="encoding-guide.html" title="第 11 章 Encoding with MEncoder"><link rel="chapter" href="faq.html" title="第 12 章 Frequently Asked Questions"><link rel="appendix" href="bugreports.html" title="附录 A. 如何报告错误"><link rel="appendix" href="skin.html" title="附录 B. MPlayer skin format"><link rel="subsection" href="menc-feat-telecine.html#menc-feat-telecine-intro" title="11.2.1. Introduction"><link rel="subsection" href="menc-feat-telecine.html#menc-feat-telecine-ident" title="11.2.2. How to tell what type of video you have"><link rel="subsection" href="menc-feat-telecine.html#menc-feat-telecine-encode" title="11.2.3. How to encode each category"><link rel="subsection" href="menc-feat-telecine.html#menc-feat-telecine-footnotes" title="11.2.4. Footnotes"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">11.2. How to deal with telecine and interlacing within NTSC DVDs</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="menc-feat-dvd-mpeg4.html">上一页</a> </td><th width="60%" align="center">第 11 章 Encoding with <span class="application">MEncoder</span></th><td width="20%" align="right"> <a accesskey="n" href="menc-feat-enc-libavcodec.html">下一页</a></td></tr></table><hr></div><div class="sect1" title="11.2. How to deal with telecine and interlacing within NTSC DVDs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-telecine"></a>11.2. How to deal with telecine and interlacing within NTSC DVDs</h2></div></div></div><div class="sect2" title="11.2.1. Introduction"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-telecine-intro"></a>11.2.1. Introduction</h3></div></div></div><p title="What is telecine?"><b>What is telecine? </b>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>12.2. How to deal with telecine and interlacing within NTSC DVDs</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"><link rel="home" href="index.html" title="MPlayer - 电影播放器"><link rel="up" href="encoding-guide.html" title="第 12 章 Encoding with MEncoder"><link rel="prev" href="menc-feat-dvd-mpeg4.html" title='12.1. Making a high quality MPEG-4 ("DivX") rip of a DVD movie'><link rel="next" href="menc-feat-enc-libavcodec.html" title="12.3. Encoding with the libavcodec codec family"><link rel="preface" href="howtoread.html" title="如何阅读此文档"><link rel="chapter" href="intro.html" title="第 1 章 介绍"><link rel="chapter" href="install.html" title="第 2 章 Installation"><link rel="chapter" href="usage.html" title="第 3 章 Usage"><link rel="chapter" href="advaudio.html" title="第 4 章 Advanced audio usage"><link rel="chapter" href="cd-dvd.html" title="第 5 章 CD/DVD用法"><link rel="chapter" href="video.html" title="第 6 章 Video output devices"><link rel="chapter" href="tv-input.html" title="第 7 章 TV input"><link rel="chapter" href="tv-teletext.html" title="第 8 章 Teletext"><link rel="chapter" href="radio.html" title="第 9 章 广播电台"><link rel="chapter" href="ports.html" title="第 10 章 Ports"><link rel="chapter" href="mencoder.html" title="第 11 章 MEncoder的基础用法"><link rel="chapter" href="encoding-guide.html" title="第 12 章 Encoding with MEncoder"><link rel="chapter" href="faq.html" title="第 13 章 Frequently Asked Questions"><link rel="appendix" href="bugreports.html" title="附录 A. 如何报告错误"><link rel="appendix" href="skin.html" title="附录 B. MPlayer skin format"><link rel="subsection" href="menc-feat-telecine.html#menc-feat-telecine-intro" title="12.2.1. Introduction"><link rel="subsection" href="menc-feat-telecine.html#menc-feat-telecine-ident" title="12.2.2. How to tell what type of video you have"><link rel="subsection" href="menc-feat-telecine.html#menc-feat-telecine-encode" title="12.2.3. How to encode each category"><link rel="subsection" href="menc-feat-telecine.html#menc-feat-telecine-footnotes" title="12.2.4. Footnotes"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">12.2. How to deal with telecine and interlacing within NTSC DVDs</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="menc-feat-dvd-mpeg4.html">上一页</a> </td><th width="60%" align="center">第 12 章 Encoding with <span class="application">MEncoder</span></th><td width="20%" align="right"> <a accesskey="n" href="menc-feat-enc-libavcodec.html">下一页</a></td></tr></table><hr></div><div class="sect1" title="12.2. How to deal with telecine and interlacing within NTSC DVDs"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="menc-feat-telecine"></a>12.2. How to deal with telecine and interlacing within NTSC DVDs</h2></div></div></div><div class="sect2" title="12.2.1. Introduction"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-telecine-intro"></a>12.2.1. Introduction</h3></div></div></div><p title="What is telecine?"><b>What is telecine? </b>
 If you do not understand much of what is written in this document, read the
 <a class="ulink" href="http://en.wikipedia.org/wiki/Telecine" target="_top">Wikipedia entry on telecine</a>.
 It is an understandable and reasonably comprehensive
@@ -64,12 +64,12 @@ the video is shown frame-after-frame instead of field-after-field.
   pertaining video category. How to make good DVD rips or fine-tune
   <code class="systemitem">libavcodec</code> for maximal
   quality is not within the scope of this section; refer to other
-  sections within the <a class="link" href="encoding-guide.html" title="第 11 章 Encoding with MEncoder">MEncoder encoding
+  sections within the <a class="link" href="encoding-guide.html" title="第 12 章 Encoding with MEncoder">MEncoder encoding
   guide</a>.
 </p></li><li class="listitem"><p>
   There are a couple footnotes specific to this guide, linked like this:
-  <a class="link" href="menc-feat-telecine.html#menc-feat-telecine-footnotes" title="11.2.4. Footnotes">[1]</a>
-</p></li></ul></div></div><div class="sect2" title="11.2.2. How to tell what type of video you have"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-telecine-ident"></a>11.2.2. How to tell what type of video you have</h3></div></div></div><div class="sect3" title="11.2.2.1. Progressive"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-ident-progressive"></a>11.2.2.1. Progressive</h4></div></div></div><p>
+  <a class="link" href="menc-feat-telecine.html#menc-feat-telecine-footnotes" title="12.2.4. Footnotes">[1]</a>
+</p></li></ul></div></div><div class="sect2" title="12.2.2. How to tell what type of video you have"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-telecine-ident"></a>12.2.2. How to tell what type of video you have</h3></div></div></div><div class="sect3" title="12.2.2.1. Progressive"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-ident-progressive"></a>12.2.2.1. Progressive</h4></div></div></div><p>
 Progressive video was originally filmed at 24000/1001 fps, and stored
 on the DVD without alteration.
 </p><p>
@@ -101,7 +101,7 @@ occurred.
 Sometimes progressive video on DVDs is referred to as
 "soft-telecine" because it is intended to
 be telecined by the DVD player.
-</p></div><div class="sect3" title="11.2.2.2. Telecined"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-ident-telecined"></a>11.2.2.2. Telecined</h4></div></div></div><p>
+</p></div><div class="sect3" title="12.2.2.2. Telecined"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-ident-telecined"></a>12.2.2.2. Telecined</h4></div></div></div><p>
 Telecined video was originally filmed at 24000/1001, but was telecined
 <span class="emphasis"><em>before</em></span> it was written to the DVD.
 </p><p>
@@ -139,7 +139,7 @@ This technique has the advantage that you do not need to watch the
 source to identify it, which could be useful if you wish to automate
 the encoding procedure, or to carry out said procedure remotely via
 a slow connection.
-</p></div><div class="sect3" title="11.2.2.3. Interlaced"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-ident-interlaced"></a>11.2.2.3. Interlaced</h4></div></div></div><p>
+</p></div><div class="sect3" title="12.2.2.3. Interlaced"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-ident-interlaced"></a>12.2.2.3. Interlaced</h4></div></div></div><p>
 Interlaced video was originally filmed at 60000/1001 fields per second,
 and stored on the DVD as 30000/1001 frames per second. The interlacing effect
 (often called "combing") is a result of combining pairs of
@@ -151,7 +151,7 @@ not ever report any framerate changes when playing interlaced content.
 </p><p>
 When you view an interlaced video closely by frame-stepping with the
 <span class="keycap"><b>.</b></span> key, you will see that every single frame is interlaced.
-</p></div><div class="sect3" title="11.2.2.4. Mixed progressive and telecine"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-ident-mixedpt"></a>11.2.2.4. Mixed progressive and telecine</h4></div></div></div><p>
+</p></div><div class="sect3" title="12.2.2.4. Mixed progressive and telecine"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-ident-mixedpt"></a>12.2.2.4. Mixed progressive and telecine</h4></div></div></div><p>
 All of a "mixed progressive and telecine" video was originally
 24000/1001 frames per second, but some parts of it ended up being telecined.
 </p><p>
@@ -162,18 +162,18 @@ and "24000/1001 fps progressive NTSC". Watch the bottom of
 </p><p>
 You should check the "30000/1001 fps NTSC" sections to make sure
 they are actually telecine, and not just interlaced.
-</p></div><div class="sect3" title="11.2.2.5. Mixed progressive and interlaced"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-ident-mixedpi"></a>11.2.2.5. Mixed progressive and interlaced</h4></div></div></div><p>
+</p></div><div class="sect3" title="12.2.2.5. Mixed progressive and interlaced"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-ident-mixedpi"></a>12.2.2.5. Mixed progressive and interlaced</h4></div></div></div><p>
 In "mixed progressive and interlaced" content, progressive
 and interlaced video have been spliced together.
 </p><p>
 This category looks just like "mixed progressive and telecine",
 until you examine the 30000/1001 fps sections and see that they do not have the
 telecine pattern.
-</p></div></div><div class="sect2" title="11.2.3. How to encode each category"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-telecine-encode"></a>11.2.3. How to encode each category</h3></div></div></div><p>
+</p></div></div><div class="sect2" title="12.2.3. How to encode each category"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-telecine-encode"></a>12.2.3. How to encode each category</h3></div></div></div><p>
 As I mentioned in the beginning, example <span class="application">MEncoder</span>
 lines below are <span class="bold"><strong>not</strong></span> meant to actually be used;
 they only demonstrate the minimum parameters to properly encode each category.
-</p><div class="sect3" title="11.2.3.1. Progressive"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-encode-progressive"></a>11.2.3.1. Progressive</h4></div></div></div><p>
+</p><div class="sect3" title="12.2.3.1. Progressive"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-encode-progressive"></a>12.2.3.1. Progressive</h4></div></div></div><p>
 Progressive video requires no special filtering to encode. The only
 parameter you need to be sure to use is <tt class="option">-ofps 24000/1001</tt>.
 Otherwise, <span class="application">MEncoder</span>
@@ -184,17 +184,17 @@ will try to encode at 30000/1001 fps and will duplicate frames.
 It is often the case, however, that a video that looks progressive
 actually has very short parts of telecine mixed in. Unless you are
 sure, it is safest to treat the video as
-<a class="link" href="menc-feat-telecine.html#menc-feat-telecine-encode-mixedpt" title="11.2.3.4. Mixed progressive and telecine">mixed progressive and telecine</a>.
+<a class="link" href="menc-feat-telecine.html#menc-feat-telecine-encode-mixedpt" title="12.2.3.4. Mixed progressive and telecine">mixed progressive and telecine</a>.
 The performance loss is small
-<a class="link" href="menc-feat-telecine.html#menc-feat-telecine-footnotes" title="11.2.4. Footnotes">[3]</a>.
-</p></div><div class="sect3" title="11.2.3.2. Telecined"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-encode-telecined"></a>11.2.3.2. Telecined</h4></div></div></div><p>
+<a class="link" href="menc-feat-telecine.html#menc-feat-telecine-footnotes" title="12.2.4. Footnotes">[3]</a>.
+</p></div><div class="sect3" title="12.2.3.2. Telecined"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-encode-telecined"></a>12.2.3.2. Telecined</h4></div></div></div><p>
 Telecine can be reversed to retrieve the original 24000/1001 content,
 using a process called inverse-telecine.
 <span class="application">MPlayer</span> contains several filters to
 accomplish this; the best filter, <tt class="option">pullup</tt>, is described
-in the <a class="link" href="menc-feat-telecine.html#menc-feat-telecine-encode-mixedpt" title="11.2.3.4. Mixed progressive and telecine">mixed
+in the <a class="link" href="menc-feat-telecine.html#menc-feat-telecine-encode-mixedpt" title="12.2.3.4. Mixed progressive and telecine">mixed
 progressive and telecine</a> section.
-</p></div><div class="sect3" title="11.2.3.3. Interlaced"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-encode-interlaced"></a>11.2.3.3. Interlaced</h4></div></div></div><p>
+</p></div><div class="sect3" title="12.2.3.3. Interlaced"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-encode-interlaced"></a>12.2.3.3. Interlaced</h4></div></div></div><p>
 For most practical cases it is not possible to retrieve a complete
 progressive video from interlaced content. The only way to do so
 without losing half of the vertical resolution is to double the
@@ -207,7 +207,7 @@ corresponding lines for each field (this has drawbacks - see method 3).
   parameters specifically for dealing with storing interlaced video a
   bit better: <tt class="option">ildct</tt> and <tt class="option">ilme</tt>. Also,
   using <tt class="option">mbd=2</tt> is strongly recommended
-  <a class="link" href="menc-feat-telecine.html#menc-feat-telecine-footnotes" title="11.2.4. Footnotes">[2] </a> because it
+  <a class="link" href="menc-feat-telecine.html#menc-feat-telecine-footnotes" title="12.2.4. Footnotes">[2] </a> because it
   will encode macroblocks as non-interlaced in places where there is
   no motion. Note that <tt class="option">-ofps</tt> is NOT needed here.
   </p><pre class="screen">mencoder dvd://1 -oac copy -ovc lavc -lavcopts ildct:ilme:mbd=2</pre><p>
@@ -224,7 +224,7 @@ corresponding lines for each field (this has drawbacks - see method 3).
   various filters.
   Again, the framerate is not changing, so no
   <tt class="option">-ofps</tt>. Also, deinterlacing should be done after
-  cropping <a class="link" href="menc-feat-telecine.html#menc-feat-telecine-footnotes" title="11.2.4. Footnotes">[1]</a> and
+  cropping <a class="link" href="menc-feat-telecine.html#menc-feat-telecine-footnotes" title="12.2.4. Footnotes">[1]</a> and
   before scaling.
   </p><pre class="screen">mencoder dvd://1 -oac copy -vf yadif -ovc lavc</pre><p>
 </p></li><li class="listitem"><p>
@@ -259,11 +259,11 @@ mencoder dvd://1 -oac copy -vf tfields=2 -ovc lavc \
   original, the loss will not matter much. The result will be a
   progressive 30000/1001 frames per second file. The procedure is to use
   <tt class="option">-vf field</tt>, then crop
-  <a class="link" href="menc-feat-telecine.html#menc-feat-telecine-footnotes" title="11.2.4. Footnotes">[1]</a> and scale
+  <a class="link" href="menc-feat-telecine.html#menc-feat-telecine-footnotes" title="12.2.4. Footnotes">[1]</a> and scale
   appropriately. Remember that you will have to adjust the scale to
   compensate for the vertical resolution being halved.
   </p><pre class="screen">mencoder dvd://1 -oac copy -vf field=0 -ovc lavc</pre><p>
-</p></li></ol></div></div><div class="sect3" title="11.2.3.4. Mixed progressive and telecine"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-encode-mixedpt"></a>11.2.3.4. Mixed progressive and telecine</h4></div></div></div><p>
+</p></li></ol></div></div><div class="sect3" title="12.2.3.4. Mixed progressive and telecine"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-encode-mixedpt"></a>12.2.3.4. Mixed progressive and telecine</h4></div></div></div><p>
 In order to turn mixed progressive and telecine video into entirely
 progressive video, the telecined parts have to be
 inverse-telecined. There are three ways to accomplish this,
@@ -271,7 +271,7 @@ described below. Note that you should
 <span class="bold"><strong>always</strong></span> inverse-telecine before any
 rescaling; unless you really know what you are doing,
 inverse-telecine before cropping, too
-<a class="link" href="menc-feat-telecine.html#menc-feat-telecine-footnotes" title="11.2.4. Footnotes">[1]</a>.
+<a class="link" href="menc-feat-telecine.html#menc-feat-telecine-footnotes" title="12.2.4. Footnotes">[1]</a>.
 <tt class="option">-ofps 24000/1001</tt> is needed here because the output video
 will be 24000/1001 frames per second.
 </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
@@ -313,7 +313,7 @@ mencoder dvd://1 -oac copy -vf filmdint -ovc lavc -ofps 24000/1001</pre><p>
   </p><pre class="screen">
 mencoder dvd://1 -oac copy -vf softpulldown,ivtc=1 -ovc lavc -ofps 24000/1001
   </pre><p>
-</p></li></ul></div></div><div class="sect3" title="11.2.3.5. Mixed progressive and interlaced"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-encode-mixedpi"></a>11.2.3.5. Mixed progressive and interlaced</h4></div></div></div><p>
+</p></li></ul></div></div><div class="sect3" title="12.2.3.5. Mixed progressive and interlaced"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-encode-mixedpi"></a>12.2.3.5. Mixed progressive and interlaced</h4></div></div></div><p>
 There are two options for dealing with this category, each of
 which is a compromise. You should decide based on the
 duration/location of each type.
@@ -351,7 +351,7 @@ duration/location of each type.
   Treat it as interlaced. Some frames of the progressive parts will
   need to be duplicated, resulting in uneven jumpiness. Again,
   deinterlacing filters may slightly degrade the progressive parts.
-</p></li></ul></div></div></div><div class="sect2" title="11.2.4. Footnotes"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-telecine-footnotes"></a>11.2.4. Footnotes</h3></div></div></div><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p title="About cropping:"><b>About cropping: </b>
+</p></li></ul></div></div></div><div class="sect2" title="12.2.4. Footnotes"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-telecine-footnotes"></a>12.2.4. Footnotes</h3></div></div></div><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p title="About cropping:"><b>About cropping: </b>
   Video data on DVDs are stored in a format called YUV 4:2:0. In YUV
   video, luma ("brightness") and chroma ("color")
   are stored separately. Because the human eye is somewhat less
@@ -405,6 +405,6 @@ duration/location of each type.
   be 50% slower. Adding sound processing and advanced <tt class="option">lavcopts
   </tt> overshadows that difference, bringing the performance
   decrease of using <tt class="option">pullup</tt> down to 2%.
-  </p></li></ol></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="menc-feat-dvd-mpeg4.html">上一页</a> </td><td width="20%" align="center"><a accesskey="u" href="encoding-guide.html">上一级</a></td><td width="40%" align="right"> <a accesskey="n" href="menc-feat-enc-libavcodec.html">下一页</a></td></tr><tr><td width="40%" align="left" valign="top">11.1. Making a high quality MPEG-4 ("DivX")
-  rip of a DVD movie </td><td width="20%" align="center"><a accesskey="h" href="index.html">起始页</a></td><td width="40%" align="right" valign="top"> 11.3. Encoding with the <code class="systemitem">libavcodec</code>
+  </p></li></ol></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="menc-feat-dvd-mpeg4.html">上一页</a> </td><td width="20%" align="center"><a accesskey="u" href="encoding-guide.html">上一级</a></td><td width="40%" align="right"> <a accesskey="n" href="menc-feat-enc-libavcodec.html">下一页</a></td></tr><tr><td width="40%" align="left" valign="top">12.1. Making a high quality MPEG-4 ("DivX")
+  rip of a DVD movie </td><td width="20%" align="center"><a accesskey="h" href="index.html">起始页</a></td><td width="40%" align="right" valign="top"> 12.3. Encoding with the <code class="systemitem">libavcodec</code>
   codec family</td></tr></table></div></body></html>

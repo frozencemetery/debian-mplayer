@@ -93,10 +93,10 @@ dla TV 16:9: -vf dvbscale=1024,scale=-1:0,expand=-1:576:-1:-1:1
   itp.
 </p><p>
   Jeśli <span class="application">MPlayer</span> często uskarża się na
-  </p><pre class="screen">Too many video/audio packets in the buffer</pre><p> 
+  </p><pre class="screen">Too many video/audio packets in the buffer</pre><p>
   (za dużo pakietów video/audio w buforze) albo jeśli zauważysz rosnący brak
   synchronizacji między audio a video spróbuj użyć demuksera MPEG-TS
-  z libavformat, dodając 
+  z libavformat, dodając
   <tt class="option">-demuxer lavf -lavfdopts probesize=128</tt>
   do wiersza poleceń.
 </p><p>

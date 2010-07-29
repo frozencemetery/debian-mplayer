@@ -26,11 +26,13 @@
 #include <os2.h>
 
 #include <stdio.h>
+#include <string.h>
 
 #include "config.h"
 #include "keycodes.h"
 #include "input/input.h"
 #include "mp_fifo.h"
+#include "getch2.h"
 
 #if defined(HAVE_LANGINFO) && defined(CONFIG_ICONV)
 #include <locale.h>
@@ -189,11 +191,10 @@ char *get_term_charset( void )
 
 #ifdef HAVE_LANGINFO
     setlocale( LC_CTYPE, "");
-    charset = nl_langinfo( CODESET );
+    charset = strdup( nl_langinfo( CODESET ));
     setlocale( LC_CTYPE, "C");
 #endif
 
     return charset;
 }
 #endif
-

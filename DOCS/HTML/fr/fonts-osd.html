@@ -6,11 +6,11 @@ un bien meilleur aspect, peuvent être mises à l'échelle correctement et gère
 les différents jeux de caractères.
 </p><div class="sect2" title="2.4.1. Police TrueType"><div class="titlepage"><div><div><h3 class="title"><a name="truetype-fonts"></a>2.4.1. Police TrueType</h3></div></div></div><p>
 Il y a deux façons de rendre les polices TrueType opérationnelles. La première
-est de spécifier le nom du fichier de la police TrueType à utiliser grâce à l'option 
+est de spécifier le nom du fichier de la police TrueType à utiliser grâce à l'option
 <tt class="option">-font</tt>. Il peut être intéressant de placer
 cette option dans votre fichier de configuration (voir la page de manuel pour plus de détails).
 La seconde façon est de créer un lien symbolique (symlink) baptisé <tt class="filename">subfont.ttf</tt> pointant vers le fichier
-contenant la police de votre choix. Pour choisir une police commune à tous les utilisateurs, tapez 
+contenant la police de votre choix. Pour choisir une police commune à tous les utilisateurs, tapez
 </p><pre class="screen">ln -s <em class="replaceable"><code>/path/to/sample_font.ttf</code></em> $PREFIX/share/mplayer/subfont.ttf</pre><p>
 Pour définir une police propre à chaque utilisateur, tapez
 </p><pre class="screen">ln -s <em class="replaceable"><code>/path/to/sample_font.ttf</code></em> ~/.mplayer/subfont.ttf</pre><p>
@@ -23,12 +23,12 @@ et utilisera sans-serif par défaut.
 Un exemple :
 </p><pre class="screen">mplayer -font <em class="replaceable"><code>'Bitstream Vera Sans'</code></em> <em class="replaceable"><code>anime.mkv</code></em></pre><p>
 </p><p>
-Pour obtenir la liste des polices compatibles avec <code class="systemitem">fontconfig</code>, 
+Pour obtenir la liste des polices compatibles avec <code class="systemitem">fontconfig</code>,
 executez <span class="command"><strong>fc-list</strong></span> dans la console.
 </p></div><div class="sect2" title="2.4.2. Polices Bitmap"><div class="titlepage"><div><div><h3 class="title"><a name="bitmap-fonts"></a>2.4.2. Polices Bitmap</h3></div></div></div><p>
 Si pour une raison quelconque vous souhaitez ou devez employer des polices bitmap, téléchargez en un jeu
-depuis notre page web. Vous avez les choix entre différentes 
-<a class="ulink" href="http://www.mplayerhq.hu/MPlayer/releases/fonts/" target="_top">polices ISO</a> et quelques autres 
+depuis notre page web. Vous avez les choix entre différentes
+<a class="ulink" href="http://www.mplayerhq.hu/MPlayer/releases/fonts/" target="_top">polices ISO</a> et quelques autres
 <a class="ulink" href="http://www.mplayerhq.hu/MPlayer/contrib/fonts/" target="_top">polices développées par des utilisateurs</a>
 supportant plusieurs encodages.
 </p><p>
@@ -36,7 +36,7 @@ Décompressez le fichier que vous avez téléchargé dans le répertoire
 <tt class="filename">~/.mplayer</tt> ou dans
 <tt class="filename">$PREFIX/share/mplayer</tt>.
 Ensuite, renommez ou créez un lien symbolique de l'un des répertoires ainsi créés vers
-le sous-repertoire 
+le sous-repertoire
 <tt class="filename">font</tt>. Exemple :
 </p><pre class="screen">ln -s <em class="replaceable"><code>~/.mplayer/arial-24</code></em> ~/.mplayer/font</pre><p>
 </p><pre class="screen">ln -s <em class="replaceable"><code>$PREFIX/share/mplayer/arial-24</code></em> $PREFIX/share/mplayer/font</pre><p>

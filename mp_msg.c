@@ -1,24 +1,34 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 
 #include "config.h"
+#include "osdep/getch2.h"
 
 #ifdef CONFIG_ICONV
 #include <iconv.h>
 #include <errno.h>
-char* get_term_charset(void);
 #endif
 
-#if defined(FOR_MENCODER)
-#undef CONFIG_GUI
-int use_gui;
-#endif
-
-#ifdef CONFIG_GUI
-#include "gui/interface.h"
-#endif
 #include "mp_msg.h"
 
 /* maximum message length of mp_msg */
@@ -171,6 +181,7 @@ void mp_msg(int mod, int lev, const char *format, ... ){
     char tmp[MSGSIZE_MAX];
     FILE *stream = lev <= MSGL_WARN ? stderr : stdout;
     static int header = 1;
+    size_t len;
 
     if (!mp_msg_test(mod, lev)) return; // do not display
     va_start(va, format);
@@ -178,11 +189,6 @@ void mp_msg(int mod, int lev, const char *format, ... ){
     va_end(va);
     tmp[MSGSIZE_MAX-2] = '\n';
     tmp[MSGSIZE_MAX-1] = 0;
-
-#ifdef CONFIG_GUI
-    if(use_gui)
-        guiMessageBox(lev, tmp);
-#endif
 
 #if defined(CONFIG_ICONV) && defined(MSG_CHARSET)
     if (mp_msg_charset && strcasecmp(mp_msg_charset, "noconv")) {
@@ -218,8 +224,11 @@ void mp_msg(int mod, int lev, const char *format, ... ){
     if (header)
         print_msg_module(stream, mod);
     set_msg_color(stream, lev);
-    header = tmp[strlen(tmp)-1] == '\n' || tmp[strlen(tmp)-1] == '\r';
- 
+    len = strlen(tmp);
+    header = len && (tmp[len-1] == '\n' || tmp[len-1] == '\r');
+
     fprintf(stream, "%s", tmp);
+    if (mp_msg_color)
+        fprintf(stream, "\033[0m");
     fflush(stream);
 }

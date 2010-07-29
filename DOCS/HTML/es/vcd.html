@@ -11,7 +11,7 @@ opción <tt class="option">-cdrom-device</tt>.
 </p><div class="note" title="Nota" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Nota</h3><p>
 Al menos las unidades de CD-ROM SCSI Plextor y algunas Toshiba tienen un
 rendimiento horrible leyendo VCDs. Esto es porque el <code class="systemitem">ioctl</code>
-CDROMREADRAW no está completamente implementado en estas unidades. Si tiene 
+CDROMREADRAW no está completamente implementado en estas unidades. Si tiene
 conocimientos sobre la programación SCSI, por favor
 <a class="ulink" href="../../tech/patches.txt" target="_top">ayúdenos</a> a implementar soporte SCSI
 genérico para VCDs.
@@ -42,7 +42,7 @@ en ninguna de sus aplicaciones). Bajo Linux no puede copiar o reproducir estos
 archivos (solo contienen basura). Bajo Windows es posible que el controlador
 iso9660 emule lectura cruda de las pistas en estos archivos. Para reproducir
 un archivo .DAT necesita el controlador del kernel que se encuentra en la
-versión para Linux de PowerDVD. Contiene un controlador de sistema de archivos iso9660 
+versión para Linux de PowerDVD. Contiene un controlador de sistema de archivos iso9660
 modificado (<tt class="filename">vcdfs/isofs-2.4.X.o</tt>), que permite emular las
 pistas crudas a través de este archivo de sombra .DAT. Si monta el disco usando
 ese controlador, puede copiar e incluso reproducir los archivos .DAT con

@@ -63,7 +63,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
-#undef ENABLE_DPMS 
+#undef ENABLE_DPMS
 
 typedef struct
 {
@@ -108,7 +108,13 @@ unsigned long        wsKeyTable[512];
 int                  wsUseXShm = 1;
 int                  wsUseXShape = 1;
 
-inline int wsSearch( Window win );
+static int wsSearch( Window win )
+{
+ int i;
+ for ( i=0;i<wsWLCount;i++ ) if ( wsWindowList[i] && wsWindowList[i]->WindowID == win ) return i;
+ return -1;
+}
+
 
 // ---
 
@@ -126,8 +132,8 @@ inline int wsSearch( Window win );
 
 typedef void(*wsTConvFunc)( const unsigned char * in_pixels, unsigned char * out_pixels, unsigned num_pixels );
 wsTConvFunc wsConvFunc = NULL;
-										
-void rgb32torgb32( const unsigned char * src, unsigned char * dst,unsigned int src_size )																					
+
+static void rgb32torgb32( const unsigned char * src, unsigned char * dst,unsigned int src_size )
 { memcpy( dst,src,src_size ); }
 
 // ---
@@ -166,7 +172,7 @@ void wsWindowDecoration( wsTWindow * win,long d )
  if ( wsMotifHints == None ) return;
 
  memset( &wsMotifWmHints,0,sizeof( MotifWmHints ) );
- wsMotifWmHints.flags=MWM_HINTS_FUNCTIONS | MWM_HINTS_DECORATIONS; 
+ wsMotifWmHints.flags=MWM_HINTS_FUNCTIONS | MWM_HINTS_DECORATIONS;
  if ( d )
   {
    wsMotifWmHints.functions=MWM_FUNC_MOVE | MWM_FUNC_CLOSE | MWM_FUNC_MINIMIZE | MWM_FUNC_MAXIMIZE | MWM_FUNC_RESIZE;
@@ -180,13 +186,7 @@ void wsWindowDecoration( wsTWindow * win,long d )
 //   Init X Window System.
 // ----------------------------------------------------------------------------------------------
 
-int wsIOErrorHandler( Display * dpy )
-{
- fprintf( stderr,"[ws] IO error in display.\n" );
- exit( 0 );
-}
-
-int wsErrorHandler( Display * dpy,XErrorEvent * Event )
+static int wsErrorHandler( Display * dpy, XErrorEvent * Event )
 {
  char type[128];
  XGetErrorText( wsDisplay,Event->error_code,type,128 );
@@ -195,7 +195,7 @@ int wsErrorHandler( Display * dpy,XErrorEvent * Event )
  fprintf(stderr,"[ws]  Request code: %d\n",Event->request_code );
  fprintf(stderr,"[ws]  Minor code: %d\n",Event->minor_code );
  fprintf(stderr,"[ws]  Modules: %s\n",current_module?current_module:"(NULL)" );
- exit( 0 );
+ return 0;
 }
 
 void wsXInit( void* mDisplay )
@@ -216,9 +216,11 @@ if(mDisplay){
   }
 }
 
+ XSetErrorHandler( wsErrorHandler );
+
 /* enable DND atoms */
 wsXDNDInitialize();
- 
+
 { /* on remote display XShm will be disabled - LGB */
  char *dispname=DisplayString(wsDisplay);
  int localdisp=1;
@@ -336,7 +338,6 @@ wsXDNDInitialize();
      wsConvFunc=rgb32tobgr15;
      break;
   }
- XSetErrorHandler( wsErrorHandler );
 }
 
 // ----------------------------------------------------------------------------------------------
@@ -552,13 +553,6 @@ void wsDestroyWindow( wsTWindow * win )
 //   Handle events.
 // ----------------------------------------------------------------------------------------------
 
-inline int wsSearch( Window win )
-{
- int i;
- for ( i=0;i<wsWLCount;i++ ) if ( wsWindowList[i] && wsWindowList[i]->WindowID == win ) return i;
- return -1;
-}
-
 Bool wsEvents( Display * display,XEvent * Event,XPointer arg )
 {
  unsigned long i = 0;
@@ -706,9 +700,6 @@ buttonreleased:
  return !wsTrue;
 }
 
-Bool wsDummyEvents( Display * display,XEvent * Event,XPointer arg )
-{ return True; }
-
 void wsHandleEvents( void ){
  // handle pending events
  while ( XPending(wsDisplay) ){
@@ -726,8 +717,6 @@ void wsMainLoop( void )
  XLockDisplay( wsDisplay );
 // XIfEvent( wsDisplay,&wsEvent,wsEvents,NULL );
 
-#if 1
-
 while(wsTrue){
  // handle pending events
  while ( XPending(wsDisplay) ){
@@ -738,15 +727,6 @@ while(wsTrue){
  usleep(delay*1000); // FIXME!
  if(delay<10*20) delay+=20; // pump up delay up to 0.2 sec (low activity)
 }
-
-#else
-
- while( wsTrue )
-  {
-   XIfEvent( wsDisplay,&wsEvent,wsDummyEvents,NULL );
-   wsEvents( wsDisplay,&wsEvent,NULL );
-  }
-#endif
 
  XUnlockDisplay( wsDisplay );
 }
@@ -808,7 +788,7 @@ void wsFullScreen( wsTWindow * win )
 #ifdef ENABLE_DPMS
     wsScreenSaverOff( wsDisplay );
 #endif
-    
+
      vo_x11_ewmh_fullscreen( _NET_WM_STATE_ADD ); // adds fullscreen state if wm supports EWMH
    }
 
@@ -1082,7 +1062,7 @@ int wsGetDepthOnScreen( void )
    wsRedMask=mXImage->red_mask;
    wsGreenMask=mXImage->green_mask;
    wsBlueMask=mXImage->blue_mask;
-#ifdef WORDS_BIGENDIAN
+#if HAVE_BIGENDIAN
    wsNonNativeOrder = mXImage->byte_order == LSBFirst;
 #else
    wsNonNativeOrder = mXImage->byte_order == MSBFirst;
@@ -1172,6 +1152,7 @@ void wsCreateImage( wsTWindow * win,int Width,int Height )
    win->xImage->data=win->Shminfo.shmaddr;
    win->Shminfo.readOnly=0;
    XShmAttach( wsDisplay,&win->Shminfo );
+   XSync(wsDisplay, False);
    shmctl( win->Shminfo.shmid,IPC_RMID,0 );
   }
   else
@@ -1290,7 +1271,7 @@ void wsSetIcon( Display * dsp,Window win,Pixmap icon,Pixmap mask )
  XWMHints * wm;
  long	    data[2];
  Atom	    iconatom;
- 
+
  wm=XGetWMHints( dsp,win );
  if ( !wm ) wm=XAllocWMHints();
 
@@ -1304,7 +1285,7 @@ void wsSetIcon( Display * dsp,Window win,Pixmap icon,Pixmap mask )
  data[1]=mask;
  iconatom=XInternAtom( dsp,"KWM_WIN_ICON",0 );
  XChangeProperty( dsp,win,iconatom,iconatom,32,PropModeReplace,(unsigned char *)data,2 );
- 
+
  XFree( wm );
 }
 

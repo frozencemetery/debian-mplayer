@@ -1,9 +1,9 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>9.3. Commercial Unix</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"><link rel="home" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="ports.html" title="Chapter 9. Ports"><link rel="prev" href="bsd.html" title="9.2. *BSD"><link rel="next" href="windows.html" title="9.4. Windows"><link rel="preface" href="howtoread.html" title="How to read this documentation"><link rel="chapter" href="intro.html" title="Chapter 1. Introduction"><link rel="chapter" href="install.html" title="Chapter 2. Installation"><link rel="chapter" href="usage.html" title="Chapter 3. Usage"><link rel="chapter" href="advaudio.html" title="Chapter 4. Advanced audio usage"><link rel="chapter" href="cd-dvd.html" title="Chapter 5. CD/DVD usage"><link rel="chapter" href="tv.html" title="Chapter 6. TV"><link rel="chapter" href="radio.html" title="Chapter 7. Radio"><link rel="chapter" href="video.html" title="Chapter 8. Video output devices"><link rel="chapter" href="ports.html" title="Chapter 9. Ports"><link rel="chapter" href="mencoder.html" title="Chapter 10. Basic usage of MEncoder"><link rel="chapter" href="encoding-guide.html" title="Chapter 11. Encoding with MEncoder"><link rel="chapter" href="faq.html" title="Chapter 12. Frequently Asked Questions"><link rel="appendix" href="bugreports.html" title="Appendix A. How to report bugs"><link rel="appendix" href="skin.html" title="Appendix B. MPlayer skin format"><link rel="subsection" href="unix.html#solaris" title="9.3.1. Solaris"><link rel="subsection" href="unix.html#hp-ux" title="9.3.2. HP-UX"><link rel="subsection" href="unix.html#aix" title="9.3.3. AIX"><link rel="subsection" href="unix.html#qnx" title="9.3.4. QNX"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">9.3. Commercial Unix</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="bsd.html">Prev</a> </td><th width="60%" align="center">Chapter 9. Ports</th><td width="20%" align="right"> <a accesskey="n" href="windows.html">Next</a></td></tr></table><hr></div><div class="sect1" title="9.3. Commercial Unix"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="unix"></a>9.3. Commercial Unix</h2></div></div></div><p>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>10.3. Commercial Unix</title><link rel="stylesheet" href="default.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"><link rel="home" href="index.html" title="MPlayer - The Movie Player"><link rel="up" href="ports.html" title="Chapter 10. Ports"><link rel="prev" href="bsd.html" title="10.2. *BSD"><link rel="next" href="windows.html" title="10.4. Windows"><link rel="preface" href="howtoread.html" title="How to read this documentation"><link rel="chapter" href="intro.html" title="Chapter 1. Introduction"><link rel="chapter" href="install.html" title="Chapter 2. Installation"><link rel="chapter" href="usage.html" title="Chapter 3. Usage"><link rel="chapter" href="advaudio.html" title="Chapter 4. Advanced audio usage"><link rel="chapter" href="cd-dvd.html" title="Chapter 5. CD/DVD usage"><link rel="chapter" href="tv-input.html" title="Chapter 6. TV input"><link rel="chapter" href="tv-teletext.html" title="Chapter 7. Teletext"><link rel="chapter" href="radio.html" title="Chapter 8. Radio"><link rel="chapter" href="video.html" title="Chapter 9. Video output devices"><link rel="chapter" href="ports.html" title="Chapter 10. Ports"><link rel="chapter" href="mencoder.html" title="Chapter 11. Basic usage of MEncoder"><link rel="chapter" href="encoding-guide.html" title="Chapter 12. Encoding with MEncoder"><link rel="chapter" href="faq.html" title="Chapter 13. Frequently Asked Questions"><link rel="appendix" href="bugreports.html" title="Appendix A. How to report bugs"><link rel="appendix" href="skin.html" title="Appendix B. MPlayer skin format"><link rel="subsection" href="unix.html#solaris" title="10.3.1. Solaris"><link rel="subsection" href="unix.html#hp-ux" title="10.3.2. HP-UX"><link rel="subsection" href="unix.html#aix" title="10.3.3. AIX"><link rel="subsection" href="unix.html#qnx" title="10.3.4. QNX"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">10.3. Commercial Unix</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="bsd.html">Prev</a> </td><th width="60%" align="center">Chapter 10. Ports</th><td width="20%" align="right"> <a accesskey="n" href="windows.html">Next</a></td></tr></table><hr></div><div class="sect1" title="10.3. Commercial Unix"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="unix"></a>10.3. Commercial Unix</h2></div></div></div><p>
 <span class="application">MPlayer</span> has been ported to a number of commercial
 Unix variants. Since the development environments on these systems tend to be
 different from those found on free Unixes, you may have to make some manual
 adjustments to make the build work.
-</p><div class="sect2" title="9.3.1. Solaris"><div class="titlepage"><div><div><h3 class="title"><a name="solaris"></a>9.3.1. Solaris</h3></div></div></div><p>
+</p><div class="sect2" title="10.3.1. Solaris"><div class="titlepage"><div><div><h3 class="title"><a name="solaris"></a>10.3.1. Solaris</h3></div></div></div><p>
 Solaris still has broken, POSIX-incompatible system tools and shell in default
 locations. Until a bold step out of the computing stone age is made, you will
 have to add <tt class="filename">/usr/xpg4/bin</tt> to your
@@ -67,7 +67,7 @@ use GNU as:
 % gmake
 ...
 gcc -c -Iloader -Ilibvo -O4 -march=i686 -mcpu=i686 -pipe -ffast-math
-     -fomit-frame-pointer  -I/usr/local/include   -o mplayer.o mplayer.c
+    -fomit-frame-pointer  -I/usr/local/include   -o mplayer.o mplayer.c
 Assembler: mplayer.c
 "(stdin)", line 3567 : Illegal mnemonic
 "(stdin)", line 3567 : Syntax error
@@ -110,7 +110,7 @@ you may not be able to play DVD discs larger than 4 GB:
   (<a class="ulink" href="http://groups.yahoo.com/group/solarisonintel/message/22592" target="_top">http://groups.yahoo.com/group/solarisonintel/message/22592</a>).
   The hsfs problem can be fixed by installing
   patch 109764-04 (SPARC) / 109765-04 (x86).
-</p></li></ul></div></li></ul></div></div><div class="sect2" title="9.3.2. HP-UX"><div class="titlepage"><div><div><h3 class="title"><a name="hp-ux"></a>9.3.2. HP-UX</h3></div></div></div><p>
+</p></li></ul></div></li></ul></div></div><div class="sect2" title="10.3.2. HP-UX"><div class="titlepage"><div><div><h3 class="title"><a name="hp-ux"></a>10.3.2. HP-UX</h3></div></div></div><p>
 Joe Page hosts a detailed HP-UX <span class="application">MPlayer</span>
 <a class="ulink" href="http://users.rcn.com/joepage/mplayer_on_hpux11.htm" target="_top">HOWTO</a>
 by Martin Gansser on his homepage. With these instructions the build should
@@ -186,7 +186,7 @@ Segmentation fault</pre><p>
   the maximum amount of data a program can use.
   It depends on your applications, if the default of 64MB is enough or not.)
   </p></li></ul></div><p>
-</p></div><div class="sect2" title="9.3.3. AIX"><div class="titlepage"><div><div><h3 class="title"><a name="aix"></a>9.3.3. AIX</h3></div></div></div><p>
+</p></div><div class="sect2" title="10.3.3. AIX"><div class="titlepage"><div><div><h3 class="title"><a name="aix"></a>10.3.3. AIX</h3></div></div></div><p>
 <span class="application">MPlayer</span> builds successfully on AIX 5.1,
 5.2, and 5.3, using GCC 3.3 or greater. Building
 <span class="application">MPlayer</span> on AIX 4.3.3 and below is
@@ -221,11 +221,11 @@ Messages in the GTK-2 interface will be broken then.</pre><p>
   converting MPlayer output to another character set is currently not
   supported. The solution is to use:
   </p><pre class="screen">$ ./configure --charset=noconv</pre><p>
-  </p></li></ul></div></div><div class="sect2" title="9.3.4. QNX"><div class="titlepage"><div><div><h3 class="title"><a name="qnx"></a>9.3.4. QNX</h3></div></div></div><p>
+  </p></li></ul></div></div><div class="sect2" title="10.3.4. QNX"><div class="titlepage"><div><div><h3 class="title"><a name="qnx"></a>10.3.4. QNX</h3></div></div></div><p>
 You'll need to download and install SDL for QNX. Then run
 <span class="application">MPlayer</span> with <tt class="option">-vo sdl:driver=photon</tt>
 and <tt class="option">-ao sdl:nto</tt> options, it should be fast.
 </p><p>
 The <tt class="option">-vo x11</tt> output will be even slower than on Linux,
 since QNX has only X <span class="emphasis"><em>emulation</em></span> which is very slow.
-</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="bsd.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="ports.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="windows.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">9.2. *BSD </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> 9.4. Windows</td></tr></table></div></body></html>
+</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="bsd.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="ports.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="windows.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">10.2. *BSD </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> 10.4. Windows</td></tr></table></div></body></html>

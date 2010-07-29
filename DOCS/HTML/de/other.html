@@ -65,8 +65,8 @@ mplayer -vo zr -vf crop=720:320:80:0 <em class="replaceable"><code>benhur.avi</c
   möchtest. Dann benutzt du dafür das folgende Kommando:
 </p><pre class="screen">
 mplayer -vo zr -zrdev /dev/video0 -zrcrop 352x288+352+0 -zrxdoff 0 -zrbw \
-          -zrcrop 352x288+0+0 -zrdev /dev/video1 -zrquality 10 \
-	  <em class="replaceable"><code>movie.avi</code></em>
+    -zrcrop 352x288+0+0 -zrdev /dev/video1 -zrquality 10 \
+        <em class="replaceable"><code>movie.avi</code></em>
 </pre><p>
 </p><p>
   Wie du siehst, gelten die Optionen vor dem zweiten <tt class="option">-zrcrop</tt> nur

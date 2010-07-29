@@ -37,21 +37,21 @@ static const unsigned long long mask24hl  __attribute__((aligned(8))) = 0x0000FF
 
 //Note: we have C, X86-nommx, MMX, MMX2, 3DNOW version therse no 3DNOW+MMX2 one
 //Plain C versions
-#if !HAVE_MMX || defined (RUNTIME_CPUDETECT)
+#if !HAVE_MMX || CONFIG_RUNTIME_CPUDETECT
 #define COMPILE_C
 #endif
 
 #if ARCH_X86
 
-#if (HAVE_MMX && !HAVE_AMD3DNOW && !HAVE_MMX2) || defined (RUNTIME_CPUDETECT)
+#if (HAVE_MMX && !HAVE_AMD3DNOW && !HAVE_MMX2) || CONFIG_RUNTIME_CPUDETECT
 #define COMPILE_MMX
 #endif
 
-#if HAVE_MMX2 || defined (RUNTIME_CPUDETECT)
+#if HAVE_MMX2 || CONFIG_RUNTIME_CPUDETECT
 #define COMPILE_MMX2
 #endif
 
-#if (HAVE_AMD3DNOW && !HAVE_MMX2) || defined (RUNTIME_CPUDETECT)
+#if (HAVE_AMD3DNOW && !HAVE_MMX2) || CONFIG_RUNTIME_CPUDETECT
 #define COMPILE_3DNOW
 #endif
 
@@ -134,7 +134,7 @@ static const unsigned long long mask24hl  __attribute__((aligned(8))) = 0x0000FF
 #endif /* ARCH_X86 */
 
 void vo_draw_alpha_yv12(int w,int h, unsigned char* src, unsigned char *srca, int srcstride, unsigned char* dstbase,int dststride){
-#ifdef RUNTIME_CPUDETECT
+#if CONFIG_RUNTIME_CPUDETECT
 #if ARCH_X86
 	// ordered by speed / fastest first
 	if(gCpuCaps.hasMMX2)
@@ -148,7 +148,7 @@ void vo_draw_alpha_yv12(int w,int h, unsigned char* src, unsigned char *srca, in
 #else
 		vo_draw_alpha_yv12_C(w, h, src, srca, srcstride, dstbase, dststride);
 #endif
-#else //RUNTIME_CPUDETECT
+#else //CONFIG_RUNTIME_CPUDETECT
 #if HAVE_MMX2
 		vo_draw_alpha_yv12_MMX2(w, h, src, srca, srcstride, dstbase, dststride);
 #elif HAVE_AMD3DNOW
@@ -160,11 +160,11 @@ void vo_draw_alpha_yv12(int w,int h, unsigned char* src, unsigned char *srca, in
 #else
 		vo_draw_alpha_yv12_C(w, h, src, srca, srcstride, dstbase, dststride);
 #endif
-#endif //!RUNTIME_CPUDETECT
+#endif //!CONFIG_RUNTIME_CPUDETECT
 }
 
 void vo_draw_alpha_yuy2(int w,int h, unsigned char* src, unsigned char *srca, int srcstride, unsigned char* dstbase,int dststride){
-#ifdef RUNTIME_CPUDETECT
+#if CONFIG_RUNTIME_CPUDETECT
 #if ARCH_X86
 	// ordered by speed / fastest first
 	if(gCpuCaps.hasMMX2)
@@ -178,7 +178,7 @@ void vo_draw_alpha_yuy2(int w,int h, unsigned char* src, unsigned char *srca, in
 #else
 		vo_draw_alpha_yuy2_C(w, h, src, srca, srcstride, dstbase, dststride);
 #endif
-#else //RUNTIME_CPUDETECT
+#else //CONFIG_RUNTIME_CPUDETECT
 #if HAVE_MMX2
 		vo_draw_alpha_yuy2_MMX2(w, h, src, srca, srcstride, dstbase, dststride);
 #elif HAVE_AMD3DNOW
@@ -190,11 +190,11 @@ void vo_draw_alpha_yuy2(int w,int h, unsigned char* src, unsigned char *srca, in
 #else
 		vo_draw_alpha_yuy2_C(w, h, src, srca, srcstride, dstbase, dststride);
 #endif
-#endif //!RUNTIME_CPUDETECT
+#endif //!CONFIG_RUNTIME_CPUDETECT
 }
 
 void vo_draw_alpha_uyvy(int w,int h, unsigned char* src, unsigned char *srca, int srcstride, unsigned char* dstbase,int dststride){
-#ifdef RUNTIME_CPUDETECT
+#if CONFIG_RUNTIME_CPUDETECT
 #if ARCH_X86
 	// ordered by speed / fastest first
 	if(gCpuCaps.hasMMX2)
@@ -208,7 +208,7 @@ void vo_draw_alpha_uyvy(int w,int h, unsigned char* src, unsigned char *srca, in
 #else
 		vo_draw_alpha_uyvy_C(w, h, src, srca, srcstride, dstbase, dststride);
 #endif
-#else //RUNTIME_CPUDETECT
+#else //CONFIG_RUNTIME_CPUDETECT
 #if HAVE_MMX2
 		vo_draw_alpha_uyvy_MMX2(w, h, src, srca, srcstride, dstbase, dststride);
 #elif HAVE_AMD3DNOW
@@ -220,11 +220,11 @@ void vo_draw_alpha_uyvy(int w,int h, unsigned char* src, unsigned char *srca, in
 #else
 		vo_draw_alpha_uyvy_C(w, h, src, srca, srcstride, dstbase, dststride);
 #endif
-#endif //!RUNTIME_CPUDETECT
+#endif //!CONFIG_RUNTIME_CPUDETECT
 }
 
 void vo_draw_alpha_rgb24(int w,int h, unsigned char* src, unsigned char *srca, int srcstride, unsigned char* dstbase,int dststride){
-#ifdef RUNTIME_CPUDETECT
+#if CONFIG_RUNTIME_CPUDETECT
 #if ARCH_X86
 	// ordered by speed / fastest first
 	if(gCpuCaps.hasMMX2)
@@ -238,7 +238,7 @@ void vo_draw_alpha_rgb24(int w,int h, unsigned char* src, unsigned char *srca, i
 #else
 		vo_draw_alpha_rgb24_C(w, h, src, srca, srcstride, dstbase, dststride);
 #endif
-#else //RUNTIME_CPUDETECT
+#else //CONFIG_RUNTIME_CPUDETECT
 #if HAVE_MMX2
 		vo_draw_alpha_rgb24_MMX2(w, h, src, srca, srcstride, dstbase, dststride);
 #elif HAVE_AMD3DNOW
@@ -250,11 +250,11 @@ void vo_draw_alpha_rgb24(int w,int h, unsigned char* src, unsigned char *srca, i
 #else
 		vo_draw_alpha_rgb24_C(w, h, src, srca, srcstride, dstbase, dststride);
 #endif
-#endif //!RUNTIME_CPUDETECT
+#endif //!CONFIG_RUNTIME_CPUDETECT
 }
 
 void vo_draw_alpha_rgb32(int w,int h, unsigned char* src, unsigned char *srca, int srcstride, unsigned char* dstbase,int dststride){
-#ifdef RUNTIME_CPUDETECT
+#if CONFIG_RUNTIME_CPUDETECT
 #if ARCH_X86
 	// ordered by speed / fastest first
 	if(gCpuCaps.hasMMX2)
@@ -268,7 +268,7 @@ void vo_draw_alpha_rgb32(int w,int h, unsigned char* src, unsigned char *srca, i
 #else
 		vo_draw_alpha_rgb32_C(w, h, src, srca, srcstride, dstbase, dststride);
 #endif
-#else //RUNTIME_CPUDETECT
+#else //CONFIG_RUNTIME_CPUDETECT
 #if HAVE_MMX2
 		vo_draw_alpha_rgb32_MMX2(w, h, src, srca, srcstride, dstbase, dststride);
 #elif HAVE_AMD3DNOW
@@ -280,10 +280,11 @@ void vo_draw_alpha_rgb32(int w,int h, unsigned char* src, unsigned char *srca, i
 #else
 		vo_draw_alpha_rgb32_C(w, h, src, srca, srcstride, dstbase, dststride);
 #endif
-#endif //!RUNTIME_CPUDETECT
+#endif //!CONFIG_RUNTIME_CPUDETECT
 }
 
 #ifdef FAST_OSD_TABLE
+static unsigned short fast_osd_12bpp_table[256];
 static unsigned short fast_osd_15bpp_table[256];
 static unsigned short fast_osd_16bpp_table[256];
 #endif
@@ -292,6 +293,7 @@ void vo_draw_alpha_init(void){
 #ifdef FAST_OSD_TABLE
     int i;
     for(i=0;i<256;i++){
+        fast_osd_12bpp_table[i]=((i>>4)<< 8)|((i>>4)<<4)|(i>>4);
         fast_osd_15bpp_table[i]=((i>>3)<<10)|((i>>3)<<5)|(i>>3);
         fast_osd_16bpp_table[i]=((i>>3)<<11)|((i>>2)<<5)|(i>>3);
     }
@@ -299,7 +301,7 @@ void vo_draw_alpha_init(void){
 //FIXME the optimized stuff is a lie for 15/16bpp as they aren't optimized yet
 	if( mp_msg_test(MSGT_OSD,MSGL_V) )
 	{
-#ifdef RUNTIME_CPUDETECT
+#if CONFIG_RUNTIME_CPUDETECT
 #if ARCH_X86
 		// ordered per speed fasterst first
 		if(gCpuCaps.hasMMX2)
@@ -313,7 +315,7 @@ void vo_draw_alpha_init(void){
 #else
 			mp_msg(MSGT_OSD,MSGL_INFO,"Using Unoptimized OnScreenDisplay\n");
 #endif
-#else //RUNTIME_CPUDETECT
+#else //CONFIG_RUNTIME_CPUDETECT
 #if HAVE_MMX2
 			mp_msg(MSGT_OSD,MSGL_INFO,"Using MMX (with tiny bit MMX2) Optimized OnScreenDisplay\n");
 #elif HAVE_AMD3DNOW
@@ -325,8 +327,41 @@ void vo_draw_alpha_init(void){
 #else
 			mp_msg(MSGT_OSD,MSGL_INFO,"Using Unoptimized OnScreenDisplay\n");
 #endif
-#endif //!RUNTIME_CPUDETECT
+#endif //!CONFIG_RUNTIME_CPUDETECT
 	}
+}
+
+void vo_draw_alpha_rgb12(int w, int h, unsigned char* src, unsigned char *srca,
+                         int srcstride, unsigned char* dstbase, int dststride) {
+    int y;
+    for (y = 0; y < h; y++) {
+        register unsigned short *dst = (unsigned short*) dstbase;
+        register int x;
+        for (x = 0; x < w; x++) {
+            if(srca[x]){
+#ifdef FAST_OSD
+#ifdef FAST_OSD_TABLE
+                dst[x] = fast_osd_12bpp_table[src[x]];
+#else
+                register unsigned int a = src[x] >> 4;
+                dst[x] = (a << 8) | (a << 4) | a;
+#endif
+#else
+                unsigned char r = dst[x] & 0x0F;
+                unsigned char g = (dst[x] >> 4) & 0x0F;
+                unsigned char b = (dst[x] >> 8) & 0x0F;
+                r = (((r*srca[x]) >> 4) + src[x]) >> 4;
+                g = (((g*srca[x]) >> 4) + src[x]) >> 4;
+                b = (((b*srca[x]) >> 4) + src[x]) >> 4;
+                dst[x] = (b << 8) | (g << 4) | r;
+#endif
+            }
+        }
+        src += srcstride;
+        srca += srcstride;
+        dstbase += dststride;
+    }
+    return;
 }
 
 void vo_draw_alpha_rgb15(int w,int h, unsigned char* src, unsigned char *srca, int srcstride, unsigned char* dstbase,int dststride){
@@ -391,4 +426,3 @@ void vo_draw_alpha_rgb16(int w,int h, unsigned char* src, unsigned char *srca, i
     }
     return;
 }
-

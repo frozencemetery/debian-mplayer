@@ -68,7 +68,7 @@ campo dopo l'altro.
   <code class="systemitem">libavcodec</code> per la massima qualità
   non è lo scopo di questa documentazione.
 </p></li><li class="listitem"><p>
-  Ci sono alcune note a piè di pagina specifiche di questa guida, così 
+  Ci sono alcune note a piè di pagina specifiche di questa guida, così
   indicate:
   <a class="link" href="menc-feat-telecine.html#menc-feat-telecine-footnotes" title="10.2.4. Note a pie' pagina">[1]</a>
 </p></li></ul></div></div><div class="sect2" title="10.2.2. Come scoprire il tipo di video che possiedi"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-telecine-ident"></a>10.2.2. Come scoprire il tipo di video che possiedi</h3></div></div></div><div class="sect3" title="10.2.2.1. Progressivo"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-telecine-ident-progressive"></a>10.2.2.1. Progressivo</h4></div></div></div><p>
@@ -187,7 +187,7 @@ Se non lo usi, <span class="application">MEncoder</span> cercherà di codificare
 </p><p>
 Spesso e volentieri capita che un video che sembra progressivo contenga anche
 alcune brevi parti di telecine mescolate. A meno che tu non sia sicuro,
-conviene trattare il video come 
+conviene trattare il video come
 <a class="link" href="menc-feat-telecine.html#menc-feat-telecine-encode-mixedpt" title="10.2.3.4. Progressivo e telecine mescolati">progressivo e telecine mescolati</a>.
 Il calo di prestazioni è piccolo
 <a class="link" href="menc-feat-telecine.html#menc-feat-telecine-footnotes" title="10.2.4. Note a pie' pagina">[3]</a>.
@@ -283,7 +283,7 @@ uscita sarà a 24000/1001 fotogrammi al secondo.
   <tt class="option">pullup</tt> è tuttavia il modo migliore e più preciso disponibile
   per codificare sia telecine che "progressivo e telecine mescolati".
   </p><pre class="screen">
-mencoder dvd://1 -oac copy -vf pullup,softskip 
+mencoder dvd://1 -oac copy -vf pullup,softskip
     -ovc lavc -ofps 24000/1001</pre><p>
 </p></li><li class="listitem"><p>
   Un metodo più vecchio, invece di togliere il telecine dove c'è, è portare
@@ -376,17 +376,17 @@ tipi.
   Per video interlacciato (non in telecine), devi sempre tagliare
   verticalmente di multipli di quattro a meno che tu non stia usando
   <tt class="option">-vf field</tt> prima del taglio.
-  </p></li><li class="listitem"><p title="About encoding parameters and quality:"><b>About encoding parameters and quality: </b>
-  Just because I recommend <tt class="option">mbd=2</tt> here does not mean it
-  should not be used elsewhere. Along with <tt class="option">trell</tt>,
-  <tt class="option">mbd=2</tt> is one of the two
-   <code class="systemitem">libavcodec</code> options that
-  increases quality the most, and you should always use at least those
-  two unless the drop in encoding speed is prohibitive (e.g. realtime
-  encoding). There are many other options to
-  <code class="systemitem">libavcodec</code> that increase
-  encoding quality (and decrease encoding speed) but that is beyond
-  the scope of this document.
+  </p></li><li class="listitem"><p title="Riguardo i parameti di codifica e la qualità:"><b>Riguardo i parameti di codifica e la qualità: </b>
+  Il fatto che qui venga cosigliata <tt class="option">mbd=2</tt> non significa che
+  non si debba usare altrimenti. Insieme con <tt class="option">trell</tt>,
+  <tt class="option">mbd=2</tt> è una delle due opzioni di
+  <code class="systemitem">libavcodec</code> che ottimizzano al
+  meglio la qualità e sarebbero sempre da utilizzare entrambe a meno che
+  l'aumento della velocità di codifica sua proibitivo (ad es. per la codifica
+  in tempo reale (realtime)). Ci sono molte altre opzioni di
+  <code class="systemitem">libavcodec</code> che aumentano la
+  qualità (e rallentano la codifica), ma questo non è l'obiettivo di
+  questa documentaziione.
   </p></li><li class="listitem"><p title="About the performance of pullup:"><b>About the performance of pullup: </b>
   It is safe to use <tt class="option">pullup</tt> (along with <tt class="option">softskip
   </tt>) on progressive video, and is usually a good idea unless

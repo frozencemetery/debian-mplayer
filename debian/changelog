@@ -1,3 +1,14 @@
+mplayer (2:1.0~rc4~try1-1) experimental; urgency=low
+
+  * New Upstream Version, LP: #539315
+  * Build (against) again the System FFmpeg 
+  * tighten dependency on FFmpeg 0.6
+  * remove patches merged upstream
+  * remove 22disable-xscreensaver.patch
+  * refresh patches
+
+ -- Reinhard Tartler <siretart@tauware.de>  Wed, 28 Jul 2010 21:04:54 -0400
+
 mplayer (2:1.0~rc3++final-0ubuntu3) maverick; urgency=low
 
   * readd x264, xvid and mp3lame support, LP: #606125

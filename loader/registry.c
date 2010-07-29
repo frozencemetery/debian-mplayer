@@ -21,7 +21,7 @@
 #include "ext.h"
 #include "registry.h"
 
-#include "get_path.h"
+#include "path.h"
 
 //#undef TRACE
 //#define TRACE printf
@@ -216,7 +216,7 @@ static reg_handle_t* find_handle(int handle)
 	}
 	return 0;
 }
-static int generate_handle()
+static int generate_handle(void)
 {
 	static unsigned int zz=249;
 	zz++;
@@ -277,7 +277,7 @@ static struct reg_value* insert_reg_value(int handle, const char* name, int type
 	{
 		if(regs==0)
 		    create_registry();
-		regs=(struct reg_value*)realloc(regs, sizeof(struct reg_value)*(reg_size+1));
+		regs = realloc(regs, sizeof(struct reg_value) * (reg_size +1 ));
 		//regs=(struct reg_value*)my_realloc(regs, sizeof(struct reg_value)*(reg_size+1));
 		v=regs+reg_size;
 		reg_size++;
@@ -385,7 +385,7 @@ long __stdcall RegCloseKey(long key)
     if(handle==head)
 	head=head->prev;
     free(handle);
-    return 1;
+    return 0;
 }
 
 long __stdcall RegQueryValueExA(long key, const char* value, int* reserved, int* type, int* data, int* count)
@@ -400,9 +400,32 @@ long __stdcall RegQueryValueExA(long key, const char* value, int* reserved, int*
     if (!c)
 	return 1;
     t=find_value_by_name(c);
+    if (t==0) {
+        // Hacks for CineForm.
+        if (strcmp(c, "HKCU\\SOFTWARE\\CineForm\\DecoderProperties\\Resolution") == 0) {
+            if (data)
+                *data = 1000;
+            if (type)
+                *type = REG_DWORD;
+            if (count)
+                *count = sizeof(DWORD);
+            free(c);
+            return ERROR_SUCCESS;
+        }
+        if (strcmp(c, "HKCU\\SOFTWARE\\CineForm\\DecoderProperties\\PixelFormats") == 0) {
+            if (data)
+                *data = 0xffff;
+            if (type)
+                *type = REG_DWORD;
+            if (count)
+                *count = sizeof(DWORD);
+            free(c);
+            return ERROR_SUCCESS;
+        }
+        free(c);
+        return ERROR_FILE_NOT_FOUND;
+    }
     free(c);
-    if (t==0)
-	return 2;
     if (type)
 	*type=t->type;
     if (data)
@@ -419,7 +442,7 @@ long __stdcall RegQueryValueExA(long key, const char* value, int* reserved, int*
     {
 	*count=t->len;
     }
-    return 0;
+    return ERROR_SUCCESS;
 }
 long __stdcall RegCreateKeyExA(long key, const char* name, long reserved,
 		     void* classs, long options, long security,

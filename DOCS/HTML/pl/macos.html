@@ -8,49 +8,49 @@ wyższym. Zalecanym kompilatorem jest GCC 3.x w wersji Apple.
 Możesz otrzymać podstawowe środowisko do kompilacji, instalując
 <a class="ulink" href="http://developer.apple.com/tools/download/" target="_top">Xcode</a> od Apple.
 Jeżeli masz Mac OS X 10.3.9 lub późniejszy i QuickTime 7, możesz
-skorzystać ze sterownika wyjścia video <tt class="option">macosx</tt>.
+skorzystać ze sterownika wyjścia video <tt class="option">corevideo</tt>.
 </p><p>
-	Niestety, to podstawowe środowisko ni epozwoli ci na skorzystanie ze
-	wszystkich fajnych możliwości <span class="application">MPlayera</span>.
-	Przykładowo, żeby uzyskać wkompilowaną obsługę OSD, będziesz
-	potrzebował bibliotek <code class="systemitem">fontconfig</code>
-	i <code class="systemitem">freetype</code>
-	zainstalowanych na swojej maszynie.
-	W przeciwieństwie do innych Uniksów, takich jak większość odmian
-	Linuksa i BSD, OS X nie ma systemu pakietów dostarczanego razem
-	z systemem.
-	</p><p>
-	Można wybierać spośród co najmniej dwóch systemów pakietów:
-	<a class="ulink" href="http://fink.sourceforge.net/" target="_top">Fink</a> i
-	<a class="ulink" href="http://darwinports.opendarwin.org/" target="_top">DarwinPorts</a>.\
-	Oba dostarczają takie same usługi (np. dużo pakietów do wyboru,
-	rozwiązywanie zależności, możliwość łatwego dodania/aktualizacji/usunięcia
-	pakietów itp.).
-	Fink oferuje zarówno binarne pakiety, jak i możliwość zbudowania wszystkiego
-	ze źródeł. Natomiast DarwinPorts pozwala tylko na budowanie ze źródeł.
-	Autorzy tego przewodnika wybrali DarwinPorts z powodu tej prostej przyczyny,
-	że jego podstawowa wersja była lżejsza.
-	Podane przykłady będą oparte na DarwinPorts.
-	</p><p>
-	Przykładowo, żeby skomilować <span class="application">MPlayera</span> z obsługą
-	OSD:
-	</p><pre class="screen">sudo port install pkgconfig</pre><p>
-	Zainstaluje to <span class="application">pkg-config</span>, który jest systemem
-	do zarządzania flagami kompilacji/dowiązań bibliotek.
-	<span class="application">MPlayerowy</span> skrypt
-	<code class="systemitem">configure</code>używa go do prawidłowego
-	wykrywania bibliotek.
-	Następnie możesz zainstalować <span class="application">fontconfig</span>
-	w podobny sposób:
-	</p><pre class="screen">sudo port install fontconfig</pre><p>
-	Następnie możesz uruchomić <span class="application">MPlayerowy</span> skrypt
-	<code class="systemitem">configure</code> (zapisz zmienne systemowe
-	<code class="systemitem">PKG_CONFIG_PATH</code>
-	i <code class="systemitem">PATH</code>, żeby
-	<code class="systemitem">configure</code> znalazł biblioteki zainstalowane
-	przez DarwinPorts):
-	</p><pre class="screen">PKG_CONFIG_PATH=/opt/local/lib/pkgconfig/ PATH=$PATH:/opt/local/bin/ ./configure</pre><p>
-	</p><div class="sect2" title="8.5.1. MPlayer OS X GUI"><div class="titlepage"><div><div><h3 class="title"><a name="osx_gui"></a>8.5.1. MPlayer OS X GUI</h3></div></div></div><p>
+Niestety, to podstawowe środowisko ni epozwoli ci na skorzystanie ze
+wszystkich fajnych możliwości <span class="application">MPlayera</span>.
+Przykładowo, żeby uzyskać wkompilowaną obsługę OSD, będziesz
+potrzebował bibliotek <code class="systemitem">fontconfig</code>
+i <code class="systemitem">freetype</code>
+zainstalowanych na swojej maszynie.
+W przeciwieństwie do innych Uniksów, takich jak większość odmian
+Linuksa i BSD, OS X nie ma systemu pakietów dostarczanego razem
+z systemem.
+</p><p>
+Można wybierać spośród co najmniej dwóch systemów pakietów:
+<a class="ulink" href="http://fink.sourceforge.net/" target="_top">Fink</a> i
+<a class="ulink" href="http://darwinports.opendarwin.org/" target="_top">DarwinPorts</a>.\
+Oba dostarczają takie same usługi (np. dużo pakietów do wyboru,
+rozwiązywanie zależności, możliwość łatwego dodania/aktualizacji/usunięcia
+pakietów itp.).
+Fink oferuje zarówno binarne pakiety, jak i możliwość zbudowania wszystkiego
+ze źródeł. Natomiast DarwinPorts pozwala tylko na budowanie ze źródeł.
+Autorzy tego przewodnika wybrali DarwinPorts z powodu tej prostej przyczyny,
+że jego podstawowa wersja była lżejsza.
+Podane przykłady będą oparte na DarwinPorts.
+</p><p>
+Przykładowo, żeby skomilować <span class="application">MPlayera</span> z obsługą
+OSD:
+</p><pre class="screen">sudo port install pkgconfig</pre><p>
+Zainstaluje to <span class="application">pkg-config</span>, który jest systemem
+do zarządzania flagami kompilacji/dowiązań bibliotek.
+<span class="application">MPlayerowy</span> skrypt
+<code class="systemitem">configure</code>używa go do prawidłowego
+wykrywania bibliotek.
+Następnie możesz zainstalować <span class="application">fontconfig</span>
+w podobny sposób:
+</p><pre class="screen">sudo port install fontconfig</pre><p>
+Następnie możesz uruchomić <span class="application">MPlayerowy</span> skrypt
+<code class="systemitem">configure</code> (zapisz zmienne systemowe
+<code class="systemitem">PKG_CONFIG_PATH</code>
+i <code class="systemitem">PATH</code>, żeby
+<code class="systemitem">configure</code> znalazł biblioteki zainstalowane
+przez DarwinPorts):
+</p><pre class="screen">PKG_CONFIG_PATH=/opt/local/lib/pkgconfig/ PATH=$PATH:/opt/local/bin/ ./configure</pre><p>
+</p><div class="sect2" title="8.5.1. MPlayer OS X GUI"><div class="titlepage"><div><div><h3 class="title"><a name="osx_gui"></a>8.5.1. MPlayer OS X GUI</h3></div></div></div><p>
 Możesz pobrać natywne GUI dla <span class="application">MPlayera</span> razem
 z prekompilowanymi binariami <span class="application">MPlayera</span> dla
 Mac OS X ze strony projektu
@@ -77,8 +77,8 @@ AltiVec.
 </p><p>
 Aby pobrać moduł z repozytorium SVN wykonaj polecenia:
 </p><pre class="screen">
-	svn checkout svn://svn.mplayerhq.hu/mplayerosx/trunk/ mplayerosx
-	svn checkout svn://svn.mplayerhq.hu/mplayer/trunk/ main
+svn checkout svn://svn.mplayerhq.hu/mplayerosx/trunk/ mplayerosx
+svn checkout svn://svn.mplayerhq.hu/mplayer/trunk/ main
 </pre><p>
 </p><p>
 W celu zbudowania <span class="application">MPlayerOSX</span> będziesz musiał
@@ -132,5 +132,5 @@ zawierający gotowy do uruchomienia program.
 </p><p>
 Możes również skorzystać z projektu <span class="application">Xcode</span> 2.1;
 stary projekt dla <span class="application">Xcode</span> 1.x już nie działa.
- 
+
 </p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="windows.html">Poprzedni</a> </td><td width="20%" align="center"><a accesskey="u" href="ports.html">Początek rozdziału</a></td><td width="40%" align="right"> <a accesskey="n" href="mencoder.html">Następny</a></td></tr><tr><td width="40%" align="left" valign="top">8.4. Windows </td><td width="20%" align="center"><a accesskey="h" href="index.html">Spis treści</a></td><td width="40%" align="right" valign="top"> Rozdział 9. Podstawy używania <span class="application">MEncodera</span></td></tr></table></div></body></html>

@@ -32,12 +32,12 @@
 
 #include <errno.h>
 
+#include "network.h"
 #include "stream.h"
 #include "libmpdemux/demuxer.h"
 
 #include "tcp.h"
 
-extern int network_bandwidth;
 char *rtsp_destination = NULL;
 
 static int rtsp_streaming_seek(int fd, off_t pos,
@@ -77,4 +77,3 @@ const stream_info_t stream_info_rtsp = {
   NULL,
   0 /* Urls are an option string */
 };
-

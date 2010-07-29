@@ -59,10 +59,6 @@ Buffer allocation:
 
 #include "input/input.h"
 
-#ifdef CONFIG_GUI
-#include "gui/interface.h"
-#endif
-
 #include "libavutil/common.h"
 
 static const vo_info_t info = {
@@ -114,11 +110,20 @@ static void (*draw_alpha_fnc) (int x0, int y0, int w, int h,
                                unsigned char *src, unsigned char *srca,
                                int stride);
 
+static void fixup_osd_position(int *x0, int *y0, int *w, int *h)
+{
+    *x0 += image_width * (vo_panscan_x >> 1) / (vo_dwidth + vo_panscan_x);
+    *w = av_clip(*w, 0, image_width);
+    *h = av_clip(*h, 0, image_height);
+    *x0 = FFMIN(*x0, image_width  - *w);
+    *y0 = FFMIN(*y0, image_height - *h);
+}
+
 static void draw_alpha_yv12(int x0, int y0, int w, int h,
                             unsigned char *src, unsigned char *srca,
                             int stride)
 {
-    x0 += image_width * (vo_panscan_x >> 1) / (vo_dwidth + vo_panscan_x);
+    fixup_osd_position(&x0, &y0, &w, &h);
     vo_draw_alpha_yv12(w, h, src, srca, stride,
                        xvimage[current_buf]->data +
                        xvimage[current_buf]->offsets[0] +
@@ -130,7 +135,7 @@ static void draw_alpha_yuy2(int x0, int y0, int w, int h,
                             unsigned char *src, unsigned char *srca,
                             int stride)
 {
-    x0 += image_width * (vo_panscan_x >> 1) / (vo_dwidth + vo_panscan_x);
+    fixup_osd_position(&x0, &y0, &w, &h);
     vo_draw_alpha_yuy2(w, h, src, srca, stride,
                        xvimage[current_buf]->data +
                        xvimage[current_buf]->offsets[0] +
@@ -142,7 +147,7 @@ static void draw_alpha_uyvy(int x0, int y0, int w, int h,
                             unsigned char *src, unsigned char *srca,
                             int stride)
 {
-    x0 += image_width * (vo_panscan_x >> 1) / (vo_dwidth + vo_panscan_x);
+    fixup_osd_position(&x0, &y0, &w, &h);
     vo_draw_alpha_yuy2(w, h, src, srca, stride,
                        xvimage[current_buf]->data +
                        xvimage[current_buf]->offsets[0] +
@@ -220,11 +225,6 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
             return -1;
     }
 
-#ifdef CONFIG_GUI
-    if (use_gui)
-        guiGetEvent(guiSetShVideo, 0);  // the GUI will set up / resize the window
-    else
-#endif
     {
 #ifdef CONFIG_XF86VM
         if (vm)
@@ -610,10 +610,10 @@ static int preinit(const char *arg)
     int xv_adaptor = -1;
 
     const opt_t subopts[] =
-    {  
+    {
       /* name         arg type     arg var         test */
-      {  "port",      OPT_ARG_INT, &xv_port,       (opt_test_f)int_pos },
-      {  "adaptor",   OPT_ARG_INT, &xv_adaptor,    (opt_test_f)int_non_neg },
+      {  "port",      OPT_ARG_INT, &xv_port,       int_pos },
+      {  "adaptor",   OPT_ARG_INT, &xv_adaptor,    int_non_neg },
       {  "ck",        OPT_ARG_STR, &ck_src_arg,    xv_test_ck },
       {  "ck-method", OPT_ARG_STR, &ck_method_arg, xv_test_ckm },
       {  NULL }
@@ -687,7 +687,7 @@ static int preinit(const char *arg)
         /* check if adaptor number has been specified */
         if (xv_adaptor != -1 && xv_adaptor != i)
           continue;
-      
+
         if ((ai[i].type & XvInputMask) && (ai[i].type & XvImageMask))
         {
             for (xv_p = ai[i].base_id;
@@ -748,26 +748,12 @@ static int control(uint32_t request, void *data, ...)
         case VOCTRL_GUISUPPORT:
             return VO_TRUE;
         case VOCTRL_GET_PANSCAN:
-            if (!vo_config_count || !vo_fs)
-                return VO_FALSE;
             return VO_TRUE;
         case VOCTRL_FULLSCREEN:
             vo_x11_fullscreen();
             /* indended, fallthrough to update panscan on fullscreen/windowed switch */
         case VOCTRL_SET_PANSCAN:
-            if ((vo_fs && (vo_panscan != vo_panscan_amount))
-                || (!vo_fs && vo_panscan_amount))
-            {
-                int old_y = vo_panscan_y;
-
-                panscan_calc();
-
-                if (old_y != vo_panscan_y)
-                {
                     resize();
-                    flip_page();
-                }
-            }
             return VO_TRUE;
         case VOCTRL_SET_EQUALIZER:
             {

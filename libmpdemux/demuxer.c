@@ -1,4 +1,22 @@
-//=================== DEMUXER v2.5 =========================
+/*
+ * DEMUXER v2.5
+ *
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,6 +30,7 @@
 #include "mp_msg.h"
 #include "help_mp.h"
 #include "m_config.h"
+#include "mplayer.h"
 
 #include "libvo/fastmemcpy.h"
 
@@ -19,8 +38,10 @@
 #include "demuxer.h"
 #include "stheader.h"
 #include "mf.h"
+#include "demux_audio.h"
 
 #include "libaf/af_format.h"
+#include "libmpcodecs/dec_teletext.h"
 
 #ifdef CONFIG_ASS
 #include "libass/ass.h"
@@ -34,6 +55,14 @@
 #endif
 #endif
 
+// This is quite experimental, in particular it will mess up the pts values
+// in the queue - on the other hand it might fix some issues like generating
+// broken files with mencoder and stream copy.
+// Better leave it disabled for now, if we find no use for it this code should
+// just be removed again.
+#define PARSE_ON_ADD 0
+
+static void clear_parser(sh_common_t *sh);
 void resync_video_stream(sh_video_t *sh_video);
 void resync_audio_stream(sh_audio_t *sh_audio);
 
@@ -166,30 +195,14 @@ void free_demuxer_stream(demux_stream_t *ds)
     free(ds);
 }
 
-demux_stream_t *new_demuxer_stream(struct demuxer_st *demuxer, int id)
+demux_stream_t *new_demuxer_stream(struct demuxer *demuxer, int id)
 {
     demux_stream_t *ds = malloc(sizeof(demux_stream_t));
-    ds->buffer_pos = ds->buffer_size = 0;
-    ds->buffer = NULL;
-    ds->pts = 0;
-    ds->pts_bytes = 0;
-    ds->eof = 0;
-    ds->pos = 0;
-    ds->dpos = 0;
-    ds->pack_no = 0;
-
-    ds->packs = 0;
-    ds->bytes = 0;
-    ds->first = ds->last = ds->current = NULL;
-    ds->id = id;
-    ds->demuxer = demuxer;
-
-    ds->asf_seq = -1;
-    ds->asf_packet = NULL;
-
-    ds->ss_mul = ds->ss_div = 0;
-
-    ds->sh = NULL;
+    *ds = (demux_stream_t){
+        .id = id,
+        .demuxer = demuxer,
+        .asf_seq = -1,
+    };
     return ds;
 }
 
@@ -224,7 +237,7 @@ demuxer_t *new_demuxer(stream_t *stream, int type, int a_id, int v_id,
     d->movi_end = stream->end_pos;
     d->seekable = 1;
     d->synced = 0;
-    d->filepos = 0;
+    d->filepos = -1;
     d->audio = new_demuxer_stream(d, a_id);
     d->video = new_demuxer_stream(d, v_id);
     d->sub = new_demuxer_stream(d, s_id);
@@ -236,12 +249,10 @@ demuxer_t *new_demuxer(stream_t *stream, int type, int a_id, int v_id,
                    "big troubles ahead.");
     if (filename) // Filename hack for avs_check_file
         d->filename = strdup(filename);
-    stream_reset(stream);
+    stream->eof = 0;
     stream_seek(stream, stream->start_pos);
     return d;
 }
-
-extern int dvdsub_id;
 
 sh_sub_t *new_sh_sub_sid(demuxer_t *demuxer, int id, int sid)
 {
@@ -259,10 +270,14 @@ sh_sub_t *new_sh_sub_sid(demuxer_t *demuxer, int id, int sid)
         sh->sid = sid;
         mp_msg(MSGT_IDENTIFY, MSGL_INFO, "ID_SUBTITLE_ID=%d\n", sid);
     }
+    if (sid == dvdsub_id) {
+        demuxer->sub->id = id;
+        demuxer->sub->sh = demuxer->s_streams[id];
+    }
     return demuxer->s_streams[id];
 }
 
-void free_sh_sub(sh_sub_t *sh)
+static void free_sh_sub(sh_sub_t *sh)
 {
     mp_msg(MSGT_DEMUXER, MSGL_DBG2, "DEMUXER: freeing sh_sub at %p\n", sh);
     free(sh->extradata);
@@ -271,6 +286,9 @@ void free_sh_sub(sh_sub_t *sh)
         ass_free_track(sh->ass_track);
 #endif
     free(sh->lang);
+#ifdef CONFIG_LIBAVCODEC
+    clear_parser((sh_common_t *)sh);
+#endif
     free(sh);
 }
 
@@ -308,6 +326,9 @@ void free_sh_audio(demuxer_t *demuxer, int id)
     free(sh->wf);
     free(sh->codecdata);
     free(sh->lang);
+#ifdef CONFIG_LIBAVCODEC
+    clear_parser((sh_common_t *)sh);
+#endif
     free(sh);
 }
 
@@ -336,14 +357,17 @@ void free_sh_video(sh_video_t *sh)
 {
     mp_msg(MSGT_DEMUXER, MSGL_DBG2, "DEMUXER: freeing sh_video at %p\n", sh);
     free(sh->bih);
+#ifdef CONFIG_LIBAVCODEC
+    clear_parser((sh_common_t *)sh);
+#endif
     free(sh);
 }
 
 void free_demuxer(demuxer_t *demuxer)
 {
     int i;
-    mp_msg(MSGT_DEMUXER, MSGL_DBG2, "DEMUXER: freeing demuxer at %p\n",
-           demuxer);
+    mp_msg(MSGT_DEMUXER, MSGL_DBG2, "DEMUXER: freeing %s demuxer at %p\n",
+           demuxer->desc->shortdesc, demuxer);
     if (demuxer->desc->close)
         demuxer->desc->close(demuxer);
     // Very ugly hack to make it behave like old implementation
@@ -383,11 +407,13 @@ void free_demuxer(demuxer_t *demuxer)
         }
         free(demuxer->attachments);
     }
+    if (demuxer->teletext)
+        teletext_control(demuxer->teletext, TV_VBI_CONTROL_STOP, NULL);
     free(demuxer);
 }
 
 
-void ds_add_packet(demux_stream_t *ds, demux_packet_t *dp)
+static void ds_add_packet_internal(demux_stream_t *ds, demux_packet_t *dp)
 {
     // append packet to DS stream:
     ++ds->packs;
@@ -405,6 +431,129 @@ void ds_add_packet(demux_stream_t *ds, demux_packet_t *dp)
            (ds == ds->demuxer->audio) ? "d_audio" : "d_video", dp->len,
            dp->pts, (unsigned int) dp->pos, ds->demuxer->audio->packs,
            ds->demuxer->video->packs);
+}
+
+#ifdef CONFIG_LIBAVCODEC
+static void allocate_parser(AVCodecContext **avctx, AVCodecParserContext **parser, unsigned format)
+{
+    enum CodecID codec_id = CODEC_ID_NONE;
+    extern int avcodec_initialized;
+    if (!avcodec_initialized) {
+        avcodec_init();
+        avcodec_register_all();
+        avcodec_initialized = 1;
+    }
+    switch (format) {
+    case 0x2000:
+    case 0x332D6361:
+    case 0x332D4341:
+    case MKTAG('d', 'n', 'e', 't'):
+    case MKTAG('s', 'a', 'c', '3'):
+        codec_id = CODEC_ID_AC3;
+        break;
+    case MKTAG('E', 'A', 'C', '3'):
+        codec_id = CODEC_ID_EAC3;
+        break;
+    case 0x2001:
+    case 0x86:
+        codec_id = CODEC_ID_DTS;
+        break;
+    case MKTAG('M', 'L', 'P', ' '):
+        codec_id = CODEC_ID_MLP;
+        break;
+    case 0x55:
+    case 0x5500736d:
+    case MKTAG('.', 'm', 'p', '3'):
+    case MKTAG('M', 'P', 'E', ' '):
+    case MKTAG('L', 'A', 'M', 'E'):
+        codec_id = CODEC_ID_MP3;
+        break;
+    case 0x50:
+    case MKTAG('.', 'm', 'p', '2'):
+    case MKTAG('.', 'm', 'p', '1'):
+        codec_id = CODEC_ID_MP2;
+        break;
+    case MKTAG('T', 'R', 'H', 'D'):
+        codec_id = CODEC_ID_TRUEHD;
+        break;
+    }
+    if (codec_id != CODEC_ID_NONE) {
+        *avctx = avcodec_alloc_context();
+        if (!*avctx)
+            return;
+        *parser = av_parser_init(codec_id);
+        if (!*parser)
+            av_freep(avctx);
+    }
+}
+
+static void get_parser(sh_common_t *sh, AVCodecContext **avctx, AVCodecParserContext **parser)
+{
+    *avctx  = NULL;
+    *parser = NULL;
+
+    if (!sh || !sh->needs_parsing)
+        return;
+
+    *avctx  = sh->avctx;
+    *parser = sh->parser;
+    if (*parser)
+        return;
+
+    allocate_parser(avctx, parser, sh->format);
+    sh->avctx  = *avctx;
+    sh->parser = *parser;
+}
+
+int ds_parse(demux_stream_t *ds, uint8_t **buffer, int *len, double pts, off_t pos)
+{
+    AVCodecContext *avctx;
+    AVCodecParserContext *parser;
+    get_parser(ds->sh, &avctx, &parser);
+    if (!parser)
+        return *len;
+    return av_parser_parse2(parser, avctx, buffer, len, *buffer, *len, pts, pts, pos);
+}
+
+static void clear_parser(sh_common_t *sh)
+{
+    av_parser_close(sh->parser);
+    sh->parser = NULL;
+    av_freep(&sh->avctx);
+}
+
+void ds_clear_parser(demux_stream_t *ds)
+{
+    if (!ds->sh)
+        return;
+    clear_parser(ds->sh);
+}
+#endif
+
+void ds_add_packet(demux_stream_t *ds, demux_packet_t *dp)
+{
+#if PARSE_ON_ADD && defined(CONFIG_LIBAVCODEC)
+    int len = dp->len;
+    int pos = 0;
+    while (len > 0) {
+        uint8_t *parsed_start = dp->buffer + pos;
+        int parsed_len = len;
+        int consumed = ds_parse(ds->sh, &parsed_start, &parsed_len, dp->pts, dp->pos);
+        pos += consumed;
+        len -= consumed;
+        if (parsed_start == dp->buffer && parsed_len == dp->len) {
+            ds_add_packet_internal(ds, dp);
+        } else if (parsed_len) {
+            demux_packet_t *dp2 = new_demux_packet(parsed_len);
+            dp2->pos = dp->pos;
+            dp2->pts = dp->pts; // should be parser->pts but that works badly
+            memcpy(dp2->buffer, parsed_start, parsed_len);
+            ds_add_packet_internal(ds, dp2);
+        }
+    }
+#else
+    ds_add_packet_internal(ds, dp);
+#endif
 }
 
 void ds_read_packet(demux_stream_t *ds, stream_t *stream, int len,
@@ -505,6 +654,18 @@ int ds_fill_buffer(demux_stream_t *ds)
             break;
         }
         if (!demux_fill_buffer(demux, ds)) {
+#if PARSE_ON_ADD && defined(CONFIG_LIBAVCODEC)
+            uint8_t *parsed_start = NULL;
+            int parsed_len = 0;
+            ds_parse(ds->sh, &parsed_start, &parsed_len, MP_NOPTS_VALUE, 0);
+            if (parsed_len) {
+                demux_packet_t *dp2 = new_demux_packet(parsed_len);
+                dp2->pts = MP_NOPTS_VALUE;
+                memcpy(dp2->buffer, parsed_start, parsed_len);
+                ds_add_packet_internal(ds, dp2);
+                continue;
+            }
+#endif
             mp_dbg(MSGT_DEMUXER, MSGL_DBG2,
                    "ds_fill_buffer()->demux_fill_buffer() failed\n");
             break; // EOF
@@ -624,31 +785,50 @@ int ds_get_packet_pts(demux_stream_t *ds, unsigned char **start, double *pts)
 {
     int len;
     *pts = MP_NOPTS_VALUE;
-    if (ds->buffer_pos >= ds->buffer_size) {
-        if (!ds_fill_buffer(ds)) {
-            // EOF
-            *start = NULL;
-            return -1;
-        }
-    }
+    len = ds_get_packet(ds, start);
+    if (len < 0)
+        return len;
     // Return pts unless this read starts from the middle of a packet
-    if (!ds->buffer_pos)
+    if (len == ds->buffer_pos)
         *pts = ds->current->pts;
-    len = ds->buffer_size - ds->buffer_pos;
-    *start = &ds->buffer[ds->buffer_pos];
-    ds->buffer_pos += len;
     return len;
 }
 
-int ds_get_packet_sub(demux_stream_t *ds, unsigned char **start)
+/**
+ * Get a subtitle packet. In particular avoid reading the stream.
+ * \param pts input: maximum pts value of subtitle packet. NOPTS or NULL for any.
+ *            output: start/referece pts of subtitle
+ *            May be NULL.
+ * \param endpts output: pts for end of display time. May be NULL.
+ * \return -1 if no packet is available
+ */
+int ds_get_packet_sub(demux_stream_t *ds, unsigned char **start,
+                      double *pts, double *endpts)
 {
     int len;
+    *start = NULL;
+    // initialize pts
+    if (pts)
+        *pts    = MP_NOPTS_VALUE;
+    if (endpts)
+        *endpts = MP_NOPTS_VALUE;
     if (ds->buffer_pos >= ds->buffer_size) {
-        *start = NULL;
         if (!ds->packs)
             return -1;  // no sub
         if (!ds_fill_buffer(ds))
             return -1;  // EOF
+    }
+    // only start of buffer has valid pts
+    if (ds->buffer_pos == 0) {
+        if (endpts)
+            *endpts = ds->current->endpts;
+        if (pts) {
+            *pts    = ds->current->pts;
+            // check if we are too early
+            if (*pts != MP_NOPTS_VALUE && ds->current->pts != MP_NOPTS_VALUE &&
+                ds->current->pts > *pts)
+                return -1;
+        }
     }
     len = ds->buffer_size - ds->buffer_pos;
     *start = &ds->buffer[ds->buffer_pos];
@@ -659,7 +839,9 @@ int ds_get_packet_sub(demux_stream_t *ds, unsigned char **start)
 double ds_get_next_pts(demux_stream_t *ds)
 {
     demuxer_t *demux = ds->demuxer;
-    while (!ds->first) {
+    // if we have not read from the "current" packet, consider it
+    // as the next, otherwise we never get the pts for the first packet.
+    while (!ds->first && (!ds->current || ds->buffer_pos)) {
         if (demux->audio->packs >= MAX_PACKS
             || demux->audio->bytes >= MAX_PACK_BYTES) {
             mp_msg(MSGT_DEMUXER, MSGL_ERR, MSGTR_TooManyAudioInBuffer,
@@ -677,6 +859,9 @@ double ds_get_next_pts(demux_stream_t *ds)
         if (!demux_fill_buffer(demux, ds))
             return MP_NOPTS_VALUE;
     }
+    // take pts from "current" if we never read from it.
+    if (ds->current && !ds->buffer_pos)
+        return ds->current->pts;
     return ds->first->pts;
 }
 
@@ -933,8 +1118,6 @@ char *demuxer_name = NULL;       // parameter from -demuxer
 char *audio_demuxer_name = NULL; // parameter from -audio-demuxer
 char *sub_demuxer_name = NULL;   // parameter from -sub-demuxer
 
-extern int hr_mp3_seek;
-
 extern float stream_cache_min_percent;
 extern float stream_cache_seek_min_percent;
 
@@ -1042,14 +1225,36 @@ demuxer_t *demux_open(stream_t *vs, int file_format, int audio_id,
 
     correct_pts = user_correct_pts;
     if (correct_pts < 0)
-        correct_pts = demux_control(res, DEMUXER_CTRL_CORRECT_PTS, NULL)
+        correct_pts = !force_fps && demux_control(res, DEMUXER_CTRL_CORRECT_PTS, NULL)
                       == DEMUXER_CTRL_OK;
     return res;
 }
 
+/**
+ * Do necessary reinitialization after e.g. a seek.
+ * Do _not_ call ds_fill_buffer between the seek and this, it breaks at least
+ * seeking with ASF demuxer.
+ */
+static void demux_resync(demuxer_t *demuxer)
+{
+    sh_video_t *sh_video = demuxer->video->sh;
+    sh_audio_t *sh_audio = demuxer->audio->sh;
+    demux_control(demuxer, DEMUXER_CTRL_RESYNC, NULL);
+    if (sh_video) {
+        resync_video_stream(sh_video);
+    }
+    if (sh_audio) {
+        resync_audio_stream(sh_audio);
+    }
+}
 
 void demux_flush(demuxer_t *demuxer)
 {
+#if PARSE_ON_ADD
+    ds_clear_parser(demuxer->video);
+    ds_clear_parser(demuxer->audio);
+    ds_clear_parser(demuxer->sub);
+#endif
     ds_free_packs(demuxer->video);
     ds_free_packs(demuxer->audio);
     ds_free_packs(demuxer->sub);
@@ -1058,10 +1263,6 @@ void demux_flush(demuxer_t *demuxer)
 int demux_seek(demuxer_t *demuxer, float rel_seek_secs, float audio_delay,
                int flags)
 {
-    demux_stream_t *d_audio = demuxer->audio;
-    demux_stream_t *d_video = demuxer->video;
-    sh_audio_t *sh_audio = d_audio->sh;
-    sh_video_t *sh_video = d_video->sh;
     double tmp = 0;
     double pts;
 
@@ -1078,16 +1279,10 @@ int demux_seek(demuxer_t *demuxer, float rel_seek_secs, float audio_delay,
     }
 
     demux_flush(demuxer);
-    // clear demux buffers:
-    if (sh_audio)
-        sh_audio->a_buffer_len = 0;
 
     demuxer->stream->eof = 0;
     demuxer->video->eof = 0;
     demuxer->audio->eof = 0;
-
-    if (sh_video)
-        sh_video->timer = 0;    // !!!!!!
 
     if (flags & SEEK_ABSOLUTE)
         pts = 0.0f;
@@ -1107,7 +1302,7 @@ int demux_seek(demuxer_t *demuxer, float rel_seek_secs, float audio_delay,
 
     if (stream_control(demuxer->stream, STREAM_CTRL_SEEK_TO_TIME, &pts) !=
         STREAM_UNSUPPORTED) {
-        demux_control(demuxer, DEMUXER_CTRL_RESYNC, NULL);
+        demux_resync(demuxer);
         return 1;
     }
 
@@ -1115,8 +1310,7 @@ int demux_seek(demuxer_t *demuxer, float rel_seek_secs, float audio_delay,
     if (demuxer->desc->seek)
         demuxer->desc->seek(demuxer, rel_seek_secs, audio_delay, flags);
 
-    if (sh_audio)
-        resync_audio_stream(sh_audio);
+    demux_resync(demuxer);
 
     return 1;
 }
@@ -1129,6 +1323,10 @@ int demux_info_add(demuxer_t *demuxer, const char *opt, const char *param)
 
     for (n = 0; info && info[2 * n] != NULL; n++) {
         if (!strcasecmp(opt, info[2 * n])) {
+            if (!strcmp(param, info[2 * n + 1])) {
+                mp_msg(MSGT_DEMUX, MSGL_V, "Demuxer info %s set to unchanged value %s\n", opt, param);
+                return 0;
+            }
             mp_msg(MSGT_DEMUX, MSGL_INFO, MSGTR_DemuxerInfoChanged, opt,
                    param);
             free(info[2 * n + 1]);
@@ -1137,8 +1335,7 @@ int demux_info_add(demuxer_t *demuxer, const char *opt, const char *param)
         }
     }
 
-    info = demuxer->info = (char **) realloc(info,
-                                             (2 * (n + 2)) * sizeof(char *));
+    info = demuxer->info = realloc(info, (2 * (n + 2)) * sizeof(char *));
     info[2 * n] = strdup(opt);
     info[2 * n + 1] = strdup(param);
     memset(&info[2 * (n + 1)], 0, 2 * sizeof(char *));
@@ -1240,8 +1437,9 @@ int demuxer_get_percent_pos(demuxer_t *demuxer)
     int res = demux_control(demuxer, DEMUXER_CTRL_GET_PERCENT_POS, &ans);
     int len = (demuxer->movi_end - demuxer->movi_start) / 100;
     if (res <= 0) {
+        off_t pos = demuxer->filepos > 0 ? demuxer->filepos : stream_tell(demuxer->stream);
         if (len > 0)
-            ans = (demuxer->filepos - demuxer->movi_start) / len;
+            ans = (pos - demuxer->movi_start) / len;
         else
             ans = 0;
     }
@@ -1306,6 +1504,13 @@ int demuxer_add_chapter(demuxer_t *demuxer, const char *name, uint64_t start,
     demuxer->chapters[demuxer->num_chapters].end = end;
     demuxer->chapters[demuxer->num_chapters].name = strdup(name ? name : MSGTR_Unknown);
 
+    mp_msg(MSGT_IDENTIFY, MSGL_INFO, "ID_CHAPTER_ID=%d\n", demuxer->num_chapters);
+    mp_msg(MSGT_IDENTIFY, MSGL_INFO, "ID_CHAPTER_%d_START=%"PRIu64"\n", demuxer->num_chapters, start);
+    if (end)
+        mp_msg(MSGT_IDENTIFY, MSGL_INFO, "ID_CHAPTER_%d_END=%"PRIu64"\n", demuxer->num_chapters, end);
+    if (name)
+        mp_msg(MSGT_IDENTIFY, MSGL_INFO, "ID_CHAPTER_%d_NAME=%s\n", demuxer->num_chapters, name);
+
     return demuxer->num_chapters++;
 }
 
@@ -1327,8 +1532,6 @@ int demuxer_seek_chapter(demuxer_t *demuxer, int chapter, int mode,
 {
     int ris;
     int current, total;
-    sh_video_t *sh_video = demuxer->video->sh;
-    sh_audio_t *sh_audio = demuxer->audio->sh;
 
     if (!demuxer->num_chapters || !demuxer->chapters) {
         if (!mode) {
@@ -1343,17 +1546,9 @@ int demuxer_seek_chapter(demuxer_t *demuxer, int chapter, int mode,
 
         ris = stream_control(demuxer->stream, STREAM_CTRL_SEEK_TO_CHAPTER,
                              &chapter);
-        if (ris != STREAM_UNSUPPORTED)
-            demux_control(demuxer, DEMUXER_CTRL_RESYNC, NULL);
-        if (sh_video) {
-            ds_fill_buffer(demuxer->video);
-            resync_video_stream(sh_video);
-        }
 
-        if (sh_audio) {
-            ds_fill_buffer(demuxer->audio);
-            resync_audio_stream(sh_audio);
-        }
+        demux_resync(demuxer);
+
         // exit status may be ok, but main() doesn't have to seek itself
         // (because e.g. dvds depend on sectors, not on pts)
         *seek_pts = -1.0;
@@ -1377,6 +1572,9 @@ int demuxer_seek_chapter(demuxer_t *demuxer, int chapter, int mode,
 
         return ris != STREAM_UNSUPPORTED ? chapter : -1;
     } else {  // chapters structure is set in the demuxer
+        sh_video_t *sh_video = demuxer->video->sh;
+        sh_audio_t *sh_audio = demuxer->audio->sh;
+
         total = demuxer->num_chapters;
 
         if (mode == 1)  //absolute seeking
@@ -1511,8 +1709,6 @@ int demuxer_get_current_angle(demuxer_t *demuxer)
 int demuxer_set_angle(demuxer_t *demuxer, int angle)
 {
     int ris, angles = -1;
-    sh_video_t *sh_video = demuxer->video->sh;
-    sh_audio_t *sh_audio = demuxer->audio->sh;
 
     angles = demuxer_angles_count(demuxer);
     if ((angles < 1) || (angle > angles))
@@ -1524,16 +1720,7 @@ int demuxer_set_angle(demuxer_t *demuxer, int angle)
     if (ris == STREAM_UNSUPPORTED)
         return -1;
 
-    demux_control(demuxer, DEMUXER_CTRL_RESYNC, NULL);
-    if (sh_video) {
-        ds_fill_buffer(demuxer->video);
-        resync_video_stream(sh_video);
-    }
-
-    if (sh_audio) {
-        ds_fill_buffer(demuxer->audio);
-        resync_audio_stream(sh_audio);
-    }
+    demux_resync(demuxer);
 
     return angle;
 }
