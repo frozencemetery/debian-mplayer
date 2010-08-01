@@ -1,4 +1,4 @@
-mplayer (2:1.0~rc3++final-1) unstable; urgency=low
+mplayer (2:1.0~rc3++final.dfsg1-1) unstable; urgency=low
 
   * upload to unstable
   * enable mencoder and mplayer-gui package
