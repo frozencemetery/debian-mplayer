@@ -1,3 +1,10 @@
+mplayer (2:1.0~rc3++final-1) unstable; urgency=low
+
+  * upload to unstable
+  * enable mencoder and mplayer-gui package
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 31 Jul 2010 23:44:52 -0400
+
 mplayer (2:1.0~rc3++final-1~exp1) experimental; urgency=low
 
   * build mplayer against internal ffmpeg to workaround interoperability
