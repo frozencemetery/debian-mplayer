@@ -2,6 +2,7 @@ mplayer (2:1.0~rc3++final-1) unstable; urgency=low
 
   * upload to unstable
   * enable mencoder and mplayer-gui package
+  * build again against the system FFmpeg 0.5
 
  -- Reinhard Tartler <siretart@tauware.de>  Sat, 31 Jul 2010 23:44:52 -0400
 
