@@ -1,3 +1,9 @@
+mplayer (2:1.0~rc4~try1.dsfg1-1) experimental; urgency=low
+
+  * prepare new upload
+
+ -- Reinhard Tartler <siretart@tauware.de>  Mon, 02 Aug 2010 16:30:06 -0400
+
 mplayer (2:1.0~rc4~try1-1) experimental; urgency=low
 
   * New Upstream Version, LP: #539315
