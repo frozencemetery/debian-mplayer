@@ -101,8 +101,8 @@ build-arch:
 	dh_testdir
 	dh_prep -a
 	$(MAKE) -f debian/rules debian/mplayer/usr/bin/mplayer
-#	$(MAKE) -f debian/rules debian/mencoder/usr/bin/mencoder
-#	$(MAKE) -f debian/rules debian/mplayer-gui/usr/bin/gmplayer
+	$(MAKE) -f debian/rules debian/mencoder/usr/bin/mencoder
+	$(MAKE) -f debian/rules debian/mplayer-gui/usr/bin/gmplayer
 
 # build non-gui version
 # & mencoder
@@ -114,7 +114,7 @@ debian/mplayer/usr/bin/mplayer debian/mencoder/usr/bin/mencoder:
 	$(MAKE) $(NUMJOBS) mplayer mencoder
 	$(MAKE) install-mplayer DESTDIR=$(CURDIR)/debian/mplayer
 	$(MAKE) install-mplayer-man DESTDIR=$(CURDIR)/debian/mplayer
-#	$(MAKE) install-mencoder DESTDIR=$(CURDIR)/debian/mencoder
+	$(MAKE) install-mencoder DESTDIR=$(CURDIR)/debian/mencoder
 	$(MAKE) install-mencoder-man DESTDIR=$(CURDIR)/debian/mplayer
 	install -D -m 644 debian/mplayer.conf \
 	                  $(CURDIR)/debian/mplayer/etc/mplayer/mplayer.conf
