@@ -1,6 +1,11 @@
 mplayer (2:1.0~rc4~try1.dsfg1-1) experimental; urgency=low
 
+  * enable the mencoder package
+  * sort build depends alphabetically
+  * enable dvdnav support, Closes: #582508, #488226, LP: #611749
   * prepare new upload
+  * no longer build mplayer-gui, it doesn't build anymore with shared
+    swscale
 
  -- Reinhard Tartler <siretart@tauware.de>  Mon, 02 Aug 2010 16:30:06 -0400
 
