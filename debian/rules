@@ -100,13 +100,6 @@ build: build-arch build-indep
 build-arch:
 	dh_testdir
 	dh_prep -a
-	$(MAKE) -f debian/rules debian/mplayer/usr/bin/mplayer
-	$(MAKE) -f debian/rules debian/mencoder/usr/bin/mencoder
-
-# build non-gui version
-# & mencoder
-debian/mplayer/usr/bin/mplayer debian/mencoder/usr/bin/mencoder:
-	dh_testdir
 	$(CLEAN_ENV) \
 	./configure $(CONFIGURE_FLAGS) --disable-gui
 	$(CLEAN_ENV) \
