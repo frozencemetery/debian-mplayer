@@ -1,3 +1,9 @@
+mplayer (2:1.0~rc3++final.dfsg1-2) unstable; urgency=low
+
+  * prepare next upload
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 07 Aug 2010 10:20:58 -0400
+
 mplayer (2:1.0~rc3++final.dfsg1-1) unstable; urgency=low
 
   * upload to unstable
