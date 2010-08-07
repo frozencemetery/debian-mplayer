@@ -95,15 +95,6 @@ build: build-arch build-indep
 build-arch:
 	dh_testdir
 	dh_prep -a
-	$(MAKE) -f debian/rules debian/mplayer/usr/bin/mplayer
-	$(MAKE) -f debian/rules debian/mencoder/usr/bin/mencoder
-	$(MAKE) -f debian/rules debian/mplayer-gui/usr/bin/gmplayer
-
-# build non-gui version
-# & mencoder
-debian/mplayer/usr/bin/mplayer debian/mencoder/usr/bin/mencoder:
-	dh_testdir
-	! test -d .git || quilt push -a
 	$(CLEAN_ENV) \
 	./configure $(CONFIGURE_FLAGS) --disable-gui
 	$(CLEAN_ENV) \
@@ -114,20 +105,6 @@ debian/mplayer/usr/bin/mplayer debian/mencoder/usr/bin/mencoder:
 	$(MAKE) install-mencoder-man DESTDIR=$(CURDIR)/debian/mplayer
 	install -D -m 644 debian/mplayer.conf \
 	                  $(CURDIR)/debian/mplayer/etc/mplayer/mplayer.conf
-
-# build gui version
-debian/mplayer-gui/usr/bin/gmplayer:
-	dh_testdir
-	! test -d .git || quilt push -a
-	$(CLEAN_ENV) \
-	./configure $(CONFIGURE_FLAGS) --enable-gui
-	$(CLEAN_ENV) \
-	$(MAKE) $(NUMJOBS) mplayer
-	install -D -m 755 mplayer $(CURDIR)/debian/mplayer-gui/usr/bin/gmplayer
-	install -D -m 644 etc/mplayer.desktop \
-	                  $(CURDIR)/debian/mplayer-gui/usr/share/applications/mplayer.desktop
-	install -D -m 644 etc/mplayer.xpm \
-	                  $(CURDIR)/debian/mplayer-gui/usr/share/pixmaps/mplayer.xpm
 
 
 # binaries already installed via build rules as we have to build several flavors
