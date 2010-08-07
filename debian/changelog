@@ -1,6 +1,12 @@
-mplayer (2:1.0~rc4~try1.dsfg1-1) maverick; urgency=low
+mplayer (2:1.0~rc4~try1.dsfg1-1ubuntu1) maverick; urgency=low
 
-  * start new upload to ubuntu
+  * merge from debian, remaining changes:
+    - build depend against, lame, x264, xvid
+  * debian/patches/60eval-api.patch, backport patch from upstream to
+    unbreak compilation for eval.h move not yet in 0.6
+  * gmplayer is gone now, please see smplayer as alternative frontend.
+    LP: #503537, #493088, #467534, #467524, #460326, #390399, #285570,
+        #208680, #118709, #513065, #459595, #455913, #179918, #65165.
 
  -- Reinhard Tartler <siretart@tauware.de>  Sat, 07 Aug 2010 12:03:56 -0400
 
