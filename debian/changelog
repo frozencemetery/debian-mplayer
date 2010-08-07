@@ -1,3 +1,9 @@
+mplayer (2:1.0~rc4~try1.dsfg1-1) maverick; urgency=low
+
+  * start new upload to ubuntu
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 07 Aug 2010 12:03:56 -0400
+
 mplayer (2:1.0~rc4~try1.dsfg1-1) experimental; urgency=low
 
   * enable the mencoder package
