@@ -66,7 +66,7 @@ channel 2 --&gt; channel 2</pre><p>
   matter as long as they are properly grouped into
   <em class="replaceable"><code>source:destination</code></em> pairs.
 </p></li></ol></div><p>
-</p><h4><a name="id2610568"></a>Example: one channel in two speakers</h4><p>
+</p><h4><a name="id2987400"></a>Example: one channel in two speakers</h4><p>
 Here is an example of another way to play one channel in both speakers. Suppose
 for this example that the left channel should be played and the right channel
 discarded. Following the steps above:
@@ -90,7 +90,7 @@ The advantage this example has over <tt class="option">extrastereo</tt> is that 
 volume of each output channel is the same as the input channel. The disadvantage
 is that the suboptions must be changed to "2:2:1:0:1:1" when the desired audio
 is in the right channel. Also, it is more difficult to remember and type.
-</p><h4><a name="id2610627"></a>Example: left channel in two speakers shortcut</h4><p>
+</p><h4><a name="id2987459"></a>Example: left channel in two speakers shortcut</h4><p>
 There is actually a much easier way to use the <tt class="option">channels</tt> filter
 for playing the left channel in both speakers:
 </p><pre class="screen">mplayer <em class="replaceable"><code>filename</code></em> -af channels=1</pre><p>
@@ -98,7 +98,7 @@ The second channel is discarded and, with no further suboptions, the single
 remaining channel is left alone. Sound card drivers automatically play
 single-channel audio in both speakers. This only works when the desired channel
 is on the left.
-</p><h4><a name="id2610652"></a>Example: duplicate front channels to the rear</h4><p>
+</p><h4><a name="id2987484"></a>Example: duplicate front channels to the rear</h4><p>
 Another common operation is to duplicate the front channels and play them back
 on the rear speakers of a quadraphonic setup.
 </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
@@ -143,7 +143,7 @@ more. Unfortunately, the suboptions are much more complicated.
   but it is best to keep the values of <tt class="option">pan</tt> low enough that
   clipping is not necessary.
   </p></li></ol></div><p>
-</p><h4><a name="id2610788"></a>Example: one channel in two speakers</h4><p>
+</p><h4><a name="id2987620"></a>Example: one channel in two speakers</h4><p>
 Here is yet another example for playing the left channel in two speakers. Follow
 the steps above:
 </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
@@ -164,14 +164,14 @@ Putting those options together gives:
 </p><pre class="screen">mplayer <em class="replaceable"><code>filename</code></em> -af pan=2:1:1:0:0</pre><p>
 If the right channel is desired instead of the left, the suboptions to
 <tt class="option">pan</tt> will be "2:0:0:1:1".
-</p><h4><a name="id2610839"></a>Example: left channel in two speakers shortcut</h4><p>
+</p><h4><a name="id2987671"></a>Example: left channel in two speakers shortcut</h4><p>
 As with <tt class="option">channels</tt>, there is a shortcut that only works with the
 left channel:
 </p><pre class="screen">mplayer <em class="replaceable"><code>filename</code></em> -af pan=1:1</pre><p>
 Since <tt class="option">pan</tt> has only one channel of input (the other channel is
 discarded), there is only one set with one suboption, which specifies that the
 only channel gets 100% of itself.
-</p><h4><a name="id2610866"></a>Example: downmixing 6-channel PCM</h4><p>
+</p><h4><a name="id2987698"></a>Example: downmixing 6-channel PCM</h4><p>
 <span class="application">MPlayer</span>'s decoder for 6-channel PCM is not capable of
 downmixing. Here is a way to downmix PCM using <tt class="option">pan</tt>:
 </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
@@ -202,7 +202,7 @@ Put all that together, for:
 mplayer <em class="replaceable"><code>6-channel.wav</code></em> -af pan=2:1:0:0:1:1:0:0:1:0.5:0.5:1:1
 </pre><p>
 The percentages listed above are only a rough example. Feel free to tweak them.
-</p><h4><a name="id2610933"></a>Example: Playing 5.1 audio on big speakers without a subwoofer</h4><p>
+</p><h4><a name="id2987765"></a>Example: Playing 5.1 audio on big speakers without a subwoofer</h4><p>
 If you have a huge pair of front speakers you may not want to waste any money on
 buying a subwoofer for a complete 5.1 sound system. If you use
 <tt class="option">-channels 5</tt> to request that liba52 decode 5.1 audio in 5.0,

@@ -67,7 +67,7 @@ esetenként bonyolult és némi odafigyelést kíván.
   amíg megfelelően vannak csoportosítva
   <em class="replaceable"><code>forrás:cél</code></em> párokba.
 </p></li></ol></div><p>
-</p><h4><a name="id3101973"></a>Példa: egy csatorna két hangszóróra</h4><p>
+</p><h4><a name="id2599462"></a>Példa: egy csatorna két hangszóróra</h4><p>
 Itt egy példa az egy csatorna több hangszóróra való kiküldésének egy másik módjára.
 Ebben a példában feltételezzük, hogy a bal csatornát kell lejátszani és a jobb
 csatornát eldobjuk. Követve a fenti leírást:
@@ -90,7 +90,7 @@ Ezen példa előnye az <tt class="option">extrastereo</tt>-val szemben, hogy a h
 mindegyik kimeneti csatornán a bemeneti csatornáéval megegyező lesz. A hátránya,
 hogy az alopciókat "2:2:1:0:1:1"-re kell változtatni, ha a kívánt audió a jobb
 csatornán van. Valamint nehezebb megjegyezni és begépelni.
-</p><h4><a name="id3102049"></a>Példa: bal csatorna két hangszóróra rövidítve</h4><p>
+</p><h4><a name="id2599538"></a>Példa: bal csatorna két hangszóróra rövidítve</h4><p>
 Van egy sokkal könnyebb mód a <tt class="option">channels</tt> szűrő használatára,
 hogy a bal csatornát mindkét hangszórón megszólaltassuk:
 </p><pre class="screen">mplayer <em class="replaceable"><code>fájlnév</code></em> -af channels=1</pre><p>
@@ -98,7 +98,7 @@ A második csatorna figyelmen kívül marad és további alopciók nélkül az e
 megmaradó csatorna egyedül marad. A hangkártya vezérlők az egy csatornás
 audiót automatikusan lejátszák mindkét hangszórón. Ez csak akkor működik, ha
 a kívánt csatorna a bal.
-</p><h4><a name="id3102083"></a>Példa: az elülső csatornák duplázása hátra</h4><p>
+</p><h4><a name="id2599572"></a>Példa: az elülső csatornák duplázása hátra</h4><p>
 Másik gyakori művelet az elülső csatornák duplázása és lejátszása hátul, a hátsó
 hangszórókon kvadrafónikus beállítással.
 </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
@@ -143,7 +143,7 @@ szűrővel, és még többet is. Sajnos az alopciók még komplikáltabbak.
   a vágás engedélyezéséhez, de jobb a <tt class="option">pan</tt> értékeit olyan
   alacsonyan tartani, hogy ne kelljen vágni.
   </p></li></ol></div><p>
-</p><h4><a name="id3102251"></a>Példa: egy csatorna két hangszóróra</h4><p>
+</p><h4><a name="id2599740"></a>Példa: egy csatorna két hangszóróra</h4><p>
 Itt van egy újabb példa a bal csatorna két hangszórón történő lejátszására. Kövesd
 a fent leírt lépéseket:
 </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
@@ -163,14 +163,14 @@ Ezen opciók összeállítása adja:
 </p><pre class="screen">mplayer <em class="replaceable"><code>fájlnév</code></em> -af pan=2:1:1:0:0</pre><p>
 Ha inkább a jobb csatorna kell a bal helyett, a <tt class="option">pan</tt> alopciói
 "2:0:0:1:1" lesznek.
-</p><h4><a name="id3102311"></a>Példa: bal csatorna két hangszóróra rövidítve</h4><p>
+</p><h4><a name="id2599800"></a>Példa: bal csatorna két hangszóróra rövidítve</h4><p>
 Amint a <tt class="option">channels</tt>-el, itt is lehet rövidíteni, ha a csak a bal
 csatornával dolgozol:
 </p><pre class="screen">mplayer <em class="replaceable"><code>fájlnév</code></em> -af pan=1:1</pre><p>
 Mivel a <tt class="option">pan</tt>-nek csak egy bemeneti csatornája van (a másik csatorna
 figyelmen kívül marad), csak egy része van az alopcióknak, ami megadja, hogy az
 egyetlen csatorna saját maga 100%-át kapja.
-</p><h4><a name="id3102343"></a>Példa: 6 csatornás PCM lekeverése</h4><p>
+</p><h4><a name="id2599832"></a>Példa: 6 csatornás PCM lekeverése</h4><p>
 Az <span class="application">MPlayer</span> 6 csatornás PCM dekódolója nem tud lekeverni.
 Itt egy módszer a PCM lekeverésre a <tt class="option">pan</tt> használatával:
 </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
@@ -200,7 +200,7 @@ Mindezt összerakva:
 mplayer <em class="replaceable"><code>6-channel.wav</code></em> -af pan=2:1:0:0:1:1:0:0:1:0.5:0.5:1:1
 </pre><p>
 A fenti példa százalékok csak durva példák. Nyugodtan játszadozz velük!
-</p><h4><a name="id3102425"></a>Példa: 5.1-es audió lejátszása nagy hangszórókon, mélynyomó nélkül</h4><p>
+</p><h4><a name="id2599915"></a>Példa: 5.1-es audió lejátszása nagy hangszórókon, mélynyomó nélkül</h4><p>
 Ha egy pár nagy hangszóród van elől, nem kell pénzt áldoznod mélynyomóra a
 teljes 5.1-es hangzáshoz. Ha a <tt class="option">-channels 5</tt> használatával
 kéred, hogy a liba52 az 5.1-es audiót 5.0-ban dekódolja, a mélynyomó
