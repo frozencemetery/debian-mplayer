@@ -166,7 +166,7 @@ channel 2 --&gt; channel 2</pre><p>
   druhý 1 atd. Na pořadí parametrů nezáleží, pokud jsou správně sdruženy do
   párů <em class="replaceable"><code>zdroj:cíl</code></em>.
 </p></li></ol></div><p>
-</p><h5><a name="id3104714"></a>Příklad: jeden kanál ve dvou reproduktorech</h5><p>
+</p><h5><a name="id2584245"></a>Příklad: jeden kanál ve dvou reproduktorech</h5><p>
 Zde máte příklad jiného způsobu, jak hrát jeden kanál v obou reproduktorech.
 Pro náš účel předpokládejme, že by měl být přehráván levý kanál a zahozen pravý.
 Následujeme výše uvedený postup:
@@ -190,14 +190,14 @@ je hlasitost každého výstupního kanálu stejná jako hlasitost zdrojového
 kanálu. Nevýhodou je to, že parametry musí být změněny na "2:2:1:0:1:1",
 pokud je požadovaný zvuk v pravém kanálu. Také je těžší si je pamatovat
 a napsat.
-</p><h5><a name="id3104792"></a>Příklad: levý kanál v obou reproduktorech – zkratka</h5><p>
+</p><h5><a name="id2584322"></a>Příklad: levý kanál v obou reproduktorech – zkratka</h5><p>
 Ve skutečnosti je mnohem jednodušší způsob použití filtru
 <tt class="option">channels</tt> pro přehrávání levého kanálu v obou reproduktorech:
 </p><pre class="screen">mplayer <em class="replaceable"><code>soubor</code></em> -af channels=1</pre><p>
 Druhý kanál je zahozen a bez dalších parametrů je ponechán jediný zbývající
 kanál. Ovladače zvukových karet hrají jednokanálový zvuk automaticky v obou
 reproduktorech. To pracuje pouze pokud je požadovaný levý kanál.
-</p><h5><a name="id3107237"></a>Příklad: kopírování čelních kanálů do zadních</h5><p>
+</p><h5><a name="id2586768"></a>Příklad: kopírování čelních kanálů do zadních</h5><p>
 Dalším běžným úkonem je duplikace čelních kanálů a jejich přehrávání v zadních
 reproduktorech kvadrofonní sestavy.
 </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
@@ -241,7 +241,7 @@ jeho parametry ještě komplikovanější.
   ale i tak je nejlepší udržet hodnoty <tt class="option">pan</tt> dostatečně nízko,
   aby omezování nebylo potřeba.
   </p></li></ol></div><p>
-</p><h5><a name="id3107406"></a>Příklad: jeden kanál do dvou reproduktorů</h5><p>
+</p><h5><a name="id2586937"></a>Příklad: jeden kanál do dvou reproduktorů</h5><p>
 Zde máte další příklad pro přehrávání levého kanálu ve dvou reproduktorech.
 Následujme výše uvedené kroky:
 </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
@@ -261,14 +261,14 @@ Dáme-li vše dohromady, dostaneme:
 </p><pre class="screen">mplayer <em class="replaceable"><code>soubor</code></em> -af pan=2:1:1:0:0</pre><p>
 Pokud chceme místo levého kanálu pravý, budou parametry
 <tt class="option">pan</tt> tyto: "2:0:0:1:1".
-</p><h5><a name="id3107466"></a>Příklad: levý kanál ve dvou reproduktorech zkráceně</h5><p>
+</p><h5><a name="id2586997"></a>Příklad: levý kanál ve dvou reproduktorech zkráceně</h5><p>
 Stejně jako s <tt class="option">channels</tt> můžeme použít zkrácený zápis, který
 funguje pouze pro levý kanál:
 </p><pre class="screen">mplayer <em class="replaceable"><code>soubor</code></em> -af pan=1:1</pre><p>
 Jelikož má <tt class="option">pan</tt> pouze jeden vstupní kanál (druhý je zahozen),
 máme pouze jednu sadu s jedním parametrem, takže tento jediný kanál dává
 100% sám ze sebe.
-</p><h5><a name="id3107498"></a>Příklad: podmixování 6-kanálového PCM</h5><p>
+</p><h5><a name="id2587029"></a>Příklad: podmixování 6-kanálového PCM</h5><p>
 <span class="application">MPlayer</span>ův dekodér 6-kanálového PCM neumí podmixování.
 Máme však možnost k tomu použít <tt class="option">pan</tt>:
 </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
@@ -299,7 +299,7 @@ mplayer <em class="replaceable"><code>6-kanálové.wav</code></em> -af pan=2:1:0
 </pre><p>
 Uvedené procentní hodnoty jsou pouhým příkladem. Upravte si je podle vlastního
 uvážení.
-</p><h5><a name="id3107580"></a>Příklad: Přehrávání 5.1 zvuku na velkých reprobednách bez subwooferu</h5><p>
+</p><h5><a name="id2587110"></a>Příklad: Přehrávání 5.1 zvuku na velkých reprobednách bez subwooferu</h5><p>
 Pokud máte robustní čelní reprobedny, nemusíte utrácet za nákup subwooferu
 pro kompletní 5.1 zvukový systém. Použijete-li volbu
 <tt class="option">-channels 5</tt> pro požadavek, aby liba52 dekódovala 5.1 zvuk
