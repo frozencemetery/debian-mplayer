@@ -187,7 +187,7 @@ channel 2 --&gt; channel 2</pre><p>
   solang sie entsprechend in Paare der Form
   <em class="replaceable"><code>Quelle:Ziel</code></em> gruppiert sind.
 </p></li></ol></div><p>
-</p><h5><a name="id2757976"></a>Beispiel: ein Kanal auf zwei Lautsprecher</h5><p>
+</p><h5><a name="id2875528"></a>Beispiel: ein Kanal auf zwei Lautsprecher</h5><p>
 Hier ist ein Beispiel einer weiteren Möglichkeit, einen Kanal auf zwei Lautsprechern wiederzugeben.
 Für dieses Beispiel sei angenommen, dass der linke Kanal abgespielt und der rechte verworfen
 werden soll. Befolge die oben angegebenen Schritte:
@@ -210,7 +210,7 @@ Der Vorteil, den diese Methode gegenüber <tt class="option">extrastereo</tt> ha
 die Lautstärke auf jedem Ausgabekanal die gleiche ist wie die des Eingabekanals.
 Der Nachteil ist, dass die Suboptionen zu "2:2:1:0:1:1" geändert werden müssen, wenn
 der gewünschte Ton im rechten Kanal ist. Außerdem ist es schwerer zu merken und einzutippen.
-</p><h5><a name="id2758054"></a>Beispiel: ein Kanal auf zwei Lautsprecher, Abkürzung</h5><p>
+</p><h5><a name="id2875606"></a>Beispiel: ein Kanal auf zwei Lautsprecher, Abkürzung</h5><p>
 Tatsächlich gibt es einen viel einfacheren Weg, um mit dem <tt class="option">channels</tt>-Filter
 den linken Kanal auf beiden Lautsprechern wiederzugeben:
 
@@ -219,7 +219,7 @@ den linken Kanal auf beiden Lautsprechern wiederzugeben:
 Der zweite Kanal wird verworfen und ohne weitere Suboptionen bleibt der übrige Kanal
 allein. Soundkartentreiber spielen einkanaliges Audio automatisch auf beiden
 Lautsprechern ab. Dies funktioniert nur, wenn der gewünschte Kanal der linke ist.
-</p><h5><a name="id2758085"></a>Beispiel: Dupliziere die vorderen Kanäle hinten</h5><p>
+</p><h5><a name="id2875637"></a>Beispiel: Dupliziere die vorderen Kanäle hinten</h5><p>
 Eine weitere übliche Aktion ist die Duplizierung der vorderen Kanäle, um sie auf den hinteren
 Lautsprechern einer quadraphonischen Installation abzuspielen.
 </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
@@ -265,7 +265,7 @@ sind die Suboptionen auch viel schwieriger.
   Abschneidung zu ermöglichen, es ist aber das beste, die Werte von <tt class="option">pan</tt>
   niedrig genug zu halten, dass keine Abschneidung nötig ist.
 </p></li></ol></div><p>
-</p><h5><a name="id2758264"></a>Beispiel: Ein Kanal auf zwei Lautsprechern</h5><p>
+</p><h5><a name="id2875816"></a>Beispiel: Ein Kanal auf zwei Lautsprechern</h5><p>
 Hier ist also noch ein Beispiel für die Wiedergabe des linken Kanals auf zwei Lautsprechern.
 Befolge die Schritte oben:
 </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
@@ -285,7 +285,7 @@ Diese Optionen ergeben zusammen:
 
 Wenn der rechte Kanal anstelle des linken gewünscht ist, sind die Suboptionen für
 <tt class="option">pan</tt> "2:0:0:1:1".
-</p><h5><a name="id2755712"></a>Beispiel: Ein Kanal auf zwei Lautsprechern, Abkürzung</h5><p>
+</p><h5><a name="id2873264"></a>Beispiel: Ein Kanal auf zwei Lautsprechern, Abkürzung</h5><p>
 Wie bei der Option <tt class="option">channels</tt> gibt es eine Abkürzung, die nur mit dem linken
 Kanal funktioniert:
 
@@ -293,7 +293,7 @@ Kanal funktioniert:
 
 Da <tt class="option">pan</tt> nur einen Eingabekanal hat (der andere wird verworfen), gibt es nur
 einen Teil mit einer Suboption, die angibt, dass der einzige Kanal 100% von sich selbst bekommt.
-</p><h5><a name="id2755742"></a>Beispiel: 6-kanaliges PCM heruntermixen</h5><p>
+</p><h5><a name="id2873294"></a>Beispiel: 6-kanaliges PCM heruntermixen</h5><p>
 <span class="application">MPlayer</span>s Decoder für 6-kanaliges PCM ist nicht in der Lage, herunterzumixen.
 Hier ist eine Möglichkeit, PCM unter Verwendung von <tt class="option">pan</tt> herunterzumixen:
 </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
@@ -324,7 +324,7 @@ All dies zusammen ergibt:
 
 Die oben gelisteten Prozente sind nur ein einfaches Beispiel. Fühle dich nicht eingeschränkt,
 mit ihnen zu experimentieren.
-</p><h5><a name="id2758586"></a>Beispiel: Wiedergabe von 5.1-Audio auf großen Lautsprechern ohne Subwoofer</h5><p>
+</p><h5><a name="id2876138"></a>Beispiel: Wiedergabe von 5.1-Audio auf großen Lautsprechern ohne Subwoofer</h5><p>
 Wenn du ein riesiges Paar Front-Lautsprecher hast und kein Geld darauf verschwenden möchtest,
 einen Subwoofer für ein komplettes 5.1-Soundsystem zu erhalten. Wenn du die Option
 <tt class="option">-channels 5</tt> benutzt, damit liba52 5.1-Ton in 5.0 decodiert, wird der Subwoofer-Kanal

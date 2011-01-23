@@ -181,7 +181,7 @@ kanał 2 --&gt; kanał 2</pre><p>
   być pogrupowane w pary typu
   <em class="replaceable"><code>źródło:cel</code></em>.
 </p></li></ol></div><p>
-</p><h5><a name="id2855893"></a>Przykład: jeden kanał w dwóch głośnikach</h5><p>
+</p><h5><a name="id3009972"></a>Przykład: jeden kanał w dwóch głośnikach</h5><p>
 Oto przykład innej metody odtwarzania jednego kanału w dwóch głośnikach.
 Załóżmy, że lewy kanał ma być odtwarzany, a prawy ma zostać pominięty.
 Zgodnie z krokami opisanymi powyżej:
@@ -205,14 +205,14 @@ Przewaga tego przykładu nad opcją <tt class="option">extrastereo</tt> jest tak
 głośność każdego z kanałów wyjściowych pozostanie taka sama jak kanału źródłowego.
 Wadą jest, że podopcje muszą zostać zmienione na "2:2:1:0:1:1", gdy dźwięk zawiera
 kanał prawy. Ponadto trudniej to zapamiętać i wpisać.
-</p><h5><a name="id2855970"></a>Przykład: lewy kanał w obu głośnikach (skrót)</h5><p>
+</p><h5><a name="id3010049"></a>Przykład: lewy kanał w obu głośnikach (skrót)</h5><p>
 Istnieje znacznie łatwiejsza metoda na użycie filtru <tt class="option">channels</tt> w
 celu odtworzenia lewego kanału w dwóch głośnikach:
 </p><pre class="screen">mplayer <em class="replaceable"><code>filename</code></em> -af channels=1</pre><p>
 Drugi kanał jest pomijany, a pierwszy jest pozostawiany, bez dodatkowych podopcji.
 Sterowniki kart muzycznych automatycznie odtwarzają jednokanałowy dźwięk wykorzystując
 oba głośniki. Oczywiście zadziała to tylko, gdy pożądanym kanałem jest kanał lewy.
-</p><h5><a name="id2856003"></a>Przykład: kopiowanie kanałów przednich do kanałów tylnych</h5><p>
+</p><h5><a name="id3010082"></a>Przykład: kopiowanie kanałów przednich do kanałów tylnych</h5><p>
 Kolejną typową operacją jest kopiowanie kanałów przednich i odtwarzanie ich
 z tylnych głośników zestawu kwadrofonicznego.
 </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
@@ -261,7 +261,7 @@ znacznie bardziej skomplikowane.
   głośności, jednak najlepiej używać na tyle małych wartości parametrów
   <tt class="option">pan</tt>, aby przycinanie nie było potrzebne.
   </p></li></ol></div><p>
-</p><h5><a name="id2856178"></a>Przykład: jeden kanał w dwóch głośnikach</h5><p>
+</p><h5><a name="id3010257"></a>Przykład: jeden kanał w dwóch głośnikach</h5><p>
 Oto jeszcze jeden przykład, jak odtworzyć lewy kanał w dwóch głośnikach.
 Postępując zgodnie z krokami opisanymi powyżej:
 </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
@@ -280,14 +280,14 @@ Po złączeniu wszystkich podopcji otrzymamy:
 </p><pre class="screen">mplayer <em class="replaceable"><code>filename</code></em> -af pan=2:1:1:0:0</pre><p>
 Jeżeli pożądanym kanałem jest prawy, a nie lewy, podopcje zmienią się na
 "2:0:0:1:1".
-</p><h5><a name="id2856236"></a>Przykład: lewy kanał w dwóch głośnikach (skrót)</h5><p>
+</p><h5><a name="id3010315"></a>Przykład: lewy kanał w dwóch głośnikach (skrót)</h5><p>
 Podobnie jak przy użyciu <tt class="option">channels</tt>, istnieje skrót działający
 tylko z lewym kanałem:
 </p><pre class="screen">mplayer <em class="replaceable"><code>filename</code></em> -af pan=1:1</pre><p>
 Jeżeli <tt class="option">pan</tt> posiada tylko jeden kanał wejściowy (pozostałe kanały
 są pomijane), potrzebna jest tylko jedna grupa podopcji z jedną podopcją, która
 oznacza, że jedyny kanał będzie zawierał 100% siebie.
-</p><h5><a name="id2856269"></a>Przykład: zmniejszanie liczy kanałów w 6-kanałowym PCM</h5><p>
+</p><h5><a name="id3010348"></a>Przykład: zmniejszanie liczy kanałów w 6-kanałowym PCM</h5><p>
 Dekoder 6-kanałowego PCM zawarty w <span class="application">MPlayerze</span> nie potrafi
 zmniejszać liczby kanałów przez miksowanie. Oto metoda dokonania tego przy użyciu
 opcji <tt class="option">pan</tt>:
@@ -321,7 +321,7 @@ mplayer <em class="replaceable"><code>6-channel.wav</code></em> -af pan=2:1:0:0:
 </pre><p>
 Przedstawione powyżej głośności są tylko przybliżonym przykładem. Nie czuj się
 nimi skrępowany i zmieniaj je zgodnie ze swoim uznaniem.
-</p><h5><a name="id2856358"></a>Przykład: Odtwarzanie audio 5.1 przy pomocy dużych głośników, bez subwoofera</h5><p>
+</p><h5><a name="id3010437"></a>Przykład: Odtwarzanie audio 5.1 przy pomocy dużych głośników, bez subwoofera</h5><p>
 Jeżeli posiadasz parę dużych przednich głośników, możesz nie mieć ochoty
 tracić pieniędzy na dodatkowy głośnik niskotonowy, tylko po to, aby mieć
 kompletny system 5.1. Jeżeli użyjesz opcji <tt class="option">-channels 5</tt>,
