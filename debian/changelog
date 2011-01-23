@@ -1,6 +1,12 @@
 mplayer (2:1.0~rc4~try2.dfsg1-1) experimental; urgency=low
 
-  * new upstream snapshot
+  [ steph ]
+  * enable joystick at compilation but leave it disable in config
+    (Closes: #592082, LP: #617986)
+
+  [ Reinhard Tartler ]
+  * new upstream snapshot, remove patches that are applied upstream
+  * minor clarifications in debian/copyright
 
  -- Reinhard Tartler <siretart@tauware.de>  Sun, 23 Jan 2011 21:59:46 +0100
 
