@@ -1,3 +1,21 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -128,7 +146,7 @@ static unsigned int checksum_plane(unsigned char *p, unsigned char *z,
    unsigned int shift;
    uint32_t sum, t;
    unsigned char *e, *e2;
-#if __WORDSIZE==64
+#if HAVE_FAST_64BIT
    typedef uint64_t wsum_t;
 #else
    typedef uint32_t wsum_t;
@@ -143,7 +161,7 @@ static unsigned int checksum_plane(unsigned char *p, unsigned char *z,
       for(wsum=0, e2=e-sizeof(wsum_t)+1; p<e2; p+=sizeof(wsum_t))
 	 wsum^=*(wsum_t *)p;
 
-#if __WORDSIZE==64
+#if HAVE_FAST_64BIT
       t=be2me_32((uint32_t)(wsum>>32^wsum));
 #else
       t=be2me_32(wsum);
@@ -239,7 +257,7 @@ static int match(struct vf_priv_s *p, int *diffs,
    return m;
    }
 
-static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts)
+static int put_image(struct vf_instance *vf, mp_image_t *mpi, double pts)
    {
    mp_image_t *dmpi, *tmpi=0;
    int n, m, f, newphase;
@@ -550,7 +568,7 @@ static int analyze(struct vf_priv_s *p)
    return 1;
    }
 
-static int query_format(struct vf_instance_s* vf, unsigned int fmt)
+static int query_format(struct vf_instance *vf, unsigned int fmt)
    {
    switch(fmt)
       {
@@ -565,7 +583,7 @@ static int query_format(struct vf_instance_s* vf, unsigned int fmt)
    return 0;
    }
 
-static void uninit(struct vf_instance_s* vf)
+static void uninit(struct vf_instance *vf)
    {
    if(vf->priv)
       {
@@ -577,7 +595,7 @@ static void uninit(struct vf_instance_s* vf)
       }
    }
 
-static int open(vf_instance_t *vf, char* args)
+static int vf_open(vf_instance_t *vf, char *args)
    {
    struct vf_priv_s *p;
    char *filename="framediff.log", *ap, *q, *a;
@@ -697,6 +715,6 @@ const vf_info_t vf_info_divtc =
    "divtc",
    "Ville Saari",
    "",
-   open,
+   vf_open,
    NULL
    };

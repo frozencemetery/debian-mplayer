@@ -19,6 +19,7 @@
 #ifndef MPLAYER_X11_COMMON_H
 #define MPLAYER_X11_COMMON_H
 
+#include <stdint.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
@@ -58,12 +59,14 @@ extern int mLocalDisplay;
 
 extern int vo_mouse_autohide;
 
+extern int stop_xscreensaver;
+
 int vo_init( void );
 void vo_uninit( void );
 void vo_hidecursor ( Display* , Window );
 void vo_showcursor( Display *disp, Window win );
 void vo_x11_decoration( Display * vo_Display,Window w,int d );
-void vo_x11_classhint( Display * display,Window window,char *name );
+void vo_x11_classhint( Display * display,Window window,const char *name );
 void vo_x11_nofs_sizepos(int x, int y, int width, int height);
 void vo_x11_sizehint( int x, int y, int width, int height, int max );
 int vo_x11_check_events(Display *mydisplay);
@@ -136,6 +139,7 @@ int xv_test_ckm( void * arg );
 void vo_setwindow( Window w,GC g );
 void vo_x11_putkey(int key);
 
+void xscreensaver_heartbeat(void);
 void saver_off( Display * );
 void saver_on( Display * );
 

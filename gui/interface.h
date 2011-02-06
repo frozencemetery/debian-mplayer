@@ -20,13 +20,12 @@
 #define MPLAYER_GUI_INTERFACE_H
 
 #include "config.h"
+#include "m_config.h"
+#include "playtree.h"
 #include "mplayer/play.h"
 #include "libvo/font_load.h"
 #include "cfg.h"
-
-#ifdef CONFIG_DVDREAD
- #include "stream/stream.h"
-#endif
+#include "stream/stream.h"
 
 typedef struct
 {
@@ -73,7 +72,7 @@ typedef struct
    guiResizeStruct       resize;
    guiVideoStruct        videodata;
    guiUnknownErrorStruct error;
-   
+
    struct MPContext * mpcontext;
    void * sh_video;
    void * afilter;
@@ -119,10 +118,10 @@ typedef struct
 
    char * Subtitlename;
    int    SubtitleChanged;
-   
+
    char * Othername;
    int    OtherChanged;
-   
+
    char * AudioFile;
    int    AudioFileChanged;
 
@@ -161,10 +160,11 @@ extern guiInterface_t guiIntfStruct;
 #define guiALL		0xffffffff
 
 extern int use_gui;
+extern int guiWinID;
 
 void guiInit( void );
 void guiDone( void );
-int  guiGetEvent( int type,char * arg );
+int  guiGetEvent( int type,void * arg );
 void guiEventHandling( void );
 void guiLoadFont( void );
 void guiLoadSubtitle( char * name );
@@ -184,6 +184,7 @@ typedef struct urlItem
  char    * url;
 } URLItem;
 
+extern char   * skinName;
 extern plItem * plList;
 extern plItem * plCurrent;
 extern plItem * plLastPlayed;
@@ -230,6 +231,11 @@ int    gstrcmp( const char * a, const char * b );
 void   gfree( void ** p );
 void   gaddlist( char *** list, const char * entry );
 char * gstrchr( char * str, int c );
+
+int import_initial_playtree_into_gui(play_tree_t* my_playtree,
+                                     m_config_t* config, int enqueue);
+int import_playtree_playlist_into_gui(play_tree_t* my_playtree,
+                                      m_config_t* config);
 
 #define guiSetFilename( s,n ) { gfree( (void **)&s ); s=gstrdup( n ); }
 

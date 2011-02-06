@@ -9,7 +9,7 @@
   Reproduzca el DVD y ejecute el filtro de detección de recorte
   (<tt class="option">-vf cropdetect</tt>) en él. Esto le dará un rectángulo de
   recorte para usar en la codificación. La razón para el recorte es que muchas
-  películas no están en las relaciones de aspecto estándar (16/9 o 4/3), o, 
+  películas no están en las relaciones de aspecto estándar (16/9 o 4/3), o,
   por cualquier razón, la imagen no se ajusta bien dentro del marco de imagen.
   Además querrá recortar las bandas negras durante el ripeo. También mejora la
   calidad de la imagen porque el filo de las bandas negras consume un montón
@@ -21,7 +21,7 @@
   constante, AKA calidad constante es una buena elección. De este modo cada
   marco de imagen toma tantos bits como necesite para mantener el nivel de
   calidad deseado, pero sin necesitar múltiples pasadas en la codificación.
-  Con 
+  Con
   <code class="systemitem">libavcodec</code>, obtendrá una calidad
   constante usando
   <tt class="option">-lavcopts vqscale=<em class="replaceable"><code>N</code></em></tt>.
@@ -137,6 +137,6 @@ mencoder dvd://1 -aid 128 -oac copy -ovc lavc -lavcopts vcodec=mpeg4:vqscale=3:v
   hacen que la codificacion dure más. Especialmente <tt class="option">trell</tt>
   ralentiza la codificación pero incrementa la calidad visiblemente. Si quiere
   desentrelazar, añada un filtro <tt class="option">pp</tt> a <tt class="option">-vf</tt>,
-  por ejemplo <tt class="option">-vf pp=fd,crop=720:364:0:56</tt> (en ese orden). 
+  por ejemplo <tt class="option">-vf pp=fd,crop=720:364:0:56</tt> (en ese orden).
   Si no necesita invertir el telecine, quite <tt class="option">-ofps 23.976</tt>.
 </p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="custommatrices.html">Anterior</a> </td><td width="20%" align="center"><a accesskey="u" href="mencoder.html">Subir</a></td><td width="40%" align="right"> <a accesskey="n" href="menc-feat-telecine.html">Siguiente</a></td></tr><tr><td width="40%" align="left" valign="top">8.10. Matrices inter/intra personalizadas </td><td width="20%" align="center"><a accesskey="h" href="index.html">Inicio</a></td><td width="40%" align="right" valign="top"> 8.12. Cómo tratar con telecine y entrelazado con DVDs NTSC</td></tr></table></div></body></html>

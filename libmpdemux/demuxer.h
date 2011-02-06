@@ -1,3 +1,21 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #ifndef MPLAYER_DEMUXER_H
 #define MPLAYER_DEMUXER_H
 
@@ -8,8 +26,9 @@
 
 #include "stream/stream.h"
 #ifdef CONFIG_ASS
-#include "libass/ass_types.h"
+#include "libass/ass_mp.h"
 #endif
+#include "m_option.h"
 
 #ifdef HAVE_BUILTIN_EXPECT
 #define likely(x) __builtin_expect ((x) != 0, 1)
@@ -97,10 +116,10 @@
 #define SEEK_ABSOLUTE (1 << 0)
 #define SEEK_FACTOR   (1 << 1)
 
-#define MP_INPUT_BUFFER_PADDING_SIZE 8
+#define MP_INPUT_BUFFER_PADDING_SIZE 64
 
 // Holds one packet/frame/whatever
-typedef struct demux_packet_st {
+typedef struct demux_packet {
   int len;
   double pts;
   double endpts;
@@ -109,8 +128,8 @@ typedef struct demux_packet_st {
   unsigned char* buffer;
   int flags; // keyframe, etc
   int refcount;   //refcounter for the master packet, if 0, buffer can be free()d
-  struct demux_packet_st* master; //pointer to the master packet if this one is a cloned one
-  struct demux_packet_st* next;
+  struct demux_packet* master; //pointer to the master packet if this one is a cloned one
+  struct demux_packet* next;
 } demux_packet_t;
 
 typedef struct {
@@ -124,14 +143,16 @@ typedef struct {
   off_t dpos;                // position in the demuxed stream
   int pack_no;		   // serial number of packet
   int flags;               // flags of current packet (keyframe etc)
+  int non_interleaved;     // 1 if this stream is not properly interleaved,
+                           // so e.g. subtitle handling must do explicit reads.
 //---------------
   int packs;              // number of packets in buffer
   int bytes;              // total bytes of packets in buffer
-  demux_packet_t *first;  // read to current buffer from here
+  demux_packet_t *first;  // read to first buffer after the current buffer from here
   demux_packet_t *last;   // append new packets from input stream to here
   demux_packet_t *current;// needed for refcounting of the buffer
   int id;                 // stream ID  (for multiple audio/video streams)
-  struct demuxer_st *demuxer; // parent demuxer structure (stream handler)
+  struct demuxer *demuxer; // parent demuxer structure (stream handler)
 // ---- asf -----
   demux_packet_t *asf_packet;  // read asf fragments here
   int asf_seq;
@@ -141,7 +162,7 @@ typedef struct {
   void* sh;
 } demux_stream_t;
 
-typedef struct demuxer_info_st {
+typedef struct demuxer_info {
   char *name;
   char *author;
   char *encoder;
@@ -153,15 +174,30 @@ typedef struct demuxer_info_st {
 #define MAX_V_STREAMS 256
 #define MAX_S_STREAMS 256
 
-struct demuxer_st;
+struct demuxer;
 
+extern int demuxer_type;
+extern int audio_demuxer_type;
+extern int sub_demuxer_type;
+extern int audio_stream_cache;
 extern int correct_pts;
 extern int user_correct_pts;
+extern char *sub_stream;
+
+extern int rtsp_port;
+extern int rtsp_transport_http;
+extern int rtsp_transport_sctp;
+extern int rtsp_transport_tcp;
+
+extern const m_option_t demux_rawaudio_opts[];
+extern const m_option_t demux_rawvideo_opts[];
+extern const m_option_t lavfdopts_conf[];
+
 
 /**
  * Demuxer description structure
  */
-typedef struct demuxers_desc_st {
+typedef struct demuxer_desc {
   const char *info; ///< What is it (long name and/or description)
   const char *name; ///< Demuxer name, used with -demuxer switch
   const char *shortdesc; ///< Description printed at demuxer detection
@@ -172,26 +208,26 @@ typedef struct demuxers_desc_st {
   int safe_check; ///< If 1 detection is safe and fast, do it before file extension check
 
   /// Check if can demux the file, return DEMUXER_TYPE_xxx on success
-  int (*check_file)(struct demuxer_st *demuxer); ///< Mandatory if safe_check == 1, else optional 
+  int (*check_file)(struct demuxer *demuxer); ///< Mandatory if safe_check == 1, else optional
   /// Get packets from file, return 0 on eof
-  int (*fill_buffer)(struct demuxer_st *demuxer, demux_stream_t *ds); ///< Mandatory
+  int (*fill_buffer)(struct demuxer *demuxer, demux_stream_t *ds); ///< Mandatory
   /// Open the demuxer, return demuxer on success, NULL on failure
-  struct demuxer_st* (*open)(struct demuxer_st *demuxer); ///< Optional
+  struct demuxer* (*open)(struct demuxer *demuxer); ///< Optional
   /// Close the demuxer
-  void (*close)(struct demuxer_st *demuxer); ///< Optional
+  void (*close)(struct demuxer *demuxer); ///< Optional
   // Seek
-  void (*seek)(struct demuxer_st *demuxer, float rel_seek_secs, float audio_delay, int flags); ///< Optional
+  void (*seek)(struct demuxer *demuxer, float rel_seek_secs, float audio_delay, int flags); ///< Optional
   // Control
-  int (*control)(struct demuxer_st *demuxer, int cmd, void *arg); ///< Optional
+  int (*control)(struct demuxer *demuxer, int cmd, void *arg); ///< Optional
 } demuxer_desc_t;
 
-typedef struct demux_chapter_s
+typedef struct demux_chapter
 {
   uint64_t start, end;
   char* name;
 } demux_chapter_t;
 
-typedef struct demux_attachment_s
+typedef struct demux_attachment
 {
   char* name;
   char* type;
@@ -199,7 +235,7 @@ typedef struct demux_attachment_s
   unsigned int data_size;
 } demux_attachment_t;
 
-typedef struct demuxer_st {
+typedef struct demuxer {
   const demuxer_desc_t *desc;  ///< Demuxer description structure
   off_t filepos; // input stream current pos.
   off_t movi_start;
@@ -222,9 +258,12 @@ typedef struct demuxer_st {
   void* v_streams[MAX_V_STREAMS]; // video sterams (sh_video_t)
   void *s_streams[MAX_S_STREAMS];   // dvd subtitles (flag)
 
+  // pointer to teletext decoder private data, if demuxer stream contains teletext
+  void *teletext;
+
   demux_chapter_t* chapters;
   int num_chapters;
-  
+
   demux_attachment_t* attachments;
   int num_attachments;
 
@@ -311,7 +350,7 @@ static inline void *realloc_struct(void *ptr, size_t nmemb, size_t size) {
   return realloc(ptr, nmemb * size);
 }
 
-demux_stream_t* new_demuxer_stream(struct demuxer_st *demuxer,int id);
+demux_stream_t* new_demuxer_stream(struct demuxer *demuxer,int id);
 demuxer_t* new_demuxer(stream_t *stream,int type,int a_id,int v_id,int s_id,char *filename);
 void free_demuxer_stream(demux_stream_t *ds);
 void free_demuxer(demuxer_t *demuxer);
@@ -357,20 +396,19 @@ static inline int demux_getc(demux_stream_t *ds){
 void ds_free_packs(demux_stream_t *ds);
 int ds_get_packet(demux_stream_t *ds,unsigned char **start);
 int ds_get_packet_pts(demux_stream_t *ds, unsigned char **start, double *pts);
-int ds_get_packet_sub(demux_stream_t *ds,unsigned char **start);
+int ds_get_packet_sub(demux_stream_t *ds,unsigned char **start,
+                      double *pts, double *endpts);
 double ds_get_next_pts(demux_stream_t *ds);
+int ds_parse(demux_stream_t *sh, uint8_t **buffer, int *len, double pts, off_t pos);
+void ds_clear_parser(demux_stream_t *sh);
 
 // This is defined here because demux_stream_t ins't defined in stream.h
 stream_t* new_ds_stream(demux_stream_t *ds);
 
 static inline int avi_stream_id(unsigned int id){
-  unsigned char *p=(unsigned char *)&id;
   unsigned char a,b;
-#ifdef WORDS_BIGENDIAN
-  a=p[3]-'0'; b=p[2]-'0';
-#else
-  a=p[0]-'0'; b=p[1]-'0';
-#endif
+  a = id - '0';
+  b = (id >> 8) - '0';
   if(a>9 || b>9) return 100; // invalid ID
   return a*10+b;
 }
@@ -392,12 +430,6 @@ int demux_info_add(demuxer_t *demuxer, const char *opt, const char *param);
 char* demux_info_get(demuxer_t *demuxer, const char *opt);
 int demux_info_print(demuxer_t *demuxer);
 int demux_control(demuxer_t *demuxer, int cmd, void *arg);
-
-#ifdef CONFIG_OGGVORBIS
-/* Found in demux_ogg.c */
-int demux_ogg_num_subs(demuxer_t *demuxer);
-int demux_ogg_sub_id(demuxer_t *demuxer, int index);
-#endif
 
 int demuxer_get_current_time(demuxer_t *demuxer);
 double demuxer_get_time_length(demuxer_t *demuxer);

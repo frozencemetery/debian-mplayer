@@ -73,14 +73,14 @@ x86 en utilisant GCC sans assembleur GNU :
 Erreur typique obtenue en construisant avec un compilateur C GNU qui n'utilise
 pas GNU as :
 </p><pre class="screen">
-   % gmake
-   ...
-   gcc -c -Iloader -Ilibvo -O4 -march=i686 -mcpu=i686 -pipe -ffast-math
-	-fomit-frame-pointer  -I/usr/local/include   -o mplayer.o mplayer.c
-   Assembler: mplayer.c
-   "(stdin)", line 3567 : Illegal mnemonic
-   "(stdin)", line 3567 : Syntax error
-   ... more "Illegal mnemonic" and "Syntax error" errors ...
+% gmake
+...
+gcc -c -Iloader -Ilibvo -O4 -march=i686 -mcpu=i686 -pipe -ffast-math
+     -fomit-frame-pointer  -I/usr/local/include   -o mplayer.o mplayer.c
+Assembler: mplayer.c
+"(stdin)", line 3567 : Illegal mnemonic
+"(stdin)", line 3567 : Syntax error
+... more "Illegal mnemonic" and "Syntax error" errors ...
 </pre><p>
 </p></li><li class="listitem"><p>
 <span class="application">MPlayer</span> est susceptible de renvoyer une
@@ -93,7 +93,7 @@ Opening audio decoder: [acm] Win32/ACM decoders
 sysi86(SI86DSCR): Invalid argument
 Couldn't install fs segment, expect segfault
 
- 
+
 MPlayer interrupted by signal 11 in module: init_audio_codec
 ...
 </pre><p>
@@ -147,12 +147,11 @@ Class          I            H/W   Path          Driver    S/W State    H/W Type 
 ...
 ext_bus 1    8/16/5      c720  CLAIMED INTERFACE  Built-in SCSI
 target  3    8/16/5.2    tgt   CLAIMED DEVICE
-disk    4    8/16/5.<span class="bold"><strong>2</strong></span>.<span class="bold"><strong>0</strong></span>  sdisk CLAIMED DEVICE
-					<span class="bold"><strong>PIONEER DVD-ROM DVD-305</strong></span> /dev/dsk/c1t2d0
-					<span class="bold"><strong>/dev/rdsk/c1t2d0</strong></span>
+disk    4    8/16/5.<span class="bold"><strong>2</strong></span>.<span class="bold"><strong>0</strong></span>  sdisk CLAIMED DEVICE     <span class="bold"><strong>PIONEER DVD-ROM DVD-305</strong></span>
+                         /dev/dsk/c1t2d0 <span class="bold"><strong>/dev/rdsk/c1t2d0</strong></span>
 target  4    8/16/5.7    tgt   CLAIMED DEVICE
 ctl     <span class="bold"><strong>1</strong></span>    8/16/5.7.0  sctl  CLAIMED DEVICE     Initiator
-			/dev/rscsi/c1t7d0 /dev/rscsi/c1t7l0 /dev/scsi/c1t7l0
+                         /dev/rscsi/c1t7d0 /dev/rscsi/c1t7l0 /dev/scsi/c1t7l0
 ...
 </pre><p>
 

@@ -4,13 +4,13 @@ saltar o silenciar secciones de vídeos durante la reproducción, basado en
 un archivo de configuración de EDL especifico de una película.
 </p><p>
 Esto es útil para aquellos que quieran mirar una película "de manera familiar".
-Puede cortar secciones de violencia, profanidad, Jar-Jar Binks... de una 
+Puede cortar secciones de violencia, profanidad, Jar-Jar Binks... de una
 película de acuerdo a sus preferencias personales. A un lado de esto, tiene
 otros usos, como pasar automáticamente comerciales en archivos de vídeos que
 mire.
 </p><p>
 El formato de archivo EDL es muy simple. Una vez que el sistema EDL haya
-alcanzado cierto nivel de maduración, es muy probable que se implemente 
+alcanzado cierto nivel de maduración, es muy probable que se implemente
 un formato de archivo basada en XML (manteniendo compatibilidad con los
 formatos previos de EDL).
 </p><div class="sect2" title="3.5.1. Usando un archivo EDL"><div class="titlepage"><div><div><h3 class="title"><a name="edl_using"></a>3.5.1. Usando un archivo EDL</h3></div></div></div><p>
@@ -18,11 +18,11 @@ Incluya la opción <tt class="option">-edl &lt;archivo&gt;</tt> cuando quiera co
 <span class="application">MPlayer</span>, con el nombre del archivo EDL que quiere
 que se le aplique al vídeo.
 </p></div><div class="sect2" title="3.5.2. Haciendo un archivo EDL"><div class="titlepage"><div><div><h3 class="title"><a name="edl_making"></a>3.5.2. Haciendo un archivo EDL</h3></div></div></div><p>
-El actual formato de un archivo EDL es: 
+El actual formato de un archivo EDL es:
 </p><pre class="programlisting">
 [segundo de inicio] [segundo final] [acción]
 </pre><p>
-Donde los segundos son números de punto flotante y la acción es o bien 
+Donde los segundos son números de punto flotante y la acción es o bien
 <code class="literal">0</code> para saltar esa parte o <code class="literal">1</code> para silenciarla. Por ejemplo:
 </p><pre class="programlisting">
 5.3   7.1    0

@@ -23,7 +23,7 @@
   la vidéo, bien que la théorie s'applique également à d'autres codecs.
 </p><p>
   Si vous ne vous sentez pas de taille, vous devriez utiliser une des
-  interfaces graphiques listées sur la page de notre projet dans 
+  interfaces graphiques listées sur la page de notre projet dans
   <a class="ulink" href="http://www.mplayerhq.hu/design7/projects.html#mencoder_frontends" target="_top">Section
   MEncoder</a>.
   Ainsi, vous devriez être capable de faire de encodages de DVD de haute qualité
@@ -49,7 +49,7 @@ d'images par secondes</h3></div></div></div><p>
 bonne qualité
   pour le même débit.
 </p><div class="sect3" title="10.1.1.1. Identification du nombre d'images par seconde de la source"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode-fps"></a>10.1.1.1. Identification du nombre d'images par seconde de la source</h4></div></div></div><p>
-  Voici une liste de types de matériel source courants, où vous devriez les trouver et 
+  Voici une liste de types de matériel source courants, où vous devriez les trouver et
   leurs propriétés :
 </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
     <span class="bold"><strong>Film standard</strong></span> : produit pour une
@@ -65,8 +65,8 @@ bonne qualité
   L'oeil humain est censé compenser cette alternance de trames mais dès lors
   que vous
   comprenez l'entrelacement, vous apprendrez à le voir sur la télévision et vous ne la regarderez
-  plus de la même façon. Deux trames ne font <span class="bold"><strong>pas</strong></span> une image 
-  complète, car elles sont capturées avec un décalage d'1/50e de seconde et donc, à moins 
+  plus de la même façon. Deux trames ne font <span class="bold"><strong>pas</strong></span> une image
+  complète, car elles sont capturées avec un décalage d'1/50e de seconde et donc, à moins
   qu'il n'y ait pas de mouvement, elles ne s'alignent pas parfaitement.
 </p></li><li class="listitem"><p>
     <span class="bold"><strong>Vidéo NTSC</strong></span> : Enregistré par une
@@ -131,7 +131,7 @@ bonne qualité
   Au cas où vous rencontriez un film au format NTSC ou PAL et vouliez l'encodez,
   le mieux serait de trouver une copie du film dans le format original.
   La conversion entre ces deux formats est hautement destructrice et ne peut
-  être inversee proprement, votre encodage en souffrirait grandement s'il était 
+  être inversee proprement, votre encodage en souffrirait grandement s'il était
   fait à partir d'une source déja convertie (en NTSC ou PAL).
 </p><p>
   Quand des vidéos sont stockées sur un DVD, les paires de trames
@@ -142,7 +142,7 @@ bonne qualité
   numéro des trames auxquelles une image doit être montrée dans l'en-tête de cette image.
   Si cette méthode est utilisée, on dit que le film est "soft-téléciné"
   puisque le procédé impose uniquement au lecteur DVD d'appliquer le pulldown sur le film
-  plutôt que d'altérer le film lui-même. 
+  plutôt que d'altérer le film lui-même.
   Ce cas est de loin préférable puisqu'il peut être facilement inversé
   (en fait, ignoré) par l'encodeur et puisqu'il préserve la qualité au maximum.
   Malgré cela, beaucoup de studios de production de DVD et d'émission n'utilisent pas
@@ -167,7 +167,7 @@ bonne qualité
   Utilisez les mêmes conseils que ceux pour les deux cas qui suivent pour savoir lequel.
 </p></li><li class="listitem"><p>
   Si <span class="application">MPlayer</span> montre un nombre d'images par seconde constant
-  et que chacune des images des scènes de mouvement souffre d'un effet de peigne, alors 
+  et que chacune des images des scènes de mouvement souffre d'un effet de peigne, alors
   votre film est une vidéo NTSC à 60000/1001 trames par seconde.
 </p></li><li class="listitem"><p>
   Si <span class="application">MPlayer</span> montre un nombre d'images par seconde constant
@@ -219,7 +219,7 @@ bonne qualité
   ne sont plus visibles ou mesurables après environ la quatrième passe.
   Ainsi, dans cette section, deux passes et multipasse seront utilisés indifféremment.
 </p></div><p>
-  Dans chacun de ces modes, le codec vidéo (tel que 
+  Dans chacun de ces modes, le codec vidéo (tel que
   <code class="systemitem">libavcodec</code>)
   sépare les images vidéo en macroblocs de 16x16 pixels et applique ensuite
   un quantificateur sur chaque macrobloc. Plus le quantificateur est bas, meilleure
@@ -234,7 +234,7 @@ bonne qualité
   Si la taille du fichier vous est vraiment égale, vous pourriez aussi bien
   fixer un débit constant infini (en pratique, dela signifie une valeur assez
   haute pour ne pas poser de limites, tel que 10000Kbit). Sans réelle
-  restriction de débit, le codec utilisera le plus 
+  restriction de débit, le codec utilisera le plus
   bas quantificateur possible pour chaque macrobloc (tel que spécifié par
   <tt class="option">vqmin</tt> pour <code class="systemitem">libavcodec</code>,
   qui vaut 2 par défaut). Dès que vous spécifiez un débit suffisament bas pour
@@ -245,7 +245,7 @@ bonne qualité
   la qualité.
 </p><p>
   Avec un quantificateur constant, le codec utilise
-  le même quantificateur (spécifié par l'option <tt class="option">vqscale</tt> pour 
+  le même quantificateur (spécifié par l'option <tt class="option">vqscale</tt> pour
   <code class="systemitem">libavcodec</code>) sur chaque macrobloc.
   Si vous voulez un encodage de la meilleure qualité possible, cette fois encore
   en ignorant le débit, vous pouvez utiliser <tt class="option">vqscale=2</tt>. Cela
@@ -271,7 +271,7 @@ bonne qualité
 </p><p>
   Si vous utilisez <tt class="option">vqscale=2</tt>, alors vous gaspillez des bits.
   Si vous utilisez <tt class="option">vqscale=3</tt>, vous n'avez pas la meilleure
-  qualité d'encodage. Supposez que vous encodez un DVD avec 
+  qualité d'encodage. Supposez que vous encodez un DVD avec
   <tt class="option">vqscale=3</tt>, et que le résultat est 1800Kbit/s. Si vous faites
   un encodage en deux passes avec <tt class="option">vbitrate=1800</tt>, la vidéo produite
   aura une <span class="bold"><strong>meilleure qualité</strong></span> pour le
@@ -424,7 +424,7 @@ bonne qualité
   recommandations précédentes sur la divisibilité des dimensions de l'image afin de ne pas
   désaligner les plans de chrominance.
 </p><p>
-  Dans certain cas, le redimensionnement n'est pas souhaitable. Il est délicat 
+  Dans certain cas, le redimensionnement n'est pas souhaitable. Il est délicat
   dans le sens vertical avec des vidéos entrelacées, si vous désirez
   conserver l'entrelacement, vous devrez vous abstenir de redimensionner.
   Sans redimensionner, pour utiliser des dimensions multiples de 16,
@@ -515,7 +515,7 @@ bonne qualité
   d'information sur la source vidéo.
   En premier lieu, il faut calculer le format de l'encodage :
   <code class="systemitem">ARc = (Wc x (ARa / PRdvd )) / Hc</code>
-   
+
 </p><div class="itemizedlist" title="Où :"><p class="title"><b>Où :</b></p><ul class="itemizedlist" type="disc"><li class="listitem"><p>
   Wc et Hc sont la largeur et la hauteur de la vidéo recadrée,
 </p></li><li class="listitem"><p>
@@ -821,7 +821,7 @@ Notez l'usage des options <tt class="option">ilme</tt> et <tt class="option">ild
   d'encodage — de typiquement 40-60% — avec très peu voire aucune
   détérioration de l'image.
   Le codec <code class="systemitem">x264</code> permet aussi
-  l'encodage multi-threadé ce qui l'accélère pour le moment de 94% par CPU 
+  l'encodage multi-threadé ce qui l'accélère pour le moment de 94% par CPU
   avec une baisse de PSNR comprise entre 0.005dB et 0.01dB avec un réglage classique.
 </p></li><li class="listitem"><p>
   <span class="bold"><strong>Les préférences personnelles</strong></span> :
@@ -860,7 +860,7 @@ Notez l'usage des options <tt class="option">ilme</tt> et <tt class="option">ild
 </p><pre class="screen">
 mplayer <em class="replaceable"><code>fichier_source.vob</code></em> -aid 129 -dumpaudio -dumpfile <em class="replaceable"><code>son.ac3</code></em>
 </pre><p>
-  mettra dans le fichier <em class="replaceable"><code>son.ac3</code></em> la piste audio 
+  mettra dans le fichier <em class="replaceable"><code>son.ac3</code></em> la piste audio
   129 du fichier <em class="replaceable"><code>fichier_source.vob</code></em> (NB : les
   fichiers VOB des DVD utilisent normalement un système de numérotation
   différent pour les pistes audio, ainsi la piste numéro 129 est la deuxième

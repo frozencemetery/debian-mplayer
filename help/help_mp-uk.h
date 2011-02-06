@@ -6,7 +6,6 @@
 
 // ========================= MPlayer help ===========================
 
-#ifdef HELP_MP_DEFINE_STATIC
 static const char help_text[]=
 "Запуск:   mplayer [опції] [path/]filename\n"
 "\n"
@@ -46,11 +45,10 @@ static const char help_text[]=
 "\n"
 " * * * ДЕТАЛЬНІШЕ ДИВ. ДОКУМЕНТАЦІЮ, ПРО ДОДАТКОВІ ОПЦІЇ І КЛЮЧІ! * * *\n"
 "\n";
-#endif
 
 // ========================= MPlayer messages ===========================
 
-// mplayer.c: 
+// mplayer.c:
 #define MSGTR_Exiting "\nВиходимо...\n"
 #define MSGTR_ExitingHow "\nВиходимо... (%s)\n"
 #define MSGTR_Exit_quit "Вихід"
@@ -69,7 +67,6 @@ static const char help_text[]=
 #define MSGTR_FPSnotspecified "Не вказано чи невірна кількість кадрів, застосуйте опцію -fps.\n"
 #define MSGTR_TryForceAudioFmtStr "Намагаюсь форсувати групу аудіо кодеків %s...\n"
 #define MSGTR_CantFindVideoCodec "Не можу знайти кодек для відео формату 0x%X!\n"
-#define MSGTR_RTFMCodecs "Прочитайте DOCS/HTML/en/codecs.html!\n"
 #define MSGTR_TryForceVideoFmtStr "Намагаюсь форсувати групу відео кодеків %s...\n"
 #define MSGTR_CannotInitVO "ФАТАЛЬНО: Не можу ініціалізувати відео драйвер!\n"
 #define MSGTR_CannotInitAO "не можу відкрити/ініціалізувати аудіо пристрій -> ГРАЮ БЕЗ ЗВУКУ\n"
@@ -456,7 +453,7 @@ static const char help_text[]=
 "                 найкраща: CBR кодування, найвища якость\n"\
 "                 (320 kbps бітрейт)\n"\
 "                 <8-320>: ABR кодування з вказаним приблизним бітрейтом.\n\n"
-   
+
 // codec-cfg.c
 #define MSGTR_DuplicateFourcc "подвоєні FourCC"
 #define MSGTR_TooManyFourccs "забагато FourCCs/форматів..."
@@ -777,7 +774,7 @@ static const char help_text[]=
 // --- messagebox
 #define MSGTR_MSGBOX_LABEL_FatalError "Фатальна помилка!"
 #define MSGTR_MSGBOX_LABEL_Error "Помилка!"
-#define MSGTR_MSGBOX_LABEL_Warning "Попередження!" 
+#define MSGTR_MSGBOX_LABEL_Warning "Попередження!"
 
 // bitmap.c
 #define MSGTR_NotEnoughMemoryC32To1 "[c32to1] недостатньо пам'яті для картинки\n"
@@ -825,8 +822,6 @@ static const char help_text[]=
 #define MSGTR_VO_CantCreateDirectory "Не можу створити директорію виводу."
 #define MSGTR_VO_CantCreateFile "Не можу створити файл виводу."
 #define MSGTR_VO_DirectoryCreateSuccess "Директорія виводу успішно створена."
-#define MSGTR_VO_ParsingSuboptions "Перевіряю синтаксис субопцій."
-#define MSGTR_VO_SuboptionsParsedOK "Перевірка синтаксису закінчилась успішно."
 #define MSGTR_VO_ValueOutOfRange "значення за межами доступного діапазону"
 #define MSGTR_VO_NoValueSpecified "Не вказано значення."
 #define MSGTR_VO_UnknownSuboptions "невідома(і) субопція(ї)"
@@ -936,7 +931,7 @@ static const char help_text[]=
 #define MSGTR_LIBVO_MGA_AspectResized "[VO_MGA] aspect(): розмір змінений до %dx%d.\n"
 #define MSGTR_LIBVO_MGA_Uninit "[VO] деініціялізація!\n"
 
-// mga_common.c
+// mga_template.c
 #define MSGTR_LIBVO_MGA_ErrorInConfigIoctl "[MGA] помилка у mga_vid_config ioctl (неправильна версія mga_vid.o?)"
 #define MSGTR_LIBVO_MGA_CouldNotGetLumaValuesFromTheKernelModule "[MGA] Не можу отримати значення luma з модуля ядра!\n"
 #define MSGTR_LIBVO_MGA_CouldNotSetLumaValuesFromTheKernelModule "[MGA] Не можу встановити значення luma з модуля ядра!\n"
@@ -1101,7 +1096,7 @@ static const char help_text[]=
 #define MSGTR_DetectedAudiofile "Аудіо файл детектовано.\n"
 #define MSGTR_NotSystemStream "Не в форматі MPEG System Stream... (можливо, Transport Stream?)\n"
 #define MSGTR_FormatNotRecognized "========= Вибачте, формат цього файлу не розпізнаний чи не підтримується ===========\n"\
-				  "===== Якщо це AVI, ASF або MPEG потік, будь ласка зв'яжіться з автором! ======\n"
+                                  "===== Якщо це AVI, ASF або MPEG потік, будь ласка зв'яжіться з автором! ======\n"
 #define MSGTR_MissingVideoStream "Відео потік не знайдений!\n"
 #define MSGTR_MissingAudioStream "Аудіо потік не знайдений...  -> програю без звуку\n"
 #define MSGTR_MissingVideoStreamBug "Відео потік загублений!? Зв'яжіться з автором, це мабуть помилка :(\n"
@@ -1180,8 +1175,6 @@ static const char help_text[]=
 
 // vd.c
 #define MSGTR_CodecDidNotSet "VDec: Кодек не встановив sh->disp_w та sh->disp_h, спробую обійти це.\n"
-#define MSGTR_VoConfigRequest "VDec: vo config запит - %d x %d (preferred csp: %s)\n"
 #define MSGTR_CouldNotFindColorspace "Не можу підібрати підходящу схему кольорів - повтор з -vf scale...\n"
 #define MSGTR_MovieAspectIsSet "Відношення сторін %.2f:1 - масштабую аби скоректувати.\n"
 #define MSGTR_MovieAspectUndefined "Відношення сторін не вказано - масштабування не використовується.\n"
-

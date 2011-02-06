@@ -150,7 +150,7 @@ typedef struct
  char     * label;
 // ---
  int        event;
-// --- 
+// ---
  int        R,G,B;
 } wItem;
 
@@ -166,7 +166,7 @@ typedef struct
  wItem           bar;
  wsTWindow       barWindow;
  int             barIsPresent;
-  
+
  wItem           menuBase;
  wItem           menuSelected;
  wsTWindow       menuWindow;
@@ -189,7 +189,6 @@ extern char      * skinDirInHome;
 extern char      * skinDirInHome_obsolete;
 extern char      * skinMPlayerDir;
 extern char      * skinMPlayerDir_obsolete;
-extern char      * skinName;
 
 void appInitStruct( listItems * item );
 void appClearItem( wItem * item );

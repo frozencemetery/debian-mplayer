@@ -18,6 +18,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -26,9 +27,11 @@
 /* default zoom state 0 off, 1 on */
 #define DEF_ZOOM 1
 
-extern float monitor_aspect;
+int vo_dheight;
+int vo_dwidth;
 int vo_fs;
 float vo_panscan;
+int64_t WinID = -1;
 
 int main(int argc, char *argv[]) {
   int w,h,z=DEF_ZOOM;
@@ -55,8 +58,7 @@ int main(int argc, char *argv[]) {
       return 1;
   }
   printf("monitor_aspect: %f\n",monitor_aspect);
-  aspect(&w,&h,z); 
+  aspect(&w,&h,z);
   printf("new size:       %dx%d\n",w,h);
   return 0;
 }
-

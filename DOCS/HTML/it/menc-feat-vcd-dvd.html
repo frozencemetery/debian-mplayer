@@ -27,7 +27,7 @@ Thankfully DVD has sufficiently excessive bitrate that you do not have
 to worry too much about encoding efficiency, but SVCD and VCD are
 highly bitrate-starved and require effort to obtain acceptable quality.
 </p></div><div class="sect3" title="10.8.1.2. GOP Size Constraints"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-constraints-gop"></a>10.8.1.2. GOP Size Constraints</h4></div></div></div><p>
-DVD, VCD, and SVCD also constrain you to relatively low 
+DVD, VCD, and SVCD also constrain you to relatively low
 GOP (Group of Pictures) sizes.
 For 30 fps material the largest allowed GOP size is 18.
 For 25 or 24 fps, the maximum is 15.
@@ -36,7 +36,7 @@ The GOP size is set using the <tt class="option">keyint</tt> option.
 VCD video is required to be CBR at 1152 kbps.
 This highly limiting constraint also comes along with an extremly low vbv
 buffer size of 327 kilobits.
-SVCD allows varying video bitrates up to 2500 kbps, and a somewhat less 
+SVCD allows varying video bitrates up to 2500 kbps, and a somewhat less
 restrictive vbv buffer size of 917 kilobits is allowed.
 DVD video bitrates may range anywhere up to 9800 kbps (though typical
 bitrates are about half that), and the vbv buffer size is 1835 kilobits.
@@ -64,7 +64,7 @@ DVD (with timestamps on every frame, if possible):
 </p><p>
 DVD with NTSC Pullup:
 </p><pre class="screen">-of mpeg -mpegopts format=dvd:tsaf:telecine -ofps 24000/1001</pre><p>
-This allows 24000/1001 fps progressive content to be encoded at 30000/1001 
+This allows 24000/1001 fps progressive content to be encoded at 30000/1001
 fps whilst maintaing DVD-compliance.
 </p><div class="sect3" title="10.8.2.1. Aspect Ratio"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-output-aspect"></a>10.8.2.1. Aspect Ratio</h4></div></div></div><p>
 The aspect argument of <tt class="option">-lavcopts</tt> is used to encode
@@ -102,7 +102,7 @@ or in the manual page.
 </p></div><div class="sect3" title="10.8.2.3. Sample Rate Conversion"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-vcd-dvd-output-srate"></a>10.8.2.3. Sample Rate Conversion</h4></div></div></div><p>
 If the audio sample rate in the original file is not the same as
 required by the target format, sample rate conversion is required.
-This is achieved using the <tt class="option">-srate</tt> option and 
+This is achieved using the <tt class="option">-srate</tt> option and
 the <tt class="option">-af lavcresample</tt> audio filter together.
 </p><p>
 DVD:
@@ -141,7 +141,7 @@ or DVD:
   Used to set the GOP size.
   18 for 30fps material, or 15 for 25/24 fps material.
   Commercial producers seem to prefer keyframe intervals of 12.
-  It is possible to make this much larger and still retain compatibility 
+  It is possible to make this much larger and still retain compatibility
   with most players.
   A <tt class="option">keyint</tt> of 25 should never cause any problems.
 </p></li><li class="listitem"><p>

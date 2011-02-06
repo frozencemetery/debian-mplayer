@@ -1,3 +1,37 @@
+mplayer (2:1.0~rc4~try2.dfsg1-1) experimental; urgency=low
+
+  [ steph ]
+  * enable joystick at compilation but leave it disable in config
+    (Closes: #592082, LP: #617986)
+
+  [ Reinhard Tartler ]
+  * new upstream snapshot, remove patches that are applied upstream
+  * minor clarifications in debian/copyright
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sun, 23 Jan 2011 21:59:46 +0100
+
+mplayer (2:1.0~rc4~try1.dsfg1-1) experimental; urgency=low
+
+  * enable the mencoder package
+  * sort build depends alphabetically
+  * enable dvdnav support, Closes: #582508, #488226, LP: #611749
+  * prepare new upload
+  * no longer build mplayer-gui, it doesn't build anymore with shared
+    swscale
+
+ -- Reinhard Tartler <siretart@tauware.de>  Mon, 02 Aug 2010 16:30:06 -0400
+
+mplayer (2:1.0~rc4~try1-1) experimental; urgency=low
+
+  * New Upstream Version, LP: #539315
+  * Build (against) again the System FFmpeg 
+  * tighten dependency on FFmpeg 0.6
+  * remove patches merged upstream
+  * remove 22disable-xscreensaver.patch
+  * refresh patches
+
+ -- Reinhard Tartler <siretart@tauware.de>  Wed, 28 Jul 2010 21:04:54 -0400
+
 mplayer (2:1.0~rc3++final.dfsg1-2) unstable; urgency=low
 
   * prepare next upload

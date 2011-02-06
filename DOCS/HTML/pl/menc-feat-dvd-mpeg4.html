@@ -74,7 +74,7 @@ i framerate</h3></div></div></div><p>
 </p></li><li class="listitem"><p>
   <span class="bold"><strong>Grafika komputerowa (CG)</strong></span>: Może być dowolny
   framerate, ale niektóre są częstsze niż inne; wartości 24 i 30 klatek na
-  sekundę są typowe dla NTSC, a 25fps jest typowe dla PAL. 
+  sekundę są typowe dla NTSC, a 25fps jest typowe dla PAL.
 </p></li><li class="listitem"><p>
   <span class="bold"><strong>Stary film</strong></span>: Rozmaite niższe framerate.
 </p></li></ul></div></div><div class="sect3" title="10.1.1.2. Identyfikowanie materiału źródłowego"><div class="titlepage"><div><div><h4 class="title"><a name="menc-feat-dvd-mpeg4-preparing-encode-material"></a>10.1.1.2. Identyfikowanie materiału źródłowego</h4></div></div></div><p>
@@ -544,7 +544,7 @@ informacje z każdego makrobloku.
 skompresować obraz. Jeśli nie ma dość bitów widać krawędzie tych bloków.)
 Dlatego też mądrze jest wybrać CQ w zakresie 0,20 do 0,22 na film jednopłytkowy
 i 0,26-0,28 na dwupłytkowy przy standardowych opcjach kodowania.
-Bardziej zaawansowane opcje kodowania, takie jak te podane tutaj dla 
+Bardziej zaawansowane opcje kodowania, takie jak te podane tutaj dla
 <a class="link" href="menc-feat-enc-libavcodec.html#menc-feat-mpeg4-lavc-example-settings" title="10.3.4. Encoding setting examples"><code class="systemitem">libavcodec</code></a>
 i
 <a class="link" href="menc-feat-xvid.html#menc-feat-xvid-example-settings" title="10.4.4. Encoding setting examples"><code class="systemitem">Xvid</code></a>
@@ -696,7 +696,7 @@ With these things in mind, here is our first example:
 mencoder <em class="replaceable"><code>capture.avi</code></em> -mc 0 -oac lavc -ovc lavc -lavcopts \
     vcodec=mpeg2video:vbitrate=6000:ilme:ildct:acodec=mp2:abitrate=224
 </pre><p>
-Note the <tt class="option">ilme</tt> and <tt class="option">ildct</tt> options. 
+Note the <tt class="option">ilme</tt> and <tt class="option">ildct</tt> options.
 </p></div><div class="sect2" title="10.1.9. Notes on Audio/Video synchronization"><div class="titlepage"><div><div><h3 class="title"><a name="menc-feat-dvd-mpeg4-av-sync"></a>10.1.9. Notes on Audio/Video synchronization</h3></div></div></div><p>
 <span class="application">MEncoder</span>'s audio/video synchronization
 algorithms were designed with the intention of recovering files with
@@ -902,7 +902,7 @@ will encode <em class="replaceable"><code>destination_sound.wav</code></em> with
 the encoding quality 1, which is roughly equivalent to 80Kb/s, and
 is the minimum quality at which you should encode if you care about
 quality.
-Please note that <span class="application">MEncoder</span> currently cannot 
+Please note that <span class="application">MEncoder</span> currently cannot
 mux Vorbis audio tracks
 into the output file because it only supports AVI and MPEG
 containers as an output, each of which may lead to audio/video
@@ -1023,7 +1023,7 @@ tools that suit you better, but since mkvtoolnix is the most
 common, and is supported by the Matroska team itself, we will
 only cover its usage.
 </p><p>
-Probably the easiest way to get started with Matroska is to use 
+Probably the easiest way to get started with Matroska is to use
 <span class="application">MMG</span>, the graphical frontend shipped with
 <span class="application">mkvtoolnix</span>, and follow the
 <a class="ulink" href="http://www.bunkus.org/videotools/mkvtoolnix/doc/mkvmerge-gui.html" target="_top">guide to mkvmerge GUI (mmg)</a>

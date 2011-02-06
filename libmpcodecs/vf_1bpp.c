@@ -1,3 +1,21 @@
+/*
+ * This file is part of MPlayer.
+ *
+ * MPlayer is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * MPlayer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with MPlayer; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,8 +43,10 @@ static const unsigned int bgr_list[]={
     IMGFMT_IYUV,
     IMGFMT_422P,
     IMGFMT_444P,
-    
+
     IMGFMT_YUY2,
+    IMGFMT_BGR12,
+    IMGFMT_RGB12,
     IMGFMT_BGR15,
     IMGFMT_RGB15,
     IMGFMT_BGR16,
@@ -40,7 +60,7 @@ static const unsigned int bgr_list[]={
     0
 };
 
-static unsigned int find_best(struct vf_instance_s* vf){
+static unsigned int find_best(struct vf_instance *vf){
     unsigned int best=0;
     int ret;
     const unsigned int* p=bgr_list;
@@ -60,7 +80,7 @@ struct vf_priv_s {
     unsigned int fmt;
 };
 
-static int config(struct vf_instance_s* vf,
+static int config(struct vf_instance *vf,
         int width, int height, int d_width, int d_height,
 	unsigned int flags, unsigned int outfmt){
     if (!vf->priv->fmt)
@@ -103,9 +123,9 @@ static void convert(mp_image_t *mpi, mp_image_t *dmpi, int value0, int value1,in
     }
 }
 
-static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
+static int put_image(struct vf_instance *vf, mp_image_t *mpi, double pts){
     mp_image_t *dmpi;
-    
+
     // hope we'll get DR buffer:
     dmpi=vf_get_image(vf->next,vf->priv->fmt,
 	MP_IMGTYPE_TEMP, MP_IMGFLAG_ACCEPT_STRIDE,
@@ -132,6 +152,10 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
     case IMGFMT_YUY2:
 	convert(mpi,dmpi,0x8000,0x80ff,2);
 	break;
+    case IMGFMT_BGR12:
+    case IMGFMT_RGB12:
+        convert(mpi,dmpi,0,0x0fff,2);
+        break;
     case IMGFMT_BGR15:
     case IMGFMT_RGB15:
 	convert(mpi,dmpi,0,0x7fff,2);
@@ -154,7 +178,7 @@ static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
 
 //===========================================================================//
 
-static int query_format(struct vf_instance_s* vf, unsigned int fmt){
+static int query_format(struct vf_instance *vf, unsigned int fmt){
     int best;
     if(fmt!=IMGFMT_RGB1 && fmt!=IMGFMT_BGR1) return 0;
     best=find_best(vf);
@@ -162,7 +186,7 @@ static int query_format(struct vf_instance_s* vf, unsigned int fmt){
     return vf->next->query_format(vf->next,best);
 }
 
-static int open(vf_instance_t *vf, char* args){
+static int vf_open(vf_instance_t *vf, char *args){
     vf->config=config;
     vf->put_image=put_image;
     vf->query_format=query_format;
@@ -176,7 +200,7 @@ const vf_info_t vf_info_1bpp = {
     "1bpp",
     "A'rpi",
     "",
-    open,
+    vf_open,
     NULL
 };
 

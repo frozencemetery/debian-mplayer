@@ -119,7 +119,7 @@ Se <span class="application">MPlayer</span> si lamenta frequentemente di
 </p><pre class="screen">Troppi pacchetti video/audio nel buffer</pre><p> oppure noti una
 desincronizzazione crescente tra l'audio e il video, verifica la presenza del
 pid PCR nel tuo flusso (serve per adeguarsi alla modalità di buffering del
-trasmettitore) e/o prova ad usare il demuxer MPEG-TS di libavformat aggiungendo 
+trasmettitore) e/o prova ad usare il demuxer MPEG-TS di libavformat aggiungendo
 <tt class="option">-demuxer lavf -lavfdopts probesize=128</tt> alla tua riga comando.
 </p><p>
 Per vedere il primo dei canali presenti nella tua lista, esegui
@@ -285,7 +285,7 @@ con <tt class="option">:sync</tt>.
   Vedi la pagina man per ulteriori informazioni circa <tt class="option">-vf lavc</tt>.
   Attualmente non c'è modo di impostare gli fps dell'em8300, il che significa
   che sono fissati a 30000/1001 fps.
-  A causa di ciò si raccomanda caldamente di usare 
+  A causa di ciò si raccomanda caldamente di usare
   <tt class="option">-vf lavc=<em class="replaceable"><code>qualità</code></em>:25</tt> soprattutto
   se stai usando il pre-buffering. Allora perché 25 e non 30000/1001?
   Bene, il fatto è che quando usi 30000/1001 l'immagine diventa un pochino

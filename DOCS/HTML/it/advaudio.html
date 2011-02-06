@@ -186,7 +186,7 @@ channel 2 --&gt; channel 2</pre><p>
   importante a patto che esse siano correttamente raggruppate in coppie
   <em class="replaceable"><code>sorgente:destinazione</code></em>.
 </p></li></ol></div><p>
-</p><h5><a name="id588759"></a>Esempio: un canale in due altoparlanti</h5><p>
+</p><h5><a name="id3110030"></a>Esempio: un canale in due altoparlanti</h5><p>
 Qui c'è un esempio di un altro modo di riprodurre un canali in entrambi gli
 altoparlanti. Per questo esempio supponi che il canale sinistro debba essere
 riprodotto e il canale destro scartato. Seguendo i passaggi suddetti:
@@ -211,7 +211,7 @@ Il vantaggio che ha questo esempio rispetto a <tt class="option">extrastereo</tt
 che il volume di ciascun canale di uscita è lo stesso del canale di entrata.
 Lo svantaggio è che le sotto-opzioni diventano "2:2:1:0:1:1" quando il canale
 voluto è quello destro. Inoltre, è più difficile da ricordare e da scrivere.
-</p><h5><a name="id588816"></a>Esempio: canale sinistro in due altoparlanti - scorciatoia</h5><p>
+</p><h5><a name="id3112394"></a>Esempio: canale sinistro in due altoparlanti - scorciatoia</h5><p>
 Veramente c'è un modo molto più facile di usare il filtro
 <tt class="option">channels</tt> per riprodurre il canale sinistro in entrambi gli
 altoparlanti:
@@ -220,7 +220,7 @@ Il secondo canale viene scartato, e, senza ulteriori sotto-opzioni, l'unico
 canale rimanente resta il solo. I driver della scheda audio automaticamente
 riproducono un singolo canale in ambedue gli altoparlanti. Ciò funziona sono
 quando il canale voluto è sulla sinistra.
-</p><h5><a name="id588841"></a>Esempio: duplicare i canali frontali sui posteriori</h5><p>
+</p><h5><a name="id3112426"></a>Esempio: duplicare i canali frontali sui posteriori</h5><p>
 Un'altra operazione comune è duplicare il canali frontali e riprodurli anche
 sugli altoparlanti posteriori in un'impostazione quadrifonica.
 </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
@@ -268,7 +268,7 @@ sono molto più complicate.
   abilitare il clipping, ma è meglio tenere i valori di <tt class="option">pan</tt>
   bassi abbastanza affinché il clipping non sia necessario.
   </p></li></ol></div><p>
-</p><h5><a name="id588977"></a>Esempio: un canale in due altoparlanti</h5><p>
+</p><h5><a name="id3112599"></a>Esempio: un canale in due altoparlanti</h5><p>
 Qui c'è un altro esempio per riprodurre il canale sinistro in due altoparlanti.
 Segui i passaggi suddetti:
 </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
@@ -290,13 +290,13 @@ Mettendo insieme queste opzioni si ottiene:
 </p><pre class="screen">mplayer <em class="replaceable"><code>nomefile</code></em> -af pan=2:1:1:0:0</pre><p>
 Se si vuole il canale destro invece del sinistro, le sotto-opzioni di
 <tt class="option">pan</tt> saranno "2:0:0:1:1".
-</p><h5><a name="id589026"></a>Esempio: canale sinistro in due altoparlanti - scorciatoia</h5><p>
+</p><h5><a name="id3112662"></a>Esempio: canale sinistro in due altoparlanti - scorciatoia</h5><p>
 Come con <tt class="option">channels</tt>, c'è una scorciatoia che funziona solo col canale sinistro:
 </p><pre class="screen">mplayer <em class="replaceable"><code>nomefile</code></em> -af pan=1:1</pre><p>
 Visto che <tt class="option">pan</tt> ha solo un canale di ingresso (l'altro canale
 viene scartato), c'è un solo gruppo con una sola sotto-opzione, che specifica
 che quel solo canale ottenga il 100% di sé stesso.
-</p><h5><a name="id589053"></a>Esempio: sottomiscelare PCM a 6 canali</h5><p>
+</p><h5><a name="id3112693"></a>Esempio: sottomiscelare PCM a 6 canali</h5><p>
 Il decodificatore di <span class="application">MPlayer</span> per PCM a 6 canali non
 è in grado di sottomiscelare. C'è un modo di sottomiscelare PCM usando
 <tt class="option">pan</tt>:
@@ -330,7 +330,7 @@ mplayer <em class="replaceable"><code>6-canali.wav</code></em> -af pan=2:1:0:0:1
 </pre><p>
 Le percentuali suddette sono solo un rozzo esempio. Sentiti libero di
 modificarle.
-</p><h5><a name="id589114"></a>Esempio: riprodurre audio 5.1 su grossi altoparlanti senza un subwoofer</h5><p>
+</p><h5><a name="id3112772"></a>Esempio: riprodurre audio 5.1 su grossi altoparlanti senza un subwoofer</h5><p>
 Se hai un paio di grossi altoparlanti puoi non voler sprecare dei soldi per
 compare un subwoofer per un sistema audio 5.1 completo. Se usi
 <tt class="option">-channels 5</tt> per richiedere che liba52 decodifichi audio 5.1

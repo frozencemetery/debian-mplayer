@@ -23,7 +23,7 @@
  *
  * Modified for use with MPlayer, see libmpeg2_changes.diff for the exact changes.
  * detailed changelog at http://svn.mplayerhq.hu/mplayer/trunk/
- * $Id: header.c 27604 2008-09-13 17:31:45Z diego $
+ * $Id: header.c 31395 2010-06-14 08:55:32Z lu_zero $
  */
 
 #include "config.h"
@@ -104,9 +104,6 @@ void mpeg2_header_state_init (mpeg2dec_t * mpeg2dec)
     mpeg2dec->decoder.convert = NULL;
     mpeg2dec->decoder.convert_id = NULL;
     mpeg2dec->picture = mpeg2dec->pictures;
-    memset(&mpeg2dec->fbuf_alloc[0].fbuf, 0, sizeof(mpeg2_fbuf_t));
-    memset(&mpeg2dec->fbuf_alloc[1].fbuf, 0, sizeof(mpeg2_fbuf_t));
-    memset(&mpeg2dec->fbuf_alloc[2].fbuf, 0, sizeof(mpeg2_fbuf_t));
     mpeg2dec->fbuf[0] = &mpeg2dec->fbuf_alloc[0].fbuf;
     mpeg2dec->fbuf[1] = &mpeg2dec->fbuf_alloc[1].fbuf;
     mpeg2dec->fbuf[2] = &mpeg2dec->fbuf_alloc[2].fbuf;
@@ -315,8 +312,8 @@ static inline void finalize_sequence (mpeg2_sequence_t * sequence)
 	height *= sequence->display_width;
 
     } else {
-	if (sequence->byte_rate == 50 * 0x3ffff) 
-	    sequence->byte_rate = 0;        /* mpeg-1 VBR */ 
+	if (sequence->byte_rate == 50 * 0x3ffff)
+	    sequence->byte_rate = 0;        /* mpeg-1 VBR */
 
 	switch (sequence->pixel_width) {
 	case 0:	case 15:	/* illegal */
@@ -860,7 +857,7 @@ int mpeg2_header_user_data (mpeg2dec_t * mpeg2dec)
 {
     mpeg2dec->user_data_len += mpeg2dec->chunk_ptr - 1 - mpeg2dec->chunk_start;
     mpeg2dec->chunk_start = mpeg2dec->chunk_ptr - 1;
-    
+
     return 0;
 }
 

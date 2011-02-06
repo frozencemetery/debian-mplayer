@@ -18,18 +18,18 @@ procesorze z taktowaniem 400MHz. Będziesz potrzebował do tego biblioteki
 <a class="ulink" href="http://www.sun.com/sparc/vis/mediaLib.html" target="_top">
 <code class="systemitem">mLib</code></a>.
 </p><p><span class="bold"><strong>Caveat:</strong></span></p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p><span class="bold"><strong>mediaLib</strong></span> jest
-			<span class="bold"><strong>aktualnie wyłączone</strong></span> w domyślnej
-			konfiguracji <span class="application">MPlayera</span>, z powodu błędów.
-			Użytkownicy SPARC-ów, którzy budują MPlayera z obsługą mediaLib
-			informowali o delikatnym, zielonymi miganiu wideo kodowane i dekodowanego
-			przez libavcodec. Możesz włączyć mediaLib, jeżeli chcesz używając:
-			</p><pre class="screen">
-				$ ./configure --enable-mlib
-				</pre><p>
-			Robisz to na własne ryzyko. Użytkownicy x86 powinni
-			<span class="bold"><strong>nigdy</strong></span> nie używać mediaLib,
-			ponieważ w efekcie otrzymają kiepską wydajność MPlayera.
-			</p></li></ul></div><p>
+<span class="bold"><strong>aktualnie wyłączone</strong></span> w domyślnej
+konfiguracji <span class="application">MPlayera</span>, z powodu błędów.
+Użytkownicy SPARC-ów, którzy budują MPlayera z obsługą mediaLib
+informowali o delikatnym, zielonymi miganiu wideo kodowane i dekodowanego
+przez libavcodec. Możesz włączyć mediaLib, jeżeli chcesz używając:
+</p><pre class="screen">
+$ ./configure --enable-mlib
+</pre><p>
+Robisz to na własne ryzyko. Użytkownicy x86 powinni
+<span class="bold"><strong>nigdy</strong></span> nie używać mediaLib,
+ponieważ w efekcie otrzymają kiepską wydajność MPlayera.
+</p></li></ul></div><p>
 Aby zbudować pakiet, będziesz potrzebował GNU <span class="application">make</span>
 (<tt class="filename">gmake</tt>, <tt class="filename">/opt/sfw/gmake</tt>), rdzenne make
 Solarisa nie zadziała. Typowy błąd jaki otrzymujesz, budując tym drugim zamiast GNU
@@ -54,8 +54,8 @@ użyj opcji <tt class="option">--as=<em class="replaceable"><code>/gdziekolwiek/
 żeby określić gdzie skrypt <tt class="filename">configure</tt> może znaleźć GNU "as" w Twoim
 systemie).
 </p><p>Rozwiązania najczęstszych problemów:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
-			Błąd jaki wyświetli <tt class="filename">configure</tt> na Solarisie x86,
-			używającym GCC bez GNU assemblera:
+Błąd jaki wyświetli <tt class="filename">configure</tt> na Solarisie x86,
+używającym GCC bez GNU assemblera:
 </p><pre class="screen">
    % configure
    ...
@@ -76,28 +76,27 @@ Typowy błąd, jaki otrzymasz przy próbie budowy kompilatorem GNU C, który nie
    ... more "Illegal mnemonic" and "Syntax error" errors ...
 </pre><p>
 </p></li><li class="listitem"><p><span class="application">MPlayer</span> może się wysypać
-		podczas dekodowania i kodowania wideo używających win32codecs:
-		</p><pre class="screen">
-			...
-			Trying to force audio codec driver family acm...
-			Opening audio decoder: [acm] Win32/ACM decoders
-			sysi86(SI86DSCR): Invalid argument
-			Couldn't install fs segment, expect segfault
-			
-			
-			MPlayer interrupted by signal 11 in module: init_audio_codec
-			...
-		</pre><p>
-		Dzieje się tak z powodu zmian w sysi86() w Solaris 10 i wydaniach
-		pre-Solaris Nevada b31. Zostało to naprawione w Solaris Nevada b32;
-		jednak Sun nie przeniósł jeszcze poprawki do Solarisa 10. Projekt
-		MPlayer poinformował o tym problemie Sun i łatka jest aktualnie
-		wprowadzana do Solarisa 10. Więcej informacji o tym błędzie może
-		zostać znaleziona  na stronie:
-		<a class="ulink" href="http://bugs.opensolaris.org/bugdatabase/view_bug.do?bug_id=6308413" target="_top">http://bugs.opensolaris.org/bugdatabase/view_bug.do?bug_id=6308413</a>.
-		</p></li><li class="listitem"><p>
-		Ze względu na błędy występujące w Solarisie 8, możesz nie być w stanie odtwarzać
-		płyt DVD o pojemności większej niż 4 GB:
+podczas dekodowania i kodowania wideo używających win32codecs:
+</p><pre class="screen">
+...
+Trying to force audio codec driver family acm...
+Opening audio decoder: [acm] Win32/ACM decoders
+sysi86(SI86DSCR): Invalid argument
+Couldn't install fs segment, expect segfault
+
+MPlayer interrupted by signal 11 in module: init_audio_codec
+...
+</pre><p>
+Dzieje się tak z powodu zmian w sysi86() w Solaris 10 i wydaniach
+pre-Solaris Nevada b31. Zostało to naprawione w Solaris Nevada b32;
+jednak Sun nie przeniósł jeszcze poprawki do Solarisa 10. Projekt
+MPlayer poinformował o tym problemie Sun i łatka jest aktualnie
+wprowadzana do Solarisa 10. Więcej informacji o tym błędzie może
+zostać znaleziona  na stronie:
+<a class="ulink" href="http://bugs.opensolaris.org/bugdatabase/view_bug.do?bug_id=6308413" target="_top">http://bugs.opensolaris.org/bugdatabase/view_bug.do?bug_id=6308413</a>.
+</p></li><li class="listitem"><p>
+Ze względu na błędy występujące w Solarisie 8, możesz nie być w stanie odtwarzać
+płyt DVD o pojemności większej niż 4 GB:
 </p><div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem"><p>
 Sterownik sd(7D) dla Solarisa 8 x86 ma błąd ujawniający się przy próbie dostępu do
 bloku dyskowego &gt;4GB urządzenia korzystającego z logicznego rozmiaru bloku !=DEV_BSIZE
@@ -213,25 +212,25 @@ znajdziesz je na
 4Front Technologies udostępnia swoje sterowniki OSS za darmo do niekomercyjnego
 zastosowania; jednakże, nie ma aktualnie sterowników wyjścia audio dla AIX 5.2 lub 5.3.
 Oznacza to, że <span class="bold"><strong>AIX 5.2 i 5.3 nie potrafią aktualnie używać
-	wyjścia audio MPlayera.</strong></span>
+wyjścia audio MPlayera.</strong></span>
 </p><p>Rozwiązania częstych problemów:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
-			Jeżeli otrzymujesz od <tt class="filename">configure</tt> taki komunikat błędu:
-			</p><pre class="screen">
-				$ ./configure
-				...
-				Checking for iconv program ... no
-				No working iconv program found, use
-				--charset=US-ASCII to continue anyway.
-				Messages in the GTK-2 interface will be broken then.
-				</pre><p>
-				To dzieje się tak dlatego, że AIX używa nie standardowych
-				zestawów nazw znaków; dlatego też, konwersja wyjścia MPlayera
-				do innego zestawu znaków (kodowania) nie jest aktualnie obsługiwana.
-				Rozwiązaniem jest użycie:
-			</p><pre class="screen">
-				$ ./configure --charset=noconv
-				</pre><p>
-			</p></li></ul></div></div><div class="sect2" title="8.3.4. QNX"><div class="titlepage"><div><div><h3 class="title"><a name="qnx"></a>8.3.4. QNX</h3></div></div></div><p>
+Jeżeli otrzymujesz od <tt class="filename">configure</tt> taki komunikat błędu:
+</p><pre class="screen">
+$ ./configure
+...
+Checking for iconv program ... no
+No working iconv program found, use
+--charset=US-ASCII to continue anyway.
+Messages in the GTK-2 interface will be broken then.
+</pre><p>
+To dzieje się tak dlatego, że AIX używa nie standardowych
+zestawów nazw znaków; dlatego też, konwersja wyjścia MPlayera
+do innego zestawu znaków (kodowania) nie jest aktualnie obsługiwana.
+Rozwiązaniem jest użycie:
+</p><pre class="screen">
+$ ./configure --charset=noconv
+</pre><p>
+</p></li></ul></div></div><div class="sect2" title="8.3.4. QNX"><div class="titlepage"><div><div><h3 class="title"><a name="qnx"></a>8.3.4. QNX</h3></div></div></div><p>
 Będziesz musiał ściągnąć bibliotekę SDL dla QNX i zainstalować ją. Wtedy
 uruchom <span class="application">MPlayera</span> z opcją
 <tt class="option">-vo sdl:driver=photon</tt>

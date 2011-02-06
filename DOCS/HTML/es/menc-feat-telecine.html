@@ -35,7 +35,7 @@
   numeradas pares) representa un momento en el tiempo 1/59.94 de un
   segundo después de otro. Al reproducir video entrelazado en un
   ordenador se ve mal porque el monitor tiene una resolución mayor
-  y porque el video es mostrado marco-tras-marco en lugar de 
+  y porque el video es mostrado marco-tras-marco en lugar de
   campo-tras-campo.
 </p><p>
 Notas:
@@ -187,12 +187,12 @@ Notas:
   Note que <tt class="option">-ofps</tt> NO es necesario aquí.
 
   </p><pre class="screen">mencoder dvd://1 -nosound -ovc lavc -lavcopts ildct:ilme:mbd=2</pre><p>
-  </p></li><li class="listitem"><p> 
+  </p></li><li class="listitem"><p>
   Use un filtro de desentrelazado antes de codificar. Hay varios
   filtros disponibles para elegir, cada uno con sus ventajas y sus
   desventajas. Consulte <tt class="option">mplayer -pphelp</tt> para ver
   qué hay disponible (grep "deint"), y busque en las
-  <a class="ulink" href="http://www.mplayerhq.hu/design7/info.html#mailing_lists" target="_top">
+  <a class="ulink" href="http://www.mplayerhq.hu/design7/mailing_lists-es.html" target="_top">
   listas de correo <span class="application">MPlayer</span></a> para encontrar
   discusiones acerca de varios filtros. De nuevo, la tasa de bits por segundo
   no cambia, nada de <tt class="option">-ofps</tt>. Además, el desentrelazado debe

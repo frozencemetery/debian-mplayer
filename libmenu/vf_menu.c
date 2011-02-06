@@ -24,10 +24,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if HAVE_MALLOC_H
-#include <malloc.h>
-#endif
-
 #include "mplayer.h"
 #include "mp_msg.h"
 
@@ -58,9 +54,9 @@ struct vf_priv_s {
   int passthrough;
 };
 
-static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts);
+static int put_image(struct vf_instance *vf, mp_image_t *mpi, double pts);
 
-void vf_menu_pause_update(struct vf_instance_s* vf) {
+void vf_menu_pause_update(struct vf_instance *vf) {
   const vo_functions_t *video_out = mpctx_get_video_out(vf->priv->current->ctx);
   if(pause_mpi) {
     put_image(vf,pause_mpi, MP_NOPTS_VALUE);
@@ -75,7 +71,7 @@ static int cmd_filter(mp_cmd_t* cmd, int paused, struct vf_priv_s * priv) {
   switch(cmd->id) {
   case MP_CMD_MENU : {  // Convert txt cmd from the users into libmenu stuff
     char* arg = cmd->args[0].v.s;
-    
+
     if (!priv->current->show && strcmp(arg,"hide"))
       priv->current->show = 1;
     else if(strcmp(arg,"up") == 0)
@@ -124,7 +120,7 @@ static int cmd_filter(mp_cmd_t* cmd, int paused, struct vf_priv_s * priv) {
   return 0;
 }
 
-static void get_image(struct vf_instance_s* vf, mp_image_t *mpi){
+static void get_image(struct vf_instance *vf, mp_image_t *mpi){
   mp_image_t *dmpi;
 
   if(mpi->type == MP_IMGTYPE_TEMP && (!(mpi->flags&MP_IMGFLAG_PRESERVE)) ) {
@@ -136,12 +132,12 @@ static void get_image(struct vf_instance_s* vf, mp_image_t *mpi){
     return;
   }
 }
-  
+
 static int key_cb(int code) {
   return menu_read_key(st_priv->current,code);
 }
 
-static int put_image(struct vf_instance_s* vf, mp_image_t *mpi, double pts){
+static int put_image(struct vf_instance *vf, mp_image_t *mpi, double pts){
   mp_image_t *dmpi = NULL;
 
   if (vf->priv->passthrough) {
@@ -217,8 +213,8 @@ static void uninit(vf_instance_t *vf) {
      }
 }
 
-static int config(struct vf_instance_s* vf, int width, int height, int d_width, int d_height,
-		  unsigned int flags, unsigned int outfmt) { 
+static int config(struct vf_instance *vf, int width, int height, int d_width, int d_height,
+		  unsigned int flags, unsigned int outfmt) {
 #ifdef CONFIG_FREETYPE
   // here is the right place to get screen dimensions
   if (force_load_font) {
@@ -231,7 +227,7 @@ static int config(struct vf_instance_s* vf, int width, int height, int d_width, 
   return vf_next_config(vf,width,height,d_width,d_height,flags,outfmt);
 }
 
-static int query_format(struct vf_instance_s* vf, unsigned int fmt){
+static int query_format(struct vf_instance *vf, unsigned int fmt){
   return vf_next_query_format(vf,fmt);
 }
 
@@ -268,6 +264,3 @@ vf_info_t vf_info_menu  = {
   open_vf,
   NULL
 };
-
-
-

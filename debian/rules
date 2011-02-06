@@ -54,6 +54,7 @@ CONFIGURE_FLAGS = \
 	--disable-libavformat_a \
 	--disable-libpostproc_a \
 	--disable-libswscale_a \
+	--enable-joystick \
 	$(archconf)
 
 ifeq ($(DEB_HOST_ARCH),i386)
@@ -119,19 +120,6 @@ debian/mplayer/usr/bin/mplayer debian/mencoder/usr/bin/mencoder:
 	install -D -m 644 debian/mplayer.conf \
 	                  $(CURDIR)/debian/mplayer/etc/mplayer/mplayer.conf
 
-# build gui version
-debian/mplayer-gui/usr/bin/gmplayer:
-	dh_testdir
-	$(CLEAN_ENV) \
-	./configure $(CONFIGURE_FLAGS) --enable-gui
-	$(CLEAN_ENV) \
-	$(MAKE) $(NUMJOBS) mplayer
-	install -D -m 755 mplayer $(CURDIR)/debian/mplayer-gui/usr/bin/gmplayer
-	install -D -m 644 etc/mplayer.desktop \
-	                  $(CURDIR)/debian/mplayer-gui/usr/share/applications/mplayer.desktop
-	install -D -m 644 etc/mplayer.xpm \
-	                  $(CURDIR)/debian/mplayer-gui/usr/share/pixmaps/mplayer.xpm
-
 
 # binaries already installed via build rules as we have to build several flavors
 install-arch: build-arch
@@ -145,7 +133,7 @@ DOCS/HTML/en/index.html:
 build-indep:
 	dh_testdir
 	dh_prep -i
-	test ! -f DOCS/HTML/en/index.html || $(MAKE) debian/rules DOCS/HTML/en/index.html
+	test ! -f DOCS/HTML/en/index.html || $(MAKE) -f debian/rules DOCS/HTML/en/index.html
 
 # commands to compile the documentation
 install-indep: build-indep
@@ -159,7 +147,7 @@ install-indep: build-indep
 clean:
 	dh_testdir
 	dh_testroot
-	[ ! -f config.mak ] || $(MAKE) distclean
+	[ ! -f config.mak ] || $(MAKE) -C DOCS/xml releaseclean && $(MAKE) distclean
 	dh_clean snapshot_version
 	! test -d .git || quilt pop -a || test $$? = 2
 

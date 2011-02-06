@@ -49,12 +49,12 @@ w=800:h=600:fps=25:type=jpg -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell
 Création d'un fichier MPEG4 depuis une liste de fichiers JPEG (le fichier list.txt contenu
 dans le répertoire courant, liste les fichiers utilisés comme source, un par ligne):
 </p><pre class="screen">
-mencoder mf://<em class="replaceable"><code>@list.txt</code></em> -mf w=800:h=600:fps=25:type=jpg \ 
+mencoder mf://<em class="replaceable"><code>@list.txt</code></em> -mf w=800:h=600:fps=25:type=jpg \
     -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o <em class="replaceable"><code>sortie.avi</code></em>
 </pre><p>
 </p></div><p title="Exemples">
 
-Il est possible de mélanger différents types d'images, quelque soit 
+Il est possible de mélanger différents types d'images, quelque soit
 la méthode utilisée — fichiers individuels, joker( i.e * )
 ou fichier avec liste — à condition que, bien sûr, elles soient de même dimension.
 De fait, vous pouvez par exemple, prendre une image de type PNG

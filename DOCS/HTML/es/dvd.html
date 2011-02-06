@@ -7,7 +7,7 @@ Ejemplo:
 </p><pre class="screen">mplayer dvd://<em class="replaceable"><code>1</code></em> -dvd-device <em class="replaceable"><code>/dev/hdc</code></em></pre><p>
 </p><p>
 El dispositivo DVD por defecto es <tt class="filename">/dev/dvd</tt>. Si su
-configuración es diferente, haga un enlace simbólico o especifique el 
+configuración es diferente, haga un enlace simbólico o especifique el
 dispositivo correcto en la línea de órdenes con la opción
 <tt class="option">-dvd-device</tt>.
 </p><p title="Soporte para el DVD de Nuevo-estilo (mpdvdkit2)"><b>Soporte para el DVD de Nuevo-estilo (mpdvdkit2). </b>
@@ -81,7 +81,7 @@ key, petición de título):
 </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
 <span class="bold"><strong>bus key</strong></span>: Esta clave es negociada durante
 la autenticación (una larga mezcla de ioctls y varios intercambios de
-claves, material de encriptación) y es usada para encriptar el título y 
+claves, material de encriptación) y es usada para encriptar el título y
 las claves de disco antes de enviarlas sobre el bus sin proteger
 (para prevenir robos de claves). El bus key necesita obtener y
 predesencriptar la clave encriptada de disco.
@@ -120,7 +120,7 @@ una continuación del patrón). El método es también conocido como
 En raras ocasiones esto falla porque no hay suficientes datos
 desencriptados en el disco para realizar un ataque estadístico
 o porque las claves cambian en mitad de un título. Este método es la
-única manera de desencriptar un DVD almacenado en un disco duro o en 
+única manera de desencriptar un DVD almacenado en un disco duro o en
 un DVD con la región incorrecta en una unidad RPC2 (lento).
 </p></li></ol></div><p>
 Las unidades de DVD RPC-1 solo protegen la configuración de región a través

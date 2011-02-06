@@ -8,7 +8,7 @@
 опцией <tt class="option">-ao sun</tt>.
 </p><p>
 На <span class="bold"><strong>UltraSPARC</strong></span>'ах, <span class="application">MPlayer</span>
-использует преимущество их расширения <span class="bold"><strong>VIS</strong></span> 
+использует преимущество их расширения <span class="bold"><strong>VIS</strong></span>
 (эквивалент MMX), но (в настоящий момент) только в
 <code class="systemitem">libmpeg2</code>,
 <code class="systemitem">libvo</code>
@@ -18,10 +18,10 @@ and <code class="systemitem">libavcodec</code>, но не в
 <a class="ulink" href="http://www.sun.com/sparc/vis/mediaLib.html" target="_top"><code class="systemitem">mLib</code></a>.
 </p><p><span class="bold"><strong>Предостережение:</strong></span></p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
   <span class="bold"><strong>mediaLib</strong></span> в данный
-  момент отключена по умолчанию в 
+  момент отключена по умолчанию в
   <span class="application">MPlayer</span> из-за поломанности.
-  Пользователи SPARC, компилировавшие MPlayer с mediaLib 
-  сообщали об изобилии зелёного оттенка в видео, кодируемом и 
+  Пользователи SPARC, компилировавшие MPlayer с mediaLib
+  сообщали об изобилии зелёного оттенка в видео, кодируемом и
   декодируемом libavcodec.
   Если хотите, можете включить ее:
   </p><pre class="screen">$ ./configure --enable-mlib</pre><p>
@@ -50,8 +50,8 @@ make: Fatal error in reader: Makefile, line 25: Unexpected end of line seen
 Скрипт <tt class="filename">configure</tt> пытается обнаружить, какой ассемблер
 используется Вашей командой "gcc" (в том случае, если автоопределение
 не сработает, используйте опцию
-<tt class="option">--as=<em class="replaceable"><code>/там/где/у/Вас/установлен/gnu-as</code></em></tt>, 
-чтобы сообщить скрипту <tt class="filename">configure</tt>, где можно обнаружить 
+<tt class="option">--as=<em class="replaceable"><code>/там/где/у/Вас/установлен/gnu-as</code></em></tt>,
+чтобы сообщить скрипту <tt class="filename">configure</tt>, где можно обнаружить
 GNU "as" на Вашей системе).
 </p><p>Решение общих проблем:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
   Сообщения об ошибках <tt class="filename">configure</tt> на Solaris x86 системах при
@@ -61,7 +61,7 @@ GNU "as" на Вашей системе).
 ...
 Checking assembler (/usr/ccs/bin/as) ... , failed
 Please upgrade(downgrade) binutils to 2.10.1...</pre><p>
-  (Решение: Установите и используйте gcc, сконфигурированный с 
+  (Решение: Установите и используйте gcc, сконфигурированный с
   <tt class="option">--with-as=gas</tt>)
 </p><p>
 Типичная ошибка при сборке GNU C компилятором, который не использует GNU as:
@@ -92,7 +92,7 @@ MPlayer interrupted by signal 11 in module: init_audio_codec
   Nevada b31 релизах. Исправлено в Solaris Nevada b32; тем не менее
   Sun еще следует портировать исправление обратно на Solaris 10. Проект MPlayer
   осведомил Sun об этой проблеме и патч в данный момент готовится для
-  Solaris 10. Больше информации об этой ошибке ищите 
+  Solaris 10. Больше информации об этой ошибке ищите
   на:
   <a class="ulink" href="http://bugs.opensolaris.org/bugdatabase/view_bug.do?bug_id=6308413" target="_top">http://bugs.opensolaris.org/bugdatabase/view_bug.do?bug_id=6308413</a>.
 </p></li><li class="listitem"><p>
@@ -114,7 +114,7 @@ MPlayer interrupted by signal 11 in module: init_audio_codec
   Проблемы с hsfs могут быть исправлены установкой патча 109764-04 (sparc) /
   109765-04 (x86).
 </p></li></ul></div></li></ul></div></div><div class="sect2" title="8.3.2. HP-UX"><div class="titlepage"><div><div><h3 class="title"><a name="hp-ux"></a>8.3.2. HP-UX</h3></div></div></div><p>
-Joe Page на своей домашней странице держит подробное 
+Joe Page на своей домашней странице держит подробное
 <a class="ulink" href="http://users.rcn.com/joepage/mplayer_on_hpux11.htm" target="_top">HOWTO</a>
 по <span class="application">MPlayer</span> на HP-UX, написанное Martin Gansser.
 С этими инструкциями сборка должна работать "прямо из коробки".
@@ -183,11 +183,11 @@ Segmentation fault</pre><p>
   </p><p>
   Решение:
   Ядро HP-UX по-умолчанию для каждого процесса имеет размер стека равный 8MB(?).
-  (11.0 и новые патчи для 10.20 позволяют вам увеличить <code class="systemitem">maxssiz</code> 
-  вплоть до 350MB для 32-х битных программ). Вы должны расширить 
+  (11.0 и новые патчи для 10.20 позволяют вам увеличить <code class="systemitem">maxssiz</code>
+  вплоть до 350MB для 32-х битных программ). Вы должны расширить
   <code class="systemitem">maxssiz</code>
-  и перекомпилировать ядро (и перезагрузиться). Чтобы сделать это, можно использовать SAM. 
-  (Находясь в нем, проверьте параметр <code class="systemitem">maxdsiz</code> на предмет 
+  и перекомпилировать ядро (и перезагрузиться). Чтобы сделать это, можно использовать SAM.
+  (Находясь в нем, проверьте параметр <code class="systemitem">maxdsiz</code> на предмет
   максимального количества данных, которые могут использоваться программами.
   64 Мб по умолчанию может хватить или не хватить в зависимости от Ваших приложений.)
   </p></li></ul></div><p>
@@ -195,13 +195,13 @@ Segmentation fault</pre><p>
 <span class="application">MPlayer</span> успешно собирается на AIX 5.1,
 5.2, и 5.3, используя GCC 3.3 или новее. Сборка
 <span class="application">MPlayer</span> не проверена на AIX 4.3.3 и более ранних.
-Крайне рекомендуется собирать 
+Крайне рекомендуется собирать
 <span class="application">MPlayer</span> используя GCC 3.4 или старше, и, как минимум,
 GCC 4.0, если собираете на POWER5.
 </p><p>
 Убедитесь, что используете GNU make
 (<tt class="filename">/opt/freeware/bin/gmake</tt>) для сборки
-<span class="application">MPlayer</span>, поскольку столкнетесь с проблемами при 
+<span class="application">MPlayer</span>, поскольку столкнетесь с проблемами при
 использовании <tt class="filename">/usr/ccs/bin/make</tt>.
 </p><p>
 
@@ -212,14 +212,14 @@ GCC 4.0, если собираете на POWER5.
 </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>POWER</p></li><li class="listitem"><p>POWER2</p></li><li class="listitem"><p>POWER5</p></li></ul></div><p>
 </p><p>
 Вывод звука через Ultimedia Services не поддерживается, т.к.
-Ultimedia была убрана из AIX 5.1; таким образом, остается единственный 
+Ultimedia была убрана из AIX 5.1; таким образом, остается единственный
 вариант: использовать драйвер AIX Open Sound system (OSS) от
-4Front Technologies с 
-<a class="ulink" href="http://www.opensound.com/aix.html" target="_top">http://www.opensound.com/aix.html</a>. 
-Для некоммерческого использования 4Front Technologies 
-распространяет драйвер OSS под AIX 5.1 бесплатно; несмотря на это, 
+4Front Technologies с
+<a class="ulink" href="http://www.opensound.com/aix.html" target="_top">http://www.opensound.com/aix.html</a>.
+Для некоммерческого использования 4Front Technologies
+распространяет драйвер OSS под AIX 5.1 бесплатно; несмотря на это,
 на текущий день нет драйверов вывода звука для AIX 5.2 или 5.3.
-drivers for AIX 5.2 or 5.3. Это означает, что сейчас 
+drivers for AIX 5.2 or 5.3. Это означает, что сейчас
 <span class="bold"><strong>AIX 5.2 и 5.3 несовместимы с выводом звука MPlayer.</strong></span>
 </p><p>Решения для общих проблем:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
   Если вы столкнулись с такой ошибкой <tt class="filename">configure</tt>:
@@ -230,7 +230,7 @@ Checking for iconv program ... no
 No working iconv program found, use
 --charset=US-ASCII to continue anyway.
 Messages in the GTK-2 interface will be broken then.</pre><p>
-  Это из-за того, что AIX использует нестандартные имена кодировок; 
+  Это из-за того, что AIX использует нестандартные имена кодировок;
   поэтому перекодировка сообщений в данный момент не работает.
   Решение - использовать:
   </p><pre class="screen">$ ./configure --charset=noconv</pre><p>
