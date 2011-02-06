@@ -103,7 +103,6 @@ build-arch:
 	dh_prep -a
 	$(MAKE) -f debian/rules debian/mplayer/usr/bin/mplayer
 	$(MAKE) -f debian/rules debian/mencoder/usr/bin/mencoder
-	$(MAKE) -f debian/rules debian/mplayer-gui/usr/bin/gmplayer
 
 # build non-gui version
 # & mencoder
