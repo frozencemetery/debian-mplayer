@@ -64,7 +64,6 @@ if [ -z $SVNDATE ]; then
 	error "you need to specify an svn date. e.g. 20081230 for Dec 29. 2008"
 fi
 
-CLEANUPSCRIPT=`pwd`/debian/strip.sh
 TARBALL=`pwd`/../mplayer_1.0~rc3+svn${SVNDATE}.orig.tar.gz
 TARBALL_UNSTRIPPED=`pwd`/../mplayer-non-dfsg_1.0~rc3+svn${SVNDATE}.orig.tar.gz
 PACKAGENAME=mplayer
@@ -113,7 +112,7 @@ echo $revision > ${dest}/.svnrevision
 
 tar czf ${TARBALL_UNSTRIPPED} -C ${TMPDIR} ${PACKAGENAME}-${SVNDATE}
 	
-( cd ${TMPDIR}/${PACKAGENAME}-${SVNDATE} && sh ${CLEANUPSCRIPT} )
+( cd ${TMPDIR}/${PACKAGENAME}-${SVNDATE} && rm -rfv libdvdcss )
 
 tar czf ${TARBALL} -C ${TMPDIR} ${PACKAGENAME}-${SVNDATE}
 
