@@ -1,9 +1,19 @@
-mplayer (2:1.0~rc4.dfsg1-1ubuntu1) natty; urgency=low
+mplayer (2:1.0~rc4.dfsg1-1ubuntu2) natty; urgency=low
 
-  * Merge from debian/unstable. Remaining changes:
+  * Finish Merge from debian/unstable. Remaining changes:
     - Build depend on lame, x264, xvidcore and libbluray
 
- -- Reinhard Tartler <siretart@tauware.de>  Sat, 26 Feb 2011 14:00:45 +0100
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 26 Feb 2011 14:37:59 +0100
+
+mplayer (2:1.0~rc4.dfsg1-1ubuntu1) natty; urgency=low
+
+  * Merge from debian unstable. Remaining changes:
+    - build depend against, lame, x264, xvid
+  * Dropped changes, applied upstream:
+    - debian/patches/60eval-api.patch, backport patch from upstream to
+      unbreak compilation for eval.h move not yet in 0.6
+
+ -- Angel Abad <angelabad@ubuntu.com>  Mon, 07 Feb 2011 15:21:29 +0100
 
 mplayer (2:1.0~rc4.dfsg1-1) unstable; urgency=low
 
@@ -22,12 +32,18 @@ mplayer (2:1.0~rc4~try2.dfsg1-1) experimental; urgency=low
   * minor clarifications in debian/copyright
 
  -- Reinhard Tartler <siretart@tauware.de>  Sun, 23 Jan 2011 21:59:46 +0100
-
-mplayer (2:1.0~rc4~try1.dsfg1-1ubuntu2) natty; urgency=low
+  
+mplayer (2:1.0~rc4~try1.dsfg1-1ubuntu3) UNRELEASED; urgency=low
 
   * enable libbluray support
 
  -- Reinhard Tartler <siretart@tauware.de>  Sat, 26 Feb 2011 12:42:18 +0100
+
+mplayer (2:1.0~rc4~try1.dsfg1-1ubuntu2) natty; urgency=low
+
+  * No change rebuild against current libx264
+
+ -- Bhavani Shankar <bhavi@ubuntu.com>  Fri, 24 Dec 2010 11:24:57 +0530
 
 mplayer (2:1.0~rc4~try1.dsfg1-1ubuntu1) maverick; urgency=low
 
@@ -72,9 +88,6 @@ mplayer (2:1.0~rc4~try1-1) experimental; urgency=low
 
  -- Reinhard Tartler <siretart@tauware.de>  Wed, 28 Jul 2010 21:04:54 -0400
 
-<<<<<<< HEAD
-mplayer (2:1.0~rc3++final-0ubuntu3) maverick; urgency=low
-=======
 mplayer (2:1.0~rc3++final.dfsg1-2) unstable; urgency=low
 
   * prepare next upload
@@ -90,7 +103,27 @@ mplayer (2:1.0~rc3++final.dfsg1-1) unstable; urgency=low
  -- Reinhard Tartler <siretart@tauware.de>  Sat, 31 Jul 2010 23:44:52 -0400
 
 mplayer (2:1.0~rc3++final-1~exp1) experimental; urgency=low
->>>>>>> debian/2%1.0_rc4.dfsg1-1
+
+  * build mplayer against internal ffmpeg to workaround interoperability
+    problems with FFmpeg 0.6
+
+ -- Reinhard Tartler <siretart@tauware.de>  Thu, 03 Jun 2010 18:25:34 +0200
+
+mplayer (2:1.0~rc3++final.dfsg1-2) unstable; urgency=low
+
+  * prepare next upload
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 07 Aug 2010 10:20:58 -0400
+
+mplayer (2:1.0~rc3++final.dfsg1-1) unstable; urgency=low
+
+  * upload to unstable
+  * enable mencoder and mplayer-gui package
+  * build again against the system FFmpeg 0.5
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 31 Jul 2010 23:44:52 -0400
+
+mplayer (2:1.0~rc3++final-1~exp1) experimental; urgency=low
 
   * readd x264, xvid and mp3lame support, LP: #606125
 
