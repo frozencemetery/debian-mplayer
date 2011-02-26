@@ -1,3 +1,9 @@
+mplayer (2:1.0~rc4~try1.dsfg1-1ubuntu2) natty; urgency=low
+
+  * enable libbluray support
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 26 Feb 2011 12:42:18 +0100
+
 mplayer (2:1.0~rc4~try1.dsfg1-1ubuntu1) maverick; urgency=low
 
   * merge from debian, remaining changes:
