@@ -845,6 +845,10 @@ static void exit_sighandler(int x){
       mp_msg(MSGT_CPLAYER,MSGL_FATAL,MSGTR_Exit_SIGSEGV_SIGFPE);
   default:
       mp_msg(MSGT_CPLAYER,MSGL_FATAL,MSGTR_Exit_SIGCRASH);
+      mp_msg(MSGT_CPLAYER,MSGL_FATAL,
+             " [ This binary of MPlayer in Debian is currently compiled with\n"
+             "   '--enable-debug'; the debugging symbols are in the package\n"
+             "   'mplayer-dbg'.]\n");
 #ifdef CONFIG_CRASH_DEBUG
       if (crash_debug) {
         int gdb_pid;
@@ -2746,9 +2750,13 @@ int gui_no_filename=0;
 	{
 		HMODULE kernel32 = GetModuleHandle("Kernel32.dll");
 		BOOL WINAPI (*setDEP)(DWORD) = NULL;
-		if (kernel32)
+		BOOL WINAPI (*setDllDir)(LPCTSTR) = NULL;
+		if (kernel32) {
 			setDEP = GetProcAddress(kernel32, "SetProcessDEPPolicy");
+			setDllDir = GetProcAddress(kernel32, "SetDllDirectoryA");
+		}
 		if (setDEP) setDEP(3);
+		if (setDllDir) setDllDir("");
 	}
 	// stop Windows from showing all kinds of annoying error dialogs
 	SetErrorMode(0x8003);

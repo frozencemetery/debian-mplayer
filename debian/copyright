@@ -3,11 +3,13 @@
 This package was first  debianized by * TeLeNiEkO * telenieko@telenieko.com on
 Mon, 26 Feb 2001 12:24:04 +0100.
 
-The current Debian Mantainer is: Dariush Pietrzak <eyck@ghost.anime.pl>
+It has been introduced in Debian by Dariush Pietrzak <eyck@ghost.anime.pl>, and
 sponsored by: A Mennucci <mennucc1@debian.org>
 
-Dariush Pietrzak and A Mennucci hold copyright (c) on the Debian
-packaging, that is available under the terms of GNU GPL v2 (see below
+The current Debian Mantainer is: Reinhard Tartler <siretart@debian.org>
+
+Dariush Pietrzak, A Mennucci and Reinhard Tartler hold copyright (c) on the
+Debian packaging, that is available under the terms of GNU GPL v2 (see below
 for header).
 
 Original source can be found at: http://www.mplayerhq.hu/
