@@ -2,82 +2,86 @@ Source: mplayer
 Section: video
 Priority: optional
 Maintainer: Debian multimedia packages maintainers <pkg-multimedia-maintainers@lists.alioth.debian.org>
-Uploaders: A Mennucc1 <mennucc1@debian.org>,
-           Reinhard Tartler <siretart@tauware.de>,
-           Andres Mejia <mcitadel@gmail.com>
+Uploaders:
+ A Mennucc1 <mennucc1@debian.org>,
+ Reinhard Tartler <siretart@tauware.de>,
+ Andres Mejia <mcitadel@gmail.com>
 DM-Upload-Allowed: yes
 Standards-Version: 3.8.4
 Vcs-Git: git://git.debian.org/git/pkg-multimedia/mplayer.git
 Vcs-Browser: http://git.debian.org/?p=pkg-multimedia/mplayer.git;a=summary
 Homepage: http://www.mplayerhq.hu/
-Build-Depends: debhelper (>= 7),
-               docbook-xml,
-               docbook-xsl,
-               ladspa-sdk,
-               libaa1-dev,
-               libasound2-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386],
-               libaudio-dev,
-               libavcodec-dev (>= 4:0.6),
-               libavdevice-dev (>= 4:0.6),
-               libavformat-dev (>= 4:0.6),
-               libavutil-dev (>= 4:0.6),
-               libcaca-dev,
-               libcdparanoia-dev | libcdparanoia0-dev,
-               libdirectfb-dev,
-               libdts-dev,
-               libdvdnav-dev,
-               libdvdread-dev,
-               libenca-dev,
-               libesd0-dev,
-               libfaad-dev,
-               libfontconfig1-dev,
-               libfreetype6-dev,
-               libfribidi-dev,
-               libgif-dev,
-               libgl1-mesa-dev,
-               libjack-dev,
-               libjpeg62-dev,
-               liblircclient-dev,
-               liblivemedia-dev,
-               liblzo2-dev,
-               libmpcdec-dev,
-               libncurses5-dev,
-               libopenal-dev,
-               libpng12-dev | libpng-dev,
-               libpostproc-dev (>= 4:0.6),
-               libpulse-dev,
-               libschroedinger-dev,
-               libsdl1.2-dev | libsdl1.1-dev,
-               libsmbclient-dev,
-               libspeex-dev,
-               libsvga1-dev [i386 amd64],
-               libswscale-dev (>= 4:0.6),
-               libtheora-dev (>= 1.0~beta1),
-               libvdpau-dev [i386 amd64],
-               libvorbis-dev,
-               libvorbisidec-dev,
-               libx11-dev,
-               libxext-dev,
-               libxinerama-dev,
-               libxv-dev,
-               libxvmc-dev,
-               libxxf86dga-dev,
-               libxxf86vm-dev,
-               pkg-config,
-               vstream-client-dev,
-               x11proto-core-dev,
-               xsltproc,
-               zlib1g-dev
+Build-Depends:
+ debhelper (>= 7),
+ docbook-xml,
+ docbook-xsl,
+ ladspa-sdk,
+ libaa1-dev,
+ libasound2-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386],
+ libaudio-dev,
+ libavcodec-dev (>= 4:0.6),
+ libavdevice-dev (>= 4:0.6),
+ libavformat-dev (>= 4:0.6),
+ libavutil-dev (>= 4:0.6),
+ libcaca-dev,
+ libcdparanoia-dev | libcdparanoia0-dev,
+ libdirectfb-dev,
+ libdts-dev,
+ libdvdnav-dev,
+ libdvdread-dev,
+ libenca-dev,
+ libesd0-dev,
+ libfaad-dev,
+ libfontconfig1-dev,
+ libfreetype6-dev,
+ libfribidi-dev,
+ libgif-dev,
+ libgl1-mesa-dev,
+ libjack-dev,
+ libjpeg62-dev,
+ liblircclient-dev,
+ liblivemedia-dev,
+ liblzo2-dev,
+ libmpcdec-dev,
+ libncurses5-dev,
+ libopenal-dev,
+ libpng12-dev | libpng-dev,
+ libpostproc-dev (>= 4:0.6),
+ libpulse-dev,
+ libschroedinger-dev,
+ libsdl1.2-dev | libsdl1.1-dev,
+ libsmbclient-dev,
+ libspeex-dev,
+ libsvga1-dev [i386 amd64],
+ libswscale-dev (>= 4:0.6),
+ libtheora-dev (>= 1.0~beta1),
+ libvdpau-dev [i386 amd64],
+ libvorbis-dev,
+ libvorbisidec-dev,
+ libx11-dev,
+ libxext-dev,
+ libxinerama-dev,
+ libxv-dev,
+ libxvmc-dev,
+ libxxf86dga-dev,
+ libxxf86vm-dev,
+ pkg-config,
+ vstream-client-dev,
+ x11proto-core-dev,
+ xsltproc,
+ zlib1g-dev
 
 Package: mencoder
 Architecture: any
-Suggests: mplayer-doc,
-          ttf-freefont,
-          bzip2,
-          fontconfig
-Depends: mplayer,
-         ${shlibs:Depends},
-         ${misc:Depends}
+Suggests:
+ bzip2,
+ fontconfig,
+ mplayer-doc,
+ ttf-freefont
+Depends:
+ mplayer,
+ ${misc:Depends},
+ ${shlibs:Depends}
 Description: MPlayer's Movie Encoder
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
@@ -93,16 +97,19 @@ Description: MPlayer's Movie Encoder
 
 Package: mplayer
 Architecture: any
-Suggests: mplayer-doc,
-          ttf-freefont,
-          netselect | fping,
-          bzip2,
-          fontconfig
-Depends: ${shlibs:Depends},
-         ${misc:Depends}
-Replaces: mplayer-doc (<< 2:1.0~rc3+svn20090426-2),
-          mplayer-nogui (<< 2:1.0~rc3+svn20090426-2),
-          mencoder (<< 2:1.0~rc3+svn20090426-2)
+Suggests:
+ bzip2,
+ fontconfig,
+ mplayer-doc,
+ netselect | fping,
+ ttf-freefont
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends}
+Replaces:
+ mencoder (<< 2:1.0~rc3+svn20090426-2),
+ mplayer-doc (<< 2:1.0~rc3+svn20090426-2),
+ mplayer-nogui (<< 2:1.0~rc3+svn20090426-2)
 Description: movie player for Unix-like systems
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
@@ -125,9 +132,11 @@ Package: mplayer-dbg
 Architecture: any
 Section: debug
 Priority: extra
-Depends: mplayer,
-         ${misc:Depends}
-Recommends: ffmpeg-dbg
+Depends:
+ mplayer,
+ ${misc:Depends}
+Recommends:
+ ffmpeg-dbg
 Description: debugging symbols for MPlayer
  This package contains the debugging symbols for MPlayer, a movie
  player for Unix-like systems.
@@ -138,9 +147,12 @@ Description: debugging symbols for MPlayer
 Package: mplayer-doc
 Architecture: all
 Section: doc
-Recommends: mplayer
-Depends: ${misc:Depends}
-Replaces: mplayer (<< 2:1.0~rc3+svn20090426-1)
+Recommends:
+ mplayer
+Depends:
+ ${misc:Depends}
+Replaces:
+ mplayer (<< 2:1.0~rc3+svn20090426-1)
 Description: documentation for MPlayer
  This package contains the HTML documentation for MPlayer, a movie player for
  Unix-like systems. It is available in several languages.

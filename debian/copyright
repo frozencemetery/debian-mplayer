@@ -13,7 +13,7 @@ Debian packaging, that is available under the terms of GNU GPL v2 (see below
 for header).
 
 Original source can be found at: http://www.mplayerhq.hu/
-but (!) the orig.tar.gz contained in Debian is not the 
+but (!) the orig.tar.gz contained in Debian is not the
 upstream one. See README.Debian for details.
 
 MPlayer was originally written by Árpád Gereöffy and has been extended and
@@ -245,7 +245,7 @@ File:	    libmpdemux/pnm.c libmpdemux/pnm.h
 Copyright (C) 2000-2002 the xine project
 License:    GNU General Public License
 
-File:	    libmpdemux/demux_avs.c libmpdemux/demux_avs.h 
+File:	    libmpdemux/demux_avs.c libmpdemux/demux_avs.h
 Copyright (c) 2005 Gianluigi Tiesi <sherpya@netfarm.it>
 Copyright 2003 Kevin Atkinson
 License:    GNU General Public License
