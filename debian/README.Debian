@@ -28,10 +28,7 @@ This issue is pointed out in detail in the following thread:
   http://lists.debian.org/debian-legal/2003/debian-legal-200301/msg00231.html
 
 Currently mplayer ships files such as
-  liba52/liba52_changes.diff
   libfaad2/local_changes.diff
-  libmpdvdkit2/libdvdcss_changes.diff
-  libmpdvdkit2/libdvdread_changes.diff
   libmpeg2/libmpeg-0.4.0.diff
   tremor/tremor.diff
 to comply with this request.

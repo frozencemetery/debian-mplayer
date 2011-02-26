@@ -1,21 +1,6 @@
-This package uses quilt to manage all modifications to the upstream source.
-If you want to know more about how to use quilt to manage Debian patches, read
-/usr/share/doc/quilt/README.source.
+The sources of this mplayer package have some parts removed!
 
-Only if you are building from the packaging gut branch, then the package
-expects you to have the quilt package installed.  For this reason, quilt
-is not an explicit build dependency.
-
-NB: The sources of this mplayer package have some parts removed!
-
-* In order to update the package yourself and/or to review the changes done
-  to the source code, please see the files:
-
-   debian/README.upstream-upgrade
-   debian/get-orig-source.sh
-   debian/strip.sh
-
-* In particular, the internal mpdvdkit library was deleted, so the mplayer
+* In particular, the internal libdvdcss library was deleted, so the mplayer
   package provided by Debian is unable to play encrypted DVDs. If you want to
   play encrypted DVDs (i.e. almost all available Video-DVDs), please follow
   the instructions in /usr/share/doc/libdvdread3/README.Debian on how to
@@ -23,4 +8,4 @@ NB: The sources of this mplayer package have some parts removed!
 
 A. Mennucc with adaptions by Reinhard Tartler and Fabian Greffrath
 
- -- Reinhard Tartler <siretart@tauware.de>, Thu,  3 Jun 2010 18:25:09 +0200
+ -- Reinhard Tartler <siretart@tauware.de>, Sun, 13 Feb 2011 09:55:32 +0100
