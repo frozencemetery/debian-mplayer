@@ -20,7 +20,7 @@ Build-Depends: debhelper (>= 7),
                libavcodec-dev (>= 4:0.6),
                libavdevice-dev (>= 4:0.6),
                libavformat-dev (>= 4:0.6),
-               libavutil-dev,
+               libavutil-dev (>= 4:0.6),
                libbluray-dev,
                libcaca-dev,
                libcdparanoia-dev | libcdparanoia0-dev,
@@ -46,14 +46,14 @@ Build-Depends: debhelper (>= 7),
                libncurses5-dev,
                libopenal-dev,
                libpng12-dev | libpng-dev,
-               libpostproc-dev,
+               libpostproc-dev (>= 4:0.6),
                libpulse-dev,
                libschroedinger-dev,
                libsdl1.2-dev | libsdl1.1-dev,
                libsmbclient-dev,
                libspeex-dev,
                libsvga1-dev [i386 amd64],
-               libswscale-dev,
+               libswscale-dev (>= 4:0.6),
                libtheora-dev (>= 1.0~beta1),
                libvdpau-dev [i386 amd64],
                libvorbis-dev,
@@ -72,6 +72,35 @@ Build-Depends: debhelper (>= 7),
                x11proto-core-dev,
                xsltproc,
                zlib1g-dev
+
+Package: mplayer-gui
+Architecture: any
+Suggests: mplayer-doc,
+          ttf-freefont,
+          bzip2,
+          fontconfig
+Depends: mplayer-skin,
+         mplayer,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Replaces: mplayer-doc (<< 2:1.0~rc3+svn20090426-2),
+          mplayer (<< 2:1.0~rc3+svn20090426-2)
+Description: movie player for Unix-like systems
+ MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
+ ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
+ supported by many native, XAnim, RealPlayer, and Win32 DLL codecs. It can
+ also play VideoCD, SVCD, DVD, 3ivx, RealMedia, and DivX movies.
+ .
+ Another big feature of MPlayer is the wide range of supported output
+ drivers. It works with X11, Xv, DGA, OpenGL, SVGAlib, fbdev,
+ DirectFB, but also SDL (plus all its drivers) and some
+ low level card-specific drivers (for Matrox, 3Dfx and Radeon, Mach64
+ and Permedia3). Most of them support software or hardware scaling,
+ therefore allowing fullscreen display.  MPlayer is also able
+ to use some hardware MPEG decoder boards, such as the DVB
+ and DXR3/Hollywood+.
+ .
+ This package includes the gui variant of mplayer.
 
 Package: mencoder
 Architecture: any
