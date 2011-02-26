@@ -1,3 +1,10 @@
+mplayer (2:1.0~rc4.dfsg1-1ubuntu1) natty; urgency=low
+
+  * Merge from debian/unstable. Remaining changes:
+    - Build depend on lame, x264, xvidcore and libbluray
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 26 Feb 2011 14:00:45 +0100
+
 mplayer (2:1.0~rc4.dfsg1-1) unstable; urgency=low
 
   * upload to unstable
