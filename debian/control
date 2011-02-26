@@ -7,7 +7,7 @@ Uploaders:
  Reinhard Tartler <siretart@tauware.de>,
  Andres Mejia <mcitadel@gmail.com>
 DM-Upload-Allowed: yes
-Standards-Version: 3.8.4
+Standards-Version: 3.9.1
 Vcs-Git: git://git.debian.org/git/pkg-multimedia/mplayer.git
 Vcs-Browser: http://git.debian.org/?p=pkg-multimedia/mplayer.git;a=summary
 Homepage: http://www.mplayerhq.hu/
