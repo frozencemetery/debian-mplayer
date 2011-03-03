@@ -1,8 +1,15 @@
 mplayer (2:1.0~rc4.dfsg1-2) unstable; urgency=low
 
-  * start new upload.
+  [ Fabian Greffrath ]
+  * Update documentation with regard to our modifications to the upstream tarball.
 
- -- Reinhard Tartler <siretart@tauware.de>  Tue, 08 Feb 2011 19:40:55 +0100
+  [ Reinhard Tartler ]
+  * really no longer build mplayer-gui, Closes: #612473
+  * simplify/remove instruction to get upstream sources
+  * normalize debian/{control,copyright,mplayer.install} with wrap-and-sort
+  * bump standards version
+
+ -- Reinhard Tartler <siretart@tauware.de>  Thu, 03 Mar 2011 18:04:07 +0100
 
 mplayer (2:1.0~rc4.dfsg1-1) unstable; urgency=low
 
