@@ -88,7 +88,7 @@ Description: MPlayer's Movie Encoder
  supported by many native, XAnim, RealPlayer, and Win32 DLL codecs. It can
  also play VideoCD, SVCD, DVD, 3ivx, RealMedia, and DivX movies.
  .
- This package contains menconder, a simple movie encoder, designed to
+ This package contains mencoder, a simple movie encoder, designed to
  encode MPlayer-playable movies
  (AVI/ASF/OGG/DVD/VCD/VOB/MPG/MOV/VIV/FLI/RM/NUV/NET) to other
  MPlayer-playable formats. It can encode with various codecs, like DivX4
