@@ -1,8 +1,8 @@
-mplayer (2:1.0~rc4.dfsg1-3) unstable; urgency=low
+mplayer (2:1.0~rc4+svn33713-1) experimental; urgency=low
 
-  * prepare new upload
+  * New upstream snapshot
 
- -- Reinhard Tartler <siretart@tauware.de>  Tue, 15 Mar 2011 22:03:57 +0100
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 25 Jun 2011 09:05:54 +0200
 
 mplayer (2:1.0~rc4.dfsg1-2) unstable; urgency=low
 
