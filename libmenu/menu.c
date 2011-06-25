@@ -26,9 +26,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "libvo/osd.h"
-#include "libvo/font_load.h"
-#include "libvo/sub.h"
+#include "sub/osd.h"
+#include "sub/font_load.h"
+#include "sub/sub.h"
 #include "osdep/keycodes.h"
 #include "asxparser.h"
 #include "stream/stream.h"
@@ -40,17 +40,17 @@
 #include "m_struct.h"
 #include "menu.h"
 
-extern menu_info_t menu_info_cmdlist;
-extern menu_info_t menu_info_chapsel;
-extern menu_info_t menu_info_pt;
-extern menu_info_t menu_info_filesel;
-extern menu_info_t menu_info_txt;
-extern menu_info_t menu_info_console;
-extern menu_info_t menu_info_pref;
-extern menu_info_t menu_info_dvbsel;
+extern const menu_info_t menu_info_cmdlist;
+extern const menu_info_t menu_info_chapsel;
+extern const menu_info_t menu_info_pt;
+extern const menu_info_t menu_info_filesel;
+extern const menu_info_t menu_info_txt;
+extern const menu_info_t menu_info_console;
+extern const menu_info_t menu_info_pref;
+extern const menu_info_t menu_info_dvbsel;
 
 
-menu_info_t* menu_info_list[] = {
+const menu_info_t * const menu_info_list[] = {
   &menu_info_pt,
   &menu_info_cmdlist,
   &menu_info_chapsel,
@@ -105,7 +105,7 @@ static menu_cmd_bindings_t *get_cmd_bindings(const char *name)
 
 static int menu_parse_config(char* buffer) {
   char *element,*body, **attribs, *name;
-  menu_info_t* minfo = NULL;
+  const menu_info_t* minfo = NULL;
   int r,i;
   ASX_Parser_t* parser = asx_parser_new();
 
@@ -124,7 +124,7 @@ static int menu_parse_config(char* buffer) {
     if(!name) {
       mp_msg(MSGT_GLOBAL,MSGL_WARN,MSGTR_LIBMENU_MenuDefinitionsNeedANameAttrib,parser->line);
       free(element);
-      if(body) free(body);
+      free(body);
       asx_free_attribs(attribs);
       continue;
     }
@@ -215,7 +215,7 @@ static int menu_parse_config(char* buffer) {
     } else {
       mp_msg(MSGT_GLOBAL,MSGL_WARN,MSGTR_LIBMENU_UnknownMenuType,element,parser->line);
       free(name);
-      if(body) free(body);
+      free(body);
     }
 
     free(element);
@@ -279,7 +279,7 @@ void menu_uninit(void) {
   for(i = 0 ; menu_list && menu_list[i].name ; i++) {
     free(menu_list[i].name);
     m_struct_free(&menu_list[i].type->priv_st,menu_list[i].cfg);
-    if(menu_list[i].args) free(menu_list[i].args);
+    free(menu_list[i].args);
   }
   free(menu_list);
   menu_count = 0;
@@ -438,8 +438,6 @@ static char *menu_fribidi(char *txt)
   static size_t buffer_size = 1024;
   static char *outputstr;
 
-  FriBidiCharType base;
-  fribidi_boolean log2vis;
   size_t len;
 
   if (menu_flip_hebrew) {
@@ -458,11 +456,8 @@ static char *menu_fribidi(char *txt)
       visual = realloc(visual, buffer_size);
       outputstr = realloc(outputstr, buffer_size);
     }
-    len = fribidi_charset_to_unicode (char_set_num, txt, len, logical);
-    base = menu_fribidi_flip_commas?FRIBIDI_TYPE_ON:FRIBIDI_TYPE_L;
-    log2vis = fribidi_log2vis (logical, len, &base, visual, NULL, NULL, NULL);
-    if (log2vis) {
-      len = fribidi_remove_bidi_marks (visual, len, NULL, NULL, NULL);
+    len = do_fribid_log2vis(char_set_num, txt, logical, visual, menu_fribidi_flip_commas);
+    if (len > 0) {
       fribidi_unicode_to_charset (char_set_num, visual, len, outputstr);
       return outputstr;
     }
@@ -727,24 +722,6 @@ int menu_text_num_lines(char* txt, int max_width) {
     i += vo_font->width[c]+vo_font->charspace;
   }
   return l;
-}
-
-static char* menu_text_get_next_line(char* txt, int max_width)
-{
-  int i = 0;
-  render_txt(txt);
-  while (*txt) {
-    int c=utf8_get_char((const char**)&txt);
-    if(c == '\n') {
-      txt++;
-      break;
-    }
-    i += vo_font->width[c];
-    if(i >= max_width)
-      break;
-    i += vo_font->charspace;
-  }
-  return txt;
 }
 
 

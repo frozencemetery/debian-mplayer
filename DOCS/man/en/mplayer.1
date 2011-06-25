@@ -1,4 +1,4 @@
-.\" $Revision: 31852 $
+.\" $Revision: 33689 $
 .\" MPlayer (C) 2000-2010 MPlayer Team
 .\" This man page was/is done by Gabucino, Diego Biurrun, Jonas Jermann
 .
@@ -187,10 +187,9 @@ more.
 .PP
 .B gmplayer
 is MPlayer with a graphical user interface.
-It has the same options as MPlayer, however they might not all work correctly
-due to conflicts with the configuration via the GUI (stored in gui.conf).
-In particular some options might be overwritten by settings in gui.conf while
-others might end up stored permanently in gui.conf.
+Besides some own options (stored in gui.conf), it has the same options as
+MPlayer, however some MPlayer options will be stored in gui.conf so that they
+can be chosen independently from MPlayer. (See GUI CONFIGURATION FILE below.)
 .PP
 Usage examples to get you started quickly can be found at the end
 of this man page.
@@ -212,17 +211,17 @@ See the \-input option for ways to customize it.
 .B keyboard control
 .PD 0
 .RS
-.IPs "<\- and \->"
+.IPs "LEFT and RIGHT"
 Seek backward/\:forward 10 seconds.
-.IPs "up and down"
+.IPs "UP and DOWN"
 Seek forward/\:backward 1 minute.
-.IPs "pgup and pgdown"
+.IPs "PGUP and PGDWN"
 Seek forward/\:backward 10 minutes.
 .IPs "[ and ]"
 Decrease/increase current playback speed by 10%.
 .IPs "{ and }"
 Halve/double current playback speed.
-.IPs "backspace"
+.IPs "BACKSPACE"
 Reset playback speed to normal.
 .IPs "< and >"
 Go backward/\:forward in the playlist.
@@ -271,7 +270,7 @@ Toggle frame dropping states: none / skip display / skip decoding
 (see \-framedrop and \-hardframedrop).
 .IPs "v\ \ \ \ "
 Toggle subtitle visibility.
-.IPs "j\ \ \ \ "
+.IPs "j and J"
 Cycle through the available subtitles.
 .IPs "y and g"
 Step forward/backward in the subtitle list.
@@ -281,6 +280,8 @@ Toggle displaying "forced subtitles".
 Toggle subtitle alignment: top / middle / bottom.
 .IPs "x and z"
 Adjust subtitle delay by +/\- 0.1 seconds.
+.IPs "c (\-capture only)"
+Start/stop capturing the primary stream.
 .IPs "r and t"
 Move subtitles up/down.
 .IPs "i (\-edlout mode only)"
@@ -368,30 +369,6 @@ Pause.
 Stop playing and quit.
 .IPs "PREVIOUS and NEXT"
 Seek backward/\:forward 1 minute.
-.RE
-.PD 1
-.PP
-.RS
-(The following keys are only valid if GUI support is compiled in
-and will take precedence over the keys defined above.)
-.RE
-.PP
-.PD 0
-.RS
-.IPs ENTER
-Start playing.
-.IPs "ESC\ \ "
-Stop playing.
-.IPs "l\ \ \ \ "
-Load file.
-.IPs "t\ \ \ \ "
-Load subtitle.
-.IPs "c\ \ \ \ "
-Open skin browser.
-.IPs "p\ \ \ \ "
-Open playlist.
-.IPs "r\ \ \ \ "
-Open preferences.
 .RE
 .PD 1
 .PP
@@ -520,8 +497,10 @@ specific one is '~/\:.mplayer/\:config'.
 The configuration file for MEncoder is 'mencoder.conf' in your configuration
 directory (e.g.\& /etc/\:mplayer or /usr/\:local/\:etc/\:mplayer), the
 user specific one is '~/\:.mplayer/\:mencoder.conf'.
-User specific options override system-wide options and options given on the
-command line override either.
+User specific options override system-wide options (in case of
+.BR gmplayer ,
+gui.conf options override user specific options) and options given on the
+command line override all.
 The syntax of the configuration files is 'option=<value>', everything after
 a '#' is considered a comment.
 Options that work without values can be enabled by setting them to 'yes'
@@ -580,6 +559,131 @@ subalign=2
 subpos=96
 spuaa=20
 .fi
+.PP
+.I "GUI CONFIGURATION FILE"
+.sp 1
+GUI's own options are (MPlayer option names in parentheses):
+ao_alsa_device
+.RB ( alsa:device= ") (ALSA only),"
+ao_alsa_mixer
+.RB ( mixer ") (ALSA only),"
+ao_alsa_mixer_channel
+.RB ( mixer-channel ") (ALSA only),"
+ao_esd_device
+.RB ( esd: ") (ESD only),"
+ao_extra_stereo
+.RB ( "af extrastereo" ") (default: 1.0),"
+ao_extra_stereo_coefficient
+.RB ( "af extrastereo=" "),"
+ao_oss_device
+.RB ( oss: ") (OSS only),"
+ao_oss_mixer
+.RB ( mixer ") (OSS only),"
+ao_oss_mixer_channel
+.RB ( mixer-channel ") (OSS only),"
+ao_sdl_subdriver
+.RB ( sdl: ") (SDL only),
+ao_surround (unused),
+ao_volnorm
+.RB ( "af volnorm" "),"
+autosync (enable/disable),
+autosync_size
+.RB ( autosync "),"
+cache (enable/disable),
+cache_size
+.RB ( cache "),"
+enable_audio_equ
+.RB ( "af equalizer" "),"
+equ_band_00 ... equ_band_59,
+.RB ( "af equalizer=" "),"
+equ_channel_1 ... equ_channel_6
+.RB ( "af channels=" "),"
+gui_main_pos_x,
+gui_main_pos_y,
+gui_save_pos (yes/no),
+gui_video_out_pos_x,
+gui_video_out_pos_y,
+load_fullscreen  (yes/no),
+playbar (enable/disable),
+show_videowin (yes/no),
+vf_lavc
+.RB ( "vf lavc" ") (DXR3 only),"
+vf_pp
+.RB ( "vf pp" "),"
+vo_dxr3_device (unused) (DXR3 only).
+.sp 1
+MPlayer options stored in gui.conf (GUI option names, MPlayer option names in
+parentheses) are:
+a_afm
+.RB ( afm ),
+ao_driver
+.RB ( ao ),
+ass_bottom_margin
+.RB ( ass-bottom-margin ") (ASS only),"
+ass_enabled
+.RB ( ass ") (ASS only),"
+ass_top_margin
+.RB ( ass-top-margin ") (ASS only),"
+ass_use_margins
+.RB ( ass-use-margins ") (ASS only),"
+cdrom_device
+.RB ( cdrom-device ),
+dvd_device
+.RB ( dvd-device ),
+font_autoscale
+.RB ( subfont-autoscale ") (FreeType only),"
+font_blur
+.RB ( subfont-blur ") (FreeType only),"
+font_encoding
+.RB ( subfont-encoding ") (FreeType only),"
+font_factor
+.RB ( ffactor ),
+font_name
+.RB ( font ),
+font_osd_scale
+.RB ( subfont-osd-scale ") (FreeType only),"
+font_outline
+.RB ( subfont-outline ") (FreeType only),"
+font_text_scale
+.RB ( subfont-text-scale ") (FreeType only),"
+gui_skin
+.RB ( skin ),
+osd_level
+.RB ( osdlevel ),
+softvol
+.RB ( softvol ),
+stopxscreensaver
+.RB ( stop-xscreensaver ),
+sub_auto_load
+.RB ( autosub ),
+sub_cp
+.RB ( subcp ") (iconv only),"
+sub_overlap
+.RB ( overlapsub ),
+sub_pos
+.RB ( subpos ),
+sub_unicode
+.RB ( unicode ),
+v_flip
+.RB ( flip ),
+v_framedrop
+.RB ( framedrop ),
+v_idx
+.RB ( idx ),
+v_ni
+.RB ( ni ),
+v_vfm
+.RB ( vfm ),
+vf_autoq
+.RB ( autoq ),
+vo_direct_render
+.RB ( panscan ),
+vo_doublebuffering
+.RB ( dr ),
+vo_driver
+.RB ( vo ),
+vo_panscan
+.RB ( double ).
 .
 .\" --------------------------------------------------------------------------
 .\" Profiles
@@ -653,7 +757,7 @@ Override the standard search path and use the specified file
 instead of the builtin codecs.conf.
 .
 .TP
-.B \-include <configuration file>
+.B \-include <configuration file> (also see \-gui-include)
 Specify configuration file to be parsed after the default ones.
 .
 .TP
@@ -890,6 +994,22 @@ This parameter allows you to specify that time interval in seconds
 (default: 2 seconds).
 .
 .TP
+.B \-edl-start-pts
+Adjust positions in EDL records according to playing file's start time.
+Some formats, especially MPEG TS usually start with non-zero PTS
+values and when producing EDL file with \-edlout option, EDL records
+contain absolute values that are correct only for this particular file.
+If re-encoded into a different format, this EDL file no longer applies.
+Specifying \-edl-start-pts will automatically adjust EDL positions according
+to start time: when producing EDL file, it will substract start time from every
+EDL record, when playing with EDL file, it will add file's start time to every
+EDL position.
+.
+.TP
+.B \-noedl-start-pts
+Disable adjusting EDL positions.
+.
+.TP
 .B \-enqueue (GUI only)
 Enqueue files given on the command line in the playlist instead of playing them
 immediately.
@@ -913,6 +1033,10 @@ For B-frames even decoding is skipped completely.
 Enable or disable the GUI interface (default depends on binary name).
 Only works as the first argument on the command line.
 Does not work as a config-file option.
+.
+.TP
+.B \-gui-include <GUI configuration file> (also see \-include) (GUI only)
+Specify a GUI configuration file to be parsed after the default gui.conf.
 .
 .TP
 .B \-h, \-help, \-\-help
@@ -967,6 +1091,11 @@ The wrapper script TOOLS/\:midentify.sh suppresses the other MPlayer output and
 Makes MPlayer wait idly instead of quitting when there is no file to play.
 Mostly useful in slave mode where MPlayer can be controlled
 through input commands.
+.br
+For
+.B gmplayer
+\-idle is the default, \-noidle will quit the GUI after all files have been
+played.
 .
 .TP
 .B \-input <commands>
@@ -1012,12 +1141,14 @@ several 'echo "seek 10" > mp_pipe' and the pipe will stay valid.
 .B \-key\-fifo\-size <2\-65000>
 Specify the size of the FIFO that buffers key events (default: 7).
 A FIFO of size n can buffer (n\-1) events.
-If it is too small some events may be lost
-(leading to "stuck mouse buttons" and similar effects).
+If it is too small some events may be lost.
 If it is too big, MPlayer may seem to hang while it
 processes the buffered events.
 To get the same behavior as before this option was introduced,
 set it to 2 for Linux or 1024 for Windows.
+For small value you should disable double-clicks by setting
+\-doubleclick\-time to 0 so they do not compete with regular
+events for buffer space.
 .
 .TP
 .B \-lircconf <filename> (LIRC only)
@@ -1143,14 +1274,14 @@ Play files in random order.
 .TP
 .B \-skin <name> (GUI only)
 Loads a skin from the directory given as parameter below the default skin
-directories, /usr/\:local/\:share/\:mplayer/\:skins/\: and ~/.mplayer/\:skins/.
+directories, ~/.mplayer/\:skins/ and /usr/\:local/\:share/\:mplayer/\:skins/\:.
 .sp 1
 .I EXAMPLE:
 .PD 0
 .RSs
 .IPs "\-skin fittyfene"
-Tries /usr/\:local/\:share/\:mplayer/\:skins/\:fittyfene
-and afterwards ~/.mplayer/\:skins/\:fittyfene.
+Tries ~/.mplayer/\:skins/\:fittyfene
+and afterwards /usr/\:local/\:share/\:mplayer/\:skins/\:fittyfene.
 .RE
 .PD 1
 .
@@ -1179,6 +1310,34 @@ Skip <sec> seconds after every frame.
 The normal framerate of the movie is kept, so playback is accelerated.
 Since MPlayer can only seek to the next keyframe this may be inexact.
 .
+.TP
+.B \-udp\-ip <ip>
+Sets the destination address for datagrams sent by the \-udp\-master.
+Setting it to a broadcast address allows multiple slaves having the same
+broadcast address to sync to the master (default: 127.0.0.1).
+.
+.TP
+.B \-udp\-master
+Send a datagram to \-udp\-ip on \-udp\-port just before playing each frame.
+The datagram indicates the master's position in the file.
+.
+.TP
+.B \-udp\-port <port>
+Sets the destination port for datagrams sent by the \-udp\-master, and the
+port a \-udp\-slave listens on (default: 23867).
+.
+.TP
+.B \-udp\-seek\-threshold <sec>
+When the master seeks, the slave has to decide whether to seek as
+well, or to catch up by decoding frames without pausing between frames.
+If the master is more than <sec> seconds away from the
+slave, the slave seeks.
+Otherwise, it "runs" to catch up or waits for the master.
+This should almost always be left at its default setting of 1 second.
+.
+.TP
+.B \-udp\-slave
+Listen on \-udp\-port and match the master's position.
 .
 .
 .SH "DEMUXER/STREAM OPTIONS"
@@ -1294,6 +1453,18 @@ of the total.
 If a seek is to be made to a position within <percentage> of the cache size
 from the current position, MPlayer will wait for the cache to be filled to
 this position rather than performing a stream seek (default: 50).
+.
+.TP
+.B \-capture (MPlayer only)
+Allows capturing the primary stream (not additional audio tracks or other
+kind of streams) into the file specified by \-dumpfile or \"stream.dump\"
+by default.
+If this option is given, capturing can be started and stopped by pressing
+the key bound to this function (see section INTERACTIVE CONTROL).
+Same as for \-dumpstream, this will likely not produce usable results for
+anything else than MPEG streams.
+Note that, due to cache latencies, captured data may begin and end
+somewhat delayed compared to what you see displayed.
 .
 .TP
 .B \-cdda <option1:option2> (CDDA only)
@@ -1421,7 +1592,8 @@ on the command line only the last one will work.
 .TP
 .B \-dumpfile <filename> (MPlayer only)
 Specify which file MPlayer should dump to.
-Should be used together with \-dumpaudio / \-dumpvideo / \-dumpstream.
+Should be used together with \-dumpaudio / \-dumpvideo / \-dumpstream /
+\-capture.
 .
 .TP
 .B \-dumpstream (MPlayer only)
@@ -1449,7 +1621,7 @@ Specifies using card number 1\-4 (default: 1).
 Instructs MPlayer to read the channels list from <filename>.
 Default is ~/.mplayer/\:channels.conf.{sat,ter,cbl,atsc} (based on your card type)
 or ~/.mplayer/\:channels.conf as a last resort.
-.IPs timeout=<1\-30>
+.IPs timeout=<1\-240>
 Maximum number of seconds to wait when trying to tune a
 frequency before giving up (default: 30).
 .RE
@@ -1493,10 +1665,9 @@ on how to use this.
 Stop at given time or byte position.
 .br
 .I NOTE:
-Byte position is enabled only for MEncoder and will not be accurate, as it can
-only stop at a frame boundary.
+Byte position may not be accurate, as it can only stop at a frame boundary.
 When used in conjunction with \-ss option, \-endpos time will shift forward by
-seconds specified with \-ss.
+seconds specified with \-ss if not a byte position.
 .sp 1
 .I EXAMPLE:
 .PD 0
@@ -1507,7 +1678,9 @@ Stop at 56 seconds.
 Stop at 1 hour 10 minutes.
 .IPs "\-ss 10 \-endpos 56"
 Stop at 1 minute 6 seconds.
-.IPs "\-endpos 100mb"
+.IPs "mplayer \-endpos 100mb"
+Stop playback after reading 100MB of the input file.
+.IPs "mencoder \-endpos 100mb"
 Encode only 100 MB.
 .RE
 .PD 1
@@ -1539,6 +1712,35 @@ Enabled when playing from an external MP3 file, as we need to seek
 to the very exact position to keep A/V sync.
 Can be slow especially when seeking backwards since it has to rewind
 to the beginning to find an exact frame position.
+.
+.TP
+.B \-http-header-fields <field1,field2>
+Set custom HTTP fields when accessing HTTP stream.
+.sp 1
+.I EXAMPLE:
+.PD 0
+.RSs
+.IPs
+mplayer \-http\-header\-fields 'Field1: value1','Field2: value2' http://localhost:1234
+.br
+Will generate HTTP request:
+.RSss
+.br
+GET / HTTP/1.0
+.br
+Host: localhost:1234
+.br
+User-Agent: MPlayer
+.br
+Icy-MetaData: 1
+.br
+Field1: value1
+.br
+Field2: value2
+.br
+Connection: close
+.REss
+.RE
 .
 .TP
 .B \-idx (also see \-forceidx)
@@ -1964,7 +2166,9 @@ See the console output for a list of available TV norms.
 .IPs channel=<value>
 Set tuner to <value> channel.
 .IPs chanlist=<value>
-available: europe-east, europe-west, us-bcast, us-cable, etc
+available: argentina, australia, china-bcast, europe-east, europe-west, france,
+ireland, italy, japan-bcast, japan-cable, newzealand, russia, southafrica,
+us-bcast, us-cable, us-cable-hrc
 .IPs channels=<chan>\-<name>[=<norm>],<chan>\-<name>[=<norm>],...
 Set names for channels.
 .I NOTE:
@@ -1986,7 +2190,7 @@ tv://1, tv://TV1, tv_set_channel 1, tv_set_channel TV1
 .IPs [brightness|contrast|hue|saturation]=<\-100\-100>
 Set the image equalizer on the card.
 .IPs audiorate=<value>
-Set audio capture bitrate.
+Set input audio sample rate.
 .IPs forceaudio
 Capture audio even if there are no audio sources reported by v4l.
 .IPs "alsa\ "
@@ -2366,6 +2570,23 @@ Turns off automatic subtitle file loading.
 Set the duration of the OSD messages in ms (default: 1000).
 .
 .TP
+.B \-osd\-fractions <0\-2>
+Set how fractions of seconds of the current timestamp are printed on the OSD:
+.PD 0
+.RSs
+.IPs 0
+Do not display fractions (default).
+.IPs 1
+Show the first two decimals.
+.IPs 2
+Show approximated frame count within current second.
+This frame count is not accurate but only an approximation.
+For variable fps, the approximation is known to be far off the correct frame
+count.
+.RE
+.PD 1
+.
+.TP
 .B \-osdlevel <0\-3> (MPlayer only)
 Specifies which mode the OSD should start in.
 .PD 0
@@ -2395,8 +2616,9 @@ If you cannot select one of the subtitles on a DVD, also try \-vobsubid.
 .
 .TP
 .B \-nosub
-Disables any otherwise auto-selected subtitles (as e.g.\& the Matroska/mkv
+Disables any otherwise auto-selected internal subtitles (as e.g.\& the Matroska/mkv
 demuxer supports).
+Use \-noautosub to disable the loading of external subtitle files.
 .
 .TP
 .B \-slang <language code[,language code,...]> (also see \-sid)
@@ -2492,11 +2714,11 @@ Adjust matching fuzziness when searching for subtitles:
 .PD 0
 .RSs
 .IPs 0
-exact match
+exact match (default)
 .IPs 1
 Load all subs containing movie name.
 .IPs 2
-Load all subs in the current directory.
+Load all subs in the current and \-sub\-paths directories.
 .RE
 .PD 1
 .
@@ -2521,8 +2743,8 @@ Align subtitle bottom edge (default).
 .PD 1
 .
 .TP
-.B "\-subcc \ "
-Display DVD Closed Caption (CC) subtitles.
+.B "\-subcc <1\-4>\ "
+Display DVD Closed Caption (CC) subtitles from the specified channel.
 These are
 .B not
 the VOB subtitles, these are special ASCII subtitles for the
@@ -2559,6 +2781,27 @@ Guess the encoding, assuming the subtitles are Czech, fall back on
 latin 2, if the detection fails.
 .IPs "\-subcp enca:pl:cp1250"
 Guess the encoding for Polish, fall back on cp1250.
+.RE
+.PD 1
+.
+.TP
+.B \-sub\-paths <path1,path2,...>
+Specify extra subtitle paths to track in the media directory.
+.sp 1
+.I EXAMPLE:
+Assuming that /path/\:to/\:movie/\:movie.avi is played and \-sub\-paths
+sub,subtitles,/tmp/subs is specified, MPlayer searches for subtitle files in
+these directories:
+.RSs
+/path/\:to/\:movie/
+.br
+/path/\:to/\:movie/\:sub/
+.br
+/path/\:to/\:movie/\:subtitles/
+.br
+/tmp/\:subs/
+.br
+~/.mplayer/\:sub/
 .RE
 .PD 1
 .
@@ -3196,6 +3439,11 @@ Fixes fullscreen switching on OpenBox 1.x.
 .PD 1
 .
 .TP
+.B \-gamma <\-100\-100>
+Adjust the gamma of the video signal (default: 0).
+Not supported by all video output drivers.
+.
+.TP
 .B \-geometry x[%][:y[%]] or [WxH][+-x+-y]
 Adjust where the output is on the screen initially.
 The x and y specifications are in pixels measured from the top-left of the
@@ -3232,7 +3480,7 @@ Places the window at the bottom right corner of the screen.
 .PD 1
 .
 .TP
-.B \-guiwid <window ID> (also see \-wid) (GUI only)
+.B \-gui-wid <window ID> (also see \-wid) (GUI only)
 This tells the GUI to also use an X11 window and stick itself to the bottom
 of the video, which is useful to embed a mini-GUI in a browser (with the
 MPlayer plugin for instance).
@@ -3382,7 +3630,7 @@ the new display mode.
 Enables VBI for the vesa, dfbmga and svga video output drivers.
 .
 .TP
-.B \-wid <window ID> (also see \-guiwid) (X11, OpenGL and DirectX only)
+.B \-wid <window ID> (also see \-gui-wid) (X11, OpenGL and DirectX only)
 This tells MPlayer to attach to an existing window.
 Useful to embed MPlayer in a browser (e.g.\& the plugger extension).
 This option fills the given window completely, thus aspect scaling,
@@ -3623,7 +3871,7 @@ if image format BGRA is actually used.)
 .PD 1
 .
 .TP
-.B xvmc (X11 with \-vc ffmpeg12mc only)
+.B xvmc (X11 with FFmpeg MPEG-1/2 decoder only)
 Video output driver that uses the XvMC (X Video Motion Compensation)
 extension of XFree86 4.x to speed up MPEG-1/2 and VCR2 decoding.
 .PD 0
@@ -4123,8 +4371,6 @@ Useful for benchmarking.
 .TP
 .B "aa\ \ \ \ \ "
 ASCII art video output driver that works on a text console.
-You can get a list and an explanation of available suboptions
-by executing 'mplayer \-vo aa:help'.
 .br
 .I NOTE:
 The driver does not handle \-aspect correctly.
@@ -4531,10 +4777,32 @@ Specifies the compression level.
 0 is no compression, 9 is maximum compression.
 .IPs outdir=<dirname>
 Specify the directory to save the PNG files to (default: ./).
+.IPs prefix=<prefix>
+Specify the prefix to be used for the PNG filenames (default: no prefix).
 .IPs alpha (default: noalpha)
 Create PNG files with an alpha channel.
 Note that MPlayer in general does not support alpha, so this will only
 be useful in some rare cases.
+.RE
+.PD 1
+.
+.TP
+.B "mng\ \ \ \ "
+Output video into an animated MNG file using 24 bpp RGB images
+with lossless compression.
+.PD 0
+.RSs
+.IPs output=<filename>
+Specify the output filename (default: out.mng).
+.REss
+.PD 1
+.RS
+.sp 1
+.I EXAMPLE:
+.RE
+.PD 0
+.RSs
+mplayer video.mkv \-vo mng:output=test.mng
 .RE
 .PD 1
 .
@@ -7464,6 +7732,10 @@ width and height of the cleared rectangle
 Thickness of the fuzzy edge of the rectangle (added to w and h).
 When set to \-1, a green rectangle is drawn on the screen to
 simplify finding the right x,y,w,h parameters.
+.IPs file=<file>
+You can specify a text file to load the coordinates from.
+Each line must have a timestamp (in seconds, and in ascending order) and the
+"x:y:w:h:t" coordinates (t can be omitted).
 .RE
 .PD 1
 .
@@ -7552,6 +7824,117 @@ Percentage of the pixels that have to be below the threshold (default: 98).
 .IPs <threshold>
 Threshold below which a pixel value is considered black (default: 32).
 .RE
+.PD 1
+.
+.TP
+.B stereo3d[=in:out]
+Stereo3d converts between different stereoscopic image formats.
+.RSs
+.IPs <in>
+Stereoscopic image format of input. Possible values:
+.RS
+.B sbsl or side_by_side_left_first
+.RS
+side by side parallel (left eye left, right eye right)
+.RE
+.B sbsr or side_by_side_right_first
+.RS
+side by side crosseye (right eye left, left eye right)
+.RE
+.B abl or above_below_left_first
+.RS
+above-below (left eye above, right eye below)
+.RE
+.B abl or above_below_right_first
+.RS
+above-below (right eye above, left eye below)
+.RE
+.B ab2l or above_below_half_height_left_first
+.RS
+above-below with half height resolution (left eye above, right eye below)
+.RE
+.B ab2r or above_below_half_height_right_first
+.RS
+above-below with half height resolution (right eye above, left eye below)
+.RE
+.RE
+.IPs <out>
+Stereoscopic image format of output. Possible values are all the input formats
+as well as:
+.RS
+.B arcg or anaglyph_red_cyan_gray
+.RS
+anaglyph red/cyan gray (red filter on left eye, cyan filter on right eye)
+.RE
+.B arch or anaglyph_red_cyan_half_color
+.RS
+anaglyph red/cyan half colored (red filter on left eye, cyan filter on right
+eye)
+.RE
+.B arcc or anaglyph_red_cyan_color
+.RS
+anaglyph red/cyan color (red filter on left eye, cyan filter on right eye)
+.RE
+.B arcd or anaglyph_red_cyan_dubois
+.RS
+anaglyph red/cyan color optimized with the least squares projection of dubois
+(red filter on left eye, cyan filter on right eye)
+.RE
+.B agmg or anaglyph_green_magenta_gray
+.RS
+anaglyph green/magenta gray (green filter on left eye, magenta filter on right
+eye)
+.RE
+.B agmh or anaglyph_green_magenta_half_color
+.RS
+anaglyph green/magenta half colored (green filter on left eye, magenta filter on
+right eye)
+.RE
+.B agmc or anaglyph_green_magenta_color
+.RS
+anaglyph green/magenta colored (green filter on left eye, magenta filter on
+right eye)
+.RE
+.B aybg or anaglyph_yellow_blue_gray
+.RS
+anaglyph yellow/blue gray (yellow filter on left eye, blue filter on right eye)
+.RE
+.B aybh or anaglyph_yellow_blue_half_color
+.RS
+anaglyph yellow/blue half colored (yellow filter on left eye, blue filter on
+right eye)
+.RE
+.B aybc or anaglyph_yellow_blue_color
+.RS
+anaglyph yellow/blue colored (yellow filter on left eye, blue filter on right
+eye)
+.RE
+.B irl or interleave_rows_left_first
+.RS
+Interleaved rows (left eye has top row, right eye starts on next row)
+.RE
+.B irr or interleave_rows_right_first
+.RS
+Interleaved rows (right eye has top row, left eye starts on next row)
+.RE
+.B ml or mono_left
+.RS
+mono output (left eye only)
+.RE
+.B mr or mono_right
+.RS
+mono output (right eye only)
+.RE
+.RE
+.I NOTE:
+To use either of the interleaved-rows output formats to display
+full-screen on a row-interleaved 3D display, you will need to scale the
+video to the correct height first using the "scale" filter, if it is not
+already the right height.  Typically, that is 1080 rows (so use e.g.
+"-vf scale=1440:1080,stereo3d=sbsl:irl" for a 720p side-by-side encoded
+movie).
+.RE
+.PD 1
 .
 .TP
 .B gradfun[=strength[:radius]]
@@ -7841,6 +8224,23 @@ This overrides what is read from the DVD or the .ifo file.
 .TP
 .B \-vobsuboutindex <index>
 Specify the index of the subtitles in the output files (default: 0).
+.
+.TP
+.B \-force\-key\-frames <time>,<time>,...
+Force key frames at the specified timestamps, more precisely at the first
+frame after each specified time.
+.sp 1
+This option can be used to ensure that a seek point is present at a chapter
+mark or any other designated place in the output file.
+.sp 1
+The timestamps must be specified in ascending order.
+.sp 1
+Since MEncoder does not send timestamps along the filter chain, you probably
+need to use the fixpts filter for this option to work.
+.sp 1
+Not all codecs support forced key frames.
+Currently, support is only implemented for the following encoders:
+lavc, x264, xvid.
 .
 .
 .
@@ -8286,14 +8686,6 @@ effect.
 .TP
 .B vqmax=<1\-31>
 Maximum quantizer, 10\-31 should be a sane range (default: 31).
-.
-.TP
-.B mbqmin=<1\-31>
-obsolete, use vqmin
-.
-.TP
-.B mbqmax=<1\-31>
-obsolete, use vqmax
 .
 .TP
 .B vqdiff=<1\-31>
@@ -9990,6 +10382,12 @@ simple profile at level 1
 simple profile at level 2
 .IPs "sp3\ \ "
 simple profile at level 3
+.IPs "sp4a\ \ "
+simple profile at level 4a
+.IPs "sp5\ \ "
+simple profile at level 5
+.IPs "sp6\ \ "
+simple profile at level 6
 .IPs "asp0\ "
 advanced simple profile at level 0
 .IPs "asp1\ "
@@ -10095,7 +10493,7 @@ file.)
 .
 .PP
 .sp 1
-The following option is only available in Xvid 1.1.x.
+The following options are only available in Xvid 1.1.x and later.
 .
 .TP
 .B bvhq=<0|1>
@@ -10105,9 +10503,32 @@ which is what is done for P-frames by the vhq option.
 This produces nicer-looking B-frames while incurring almost no
 performance penalty (default: 1).
 .
+.TP
+.B vbv_bufsize=<0...> (two pass mode only)
+Specify the video buffering verifier (VBV) buffer size in bits
+(default: 0 \- VBV check disabled).
+VBV allows restricting peak bitrate to make the video play properly
+on hardware players.
+For example, the Home profile uses vbv_bufsize=3145728.
+If you set vbv_bufsize you should set also vbv_maxrate.
+Note that there is no vbv_peakrate because Xvid does not actually
+use it for bitrate controlling; the other VBV options are enough
+to restrict the peak bitrate.
+.
+.TP
+.B vbv_initial=<0...vbv_bufsize> (two pass mode only)
+Specify the initial fill of the VBV buffer in bits
+(default: 75% of vbv_bufsize).
+The default is probably what you want.
+.
+.TP
+.B vbv_maxrate=<0...> (two pass mode only)
+Specify the maximum processing rate in bits/s (default: 0).
+For example, the Home profile uses vbv_maxrate=4854000.
+.
 .PP
 .sp 1
-The following option is only available in the 1.2.x version of Xvid.
+The following option is only available in Xvid 1.2.x and later.
 .
 .TP
 .B threads=<0\-n>
@@ -10137,6 +10558,8 @@ Note that quantization in H.264 works differently from MPEG-1/2/4:
 H.264's quantization parameter (QP) is on a logarithmic scale.
 The mapping is approximately H264QP = 12 + 6*log2(MPEGQP).
 For example, MPEG at QP=2 is equivalent to H.264 at QP=18.
+Generally, this option should be avoided and crf should be used instead
+as crf will yield better visual results for the same size.
 .
 .TP
 .B crf=<1.0\-50.0>
@@ -10144,6 +10567,7 @@ Enables constant quality mode, and selects the quality.
 The scale is similar to QP.
 Like the bitrate-based modes, this allows each frame to use a
 different QP based on the frame's complexity.
+This option should generally be used instead of qp.
 .
 .TP
 .B pass=<1\-3>
@@ -11453,16 +11877,12 @@ FIXME: Document this.
 .SS GUI:
 .
 .TP
-.B CHARSET
-FIXME: Document this.
-.
-.TP
 .B DISPLAY
-FIXME: Document this.
+The name of the display to which the GUI should connect.
 .
 .TP
 .B HOME
-FIXME: Document this.
+The home directory of the current user.
 .
 .SS libavformat:
 .
@@ -11523,8 +11943,16 @@ input bindings (see '\-input keylist' for the full list)
 GUI configuration file
 .
 .TP
+~/.mplayer/\:gui.history
+GUI directory history
+.
+.TP
 ~/.mplayer/\:gui.pl
 GUI playlist
+.
+.TP
+~/.mplayer/\:gui.url
+GUI URL list
 .
 .TP
 ~/.mplayer/\:font/
@@ -11533,14 +11961,6 @@ font directory (There must be a font.desc file and files with .RAW extension.)
 .TP
 ~/.mplayer/\:DVDkeys/
 cached CSS keys
-.
-.TP
-Assuming that /path/\:to/\:movie.avi is played, MPlayer searches for sub files
-in this order:
-.RS
-/path/\:to/\:movie.sub
-.br
-~/.mplayer/\:sub/\:movie.sub
 .RE
 .PD 1
 .
@@ -11677,7 +12097,7 @@ increase volume or avoid clipping.
 .PP
 .B checkerboard invert with geq filter:
 .nf
-mplayer \-vf geq='128+(p(X\,Y)\-128)*(0.5\-gt(mod(X/SW\,128)\,64))*(0.5\-gt(mod(Y/SH\,128)\,64))*4'
+mplayer \-vf geq='128+(p(X\\,Y)\-128)*(0.5\-gt(mod(X/SW\\,128)\\,64))*(0.5\-gt(mod(Y/SH\\,128)\\,64))*4'
 .fi
 .
 .

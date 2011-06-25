@@ -115,7 +115,7 @@ static const char help_text[]=
 #define MSGTR_CompiledWithRuntimeDetection "Compilado con detección de CPU en tiempo de ejecución - esto no es óptimo! Para obtener mejor rendimiento, recompile MPlayer con --disable-runtime-cpudetection.\n"
 #define MSGTR_CompiledWithCPUExtensions "Compilado para CPU x86 con extensiones:"
 #define MSGTR_AvailableVideoOutputDrivers "Controladores de salida de video disponibles:\n"
-#define MSGTR_AvailableAudioOutputDrivers "Controadores de salida de audio disponibles:\n"
+#define MSGTR_AvailableAudioOutputDrivers "Controladores de salida de audio disponibles:\n"
 #define MSGTR_AvailableAudioCodecs "Codecs de audio disponibles:\n"
 #define MSGTR_AvailableVideoCodecs "Codecs de video disponibles:\n"
 #define MSGTR_AvailableAudioFm "Familias/drivers de codecs de audio (compilados dentro de MPlayer) disponibles:\n"
@@ -129,7 +129,7 @@ static const char help_text[]=
 #define MSGTR_ForcedAudioCodec "Codec de audio forzado: %s\n"
 #define MSGTR_Video_NoVideo "Vídeo: no hay video!\n"
 #define MSGTR_NotInitializeVOPorVO "\nFATAL: No fue posible inicializar los filtros (-vf) o la salida de video (-vo)!\n"
-#define MSGTR_Paused "\n  =====  PAUSA  =====\r"
+#define MSGTR_Paused "  =====  PAUSA  ====="
 #define MSGTR_PlaylistLoadUnable "\nNo fue posible cargar la lista de reproducción %s.\n"
 #define MSGTR_Exit_SIGILL_RTCpuSel \
 "- MPlayer se detuvo por una 'Instrucción Ilegal'.\n"\
@@ -164,7 +164,6 @@ static const char help_text[]=
 #define MSGTR_IncreaseRTCMaxUserFreq "Pruebe agregando \"echo %lu > /proc/sys/dev/rtc/max-user-freq\" a los scripts de inicio de su sistema.\n"
 #define MSGTR_LinuxRTCInitErrorPieOn "Error iniciando Linux RTC en llamada a ioctl (rtc_pie_on): %s\n"
 #define MSGTR_UsingTimingType "Usando temporización %s.\n"
-#define MSGTR_NoIdleAndGui "La opcion -idle no puede usarse con GMPlayer.\n"
 #define MSGTR_MenuInitialized "Menú inicializado: %s\n"
 #define MSGTR_MenuInitFailed "Fallo en inicialización del menú.\n"
 #define MSGTR_Getch2InitializedTwice "ADVERTENCIA: getch2_init llamada dos veces!\n"
@@ -198,15 +197,14 @@ static const char help_text[]=
 #define MSGTR_EdlNOsh_video "Imposible usar EDL sin video.\n"
 #define MSGTR_EdlNOValidLine "Linea EDL inválida: %s\n"
 #define MSGTR_EdlBadlyFormattedLine "Ignorando linea EDL mal formateada [%d].\n"
-#define MSGTR_EdlBadLineOverlap "Ultima posición de parada fue [%f]; próxima "\
+#define MSGTR_EdlBadLineOverlap "Última posición de parada fue [%f]; próxima "\
 "posición de partida es [%f]. Las operaciones deben estar en orden cronológico"\
-", sin sobreponerse, ignorando.\n"
+"y sin sobreponerse, ignorando.\n"
 #define MSGTR_EdlBadLineBadStop "La posición de parada debe ser posterior a la"\
 " posición de partida.\n"
 #define MSGTR_EdloutBadStop "EDL skip cancelado, último comienzo > parada\n"
 #define MSGTR_EdloutStartSkip "EDL skip comenzado, presione 'i' denuevo para terminar con el bloque.\n"
 #define MSGTR_EdloutEndSkip "EDL skip terminado, operación guardada.\n"
-#define MSGTR_MPEndposNoSizeBased "La opción -endpos en MPlayer aun no soporta unidades de tamaño.\n"
 
 // mplayer.c OSD
 #define MSGTR_OSDenabled "habilitado"
@@ -331,14 +329,14 @@ static const char help_text[]=
 "\n"\
 "Para mayor información pruebe: \"-lameopts preset=help\"\n"
 #define MSGTR_LamePresetsLongInfo "\n"\
-"Las opciones de preconfiguración estan hechas para proveer la mayor calidad posible.\n"\
+"Las opciones de preconfiguración estan hechas para proveer la mejor calidad posible.\n"\
 "\n"\
 "Estas han sido en su mayor parte sometidas y ajustadas por medio de pruebas rigurosas de\n"\
 "doble escucha ciega (double blind listening) para verificar y lograr este objetivo\n"\
 "\n"\
-"Son continuamente actualizadas para con el desarrollo actual que esta\n"\
-"ocurriendo y como resultado debería proveer practicamente la mejor calidad\n"\
-"actualmente posible con LAME.\n"\
+"Son continuamente actualizadas con el desarrollo actual y como resultado\n"\
+"deberían proveer practicamente la mejor calidad actualmente posible con\n"\
+"LAME.\n"\
 "\n"\
 "Para activar estas preconfiguracines:\n"\
 "\n"\
@@ -348,27 +346,30 @@ static const char help_text[]=
 "                             para la mayoría de la gente en la música y ya es bastante\n"\
 "                             buena en calidad.\n"\
 "\n"\
-"     \"preset=extreme\" Si tiene un oido extramademente bueno y un equipo\n"\
+"     \"preset=extreme\"  Si tiene un oido extramademente bueno y un equipo\n"\
 "                             similar, esta preconfiguración normalmente le\n"\
 "                             proveerá una calidad levemente superior al modo "\
-                               "\"standard\"\n"\
+"                            \"standard\"\n"\
 "\n"\
 "   Para 320kbps CBR (la mejor calidad posible desde las preconfiguraciones):\n"\
 "\n"\
-"     \"preset=insane\"  Esta preconfiguración será excesiva para la mayoria\n"\
-"                             de la gente y en la mayoria de las ocasiones, pero si debe\n"\
-"                             tener la mejor calidad posible sin tener en cuenta el\n"\
-"                             tamaño del archivo, esta es la opción definitiva.\n"\
+"     \"preset=insane\"   Esta preconfiguración será, en casi cualquier\n"\
+"                             caso, excesiva para la mayoría de la gente.\n"\
+"                             Pero si debe tener la mejor calidad posible\n"\
+"                             sin importar el tamaño del archivo, ésta es la\n"\
+"                             opción definitiva.\n"\
 "\n"\
 "   Para modos ABR (alta calidad por tasa de bits dado pero no tan alto como el modo VBR):\n"\
 "\n"\
-"     \"preset=<kbps>\"  Utilizando esta preconfiguración normalmente obtendrá buena\n"\
-"                             calidad a la tasa de bits especificada. Dependiendo de\n"\
-"                             la tasa de bits ingresada, esta preconfiguración determinará\n"\
-"                             las opciones óptimas para esa situación particular.\n"\
-"                             A pesar que funciona, no es tan flexible como el modo\n"\
-"                             VBR, y normalmente no llegarán a obtener el mismo nivel\n"\
-"                             de calidad del modo VBR a mayores tasas de bits.\n"\
+"  \"preset=<kbps>\"      Utilizando esta preconfiguración normalmente\n"\
+"                             obtendrá buena calidad a la tasa de bits\n"\
+"                             especificada. Dependiendo de ésta la\n"\
+"                             preconfiguración determinará las opciones\n"\
+"                             óptimas para esa situación particular.\n"\
+"                             Esta configuración no es tan flexible como VBR\n"\
+"                             y normalmente no llegará a obtener el mismo\n"\
+"                             nivel de calidad que VBR a mayores tasas de\n"\
+"                             bits.\n"\
 "\n"\
 "Las siguientes opciones también están disponibles para los correspondientes perfiles:\n"\
 "\n"\
@@ -464,7 +465,7 @@ static const char help_text[]=
 " fast          Activa codificación rápida en modos VBR preseleccionados\n"\
 "               subsecuentes, más baja calidad y tasas de bits más altas.\n"\
 "\n"\
-" preset=<value> Provee configuracion con la mejor calidad posible.\n"\
+" preset=<value> Provee configuración con la mejor calidad posible.\n"\
 "                 medium: codificación VBR, buena calidad\n"\
 "                 (rango de 150-180 kbps de tasa de bits)\n"\
 "                 standard:  codificación VBR, alta calidad\n"\
@@ -521,7 +522,7 @@ static const char help_text[]=
 #define MSGTR_InvalidCmdlineOption "La opción %s no puede ser usada desde la línea de comandos.\n"
 #define MSGTR_InvalidSuboption "Error: opción '%s' no tiene la subopción '%s'.\n"
 #define MSGTR_MissingSuboptionParameter "Error: ¡subopción '%s' de '%s' tiene que tener un parámetro!\n"
-#define MSGTR_MissingOptionParameter "Error: ¡opcion '%s' debe tener un parámetro!\n"
+#define MSGTR_MissingOptionParameter "Error: ¡opción '%s' debe tener un parámetro!\n"
 #define MSGTR_OptionListHeader "\n Nombre               Tipo            Min        Max      Global  LC    Cfg\n\n"
 #define MSGTR_TotalOptions "\nTotal: %d opciones\n"
 #define MSGTR_ProfileInclusionTooDeep "ADVERTENCIA: Inclusion de perfil demaciado profunda.\n"
@@ -562,7 +563,7 @@ static const char help_text[]=
 #define MSGTR_NoFileLoaded "no se ha cargado ningún archivo"
 
 // --- buttons ---
-#define MSGTR_Ok "Ok"
+#define MSGTR_Ok "OK"
 #define MSGTR_Cancel "Cancelar"
 #define MSGTR_Add "Agregar"
 #define MSGTR_Remove "Quitar"
@@ -576,33 +577,24 @@ static const char help_text[]=
 #define MSGTR_NEMFMR "No hay suficiente memoria para dibujar el menú."
 #define MSGTR_IDFGCVD "No se encuentra driver -vo compatible con la interfaz gráfica."
 #define MSGTR_NEEDLAVC "No puede reproducir archivos no MPEG con su DXR3/H+ sin recodificación. Activa lavc en la configuración del DXR3/H+."
-#define MSGTR_UNKNOWNWINDOWTYPE "Encontrado tipo de ventana desconocido ..."
 
 // --- skin loader error messages
 #define MSGTR_SKIN_ERRORMESSAGE "[skin] error en configuración de skin en la línea %d: %s"
-#define MSGTR_SKIN_WARNING1 "[skin] advertencia en archivo de configuración en la línea %d:\n control (%s) encontrado pero no se encontro \"section\" antes"
-#define MSGTR_SKIN_WARNING2 "[skin] advertencia en archivo de configuración en la línea %d:\n control (%s) encontrado pero no se encontro \"subsection\" antes"
-#define MSGTR_SKIN_WARNING3 "[skin] advertencia en archivo de configuración en la linea %d:\nesta subsección no esta soportada por control (%s)"
 #define MSGTR_SKIN_SkinFileNotFound "[skin] no se encontró archivo ( %s ).\n"
 #define MSGTR_SKIN_SkinFileNotReadable "[skin] file no leible ( %s ).\n"
 #define MSGTR_SKIN_BITMAP_16bit  "Mapa de bits de 16 bits o menos no soportado (%s).\n"
 #define MSGTR_SKIN_BITMAP_FileNotFound  "Archivo no encontrado (%s).\n"
-#define MSGTR_SKIN_BITMAP_BMPReadError "Error al leer BMP (%s).\n"
-#define MSGTR_SKIN_BITMAP_TGAReadError "Error al leer TGA (%s).\n"
 #define MSGTR_SKIN_BITMAP_PNGReadError "Error al leer PNG (%s).\n"
-#define MSGTR_SKIN_BITMAP_RLENotSupported "RLE packed TGA no soportado (%s).\n"
-#define MSGTR_SKIN_BITMAP_UnknownFileType "Tipo de archivo desconocido (%s)\n"
 #define MSGTR_SKIN_BITMAP_ConversionError "Error de conversión de 24 bit a 32 bit (%s).\n"
-#define MSGTR_SKIN_BITMAP_UnknownMessage "Mensaje desconocido: %s.\n"
-#define MSGTR_SKIN_FONT_NotEnoughtMemory "No hay suficiente memoria.\n"
+#define MSGTR_SKIN_UnknownMessage "Mensaje desconocido: %s.\n"
+#define MSGTR_SKIN_NotEnoughMemory "No hay suficiente memoria.\n"
 #define MSGTR_SKIN_FONT_TooManyFontsDeclared "Demasiadas fuentes declaradas.\n"
 #define MSGTR_SKIN_FONT_FontFileNotFound "Archivo de fuentes no encontrado.\n"
 #define MSGTR_SKIN_FONT_FontImageNotFound "Archivo de imagen de fuente no encontrado.\n"
-#define MSGTR_SKIN_FONT_NonExistentFontID "identificador de fuente no existente (%s).\n"
+#define MSGTR_SKIN_FONT_NonExistentFont "identificador de fuente no existente (%s).\n"
 #define MSGTR_SKIN_UnknownParameter "parámetro desconocido (%s)\n"
 #define MSGTR_SKIN_SKINCFG_SkinNotFound "Skin no encontrado (%s).\n"
 #define MSGTR_SKIN_SKINCFG_SelectedSkinNotFound "Skin elegida ( %s ) no encontrada, probando 'default'...\n"
-#define MSGTR_SKIN_SKINCFG_SkinCfgReadError "Error de lectura del archivo de configuración del skin (%s).\n"
 #define MSGTR_SKIN_LABEL "Skins:"
 
 // --- GTK menus
@@ -794,25 +786,18 @@ static const char help_text[]=
 #define MSGTR_MSGBOX_LABEL_Error "Error"
 #define MSGTR_MSGBOX_LABEL_Warning "Advertencia"
 
-// bitmap.c
-#define MSGTR_NotEnoughMemoryC32To1 "[c32to1] no hay suficiente memoria para la imagen\n"
-#define MSGTR_NotEnoughMemoryC1To32 "[c1to32] no hay suficiente memoria para la imagen\n"
-
 // cfg.c
-#define MSGTR_ConfigFileReadError "[cfg] error al leer archivo de configuración ...\n"
 #define MSGTR_UnableToSaveOption "[cfg] No se puede guardar la opción '%s'.\n"
 
 // interface.c
 #define MSGTR_DeletingSubtitles "[GUI] Borrando subtítulos.\n"
 #define MSGTR_LoadingSubtitles "[GUI] Carganado subtítulos: %s\n"
 #define MSGTR_AddingVideoFilter "[GUI] Agregando filtro de video: %s\n"
-#define MSGTR_RemovingVideoFilter "[GUI] Eliminando filtro de video: %s\n"
 
 // mw.c
 #define MSGTR_NotAFile "Esto no parece ser un archivo: %s !\n"
 
 // ws.c
-#define MSGTR_WS_CouldNotOpenDisplay "[ws] No puede abrir el display.\n"
 #define MSGTR_WS_RemoteDisplay "[ws] Display remoto, desactivando XMITSHM.\n"
 #define MSGTR_WS_NoXshm "[ws] Lo lamento, su sistema no soporta la extensión de memoria compartida X.\n"
 #define MSGTR_WS_NoXshape "[ws] Lo lamento, su sistema no soporta la extensión XShape.\n"
@@ -1209,7 +1194,7 @@ static const char help_text[]=
 #define MSGTR_AO_SGI_CantSetParms_Samplerate "[AO SGI] init: fallo en setparams: %s\nImposble configurar samplerate deseado.\n"
 #define MSGTR_AO_SGI_CantSetAlRate "[AO SGI] init: AL_RATE No fue aceptado en el recurso dado.\n"
 #define MSGTR_AO_SGI_CantGetParms "[AO SGI] init: fallo en getparams: %s\n"
-#define MSGTR_AO_SGI_SampleRateInfo "[AO SGI] init: samplerate es ahora %lf (el deseado es %lf)\n"
+#define MSGTR_AO_SGI_SampleRateInfo "[AO SGI] init: samplerate es ahora %f (el deseado es %f)\n"
 #define MSGTR_AO_SGI_InitConfigError "[AO SGI] init: %s\n"
 #define MSGTR_AO_SGI_InitOpenAudioFailed "[AO SGI] init: Imposible abrir canal de audio: %s\n"
 #define MSGTR_AO_SGI_Uninit "[AO SGI] uninit: ...\n"
@@ -1369,7 +1354,6 @@ static const char help_text[]=
 #define MSGTR_INPUT_INPUT_ErrBuffer2SmallForCmd "Buffer demaciado pequeño para el comando %s\n"
 #define MSGTR_INPUT_INPUT_ErrWhyHere "Que estamos haciendo aqui?\n"
 #define MSGTR_INPUT_INPUT_ErrCantInitJoystick "No se puede inicializar la entrada del joystick\n"
-#define MSGTR_INPUT_INPUT_ErrCantStatFile "No se puede obtener el estado %s: %s"
 #define MSGTR_INPUT_INPUT_ErrCantOpenFile "No se puede abrir %s: %s\n"
 #define MSGTR_INPUT_INPUT_ErrCantInitAppleRemote "No se puede inicializar la entrada del Apple Remote.\n"
 
@@ -1445,7 +1429,7 @@ static const char help_text[]=
 #define MSGTR_LeaveTelecineMode "\ndemux_mpg: contenido NTSC de 30000/1001cps detectado, cambiando cuadros por segundo.\n"
 #define MSGTR_EnterTelecineMode "\ndemux_mpg: contenido NTSC progresivo de 24000/1001cps detectado, cambiando cuadros por segundo.\n"
 #define MSGTR_CacheFill "\rLlenando cache: %5.2f%% (%"PRId64" bytes)   "
-#define MSGTR_NoBindFound "No se econtró una asignación para la tecla '%s'"
+#define MSGTR_NoBindFound "No se econtró una asignación para la tecla '%s'\n"
 #define MSGTR_FailedToOpen "No se pudo abrir %s\n"
 #define MSGTR_VideoID "[%s] Stream de video encontrado, -vid %d\n"
 #define MSGTR_AudioID "[%s] Stream de audio encontrado, -aid %d\n"
@@ -1703,7 +1687,7 @@ static const char help_text[]=
 #define MSGTR_MPDEMUX_ASF_UnknownASFStreamType "Tipo de ASF stream desconocido.\n"
 #define MSGTR_MPDEMUX_ASF_Failed2ParseHTTPResponse "No pude procesar la respuesta HTTP\n"
 #define MSGTR_MPDEMUX_ASF_ServerReturn "El servidor retornó %d:%s\n"
-#define MSGTR_MPDEMUX_ASF_ASFHTTPParseWarnCuttedPragma "ASF HTTP PARSE WARNING : Pragma %s cortado desde %d bytes a %d\n"
+#define MSGTR_MPDEMUX_ASF_ASFHTTPParseWarnCuttedPragma "ASF HTTP PARSE WARNING : Pragma %s cortado desde %zd bytes a %d\n"
 #define MSGTR_MPDEMUX_ASF_SocketWriteError "Error escribiendo en el socket : %s\n"
 #define MSGTR_MPDEMUX_ASF_HeaderParseFailed "Imposible procesar la cabecera.\n"
 #define MSGTR_MPDEMUX_ASF_NoStreamFound "No encontre ningún stream.\n"
@@ -1989,7 +1973,7 @@ static const char help_text[]=
 #define MSGTR_TV_AvailableDrivers "Drivers disponibles:\n"
 #define MSGTR_TV_DriverInfo "Driver seleccionado: %s\n nombre: %s\n autor: %s\n comentario: %s\n"
 #define MSGTR_TV_NoSuchDriver "Ese driver no existe: %s\n"
-#define MSGTR_TV_DriverAutoDetectionFailed "Falló la utodeteccion del driver de TV.\n"
+#define MSGTR_TV_DriverAutoDetectionFailed "Falló la utodetección del driver de TV.\n"
 #define MSGTR_TV_UnknownColorOption "Se especificó una opción de color desconodida (%d)!\n"
 #define MSGTR_TV_CurrentFrequency "Frecuencia actual: %lu (%.3f)\n"
 #define MSGTR_TV_NoTeletext "Sin teletexto"

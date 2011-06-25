@@ -48,7 +48,7 @@
 #include "m_option.h"
 #include "mp_fifo.h"
 #include "mpbswap.h"
-#include "sub.h"
+#include "sub/sub.h"
 
 #include "input/input.h"
 #include "input/mouse.h"
@@ -130,7 +130,6 @@ static int lastMouseHide = 0;
 
 enum
 {
-    kQuitCmd         = 1,
     kHalfScreenCmd   = 2,
     kNormalScreenCmd = 3,
     kDoubleScreenCmd = 4,
@@ -1159,7 +1158,7 @@ static uint32_t get_yuv_image(mp_image_t * mpi)
     return VO_FALSE;
 }
 
-static int control(uint32_t request, void *data, ...)
+static int control(uint32_t request, void *data)
 {
     switch (request)
     {

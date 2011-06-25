@@ -335,7 +335,7 @@ static int query_format(uint32_t format)
 	return 0;
 }
 
-static int control(uint32_t request, void *data, ...)
+static int control(uint32_t request, void *data)
 {
 	if (request == VOCTRL_QUERY_FORMAT) {
 		return query_format(*((uint32_t*)data));
@@ -362,9 +362,9 @@ static void uninit(void)
 	}
 
 	// free our allocated ram
-	if (gif_filename != NULL) free(gif_filename);
-	if (slice_data != NULL) free(slice_data);
-	if (reduce_data != NULL) free(reduce_data);
+	free(gif_filename);
+	free(slice_data);
+	free(reduce_data);
 	if (reduce_cmap != NULL) FreeMapObject(reduce_cmap);
 
 	// set the pointers back to null.

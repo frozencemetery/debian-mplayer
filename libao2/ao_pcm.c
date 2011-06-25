@@ -29,6 +29,7 @@
 #include "subopt-helper.h"
 #include "libaf/af_format.h"
 #include "libaf/reorder_ch.h"
+#include "libvo/video_out.h" /* only for vo_pts */
 #include "audio_out.h"
 #include "audio_out_internal.h"
 #include "mp_msg.h"
@@ -37,6 +38,7 @@
 #ifdef __MINGW32__
 // for GetFileType to detect pipes
 #include <windows.h>
+#include <io.h>
 #endif
 
 static const ao_info_t info =
@@ -48,8 +50,6 @@ static const ao_info_t info =
 };
 
 LIBAO_EXTERN(pcm)
-
-extern int vo_pts;
 
 static char *ao_outputfilename = NULL;
 static int ao_pcm_waveheader = 1;
@@ -219,8 +219,7 @@ static void uninit(int immed){
         }
     }
     fclose(fp);
-    if (ao_outputfilename)
-        free(ao_outputfilename);
+    free(ao_outputfilename);
     ao_outputfilename = NULL;
 }
 
@@ -253,18 +252,6 @@ static int get_space(void){
 // it should round it down to outburst*n
 // return: number of bytes played
 static int play(void* data,int len,int flags){
-
-// let libaf to do the conversion...
-#if 0
-//#if HAVE_BIGENDIAN
-    if (ao_data.format == AFMT_S16_LE) {
-      unsigned short *buffer = (unsigned short *) data;
-      register int i;
-      for(i = 0; i < len/2; ++i) {
-        buffer[i] = le2me_16(buffer[i]);
-      }
-    }
-#endif
 
     if (ao_data.channels == 5 || ao_data.channels == 6 || ao_data.channels == 8) {
         int frame_size = af_fmt2bits(ao_data.format) / 8;

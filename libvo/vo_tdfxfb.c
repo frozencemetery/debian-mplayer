@@ -63,7 +63,7 @@
 #include "video_out_internal.h"
 #include "drivers/3dfx.h"
 #include "aspect.h"
-#include "sub.h"
+#include "sub/sub.h"
 
 static const vo_info_t info =
 {
@@ -496,7 +496,7 @@ static uint32_t get_image(mp_image_t *mpi)
 	return VO_TRUE;
 }
 
-static int control(uint32_t request, void *data, ...)
+static int control(uint32_t request, void *data)
 {
 	switch(request) {
 	case VOCTRL_GET_IMAGE:

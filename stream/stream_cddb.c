@@ -38,6 +38,7 @@
 #include <limits.h>
 #if defined(__MINGW32__) || defined(__CYGWIN__)
 #ifdef __MINGW32__
+#include <path.h>
 #define mkdir(a,b) mkdir(a)
 #endif
 #include <windows.h>
@@ -792,9 +793,7 @@ static int cddb_retrieve(cddb_data_t *cddb_data)
     if (ret < 0)
         return -1;
 
-    if (cddb_data->cache_dir != NULL) {
-        free(cddb_data->cache_dir);
-    }
+    free(cddb_data->cache_dir);
     return 0;
 }
 

@@ -49,8 +49,12 @@ known issues:
 #ifdef HAVE_SYS_SYSINFO_H
 #include <sys/sysinfo.h>
 #endif
+#ifdef HAVE_SYS_VIDEOIO_H
+#include <sys/videoio.h>
+#else
 #include <linux/types.h>
 #include <linux/videodev2.h>
+#endif
 #include "mp_msg.h"
 #include "libmpcodecs/img_format.h"
 #include "libmpcodecs/dec_teletext.h"
@@ -609,7 +613,7 @@ static int vbi_init(priv_t* priv,char* device)
     }
 
     if(ioctl(vbi_fd,VIDIOC_QUERYCAP,&cap)<0){
-        mp_msg(MSGT_TV,MSGL_ERR,"vbi: Query capatibilities failed for %s\n",priv->vbi_dev);
+        mp_msg(MSGT_TV,MSGL_ERR,"vbi: Query capabilities failed for %s\n",priv->vbi_dev);
         close(vbi_fd);
         return  TVI_CONTROL_FALSE;
     }
@@ -731,12 +735,7 @@ static int control(priv_t *priv, int cmd, void *arg)
         priv->immediate_mode = 1;
         return TVI_CONTROL_TRUE;
     case TVI_CONTROL_VID_GET_FPS:
-        if (!priv->standard.frameperiod.denominator || !priv->standard.frameperiod.numerator) {
-            mp_msg(MSGT_TV, MSGL_ERR, "%s: Cannot get fps\n", info.short_name);
-            return TVI_CONTROL_FALSE;
-        }
-        *(float *)arg = (float)priv->standard.frameperiod.denominator /
-            priv->standard.frameperiod.numerator;
+        *(float *)arg = getfps(priv);
         mp_msg(MSGT_TV, MSGL_V, "%s: get fps: %f\n", info.short_name,
                *(float *)arg);
         return TVI_CONTROL_TRUE;
@@ -1068,8 +1067,7 @@ static tvi_handle_t *tvi_init_v4l2(tv_param_t* tv_param)
 {
     tvi_handle_t *tvi_handle;
 
-    /* new_handle initializes priv with memset 0 */
-    tvi_handle = new_handle();
+    tvi_handle = tv_new_handle(sizeof(priv_t), &functions);
     if (!tvi_handle) {
         return NULL;
     }
@@ -1077,7 +1075,7 @@ static tvi_handle_t *tvi_init_v4l2(tv_param_t* tv_param)
 
     PRIV->video_dev = strdup(tv_param->device? tv_param->device: "/dev/video0");
     if (!PRIV->video_dev) {
-        free_handle(tvi_handle);
+        tv_free_handle(tvi_handle);
         return NULL;
     }
 
@@ -1085,7 +1083,7 @@ static tvi_handle_t *tvi_init_v4l2(tv_param_t* tv_param)
         PRIV->audio_dev = strdup(tv_param->adevice);
         if (!PRIV->audio_dev) {
             free(PRIV->video_dev);
-            free_handle(tvi_handle);
+            tv_free_handle(tvi_handle);
             return NULL;
         }
     }
@@ -1113,10 +1111,8 @@ static int uninit(priv_t *priv)
         priv->vbi_fd=0;
     }
 
-    if(priv->vbi_dev){
-        free(priv->vbi_dev);
-	priv->vbi_dev=0;
-    }
+    free(priv->vbi_dev);
+    priv->vbi_dev = NULL;
     priv->shutdown = 1;
     if(priv->video_grabber_thread)
         pthread_join(priv->video_grabber_thread, NULL);
@@ -1174,12 +1170,9 @@ static int uninit(priv_t *priv)
         free(priv->video_ringbuffer);
     }
     if (!priv->tv_param->noaudio) {
-        if (priv->audio_ringbuffer)
-            free(priv->audio_ringbuffer);
-        if (priv->audio_skew_buffer)
-            free(priv->audio_skew_buffer);
-        if (priv->audio_skew_delta_buffer)
-            free(priv->audio_skew_delta_buffer);
+        free(priv->audio_ringbuffer);
+        free(priv->audio_skew_buffer);
+        free(priv->audio_skew_delta_buffer);
 
         audio_in_uninit(&priv->audio_in);
     }
@@ -1263,7 +1256,7 @@ static int init(priv_t *priv)
                 (priv->tuner.rxsubchans & V4L2_TUNER_SUB_LANG1)  ? " LANG1"  : "",
                 (priv->tuner.rxsubchans & V4L2_TUNER_SUB_LANG2)  ? " LANG2"  : "");
     }
-    mp_msg(MSGT_TV, MSGL_INFO, " Capabilites:%s%s%s%s%s%s%s%s%s%s%s\n",
+    mp_msg(MSGT_TV, MSGL_INFO, " Capabilities:%s%s%s%s%s%s%s%s%s%s%s\n",
            priv->capability.capabilities & V4L2_CAP_VIDEO_CAPTURE?
            "  video capture": "",
            priv->capability.capabilities & V4L2_CAP_VIDEO_OUTPUT?
@@ -1469,9 +1462,7 @@ static int start(priv_t *priv)
 
     /* setup video parameters */
     if (!priv->tv_param->noaudio) {
-        if (priv->video_buffer_size_max < (3*priv->standard.frameperiod.denominator) /
-                                               priv->standard.frameperiod.numerator
-            *priv->audio_secs_per_block) {
+        if (priv->video_buffer_size_max < 3*getfps(priv)*priv->audio_secs_per_block) {
             mp_msg(MSGT_TV, MSGL_ERR, "Video buffer shorter than 3 times audio frame duration.\n"
                    "You will probably experience heavy framedrops.\n");
         }
@@ -1694,7 +1685,7 @@ static void *video_grabber(void *data)
             if (!priv->tv_param->noaudio) pthread_mutex_unlock(&priv->skew_mutex);
         }
         priv->curr_frame = (long long)buf.timestamp.tv_sec*1e6+buf.timestamp.tv_usec;
-//        fprintf(stderr, "idx = %d, ts = %lf\n", buf.index, (double)(priv->curr_frame) / 1e6);
+//        fprintf(stderr, "idx = %d, ts = %f\n", buf.index, (double)(priv->curr_frame) / 1e6);
 
         interval = priv->curr_frame - priv->first_frame;
         delta = interval - prev_interval;
@@ -1714,7 +1705,7 @@ static void *video_grabber(void *data)
             }
         }
 
-        mp_msg(MSGT_TV, MSGL_DBG3, "\nfps = %lf, interval = %lf, a_skew = %f, corr_skew = %f\n",
+        mp_msg(MSGT_TV, MSGL_DBG3, "\nfps = %f, interval = %f, a_skew = %f, corr_skew = %f\n",
                delta ? (double)1e6/delta : -1,
                (double)1e-6*interval, (double)1e-6*xskew, (double)1e-6*skew);
         mp_msg(MSGT_TV, MSGL_DBG3, "vcnt = %d, acnt = %d\n", priv->video_cnt, priv->audio_cnt);
@@ -1887,7 +1878,7 @@ static void *audio_grabber(void *data)
             priv->audio_start_time = start_time_avg/(priv->audio_recv_blocks_total+1);
         }
 
-//        fprintf(stderr, "spb = %lf, bs = %d, skew = %lf\n", priv->audio_secs_per_block, priv->audio_in.blocksize,
+//        fprintf(stderr, "spb = %f, bs = %d, skew = %f\n", priv->audio_secs_per_block, priv->audio_in.blocksize,
 //                (double)(current_time - 1e6*priv->audio_secs_per_block*priv->audio_recv_blocks_total)/1e6);
 
         // put the current skew into the ring buffer
@@ -1939,7 +1930,7 @@ static void *audio_grabber(void *data)
         priv->audio_skew += priv->audio_start_time - priv->first_frame;
         pthread_mutex_unlock(&priv->skew_mutex);
 
-//        fprintf(stderr, "audio_skew = %lf, delta = %lf\n", (double)priv->audio_skew/1e6, (double)priv->audio_skew_delta_total/1e6);
+//        fprintf(stderr, "audio_skew = %f, delta = %f\n", (double)priv->audio_skew/1e6, (double)priv->audio_skew_delta_total/1e6);
 
         pthread_mutex_lock(&priv->audio_mutex);
         if ((priv->audio_tail+1) % priv->audio_buffer_size == priv->audio_head) {

@@ -30,13 +30,13 @@
 #include <malloc.h>
 #endif
 
+#include "dec_video.h"
 #include "img_format.h"
 #include "mp_image.h"
 #include "vf.h"
-#include "libavutil/internal.h"
 #include "libpostproc/postprocess.h"
 
-#ifdef CONFIG_LIBPOSTPROC_A
+#ifdef CONFIG_FFMPEG_A
 #define EMU_OLD
 #include "libpostproc/postprocess_internal.h"
 #endif
@@ -45,7 +45,7 @@
 
 struct vf_priv_s {
     int pp;
-    pp_mode_t *ppMode[PP_QUALITY_MAX+1];
+    pp_mode *ppMode[PP_QUALITY_MAX+1];
     void *context;
     unsigned int outfmt;
 };
@@ -157,8 +157,6 @@ static int put_image(struct vf_instance *vf, mp_image_t *mpi, double pts){
 
 //===========================================================================//
 
-extern int divx_quality;
-
 static const unsigned int fmt_list[]={
     IMGFMT_YV12,
     IMGFMT_I420,
@@ -211,7 +209,7 @@ static int vf_open(vf_instance_t *vf, char *args){
         for(i=0; i<=PP_QUALITY_MAX; i++){
 	    PPMode *ppMode;
 
-	    ppMode= (PPMode*)memalign(8, sizeof(PPMode));
+            ppMode = av_malloc(sizeof(PPMode));
 
 	    ppMode->lumMode= hex_mode;
 	    ppMode->chromMode= ((hex_mode&0xFF)>>4) | (hex_mode&0xFFFFFF00);

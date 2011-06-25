@@ -168,6 +168,7 @@ static int demux_gif_fill_buffer(demuxer_t *demuxer, demux_stream_t *ds)
 
   if (DGifGetLine(gif, buf, len) == GIF_ERROR) {
     PrintGifError();
+    free(buf);
     return 0; // oops
   }
 
@@ -260,6 +261,7 @@ static demuxer_t* demux_open_gif(demuxer_t* demuxer)
 #endif
   if (!gif) {
     PrintGifError();
+    free(priv);
     return NULL;
   }
 
@@ -280,7 +282,7 @@ static demuxer_t* demux_open_gif(demuxer_t* demuxer)
   sh_video->fps = 5.0f;
   sh_video->frametime = 1.0f / sh_video->fps;
 
-  sh_video->bih = malloc(sizeof(BITMAPINFOHEADER) + (256 * 4));
+  sh_video->bih = malloc(sizeof(*sh_video->bih) + (256 * 4));
   sh_video->bih->biCompression = sh_video->format;
   sh_video->bih->biWidth = priv->w = (uint16_t)gif->SWidth;
   sh_video->bih->biHeight = priv->h = (uint16_t)gif->SHeight;

@@ -282,7 +282,7 @@ static char* print_double(const m_option_t* opt,  const void* val) {
 
 const m_option_type_t m_option_type_double = {
   "Double",
-  "double precission floating point number or ratio (numerator[:/]denominator)",
+  "double precision floating point number or ratio (numerator[:/]denominator)",
   sizeof(double),
   0,
   parse_double,
@@ -400,8 +400,7 @@ static int parse_str(const m_option_t* opt,const char *name, const char *param, 
   }
 
   if(dst) {
-    if(VAL(dst))
-      free(VAL(dst));
+    free(VAL(dst));
     VAL(dst) = strdup(param);
   }
 
@@ -416,7 +415,7 @@ static char* print_str(const m_option_t* opt,  const void* val) {
 static void copy_str(const m_option_t* opt,void* dst, const void* src) {
   if(dst && src) {
 #ifndef NO_FREE
-    if(VAL(dst)) free(VAL(dst)); //FIXME!!!
+    free(VAL(dst)); //FIXME!!!
 #endif
     VAL(dst) = VAL(src) ? strdup(VAL(src)) : NULL;
   }
@@ -531,7 +530,7 @@ static int str_list_del(char** del, int n,void* dst) {
   free(del);
 
   if(s == 0) {
-    if(lst) free(lst);
+    free(lst);
     VAL(dst) = NULL;
     return 1;
   }
@@ -544,7 +543,7 @@ static int str_list_del(char** del, int n,void* dst) {
   }
   d[s] = NULL;
 
-  if(lst) free(lst);
+  free(lst);
   VAL(dst) = d;
 
   return 1;
@@ -737,7 +736,7 @@ static void free_func_pf(void* src) {
   while(s) {
     n = s->next;
     free(s->name);
-    if(s->param) free(s->param);
+    free(s->param);
     free(s);
     s = n;
   }
@@ -1055,17 +1054,27 @@ static struct {
   {"444p16be", IMGFMT_444P16_BE},
   {"422p16le", IMGFMT_422P16_LE},
   {"422p16be", IMGFMT_422P16_BE},
+  {"422p10le", IMGFMT_422P10_LE},
+  {"422p10be", IMGFMT_422P10_BE},
   {"420p16le", IMGFMT_420P16_LE},
   {"420p16be", IMGFMT_420P16_BE},
+  {"420p10le", IMGFMT_420P10_LE},
+  {"420p10be", IMGFMT_420P10_BE},
+  {"420p9le", IMGFMT_420P9_LE},
+  {"420p9be", IMGFMT_420P9_BE},
   {"444p16", IMGFMT_444P16},
   {"422p16", IMGFMT_422P16},
+  {"422p10", IMGFMT_422P10},
   {"420p16", IMGFMT_420P16},
+  {"420p10", IMGFMT_420P10},
+  {"420p9", IMGFMT_420P9},
   {"420a", IMGFMT_420A},
   {"444p", IMGFMT_444P},
   {"422p", IMGFMT_422P},
   {"411p", IMGFMT_411P},
   {"440p", IMGFMT_440P},
   {"yuy2", IMGFMT_YUY2},
+  {"yvyu", IMGFMT_YVYU},
   {"uyvy", IMGFMT_UYVY},
   {"yvu9", IMGFMT_YVU9},
   {"if09", IMGFMT_IF09},
@@ -1247,17 +1256,22 @@ const m_option_type_t m_option_type_afmt = {
 };
 
 
-static double parse_timestring(const char *str)
+int parse_timestring(const char *str, double *time, char endchar)
 {
-  int a, b;
+  int a, b, len;
   double d;
-  if (sscanf(str, "%d:%d:%lf", &a, &b, &d) == 3)
-    return 3600*a + 60*b + d;
-  else if (sscanf(str, "%d:%lf", &a, &d) == 2)
-    return 60*a + d;
-  else if (sscanf(str, "%lf", &d) == 1)
-    return d;
-  return -1e100;
+  *time = 0; /* ensure initialization for error cases */
+  if (sscanf(str, "%d:%d:%lf%n", &a, &b, &d, &len) >= 3)
+    *time = 3600*a + 60*b + d;
+  else if (sscanf(str, "%d:%lf%n", &a, &d, &len) >= 2)
+    *time = 60*a + d;
+  else if (sscanf(str, "%lf%n", &d, &len) >= 1)
+    *time = d;
+  else
+    return 0; /* unsupported time format */
+  if (str[len] && str[len] != endchar)
+    return 0; /* invalid extra characters at the end */
+  return len;
 }
 
 
@@ -1268,8 +1282,7 @@ static int parse_time(const m_option_t* opt,const char *name, const char *param,
   if (param == NULL || strlen(param) == 0)
     return M_OPT_MISSING_PARAM;
 
-  time = parse_timestring(param);
-  if (time == -1e100) {
+  if (!parse_timestring(param, &time, 0)) {
     mp_msg(MSGT_CFGPARSER, MSGL_ERR, "Option %s: invalid time: '%s'\n",
            name,param);
     return M_OPT_INVALID;
@@ -1327,7 +1340,7 @@ static int parse_time_size(const m_option_t* opt,const char *name, const char *p
 
   /* End at time parsing. This has to be last because the parsing accepts
    * even a number followed by garbage */
-  if ((end_at = parse_timestring(param)) == -1e100) {
+  if (!parse_timestring(param, &end_at, 0)) {
     mp_msg(MSGT_CFGPARSER, MSGL_ERR, "Option %s: invalid time or size: '%s'\n",
            name,param);
     return M_OPT_INVALID;
@@ -1639,8 +1652,6 @@ static int parse_obj_settings(const char* opt,char* str,const m_obj_list_t* list
   return 1;
 }
 
-static void free_obj_settings_list(void* dst);
-
 static int obj_settings_list_del(const char *opt_name,const char *param,void* dst, int src) {
   char** str_list = NULL;
   int r,i,idx_max = 0;
@@ -1697,6 +1708,23 @@ static int obj_settings_list_del(const char *opt_name,const char *param,void* ds
   VAL(dst) = obj_list;
 
   return 1;
+}
+
+static void free_obj_settings_list(void* dst) {
+  int n;
+  m_obj_settings_t *d;
+
+  if (!dst || !VAL(dst)) return;
+
+  d = VAL(dst);
+#ifndef NO_FREE
+  for (n = 0 ; d[n].name ; n++) {
+    free(d[n].name);
+    free_str_list(&(d[n].attribs));
+  }
+  free(d);
+#endif
+  VAL(dst) = NULL;
 }
 
 static int parse_obj_settings_list(const m_option_t* opt,const char *name,
@@ -1834,23 +1862,6 @@ static int parse_obj_settings_list(const m_option_t* opt,const char *name,
     VAL(dst) = res;
   }
   return 1;
-}
-
-static void free_obj_settings_list(void* dst) {
-  int n;
-  m_obj_settings_t *d;
-
-  if(!dst || !VAL(dst)) return;
-
-  d = VAL(dst);
-#ifndef NO_FREE
-  for(n = 0 ; d[n].name ; n++) {
-    free(d[n].name);
-    free_str_list(&(d[n].attribs));
-  }
-  free(d);
-#endif
-  VAL(dst) = NULL;
 }
 
 static void copy_obj_settings_list(const m_option_t* opt,void* dst, const void* src) {

@@ -23,6 +23,7 @@
 #include "m_option.h"
 #include "mp_msg.h"
 #include "url.h"
+#include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
 #include <sys/types.h>
@@ -52,8 +53,10 @@
 #define STREAMTYPE_MF 18
 #define STREAMTYPE_RADIO 19
 #define STREAMTYPE_BLURAY 20
+#define STREAMTYPE_BD 21
 
 #define STREAM_BUFFER_SIZE 2048
+#define STREAM_MAX_SECTOR_SIZE (8*1024)
 
 #define VCD_SECTOR_SIZE 2352
 #define VCD_SECTOR_OFFS 24
@@ -151,6 +154,7 @@ typedef struct stream {
   int type; // see STREAMTYPE_*
   int flags;
   int sector_size; // sector size (seek will be aligned on this size if non 0)
+  int read_chunk; // maximum amount of data to read at once to limit latency (0 for default)
   unsigned int buf_pos,buf_len;
   off_t pos,start_pos,end_pos;
   int eof;
@@ -159,18 +163,20 @@ typedef struct stream {
   void* cache_data;
   void* priv; // used for DVD, TV, RTSP etc
   char* url;  // strdup() of filename/url
-#ifdef CONFIG_NETWORK
+#ifdef CONFIG_NETWORKING
   streaming_ctrl_t *streaming_ctrl;
 #endif
-  unsigned char buffer[STREAM_BUFFER_SIZE>VCD_SECTOR_SIZE?STREAM_BUFFER_SIZE:VCD_SECTOR_SIZE];
+  unsigned char buffer[STREAM_BUFFER_SIZE>STREAM_MAX_SECTOR_SIZE?STREAM_BUFFER_SIZE:STREAM_MAX_SECTOR_SIZE];
+  FILE *capture_file;
 } stream_t;
 
-#ifdef CONFIG_NETWORK
+#ifdef CONFIG_NETWORKING
 #include "network.h"
 #endif
 
 int stream_fill_buffer(stream_t *s);
 int stream_seek_long(stream_t *s, off_t pos);
+void stream_capture_do(stream_t *s);
 
 #ifdef CONFIG_STREAM_CACHE
 int stream_enable_cache(stream_t *stream,int size,int min,int prefill);
@@ -286,6 +292,11 @@ inline static int stream_seek(stream_t *s,off_t pos){
 
   mp_dbg(MSGT_DEMUX, MSGL_DBG3, "seek to 0x%qX\n",(long long)pos);
 
+  if (pos < 0) {
+    mp_msg(MSGT_DEMUX, MSGL_ERR, "Invalid seek to negative position %llx!\n",
+           (long long)pos);
+    pos = 0;
+  }
   if(pos<s->pos){
     off_t x=pos-(s->pos-s->buf_len);
     if(x>=0){
@@ -330,6 +341,10 @@ void stream_set_interrupt_callback(int (*cb)(int));
 /// Call the interrupt checking callback if there is one and
 /// wait for time milliseconds
 int stream_check_interrupt(int time);
+/// Internal read function bypassing the stream buffer
+int stream_read_internal(stream_t *s, void *buf, int len);
+/// Internal seek function bypassing the stream buffer
+int stream_seek_internal(stream_t *s, off_t newpos);
 
 extern int bluray_angle;
 extern int bluray_chapter;
@@ -338,7 +353,6 @@ extern int dvd_title;
 extern int dvd_chapter;
 extern int dvd_last_chapter;
 extern int dvd_angle;
-extern int vcd_track;
 
 extern char *bluray_device;
 extern char * audio_stream;

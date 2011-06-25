@@ -116,7 +116,7 @@ static const char help_text[]=
 #define MSGTR_ForcedAudioCodec "Gedwongen audio codec: %s\n"
 #define MSGTR_Video_NoVideo "Video: geen video!!!\n"
 #define MSGTR_NotInitializeVOPorVO "\nFATAAL: Kon de video filters (-vf) of de video uitvoer (-vo) niet initialiseren!\n"
-#define MSGTR_Paused "\n------ GEPAUZEERD -------\r"
+#define MSGTR_Paused "------ GEPAUZEERD -------"
 #define MSGTR_PlaylistLoadUnable "\nKon de playlist %s niet laden\n"
 #define MSGTR_Exit_SIGILL_RTCpuSel \
 "- MPlayer crashte door een 'Illegale Instructie'.\n"\
@@ -585,26 +585,18 @@ static const char help_text[]=
 
 // --- skin loader error messages
 #define MSGTR_SKIN_ERRORMESSAGE "[skin] fout in skin configuratie bestand op regel %d: %s"
-#define MSGTR_SKIN_WARNING1 "[skin] waarschuwing in skin configuratie bestand op regel %d: widget gevonden maar voordien \"section\" niet gevonden (%s)"
-#define MSGTR_SKIN_WARNING2 "[skin] waarschuwing in skin configuratie bestand op regel %d: widget gevonden maar voordien \"subsection\" niet gevonden (%s)"
-#define MSGTR_SKIN_WARNING3 "[skin] waarschuwing in skin configuratie bestand op regel %d: deze onderverdeling is niet ondersteund door deze widget (%s)"
 #define MSGTR_SKIN_BITMAP_16bit  "16 bits of minder kleurendiepte bitmap niet ondersteund (%s).\n"
 #define MSGTR_SKIN_BITMAP_FileNotFound  "bestand niet gevonden (%s)\n"
-#define MSGTR_SKIN_BITMAP_BMPReadError "BMP lees fout (%s)\n"
-#define MSGTR_SKIN_BITMAP_TGAReadError "TGA lees fout (%s)\n"
 #define MSGTR_SKIN_BITMAP_PNGReadError "PNG lees fout (%s)\n"
-#define MSGTR_SKIN_BITMAP_RLENotSupported "RLE packed TGA niet ondersteund (%s)\n"
-#define MSGTR_SKIN_BITMAP_UnknownFileType "onbekend bestandstype (%s)\n"
 #define MSGTR_SKIN_BITMAP_ConversionError "24 bit naar 32 bit converteerfout (%s)\n"
-#define MSGTR_SKIN_BITMAP_UnknownMessage "onbekende boodschap: %s\n"
-#define MSGTR_SKIN_FONT_NotEnoughtMemory "onvoldoende geheugen\n"
+#define MSGTR_SKIN_UnknownMessage "onbekende boodschap: %s\n"
+#define MSGTR_SKIN_NotEnoughMemory "onvoldoende geheugen\n"
 #define MSGTR_SKIN_FONT_TooManyFontsDeclared "te veel fonts gedeclareerd\n"
 #define MSGTR_SKIN_FONT_FontFileNotFound "font bestand niet gevonden\n"
 #define MSGTR_SKIN_FONT_FontImageNotFound "font image bestand niet gevonden\n"
-#define MSGTR_SKIN_FONT_NonExistentFontID "onbestaande font identifier (%s)\n"
+#define MSGTR_SKIN_FONT_NonExistentFont "onbestaande font identifier (%s)\n"
 #define MSGTR_SKIN_UnknownParameter "onbekende parameter (%s)\n"
 #define MSGTR_SKIN_SKINCFG_SkinNotFound "Skin niet gevonden (%s).\n"
-#define MSGTR_SKIN_SKINCFG_SkinCfgReadError "Leesfout in skin-configuratiebestand (%s).\n"
 #define MSGTR_SKIN_LABEL "Skins:"
 
 // --- gtk menus
@@ -884,7 +876,7 @@ static const char help_text[]=
 #define MSGTR_AO_SGI_CantSetParms_Samplerate "[AO SGI] init: setparams gefaald: %s\nKon de gewenste samplerate niet instellen.\n"
 #define MSGTR_AO_SGI_CantSetAlRate "[AO SGI] init: de AL_RATE werd niet geaccepteerd.\n"
 #define MSGTR_AO_SGI_CantGetParms "[AO SGI] init: getparams gefaald: %s\n"
-#define MSGTR_AO_SGI_SampleRateInfo "[AO SGI] init: de samplerate is nu %lf (de gewenste bitrate is %lf)\n"
+#define MSGTR_AO_SGI_SampleRateInfo "[AO SGI] init: de samplerate is nu %f (de gewenste bitrate is %f)\n"
 #define MSGTR_AO_SGI_InitConfigError "[AO SGI] init: %s\n"
 #define MSGTR_AO_SGI_InitOpenAudioFailed "[AO SGI] init: Kan het audio kanaal niet openen: %s\n"
 #define MSGTR_AO_SGI_Uninit "[AO SGI] uninit: ...\n"

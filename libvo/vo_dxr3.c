@@ -41,9 +41,10 @@
 
 #include "video_out.h"
 #include "video_out_internal.h"
+#include "libmpcodecs/vf.h"
 #include "aspect.h"
-#include "spuenc.h"
-#include "sub.h"
+#include "sub/spuenc.h"
+#include "sub/sub.h"
 #ifdef CONFIG_GUI
 #include "gui/interface.h"
 #endif
@@ -174,7 +175,7 @@ static overlay_t *overlay_data;
 /* Functions for working with the em8300's internal clock */
 /* End of internal clock functions */
 
-static int control(uint32_t request, void *data, ...)
+static int control(uint32_t request, void *data)
 {
 	switch (request) {
 	case VOCTRL_GUISUPPORT:
@@ -252,22 +253,17 @@ static int control(uint32_t request, void *data, ...)
 	    }
 	case VOCTRL_SET_EQUALIZER:
 	    {
-		va_list ap;
-		int value;
+		vf_equalizer_t *eq=data;
 		em8300_bcs_t bcs;
-
-		va_start(ap, data);
-		value = va_arg(ap, int);
-		va_end(ap);
 
 		if (ioctl(fd_control, EM8300_IOCTL_GETBCS, &bcs) < 0)
 		    return VO_FALSE;
-		if (!strcasecmp(data, "brightness"))
-		    bcs.brightness = (value+100)*5;
-		else if (!strcasecmp(data, "contrast"))
-		    bcs.contrast = (value+100)*5;
-		else if (!strcasecmp(data, "saturation"))
-		    bcs.saturation = (value+100)*5;
+		if (!strcasecmp(eq->item, "brightness"))
+		    bcs.brightness = (eq->value+100)*5;
+		else if (!strcasecmp(eq->item, "contrast"))
+		    bcs.contrast = (eq->value+100)*5;
+		else if (!strcasecmp(eq->item, "saturation"))
+		    bcs.saturation = (eq->value+100)*5;
 		else return VO_FALSE;
 
 		if (ioctl(fd_control, EM8300_IOCTL_SETBCS, &bcs) < 0)
@@ -276,23 +272,18 @@ static int control(uint32_t request, void *data, ...)
 	    }
 	case VOCTRL_GET_EQUALIZER:
 	    {
-		va_list ap;
-		int *value;
+		vf_equalizer_t *eq=data;
 		em8300_bcs_t bcs;
-
-		va_start(ap, data);
-		value = va_arg(ap, int*);
-		va_end(ap);
 
 		if (ioctl(fd_control, EM8300_IOCTL_GETBCS, &bcs) < 0)
 		    return VO_FALSE;
 
-		if (!strcasecmp(data, "brightness"))
-		    *value = (bcs.brightness/5)-100;
-		else if (!strcasecmp(data, "contrast"))
-		    *value = (bcs.contrast/5)-100;
-		else if (!strcasecmp(data, "saturation"))
-		    *value = (bcs.saturation/5)-100;
+		if (!strcasecmp(eq->item, "brightness"))
+		    eq->value = (bcs.brightness/5)-100;
+		else if (!strcasecmp(eq->item, "contrast"))
+		    eq->value = (bcs.contrast/5)-100;
+		else if (!strcasecmp(eq->item, "saturation"))
+		    eq->value = (bcs.saturation/5)-100;
 		else return VO_FALSE;
 
 		return VO_TRUE;
@@ -499,33 +490,22 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width, uint32_t d_
 		vo_dwidth = d_width;
 		vo_dheight = d_height;
 #ifdef CONFIG_GUI
-		if (use_gui) {
+		if (use_gui)
 			guiGetEvent(guiSetShVideo, 0);
-			XSetWindowBackground(mDisplay, vo_window, KEY_COLOR);
-			XClearWindow(mDisplay, vo_window);
-			XGetWindowAttributes(mDisplay, DefaultRootWindow(mDisplay), &xwin_attribs);
-			depth = xwin_attribs.depth;
-			if (depth != 15 && depth != 16 && depth != 24 && depth != 32) {
-				depth = 24;
-			}
-			XMatchVisualInfo(mDisplay, mScreen, depth, TrueColor, &vinfo);
-		} else
 #endif
-		{
-			XGetWindowAttributes(mDisplay, DefaultRootWindow(mDisplay), &xwin_attribs);
-			depth = xwin_attribs.depth;
-			if (depth != 15 && depth != 16 && depth != 24 && depth != 32) {
-				depth = 24;
-			}
-			XMatchVisualInfo(mDisplay, mScreen, depth, TrueColor, &vinfo);
-			vo_x11_create_vo_window(&vinfo, vo_dx, vo_dy,
-				d_width, d_height, flags,
-				CopyFromParent, "Viewing Window", title);
-			xswa.background_pixel = KEY_COLOR;
-			xswa.border_pixel = 0;
-			xswamask = CWBackPixel | CWBorderPixel;
-			XChangeWindowAttributes(mDisplay, vo_window, xswamask, &xswa);
+		XGetWindowAttributes(mDisplay, DefaultRootWindow(mDisplay), &xwin_attribs);
+		depth = xwin_attribs.depth;
+		if (depth != 15 && depth != 16 && depth != 24 && depth != 32) {
+			depth = 24;
 		}
+		XMatchVisualInfo(mDisplay, mScreen, depth, TrueColor, &vinfo);
+		vo_x11_create_vo_window(&vinfo, vo_dx, vo_dy,
+			d_width, d_height, flags,
+			CopyFromParent, "Viewing Window", title);
+		xswa.background_pixel = KEY_COLOR;
+		xswa.border_pixel = 0;
+		xswamask = CWBackPixel | CWBorderPixel;
+		XChangeWindowAttributes(mDisplay, vo_window, xswamask, &xswa);
 
 		/* Start setting up overlay */
 		XGetWindowAttributes(mDisplay, mRootWin, &xwin_attribs);
@@ -707,14 +687,7 @@ static void uninit(void)
 		overlay_set_mode(overlay_data, EM8300_OVERLAY_MODE_OFF);
 		overlay_release(overlay_data);
 
-#ifdef CONFIG_GUI
-		if (!use_gui) {
-#endif
-			vo_x11_uninit();
-
-#ifdef CONFIG_GUI
-		}
-#endif
+		vo_x11_uninit();
 	}
 #endif
 	if (old_vmode != -1) {
@@ -723,22 +696,18 @@ static void uninit(void)
 		}
 	}
 
-	if (fd_video) {
+	if (fd_video != -1) {
 		close(fd_video);
 	}
-	if (fd_spu) {
+	if (fd_spu != -1) {
 		close(fd_spu);
 	}
-	if (fd_control) {
+	if (fd_control != -1) {
 		close(fd_control);
 	}
 #ifdef SPU_SUPPORT
-	if(osdpicbuf) {
-		free(osdpicbuf);
-	}
-	if(spued) {
-		free(spued);
-	}
+	free(osdpicbuf);
+	free(spued);
 #endif
 }
 
@@ -889,16 +858,10 @@ static int preinit(const char *arg)
 
 		/* Initialize overlay and X11 */
 		overlay_data = overlay_init(fd_control);
-#ifdef CONFIG_GUI
-		if (!use_gui) {
-#endif
-			if (!vo_init()) {
-				mp_msg(MSGT_VO,MSGL_ERR, MSGTR_LIBVO_DXR3_UnableToInitX11);
-				return -1;
-			}
-#ifdef CONFIG_GUI
+		if (!vo_init()) {
+			mp_msg(MSGT_VO,MSGL_ERR, MSGTR_LIBVO_DXR3_UnableToInitX11);
+			return -1;
 		}
-#endif
 	}
 #endif
 
@@ -959,9 +922,7 @@ static overlay_t *overlay_init(int dev)
 
 static int overlay_release(overlay_t *o)
 {
-    if(o)
-	free(o);
-
+    free(o);
     return 0;
 }
 #define TYPE_INT 1

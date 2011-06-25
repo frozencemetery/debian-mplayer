@@ -76,6 +76,7 @@ static const mp_cmd_t mp_cmds[] = {
   { MP_CMD_RADIO_STEP_FREQ, "radio_step_freq", 1, { {MP_CMD_ARG_FLOAT,{0}}, {-1,{0}} } },
 #endif
   { MP_CMD_SEEK, "seek", 1, { {MP_CMD_ARG_FLOAT,{0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
+  { MP_CMD_EDL_LOADFILE, "edl_loadfile", 1, { {MP_CMD_ARG_STRING, {0}}, {-1,{0}} } },
   { MP_CMD_EDL_MARK, "edl_mark", 0, { {-1,{0}} } },
   { MP_CMD_AUDIO_DELAY, "audio_delay", 1, { {MP_CMD_ARG_FLOAT,{0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
   { MP_CMD_SPEED_INCR, "speed_incr", 1, { {MP_CMD_ARG_FLOAT,{0}}, {-1,{0}} } },
@@ -172,9 +173,12 @@ static const mp_cmd_t mp_cmds[] = {
   { MP_CMD_LOADFILE, "loadfile", 1, { {MP_CMD_ARG_STRING, {0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
   { MP_CMD_LOADLIST, "loadlist", 1, { {MP_CMD_ARG_STRING, {0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
   { MP_CMD_RUN, "run", 1, { {MP_CMD_ARG_STRING,{0}}, {-1,{0}} } },
+  { MP_CMD_CAPTURING, "capturing", 0, { {-1,{0}} } },
   { MP_CMD_VF_CHANGE_RECTANGLE, "change_rectangle", 2, { {MP_CMD_ARG_INT,{0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}}}},
   { MP_CMD_TV_TELETEXT_ADD_DEC, "teletext_add_dec", 1, { {MP_CMD_ARG_STRING,{0}}, {-1,{0}} } },
   { MP_CMD_TV_TELETEXT_GO_LINK, "teletext_go_link", 1, { {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
+  { MP_CMD_OVERLAY_ADD, "overlay_add", 5, { {MP_CMD_ARG_STRING,{0}}, {MP_CMD_ARG_INT,{0}}, {MP_CMD_ARG_INT,{0}}, {MP_CMD_ARG_INT,{0}}, {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
+  { MP_CMD_OVERLAY_REMOVE, "overlay_remove", 1, { {MP_CMD_ARG_INT,{0}}, {-1,{0}} } },
 
 #ifdef CONFIG_DVDNAV
   { MP_CMD_DVDNAV, "dvdnav", 1, { {MP_CMD_ARG_STRING, {0}}, {-1,{0}} } },
@@ -202,6 +206,7 @@ static const mp_cmd_t mp_cmds[] = {
   { MP_CMD_AF_ADD, "af_add", 1,  { {MP_CMD_ARG_STRING, {0}}, {-1,{0}} } },
   { MP_CMD_AF_DEL, "af_del", 1,  { {MP_CMD_ARG_STRING, {0}}, {-1,{0}} } },
   { MP_CMD_AF_CLR, "af_clr", 0, { {-1,{0}} } },
+  { MP_CMD_AF_CMDLINE, "af_cmdline", 2, { {MP_CMD_ARG_STRING, {0}}, {MP_CMD_ARG_STRING, {0}}, {-1,{0}} } },
 
   { 0, NULL, 0, {} }
 };
@@ -263,6 +268,16 @@ static const mp_key_name_t key_names[] = {
   { MOUSE_BTN7, "MOUSE_BTN7" },
   { MOUSE_BTN8, "MOUSE_BTN8" },
   { MOUSE_BTN9, "MOUSE_BTN9" },
+  { MOUSE_BTN10, "MOUSE_BTN10" },
+  { MOUSE_BTN11, "MOUSE_BTN11" },
+  { MOUSE_BTN12, "MOUSE_BTN12" },
+  { MOUSE_BTN13, "MOUSE_BTN13" },
+  { MOUSE_BTN14, "MOUSE_BTN14" },
+  { MOUSE_BTN15, "MOUSE_BTN15" },
+  { MOUSE_BTN16, "MOUSE_BTN16" },
+  { MOUSE_BTN17, "MOUSE_BTN17" },
+  { MOUSE_BTN18, "MOUSE_BTN18" },
+  { MOUSE_BTN19, "MOUSE_BTN19" },
   { MOUSE_BTN0_DBL, "MOUSE_BTN0_DBL" },
   { MOUSE_BTN1_DBL, "MOUSE_BTN1_DBL" },
   { MOUSE_BTN2_DBL, "MOUSE_BTN2_DBL" },
@@ -273,6 +288,16 @@ static const mp_key_name_t key_names[] = {
   { MOUSE_BTN7_DBL, "MOUSE_BTN7_DBL" },
   { MOUSE_BTN8_DBL, "MOUSE_BTN8_DBL" },
   { MOUSE_BTN9_DBL, "MOUSE_BTN9_DBL" },
+  { MOUSE_BTN10_DBL, "MOUSE_BTN10_DBL" },
+  { MOUSE_BTN11_DBL, "MOUSE_BTN11_DBL" },
+  { MOUSE_BTN12_DBL, "MOUSE_BTN12_DBL" },
+  { MOUSE_BTN13_DBL, "MOUSE_BTN13_DBL" },
+  { MOUSE_BTN14_DBL, "MOUSE_BTN14_DBL" },
+  { MOUSE_BTN15_DBL, "MOUSE_BTN15_DBL" },
+  { MOUSE_BTN16_DBL, "MOUSE_BTN16_DBL" },
+  { MOUSE_BTN17_DBL, "MOUSE_BTN17_DBL" },
+  { MOUSE_BTN18_DBL, "MOUSE_BTN18_DBL" },
+  { MOUSE_BTN19_DBL, "MOUSE_BTN19_DBL" },
   { JOY_AXIS1_MINUS, "JOY_UP" },
   { JOY_AXIS1_PLUS, "JOY_DOWN" },
   { JOY_AXIS0_MINUS, "JOY_LEFT" },
@@ -422,6 +447,7 @@ static const mp_cmd_bind_t def_cmd_binds[] = {
   { { 'a', 0 }, "sub_alignment" },
   { { 'v', 0 }, "sub_visibility" },
   { { 'j', 0 }, "sub_select" },
+  { { 'J', 0 }, "sub_select -3" },
   { { 'F', 0 }, "forced_subs_only" },
   { { '#', 0 }, "switch_audio" },
   { { '_', 0 }, "step_property switch_video" },
@@ -460,6 +486,7 @@ static const mp_cmd_bind_t def_cmd_binds[] = {
 #endif
   { { 'T', 0 }, "vo_ontop" },
   { { 'f', 0 }, "vo_fullscreen" },
+  { { 'c', 0 }, "capturing" },
   { { 's', 0 }, "screenshot 0" },
   { { 'S', 0 }, "screenshot 1" },
   { { 'w', 0 }, "panscan -0.1" },
@@ -647,8 +674,7 @@ mp_input_rm_cmd_fd(int fd) {
     return;
   if(cmd_fds[i].close_func)
     cmd_fds[i].close_func(cmd_fds[i].fd);
-  if(cmd_fds[i].buffer)
-    free(cmd_fds[i].buffer);
+  free(cmd_fds[i].buffer);
 
   if(i + 1 < num_cmd_fd)
     memmove(&cmd_fds[i],&cmd_fds[i+1],(num_cmd_fd - i - 1)*sizeof(mp_input_fd_t));
@@ -1064,13 +1090,14 @@ mp_input_get_cmd_from_keys(int n,int* keys, int paused) {
     cmd = mp_input_find_bind_for_key(def_cmd_binds,n,keys);
 
   if(cmd == NULL) {
-    mp_msg(MSGT_INPUT,MSGL_WARN,MSGTR_NoBindFound,mp_input_get_key_name(keys[0]));
-    if(n > 1) {
-      int s;
-      for(s=1; s < n; s++)
-	mp_msg(MSGT_INPUT,MSGL_WARN,"-%s",mp_input_get_key_name(keys[s]));
+    char key_name[100];
+    int i;
+    av_strlcpy(key_name, mp_input_get_key_name(keys[0]), sizeof(key_name));
+    for (i = 1; i < n; i++) {
+      av_strlcat(key_name, "-", sizeof(key_name));
+      av_strlcat(key_name, mp_input_get_key_name(keys[i]), sizeof(key_name));
     }
-    mp_msg(MSGT_INPUT,MSGL_WARN,"                         \n");
+    mp_msg(MSGT_INPUT,MSGL_WARN,MSGTR_NoBindFound,key_name);
     return NULL;
   }
   if (strcmp(cmd, "ignore") == 0) return NULL;
@@ -1093,6 +1120,15 @@ interpret_key(int code, int paused)
 {
   unsigned int j;
   mp_cmd_t* ret;
+
+  if (code & MP_KEY_RELEASE_ALL) {
+      code &= ~MP_KEY_RELEASE_ALL;
+      memset(key_down, 0, sizeof(key_down));
+      num_key_down = 0;
+      last_key_down = 0;
+      if (!code)
+          return NULL;
+  }
 
   if(mp_input_key_cb) {
       if (code & MP_KEY_DOWN)
@@ -1145,10 +1181,8 @@ interpret_key(int code, int paused)
     num_key_down--;
     last_key_down = 0;
     ar_state = -1;
-    if(ar_cmd) {
-      mp_cmd_free(ar_cmd);
-      ar_cmd = NULL;
-    }
+    mp_cmd_free(ar_cmd);
+    ar_cmd = NULL;
     return ret;
 }
 
@@ -1381,11 +1415,10 @@ mp_cmd_free(mp_cmd_t* cmd) {
 //#endif
   if ( !cmd ) return;
 
-  if(cmd->name)
-    free(cmd->name);
+  free(cmd->name);
 
   for(i=0; i < MP_CMD_MAX_ARGS && cmd->args[i].type != -1; i++) {
-    if(cmd->args[i].type == MP_CMD_ARG_STRING && cmd->args[i].v.s != NULL)
+    if(cmd->args[i].type == MP_CMD_ARG_STRING)
       free(cmd->args[i].v.s);
   }
   free(cmd);
@@ -1518,8 +1551,7 @@ mp_input_bind_keys(const int keys[MP_MAX_KEY_DOWN+1], char* cmd) {
     memset(&bind_section->cmd_binds[i],0,2*sizeof(mp_cmd_bind_t));
     bind = &bind_section->cmd_binds[i];
   }
-  if(bind->cmd)
-    free(bind->cmd);
+  free(bind->cmd);
   bind->cmd = strdup(cmd);
   memcpy(bind->input,keys,(MP_MAX_KEY_DOWN+1)*sizeof(int));
 }
@@ -1695,7 +1727,7 @@ mp_input_set_section(char *name) {
 
   cmd_binds=NULL;
   cmd_binds_default=NULL;
-  if(section) free(section);
+  free(section);
   if(name) section=strdup(name); else section=strdup("default");
   if((bind_section=mp_input_get_bind_section(section)))
     cmd_binds=bind_section->cmd_binds;
@@ -1783,15 +1815,17 @@ mp_input_init(void) {
 
   if(in_file) {
     struct stat st;
-    if(stat(in_file,&st))
-      mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_INPUT_ErrCantStatFile,in_file,strerror(errno));
-    else {
-      in_file_fd = open(in_file,S_ISFIFO(st.st_mode) ? O_RDWR : O_RDONLY);
-      if(in_file_fd >= 0)
-	mp_input_add_cmd_fd(in_file_fd,1,NULL,(mp_close_func_t)close);
-      else
-	mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_INPUT_ErrCantOpenFile,in_file,strerror(errno));
-    }
+    int mode = O_RDONLY;
+    // Use RDWR for FIFOs to ensure they stay open over multiple accesses.
+    // Note that on Windows stat may fail for named pipes, but due to how the
+    // API works, using RDONLY should be ok.
+    if (stat(in_file,&st) == 0 && S_ISFIFO(st.st_mode))
+      mode = O_RDWR;
+    in_file_fd = open(in_file, mode);
+    if(in_file_fd >= 0)
+      mp_input_add_cmd_fd(in_file_fd,1,NULL,(mp_close_func_t)close);
+    else
+      mp_msg(MSGT_INPUT,MSGL_ERR,MSGTR_INPUT_INPUT_ErrCantOpenFile,in_file,strerror(errno));
   }
 
 }

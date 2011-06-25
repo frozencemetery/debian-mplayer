@@ -93,8 +93,8 @@ int stop_xscreensaver = 0;
 
 static int dpms_disabled = 0;
 
-char *mDisplayName = NULL;
-Display *mDisplay = NULL;
+char *mDisplayName;
+Display *mDisplay;
 Window mRootWin;
 int mScreen;
 int mLocalDisplay;
@@ -248,7 +248,7 @@ void fstype_help(void)
     mp_msg(MSGT_VO, MSGL_INFO, "    %-15s %s\n", "below",
            "use _NETWM_STATE_BELOW hint if available");
     mp_msg(MSGT_VO, MSGL_INFO, "    %-15s %s\n", "fullscreen",
-           "use _NETWM_STATE_FULLSCREEN hint if availale");
+           "use _NETWM_STATE_FULLSCREEN hint if available");
     mp_msg(MSGT_VO, MSGL_INFO, "    %-15s %s\n", "stays_on_top",
            "use _NETWM_STATE_STAYS_ON_TOP hint if available");
     mp_msg(MSGT_VO, MSGL_INFO,
@@ -408,8 +408,6 @@ int vo_init(void)
     int depth, bpp;
     unsigned int mask;
 
-// char    * DisplayName = ":0.0";
-// Display * mDisplay;
     XImage *mXImage = NULL;
 
 // Window    mRootWin;
@@ -427,13 +425,7 @@ int vo_init(void)
 
     XSetErrorHandler(x11_errorhandler);
 
-#if 0
-    if (!mDisplayName)
-        if (!(mDisplayName = getenv("DISPLAY")))
-            mDisplayName = strdup(":0.0");
-#else
     dispName = XDisplayName(mDisplayName);
-#endif
 
     mp_msg(MSGT_VO, MSGL_V, "X11 opening display: %s\n", dispName);
 
@@ -578,7 +570,8 @@ static void vo_x11_putkey_ext(int keysym)
 
 static const struct mp_keymap keymap[] = {
     // special keys
-    {wsEscape, KEY_ESC}, {wsBackSpace, KEY_BS}, {wsTab, KEY_TAB}, {wsEnter, KEY_ENTER},
+    {wsPause, KEY_PAUSE}, {wsEscape, KEY_ESC}, {wsBackSpace, KEY_BS},
+    {wsTab, KEY_TAB}, {wsEnter, KEY_ENTER},
 
     // cursor keys
     {wsLeft, KEY_LEFT}, {wsRight, KEY_RIGHT}, {wsUp, KEY_UP}, {wsDown, KEY_DOWN},
@@ -763,7 +756,6 @@ void vo_x11_uninit(void)
     {
         if (vo_gc != None)
         {
-            XSetBackground(mDisplay, vo_gc, 0);
             XFreeGC(mDisplay, vo_gc);
             vo_gc = None;
         }
@@ -797,11 +789,14 @@ static int mouse_waiting_hide;
 static int check_resize(void)
 {
     int old_w = vo_dwidth, old_h = vo_dheight;
-    int old_x = vo_dx,     old_y = vo_dy;
+    int old_x = vo_dx, old_y = vo_dy;
+    int rc = 0;
     vo_x11_update_geometry();
-    if (vo_dwidth != old_w || vo_dheight != old_h || vo_dx != old_x || vo_dy != old_y)
-        return VO_EVENT_RESIZE;
-    return 0;
+    if (vo_dwidth != old_w || vo_dheight != old_h)
+        rc |= VO_EVENT_RESIZE;
+    if (vo_dx     != old_x || vo_dy      != old_y)
+        rc |= VO_EVENT_MOVE;
+    return rc;
 }
 
 int vo_x11_check_events(Display * mydisplay)
@@ -1042,7 +1037,7 @@ Window vo_x11_create_smooth_window(Display * mDisplay, Window mRoot,
     xswa.bit_gravity = StaticGravity;
 
     ret_win =
-        XCreateWindow(mDisplay, mRootWin, x, y, width, height, 0, depth,
+        XCreateWindow(mDisplay, mRoot, x, y, width, height, 0, depth,
                       CopyFromParent, vis, xswamask, &xswa);
     XSetWMProtocols(mDisplay, ret_win, &XAWM_DELETE_WINDOW, 1);
     if (f_gc == None)
@@ -1073,7 +1068,6 @@ void vo_x11_create_vo_window(XVisualInfo *vis, int x, int y,
                              Colormap col_map,
                              const char *classname, const char *title)
 {
-  XGCValues xgcv;
   if (WinID >= 0) {
     vo_fs = flags & VOFLAG_FULLSCREEN;
     vo_window = WinID ? (Window)WinID : mRootWin;
@@ -1129,11 +1123,11 @@ void vo_x11_create_vo_window(XVisualInfo *vis, int x, int y,
     if (!vo_border) vo_x11_decoration(mDisplay, vo_window, 0);
     // map window
     XMapWindow(mDisplay, vo_window);
-    vo_x11_clearwindow(mDisplay, vo_window);
     // wait for map
     do {
       XNextEvent(mDisplay, &xev);
     } while (xev.type != MapNotify || xev.xmap.event != vo_window);
+    vo_x11_clearwindow(mDisplay, vo_window);
     XSelectInput(mDisplay, vo_window, NoEventMask);
     XSync(mDisplay, False);
     vo_x11_selectinput_witherr(mDisplay, vo_window,
@@ -1155,7 +1149,8 @@ void vo_x11_create_vo_window(XVisualInfo *vis, int x, int y,
 final:
   if (vo_gc != None)
     XFreeGC(mDisplay, vo_gc);
-  vo_gc = XCreateGC(mDisplay, vo_window, GCForeground, &xgcv);
+  vo_gc = XCreateGC(mDisplay, vo_window, 0, NULL);
+
   XSync(mDisplay, False);
   vo_mouse_autohide = 1;
 }
@@ -1824,7 +1819,7 @@ static int transform_color(float val,
     return (unsigned short) (s * 65535);
 }
 
-uint32_t vo_x11_set_equalizer(char *name, int value)
+uint32_t vo_x11_set_equalizer(const char *name, int value)
 {
     float gamma, brightness, contrast;
     float rf, gf, bf;
@@ -1875,7 +1870,7 @@ uint32_t vo_x11_set_equalizer(char *name, int value)
     return VO_TRUE;
 }
 
-uint32_t vo_x11_get_equalizer(char *name, int *value)
+uint32_t vo_x11_get_equalizer(const char *name, int *value)
 {
     if (cmap == None)
         return VO_NOTAVAIL;
@@ -1891,7 +1886,7 @@ uint32_t vo_x11_get_equalizer(char *name, int *value)
 }
 
 #ifdef CONFIG_XV
-int vo_xv_set_eq(uint32_t xv_port, char *name, int value)
+int vo_xv_set_eq(uint32_t xv_port, const char *name, int value)
 {
     XvAttribute *attributes;
     int i, howmany, xv_atom;
@@ -1961,7 +1956,7 @@ int vo_xv_set_eq(uint32_t xv_port, char *name, int value)
     return VO_FALSE;
 }
 
-int vo_xv_get_eq(uint32_t xv_port, char *name, int *value)
+int vo_xv_get_eq(uint32_t xv_port, const char *name, int *value)
 {
 
     XvAttribute *attributes;

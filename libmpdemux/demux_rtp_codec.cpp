@@ -27,7 +27,7 @@ extern "C" {
 #include "libavutil/base64.h"
 }
 
-#ifdef CONFIG_LIBAVCODEC
+#ifdef CONFIG_FFMPEG
 AVCodecParserContext * h264parserctx;
 AVCodecContext *avcctx;
 #endif
@@ -70,7 +70,7 @@ static unsigned char* parseH264ConfigStr( char const* configStr,
 
     psz += strlen(psz)+1;
     }
-    if( dup ) free( dup );
+    free( dup );
 
     return cfg;
 }
@@ -134,7 +134,7 @@ void rtpCodecInitialize_video(demuxer_t* demuxer,
     unsigned char* configData
       = parseH264ConfigStr(subsession->fmtp_spropparametersets(), configLen);
     sh_video->bih = bih = insertVideoExtradata(bih, configData, configLen);
-#ifdef CONFIG_LIBAVCODEC
+#ifdef CONFIG_FFMPEG
     int fooLen;
     const uint8_t* fooData;
     avcodec_register_all();
@@ -220,7 +220,7 @@ void rtpCodecInitialize_audio(demuxer_t* demuxer,
   flags = 0;
   // Create a dummy audio stream header
   // to make the main MPlayer code happy:
-  sh_audio_t* sh_audio = new_sh_audio(demuxer,0);
+  sh_audio_t* sh_audio = new_sh_audio(demuxer,0, NULL);
   WAVEFORMATEX* wf = (WAVEFORMATEX*)calloc(1,sizeof(WAVEFORMATEX));
   sh_audio->wf = wf;
   demux_stream_t* d_audio = demuxer->audio;

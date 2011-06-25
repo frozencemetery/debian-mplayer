@@ -258,7 +258,8 @@ if(!codec_initialized){
     mp_msg(MSGT_MENCODER,MSGL_DBG2,"CompressSequenceBegin returned:%i\n",cres&0xFFFF);
     mp_msg(MSGT_MENCODER,MSGL_DBG2,"Sequence ID:%i\n",seq);
 
-    dump_ImageDescription(*desc);
+    if (mp_msg_test(MSGT_MENCODER, MSGL_DBG2))
+        dump_ImageDescription(*desc);
     codec_initialized++;
 }
     cres = CompressSequenceFrame (
@@ -302,8 +303,8 @@ static int vf_open(vf_instance_t *vf, char* args){
     memset(vf->priv,0,sizeof(struct vf_priv_s));
     vf->priv->mux=(muxer_stream_t*)args;
 
-    mux_v->bih=calloc(1, sizeof(BITMAPINFOHEADER)+MAX_IDSIZE);
-    mux_v->bih->biSize=sizeof(BITMAPINFOHEADER)+MAX_IDSIZE;
+    mux_v->bih=calloc(1, sizeof(*mux_v->bih)+MAX_IDSIZE);
+    mux_v->bih->biSize=sizeof(*mux_v->bih)+MAX_IDSIZE;
     mux_v->bih->biWidth=0;
     mux_v->bih->biHeight=0;
     mux_v->bih->biCompression=format;
@@ -348,7 +349,7 @@ static int vf_open(vf_instance_t *vf, char* args){
     return 1;
 }
 
-vf_info_t ve_info_qtvideo = {
+const vf_info_t ve_info_qtvideo = {
     "Quicktime video encoder using win32 DLLs",
     "qtvideo",
     "Sascha Sommer",

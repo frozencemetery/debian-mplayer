@@ -19,6 +19,7 @@
 #ifndef MPLAYER_MP_CORE_H
 #define MPLAYER_MP_CORE_H
 
+#include "config.h"
 #include "mp_osd.h"
 #include "libao2/audio_out.h"
 #include "playtree.h"
@@ -27,7 +28,7 @@
 #include "libmpdemux/stheader.h"
 #include "mixer.h"
 #include "libvo/video_out.h"
-#include "subreader.h"
+#include "sub/subreader.h"
 
 // definitions used internally by the core player code
 
@@ -35,13 +36,13 @@
 #define INITIALIZED_AO      2
 #define INITIALIZED_GUI     4
 #define INITIALIZED_GETCH2  8
-#define INITIALIZED_SPUDEC  32
 #define INITIALIZED_STREAM  64
 #define INITIALIZED_INPUT   128
 #define INITIALIZED_VOBSUB  256
 #define INITIALIZED_DEMUXER 512
 #define INITIALIZED_ACODEC  1024
 #define INITIALIZED_VCODEC  2048
+#define INITIALIZED_SUBS    4096
 #define INITIALIZED_ALL     0xFFFF
 
 
@@ -94,6 +95,8 @@ typedef struct MPContext {
     int startup_decode_retry;
     // how long until we need to display the "current" frame
     float time_frame;
+    // flag to indicate that we've found a correctly timed video frame PTS
+    int framestep_found;
 
     // AV sync: the next frame should be shown when the audio out has this
     // much (in seconds) buffered data left. Increased when more data is
@@ -111,11 +114,11 @@ typedef struct MPContext {
     int global_sub_pos; // this encompasses all subtitle sources
     int set_of_sub_pos;
     int set_of_sub_size;
-    int global_sub_indices[SUB_SOURCES];
+    int sub_counts[SUB_SOURCES];
 #ifdef CONFIG_ASS
     // set_of_ass_tracks[i] contains subtitles from set_of_subtitles[i]
     // parsed by libass or NULL if format unsupported
-    ass_track_t* set_of_ass_tracks[MAX_SUBTITLE_FILES];
+    ASS_Track* set_of_ass_tracks[MAX_SUBTITLE_FILES];
 #endif
     sub_data* set_of_subtitles[MAX_SUBTITLE_FILES];
 
@@ -145,13 +148,10 @@ extern int file_filter;
 // These appear in options list
 extern float playback_speed;
 extern int fixed_vo;
-extern int forced_subs_only;
 
 
-int build_afilter_chain(sh_audio_t *sh_audio, ao_data_t *ao_data);
 void uninit_player(unsigned int mask);
 void reinit_audio_chain(void);
-void init_vo_spudec(void);
 double playing_audio_pts(sh_audio_t *sh_audio, demux_stream_t *d_audio,
 			 const ao_functions_t *audio_out);
 void exit_player(enum exit_reason how);

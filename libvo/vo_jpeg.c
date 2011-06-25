@@ -309,14 +309,10 @@ static int query_format(uint32_t format)
 
 static void uninit(void)
 {
-    if (jpeg_subdirs) {
-        free(jpeg_subdirs);
-        jpeg_subdirs = NULL;
-    }
-    if (jpeg_outdir) {
-        free(jpeg_outdir);
-        jpeg_outdir = NULL;
-    }
+    free(jpeg_subdirs);
+    jpeg_subdirs = NULL;
+    free(jpeg_outdir);
+    jpeg_outdir = NULL;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -403,7 +399,7 @@ static int preinit(const char *arg)
 
 /* ------------------------------------------------------------------------- */
 
-static int control(uint32_t request, void *data, ...)
+static int control(uint32_t request, void *data)
 {
     switch (request) {
         case VOCTRL_QUERY_FORMAT:

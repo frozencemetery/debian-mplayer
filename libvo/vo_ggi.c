@@ -453,8 +453,7 @@ static int preinit(const char *arg)
 
 static void uninit(void)
 {
-    if (ggi_conf.driver)
-        free(ggi_conf.driver);
+    free(ggi_conf.driver);
 
 #ifdef CONFIG_GGIWMH
     ggiWmhDetach(ggi_conf.vis);
@@ -468,7 +467,7 @@ static void uninit(void)
     ggiExit();
 }
 
-static int control(uint32_t request, void *data, ...)
+static int control(uint32_t request, void *data)
 {
     switch (request) {
     case VOCTRL_QUERY_FORMAT:

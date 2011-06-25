@@ -16,19 +16,34 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#if defined(__MINGW32__) || defined(__CYGWIN__)
+#include <windows.h>
+#endif
 #include <stdlib.h>
 #include "stream/stream.h"
+#ifdef CONFIG_DVDREAD
+#include "stream/stream_dvd.h"
+#endif
+#ifdef CONFIG_DVDNAV
+#include "stream/stream_dvdnav.h"
+#endif
 #include "libmpdemux/demuxer.h"
 #include "libmpdemux/stheader.h"
+#include "codec-cfg.h"
+#include "osdep/timer.h"
+#include "osdep/priority.h"
+#include "path.h"
 #include "mplayer.h"
-#include "libvo/sub.h"
+#include "sub/font_load.h"
+#include "sub/sub.h"
 #include "libvo/video_out.h"
 #include "cpudetect.h"
 #include "help_mp.h"
 #include "mp_msg.h"
-#include "spudec.h"
+#include "sub/spudec.h"
 #include "version.h"
-#include "vobsub.h"
+#include "sub/vobsub.h"
+#include "sub/av_sub.h"
 #include "libmpcodecs/dec_teletext.h"
 #include "libavutil/intreadwrite.h"
 #include "m_option.h"
@@ -37,12 +52,14 @@
 double sub_last_pts = -303;
 
 #ifdef CONFIG_ASS
-#include "libass/ass_mp.h"
-ass_track_t* ass_track = 0; // current track to render
+#include "sub/ass_mp.h"
+ASS_Track* ass_track = 0; // current track to render
 #endif
 
 sub_data* subdata = NULL;
 subtitle* vo_sub_last = NULL;
+char *spudec_ifo;
+int forced_subs_only;
 
 const char *mencoder_version = "MEncoder " VERSION;
 const char *mplayer_version  = "MPlayer "  VERSION;
@@ -55,10 +72,10 @@ void print_version(const char* name)
     GetCpuCaps(&gCpuCaps);
 #if ARCH_X86
     mp_msg(MSGT_CPLAYER, MSGL_V,
-	   "CPUflags:  MMX: %d MMX2: %d 3DNow: %d 3DNowExt: %d SSE: %d SSE2: %d SSSE3: %d\n",
-	   gCpuCaps.hasMMX, gCpuCaps.hasMMX2,
-	   gCpuCaps.has3DNow, gCpuCaps.has3DNowExt,
-	   gCpuCaps.hasSSE, gCpuCaps.hasSSE2, gCpuCaps.hasSSSE3);
+           "CPUflags:  MMX: %d MMX2: %d 3DNow: %d 3DNowExt: %d SSE: %d SSE2: %d SSSE3: %d\n",
+           gCpuCaps.hasMMX, gCpuCaps.hasMMX2,
+           gCpuCaps.has3DNow, gCpuCaps.has3DNowExt,
+           gCpuCaps.hasSSE, gCpuCaps.hasSSE2, gCpuCaps.hasSSSE3);
 #if CONFIG_RUNTIME_CPUDETECT
     mp_msg(MSGT_CPLAYER,MSGL_V, MSGTR_CompiledWithRuntimeDetection);
 #else
@@ -84,14 +101,71 @@ if (HAVE_CMOV)
 #endif /* ARCH_X86 */
 }
 
+void init_vo_spudec(struct stream *stream, struct sh_video *sh_video, struct sh_sub *sh_sub)
+{
+    unsigned width, height;
+    spudec_free(vo_spudec);
+    vo_spudec = NULL;
+
+    // we currently can't work without video stream
+    if (!sh_video)
+        return;
+
+    if (spudec_ifo) {
+        unsigned int palette[16];
+        current_module = "spudec_init_vobsub";
+        if (vobsub_parse_ifo(NULL, spudec_ifo, palette, &width, &height, 1, -1, NULL) >= 0)
+            vo_spudec = spudec_new_scaled(palette, width, height, NULL, 0);
+    }
+
+    width  = sh_video->disp_w;
+    height = sh_video->disp_h;
+
+#ifdef CONFIG_DVDREAD
+    if (vo_spudec == NULL && stream->type == STREAMTYPE_DVD) {
+        current_module = "spudec_init_dvdread";
+        vo_spudec      = spudec_new_scaled(((dvd_priv_t *)(stream->priv))->cur_pgc->palette,
+                                           width, height,
+                                           NULL, 0);
+    }
+#endif
+
+#ifdef CONFIG_DVDNAV
+    if (vo_spudec == NULL && stream->type == STREAMTYPE_DVDNAV) {
+        unsigned int *palette = mp_dvdnav_get_spu_clut(stream);
+        current_module = "spudec_init_dvdnav";
+        vo_spudec      = spudec_new_scaled(palette, width, height, NULL, 0);
+    }
+#endif
+
+    if (vo_spudec == NULL) {
+        current_module = "spudec_init_normal";
+        vo_spudec      = spudec_new_scaled(NULL, width, height,
+                                           sh_sub ? sh_sub->extradata : NULL,
+                                           sh_sub ? sh_sub->extradata_len : 0);
+        spudec_set_font_factor(vo_spudec, font_factor);
+    }
+
+    if (vo_spudec)
+        spudec_set_forced_subs_only(vo_spudec, forced_subs_only);
+}
+
+static int is_text_sub(int type)
+{
+    return type == 't' || type == 'm' || type == 'a';
+}
+
+static int is_av_sub(int type)
+{
+    return type == 'b' || type == 'p' || type == 'x';
+}
 
 void update_subtitles(sh_video_t *sh_video, double refpts, demux_stream_t *d_dvdsub, int reset)
 {
     double curpts = refpts - sub_delay;
     unsigned char *packet=NULL;
     int len;
-    char type = d_dvdsub->sh ? ((sh_sub_t *)d_dvdsub->sh)->type : 'v';
-    int text_sub = type == 't' || type == 'm' || type == 'a' || type == 'd';
+    int type = d_dvdsub->sh ? ((sh_sub_t *)d_dvdsub->sh)->type : 'v';
     static subtitle subs;
     if (reset) {
         sub_clear_text(&subs, MP_NOPTS_VALUE);
@@ -102,6 +176,10 @@ void update_subtitles(sh_video_t *sh_video, double refpts, demux_stream_t *d_dvd
             spudec_reset(vo_spudec);
             vo_osd_changed(OSDTYPE_SPU);
         }
+#ifdef CONFIG_FFMPEG
+        if (is_av_sub(type))
+            reset_avsub(d_dvdsub->sh);
+#endif
     }
     // find sub
     if (subdata) {
@@ -117,11 +195,10 @@ void update_subtitles(sh_video_t *sh_video, double refpts, demux_stream_t *d_dvd
     }
 
     // DVD sub:
-    if (vo_config_count && vo_spudec &&
-        (vobsub_id >= 0 || (dvdsub_id >= 0 && type == 'v'))) {
+    if (vo_config_count &&
+        (vobsub_id >= 0 || type == 'v')) {
         int timestamp;
         current_module = "spudec";
-        spudec_heartbeat(vo_spudec, 90000*curpts);
         /* Get a sub packet from the DVD or a vobsub */
         while(1) {
             // Vobsub
@@ -153,13 +230,17 @@ void update_subtitles(sh_video_t *sh_video, double refpts, demux_stream_t *d_dvd
                 }
             }
             if (len<=0 || !packet) break;
+            // create it only here, since with some broken demuxers we might
+            // type = v but no DVD sub and we currently do not change the
+            // "original frame size" ever after init, leading to wrong-sized
+            // PGS subtitles.
+            if (!vo_spudec)
+                vo_spudec = spudec_new(NULL);
             if (vo_vobsub || timestamp >= 0)
                 spudec_assemble(vo_spudec, packet, len, timestamp);
         }
-
-        if (spudec_changed(vo_spudec))
-            vo_osd_changed(OSDTYPE_SPU);
-    } else if (dvdsub_id >= 0 && text_sub) {
+    } else if (is_text_sub(type) || is_av_sub(type) || type == 'd') {
+        int orig_type = type;
         double endpts;
         if (type == 'd' && !d_dvdsub->demuxer->teletext) {
             tt_stream_props tsp = {0};
@@ -171,9 +252,19 @@ void update_subtitles(sh_video_t *sh_video, double refpts, demux_stream_t *d_dvd
             ds_get_next_pts(d_dvdsub);
         while (1) {
             double subpts = curpts;
+            type = orig_type;
             len = ds_get_packet_sub(d_dvdsub, &packet, &subpts, &endpts);
             if (len < 0)
                 break;
+            if (is_av_sub(type)) {
+#ifdef CONFIG_FFMPEG
+                type = decode_avsub(d_dvdsub->sh, &packet, &len, &subpts, &endpts);
+                if (type < 0)
+                    mp_msg(MSGT_SPUDEC, MSGL_WARN, "lavc failed decoding subtitle\n");
+                if (type <= 0)
+#endif
+                    continue;
+            }
             if (type == 'm') {
                 if (len < 2) continue;
                 len = FFMIN(len - 2, AV_RB16(packet));
@@ -204,14 +295,14 @@ void update_subtitles(sh_video_t *sh_video, double refpts, demux_stream_t *d_dvd
                     if (len > 10 && memcmp(packet, "Dialogue: ", 10) == 0)
                         ass_process_data(ass_track, packet, len);
                     else
-                    ass_process_chunk(ass_track, packet, len,
-                                      (long long)(subpts*1000 + 0.5),
-                                      (long long)((endpts-subpts)*1000 + 0.5));
+                        ass_process_chunk(ass_track, packet, len,
+                                          (long long)(subpts*1000 + 0.5),
+                                          (long long)((endpts-subpts)*1000 + 0.5));
                 } else { // plaintext subs with libass
                     if (subpts != MP_NOPTS_VALUE) {
                         subtitle tmp_subs = {0};
                         if (endpts == MP_NOPTS_VALUE) endpts = subpts + 3;
-                        sub_add_text(&tmp_subs, packet, len, endpts);
+                        sub_add_text(&tmp_subs, packet, len, endpts, 0);
                         tmp_subs.start = subpts * 100;
                         tmp_subs.end = endpts * 100;
                         ass_process_subtitle(ass_track, &tmp_subs);
@@ -238,15 +329,22 @@ void update_subtitles(sh_video_t *sh_video, double refpts, demux_stream_t *d_dvd
                     len -= p - packet;
                     packet = p;
                 }
-                sub_add_text(&subs, packet, len, endpts);
+                if (endpts == MP_NOPTS_VALUE) endpts = subpts + 4;
+                sub_add_text(&subs, packet, len, endpts, 1);
                 set_osd_subtitle(&subs);
             }
             if (d_dvdsub->non_interleaved)
                 ds_get_next_pts(d_dvdsub);
         }
-        if (text_sub && sub_clear_text(&subs, curpts))
+        if (sub_clear_text(&subs, curpts))
             set_osd_subtitle(&subs);
     }
+    if (vo_spudec) {
+        spudec_heartbeat(vo_spudec, 90000*curpts);
+        if (spudec_changed(vo_spudec))
+            vo_osd_changed(OSDTYPE_SPU);
+    }
+
     current_module=NULL;
 }
 
@@ -319,3 +417,147 @@ const m_option_t noconfig_opts[] = {
     {NULL, NULL, 0, 0, 0, 0, NULL}
 };
 
+/**
+ * Initialization code to be run at the very start, must not depend
+ * on option values.
+ */
+void common_preinit(void)
+{
+    InitTimer();
+    srand(GetTimerMS());
+
+    mp_msg_init();
+}
+
+/**
+ * Code to fix any kind of insane defaults some OS might have.
+ * Currently mostly fixes for insecure-by-default Windows.
+ */
+static void sanitize_os(void)
+{
+#if defined(__MINGW32__) || defined(__CYGWIN__)
+    HMODULE kernel32 = GetModuleHandle("Kernel32.dll");
+    BOOL WINAPI (*setDEP)(DWORD) = NULL;
+    BOOL WINAPI (*setDllDir)(LPCTSTR) = NULL;
+    if (kernel32) {
+        setDEP = GetProcAddress(kernel32, "SetProcessDEPPolicy");
+        setDllDir = GetProcAddress(kernel32, "SetDllDirectoryA");
+    }
+    if (setDEP) setDEP(3);
+    if (setDllDir) setDllDir("");
+    // stop Windows from showing all kinds of annoying error dialogs
+    SetErrorMode(0x8003);
+    // request 1ms timer resolution
+    timeBeginPeriod(1);
+#endif
+}
+
+/**
+ * Initialization code to be run after command-line parsing.
+ */
+int common_init(void)
+{
+#if (defined(__MINGW32__) || defined(__CYGWIN__)) && defined(CONFIG_WIN32DLL)
+    set_path_env();
+#endif
+    sanitize_os();
+
+#ifdef CONFIG_PRIORITY
+    set_priority();
+#endif
+
+    if (codec_path)
+        set_codec_path(codec_path);
+
+    /* Check codecs.conf. */
+    if (!codecs_file || !parse_codec_cfg(codecs_file)) {
+        char *conf_path = get_path("codecs.conf");
+        if (!parse_codec_cfg(conf_path)) {
+            if (!parse_codec_cfg(MPLAYER_CONFDIR "/codecs.conf")) {
+                if (!parse_codec_cfg(NULL)) {
+                    free(conf_path);
+                    return 0;
+                }
+                mp_msg(MSGT_CPLAYER,MSGL_V,MSGTR_BuiltinCodecsConf);
+            }
+        }
+        free(conf_path);
+    }
+
+    // check font
+#ifdef CONFIG_FREETYPE
+    init_freetype();
+#endif
+#ifdef CONFIG_FONTCONFIG
+    if (font_fontconfig <= 0)
+#endif
+    {
+#ifdef CONFIG_BITMAP_FONT
+        if (font_name) {
+            vo_font = read_font_desc(font_name, font_factor, verbose>1);
+            if (!vo_font)
+                mp_msg(MSGT_CPLAYER,MSGL_ERR,MSGTR_CantLoadFont,
+                       filename_recode(font_name));
+        } else {
+            // try default:
+            char *desc_path = get_path("font/font.desc");
+            vo_font = read_font_desc(desc_path, font_factor, verbose>1);
+            free(desc_path);
+            if (!vo_font)
+                vo_font = read_font_desc(MPLAYER_DATADIR "/font/font.desc", font_factor, verbose>1);
+        }
+        if (sub_font_name)
+            sub_font = read_font_desc(sub_font_name, font_factor, verbose>1);
+        else
+            sub_font = vo_font;
+#endif
+    }
+
+    vo_init_osd();
+
+#ifdef CONFIG_ASS
+    ass_library = ass_init();
+#endif
+    return 1;
+}
+
+/// Returns a_pts
+double calc_a_pts(sh_audio_t *sh_audio, demux_stream_t *d_audio)
+{
+    double a_pts;
+    if(!sh_audio || !d_audio)
+        return MP_NOPTS_VALUE;
+    // first calculate the end pts of audio that has been output by decoder
+    a_pts = sh_audio->pts;
+    // If we cannot get any useful information at all from the demuxer layer
+    // just count the decoded bytes. This is still better than constantly
+    // resetting to 0.
+    if (sh_audio->pts_bytes && a_pts == MP_NOPTS_VALUE &&
+        !d_audio->pts && !sh_audio->i_bps)
+        a_pts = 0;
+    if (a_pts != MP_NOPTS_VALUE)
+        // Good, decoder supports new way of calculating audio pts.
+        // sh_audio->pts is the timestamp of the latest input packet with
+        // known pts that the decoder has decoded. sh_audio->pts_bytes is
+        // the amount of bytes the decoder has written after that timestamp.
+        a_pts += sh_audio->pts_bytes / (double) sh_audio->o_bps;
+    else {
+        // Decoder doesn't support new way of calculating pts (or we're
+        // being called before it has decoded anything with known timestamp).
+        // Use the old method of audio pts calculation: take the timestamp
+        // of last packet with known pts the decoder has read data from,
+        // and add amount of bytes read after the beginning of that packet
+        // divided by input bps. This will be inaccurate if the input/output
+        // ratio is not constant for every audio packet or if it is constant
+        // but not accurately known in sh_audio->i_bps.
+
+        a_pts = d_audio->pts;
+        // ds_tell_pts returns bytes read after last timestamp from
+        // demuxing layer, decoder might use sh_audio->a_in_buffer for bytes
+        // it has read but not decoded
+        if (sh_audio->i_bps)
+            a_pts += (ds_tell_pts(d_audio) - sh_audio->a_in_buffer_len) /
+                     (double)sh_audio->i_bps;
+    }
+    return a_pts;
+}

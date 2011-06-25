@@ -7,7 +7,7 @@ The latest version can be found at http://www.linuxstb.org/dvbstream
 
 Modified for use with MPlayer, for details see the changelog at
 http://svn.mplayerhq.hu/mplayer/trunk/
-$Id: stream_dvb.c 30943 2010-03-20 23:38:27Z diego $
+$Id: stream_dvb.c 33346 2011-05-01 18:07:59Z iive $
 
 Copyright notice:
 
@@ -76,7 +76,7 @@ stream_defaults =
 static const m_option_t stream_params[] = {
 	{"prog", ST_OFF(prog), CONF_TYPE_STRING, 0, 0 ,0, NULL},
 	{"card", ST_OFF(card), CONF_TYPE_INT, M_OPT_RANGE, 1, 4, NULL},
-	{"timeout",ST_OFF(timeout),  CONF_TYPE_INT, M_OPT_RANGE, 1, 30, NULL},
+	{"timeout",ST_OFF(timeout),  CONF_TYPE_INT, M_OPT_RANGE, 1, 240, NULL},
 	{"file", ST_OFF(file), CONF_TYPE_STRING, 0, 0 ,0, NULL},
 
 	{"hostname", 	ST_OFF(prog), CONF_TYPE_STRING, 0, 0, 0, NULL },
@@ -96,7 +96,7 @@ static const struct m_struct_st stream_opts = {
 const m_option_t dvbin_opts_conf[] = {
 	{"prog", &stream_defaults.prog, CONF_TYPE_STRING, 0, 0 ,0, NULL},
 	{"card", &stream_defaults.card, CONF_TYPE_INT, M_OPT_RANGE, 1, 4, NULL},
-	{"timeout",  &stream_defaults.timeout,  CONF_TYPE_INT, M_OPT_RANGE, 1, 30, NULL},
+	{"timeout",  &stream_defaults.timeout,  CONF_TYPE_INT, M_OPT_RANGE, 1, 240, NULL},
 	{"file", &stream_defaults.file, CONF_TYPE_STRING, 0, 0 ,0, NULL},
 
 	{NULL, NULL, 0, 0, 0, 0, NULL}
@@ -403,8 +403,7 @@ static dvb_channels_list *dvb_get_channels(char *filename, int type)
 	fclose(f);
 	if(list->NUM_CHANNELS == 0)
 	{
-		if(list->channels != NULL)
-			free(list->channels);
+		free(list->channels);
 		free(list);
 		return NULL;
 	}
@@ -419,17 +418,13 @@ void dvb_free_config(dvb_config_t *config)
 
 	for(i=0; i<config->count; i++)
 	{
-		if(config->cards[i].name)
-			free(config->cards[i].name);
+		free(config->cards[i].name);
 		if(!config->cards[i].list)
 			continue;
 		if(config->cards[i].list->channels)
 		{
 			for(j=0; j<config->cards[i].list->NUM_CHANNELS; j++)
-			{
-				if(config->cards[i].list->channels[j].name)
-					free(config->cards[i].list->channels[j].name);
-			}
+				free(config->cards[i].list->channels[j].name);
 			free(config->cards[i].list->channels);
 		}
 		free(config->cards[i].list);
@@ -783,6 +778,7 @@ dvb_config_t *dvb_get_config(void)
 			continue;
 		}
 
+		conf_file = get_path("channels.conf");
 		switch(type)
 		{
 			case TUNER_TER:
@@ -801,20 +797,17 @@ dvb_config_t *dvb_get_config(void)
 
 		if((access(conf_file, F_OK | R_OK) != 0))
 		{
-			if(conf_file)
-				free(conf_file);
+			free(conf_file);
 			conf_file = get_path("channels.conf");
 			if((access(conf_file, F_OK | R_OK) != 0))
 			{
-				if(conf_file)
-					free(conf_file);
+				free(conf_file);
 				conf_file = strdup(MPLAYER_CONFDIR "/channels.conf");
 			}
 		}
 
 		list = dvb_get_channels(conf_file, type);
-		if(conf_file)
-			free(conf_file);
+		free(conf_file);
 		if(list == NULL)
 			continue;
 

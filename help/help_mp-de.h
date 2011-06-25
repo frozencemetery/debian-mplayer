@@ -69,11 +69,14 @@ static const char help_text[]=
 #define MSGTR_GetpathProblem "get_path(\"config\") fehlgeschlagen.\n"
 #define MSGTR_CreatingCfgFile "Erstelle Konfigurationsdatei: %s\n"
 #define MSGTR_BuiltinCodecsConf "Benutze eingebaute Standardwerte für codecs.conf.\n"
-#define MSGTR_CantLoadFont "Kann Bitmap-Schriftdatei nicht laden: %s\n"
-#define MSGTR_CantLoadSub "Kann Untertitel nicht laden: %s\n"
+#define MSGTR_CantLoadFont "Bitmap-Schriftdatei '%s' kann nicht geladen werden.\n"
+#define MSGTR_CantLoadSub "Untertitel '%s' können nicht geladen werden.\n"
 #define MSGTR_DumpSelectedStreamMissing "dump: FATAL: Ausgewählter Stream fehlt!\n"
 #define MSGTR_CantOpenDumpfile "Kann dump-Datei nicht öffnen!\n"
 #define MSGTR_CoreDumped "Core dumped ;)\n"
+#define MSGTR_DumpBytesWrittenPercent "Dump: %"PRIu64" Byte geschrieben (~%.1f%%) ...\r"
+#define MSGTR_DumpBytesWritten "Dump: %"PRIu64" Byte geschrieben ...\r"
+#define MSGTR_DumpBytesWrittenTo "Dump: %"PRIu64" Byte in Datei %s geschrieben.\n"
 #define MSGTR_FPSnotspecified "FPS ist im Header nicht angegeben (oder ungültig)! Benutze die Option -fps!\n"
 #define MSGTR_TryForceAudioFmtStr "Versuche Audiocodecfamilie %s zu erzwingen...\n"
 #define MSGTR_CantFindAudioCodec "Kann Codec für Audioformat 0x%X nicht finden!\n"
@@ -131,7 +134,7 @@ static const char help_text[]=
 #define MSGTR_ForcedAudioCodec "Erzwungener Audiocodec: %s\n"
 #define MSGTR_Video_NoVideo "Video: kein Video\n"
 #define MSGTR_NotInitializeVOPorVO "\nFATAL: Konnte Videofilter (-vf) oder -ausgabetreiber (-vo) nicht initialisieren.\n"
-#define MSGTR_Paused "\n  =====  PAUSE  =====\r"
+#define MSGTR_Paused "  =====  PAUSE  ====="
 #define MSGTR_PlaylistLoadUnable "\nKann Playlist %s nicht laden.\n"
 #define MSGTR_Exit_SIGILL_RTCpuSel \
 "- MPlayer stürzte aufgrund einer 'ungültigen Anweisung' ab.\n"\
@@ -167,7 +170,6 @@ static const char help_text[]=
 #define MSGTR_IncreaseRTCMaxUserFreq "Versuche, \"echo %lu > /proc/sys/dev/rtc/max-user-freq\" zu deinen Systemstartskripten hinzuzufügen.\n"
 #define MSGTR_LinuxRTCInitErrorPieOn "Linux-RTC-Initialisierungsfehler in ioctl (rtc_pie_on): %s\n"
 #define MSGTR_UsingTimingType "Benutze %s-Zeitgeber.\n"
-#define MSGTR_NoIdleAndGui "Die Option -idle kann mit GMPlayer nicht verwendet werden.\n"
 #define MSGTR_MenuInitialized "Menü initialisiert: %s\n"
 #define MSGTR_MenuInitFailed "Initialisierung des Menüs fehlgeschlagen.\n"
 #define MSGTR_Getch2InitializedTwice "WARNUNG: getch2_init doppelt aufgerufen!\n"
@@ -207,7 +209,6 @@ static const char help_text[]=
 #define MSGTR_EdloutBadStop "EDL-Sprung abgebrochen, letzter Start > Stop\n"
 #define MSGTR_EdloutStartSkip "EDL-Sprung begonnen, drücke 'i' erneut, um den Block zu beenden.\n"
 #define MSGTR_EdloutEndSkip "EDL-Sprung beendet, Zeile geschrieben.\n"
-#define MSGTR_MPEndposNoSizeBased "Die Option -endpos unterstützt für MPlayer noch keine Größenangaben.\n"
 
 // mplayer.c OSD
 #define MSGTR_OSDenabled "aktiviert"
@@ -555,6 +556,17 @@ static const char help_text[]=
 
 #define MSGTR_CantOpenDVD "Kann DVD-Laufwerk nicht öffnen: %s (%s)\n"
 
+#define MSGTR_URLParsingFailed "Fehler bei der Analyse der URL %s\n"
+#define MSGTR_FailedSetStreamOption "Datenstrom-Option %s=%s konnte nicht gesetzt werden.\n"
+#define MSGTR_StreamNeedType "Datenströme benötigen einen Typ!\n"
+#define MSGTR_StreamProtocolNULL "Datenstrom-Typ ohne Protokolle, das ist ein Fehler\n"
+#define MSGTR_StreamCantHandleURL "Kein Datenstrom zur Verarbeitung der URL %s gefunden.\n"
+#define MSGTR_StreamNULLFilename "open_output_stream(), Dateiname NULL, Fehler bitte melden\n"
+#define MSGTR_StreamErrorWritingCapture "Fehler beim Schreiben der Capture-Datei: %s\n"
+#define MSGTR_StreamSeekFailed "Positionieren fehlgeschlagen.\n"
+#define MSGTR_StreamNotSeekable "Positionieren im Datenstrom nicht möglich!\n"
+#define MSGTR_StreamCannotSeekBackward "Zurückpositionieren in linearem Datenstrom nicht möglich!\n"
+
 // stream_dvd.c
 #define MSGTR_DVDspeedCantOpen "Kann DVD-Laufwerk nicht zum Schreiben öffnen, setzen der DVD-Geschwindigkeit\nbenötigt Schreibzugriff.\n"
 #define MSGTR_DVDrestoreSpeed "Setze DVD-Geschwindigkeit auf Laufwerksstandard zurück... "
@@ -655,7 +667,7 @@ static const char help_text[]=
 #define MSGTR_EnterTelecineMode "\ndemux_mpg: 24000/1001fps progressiver NTSC-Inhalt erkannt, wechsele Framerate.\n"
 
 #define MSGTR_CacheFill "\rFülle Zwischenpuffer: %5.2f%% (%"PRId64" Bytes)   "
-#define MSGTR_NoBindFound "Bindung für Taste '%s' nicht gefunden."
+#define MSGTR_NoBindFound "Bindung für Taste '%s' nicht gefunden.\n"
 #define MSGTR_FailedToOpen "Konnte '%s' nicht öffnen.\n"
 
 #define MSGTR_VideoID "[%s] Videostream gefunden, -vid %d\n"
@@ -766,37 +778,36 @@ static const char help_text[]=
 #define MSGTR_Browse "Durchsuchen"
 
 // --- error messages ---
-#define MSGTR_NEMDB "Sorry, nicht genug Speicher zum Zeichnen des Puffers."
+#define MSGTR_NEMDB "Sorry, nicht genug Speicher zum Zeichnen des Puffers.\n"
 #define MSGTR_NEMFMR "Sorry, nicht genug Speicher für Menü-Rendering."
-#define MSGTR_IDFGCVD "Sorry, habe keinen GUI-kompatiblen Ausgabetreiber gefunden."
+#define MSGTR_IDFGCVD "Sorry, es wurde kein GUI-kompatibler Ausgabetreiber gefunden.\n"
 #define MSGTR_NEEDLAVC "Sorry, du versuchst, Nicht-MPEG Dateien ohne erneute Encodierung abzuspielen.\nBitte aktiviere lavc in der DXR3/H+-Konfigurationsbox."
-#define MSGTR_UNKNOWNWINDOWTYPE "Unbekannten Fenstertyp gefunden ..."
+#define MSGTR_ICONERROR "Icon '%s' wurde nicht gefunden oder das Format wird nicht unterstützt.\n"
 
 // --- skin loader error messages
-#define MSGTR_SKIN_ERRORMESSAGE "[Skin] Fehler in Skin-Konfigurationsdatei in Zeile %d: %s"
-#define MSGTR_SKIN_WARNING1 "[Skin] Warnung: in Skin-Konfigurationsdatei in Zeile %d:\nWidget (%s) gefunden, aber davor wurde \"section\" nicht gefunden"
-#define MSGTR_SKIN_WARNING2 "[Skin] Warnung: in Skin-Konfigurationsdatei in Zeile %d:\nWidget (%s) gefunden, aber davor wurde \"subsection\" nicht gefunden."
-#define MSGTR_SKIN_WARNING3 "[skin] Warnung: in Skin-Konfigurationsdatei in Zeile %d:\nDiese Untersektion wird vom Widget nicht unterstützt (%s)."
-#define MSGTR_SKIN_SkinFileNotFound "[skin] Datei ( %s ) nicht gefunden.\n"
-#define MSGTR_SKIN_SkinFileNotReadable "[skin] Datei ( %s ) nicht lesbar.\n"
-#define MSGTR_SKIN_BITMAP_16bit  "Bitmaps mit 16 Bits oder weniger werden nicht unterstützt (%s).\n"
-#define MSGTR_SKIN_BITMAP_FileNotFound  "Datei nicht gefunden (%s)\n"
-#define MSGTR_SKIN_BITMAP_BMPReadError "BMP-Lesefehler (%s)\n"
-#define MSGTR_SKIN_BITMAP_TGAReadError "TGA-Lesefehler (%s)\n"
-#define MSGTR_SKIN_BITMAP_PNGReadError "PNG-Lesefehler (%s)\n"
-#define MSGTR_SKIN_BITMAP_RLENotSupported "RLE-gepacktes TGA wird nicht unterstützt (%s)\n"
-#define MSGTR_SKIN_BITMAP_UnknownFileType "unbekannter Dateityp (%s)\n"
-#define MSGTR_SKIN_BITMAP_ConversionError "Konvertierungsfehler von 24 Bit auf 32 Bit (%s)\n"
-#define MSGTR_SKIN_BITMAP_UnknownMessage "unbekannte Nachricht: %s\n"
-#define MSGTR_SKIN_FONT_NotEnoughtMemory "nicht genug Speicher\n"
+#define MSGTR_SKIN_ERRORMESSAGE "Fehler in Skin-Konfigurationsdatei in Zeile %d: %s"
+#define MSGTR_SKIN_ERROR_SECTION "Für '%s' wurde kein Abschnitt angegeben.\n"
+#define MSGTR_SKIN_ERROR_WINDOW "Für '%s' wurde kein Fenster angegeben.\n"
+#define MSGTR_SKIN_ERROR_ITEM "Dieses Element wird in '%s' nicht unterstützt.\n"
+#define MSGTR_SKIN_UNKNOWN_ITEM "Unbekanntes Element '%s'\n"
+#define MSGTR_SKIN_UNKNOWN_NAME "Unbekannter Name '%s'\n"
+#define MSGTR_SKIN_SkinFileNotFound "Skin-Datei %s nicht gefunden.\n"
+#define MSGTR_SKIN_SkinFileNotReadable "Skin-Datei %s nicht lesbar.\n"
+#define MSGTR_SKIN_BITMAP_16bit  "Die Farbtiefe von %s beträgt 16 bpp oder weniger, was nicht unterstützt wird.\n"
+#define MSGTR_SKIN_BITMAP_FileNotFound  "Bitmap %s nicht gefunden.\n"
+#define MSGTR_SKIN_BITMAP_PNGReadError "PNG-Lesefehler in %s\n"
+#define MSGTR_SKIN_BITMAP_ConversionError "24-bpp-zu-32-bpp-Konvertierungsfehler in %s\n"
+#define MSGTR_SKIN_UnknownMessage "Unbekannte Nachricht '%s'\n"
+#define MSGTR_SKIN_NotEnoughMemory "Nicht genug Speicher\n"
+#define MSGTR_SKIN_TooManyItemsDeclared "Zu viele Elemente deklariert.\n"
 #define MSGTR_SKIN_FONT_TooManyFontsDeclared "Zu viele Schriften deklariert.\n"
-#define MSGTR_SKIN_FONT_FontFileNotFound "Schriftdatei nicht gefunden.\n"
-#define MSGTR_SKIN_FONT_FontImageNotFound "Schriftbilddatei nicht gefunden.\n"
-#define MSGTR_SKIN_FONT_NonExistentFontID "nicht existierende Schriftbezeichnung (%s)\n"
-#define MSGTR_SKIN_UnknownParameter "unbekannter Parameter (%s)\n"
-#define MSGTR_SKIN_SKINCFG_SkinNotFound "Skin nicht gefunden (%s).\n"
-#define MSGTR_SKIN_SKINCFG_SelectedSkinNotFound "Ausgewähltes Skin ( %s ) wurde nicht gefunden, versuche 'Standard'...\n"
-#define MSGTR_SKIN_SKINCFG_SkinCfgReadError "Skin-Konfigurationsdatei: Lesefehler (%s)\n"
+#define MSGTR_SKIN_FONT_FontFileNotFound "Schrift-Beschreibungsdatei nicht gefunden.\n"
+#define MSGTR_SKIN_FONT_FontImageNotFound "Schrift-Bilddatei nicht gefunden.\n"
+#define MSGTR_SKIN_FONT_NonExistentFont "Schrift '%s' nicht gefunden.\n"
+#define MSGTR_SKIN_UnknownParameter "Unbekannter Parameter '%s'\n"
+#define MSGTR_SKIN_SKINCFG_SkinNotFound "Skin '%s' nicht gefunden.\n"
+#define MSGTR_SKIN_SKINCFG_SelectedSkinNotFound "Ausgewähltes Skin '%s' nicht gefunden, Skin 'default' wird versucht ...\n"
+#define MSGTR_SKIN_SKINCFG_SkinCfgError "Verarbeitungsfehler in Konfigurationsdatei des Skins '%s'\n"
 #define MSGTR_SKIN_LABEL "Skins:"
 
 // --- GTK-Menüs
@@ -971,6 +982,7 @@ static const char help_text[]=
 #define MSGTR_PREFERENCES_SaveWinPos "Speichere Fensterposition"
 #define MSGTR_PREFERENCES_XSCREENSAVER "Deaktiviere XScreenSaver"
 #define MSGTR_PREFERENCES_PlayBar "Aktiviere die Playbar"
+#define MSGTR_PREFERENCES_NoIdle "Programm nach der Wiedergabe beenden"
 #define MSGTR_PREFERENCES_AutoSync "AutoSync ein/aus"
 #define MSGTR_PREFERENCES_AutoSyncValue "Autosyncwert: "
 #define MSGTR_PREFERENCES_CDROMDevice "CD-ROM-Gerät:"
@@ -992,25 +1004,18 @@ static const char help_text[]=
 #define MSGTR_MSGBOX_LABEL_Error "Fehler!"
 #define MSGTR_MSGBOX_LABEL_Warning "Warnung!"
 
-// bitmap.c
-#define MSGTR_NotEnoughMemoryC32To1 "[c32to1] Für das Bild ist nicht genügend Speicher vorhanden.\n"
-#define MSGTR_NotEnoughMemoryC1To32 "[c1to32] Für das Bild ist nicht genügend Speicher vorhanden.\n"
-
 // cfg.c
-#define MSGTR_ConfigFileReadError "[cfg] Fehler beim Lesen der Konfigurationsdatei ...\n"
-#define MSGTR_UnableToSaveOption "[cfg] Kann die Option '%s' nicht speichern.\n"
+#define MSGTR_UnableToSaveOption "Die Option '%s' kann nicht gespeichert werden.\n"
 
 // interface.c
-#define MSGTR_DeletingSubtitles "[GUI] Lösche Untertitel.\n"
-#define MSGTR_LoadingSubtitles "[GUI] Lade Untertitel: %s\n"
-#define MSGTR_AddingVideoFilter "[GUI] Füge Videofilter %s hinzu.\n"
-#define MSGTR_RemovingVideoFilter "[GUI] Entferne Videofilter: %s\n"
+#define MSGTR_DeletingSubtitles "Untertitel werden gelöscht.\n"
+#define MSGTR_LoadingSubtitles "Untertitel '%s' werden geladen.\n"
+#define MSGTR_AddingVideoFilter "Videofilter '%s' wird hinzugefügt.\n"
 
 // mw.c
 #define MSGTR_NotAFile "Dies scheint keine Datei zu sein: %s !\n"
 
 // ws.c
-#define MSGTR_WS_CouldNotOpenDisplay "[ws] Konnte das Display nicht öffnen.\n"
 #define MSGTR_WS_RemoteDisplay "[ws] Ferngesteuertes Display, deaktiviere XMITSHM.\n"
 #define MSGTR_WS_NoXshm "[ws] Sorry, dein System unterstützt die Shared-Memory-Erweiterung von X nicht.\n"
 #define MSGTR_WS_NoXshape "[ws] Sorry, dein System unterstützt die XShape-Erweiterung nicht.\n"
@@ -1156,8 +1161,8 @@ static const char help_text[]=
 // ao_pcm.c
 #define MSGTR_AO_PCM_FileInfo "[AO PCM] Datei: %s (%s)\nPCM: Samplerate: %iHz Kanäle: %s Format %s\n"
 #define MSGTR_AO_PCM_HintInfo \
-"[AO PCM] Info: Das Anlegen von Dump-Dateien wird am Schnellsten mit\n" \
-"         -vc null -vo null -ao pcm:fast erreicht.\n" \
+"[AO PCM] Info: Das Anlegen von Dump-Dateien wird am schnellsten mit\n" \
+"         -benchmark -vc null -vo null -ao pcm:fast erreicht.\n" \
 "[AO PCM] Info: Um WAVE-Dateien zu schreiben, benutze\n" \
 "         -ao pcm:waveheader (Standard).\n"
 #define MSGTR_AO_PCM_CantOpenOutputFile "[AO PCM] Öffnen von %s zum Schreiben fehlgeschlagen!\n"
@@ -1178,7 +1183,7 @@ static const char help_text[]=
 "         Konnte gewünschte Samplerate nicht setzen.\n"
 #define MSGTR_AO_SGI_CantSetAlRate "[AO SGI] init: AL_RATE wurde von der angegebenen Ressource nicht akzeptiert.\n"
 #define MSGTR_AO_SGI_CantGetParms "[AO SGI] init: getparams fehlgeschlagen: %s\n"
-#define MSGTR_AO_SGI_SampleRateInfo "[AO SGI] init: Samplerate ist jetzt %lf (gewünschte Rate ist %lf).\n"
+#define MSGTR_AO_SGI_SampleRateInfo "[AO SGI] init: Samplerate ist jetzt %f (gewünschte Rate ist %f).\n"
 #define MSGTR_AO_SGI_InitConfigError "[AO SGI] init: %s\n"
 #define MSGTR_AO_SGI_InitOpenAudioFailed "[AO SGI] init: Konnte Audiokanal nicht öffnen: %s\n"
 #define MSGTR_AO_SGI_Uninit "[AO SGI] uninit: ...\n"
@@ -1341,7 +1346,6 @@ static const char help_text[]=
 #define MSGTR_INPUT_INPUT_ErrBuffer2SmallForCmd "Der Puffer ist zu klein für Kommando '%s'.\n"
 #define MSGTR_INPUT_INPUT_ErrWhyHere "Interner Fehler: Was machen wir hier?\n"
 #define MSGTR_INPUT_INPUT_ErrCantInitJoystick "Konnte Joystick nicht initialisieren.\n"
-#define MSGTR_INPUT_INPUT_ErrCantStatFile "Stat auf Datei '%s' fehlgeschlagen: %s\n"
 #define MSGTR_INPUT_INPUT_ErrCantOpenFile "Konnte Datei '%s' nicht öffnen: %s\n"
 #define MSGTR_INPUT_INPUT_ErrCantInitAppleRemote "Konnte Apple Remote Fernbedienung nicht initialisieren.\n"
 
@@ -1793,7 +1797,7 @@ static const char help_text[]=
 #define MSGTR_LIBVO_DXR3_XCorrection "[VO_DXR3] X-Koorektur: %d.\n"
 #define MSGTR_LIBVO_DXR3_FailedSetSignalMix "[VO_DXR3] Konnte Signal-Mix nicht setzen!\n"
 
-// libvo/font_load_ft.c
+// font_load_ft.c
 #define MSGTR_LIBVO_FONT_LOAD_FT_NewFaceFailed "New_Face fehlgeschlagen. Vielleicht ist der Pfad zu den Schriften falsch?\nBitte stelle eine Text-Schriftdatei zur Verfügung (~/.mplayer/subfont.ttf).\n"
 #define MSGTR_LIBVO_FONT_LOAD_FT_NewMemoryFaceFailed "New_Memory_Face fehlgeschlagen..\n"
 #define MSGTR_LIBVO_FONT_LOAD_FT_SubFaceFailed "subtitle font: load_sub_face fehlgeschlagen.\n"
@@ -2176,8 +2180,9 @@ static const char help_text[]=
 #define MSGTR_TVI_DS_UnableTerminateVPPin "tvi_dshow: Kann VideoPort-Pin mit keinem Filter des Graphen terminieren. Fehler:0x%x\n"
 #define MSGTR_TVI_DS_UnableBuildVideoSubGraph "tvi_dshow: Kann Videokette des Capture-Graphen nicht erstellen. Fehler:0x%x\n"
 #define MSGTR_TVI_DS_UnableBuildAudioSubGraph "tvi_dshow: Kann Audiokette des Capture-Graphen nicht erstellen. Fehler:0x%x\n"
-#define MSGTR_TVI_DS_UnableBuildVBISubGraph "tvi_dshow: Kann VBI-Kette des Capture-Graphen nicht erstellen. Fehler:0x%x\n""
+#define MSGTR_TVI_DS_UnableBuildVBISubGraph "tvi_dshow: Kann VBI-Kette des Capture-Graphen nicht erstellen. Fehler:0x%x\n"
 #define MSGTR_TVI_DS_GraphInitFailure "tvi_dshow: Initialisierung des Directshow-Graph fehlgeschlagen.\n"
 #define MSGTR_TVI_DS_NoVideoCaptureDevice "tvi_dshow: Kein Gerät für Videoerfassung gefunden\n"
 #define MSGTR_TVI_DS_NoAudioCaptureDevice "tvi_dshow: Kein Gerät für Audioerfassung gefunden\n"
 #define MSGTR_TVI_DS_GetActualMediatypeFailed "tvi_dshow: Kann eigentlichen Medientyp nicht ermitteln (Fehler:0x%x).\nNehme an, dieser entspricht dem angeforderten.\n"
+

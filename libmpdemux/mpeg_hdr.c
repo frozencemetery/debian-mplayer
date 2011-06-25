@@ -45,7 +45,7 @@ static float frameratecode2framerate[16] = {
 
 int mp_header_process_sequence_header (mp_mpeg_header_t * picture, const unsigned char * buffer)
 {
-    int width, height;
+    int height;
 
     if ((buffer[6] & 0x20) != 0x20){
 	fprintf(stderr, "missing marker bit!\n");
@@ -54,11 +54,8 @@ int mp_header_process_sequence_header (mp_mpeg_header_t * picture, const unsigne
 
     height = (buffer[0] << 16) | (buffer[1] << 8) | buffer[2];
 
-    picture->display_picture_width = (height >> 12);
-    picture->display_picture_height = (height & 0xfff);
-
-    width = ((height >> 12) + 15) & ~15;
-    height = ((height & 0xfff) + 15) & ~15;
+    picture->display_picture_width = height >> 12;
+    picture->display_picture_height = height & 0xfff;
 
     picture->aspect_ratio_information = buffer[3] >> 4;
     picture->frame_rate_code = buffer[3] & 15;
@@ -373,7 +370,40 @@ static int h264_parse_vui(mp_mpeg_header_t * picture, unsigned char * buf, unsig
   return n;
 }
 
-static int mp_unescape03(unsigned char *buf, int len);
+static int mp_unescape03(unsigned char *buf, int len)
+{
+  unsigned char *dest;
+  int i, j, skip;
+
+  dest = malloc(len);
+  if(! dest)
+    return 0;
+
+  j = i = skip = 0;
+  while(i <= len-3)
+  {
+    if(buf[i] == 0 && buf[i+1] == 0 && buf[i+2] == 3)
+    {
+      dest[j] = dest[j+1] = 0;
+      j += 2;
+      i += 3;
+      skip++;
+    }
+    else
+    {
+      dest[j] = buf[i];
+      j++;
+      i++;
+    }
+  }
+  dest[j] = buf[len-2];
+  dest[j+1] = buf[len-1];
+  len -= skip;
+  memcpy(buf, dest, len);
+  free(dest);
+
+  return len;
+}
 
 int h264_parse_sps(mp_mpeg_header_t * picture, unsigned char * buf, int len)
 {
@@ -436,41 +466,6 @@ int h264_parse_sps(mp_mpeg_header_t * picture, unsigned char * buf, int len)
     n = h264_parse_vui(picture, buf, n);
 
   return n;
-}
-
-static int mp_unescape03(unsigned char *buf, int len)
-{
-  unsigned char *dest;
-  int i, j, skip;
-
-  dest = malloc(len);
-  if(! dest)
-    return 0;
-
-  j = i = skip = 0;
-  while(i <= len-3)
-  {
-    if(buf[i] == 0 && buf[i+1] == 0 && buf[i+2] == 3)
-    {
-      dest[j] = dest[j+1] = 0;
-      j += 2;
-      i += 3;
-      skip++;
-    }
-    else
-    {
-      dest[j] = buf[i];
-      j++;
-      i++;
-    }
-  }
-  dest[j] = buf[len-2];
-  dest[j+1] = buf[len-1];
-  len -= skip;
-  memcpy(buf, dest, len);
-  free(dest);
-
-  return len;
 }
 
 int mp_vc1_decode_sequence_header(mp_mpeg_header_t * picture, unsigned char * buf, int len)

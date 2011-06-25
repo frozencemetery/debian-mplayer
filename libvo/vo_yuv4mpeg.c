@@ -52,7 +52,7 @@
 #include "mp_msg.h"
 #include "help_mp.h"
 
-#include "sub.h"
+#include "sub/sub.h"
 
 #include "fastmemcpy.h"
 #include "libavutil/rational.h"
@@ -235,16 +235,14 @@ static int query_format(uint32_t format)
 // WARNING: config(...) also uses this
 static void uninit(void)
 {
-    if(image)
-		free(image);
+	free(image);
 	image = NULL;
 
 	if(yuv_out)
 		fclose(yuv_out);
 	yuv_out = NULL;
 
-	if (yuv_filename)
-		free(yuv_filename);
+	free(yuv_filename);
 	yuv_filename = NULL;
 	image_width = 0;
 	image_height = 0;
@@ -299,7 +297,7 @@ static int preinit(const char *arg)
     return 0;
 }
 
-static int control(uint32_t request, void *data, ...)
+static int control(uint32_t request, void *data)
 {
   switch (request) {
   case VOCTRL_QUERY_FORMAT:
