@@ -35,13 +35,16 @@
 #include <stdio.h>
 
 #include "config.h"
+#include "sub/ass_mp.h"
 #include "mp_msg.h"
 #include "video_out.h"
 #include "video_out_internal.h"
+#include "libmpcodecs/vf.h"
 #include "x11_common.h"
 #include "aspect.h"
-#include "font_load.h"
-#include "sub.h"
+#include "sub/font_load.h"
+#include "sub/sub.h"
+#include "sub/eosd.h"
 #include "subopt-helper.h"
 
 #include "libavcodec/vdpau.h"
@@ -49,7 +52,6 @@
 #include "libavutil/common.h"
 #include "libavutil/mathematics.h"
 
-#include "libass/ass_mp.h"
 
 static vo_info_t info = {
     "VDPAU with X11",
@@ -124,6 +126,7 @@ static VdpPresentationQueueDestroy       *vdp_presentation_queue_destroy;
 static VdpPresentationQueueDisplay       *vdp_presentation_queue_display;
 static VdpPresentationQueueBlockUntilSurfaceIdle *vdp_presentation_queue_block_until_surface_idle;
 static VdpPresentationQueueTargetCreateX11       *vdp_presentation_queue_target_create_x11;
+static VdpPresentationQueueSetBackgroundColor    *vdp_presentation_queue_set_background_color;
 
 static VdpOutputSurfaceRenderOutputSurface       *vdp_output_surface_render_output_surface;
 static VdpOutputSurfacePutBitsIndexed            *vdp_output_surface_put_bits_indexed;
@@ -370,6 +373,8 @@ static int win_x11_init_vdpau_procs(void)
                         &vdp_presentation_queue_block_until_surface_idle},
         {VDP_FUNC_ID_PRESENTATION_QUEUE_TARGET_CREATE_X11,
                         &vdp_presentation_queue_target_create_x11},
+        {VDP_FUNC_ID_PRESENTATION_QUEUE_SET_BACKGROUND_COLOR,
+                        &vdp_presentation_queue_set_background_color},
         {VDP_FUNC_ID_OUTPUT_SURFACE_RENDER_OUTPUT_SURFACE,
                         &vdp_output_surface_render_output_surface},
         {VDP_FUNC_ID_OUTPUT_SURFACE_PUT_BITS_INDEXED,
@@ -416,6 +421,8 @@ static int win_x11_init_vdpau_procs(void)
 static int win_x11_init_vdpau_flip_queue(void)
 {
     VdpStatus vdp_st;
+    // {0, 0, 0, 0} makes the video shine through any black window on top
+    VdpColor vdp_bg = {0.01, 0.02, 0.03, 0};
 
     vdp_st = vdp_presentation_queue_target_create_x11(vdp_device, vo_window,
                                                       &vdp_flip_target);
@@ -425,6 +432,8 @@ static int win_x11_init_vdpau_flip_queue(void)
                                            &vdp_flip_queue);
     CHECK_ST_ERROR("Error when calling vdp_presentation_queue_create")
 
+    vdp_st = vdp_presentation_queue_set_background_color(vdp_flip_queue, &vdp_bg);
+    CHECK_ST_ERROR("Error when calling vdp_presentation_queue_set_background_color")
     return 0;
 }
 
@@ -514,16 +523,12 @@ static int create_vdp_mixer(VdpChromaType vdp_chroma_type)
     return 0;
 }
 
-// Free everything specific to a certain video file
-static void free_video_specific(void)
+static void mark_invalid(void)
 {
     int i;
-    VdpStatus vdp_st;
 
-    if (decoder != VDP_INVALID_HANDLE)
-        vdp_decoder_destroy(decoder);
     decoder = VDP_INVALID_HANDLE;
-    decoder_max_refs = -1;
+    video_mixer = VDP_INVALID_HANDLE;
 
     for (i = 0; i < 3; i++)
         deint_surfaces[i] = VDP_INVALID_HANDLE;
@@ -533,6 +538,17 @@ static void free_video_specific(void)
             deint_mpi[i]->usage_count--;
             deint_mpi[i] = NULL;
         }
+}
+
+// Free everything specific to a certain video file
+static void free_video_specific(void)
+{
+    int i;
+    VdpStatus vdp_st;
+
+    if (decoder != VDP_INVALID_HANDLE)
+        vdp_decoder_destroy(decoder);
+    decoder_max_refs = -1;
 
     for (i = 0; i < MAX_VIDEO_SURFACES; i++) {
         if (surface_render[i].surface != VDP_INVALID_HANDLE) {
@@ -546,7 +562,7 @@ static void free_video_specific(void)
         vdp_st = vdp_video_mixer_destroy(video_mixer);
         CHECK_ST_WARNING("Error when calling vdp_video_mixer_destroy")
     }
-    video_mixer = VDP_INVALID_HANDLE;
+    mark_invalid();
 }
 
 static int create_vdp_decoder(uint32_t format, uint32_t width, uint32_t height,
@@ -596,16 +612,8 @@ static void mark_vdpau_objects_uninitialized(void)
 {
     int i;
 
-    decoder = VDP_INVALID_HANDLE;
     for (i = 0; i < MAX_VIDEO_SURFACES; i++)
         surface_render[i].surface = VDP_INVALID_HANDLE;
-    for (i = 0; i < 3; i++) {
-        deint_surfaces[i] = VDP_INVALID_HANDLE;
-        if (i < 2 && deint_mpi[i])
-            deint_mpi[i]->usage_count--;
-        deint_mpi[i] = NULL;
-    }
-    video_mixer     = VDP_INVALID_HANDLE;
     vdp_flip_queue  = VDP_INVALID_HANDLE;
     vdp_flip_target = VDP_INVALID_HANDLE;
     for (i = 0; i <= NUM_OUTPUT_SURFACES; i++)
@@ -616,6 +624,7 @@ static void mark_vdpau_objects_uninitialized(void)
     output_surface_width = output_surface_height = -1;
     eosd_render_count = 0;
     visible_buf = 0;
+    mark_invalid();
 }
 
 static int handle_preemption(void)
@@ -847,13 +856,13 @@ static void draw_eosd(void)
     }
 }
 
-static void generate_eosd(mp_eosd_images_t *imgs)
+static void generate_eosd(struct mp_eosd_image_list *imgs)
 {
     VdpStatus vdp_st;
     VdpRect destRect;
     int j, found;
-    ass_image_t *img = imgs->imgs;
-    ass_image_t *i;
+    struct mp_eosd_image *img = eosd_image_first(imgs);
+    struct mp_eosd_image *i;
 
     // Nothing changed, no need to redraw
     if (imgs->changed == 0)
@@ -869,7 +878,7 @@ static void generate_eosd(mp_eosd_images_t *imgs)
     for (j = 0; j < eosd_surface_count; j++)
         eosd_surfaces[j].in_use = 0;
 
-    for (i = img; i; i = i->next) {
+    for (i = img; i; i = eosd_image_next(imgs)) {
         // Try to reuse a suitable surface
         found = -1;
         for (j = 0; j < eosd_surface_count; j++) {
@@ -920,7 +929,7 @@ static void generate_eosd(mp_eosd_images_t *imgs)
 
 eosd_skip_upload:
     eosd_render_count = 0;
-    for (i = img; i; i = i->next) {
+    for (i = eosd_image_first(imgs); i; i = eosd_image_next(imgs)) {
         // Render dest, color, etc.
         eosd_targets[eosd_render_count].color.alpha = 1.0 - ((i->color >>  0) & 0xff) / 255.0;
         eosd_targets[eosd_render_count].color.blue  =       ((i->color >>  8) & 0xff) / 255.0;
@@ -1274,7 +1283,7 @@ static int preinit(const char *arg)
     return 0;
 }
 
-static int get_equalizer(char *name, int *value)
+static int get_equalizer(const char *name, int *value)
 {
     if (!strcasecmp(name, "brightness"))
         *value = procamp.brightness * 100;
@@ -1289,7 +1298,7 @@ static int get_equalizer(char *name, int *value)
     return VO_TRUE;
 }
 
-static int set_equalizer(char *name, int value)
+static int set_equalizer(const char *name, int value)
 {
     if (!strcasecmp(name, "brightness"))
         procamp.brightness = value / 100.0;
@@ -1305,7 +1314,7 @@ static int set_equalizer(char *name, int value)
     return update_csc_matrix();
 }
 
-static int control(uint32_t request, void *data, ...)
+static int control(uint32_t request, void *data)
 {
     if (handle_preemption() < 0)
         return VO_FALSE;
@@ -1359,26 +1368,15 @@ static int control(uint32_t request, void *data, ...)
         resize();
         return VO_TRUE;
     case VOCTRL_SET_EQUALIZER: {
-        va_list ap;
-        int value;
+        vf_equalizer_t *eq=data;
         if (image_format == IMGFMT_BGRA)
             return VO_NOTIMPL;
 
-        va_start(ap, data);
-        value = va_arg(ap, int);
-
-        va_end(ap);
-        return set_equalizer(data, value);
+        return set_equalizer(eq->item, eq->value);
     }
     case VOCTRL_GET_EQUALIZER: {
-        va_list ap;
-        int *value;
-
-        va_start(ap, data);
-        value = va_arg(ap, int *);
-
-        va_end(ap);
-        return get_equalizer(data, value);
+        vf_equalizer_t *eq=data;
+        return get_equalizer(eq->item, &eq->value);
     }
     case VOCTRL_ONTOP:
         vo_x11_ontop();
@@ -1393,7 +1391,7 @@ static int control(uint32_t request, void *data, ...)
         draw_eosd();
         return VO_TRUE;
     case VOCTRL_GET_EOSD_RES: {
-        mp_eosd_res_t *r = data;
+        struct mp_eosd_settings *r = data;
         r->mt = r->mb = r->ml = r->mr = 0;
         r->srcw = vid_width; r->srch = vid_height;
         if (vo_fs) {

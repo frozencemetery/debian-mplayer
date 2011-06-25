@@ -55,20 +55,15 @@ TODO:
 #include "video_out_internal.h"
 #include "fastmemcpy.h"
 #include "osdep/getch2.h"
-#ifdef CONFIG_VIDIX
 #include "vosub_vidix.h"
-#endif
 
-#include "sub.h"
+#include "sub/sub.h"
 
 #include "mp_msg.h"
 #include "help_mp.h"
 //#include "mp_image.h"
 
 #include <assert.h>
-
-//silence warnings, probably it have to go in some global header
-#define UNUSED(x) ((void)(x))
 
 
 static void draw_alpha(int x0, int y0, int w, int h, unsigned char *src,
@@ -358,7 +353,7 @@ static int find_best_svga_mode(int req_w,int req_h, int req_bpp){
     return bestmode;
 }
 
-static int control(uint32_t request, void *data, ...)
+static int control(uint32_t request, void *data)
 {
     switch (request) {
         case VOCTRL_QUERY_FORMAT:
@@ -371,30 +366,6 @@ static int control(uint32_t request, void *data, ...)
 
 #ifdef CONFIG_VIDIX
     if (vidix_name[0]) {
-        switch (request) {
-            case VOCTRL_SET_EQUALIZER:
-            {
-                va_list ap;
-                int value;
-
-                va_start(ap, data);
-                value = va_arg(ap, int);
-                va_end(ap);
-
-                return vidix_control(request, data, value);
-            }
-            case VOCTRL_GET_EQUALIZER:
-            {
-                va_list ap;
-                int *value;
-
-                va_start(ap, data);
-                value = va_arg(ap, int*);
-                va_end(ap);
-
-                return vidix_control(request, data, value);
-            }
-        }
         return vidix_control(request, data);
     }
 #endif
@@ -585,16 +556,11 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
 static int draw_slice(uint8_t *image[],int stride[],
                int w, int h, int x, int y) {
     assert(0);
-    UNUSED(image);UNUSED(stride);
-    UNUSED(w);UNUSED(h);
-    UNUSED(x);UNUSED(y);
-
     return VO_ERROR;//this is yv12 only -> vf_scale should do all transforms
 }
 
 static int draw_frame(uint8_t *src[]) {
     assert(0);
-    UNUSED(src);
     return VO_ERROR;//this one should not be called
 }
 

@@ -29,17 +29,33 @@
 
 #include "libvo/video_out.h"
 #include "libao2/audio_out.h"
+#include "osdep/priority.h"
 #include "mixer.h"
-#include "gui/mplayer/gmplayer.h"
+#include "gui/ui/gmplayer.h"
 #include "gui/interface.h"
 #include "gui.h"
 #include "mp_msg.h"
 #include "help_mp.h"
 #include "dialogs.h"
 
-extern char  *proc_priority;
 
-static void set_defaults(void);
+static void set_defaults(void)
+{
+    proc_priority = "normal";
+    vo_doublebuffering = 1;
+    vo_directrendering = 0;
+    frame_dropping = 0;
+    soft_vol = 0;
+    gtkAONorm = 0;
+    gtkAOExtraStereo = 0;
+    gtkAOExtraStereoMul = 1.0;
+    audio_delay = 0.0;
+    sub_window = 1;
+    gtkCacheOn = 0;
+    gtkCacheSize = 2048;
+    gtkAutoSyncOn = 0;
+    gtkAutoSync = 0;
+}
 
 static LRESULT CALLBACK PrefsWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -408,7 +424,7 @@ static LRESULT CALLBACK PrefsWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM
             if(gtkAOExtraStereo)
             {
                 SendDlgItemMessage(hwnd, ID_EXTRASTEREO, BM_SETCHECK, 1, 0);
-                if(!guiIntfStruct.Playing)
+                if(!guiInfo.Playing)
                 {
                     EnableWindow(track1, 1);
                     EnableWindow(track2, 1);
@@ -559,17 +575,17 @@ static LRESULT CALLBACK PrefsWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM
                 case ID_APPLY:
                 {
                     int strl;
-                    if(guiIntfStruct.Playing) guiGetEvent(guiCEvent, (void *)guiSetStop);
+                    if(guiInfo.Playing) guiGetEvent(guiSetState, (void *)GUI_STOP);
 
                     /* Set the video driver */
-                    gfree(video_driver_list[0]);
+                    free(video_driver_list[0]);
                     strl = SendMessage(vo_driver, CB_GETCURSEL, 0, 0);
                     video_driver_list[0] = malloc(strl);
                     SendMessage(vo_driver, CB_GETLBTEXT, (WPARAM)strl,
                                 (LPARAM)video_driver_list[0]);
 
                     /* Set the audio driver */
-                    gfree(audio_driver_list[0]);
+                    free(audio_driver_list[0]);
                     strl = SendMessage(ao_driver, CB_GETCURSEL, 0, 0);
                     audio_driver_list[0] = malloc(strl);
                     SendMessage(ao_driver, CB_GETLBTEXT, (WPARAM)strl,
@@ -694,22 +710,4 @@ void display_prefswindow(gui_t *gui)
    SetWindowLongPtr(hWnd, GWLP_USERDATA, (DWORD) gui);
    ShowWindow(hWnd, SW_SHOW);
    UpdateWindow(hWnd);
-}
-
-static void set_defaults(void)
-{
-    proc_priority = "normal";
-    vo_doublebuffering = 1;
-    vo_directrendering = 0;
-    frame_dropping = 0;
-    soft_vol = 0;
-    gtkAONorm = 0;
-    gtkAOExtraStereo = 0;
-    gtkAOExtraStereoMul = 1.0;
-    audio_delay = 0.0;
-    sub_window = 1;
-    gtkCacheOn = 0;
-    gtkCacheSize = 2048;
-    gtkAutoSyncOn = 0;
-    gtkAutoSync = 0;
 }

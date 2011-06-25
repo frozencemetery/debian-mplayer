@@ -35,7 +35,7 @@
 
 #include "config.h"
 #include "mp_msg.h"
-
+#include "mencoder.h"
 #include "codec-cfg.h"
 #include "stream/stream.h"
 #include "libmpdemux/demuxer.h"
@@ -46,6 +46,7 @@
 
 #include "img_format.h"
 #include "mp_image.h"
+#include "ve.h"
 #include "vf.h"
 
 #include <xvid.h>
@@ -113,6 +114,11 @@ static const profile_t profiles[] =
 	{ "sp1",           0x01,  176, 144, 15,  4,  198,   99,   1485, 100,  10*16368,  2048,   64000,        0, -1, PROFILE_S|PROFILE_ADAPTQUANT },
 	{ "sp2",           0x02,  352, 288, 15,  4,  792,  396,   5940, 100,  40*16368,  4096,  128000,        0, -1, PROFILE_S|PROFILE_ADAPTQUANT },
 	{ "sp3",           0x03,  352, 288, 15,  4,  792,  396,  11880, 100,  40*16368,  8192,  384000,        0, -1, PROFILE_S|PROFILE_ADAPTQUANT },
+	/* From ISO/IEC 14496-2:2004/FPDAM 2: New Levels for Simple Profile */
+	{ "sp4a",          0x04,  640, 480, 30,  4, 2400, 1200,  36000, 100,  80*16368, 16384, 4000000,        0, -1, PROFILE_S|PROFILE_ADAPTQUANT },
+	{ "sp5",           0x05,  720, 576, 30,  4, 3240, 1620,  40500, 100, 112*16368, 16384, 8000000,        0, -1, PROFILE_S|PROFILE_ADAPTQUANT },
+	/* From ISO/IEC 14496-2:2004/FPDAM 4: Simple profile level 6 */
+	{ "sp6",           0x06, 1280, 720, 30,  4, 7200, 3600, 108000, 100, 248*16368, 16384,12000000,        0, -1, PROFILE_S|PROFILE_ADAPTQUANT },
 
 	{ "asp0",          0xf0,  176, 144, 30,  1,  297,   99,   2970, 100,  10*16368,  2048,  128000,        0, -1, PROFILE_AS },
 	{ "asp1",          0xf1,  176, 144, 30,  4,  297,   99,   2970, 100,  10*16368,  2048,  128000,        0, -1, PROFILE_AS },
@@ -150,8 +156,6 @@ static const profile_t *profileFromName(const char *str)
 /*****************************************************************************
  * Configuration options
  ****************************************************************************/
-
-extern char* passtmpfile;
 
 static int xvidenc_bitrate = 0;
 static int xvidenc_pass = 0;
@@ -204,6 +208,10 @@ static int xvidenc_vbr_max_overflow_degradation = 5;
 static int xvidenc_vbr_kfreduction = 0;
 static int xvidenc_vbr_kfthreshold = 0;
 static int xvidenc_vbr_container_frame_overhead = 24; /* mencoder uses AVI container */
+
+static int xvidenc_vbv_size = 0;
+static int xvidenc_vbv_initial = 0;
+static int xvidenc_vbv_maxrate = 0;
 
 // commandline profile option string - default to unrestricted
 static char *xvidenc_profile = "unrestricted";
@@ -291,6 +299,11 @@ const m_option_t xvidencopts_conf[] =
 	{"kfreduction", &xvidenc_vbr_kfreduction, CONF_TYPE_INT, CONF_RANGE, 0, 100, NULL},
 	{"kfthreshold", &xvidenc_vbr_kfthreshold, CONF_TYPE_INT, CONF_MIN, 0, 0, NULL},
 	{"container_frame_overhead", &xvidenc_vbr_container_frame_overhead, CONF_TYPE_INT, CONF_MIN, 0, 0, NULL},
+
+	/* section [vbv] */
+	{"vbv_bufsize", &xvidenc_vbv_size, CONF_TYPE_INT, CONF_MIN, 0, 0, NULL},
+	{"vbv_initial", &xvidenc_vbv_initial, CONF_TYPE_INT, CONF_MIN, 0, 0, NULL},
+	{"vbv_maxrate", &xvidenc_vbv_maxrate, CONF_TYPE_INT, CONF_MIN, 0, 0, NULL},
 
 	/* Section Aspect Ratio */
 	{"par", &xvidenc_par, CONF_TYPE_STRING, 0, 0, 0, NULL},
@@ -457,15 +470,9 @@ uninit(struct vf_instance *vf)
 	}
 
         /* Free allocated memory */
-	if(mod->frame.quant_intra_matrix)
-	    free(mod->frame.quant_intra_matrix);
-
-	if(mod->frame.quant_inter_matrix)
-	    free(mod->frame.quant_inter_matrix);
-
-	if(mod->mux->bih)
-	    free(mod->mux->bih);
-
+	free(mod->frame.quant_intra_matrix);
+	free(mod->frame.quant_inter_matrix);
+	free(mod->mux->bih);
 	free(vf->priv);
 	vf->priv=NULL;
 
@@ -532,6 +539,9 @@ put_image(struct vf_instance *vf, mp_image_t *mpi, double pts)
 
 	if(set_frame_struct(mod, mpi) == BAD)
 		return BAD;
+
+	mod->frame.type = is_forced_key_frame(pts) || xvidenc_motion == 0 ?
+		XVID_TYPE_IVOP : XVID_TYPE_AUTO;
 
 	/* -------------------------------------------------------------------
 	 * Encode the frame
@@ -602,7 +612,7 @@ vf_open(vf_instance_t *vf, char* args)
 	mod->mux = (muxer_stream_t*)args;
 
 	/* Initialize muxer BITMAP header */
-	mod->mux->bih = calloc(1, sizeof(BITMAPINFOHEADER));
+	mod->mux->bih = calloc(1, sizeof(*mod->mux->bih));
 
 	if(mod->mux->bih  == NULL) {
 		mp_msg(MSGT_MENCODER,MSGL_ERR,
@@ -610,7 +620,7 @@ vf_open(vf_instance_t *vf, char* args)
 		return BAD;
 	}
 
-	mod->mux->bih->biSize = sizeof(BITMAPINFOHEADER);
+	mod->mux->bih->biSize = sizeof(*mod->mux->bih);
 	mod->mux->bih->biWidth = 0;
 	mod->mux->bih->biHeight = 0;
 	mod->mux->bih->biPlanes = 1;
@@ -774,13 +784,44 @@ static int dispatch_settings(xvid_mplayer_module_t *mod)
 	/* VBV */
 
 #if XVID_API >= XVID_MAKE_API(4,1)
-	pass2->vbv_size = selected_profile->max_vbv_size;
-	pass2->vbv_initial = (selected_profile->max_vbv_size*3)>>2; /* 75% */
-	pass2->vbv_maxrate = selected_profile->max_bitrate;
-	pass2->vbv_peakrate = selected_profile->vbv_peakrate*3;
+	if(xvidenc_vbv_size > 0) {
+		if(selected_profile->max_vbv_size > 0 && xvidenc_vbv_size > selected_profile->max_vbv_size) {
+			mp_msg(MSGT_MENCODER,MSGL_ERR,
+				"xvid:[ERROR] Selected profile limits vbv_bufsize <= %d\n", selected_profile->max_vbv_size);
+			return BAD;
+		}
+
+		pass2->vbv_size = xvidenc_vbv_size;
+	} else {
+		pass2->vbv_size = selected_profile->max_vbv_size;
+	}
+
+	if(xvidenc_vbv_initial > 0) {
+		if(xvidenc_vbv_initial > pass2->vbv_size) {
+			mp_msg(MSGT_MENCODER,MSGL_ERR,
+				"xvid:[ERROR] vbv_initial must be <= vbv_bufsize\n");
+			return BAD;
+		}
+
+		pass2->vbv_initial = xvidenc_vbv_initial;
+	} else {
+		pass2->vbv_initial = (pass2->vbv_size*3)>>2; /* 75% */
+	}
+
+	if(xvidenc_vbv_maxrate > 0) {
+		if(selected_profile->max_bitrate > 0 && xvidenc_vbv_maxrate > selected_profile->max_bitrate) {
+			mp_msg(MSGT_MENCODER,MSGL_ERR,
+				"xvid:[ERROR] Selected profile limits vbv_maxrate <= %d\n", selected_profile->max_bitrate);
+			return BAD;
+		}
+
+		pass2->vbv_maxrate = xvidenc_vbv_maxrate;
+	} else {
+		pass2->vbv_maxrate = selected_profile->max_bitrate;
+	}
+
+	pass2->vbv_peakrate = selected_profile->vbv_peakrate; /* Useless */
 #endif
-// XXX: xvidcore currently provides a "peak bits over 3 seconds" constraint.
-// according to the latest dxn literature, a 1 second constraint is now used
 
 	create->profile = selected_profile->id;
 
@@ -815,7 +856,7 @@ static int dispatch_settings(xvid_mplayer_module_t *mod)
 		frame->quant_intra_matrix = (unsigned char*)read_matrix(xvidenc_intra_matrix_file);
 		if(frame->quant_intra_matrix != NULL) {
 			mp_msg(MSGT_MENCODER, MSGL_INFO, "xvid: Loaded Intra matrix (switching to mpeg quantization type)\n");
-			if(xvidenc_quant_method) free(xvidenc_quant_method);
+			free(xvidenc_quant_method);
 			xvidenc_quant_method = strdup("mpeg");
 		}
 	}
@@ -823,7 +864,7 @@ static int dispatch_settings(xvid_mplayer_module_t *mod)
 		frame->quant_inter_matrix = read_matrix(xvidenc_inter_matrix_file);
 		if(frame->quant_inter_matrix) {
 			mp_msg(MSGT_MENCODER, MSGL_INFO, "\nxvid: Loaded Inter matrix (switching to mpeg quantization type)\n");
-			if(xvidenc_quant_method) free(xvidenc_quant_method);
+			free(xvidenc_quant_method);
 			xvidenc_quant_method = strdup("mpeg");
 		}
 	}
@@ -999,10 +1040,9 @@ static int set_create_struct(xvid_mplayer_module_t *mod)
 	if( ((float)mod->mux->h.dwRate/(float)mod->mux->h.dwScale > (float)selected_profile->fps) &&
 		(selected_profile->fps != 0))
 	{
-		mp_msg(MSGT_MENCODER,MSGL_ERR,
-			"xvid:[ERROR] frame rate must be <= %d for the chosen profile\n",
+		mp_msg(MSGT_MENCODER,MSGL_WARN,
+			"xvid:[WARNING] frame rate should be <= %d for the chosen profile\n",
 			selected_profile->fps);
-		return BAD;
 	}
 
 	/* Encodings zones */
@@ -1514,7 +1554,7 @@ static const char *errorstring(int err)
  * Module structure definition
  ****************************************************************************/
 
-vf_info_t ve_info_xvid = {
+const vf_info_t ve_info_xvid = {
 	"XviD 1.0 encoder",
 	"xvid",
 	"Marco Belli <elcabesa@inwind.it>, Edouard Gomez <ed.gomez@free.fr>",

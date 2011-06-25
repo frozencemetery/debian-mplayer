@@ -26,7 +26,7 @@
 
 #include "stream/stream.h"
 #ifdef CONFIG_ASS
-#include "libass/ass_mp.h"
+#include "sub/ass_mp.h"
 #endif
 #include "m_option.h"
 
@@ -87,7 +87,7 @@
 #define DEMUXER_TYPE_RTP_NEMESI 45
 #define DEMUXER_TYPE_MNG 46
 
-// This should always match the higest demuxer type number.
+// This should always match the highest demuxer type number.
 // Unless you want to disallow users to force the demuxer to some types
 #define DEMUXER_TYPE_MIN 0
 #define DEMUXER_TYPE_MAX 46
@@ -182,6 +182,10 @@ extern int sub_demuxer_type;
 extern int audio_stream_cache;
 extern int correct_pts;
 extern int user_correct_pts;
+
+extern char *demuxer_name;
+extern char *audio_demuxer_name;
+extern char *sub_demuxer_name;
 extern char *sub_stream;
 
 extern int rtsp_port;
@@ -255,7 +259,7 @@ typedef struct demuxer {
 
   // stream headers:
   void* a_streams[MAX_A_STREAMS]; // audio streams (sh_audio_t)
-  void* v_streams[MAX_V_STREAMS]; // video sterams (sh_video_t)
+  void* v_streams[MAX_V_STREAMS]; // video streams (sh_video_t)
   void *s_streams[MAX_S_STREAMS];   // dvd subtitles (flag)
 
   // pointer to teletext decoder private data, if demuxer stream contains teletext
@@ -289,9 +293,12 @@ static inline demux_packet_t* new_demux_packet(int len){
   dp->master=NULL;
   dp->buffer=NULL;
   if (len > 0 && (dp->buffer = (unsigned char *)malloc(len + MP_INPUT_BUFFER_PADDING_SIZE)))
-    memset(dp->buffer + len, 0, 8);
-  else
-    dp->len = 0;
+    memset(dp->buffer + len, 0, MP_INPUT_BUFFER_PADDING_SIZE);
+  else if (len) {
+    // do not even return a valid packet if allocation failed
+    free(dp);
+    return NULL;
+  }
   return dp;
 }
 
@@ -299,16 +306,16 @@ static inline void resize_demux_packet(demux_packet_t* dp, int len)
 {
   if(len > 0)
   {
-     dp->buffer=(unsigned char *)realloc(dp->buffer,len+8);
+     dp->buffer=(unsigned char *)realloc(dp->buffer,len + MP_INPUT_BUFFER_PADDING_SIZE);
   }
   else
   {
-     if(dp->buffer) free(dp->buffer);
+     free(dp->buffer);
      dp->buffer=NULL;
   }
   dp->len=len;
   if (dp->buffer)
-     memset(dp->buffer + len, 0, 8);
+     memset(dp->buffer + len, 0, MP_INPUT_BUFFER_PADDING_SIZE);
   else
      dp->len = 0;
 }
@@ -328,7 +335,7 @@ static inline void free_demux_packet(demux_packet_t* dp){
   if (dp->master==NULL){  //dp is a master packet
     dp->refcount--;
     if (dp->refcount==0){
-      if (dp->buffer) free(dp->buffer);
+      free(dp->buffer);
       free(dp);
     }
     return;
@@ -351,6 +358,7 @@ static inline void *realloc_struct(void *ptr, size_t nmemb, size_t size) {
 }
 
 demux_stream_t* new_demuxer_stream(struct demuxer *demuxer,int id);
+demuxer_t *alloc_demuxer(stream_t *stream, int type, const char *filename);
 demuxer_t* new_demuxer(stream_t *stream,int type,int a_id,int v_id,int s_id,char *filename);
 void free_demuxer_stream(demux_stream_t *ds);
 void free_demuxer(demuxer_t *demuxer);
@@ -402,7 +410,7 @@ double ds_get_next_pts(demux_stream_t *ds);
 int ds_parse(demux_stream_t *sh, uint8_t **buffer, int *len, double pts, off_t pos);
 void ds_clear_parser(demux_stream_t *sh);
 
-// This is defined here because demux_stream_t ins't defined in stream.h
+// This is defined here because demux_stream_t isn't defined in stream.h
 stream_t* new_ds_stream(demux_stream_t *ds);
 
 static inline int avi_stream_id(unsigned int id){
@@ -419,7 +427,7 @@ int demux_seek(demuxer_t *demuxer,float rel_seek_secs,float audio_delay,int flag
 demuxer_t*  new_demuxers_demuxer(demuxer_t* vd, demuxer_t* ad, demuxer_t* sd);
 
 // AVI demuxer params:
-extern int index_mode;  // -1=untouched  0=don't use index  1=use (geneate) index
+extern int index_mode;  // -1=untouched  0=don't use index  1=use (generate) index
 extern char *index_file_save, *index_file_load;
 extern int force_ni;
 extern int pts_from_bps;

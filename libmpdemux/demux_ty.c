@@ -39,17 +39,16 @@
 #include "mp_msg.h"
 #include "help_mp.h"
 
+#include "libmpcodecs/dec_audio.h"
+#include "sub/sub.h"
 #include "stream/stream.h"
 #include "demuxer.h"
 #include "demux_ty_osd.h"
 #include "parse_es.h"
 #include "stheader.h"
-#include "sub_cc.h"
+#include "sub/sub_cc.h"
 #include "libavutil/avstring.h"
 #include "libavutil/intreadwrite.h"
-
-void skip_audio_frame( sh_audio_t *sh_audio );
-extern int sub_justify;
 
 // 2/c0: audio data
 // 3/c0: audio packet header (PES header)
@@ -569,7 +568,7 @@ static int demux_ty_fill_buffer( demuxer_t *demux, demux_stream_t *dsds )
                }
 
                demux->audio->id = aid;
-               if( !demux->a_streams[ aid ] ) new_sh_audio( demux, aid );
+               if( !demux->a_streams[ aid ] ) new_sh_audio( demux, aid, NULL );
                if( demux->audio->id == aid )
                {
                   demux_stream_t *ds = demux->audio;

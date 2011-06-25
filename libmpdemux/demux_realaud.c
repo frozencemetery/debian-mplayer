@@ -172,7 +172,7 @@ static demuxer_t* demux_open_ra(demuxer_t* demuxer)
 	memset(ra_priv, 0, sizeof(ra_priv_t));
 
 	demuxer->priv = ra_priv;
-	sh = new_sh_audio(demuxer, 0);
+	sh = new_sh_audio(demuxer, 0, NULL);
 	demuxer->audio->id = 0;
 	sh->ds=demuxer->audio;
 	demuxer->audio->sh = sh;
@@ -287,8 +287,7 @@ static demuxer_t* demux_open_ra(demuxer_t* demuxer)
 	}
 
 	/* Fill WAVEFORMATEX */
-	sh->wf = malloc(sizeof(WAVEFORMATEX));
-	memset(sh->wf, 0, sizeof(WAVEFORMATEX));
+	sh->wf = calloc(1, sizeof(*sh->wf));
 	sh->wf->nChannels = sh->channels;
 	sh->wf->wBitsPerSample = sh->samplesize;
 	sh->wf->nSamplesPerSec = sh->samplerate;
@@ -335,14 +334,12 @@ static demuxer_t* demux_open_ra(demuxer_t* demuxer)
 
 static void demux_close_ra(demuxer_t *demuxer)
 {
-	ra_priv_t* ra_priv = demuxer->priv;
+    ra_priv_t* ra_priv = demuxer->priv;
 
     if (ra_priv) {
-	    if (ra_priv->audio_buf)
-	        free (ra_priv->audio_buf);
-		free(ra_priv);
+        free(ra_priv->audio_buf);
+        free(ra_priv);
     }
-	return;
 }
 
 

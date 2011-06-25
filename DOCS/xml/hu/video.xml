@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- synced with r31821 -->
+<!-- synced with r32283 -->
 <chapter id="video">
 <title>Videó kimeneti eszközök</title>
 
@@ -1023,11 +1023,6 @@ többi VBE funkció ezután az aktív vezérlővel dolgozik.
 </para></listitem>
 </itemizedlist>
 
-<important><para>
-Ne használd ezt a vezérlőt <emphasis role="bold">GCC 2.96</emphasis>-tal!
-Nem fog menni!
-</para></important>
-
 <variablelist>
 <title>A VESA PARANCSSORI KAPCSOLÓI</title>
 <varlistentry>
@@ -1279,7 +1274,7 @@ Alternatívaként használhatsz egy speciális kernel modult, így:
 <step><para>
   Ezután futtasd le a <filename>configure</filename>-t újra és add meg neki a
   <option>--enable-svgalib_helper</option> és a
-  <option>--with-extraincdir=<replaceable>/eleresi/ut/svgalib_helper/forrasahoz/</replaceable>kernel/svgalib_helper</option>
+  <option>--extra-cflags=<replaceable>/eleresi/ut/svgalib_helper/forrasahoz/</replaceable>kernel/svgalib_helper</option>
   paramétereket, ahol a <replaceable>/eleresi/ut/svgalib_helper/forrasahoz/</replaceable> könyvtárat
   az svgalib_helper kicsomagolt forrását tartalmazó könyvtárnak megfelelően kell beállítani.
 </para></step>

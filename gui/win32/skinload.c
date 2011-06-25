@@ -28,10 +28,10 @@
 
 #include "mp_msg.h"
 #include "cpudetect.h"
-#include "libswscale/rgb2rgb.h"
 #include "libswscale/swscale.h"
+#include "libavutil/imgutils.h"
 #include "gui.h"
-#include "gui/bitmap.h"
+#include "gui/util/bitmap.h"
 
 #define MAX_LINESIZE 256
 
@@ -52,7 +52,6 @@ static const evName evNames[] =
     {   evNext,                 "evNext"                },
     {   evLoad,                 "evLoad"                },
     {   evEqualizer,            "evEqualizer"           },
-    {   evEqualizer,            "evEqualeaser"          },
     {   evPlayList,             "evPlaylist"            },
     {   evExit,                 "evExit"                },
     {   evIconify,              "evIconify"             },
@@ -104,18 +103,11 @@ static char *geteventname(int event)
     return NULL;
 }
 
-static inline int get_sws_cpuflags(void)
-{
-    return (gCpuCaps.hasMMX ? SWS_CPU_CAPS_MMX : 0) |
-           (gCpuCaps.hasMMX2 ? SWS_CPU_CAPS_MMX2 : 0) |
-           (gCpuCaps.has3DNow ? SWS_CPU_CAPS_3DNOW : 0);
-}
-
 /* reads a complete image as is into image buffer */
 static image *pngRead(skin_t *skin, unsigned char *fname)
 {
     int i;
-    txSample bmp;
+    guiImage bmp;
     image *bf;
     char *filename = NULL;
     FILE *fp;
@@ -153,20 +145,26 @@ static image *pngRead(skin_t *skin, unsigned char *fname)
     free(filename);
     bf->width = bmp.Width; bf->height = bmp.Height;
 
-#ifdef DEBUG
-    mp_msg(MSGT_GPLAYER, MSGL_DBG4, "[png] loaded image %s\n", fname);
-    mp_msg(MSGT_GPLAYER, MSGL_DBG4, "[png] size: %dx%d bits: %d\n", bf->width, bf->height, BPP);
-    mp_msg(MSGT_GPLAYER, MSGL_DBG4, "[png] imagesize: %u\n", imgsize);
-#endif
-
     bf->size = bf->width * bf->height * skin->desktopbpp / 8;
     if (skin->desktopbpp == 32)
       bf->data = bmp.Image;
     else {
+      const uint8_t *src[4] = { bmp.Image, NULL, NULL, NULL};
+      int src_stride[4] = { 4 * bmp.Width, 0, 0, 0 };
+      uint8_t *dst[4] = { NULL, NULL, NULL, NULL };
+      int dst_stride[4];
+      enum PixelFormat out_pix_fmt;
+      struct SwsContext *sws;
+      if      (skin->desktopbpp == 16) out_pix_fmt = PIX_FMT_RGB555;
+      else if (skin->desktopbpp == 24) out_pix_fmt = PIX_FMT_RGB24;
+      av_image_fill_linesizes(dst_stride, out_pix_fmt, bmp.Width);
+      sws = sws_getContext(bmp.Width, bmp.Height, PIX_FMT_RGB32,
+                           bmp.Width, bmp.Height, out_pix_fmt,
+                           SWS_POINT, NULL, NULL, NULL);
       bf->data = malloc(bf->size);
-      rgb32tobgr32(bmp.Image, bmp.Image, bmp.ImageSize);
-      if(skin->desktopbpp == 16) rgb32tobgr15(bmp.Image, bf->data, bmp.ImageSize);
-      else if(skin->desktopbpp == 24) rgb32tobgr24(bmp.Image, bf->data, bmp.ImageSize);
+      dst[0] = bf->data;
+      sws_scale(sws, src, src_stride, 0, bmp.Height, dst, dst_stride);
+      sws_freeContext(sws);
       free(bmp.Image);
     }
     return bf;
@@ -180,8 +178,8 @@ static void freeimages(skin_t *skin)
     {
         if(skin->images && skin->images[i])
         {
-            if(skin->images[i]->data) free(skin->images[i]->data);
-            if(skin->images[i]->name) free(skin->images[i]->name);
+            free(skin->images[i]->data);
+            free(skin->images[i]->name);
             free(skin->images[i]);
         }
     }
@@ -189,7 +187,7 @@ static void freeimages(skin_t *skin)
 }
 
 #ifdef DEBUG
-void dumpwidgets(skin_t *skin)
+static void dumpwidgets(skin_t *skin)
 {
     unsigned int i;
     for (i=0; i<skin->widgetcount; i++)
@@ -218,29 +216,21 @@ static char *findnextstring(char *temp, const char *desc, int *base)
 static void freeskin(skin_t *skin)
 {
     unsigned int i;
-    if(skin->skindir)
-    {
-        free(skin->skindir);
-        skin->skindir = NULL;
-    }
+
+    free(skin->skindir);
+    skin->skindir = NULL;
 
     for (i=1; i<=skin->lastusedid; i++)
         skin->removewidget(skin, i);
 
-    if(skin->widgets)
-    {
-        free(skin->widgets);
-        skin->widgets = NULL;
-    }
+    free(skin->widgets);
+    skin->widgets = NULL;
 
     freeimages(skin);
     for(i=0; i<skin->windowcount; i++)
     {
-        if(skin->windows[i]->name)
-        {
-            free(skin->windows[i]->name);
-            skin->windows[i]->name = NULL;
-        }
+        free(skin->windows[i]->name);
+        skin->windows[i]->name = NULL;
         free(skin->windows[i]);
     }
 
@@ -250,17 +240,12 @@ static void freeskin(skin_t *skin)
     for (i=0; i<skin->fontcount; i++)
     {
         unsigned int x;
-        if(skin->fonts[i]->name)
-        {
-            free(skin->fonts[i]->name);
-            skin->fonts[i]->name = NULL;
-        }
 
-        if(skin->fonts[i]->id)
-        {
-            free(skin->fonts[i]->id);
-            skin->fonts[i]->id = NULL;
-        }
+        free(skin->fonts[i]->name);
+        skin->fonts[i]->name = NULL;
+
+        free(skin->fonts[i]->id);
+        skin->fonts[i]->id = NULL;
 
         for (x=0; x<skin->fonts[i]->charcount; x++)
         {
@@ -268,11 +253,8 @@ static void freeskin(skin_t *skin)
             skin->fonts[i]->chars[x] = NULL;
         }
 
-        if(skin->fonts[i]->chars)
-        {
-            free(skin->fonts[i]->chars);
-            skin->fonts[i]->chars = NULL;
-        }
+        free(skin->fonts[i]->chars);
+        skin->fonts[i]->chars = NULL;
 
         free(skin->fonts[i]);
         skin->fonts[i] = NULL;
@@ -296,8 +278,7 @@ static void removewidget(skin_t *skin, int id)
     {
         if(skin->widgets[i]->id == id)
         {
-            if(skin->widgets[i]->label)
-                free(skin->widgets[i]->label);
+            free(skin->widgets[i]->label);
             free(skin->widgets[i]);
             skin->widgets[i] = NULL;
         }
@@ -620,8 +601,6 @@ skin_t* loadskin(char* skindir, int desktopbpp)
     char *desc = calloc(1, MAX_LINESIZE);
     window* mywindow = NULL;
 
-    /* init swscaler */
-    sws_rgb2rgb_init(get_sws_cpuflags());
     /* setup funcs */
     skin->freeskin = freeskin;
     skin->pngRead = pngRead;

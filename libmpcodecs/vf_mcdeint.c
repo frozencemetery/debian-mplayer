@@ -66,6 +66,7 @@ Known Issues:
 #include "img_format.h"
 #include "mp_image.h"
 #include "vf.h"
+#include "vd_ffmpeg.h"
 
 #define MIN(a,b) ((a) > (b) ? (b) : (a))
 #define MAX(a,b) ((a) < (b) ? (b) : (a))
@@ -91,7 +92,6 @@ struct vf_priv_s {
 
 static void filter(struct vf_priv_s *p, uint8_t *dst[3], uint8_t *src[3], int dst_stride[3], int src_stride[3], int width, int height){
     int x, y, i;
-    int out_size;
 
     for(i=0; i<3; i++){
         p->frame->data[i]= src[i];
@@ -101,7 +101,7 @@ static void filter(struct vf_priv_s *p, uint8_t *dst[3], uint8_t *src[3], int ds
     p->avctx_enc->me_cmp=
     p->avctx_enc->me_sub_cmp= FF_CMP_SAD /*| (p->parity ? FF_CMP_ODD : FF_CMP_EVEN)*/;
     p->frame->quality= p->qp*FF_QP2LAMBDA;
-    out_size = avcodec_encode_video(p->avctx_enc, p->outbuf, p->outbuf_size, p->frame);
+    avcodec_encode_video(p->avctx_enc, p->outbuf, p->outbuf_size, p->frame);
     p->frame_dec = p->avctx_enc->coded_frame;
 
     for(i=0; i<3; i++){
@@ -180,7 +180,7 @@ static void filter(struct vf_priv_s *p, uint8_t *dst[3], uint8_t *src[3], int ds
 
 static int config(struct vf_instance *vf,
         int width, int height, int d_width, int d_height,
-	unsigned int flags, unsigned int outfmt){
+        unsigned int flags, unsigned int outfmt){
         int i;
         AVCodec *enc= avcodec_find_encoder(CODEC_ID_SNOW);
 
@@ -232,7 +232,7 @@ static int config(struct vf_instance *vf,
         vf->priv->outbuf_size= width*height*10;
         vf->priv->outbuf= malloc(vf->priv->outbuf_size);
 
-	return vf_next_config(vf,width,height,d_width,d_height,flags,outfmt);
+        return vf_next_config(vf,width,height,d_width,d_height,flags,outfmt);
 }
 
 static void get_image(struct vf_instance *vf, mp_image_t *mpi){
@@ -247,8 +247,8 @@ return; //caused problems, dunno why
     if(mpi->flags&MP_IMGFLAG_PLANAR){
         mpi->planes[1]=vf->dmpi->planes[1];
         mpi->planes[2]=vf->dmpi->planes[2];
-	mpi->stride[1]=vf->dmpi->stride[1];
-	mpi->stride[2]=vf->dmpi->stride[2];
+        mpi->stride[1]=vf->dmpi->stride[1];
+        mpi->stride[2]=vf->dmpi->stride[2];
     }
     mpi->flags|=MP_IMGFLAG_DIRECT;
 }
@@ -277,9 +277,9 @@ static void uninit(struct vf_instance *vf){
 
 #if 0
     for(i=0; i<3; i++){
-        if(vf->priv->temp[i]) free(vf->priv->temp[i]);
+        free(vf->priv->temp[i]);
         vf->priv->temp[i]= NULL;
-        if(vf->priv->src[i]) free(vf->priv->src[i]);
+        free(vf->priv->src[i]);
         vf->priv->src[i]= NULL;
     }
 #endif
@@ -296,12 +296,12 @@ static void uninit(struct vf_instance *vf){
 //===========================================================================//
 static int query_format(struct vf_instance *vf, unsigned int fmt){
     switch(fmt){
-	case IMGFMT_YV12:
-	case IMGFMT_I420:
-	case IMGFMT_IYUV:
-	case IMGFMT_Y800:
-	case IMGFMT_Y8:
-	    return vf_next_query_format(vf,fmt);
+        case IMGFMT_YV12:
+        case IMGFMT_I420:
+        case IMGFMT_IYUV:
+        case IMGFMT_Y800:
+        case IMGFMT_Y8:
+            return vf_next_query_format(vf,fmt);
     }
     return 0;
 }
@@ -316,8 +316,7 @@ static int vf_open(vf_instance_t *vf, char *args){
     vf->priv=malloc(sizeof(struct vf_priv_s));
     memset(vf->priv, 0, sizeof(struct vf_priv_s));
 
-    avcodec_init();
-    avcodec_register_all();
+    init_avcodec();
 
     vf->priv->mode=0;
     vf->priv->parity= -1;

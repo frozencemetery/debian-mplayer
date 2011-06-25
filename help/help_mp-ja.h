@@ -113,7 +113,7 @@ static const char help_text[]=
 #define MSGTR_ForcedAudioCodec "指定された音声コーデック: %s\n"
 #define MSGTR_Video_NoVideo "Video: 映像がありません\n"
 #define MSGTR_NotInitializeVOPorVO "\nFATAL: 画像フィルター(-vf)か画像出力(-vo)の初期化に失敗しました.\n"
-#define MSGTR_Paused "\n  =====  停止  =====\r" // no more than 23 characters (status line for audio files)
+#define MSGTR_Paused "  =====  停止  =====" // no more than 23 characters (status line for audio files)
 #define MSGTR_PlaylistLoadUnable "\nプレイリストの読み込みが出来ません %s.\n"
 #define MSGTR_Exit_SIGILL_RTCpuSel \
 "- MPlayerは不正な命令(Illegal Instruction)によりクラッシュしました\n"\
@@ -303,24 +303,16 @@ static const char help_text[]=
 
 // --- skin loader error messages
 #define MSGTR_SKIN_ERRORMESSAGE "[skin] エラー: スキン設定ファイル %d 行: %s"
-#define MSGTR_SKIN_WARNING1 "[skin] 警告: スキン設定ファイル %d 行: widget found but before \"section\" not found ( %s )"
-#define MSGTR_SKIN_WARNING2 "[skin] 警告: スキン設定ファイル %d 行: widget found but before \"subsection\" not found (%s)"
-#define MSGTR_SKIN_WARNING3 "[skin] 警告: スキン設定ファイル %d 行: this subsection not supported by this widget (%s)"
 #define MSGTR_SKIN_BITMAP_16bit  "16 ビット以下の解消度はサポートされていません (%s).\n"
 #define MSGTR_SKIN_BITMAP_FileNotFound  "ファイルが存在しません (%s)\n"
-#define MSGTR_SKIN_BITMAP_BMPReadError "bmp 読み込みエラー (%s)\n"
-#define MSGTR_SKIN_BITMAP_TGAReadError "tga 読み込みエラー (%s)\n"
 #define MSGTR_SKIN_BITMAP_PNGReadError "png 読み込みエラー (%s)\n"
-#define MSGTR_SKIN_BITMAP_RLENotSupported "RLE packed tga はサポートされていません (%s)\n"
-#define MSGTR_SKIN_BITMAP_UnknownFileType "未知のファイルタイプです (%s)\n"
 #define MSGTR_SKIN_BITMAP_ConversionError "24bitから32bitへの変換エラー (%s)\n"
-#define MSGTR_SKIN_BITMAP_UnknownMessage "未知のメッセージ: %s\n"
-#define MSGTR_SKIN_FONT_NotEnoughtMemory "メモリが不足しています\n"
+#define MSGTR_SKIN_UnknownMessage "未知のメッセージ: %s\n"
+#define MSGTR_SKIN_NotEnoughMemory "メモリが不足しています\n"
 #define MSGTR_SKIN_FONT_FontFileNotFound "フォントファイルが存在しません\n"
 #define MSGTR_SKIN_FONT_FontImageNotFound "フォントイメージファイルが存在しません\n"
 #define MSGTR_SKIN_UnknownParameter "未知のパラメータ(%s)\n"
 #define MSGTR_SKIN_SKINCFG_SkinNotFound "スキンが存在しません( %s ).\n"
-#define MSGTR_SKIN_SKINCFG_SkinCfgReadError "スキン設定ファイルの読み込みエラー(%s).\n"
 #define MSGTR_SKIN_LABEL "スキン:"
 
 // --- gtk menus

@@ -57,8 +57,16 @@ static int fill_buffer(stream_t *s, char* buffer, int max_len){
 }
 
 static int write_buffer(stream_t *s, char* buffer, int len) {
-  int r = write(s->fd,buffer,len);
-  return (r <= 0) ? -1 : r;
+  int r;
+  int wr = 0;
+  while (wr < len) {
+    r = write(s->fd,buffer,len);
+    if (r <= 0)
+      return -1;
+    wr += r;
+    buffer += r;
+  }
+  return len;
 }
 
 static int seek(stream_t *s,off_t newpos) {
@@ -168,10 +176,11 @@ static int open_f(stream_t *stream,int mode, void* opts, int* file_format) {
 
   len=lseek(f,0,SEEK_END); lseek(f,0,SEEK_SET);
 #ifdef __MINGW32__
-  if(f==0 || len == -1) {
-#else
-  if(len == -1) {
+  // seeks on stdin incorrectly succeed on MinGW
+  if(f==0)
+    len = -1;
 #endif
+  if(len == -1) {
     if(mode == STREAM_READ) stream->seek = seek_forward;
     stream->type = STREAMTYPE_STREAM; // Must be move to STREAMTYPE_FILE
     stream->flags |= MP_STREAM_SEEK_FW;
@@ -187,6 +196,7 @@ static int open_f(stream_t *stream,int mode, void* opts, int* file_format) {
   stream->fill_buffer = fill_buffer;
   stream->write_buffer = write_buffer;
   stream->control = control;
+  stream->read_chunk = 64*1024;
 
   m_struct_free(&stream_opts,opts);
   return STREAM_OK;

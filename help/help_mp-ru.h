@@ -119,7 +119,7 @@ static const char help_text[]=
 #define MSGTR_ForcedAudioCodec "Форсирован аудиокодек: %s\n"
 #define MSGTR_Video_NoVideo "Видео: нет видео\n"
 #define MSGTR_NotInitializeVOPorVO "\nФАТАЛЬНАЯ ОШИБКА: Не могу инициализировать видеофильтры (-vf) или видеовывод (-vo).\n"
-#define MSGTR_Paused "\n=== ПРИОСТАНОВЛЕНО ===\r" // no more than 23 characters (status line for audio files)
+#define MSGTR_Paused "=== ПРИОСТАНОВЛЕНО ===" // no more than 23 characters (status line for audio files)
 #define MSGTR_PlaylistLoadUnable "\nНе могу загрузить список воспроизведения (плейлист) %s.\n"
 #define MSGTR_Exit_SIGILL_RTCpuSel \
 "- MPlayer рухнул из-за 'Неправильной Инструкции'.\n"\
@@ -152,7 +152,6 @@ static const char help_text[]=
 #define MSGTR_IncreaseRTCMaxUserFreq "Попробуйте добавить \"echo %lu > /proc/sys/dev/rtc/max-user-freq\" \nв загрузочные скрипты Вашей системы.\n"
 #define MSGTR_LinuxRTCInitErrorPieOn "Ошибка инициализации Linux RTC в ioctl (rtc_pie_on): %s\n"
 #define MSGTR_UsingTimingType "Используется %s синхронизация.\n"
-#define MSGTR_NoIdleAndGui "Опция -idle не может быть использована вместе с GMPlayer.\n"
 #define MSGTR_MenuInitialized "Меню инициализировано: %s\n"
 #define MSGTR_MenuInitFailed "Не могу инициализировать меню.\n"
 #define MSGTR_Getch2InitializedTwice "ПРЕДУПРЕЖДЕНИЕ: getch2_init вызван дважды!\n"
@@ -191,7 +190,6 @@ static const char help_text[]=
 #define MSGTR_EdloutBadStop "EDL пропуск отменён, последний start > stop\n"
 #define MSGTR_EdloutStartSkip "Начало EDL пропуска, нажмите 'i' ещё раз для завершения блока.\n"
 #define MSGTR_EdloutEndSkip "Конец EDL пропуска, строка записана.\n"
-#define MSGTR_MPEndposNoSizeBased "В MPlayer опция -endpos пока не поддерживает единицы размера.\n"
 
 // mplayer.c OSD
 #define MSGTR_OSDenabled "включено"
@@ -562,33 +560,24 @@ static const char help_text[]=
 #define MSGTR_NEMFMR "Извините, не хватает памяти для отображения меню."
 #define MSGTR_IDFGCVD "Извините, не нашёл совместимый с GUI драйвер видео вывода."
 #define MSGTR_NEEDLAVC "Извините, Вы не можете проигрывать не-MPEG файлы на Вашем DXR3/H+ устройстве\nбез перекодирования. Пожалуйста, включите lavc при конфигурации DXR3/H+."
-#define MSGTR_UNKNOWNWINDOWTYPE "Найден неизвестный тип окна..."
 
 // --- skin loader error messages
 #define MSGTR_SKIN_ERRORMESSAGE "[скин] ошибка в файле конфигурации шкуры на строке %d: %s"
-#define MSGTR_SKIN_WARNING1 "[скин] предупреждение: в файле конфигурации шкуры на строке %d:\nэлемент GUI найден, но до этого не найдено \"section\" (%s)"
-#define MSGTR_SKIN_WARNING2 "[скин] предупреждение: в файле конфигурации шкуры на строке %d:\nэлемент GUI найден, но до этого не найдено \"subsection\" (%s)"
-#define MSGTR_SKIN_WARNING3 "[скин] предупреждение: в файле конфигурации шкуры на строке %d:\nэта подсекция не поддерживается этим элементом GUI (%s)"
 #define MSGTR_SKIN_SkinFileNotFound "[скин] файл '%s' не найден.\n"
 #define MSGTR_SKIN_SkinFileNotReadable "[скин] файл ( %s ) не читаем.\n"
 #define MSGTR_SKIN_BITMAP_16bit  "Глубина битовой матрицы в 16 бит и меньше не поддерживается (%s).\n"
 #define MSGTR_SKIN_BITMAP_FileNotFound  "Файл не найден (%s)\n"
-#define MSGTR_SKIN_BITMAP_BMPReadError "ошибка чтения BMP (%s)\n"
-#define MSGTR_SKIN_BITMAP_TGAReadError "ошибка чтения TGA (%s)\n"
 #define MSGTR_SKIN_BITMAP_PNGReadError "ошибка чтения PNG (%s)\n"
-#define MSGTR_SKIN_BITMAP_RLENotSupported "RLE упакованный TGA не поддерживается (%s)\n"
-#define MSGTR_SKIN_BITMAP_UnknownFileType "неизвестный тип файла (%s)\n"
 #define MSGTR_SKIN_BITMAP_ConversionError "ошибка преобразования 24-бит в 32-бит (%s)\n"
-#define MSGTR_SKIN_BITMAP_UnknownMessage "неизвестное сообщение: %s\n"
-#define MSGTR_SKIN_FONT_NotEnoughtMemory "не хватает памяти\n"
+#define MSGTR_SKIN_UnknownMessage "неизвестное сообщение: %s\n"
+#define MSGTR_SKIN_NotEnoughMemory "не хватает памяти\n"
 #define MSGTR_SKIN_FONT_TooManyFontsDeclared "Объявлено слишком много шрифтов.\n"
 #define MSGTR_SKIN_FONT_FontFileNotFound "Файл шрифта не найден.\n"
 #define MSGTR_SKIN_FONT_FontImageNotFound "Файл образов шрифта не найден.\n"
-#define MSGTR_SKIN_FONT_NonExistentFontID "несуществующий идентификатор шрифта (%s)\n"
+#define MSGTR_SKIN_FONT_NonExistentFont "несуществующий идентификатор шрифта (%s)\n"
 #define MSGTR_SKIN_UnknownParameter "неизвестный параметр (%s)\n"
 #define MSGTR_SKIN_SKINCFG_SkinNotFound "Скин не найден (%s).\n"
 #define MSGTR_SKIN_SKINCFG_SelectedSkinNotFound "Выбранный скин '%s' не найден, пробую 'default'...\n"
-#define MSGTR_SKIN_SKINCFG_SkinCfgReadError "Ошибка чтения файла конфигурации шкур (%s)\n"
 #define MSGTR_SKIN_LABEL "Шкуры:"
 
 // --- GTK menus
@@ -783,25 +772,18 @@ static const char help_text[]=
 #define MSGTR_MSGBOX_LABEL_Error "Ошибка!"
 #define MSGTR_MSGBOX_LABEL_Warning "Предупреждение!"
 
-// bitmap.c
-#define MSGTR_NotEnoughMemoryC32To1 "[c32to1] недостаточно памяти для изображения\n"
-#define MSGTR_NotEnoughMemoryC1To32 "[c1to32] недостаточно памяти для изображения\n"
-
 // cfg.c
-#define MSGTR_ConfigFileReadError "[cfg] ошибка чтения конфигурационного файла...\n"
 #define MSGTR_UnableToSaveOption "[cfg] Не могу сохранить опцию '%s'.\n"
 
 // interface.c
 #define MSGTR_DeletingSubtitles "[GUI] Удаляю субтитры.\n"
 #define MSGTR_LoadingSubtitles "[GUI] Загружаю субтитры: %s\n"
 #define MSGTR_AddingVideoFilter "[GUI] Добавляю видеофильтр: %s\n"
-#define MSGTR_RemovingVideoFilter "[GUI] Удаляю видеофильтр: %s\n"
 
 // mw.c
 #define MSGTR_NotAFile "Это не похоже на файл: '%s' !\n"
 
 // ws.c
-#define MSGTR_WS_CouldNotOpenDisplay "[ws] Не могу открыть дисплей.\n"
 #define MSGTR_WS_RemoteDisplay "[ws] Удалённый дисплей, отключаю XMITSHM.\n"
 #define MSGTR_WS_NoXshm "[ws] Извините, ваша система не поддерживает расширение разделяемой памяти X'ов.\n"
 #define MSGTR_WS_NoXshape "[ws] Извините, ваша система не поддерживает расширение XShape.\n"
@@ -837,7 +819,7 @@ static const char help_text[]=
 #define MSGTR_LIBVO_ASPECT_NoSuitableNewResFound "[ASPECT] Предупреждение: Не найдено подходящего разрешения!\n"
 #define MSGTR_LIBVO_ASPECT_NoNewSizeFoundThatFitsIntoRes "[ASPECT] Ошибка: Не найден размер, умещающийся в это разрешение!\n"
 
-// libvo/font_load_ft.c
+// font_load_ft.c
 #define MSGTR_LIBVO_FONT_LOAD_FT_NewFaceFailed "Сбой New_Face. Возможно неверен путь к шрифту.\nУкажите, пожалуйста, файл шрифта для текста (~/.mplayer/subfont.ttf).\n"
 #define MSGTR_LIBVO_FONT_LOAD_FT_NewMemoryFaceFailed "Сбой New_Memory_Face.\n"
 #define MSGTR_LIBVO_FONT_LOAD_FT_SubFaceFailed "шрифт субтитров: сбой load_sub_face.\n"
@@ -1199,7 +1181,7 @@ static const char help_text[]=
 #define MSGTR_AO_SGI_CantSetParms_Samplerate "[AO SGI] инициализация: ошибка установки параметров: %s\nНе могу установить требуемую частоту дискретизации.\n"
 #define MSGTR_AO_SGI_CantSetAlRate "[AO SGI] инициализация: AL_RATE не доступен на заданном ресурсе.\n"
 #define MSGTR_AO_SGI_CantGetParms "[AO SGI] инициализация: ошибка получения параметров: %s\n"
-#define MSGTR_AO_SGI_SampleRateInfo "[AO SGI] инициализация: частота дискретизации теперь %lf (требуемая частота %lf)\n"
+#define MSGTR_AO_SGI_SampleRateInfo "[AO SGI] инициализация: частота дискретизации теперь %f (требуемая частота %f)\n"
 #define MSGTR_AO_SGI_InitConfigError "[AO SGI] инициализация: %s\n"
 #define MSGTR_AO_SGI_InitOpenAudioFailed "[AO SGI] инициализация: Не могу открыть канал аудио: %s\n"
 #define MSGTR_AO_SGI_Uninit "[AO SGI] деинициализация: ...\n"
@@ -1359,7 +1341,6 @@ static const char help_text[]=
 #define MSGTR_INPUT_INPUT_ErrBuffer2SmallForCmd "Буфер слишком мал для команды %s\n"
 #define MSGTR_INPUT_INPUT_ErrWhyHere "Что мы здесь делаем?\n"
 #define MSGTR_INPUT_INPUT_ErrCantInitJoystick "Не могу инициализировать джойстик ввода\n"
-#define MSGTR_INPUT_INPUT_ErrCantStatFile "Не могу выполнить stat %s: %s\n"
 #define MSGTR_INPUT_INPUT_ErrCantOpenFile "Не могу выполнить open %s: %s\n"
 #define MSGTR_INPUT_INPUT_ErrCantInitAppleRemote "Не могу инициализировать Пульт ДУ Apple Remote.\n"
 
@@ -1439,7 +1420,7 @@ static const char help_text[]=
 #define MSGTR_EnterTelecineMode "\ndemux_mpg: обнаружено 24000/1001 кадра/сек NTSC содержимое с построчной развёрткой,\nпереключаю частоту кадров.\n"
 
 #define MSGTR_CacheFill "\rЗаполнение кэша: %5.2f%% (%"PRId64" байт(а))   "
-#define MSGTR_NoBindFound "Не найдена привязка к клавише '%s'."
+#define MSGTR_NoBindFound "Не найдена привязка к клавише '%s'.\n"
 #define MSGTR_FailedToOpen "Не могу открыть %s.\n"
 
 #define MSGTR_VideoID "[%s] Найден видео поток, -vid %d\n"
@@ -1875,7 +1856,7 @@ static const char help_text[]=
 #define MSGTR_MPDEMUX_ASF_UnknownASFStreamType "неизвестный тип потока ASF\n"
 #define MSGTR_MPDEMUX_ASF_Failed2ParseHTTPResponse "Не могу проанализировать ответ HTTP.\n"
 #define MSGTR_MPDEMUX_ASF_ServerReturn "Сервер вернул %d:%s\n"
-#define MSGTR_MPDEMUX_ASF_ASFHTTPParseWarnCuttedPragma "ПРЕДУПРЕЖДЕНИЕ АНАЛИЗАТОРА HTTP ASF : Pragma %s урезана от %d байт до %d\n"
+#define MSGTR_MPDEMUX_ASF_ASFHTTPParseWarnCuttedPragma "ПРЕДУПРЕЖДЕНИЕ АНАЛИЗАТОРА HTTP ASF : Pragma %s урезана от %zd байт до %d\n"
 #define MSGTR_MPDEMUX_ASF_SocketWriteError "ошибка записи сокета: %s\n"
 #define MSGTR_MPDEMUX_ASF_HeaderParseFailed "Не могу разобрать заголовок.\n"
 #define MSGTR_MPDEMUX_ASF_NoStreamFound "Поток не найден.\n"

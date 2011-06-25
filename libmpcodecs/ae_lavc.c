@@ -30,26 +30,21 @@
 #include "stream/stream.h"
 #include "libmpdemux/muxer.h"
 #include "ae_lavc.h"
+#include "vd_ffmpeg.h"
+#include "ve.h"
 #include "help_mp.h"
 #include "av_opts.h"
 #include "libaf/af_format.h"
 #include "libaf/reorder_ch.h"
 #include "libavcodec/avcodec.h"
 #include "libavutil/intreadwrite.h"
+#include "libavformat/avformat.h"
+#include "libmpdemux/mp_taglists.h"
+#include "fmt-conversion.h"
 
 static AVCodec        *lavc_acodec;
 static AVCodecContext *lavc_actx;
-extern char *lavc_param_acodec;
-extern int  lavc_param_abitrate;
-extern int  lavc_param_atag;
-extern int  lavc_param_audio_global_header;
-extern char *lavc_param_audio_avopt;
-extern int  avcodec_initialized;
 static int compressed_frame_size = 0;
-#ifdef CONFIG_LIBAVFORMAT
-#include "libavformat/avformat.h"
-extern const struct AVCodecTag *mp_wav_taglists[];
-#endif
 
 static int bind_lavc(audio_encoder_t *encoder, muxer_stream_t *mux_a)
 {
@@ -114,7 +109,6 @@ static int bind_lavc(audio_encoder_t *encoder, muxer_stream_t *mux_a)
 	// Fix allocation
 	mux_a->wf = realloc(mux_a->wf, sizeof(WAVEFORMATEX)+mux_a->wf->cbSize);
 
-	encoder->input_format = AF_FORMAT_S16_NE;
 	encoder->min_buffer_size = mux_a->h.dwSuggestedBufferSize;
 	encoder->max_buffer_size = mux_a->h.dwSuggestedBufferSize*2;
 
@@ -128,11 +122,12 @@ static int encode_lavc(audio_encoder_t *encoder, uint8_t *dest, void *src, int s
 			(!strcmp(lavc_acodec->name,"ac3") ||
 			!strcmp(lavc_acodec->name,"libfaac"))) {
 		int isac3 = !strcmp(lavc_acodec->name,"ac3");
+		int bps = av_get_bytes_per_sample(lavc_actx->sample_fmt);
 		reorder_channel_nch(src, AF_CHANNEL_LAYOUT_MPLAYER_DEFAULT,
 		                    isac3 ? AF_CHANNEL_LAYOUT_LAVC_DEFAULT
 		                          : AF_CHANNEL_LAYOUT_AAC_DEFAULT,
 		                    encoder->params.channels,
-		                    size / 2, 2);
+		                    size / bps, bps);
 	}
 	n = avcodec_encode_audio(lavc_actx, dest, size, src);
         compressed_frame_size = n;
@@ -153,31 +148,6 @@ static int get_frame_size(audio_encoder_t *encoder)
         return sz;
 }
 
-#ifndef CONFIG_LIBAVFORMAT
-static uint32_t lavc_find_atag(char *codec)
-{
-	if(codec == NULL)
-	        return 0;
-
-	if(! strcasecmp(codec, "mp2"))
-		return 0x50;
-
-	if(! strcasecmp(codec, "mp3"))
-		return 0x55;
-
-	if(! strcasecmp(codec, "ac3"))
-		return 0x2000;
-
-	if(! strcasecmp(codec, "adpcm_ima_wav"))
-		return 0x11;
-
-	if(! strncasecmp(codec, "bonk", 4))
-		return 0x2048;
-
-	return 0;
-}
-#endif
-
 
 int mpae_init_lavc(audio_encoder_t *encoder)
 {
@@ -190,11 +160,7 @@ int mpae_init_lavc(audio_encoder_t *encoder)
 		return 0;
 	}
 
-	if(!avcodec_initialized){
-		avcodec_init();
-		avcodec_register_all();
-		avcodec_initialized=1;
-	}
+	init_avcodec();
 
 	lavc_acodec = avcodec_find_encoder_by_name(lavc_param_acodec);
 	if (!lavc_acodec)
@@ -204,11 +170,7 @@ int mpae_init_lavc(audio_encoder_t *encoder)
 	}
 	if(lavc_param_atag == 0)
 	{
-#ifdef CONFIG_LIBAVFORMAT
 		lavc_param_atag = av_codec_get_tag(mp_wav_taglists, lavc_acodec->id);
-#else
-		lavc_param_atag = lavc_find_atag(lavc_param_acodec);
-#endif
 		if(!lavc_param_atag)
 		{
 			mp_msg(MSGT_MENCODER, MSGL_FATAL, "Couldn't find wav tag for specified codec, exit\n");
@@ -223,9 +185,21 @@ int mpae_init_lavc(audio_encoder_t *encoder)
 		return 0;
 	}
 
-	lavc_actx->codec_type = CODEC_TYPE_AUDIO;
+	lavc_actx->codec_type = AVMEDIA_TYPE_AUDIO;
 	lavc_actx->codec_id = lavc_acodec->id;
 	// put sample parameters
+	lavc_actx->sample_fmt = AV_SAMPLE_FMT_S16;
+	if (lavc_acodec->sample_fmts) {
+		const enum AVSampleFormat *fmts;
+		lavc_actx->sample_fmt = lavc_acodec->sample_fmts[0]; // fallback to first format
+		for (fmts = lavc_acodec->sample_fmts; *fmts != AV_SAMPLE_FMT_NONE; fmts++) {
+			if (samplefmt2affmt(*fmts) == encoder->params.sample_format) { // preferred format found
+				lavc_actx->sample_fmt = *fmts;
+				break;
+			}
+		}
+	}
+	encoder->input_format = samplefmt2affmt(lavc_actx->sample_fmt);
 	lavc_actx->channels = encoder->params.channels;
 	lavc_actx->sample_rate = encoder->params.sample_rate;
 	lavc_actx->time_base.num = 1;
@@ -275,7 +249,9 @@ int mpae_init_lavc(audio_encoder_t *encoder)
 		lavc_actx->frame_size = (lavc_actx->block_align - 4 * lavc_actx->channels) * 8 / (4 * lavc_actx->channels) + 1;
 	}
 
-	encoder->decode_buffer_size = lavc_actx->frame_size * 2 * encoder->params.channels;
+	encoder->decode_buffer_size = lavc_actx->frame_size *
+	                              av_get_bytes_per_sample(lavc_actx->sample_fmt) *
+	                              encoder->params.channels;
 	while (encoder->decode_buffer_size < 1024) encoder->decode_buffer_size *= 2;
 	encoder->bind = bind_lavc;
 	encoder->get_frame_size = get_frame_size;

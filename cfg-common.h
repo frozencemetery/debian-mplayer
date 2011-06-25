@@ -33,7 +33,7 @@
 #include "libmpdemux/demuxer.h"
 #include "libmpdemux/mf.h"
 #include "libpostproc/postprocess.h"
-#include "libvo/sub.h"
+#include "sub/sub.h"
 #include "osdep/priority.h"
 #include "stream/cdd.h"
 #include "stream/network.h"
@@ -238,6 +238,7 @@ const m_option_t msgl_config[]={
     { "identify", &mp_msg_levels[MSGT_IDENTIFY], CONF_TYPE_INT, CONF_RANGE, -1, 9, NULL },
     { "ass", &mp_msg_levels[MSGT_ASS], CONF_TYPE_INT, CONF_RANGE, -1, 9, NULL },
     { "statusline", &mp_msg_levels[MSGT_STATUSLINE], CONF_TYPE_INT, CONF_RANGE, -1, 9, NULL },
+    { "fixme", &mp_msg_levels[MSGT_FIXME], CONF_TYPE_INT, CONF_RANGE, -1, 9, NULL },
     {"help", "Available msg modules:\n"
     "   global     - common player errors/information\n"
     "   cplayer    - console player (mplayer.c)\n"
@@ -283,6 +284,7 @@ const m_option_t msgl_config[]={
     "   identify   - identify output\n"
     "   ass        - libass messages\n"
     "   statusline - playback/encoding status line\n"
+    "   fixme      - messages not yet fixed to map to module\n"
     "\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
     {NULL, NULL, 0, 0, 0, 0, NULL}
 
@@ -333,12 +335,11 @@ const m_option_t common_opts[] = {
     {"dvd-speed", "MPlayer was compiled without libdvdread support.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
     {"dvd", "MPlayer was compiled without libdvdread support.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
 #endif /* CONFIG_DVDREAD */
-#ifdef CONFIG_LIBBLURAY
     {"bluray-device",  &bluray_device,  CONF_TYPE_STRING, 0,          0,  0, NULL},
+#ifdef CONFIG_LIBBLURAY
     {"bluray-angle",   &bluray_angle,   CONF_TYPE_INT,    CONF_RANGE, 0, 999, NULL},
     {"bluray-chapter", &bluray_chapter, CONF_TYPE_INT,    CONF_RANGE, 0, 999, NULL},
 #else
-    {"bluray-device",  "MPlayer was compiled without libbluray support.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
     {"bluray-angle",   "MPlayer was compiled without libbluray support.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
     {"bluray-chapter", "MPlayer was compiled without libbluray support.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
 #endif /* CONFIG_LIBBLURAY */
@@ -349,10 +350,11 @@ const m_option_t common_opts[] = {
     {"dvdkey", "libcss is obsolete. Try libdvdread instead.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
     {"csslib", "libcss is obsolete. Try libdvdread instead.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
 
-#ifdef CONFIG_NETWORK
+#ifdef CONFIG_NETWORKING
     {"user", &network_username, CONF_TYPE_STRING, 0, 0, 0, NULL},
     {"passwd", &network_password, CONF_TYPE_STRING, 0, 0, 0, NULL},
     {"bandwidth", &network_bandwidth, CONF_TYPE_INT, CONF_MIN, 0, 0, NULL},
+    {"http-header-fields", &network_http_header_fields, CONF_TYPE_STRING_LIST, 0, 0, 0, NULL},
     {"user-agent", &network_useragent, CONF_TYPE_STRING, 0, 0, 0, NULL},
     {"referrer", &network_referrer, CONF_TYPE_STRING, 0, 0, 0, NULL},
     {"cookies", &network_cookies_enabled, CONF_TYPE_FLAG, 0, 0, 1, NULL},
@@ -373,7 +375,7 @@ const m_option_t common_opts[] = {
     {"passwd", "MPlayer was compiled without streaming (network) support.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
     {"bandwidth", "MPlayer was compiled without streaming (network) support.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
     {"user-agent", "MPlayer was compiled without streaming (network) support.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
-#endif /* CONFIG_NETWORK */
+#endif /* CONFIG_NETWORKING */
 
 #ifdef CONFIG_LIVE555
     {"sdp", "-sdp has been removed, use sdp://file instead.\n", CONF_TYPE_PRINT, 0, 0, 0, NULL},
@@ -392,13 +394,13 @@ const m_option_t common_opts[] = {
 #else
     {"rtsp-stream-over-sctp", "-rtsp-stream-over-sctp requires the \"libnemesi\" library\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
 #endif /* CONFIG_LIBNEMESI */
-#ifdef CONFIG_NETWORK
+#ifdef CONFIG_NETWORKING
     {"rtsp-port", &rtsp_port, CONF_TYPE_INT, CONF_RANGE, -1, 65535, NULL},
     {"rtsp-destination", &rtsp_destination, CONF_TYPE_STRING, CONF_MIN, 0, 0, NULL},
 #else
-    {"rtsp-port", "MPlayer was compiled without network support.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
-    {"rtsp-destination", "MPlayer was compiled without network support.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
-#endif /* CONFIG_NETWORK */
+    {"rtsp-port", "MPlayer was compiled without networking support.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
+    {"rtsp-destination", "MPlayer was compiled without networking support.\n", CONF_TYPE_PRINT, CONF_NOCFG, 0, 0, NULL},
+#endif /* CONFIG_NETWORKING */
 
 // ------------------------- demuxer options --------------------
 
@@ -522,10 +524,8 @@ const m_option_t common_opts[] = {
     {"vc", &video_codec_list, CONF_TYPE_STRING_LIST, 0, 0, 0, NULL},
 
     // postprocessing:
-#ifdef CONFIG_LIBAVCODEC
+#ifdef CONFIG_FFMPEG
     {"pp", &divx_quality, CONF_TYPE_INT, 0, 0, 0, NULL},
-#endif
-#ifdef CONFIG_LIBPOSTPROC
     {"pphelp", &pp_help, CONF_TYPE_PRINT_INDIRECT, CONF_NOCFG, 0, 0, NULL},
 #endif
 
@@ -534,7 +534,7 @@ const m_option_t common_opts[] = {
     {"ssf", scaler_filter_conf, CONF_TYPE_SUBCONFIG, 0, 0, 0, NULL},
     {"zoom", &softzoom, CONF_TYPE_FLAG, 0, 0, 1, NULL},
     {"nozoom", &softzoom, CONF_TYPE_FLAG, 0, 1, 0, NULL},
-    {"aspect", &movie_aspect, CONF_TYPE_FLOAT, CONF_RANGE, 0.2, 3.0, NULL},
+    {"aspect", &movie_aspect, CONF_TYPE_FLOAT, CONF_RANGE, 0.1, 10.0, NULL},
     {"noaspect", &movie_aspect, CONF_TYPE_FLAG, 0, 0, 0, NULL},
     {"xy", &screen_size_xy, CONF_TYPE_FLOAT, CONF_RANGE, 0.001, 4096, NULL},
 
@@ -552,10 +552,8 @@ const m_option_t common_opts[] = {
     {"noslices", &vd_use_slices, CONF_TYPE_FLAG, 0, 1, 0, NULL},
     {"field-dominance", &field_dominance, CONF_TYPE_INT, CONF_RANGE, -1, 1, NULL},
 
-#ifdef CONFIG_LIBAVCODEC
+#ifdef CONFIG_FFMPEG
     {"lavdopts", lavc_decode_opts_conf, CONF_TYPE_SUBCONFIG, 0, 0, 0, NULL},
-#endif
-#ifdef CONFIG_LIBAVFORMAT
     {"lavfdopts",  lavfdopts_conf, CONF_TYPE_SUBCONFIG, CONF_GLOBAL, 0, 0, NULL},
 #endif
 #ifdef CONFIG_XVID4
@@ -565,6 +563,7 @@ const m_option_t common_opts[] = {
 // ------------------------- subtitles options --------------------
 
     {"sub", &sub_name, CONF_TYPE_STRING_LIST, 0, 0, 0, NULL},
+    {"sub-paths", &sub_paths, CONF_TYPE_STRING_LIST, 0, 0, 0, NULL},
 #ifdef CONFIG_FRIBIDI
     {"fribidi-charset", &fribidi_charset, CONF_TYPE_STRING, 0, 0, 0, NULL},
     {"flip-hebrew", &flip_hebrew, CONF_TYPE_FLAG, 0, 0, 1, NULL},
@@ -593,7 +592,7 @@ const m_option_t common_opts[] = {
     // specify IFO file for VOBSUB subtitle
     {"ifo", &spudec_ifo, CONF_TYPE_STRING, 0, 0, 0, NULL},
     // enable Closed Captioning display
-    {"subcc", &subcc_enabled, CONF_TYPE_FLAG, 0, 0, 1, NULL},
+    {"subcc", &subcc_enabled, CONF_TYPE_INT, CONF_RANGE, 0, 4, NULL},
     {"nosubcc", &subcc_enabled, CONF_TYPE_FLAG, 0, 1, 0, NULL},
     {"overlapsub", &suboverlap_enabled, CONF_TYPE_FLAG, 0, 0, 2, NULL},
     {"nooverlapsub", &suboverlap_enabled, CONF_TYPE_FLAG, 0, 0, 0, NULL},

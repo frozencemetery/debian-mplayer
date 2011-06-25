@@ -51,7 +51,7 @@
 #include "config.h"
 #include "video_out.h"
 #include "video_out_internal.h"
-#include "sub.h"
+#include "sub/sub.h"
 #include "mp_msg.h"
 
 static const vo_info_t info = {
@@ -351,7 +351,7 @@ static uint32_t get_image(mp_image_t *mpi)
   return VO_TRUE;
 }
 
-static int control(uint32_t request, void *data, ...)
+static int control(uint32_t request, void *data)
 {
   if (request == VOCTRL_GET_IMAGE)
     return get_image(data);

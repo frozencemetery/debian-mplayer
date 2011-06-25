@@ -441,7 +441,7 @@ static void pnm_write_image(mp_image_t *mpi)
     FILE *outfile;
 
     if (!mpi) {
-        mp_msg(MSGT_VO, MSGL_ERR, "%s: No image data suplied to video output driver\n", info.short_name );
+        mp_msg(MSGT_VO, MSGL_ERR, "%s: No image data supplied to video output driver\n", info.short_name );
         exit_player(EXIT_ERROR);
     }
 
@@ -542,7 +542,7 @@ static int query_format(uint32_t format)
 
 /* ------------------------------------------------------------------------- */
 
-static int control(uint32_t request, void *data, ...)
+static int control(uint32_t request, void *data)
 {
     switch (request) {
         case VOCTRL_QUERY_FORMAT:
@@ -557,14 +557,10 @@ static int control(uint32_t request, void *data, ...)
 
 static void uninit(void)
 {
-    if (pnm_subdirs) {
-        free(pnm_subdirs);
-        pnm_subdirs = NULL;
-    }
-    if (pnm_outdir) {
-        free(pnm_outdir);
-        pnm_outdir = NULL;
-    }
+    free(pnm_subdirs);
+    pnm_subdirs = NULL;
+    free(pnm_outdir);
+    pnm_outdir = NULL;
 }
 
 /* ------------------------------------------------------------------------- */

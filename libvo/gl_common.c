@@ -40,6 +40,7 @@
 #include "gl_common.h"
 #include "csputils.h"
 #include "aspect.h"
+#include "pnm_loader.h"
 
 void (GLAPIENTRY *mpglBegin)(GLenum);
 void (GLAPIENTRY *mpglEnd)(void);
@@ -181,7 +182,7 @@ static const struct gl_name_map_struct gl_name_map[] = {
   MAP(GL_R3_G3_B2), MAP(GL_RGB4), MAP(GL_RGB5), MAP(GL_RGB8),
   MAP(GL_RGB10), MAP(GL_RGB12), MAP(GL_RGB16), MAP(GL_RGBA2),
   MAP(GL_RGBA4), MAP(GL_RGB5_A1), MAP(GL_RGBA8), MAP(GL_RGB10_A2),
-  MAP(GL_RGBA12), MAP(GL_RGBA16), MAP(GL_LUMINANCE8),
+  MAP(GL_RGBA12), MAP(GL_RGBA16), MAP(GL_LUMINANCE8), MAP(GL_LUMINANCE16),
 
   // format
   MAP(GL_RGB), MAP(GL_RGBA), MAP(GL_RED), MAP(GL_GREEN), MAP(GL_BLUE),
@@ -252,7 +253,7 @@ int glFindFormat(uint32_t fmt, int *bpp, GLint *gl_texfmt,
   if (!gl_format) gl_format = &dummy2;
   if (!gl_type) gl_type = &dummy2;
 
-  if (mp_get_chroma_shift(fmt, NULL, NULL)) {
+  if (mp_get_chroma_shift(fmt, NULL, NULL, NULL)) {
     // reduce the possible cases a bit
     if (IMGFMT_IS_YUVP16_LE(fmt))
       fmt = IMGFMT_420P16_LE;
@@ -280,7 +281,7 @@ int glFindFormat(uint32_t fmt, int *bpp, GLint *gl_texfmt,
       break;
     case IMGFMT_420P16:
       supported = 0; // no native YUV support
-      *gl_texfmt = 1;
+      *gl_texfmt = GL_LUMINANCE16;
       *bpp = 16;
       *gl_format = GL_LUMINANCE;
       *gl_type = GL_UNSIGNED_SHORT;
@@ -295,7 +296,9 @@ int glFindFormat(uint32_t fmt, int *bpp, GLint *gl_texfmt,
       *gl_type = GL_UNSIGNED_BYTE;
       break;
     case IMGFMT_UYVY:
-    case IMGFMT_YUY2:
+    // IMGFMT_YUY2 would be more logical for the _REV format,
+    // but gives clearly swapped colors.
+    case IMGFMT_YVYU:
       *gl_texfmt = GL_YCBCR_MESA;
       *bpp = 16;
       *gl_format = GL_YCBCR_MESA;
@@ -558,25 +561,6 @@ void glCreateClearTex(GLenum target, GLenum fmt, GLenum format, GLenum type, GLi
 }
 
 /**
- * \brief skips whitespace and comments
- * \param f file to read from
- */
-static void ppm_skip(FILE *f) {
-  int c, comment = 0;
-  do {
-    c = fgetc(f);
-    if (c == '#')
-      comment = 1;
-    if (c == '\n')
-      comment = 0;
-  } while (c != EOF && (isspace(c) || comment));
-  if (c != EOF)
-    ungetc(c, f);
-}
-
-#define MAXDIM (16 * 1024)
-
-/**
  * \brief creates a texture from a PPM file
  * \param target texture taget, usually GL_TEXTURE_2D
  * \param fmt internal texture format, 0 for default
@@ -590,36 +574,19 @@ static void ppm_skip(FILE *f) {
  */
 int glCreatePPMTex(GLenum target, GLenum fmt, GLint filter,
                    FILE *f, int *width, int *height, int *maxval) {
-  unsigned w, h, m, val, bpp;
-  char *data;
+  int w, h, m, bpp;
   GLenum type;
-  ppm_skip(f);
-  if (fgetc(f) != 'P' || fgetc(f) != '6')
+  uint8_t *data = read_pnm(f, &w, &h, &bpp, &m);
+  if (!data || (bpp != 3 && bpp != 6)) {
+    free(data);
     return 0;
-  ppm_skip(f);
-  if (fscanf(f, "%u", &w) != 1)
-    return 0;
-  ppm_skip(f);
-  if (fscanf(f, "%u", &h) != 1)
-    return 0;
-  ppm_skip(f);
-  if (fscanf(f, "%u", &m) != 1)
-    return 0;
-  val = fgetc(f);
-  if (!isspace(val))
-    return 0;
-  if (w > MAXDIM || h > MAXDIM)
-    return 0;
-  bpp = (m > 255) ? 6 : 3;
-  data = malloc(w * h * bpp);
-  if (fread(data, w * bpp, h, f) != h)
-    return 0;
+  }
   if (!fmt) {
-    fmt = (m > 255) ? hqtexfmt : 3;
+    fmt = bpp == 6 ? hqtexfmt : 3;
     if (fmt == GL_FLOAT_RGB32_NV && target != GL_TEXTURE_RECTANGLE)
       fmt = GL_RGB16;
   }
-  type = m > 255 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
+  type = bpp == 6 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
   glCreateClearTex(target, fmt, GL_RGB, type, filter, w, h, 0);
   glUploadTex(target, GL_RGB, type,
               data, w * bpp, 0, 0, w, h, 0);
@@ -1178,8 +1145,7 @@ static void create_conv_textures(gl_conversion_params_t *params, int *texu, char
     default:
       mp_msg(MSGT_VO, MSGL_ERR, "[gl] unknown conversion type %i\n", conv);
   }
-  if (lookup_data)
-    free(lookup_data);
+  free(lookup_data);
 }
 
 /**

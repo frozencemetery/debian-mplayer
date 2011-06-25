@@ -26,22 +26,15 @@
 #include "mp_image.h"
 #include "vf.h"
 
-#include "libvo/sub.h"
+#include "sub/sub.h"
 #include "libvo/video_out.h"
-
-#ifdef CONFIG_ASS
-#include "libass/ass_mp.h"
-#endif
+#include "sub/eosd.h"
 
 //===========================================================================//
 
 struct vf_priv_s {
     double pts;
     const vo_functions_t *vo;
-#ifdef CONFIG_ASS
-    ass_renderer_t* ass_priv;
-    int prev_visibility;
-#endif
 };
 #define video_out (vf->priv->vo)
 
@@ -81,11 +74,6 @@ static int config(struct vf_instance *vf,
     if(config_video_out(video_out,width,height,d_width,d_height,flags,"MPlayer",outfmt))
 	return 0;
 
-#ifdef CONFIG_ASS
-    if (vf->priv->ass_priv)
-	ass_configure(vf->priv->ass_priv, width, height, !!(vf->default_caps & VFCAP_EOSD_UNSCALED));
-#endif
-
     ++vo_config_count;
     return 1;
 }
@@ -117,51 +105,29 @@ static int control(struct vf_instance *vf, int request, void* data)
     }
     case VFCTRL_SET_EQUALIZER:
     {
-	vf_equalizer_t *eq=data;
 	if(!vo_config_count) return CONTROL_FALSE; // vo not configured?
-	return (video_out->control(VOCTRL_SET_EQUALIZER, eq->item, eq->value) == VO_TRUE) ? CONTROL_TRUE : CONTROL_FALSE;
+	return (video_out->control(VOCTRL_SET_EQUALIZER, data) == VO_TRUE) ? CONTROL_TRUE : CONTROL_FALSE;
     }
     case VFCTRL_GET_EQUALIZER:
     {
-	vf_equalizer_t *eq=data;
 	if(!vo_config_count) return CONTROL_FALSE; // vo not configured?
-	return (video_out->control(VOCTRL_GET_EQUALIZER, eq->item, &eq->value) == VO_TRUE) ? CONTROL_TRUE : CONTROL_FALSE;
+	return (video_out->control(VOCTRL_GET_EQUALIZER, data) == VO_TRUE) ? CONTROL_TRUE : CONTROL_FALSE;
     }
 #ifdef CONFIG_ASS
     case VFCTRL_INIT_EOSD:
     {
-        vf->priv->ass_priv = ass_renderer_init((ass_library_t*)data);
-        if (!vf->priv->ass_priv) return CONTROL_FALSE;
-        ass_configure_fonts(vf->priv->ass_priv);
-        vf->priv->prev_visibility = 0;
         return CONTROL_TRUE;
     }
     case VFCTRL_DRAW_EOSD:
     {
-        mp_eosd_images_t images = {NULL, 2};
+        struct mp_eosd_image_list images;
+        struct mp_eosd_settings res = {0};
         double pts = vf->priv->pts;
-        if (!vo_config_count || !vf->priv->ass_priv) return CONTROL_FALSE;
-        if (sub_visibility && vf->priv->ass_priv && ass_track && (pts != MP_NOPTS_VALUE)) {
-            mp_eosd_res_t res;
-            memset(&res, 0, sizeof(res));
-            if (video_out->control(VOCTRL_GET_EOSD_RES, &res) == VO_TRUE) {
-                double dar = (double) (res.w - res.ml - res.mr) / (res.h - res.mt - res.mb);
-                ass_set_frame_size(vf->priv->ass_priv, res.w, res.h);
-                ass_set_margins(vf->priv->ass_priv, res.mt, res.mb, res.ml, res.mr);
-#if defined(LIBASS_VERSION) && LIBASS_VERSION >= 0x00907010
-                ass_set_aspect_ratio(vf->priv->ass_priv, dar, (double)res.srcw/res.srch);
-#else
-                ass_set_aspect_ratio(vf->priv->ass_priv, (double)res.w / res.h);
-#endif
-            }
-
-            images.imgs = ass_mp_render_frame(vf->priv->ass_priv, ass_track, (pts+sub_delay) * 1000 + .5, &images.changed);
-            if (!vf->priv->prev_visibility)
-                images.changed = 2;
-            vf->priv->prev_visibility = 1;
-        } else
-            vf->priv->prev_visibility = 0;
-        vf->priv->prev_visibility = sub_visibility;
+        if (!vo_config_count) return CONTROL_FALSE;
+        res.unscaled = !!(vf->default_caps & VFCAP_EOSD_UNSCALED);
+        if (video_out->control(VOCTRL_GET_EOSD_RES, &res) == VO_TRUE)
+            eosd_configure(&res);
+        eosd_render_frame(pts, &images);
         return (video_out->control(VOCTRL_DRAW_EOSD, &images) == VO_TRUE) ? CONTROL_TRUE : CONTROL_FALSE;
     }
 #endif
@@ -189,7 +155,7 @@ static void get_image(struct vf_instance *vf,
     if(!vo_config_count) return;
     // GET_IMAGE is required for hardware-accelerated formats
     if(vo_directrendering ||
-       IMGFMT_IS_XVMC(mpi->imgfmt) || IMGFMT_IS_VDPAU(mpi->imgfmt))
+       IMGFMT_IS_HWACCEL(mpi->imgfmt))
 	video_out->control(VOCTRL_GET_IMAGE,mpi);
 }
 
@@ -226,13 +192,7 @@ static void draw_slice(struct vf_instance *vf,
 
 static void uninit(struct vf_instance *vf)
 {
-    if (vf->priv) {
-#ifdef CONFIG_ASS
-        if (vf->priv->ass_priv)
-            ass_renderer_done(vf->priv->ass_priv);
-#endif
         free(vf->priv);
-    }
 }
 //===========================================================================//
 

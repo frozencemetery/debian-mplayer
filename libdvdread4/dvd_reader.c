@@ -62,6 +62,7 @@ static inline int _private_gettimeofday( struct timeval *tv, void *tz )
 #include <fstab.h>
 #elif defined(__linux__)
 #include <mntent.h>
+#include <paths.h>
 #endif
 
 #include "dvdread/dvd_udf.h"
@@ -319,7 +320,7 @@ static char *bsd_block2char( const char *path )
   char *new_path;
 
   /* If it doesn't start with "/dev/" or does start with "/dev/r" exit */
-  if( !strncmp( path, "/dev/",  5 ) || strncmp( path, "/dev/r", 6 ) )
+  if( strncmp( path, "/dev/",  5 ) || !strncmp( path, "/dev/r", 6 ) )
     return (char *) strdup( path );
 
   /* Replace "/dev/" with "/dev/r" */
@@ -504,7 +505,7 @@ dvd_reader_t *DVDOpen( const char *ppath )
       fclose( mntfile );
     }
 #elif defined(__linux__)
-    mntfile = fopen( MOUNTED, "r" );
+    mntfile = fopen( _PATH_MOUNTED, "r" );
     if( mntfile ) {
       struct mntent *me;
 

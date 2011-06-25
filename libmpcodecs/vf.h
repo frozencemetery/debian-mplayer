@@ -58,7 +58,7 @@ typedef struct vf_instance {
     // funcs:
     int (*config)(struct vf_instance *vf,
         int width, int height, int d_width, int d_height,
-	unsigned int flags, unsigned int outfmt);
+        unsigned int flags, unsigned int outfmt);
     int (*control)(struct vf_instance *vf,
         int request, void* data);
     int (*query_format)(struct vf_instance *vf,
@@ -114,8 +114,7 @@ typedef struct vf_seteq_s
 
 #include "vfcap.h"
 
-//FIXME this should be in a common header, but i dunno which
-#define MP_NOPTS_VALUE (-1LL<<63) //both int64_t and double should be able to represent this exactly
+#include "mp_global.h"
 
 
 // functions:
@@ -135,7 +134,7 @@ int vf_output_queued_frame(vf_instance_t *vf);
 // default wrappers:
 int vf_next_config(struct vf_instance *vf,
         int width, int height, int d_width, int d_height,
-	unsigned int flags, unsigned int outfmt);
+        unsigned int flags, unsigned int outfmt);
 int vf_next_control(struct vf_instance *vf, int request, void* data);
 void vf_extra_flip(struct vf_instance *vf);
 int vf_next_query_format(struct vf_instance *vf, unsigned int fmt);
@@ -148,8 +147,8 @@ void vf_uninit_filter(vf_instance_t* vf);
 void vf_uninit_filter_chain(vf_instance_t* vf);
 
 int vf_config_wrapper(struct vf_instance *vf,
-		      int width, int height, int d_width, int d_height,
-		      unsigned int flags, unsigned int outfmt);
+                      int width, int height, int d_width, int d_height,
+                      unsigned int flags, unsigned int outfmt);
 
 static inline int norm_qscale(int qscale, int type)
 {
