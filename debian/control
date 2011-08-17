@@ -23,6 +23,7 @@ Build-Depends:
  libavdevice-dev (>= 4:0.7~),
  libavformat-dev (>= 4:0.7~),
  libavutil-dev (>= 4:0.7~),
+ libbluray-dev,
  libcaca-dev,
  libcdparanoia-dev | libcdparanoia0-dev,
  libdirectfb-dev,
