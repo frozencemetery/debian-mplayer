@@ -38,7 +38,7 @@ Build-Depends:
  libgif-dev,
  libgl1-mesa-dev,
  libjack-dev,
- libjpeg62-dev,
+ libjpeg-dev,
  liblircclient-dev,
  liblivemedia-dev,
  liblzo2-dev,
