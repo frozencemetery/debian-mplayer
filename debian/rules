@@ -147,7 +147,7 @@ clean:
 	dh_testdir
 	dh_testroot
 	[ ! -f config.mak ] || ( $(MAKE) -C DOCS/xml releaseclean && $(MAKE) distclean )
-	dh_clean snapshot_version
+	dh_clean
 	! test -d .git || quilt pop -a || test $$? = 2
 
 # Build architecture-independent packages
