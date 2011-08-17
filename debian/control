@@ -17,7 +17,7 @@ Build-Depends:
  docbook-xsl,
  ladspa-sdk,
  libaa1-dev,
- libasound2-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386],
+ libasound2-dev [linux-any],
  libaudio-dev,
  libavcodec-dev (>= 4:0.7~),
  libavdevice-dev (>= 4:0.7~),
