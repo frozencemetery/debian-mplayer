@@ -72,6 +72,7 @@ Build-Depends:
  vstream-client-dev,
  x11proto-core-dev,
  xsltproc,
+ yasm,
  zlib1g-dev
 
 Package: mencoder
