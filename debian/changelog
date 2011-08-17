@@ -1,6 +1,30 @@
-mplayer (2:1.0~rc4+svn33713-1) experimental; urgency=low
+mplayer (2:1.0~rc4.dfsg1+svn33713-1) experimental; urgency=low
 
   * New upstream snapshot
+    - update 23mplayer-debug-printf.patch
+    - fixes miscompilation with gcc 4.6, Closes: #623304
+    - improved internal mkv demuxer, Closes: #595452
+    - Fixed segfault due to missing sanitation on playlist files,
+      Closes: #591525
+    - Fixed byteorder on 16-bit displays, Closes: #594093
+    - tighten build depends on libav
+    - --enable-largefile switch has been dropped
+    - add build dependency on yasm
+  * Fix build dependency on libjpeg-dev, Closes: #634277
+  * rewrite debian/copyright in DEP5 format
+  * fix clean target
+  * don't remove snapshot_version file
+  * enable XVID, MP3 and X264 encoders
+  * simply architecture specific dependencies, Closes: #634773
+  * make buildlogs verbose
+  * unbreak building mplayer-doc package
+  * don't fail debian package build if not all shlibdeps information could be retrieved
+  * update configure flags for static libav* libraries
+  * fix spelling in mplayer-dbg description, Closes: #617826
+  * enable blueray support, Closes: #577761
+
+  [ Robert Millan ]
+  * Select oss as default audio output module on kFreeBSD, Closes: #598431
 
  -- Reinhard Tartler <siretart@tauware.de>  Sat, 25 Jun 2011 09:05:54 +0200
 
