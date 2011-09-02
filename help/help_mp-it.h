@@ -2,7 +2,7 @@
 // Updated by: Roberto Togni <see AUTHORS for email address>
 // Updated by: PaulTT <see AUTHORS for email address>
 
-// Updated to help_mp-en.h r30515
+// Updated to help_mp-en.h r32397
 
 
 // ========================= MPlayer help ===========================
@@ -65,6 +65,9 @@ static const char help_text[]=
 #define MSGTR_DumpSelectedStreamMissing "dump: FATALE: manca il flusso selezionato!\n"
 #define MSGTR_CantOpenDumpfile "Impossibile aprire il file di dump!!!\n"
 #define MSGTR_CoreDumped "Core dumped ;)\n"
+#define MSGTR_DumpBytesWrittenPercent "dump: %"PRIu64" byte scritti (~%.1f%%)\r"
+#define MSGTR_DumpBytesWritten "dump: %"PRIu64" byte scritti\r"
+#define MSGTR_DumpBytesWrittenTo "dump: %"PRIu64" byte scritti su '%s'.\n"
 #define MSGTR_FPSnotspecified "FPS non specificato (o non valido) nell'intestazione! Usa l'opzione -fps!\n"
 #define MSGTR_TryForceAudioFmtStr "Cerco di forzare l'uso della famiglia dei driver dei codec audio %s...\n"
 #define MSGTR_CantFindAudioCodec "Impossibile trovare il codec per il formato audio 0x%X!\n"
@@ -118,7 +121,7 @@ static const char help_text[]=
 #define MSGTR_ForcedAudioCodec "Codec audio forzato: %s\n"
 #define MSGTR_Video_NoVideo "Video: nessun video!!!\n"
 #define MSGTR_NotInitializeVOPorVO "\nFATALE: Impossibile inizializzare i filtri video (-vf) o l'output video (-vo)!\n"
-#define MSGTR_Paused "\n  =====  PAUSA  =====\r"
+#define MSGTR_Paused "  =====  PAUSA  ====="
 #define MSGTR_PlaylistLoadUnable "\nImpossibile caricare la playlist %s\n"
 #define MSGTR_Exit_SIGILL_RTCpuSel \
 "- MPlayer è stato interrotto dal segnale 'Istruzione illegale'.\n"\
@@ -153,7 +156,6 @@ static const char help_text[]=
 "agli script di avvio del sistema.\n"
 #define MSGTR_LinuxRTCInitErrorPieOn "Linux RTC: errore di init in ioctl (rtc_pie_on): %s\n"
 #define MSGTR_UsingTimingType "Uso la temporizzazione %s.\n"
-#define MSGTR_NoIdleAndGui "L'opzione -idle non può essere usata con GMPlayer.\n"
 #define MSGTR_MenuInitialized "Menu inizializzato: %s\n"
 #define MSGTR_MenuInitFailed "Inizializzazione Menu fallita.\n"
 #define MSGTR_Getch2InitializedTwice "WARNING: getch2_init chiamata 2 volte!\n"
@@ -178,9 +180,12 @@ static const char help_text[]=
 #define MSGTR_DvdnavNavSpuClutChange "DVDNAV Evento: Nav Cambio CLUT SPU\n"
 #define MSGTR_DvdnavNavSeekDone "DVDNAV Evento: Nev Ricerca eseguita\n"
 #define MSGTR_MenuCall "Chiamata a Menu\n"
+#define MSGTR_MasterQuit "Opzione -udp-slave: in chiusura causata dalla chiusura del master\n"
+#define MSGTR_InvalidIP "Opzione -udp-ip: indirizzo IP non valido\n"
 
 // --- edit decision lists
 #define MSGTR_EdlOutOfMem "Non posso allocare abbastanza memoria per i dati EDL.\n"
+#define MSGTR_EdlOutOfMemFile "Non posso allocare abbastanza memoria per il nome file EDL [%s].\n"
 #define MSGTR_EdlRecordsNo "Lette azioni EDL %d.\n"
 #define MSGTR_EdlQueueEmpty "Non ci sono azioni EDL di cui curarsi.\n"
 #define MSGTR_EdlCantOpenForWrite "Non posso aprire il file EDL [%s] per la scrittura.\n"
@@ -194,7 +199,6 @@ static const char help_text[]=
 #define MSGTR_EdloutBadStop "Salto EDL ingnorato, ultimo start > stop\n"
 #define MSGTR_EdloutStartSkip "Tempo di start EDL impostato, ripremere 'i' per impostare lo stop.\n"
 #define MSGTR_EdloutEndSkip "Fine del blocco EDL, riga scritta.\n"
-#define MSGTR_MPEndposNoSizeBased "L'opzione -endpos in MPlayer non supporta ancora unità di mis. di dimensione.\n"
 
 // mplayer.c OSD
 #define MSGTR_OSDenabled "abilitat"
@@ -208,6 +212,8 @@ static const char help_text[]=
 #define MSGTR_OSDChapter "Capitolo: (%d) %s"
 #define MSGTR_OSDAngle "Angolazione: %d/%d"
 #define MSGTR_OSDDeinterlace "Deinterlacciamento: %s"
+#define MSGTR_OSDCapturing "Registrazione: %s"
+#define MSGTR_OSDCapturingFailure "Registrazione fallita"
 
 // property values
 #define MSGTR_Enabled "abilitat"
@@ -563,33 +569,24 @@ static const char help_text[]=
 #define MSGTR_NEMFMR "Mi dispiace, non c'è abbastanza memoria per visualizzare il menu."
 #define MSGTR_IDFGCVD "Mi dispiace, non ho trovato un driver di output video compatibile con la GUI."
 #define MSGTR_NEEDLAVC "Mi dispiace, non puoi riprodurre file non-MPEG con il tuo dispositivo DXR3/H+\nsenza ricodificarli.\nAbilita lavc nella finestra di configurazione DXR3/H+."
-#define MSGTR_UNKNOWNWINDOWTYPE "Trovato tipo finestra sconosciuto..."
 
 // --- skin loader error messages
 #define MSGTR_SKIN_ERRORMESSAGE "[skin] errore nel file di configurazione della skin alla riga %d: %s"
-#define MSGTR_SKIN_WARNING1 "[skin] attenzione: nel file di configurazione della skin alla riga %d:\nwidget trovato ma non trovata prima la \"section\" (%s)"
-#define MSGTR_SKIN_WARNING2 "[skin] attenzione: nel file di configurazione della skin alla riga %d:\nwidget trovato ma non trovata prima la \"subsection\" (%s)"
-#define MSGTR_SKIN_WARNING3 "[skin] attenzione: nel file di configurazione della skin alla riga %d:\nquesta sottosezione non è supportata dal widget (%s)"
 #define MSGTR_SKIN_SkinFileNotFound "[skin] file ( %s ) non trovato.\n"
 #define MSGTR_SKIN_SkinFileNotReadable "[skin] file ( %s ) non leggibile.\n"
 #define MSGTR_SKIN_BITMAP_16bit  "Bitmap con profondità di 16 bit o inferiore non supportate (%s).\n"
 #define MSGTR_SKIN_BITMAP_FileNotFound  "File non trovato (%s)\n"
-#define MSGTR_SKIN_BITMAP_BMPReadError "BMP, errore di lettura (%s)\n"
-#define MSGTR_SKIN_BITMAP_TGAReadError "TGA, errore di lettura (%s)\n"
 #define MSGTR_SKIN_BITMAP_PNGReadError "PNG, errore di lettura (%s)\n"
-#define MSGTR_SKIN_BITMAP_RLENotSupported "RLE packed TGA non supportato (%s)\n"
-#define MSGTR_SKIN_BITMAP_UnknownFileType "tipo di file sconosciuto (%s)\n"
 #define MSGTR_SKIN_BITMAP_ConversionError "errore nella conversione da 24 bit a 32 bit (%s)\n"
-#define MSGTR_SKIN_BITMAP_UnknownMessage "messaggio sconosciuto: %s\n"
-#define MSGTR_SKIN_FONT_NotEnoughtMemory "memoria insufficiente\n"
+#define MSGTR_SKIN_UnknownMessage "messaggio sconosciuto: %s\n"
+#define MSGTR_SKIN_NotEnoughMemory "memoria insufficiente\n"
 #define MSGTR_SKIN_FONT_TooManyFontsDeclared "dichiarati troppi font\n"
 #define MSGTR_SKIN_FONT_FontFileNotFound "file dei font non trovato\n"
 #define MSGTR_SKIN_FONT_FontImageNotFound "file delle immagini dei font non trovato\n"
-#define MSGTR_SKIN_FONT_NonExistentFontID "identificatore del font inesistente (%s)\n"
+#define MSGTR_SKIN_FONT_NonExistentFont "identificatore del font inesistente (%s)\n"
 #define MSGTR_SKIN_UnknownParameter "parametro sconosciuto  (%s)\n"
 #define MSGTR_SKIN_SKINCFG_SkinNotFound "Skin non trovata (%s).\n"
 #define MSGTR_SKIN_SKINCFG_SelectedSkinNotFound "Skin scelta ( %s ) not trovata, provo con la 'default'...\n"
-#define MSGTR_SKIN_SKINCFG_SkinCfgReadError "Errore nella lettura del file di configurazione della skin (%s).\n"
 #define MSGTR_SKIN_LABEL "Skins:"
 
 // --- GTK menus
@@ -783,25 +780,18 @@ static const char help_text[]=
 #define MSGTR_MSGBOX_LABEL_Error "Errore!"
 #define MSGTR_MSGBOX_LABEL_Warning "Avvertimento!"
 
-// bitmap.c
-#define MSGTR_NotEnoughMemoryC32To1 "[c32to1] non c'è abbastanza memoria per l'immagine\n"
-#define MSGTR_NotEnoughMemoryC1To32 "[c1to32] non c'è abbastanza memoria per l'immagine\n"
-
 // cfg.c
-#define MSGTR_ConfigFileReadError "[cfg] errore di lettura file di configurazione...\n"
 #define MSGTR_UnableToSaveOption "[cfg] non riesco a salvare l'opzione '%s'.\n"
 
 // interface.c
 #define MSGTR_DeletingSubtitles "[GUI] Elimino sottotitoli.\n"
 #define MSGTR_LoadingSubtitles "[GUI] Carico sottotitoli: %s\n"
 #define MSGTR_AddingVideoFilter "[GUI] Aggiungo filtro video: %s\n"
-#define MSGTR_RemovingVideoFilter "[GUI] Rimuovo filtro video: %s\n"
 
 // mw.c
 #define MSGTR_NotAFile "Questo non pare essere un file: %s !\n"
 
 // ws.c
-#define MSGTR_WS_CouldNotOpenDisplay "[ws] Non posso aprire il display.\n"
 #define MSGTR_WS_RemoteDisplay "[ws] Display remoto, disabilito XMITSHM.\n"
 #define MSGTR_WS_NoXshm "[ws] Spiacente, il tuo sistema non supporta l'estensione 'X shared memory'.\n"
 #define MSGTR_WS_NoXshape "[ws] Spiacente, il tuo sistema non supporta l'estensione XShape.\n"
@@ -1096,12 +1086,10 @@ static const char help_text[]=
 // vo_yuv4mpeg.c
 #define MSGTR_VO_YUV4MPEG_InterlacedHeightDivisibleBy4 "La modalità interlacciata richiede l'altezza immagine divisibile per 4."
 #define MSGTR_VO_YUV4MPEG_InterlacedLineBufAllocFail "Impossibile allocare il buffer di linea per la modalità interlacciata."
-#define MSGTR_VO_YUV4MPEG_InterlacedInputNotRGB "L'input non è RGB, non posso separare la crominanza per campi!"
 #define MSGTR_VO_YUV4MPEG_WidthDivisibleBy2 "La larghezza immagine dev'essere divisibile per 2."
-#define MSGTR_VO_YUV4MPEG_NoMemRGBFrameBuf "Non c'è abbastanza memoria per allocare il framebuffer RGB."
 #define MSGTR_VO_YUV4MPEG_OutFileOpenError "Non posso allocare memoria o spazio per scrivere \"%s\"!"
 #define MSGTR_VO_YUV4MPEG_OutFileWriteError "Errore di scrittura dell'immagine in uscita!"
-#define MSGTR_VO_YUV4MPEG_UnknownSubDev "Subdispositivo sconosciuto: %s"
+#define MSGTR_VO_YUV4MPEG_UnknownSubDev "Sotto-dispositivo sconosciuto: %s"
 // 'top-field first'/'bottom-field first' should be left as they are written,
 // since there's a reference to these in the man page
 #define MSGTR_VO_YUV4MPEG_InterlacedTFFMode "Uso modalità di uscita interlacciata, top-field first."
@@ -1199,7 +1187,7 @@ static const char help_text[]=
 #define MSGTR_AO_SGI_CantSetParms_Samplerate "[AO SGI] init: setparams fallito: %s\nNon posso impostare il samplerate voluto.\n"
 #define MSGTR_AO_SGI_CantSetAlRate "[AO SGI] init: AL_RATE non è stato accettato dalla risorsa.\n"
 #define MSGTR_AO_SGI_CantGetParms "[AO SGI] init: getparams fallito: %s\n"
-#define MSGTR_AO_SGI_SampleRateInfo "[AO SGI] init: il samplerate ora è %lf (la frequenza voluta è %lf)\n"
+#define MSGTR_AO_SGI_SampleRateInfo "[AO SGI] init: il samplerate ora è %f (la frequenza voluta è %f)\n"
 #define MSGTR_AO_SGI_InitConfigError "[AO SGI] init: %s\n"
 #define MSGTR_AO_SGI_InitOpenAudioFailed "[AO SGI] init: Non posso apire il canale audio: %s\n"
 #define MSGTR_AO_SGI_Uninit "[AO SGI] uninit: ...\n"
@@ -1360,7 +1348,6 @@ static const char help_text[]=
 #define MSGTR_INPUT_INPUT_ErrBuffer2SmallForCmd "Il buffer è troppo piccolo per il comando %s\n"
 #define MSGTR_INPUT_INPUT_ErrWhyHere "Cosa ci stiamo facendo qui?\n"
 #define MSGTR_INPUT_INPUT_ErrCantInitJoystick "Impossibile inizializzare i controlli del joystick\n"
-#define MSGTR_INPUT_INPUT_ErrCantStatFile "Impossibile fare stat di %s: %s\n"
 #define MSGTR_INPUT_INPUT_ErrCantOpenFile "Impossibile aprire %s: %s\n"
 #define MSGTR_INPUT_INPUT_ErrCantInitAppleRemote "Impossibile inizializzare l'Apple Remote.\n"
 
@@ -1442,7 +1429,7 @@ static const char help_text[]=
 #define MSGTR_EnterTelecineMode "\ndemux_mpg: Rilevato formato NTSC 24000/1001fps progressivo, cambio framerate.\n"
 
 #define MSGTR_CacheFill "\rRiempio cache: %5.2f%% (%"PRId64" byte)   "
-#define MSGTR_NoBindFound "Nessun controllo legato al tasto '%s'."
+#define MSGTR_NoBindFound "Nessun controllo legato al tasto '%s'.\n"
 #define MSGTR_FailedToOpen "Apertura di '%s' fallita.\n"
                                                                //
 #define MSGTR_VideoID "[%s] Trovato flusso video, -vid %d\n"
@@ -1837,7 +1824,7 @@ static const char help_text[]=
 #define MSGTR_MPDEMUX_ASF_UnknownASFStreamType "Tipo del flusso asf sconosciuto\n"
 #define MSGTR_MPDEMUX_ASF_Failed2ParseHTTPResponse "Interpretazione della risposta HTTP fallita.\n"
 #define MSGTR_MPDEMUX_ASF_ServerReturn "Il server risponde %d:%s\n"
-#define MSGTR_MPDEMUX_ASF_ASFHTTPParseWarnCuttedPragma "AVVISO INTERPRETAZIONE ASF HTTP : Pragma %s tagliato da %d byte a %d\n"
+#define MSGTR_MPDEMUX_ASF_ASFHTTPParseWarnCuttedPragma "AVVISO INTERPRETAZIONE ASF HTTP : Pragma %s tagliato da %zd byte a %d\n"
 #define MSGTR_MPDEMUX_ASF_SocketWriteError "Errore scrittura socket: %s\n"
 #define MSGTR_MPDEMUX_ASF_HeaderParseFailed "Interpretazione intestazione fallita.\n"
 #define MSGTR_MPDEMUX_ASF_NoStreamFound "Nessun flusso trovato.\n"
@@ -1889,6 +1876,7 @@ static const char help_text[]=
 #define MSGTR_SMBFileNotFound "Impossibile aprire dalla rete: '%s'\n"
 #define MSGTR_SMBNotCompiled "MPlayer non è stato compilato con supporto di lettura da SMB.\n"
 
+#define MSGTR_CantOpenBluray "Impossibile aprire il dispositivo Blu-ray: %s\n"
 #define MSGTR_CantOpenDVD "Impossibile aprire il dispositivo DVD: %s (%s)\n"
 
 // stream_cdda.c
@@ -1959,6 +1947,11 @@ static const char help_text[]=
 #define MSGTR_DVDsubtitleChannel "Scelto canale sottotitoli DVD: %d lingua: %c%c\n"
 #define MSGTR_DVDsubtitleLanguage "sottotitoli ( sid ): %d lingua: %s\n"
 #define MSGTR_DVDnumSubtitles "numero di sottotitoli sul disco: %d\n"
+
+// stream_bluray.c
+#define MSGTR_BlurayNoDevice "Non è stato specificato alcun dispositivo/posizione Blu-ray...\n"
+#define MSGTR_BlurayNoTitles "Non è stato trovato alcun titolo compatibile Blu-ray.\n"
+#define MSGTR_BlurayOK "Blu-ray aperto con successo.\n"
 
 // stream_radio.c
 #define MSGTR_RADIO_ChannelNamesDetected "[radio] Rilevati i nomi dei canali radio.\n"
@@ -2103,3 +2096,7 @@ static const char help_text[]=
 
 // url.c
 #define MSGTR_MPDEMUX_URL_StringAlreadyEscaped "La stringa sembra essere già filtrata in url_escape %c%c1%c2\n"
+
+// subtitles
+#define MSGTR_SUBTITLES_SubRip_UnknownFontColor "SubRip: colore sconosciuto del font nel sottotitolo: %s\n"
+

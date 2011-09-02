@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <fcntl.h>
-#ifdef HAVE_SYS_MMAN_H
+#if HAVE_SYS_MMAN_H
 #include <sys/mman.h>
 #else
 #include "osdep/mmap.h"
@@ -272,8 +272,7 @@ void Restore_LDT_Keeper(ldt_fs_t* ldt_fs)
 {
     if (ldt_fs == NULL || ldt_fs->fs_seg == 0)
 	return;
-    if (ldt_fs->prev_struct)
-	free(ldt_fs->prev_struct);
+    free(ldt_fs->prev_struct);
     munmap((char*)ldt_fs->fs_seg, getpagesize());
     ldt_fs->fs_seg = 0;
     free(ldt_fs);

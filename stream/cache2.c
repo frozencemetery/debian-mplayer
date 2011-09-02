@@ -39,6 +39,7 @@
 #include <unistd.h>
 #include <errno.h>
 
+#include "libavutil/avutil.h"
 #include "osdep/shmem.h"
 #include "osdep/timer.h"
 #if defined(__MINGW32__)
@@ -64,6 +65,7 @@ static void *ThreadProc(void *s);
 
 #include "stream.h"
 #include "cache2.h"
+#include "mp_global.h"
 
 typedef struct {
   // constats:
@@ -91,11 +93,10 @@ typedef struct {
   volatile int control_res;
   volatile off_t control_new_pos;
   volatile double stream_time_length;
+  volatile double stream_time_pos;
 } cache_vars_t;
 
 static int min_fill=0;
-
-int cache_fill_status=0;
 
 static void cache_wakeup(stream_t *s)
 {
@@ -103,13 +104,6 @@ static void cache_wakeup(stream_t *s)
   // signal process to wake up immediately
   kill(s->cache_pid, SIGUSR1);
 #endif
-}
-
-static void cache_stats(cache_vars_t *s)
-{
-  int newb=s->max_filepos-s->read_filepos; // new bytes in the buffer
-  mp_msg(MSGT_CACHE,MSGL_INFO,"0x%06X  [0x%06X]  0x%06X   ",(int)s->min_filepos,(int)s->read_filepos,(int)s->max_filepos);
-  mp_msg(MSGT_CACHE,MSGL_INFO,"%3d %%  (%3d%%)\n",100*newb/s->buffer_size,100*min_fill/s->buffer_size);
 }
 
 static int cache_read(cache_vars_t *s, unsigned char *buf, int size)
@@ -127,7 +121,7 @@ static int cache_read(cache_vars_t *s, unsigned char *buf, int size)
 	if(s->eof) break;
 	if (s->max_filepos == last_max) {
 	    if (sleep_count++ == 10)
-	        mp_msg(MSGT_CACHE, MSGL_WARN, "Cache not filling!\n");
+	        mp_msg(MSGT_CACHE, MSGL_WARN, "Cache not filling, consider increasing -cache and/or -cache-min!\n");
 	} else {
 	    last_max = s->max_filepos;
 	    sleep_count = 0;
@@ -168,7 +162,6 @@ static int cache_read(cache_vars_t *s, unsigned char *buf, int size)
     total+=len;
 
   }
-  cache_fill_status=(s->max_filepos-s->read_filepos)/(s->buffer_size / 100);
   return total;
 }
 
@@ -176,6 +169,8 @@ static int cache_fill(cache_vars_t *s)
 {
   int back,back2,newb,space,len,pos;
   off_t read=s->read_filepos;
+  int read_chunk;
+  int wraparound_copy = 0;
 
   if(read<s->min_filepos || read>s->max_filepos){
       // seek...
@@ -189,7 +184,7 @@ static int cache_fill(cache_vars_t *s)
         s->offset= // FIXME!?
         s->min_filepos=s->max_filepos=read; // drop cache content :(
         if(s->stream->eof) stream_reset(s->stream);
-        stream_seek(s->stream,read);
+        stream_seek_internal(s->stream,read);
         mp_msg(MSGT_CACHE,MSGL_DBG2,"Seek done. new pos: 0x%"PRIX64"  \n",(int64_t)stream_tell(s->stream));
       }
   }
@@ -217,13 +212,21 @@ static int cache_fill(cache_vars_t *s)
 
 //  printf("### read=0x%X  back=%d  newb=%d  space=%d  pos=%d\n",read,back,newb,space,pos);
 
-  // reduce space if needed:
-  if(space>s->buffer_size-pos) space=s->buffer_size-pos;
+  // try to avoid wrap-around. If not possible due to sector size
+  // do an extra copy.
+  if(space>s->buffer_size-pos) {
+    if (s->buffer_size-pos >= s->sector_size) {
+      space=s->buffer_size-pos;
+    } else {
+      space = s->sector_size;
+      wraparound_copy = 1;
+    }
+  }
 
-//  if(space>32768) space=32768; // limit one-time block size
-  if(space>4*s->sector_size) space=4*s->sector_size;
-
-//  if(s->seek_lock) return 0; // FIXME
+  // limit one-time block size
+  read_chunk = s->stream->read_chunk;
+  if (!read_chunk) read_chunk = 4*s->sector_size;
+  space = FFMIN(space, read_chunk);
 
 #if 1
   // back+newb+space <= buffer_size
@@ -233,12 +236,14 @@ static int cache_fill(cache_vars_t *s)
   s->min_filepos=read-back; // avoid seeking-back to temp area...
 #endif
 
-  // ....
-  //printf("Buffer fill: %d bytes of %d\n",space,s->buffer_size);
-  //len=stream_fill_buffer(s->stream);
-  //memcpy(&s->buffer[pos],s->stream->buffer,len); // avoid this extra copy!
-  // ....
-  len=stream_read(s->stream,&s->buffer[pos],space);
+  if (wraparound_copy) {
+    int to_copy;
+    len = stream_read_internal(s->stream, s->stream->buffer, space);
+    to_copy = FFMIN(len, s->buffer_size-pos);
+    memcpy(s->buffer + pos, s->stream->buffer, to_copy);
+    memcpy(s->buffer, s->stream->buffer + to_copy, len - to_copy);
+  } else
+  len = stream_read_internal(s->stream, &s->buffer[pos], space);
   s->eof= !len;
 
   s->max_filepos+=len;
@@ -252,37 +257,48 @@ static int cache_fill(cache_vars_t *s)
 }
 
 static int cache_execute_control(cache_vars_t *s) {
+  double double_res;
+  unsigned uint_res;
   static unsigned last;
   int quit = s->control == -2;
   if (quit || !s->stream->control) {
     s->stream_time_length = 0;
+    s->stream_time_pos = MP_NOPTS_VALUE;
     s->control_new_pos = 0;
     s->control_res = STREAM_UNSUPPORTED;
     s->control = -1;
     return !quit;
   }
   if (GetTimerMS() - last > 99) {
-    double len;
+    double len, pos;
     if (s->stream->control(s->stream, STREAM_CTRL_GET_TIME_LENGTH, &len) == STREAM_OK)
       s->stream_time_length = len;
     else
       s->stream_time_length = 0;
+    if (s->stream->control(s->stream, STREAM_CTRL_GET_CURRENT_TIME, &pos) == STREAM_OK)
+      s->stream_time_pos = pos;
+    else
+      s->stream_time_pos = MP_NOPTS_VALUE;
     last = GetTimerMS();
   }
   if (s->control == -1) return 1;
   switch (s->control) {
-    case STREAM_CTRL_GET_CURRENT_TIME:
     case STREAM_CTRL_SEEK_TO_TIME:
+      double_res = s->control_double_arg;
+    case STREAM_CTRL_GET_CURRENT_TIME:
     case STREAM_CTRL_GET_ASPECT_RATIO:
-      s->control_res = s->stream->control(s->stream, s->control, &s->control_double_arg);
+      s->control_res = s->stream->control(s->stream, s->control, &double_res);
+      s->control_double_arg = double_res;
       break;
     case STREAM_CTRL_SEEK_TO_CHAPTER:
+    case STREAM_CTRL_SET_ANGLE:
+      uint_res = s->control_uint_arg;
     case STREAM_CTRL_GET_NUM_CHAPTERS:
     case STREAM_CTRL_GET_CURRENT_CHAPTER:
     case STREAM_CTRL_GET_NUM_ANGLES:
     case STREAM_CTRL_GET_ANGLE:
-    case STREAM_CTRL_SET_ANGLE:
-      s->control_res = s->stream->control(s->stream, s->control, &s->control_uint_arg);
+      s->control_res = s->stream->control(s->stream, s->control, &uint_res);
+      s->control_uint_arg = uint_res;
       break;
     default:
       s->control_res = STREAM_UNSUPPORTED;
@@ -352,6 +368,7 @@ void cache_uninit(stream_t *s) {
   s->cache_data = NULL;
 }
 
+#if FORKED_CACHE
 static void exit_sighandler(int x){
   // close stream
   exit(0);
@@ -359,6 +376,7 @@ static void exit_sighandler(int x){
 
 static void dummy_sighandler(int x) {
 }
+#endif
 
 /**
  * Main loop of the cache process or thread.
@@ -366,7 +384,9 @@ static void dummy_sighandler(int x) {
 static void cache_mainloop(cache_vars_t *s) {
     int sleep_count = 0;
 #if FORKED_CACHE
-    signal(SIGUSR1, SIG_IGN);
+    struct sigaction sa = { 0 };
+    sa.sa_handler = SIG_IGN;
+    sigaction(SIGUSR1, &sa, NULL);
 #endif
     do {
         if (!cache_fill(s)) {
@@ -374,7 +394,8 @@ static void cache_mainloop(cache_vars_t *s) {
             // Let signal wake us up, we cannot leave this
             // enabled since we do not handle EINTR in most places.
             // This might need extra code to work on BSD.
-            signal(SIGUSR1, dummy_sighandler);
+            sa.sa_handler = dummy_sighandler;
+            sigaction(SIGUSR1, &sa, NULL);
 #endif
             if (sleep_count < INITIAL_FILL_USLEEP_COUNT) {
                 sleep_count++;
@@ -382,11 +403,11 @@ static void cache_mainloop(cache_vars_t *s) {
             } else
                 usec_sleep(FILL_USLEEP_TIME); // idle
 #if FORKED_CACHE
-            signal(SIGUSR1, SIG_IGN);
+            sa.sa_handler = SIG_IGN;
+            sigaction(SIGUSR1, &sa, NULL);
 #endif
         } else
             sleep_count = 0;
-//        cache_stats(s->cache_data);
     } while (cache_execute_control(s));
 }
 
@@ -495,13 +516,17 @@ static void *ThreadProc( void *s ){
 
 int cache_stream_fill_buffer(stream_t *s){
   int len;
+  int sector_size;
   if(!s->cache_pid) return stream_fill_buffer(s);
 
-//  cache_stats(s->cache_data);
-
   if(s->pos!=((cache_vars_t*)s->cache_data)->read_filepos) mp_msg(MSGT_CACHE,MSGL_ERR,"!!! read_filepos differs!!! report this bug...\n");
+  sector_size = ((cache_vars_t*)s->cache_data)->sector_size;
+  if (sector_size > STREAM_MAX_SECTOR_SIZE) {
+    mp_msg(MSGT_CACHE, MSGL_ERR, "Sector size %i larger than maximum %i\n", sector_size, STREAM_MAX_SECTOR_SIZE);
+    sector_size = STREAM_MAX_SECTOR_SIZE;
+  }
 
-  len=cache_read(s->cache_data,s->buffer, ((cache_vars_t*)s->cache_data)->sector_size);
+  len=cache_read(s->cache_data,s->buffer, sector_size);
   //printf("cache_stream_fill_buffer->read -> %d\n",len);
 
   if(len<=0){ s->eof=1; s->buf_pos=s->buf_len=0; return 0; }
@@ -510,8 +535,18 @@ int cache_stream_fill_buffer(stream_t *s){
   s->buf_len=len;
   s->pos+=len;
 //  printf("[%d]",len);fflush(stdout);
+  if (s->capture_file)
+    stream_capture_do(s);
   return len;
 
+}
+
+int cache_fill_status(stream_t *s) {
+  cache_vars_t *cv;
+  if (!s || !s->cache_data)
+    return -1;
+  cv = s->cache_data;
+  return (cv->max_filepos-cv->read_filepos)/(cv->buffer_size / 100);
 }
 
 int cache_stream_seek_long(stream_t *stream,off_t pos){
@@ -557,11 +592,13 @@ int cache_do_control(stream_t *stream, int cmd, void *arg) {
       s->control_uint_arg = *(unsigned *)arg;
       s->control = cmd;
       break;
-// the core might call these every frame, they are too slow for this...
+    // the core might call these every frame, so cache them...
     case STREAM_CTRL_GET_TIME_LENGTH:
-//    case STREAM_CTRL_GET_CURRENT_TIME:
       *(double *)arg = s->stream_time_length;
       return s->stream_time_length ? STREAM_OK : STREAM_UNSUPPORTED;
+    case STREAM_CTRL_GET_CURRENT_TIME:
+      *(double *)arg = s->stream_time_pos;
+      return s->stream_time_pos != MP_NOPTS_VALUE ? STREAM_OK : STREAM_UNSUPPORTED;
     case STREAM_CTRL_GET_NUM_CHAPTERS:
     case STREAM_CTRL_GET_CURRENT_CHAPTER:
     case STREAM_CTRL_GET_ASPECT_RATIO:
@@ -597,7 +634,8 @@ int cache_do_control(stream_t *stream, int cmd, void *arg) {
     case STREAM_CTRL_SEEK_TO_CHAPTER:
     case STREAM_CTRL_SEEK_TO_TIME:
     case STREAM_CTRL_SET_ANGLE:
-      stream->pos = s->read_filepos = s->control_new_pos;
+      if (s->control_res != STREAM_UNSUPPORTED)
+          stream->pos = s->read_filepos = s->control_new_pos;
       break;
   }
   return s->control_res;

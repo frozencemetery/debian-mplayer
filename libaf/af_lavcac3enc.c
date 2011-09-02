@@ -25,6 +25,7 @@
 #include <string.h>
 #include <inttypes.h>
 
+#include "libmpcodecs/vd_ffmpeg.h"
 #include "config.h"
 #include "af.h"
 #include "help_mp.h"
@@ -45,8 +46,6 @@ typedef struct af_ac3enc_s {
     int expect_len;
     int min_channel_num;
 } af_ac3enc_t;
-
-extern int  avcodec_initialized;
 
 // Initialization and runtime control
 static int control(struct af_instance_s *af, int cmd, void *arg)
@@ -96,6 +95,7 @@ static int control(struct af_instance_s *af, int cmd, void *arg)
             // Put sample parameters
             s->lavc_actx->channels = af->data->nch;
             s->lavc_actx->sample_rate = af->data->rate;
+            s->lavc_actx->sample_fmt  = AV_SAMPLE_FMT_S16;
             s->lavc_actx->bit_rate = bit_rate;
 
             if(avcodec_open(s->lavc_actx, s->lavc_acodec) < 0) {
@@ -273,15 +273,11 @@ static int af_open(af_instance_t* af){
     af->data=calloc(1,sizeof(af_data_t));
     af->setup=s;
 
-    if (!avcodec_initialized){
-        avcodec_init();
-        avcodec_register_all();
-        avcodec_initialized=1;
-    }
+    init_avcodec();
 
-    s->lavc_acodec = avcodec_find_encoder_by_name("ac3");
+    s->lavc_acodec = avcodec_find_encoder_by_name("ac3_fixed");
     if (!s->lavc_acodec) {
-        mp_msg(MSGT_AFILTER, MSGL_ERR, MSGTR_LavcAudioCodecNotFound, "ac3");
+        mp_msg(MSGT_AFILTER, MSGL_ERR, MSGTR_LavcAudioCodecNotFound, "ac3_fixed");
         return AF_ERROR;
     }
 

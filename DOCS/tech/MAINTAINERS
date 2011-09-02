@@ -58,7 +58,7 @@ Documentation translations:
     * Russian: Vladimir Voroshilov
 
 Platforms/ports:
-    * Debian packaging: Diego Biurrun
+    * Debian/Ubuntu packaging: Reinhard Tartler, Diego Biurrun
     * Red Hat/RPM packaging: Dominik Mierzejewski
     * FreeBSD: Vladimir Kushnir, Nexus
     * BSD/OS: Steven Schultz
@@ -84,8 +84,8 @@ MPlayer code:
     * playtree, input layer: Alban Bedel
     * libswscale: Michael Niedermayer, Luca Abeni
     * DVB support: Nico Sabbi
-    * GUI: None
-    * GUI skins: Diego Biurrun
+    * GUI: Ingo Brückl
+    * GUI skins: Ingo Brückl
     * EDL code: Oded Shimon
 
 Imported libs/projects:
@@ -96,7 +96,6 @@ Imported libs/projects:
     * libmpeg2: None
     * libdvdcss: Diego Biurrun
     * libdvdread: Diego Biurrun
-    * libfaad2: None
     * realrtsp: Roberto Togni
     * librtsp: Benjamin Zores
     * freesdp: Benjamin Zores
@@ -184,6 +183,7 @@ libvo drivers:
     * vo_svga.c - Ivan Kalvachev
     * vo_tdfxfb.c - Alban Bedel
     * vo_tga.c - Daniele Forghieri
+    * vo_vdpau.c - Carl Eugen Hoyos
     * vo_vesa.c - Aurelien Jacobs
     * vo_wii.c - Benjamin Zores
     * vo_winvidix.c - Sascha Sommer

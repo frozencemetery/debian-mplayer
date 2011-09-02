@@ -16,12 +16,13 @@ Build-Depends:
  docbook-xsl,
  ladspa-sdk,
  libaa1-dev,
- libasound2-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386],
+ libasound2-dev [linux-any],
  libaudio-dev,
- libavcodec-dev (>= 4:0.6),
- libavdevice-dev (>= 4:0.6),
- libavformat-dev (>= 4:0.6),
- libavutil-dev (>= 4:0.6),
+ libavcodec-dev (>= 4:0.7~),
+ libavdevice-dev (>= 4:0.7~),
+ libavformat-dev (>= 4:0.7~),
+ libavutil-dev (>= 4:0.7~),
+ libbluray-dev,
  libcaca-dev,
  libcdparanoia-dev | libcdparanoia0-dev,
  libdirectfb-dev,
@@ -37,30 +38,33 @@ Build-Depends:
  libgif-dev,
  libgl1-mesa-dev,
  libjack-dev,
- libjpeg62-dev,
+ libjpeg-dev,
  liblircclient-dev,
  liblivemedia-dev,
  liblzo2-dev,
+ libmp3lame-dev,
  libmpcdec-dev,
  libncurses5-dev,
  libopenal-dev,
  libpng12-dev | libpng-dev,
- libpostproc-dev (>= 4:0.6),
+ libpostproc-dev (>= 4:0.7~),
  libpulse-dev,
  libschroedinger-dev,
  libsdl1.2-dev | libsdl1.1-dev,
  libsmbclient-dev,
  libspeex-dev,
  libsvga1-dev [i386 amd64],
- libswscale-dev (>= 4:0.6),
+ libswscale-dev (>= 4:0.7~),
  libtheora-dev (>= 1.0~beta1),
  libvdpau-dev [i386 amd64],
  libvorbis-dev,
  libvorbisidec-dev,
  libx11-dev,
+ libx264-dev,
  libxext-dev,
  libxinerama-dev,
  libxv-dev,
+ libxvidcore-dev,
  libxvmc-dev,
  libxxf86dga-dev,
  libxxf86vm-dev,
@@ -68,6 +72,7 @@ Build-Depends:
  vstream-client-dev,
  x11proto-core-dev,
  xsltproc,
+ yasm,
  zlib1g-dev
 
 Package: mencoder
@@ -140,7 +145,7 @@ Description: debugging symbols for MPlayer
  This package contains the debugging symbols for MPlayer, a movie
  player for Unix-like systems.
  .
- You only need these if you want to generate usefule debugging
+ You only need these if you want to generate useful debugging
  backtraces.
 
 Package: mplayer-doc

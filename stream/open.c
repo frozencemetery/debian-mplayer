@@ -38,16 +38,18 @@
 
 
 /// We keep these 2 for the gui atm, but they will be removed.
-int vcd_track=0;
 char* cdrom_device=NULL;
 int dvd_chapter=1;
 int dvd_last_chapter=0;
 char* dvd_device=NULL;
 int dvd_title=0;
+char *bluray_device=NULL;
 
 // Open a new stream  (stdin/file/vcd/url)
 
 stream_t* open_stream(const char* filename,char** options, int* file_format){
+  int dummy = DEMUXER_TYPE_UNKNOWN;
+  if (!file_format) file_format = &dummy;
   // Check if playlist or unknown
   if (*file_format != DEMUXER_TYPE_PLAYLIST){
     *file_format=DEMUXER_TYPE_UNKNOWN;

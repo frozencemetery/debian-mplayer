@@ -178,15 +178,21 @@ static void print_msg_module(FILE* stream, int mod)
 
 void mp_msg(int mod, int lev, const char *format, ... ){
     va_list va;
+    va_start(va, format);
+    mp_msg_va(mod, lev, format, va);
+    va_end(va);
+}
+
+void mp_msg_va(int mod, int lev, const char *format, va_list va){
     char tmp[MSGSIZE_MAX];
     FILE *stream = lev <= MSGL_WARN ? stderr : stdout;
     static int header = 1;
+    // indicates if last line printed was a status line
+    static int statusline;
     size_t len;
 
     if (!mp_msg_test(mod, lev)) return; // do not display
-    va_start(va, format);
     vsnprintf(tmp, MSGSIZE_MAX, format, va);
-    va_end(va);
     tmp[MSGSIZE_MAX-2] = '\n';
     tmp[MSGSIZE_MAX-1] = 0;
 
@@ -220,6 +226,11 @@ void mp_msg(int mod, int lev, const char *format, ... ){
       }
     }
 #endif
+
+    // as a status line normally is intended to be overwitten by next status line
+    // output a '\n' to get a normal message on a separate line
+    if (statusline && lev != MSGL_STATUS) fprintf(stream, "\n");
+    statusline = lev == MSGL_STATUS;
 
     if (header)
         print_msg_module(stream, mod);

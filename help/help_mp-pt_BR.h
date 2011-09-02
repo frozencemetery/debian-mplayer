@@ -124,7 +124,7 @@ static const char help_text[]=
 #define MSGTR_ForcedAudioCodec "Codec de audio forçado: %s\n"
 #define MSGTR_Video_NoVideo "Vídeo: sem vídeo\n"
 #define MSGTR_NotInitializeVOPorVO "\nFATAL: Impossível inicializar os filtros de vídeo (-vf) ou a saída de vídeo (-vo)!\n"
-#define MSGTR_Paused "\n================= PAUSADO =================\r"
+#define MSGTR_Paused "================= PAUSADO ================="
 #define MSGTR_PlaylistLoadUnable "\nIncapaz de carregar a lista de reprodução %s.\n"
 #define MSGTR_Exit_SIGILL_RTCpuSel \
 "- MPlayer falhou por uma 'Instrução Ilegal'.\n"\
@@ -372,26 +372,18 @@ static const char help_text[]=
 
 // --- skin loader error messages
 #define MSGTR_SKIN_ERRORMESSAGE "[skin] erro no arquivo de configuração do skin na linha %d: %s"
-#define MSGTR_SKIN_WARNING1 "[skin] aviso no arquivo de configuração do skin na linha %d: widget encontrado mas antes de \"section\" não encontrado (%s)"
-#define MSGTR_SKIN_WARNING2 "[skin] aviso no arquivo de configuração do skin na linha %d: widget encontrado mas antes de \"subsection\" não encontrtado (%s)"
-#define MSGTR_SKIN_WARNING3 "[skin] aviso no arquivo de configuração do skin na linha %d: esta sub-seção não é suportada por este widget (%s)"
 #define MSGTR_SKIN_BITMAP_16bit  "16 bit ou menor profundidade de cores não suportado (%s).\n"
 #define MSGTR_SKIN_BITMAP_FileNotFound  "arquivo não encontrado (%s)\n"
-#define MSGTR_SKIN_BITMAP_BMPReadError "erro na leitura do BMP (%s)\n"
-#define MSGTR_SKIN_BITMAP_TGAReadError "erro na leitura do TGA (%s)\n"
 #define MSGTR_SKIN_BITMAP_PNGReadError "erro na leitura do PNG (%s)\n"
-#define MSGTR_SKIN_BITMAP_RLENotSupported "TGA empacotado RLE não suportado (%s)\n"
-#define MSGTR_SKIN_BITMAP_UnknownFileType "tipo de arquivo desconhecido (%s)\n"
 #define MSGTR_SKIN_BITMAP_ConversionError "erro na conversão 24 bit para 32 bit (%s)\n"
-#define MSGTR_SKIN_BITMAP_UnknownMessage "mensagem desconhecida: %s\n"
-#define MSGTR_SKIN_FONT_NotEnoughtMemory "memória insuficiente\n"
+#define MSGTR_SKIN_UnknownMessage "mensagem desconhecida: %s\n"
+#define MSGTR_SKIN_NotEnoughMemory "memória insuficiente\n"
 #define MSGTR_SKIN_FONT_TooManyFontsDeclared "muitas fontes declaradas\n"
 #define MSGTR_SKIN_FONT_FontFileNotFound "arquivo da fonte não encontrado\n"
 #define MSGTR_SKIN_FONT_FontImageNotFound "arquivo de imagem da fonte não encontrado\n"
-#define MSGTR_SKIN_FONT_NonExistentFontID "indentificador de fonte não existente (%s)\n"
+#define MSGTR_SKIN_FONT_NonExistentFont "indentificador de fonte não existente (%s)\n"
 #define MSGTR_SKIN_UnknownParameter "parâmetro desconhecido (%s)\n"
 #define MSGTR_SKIN_SKINCFG_SkinNotFound "Skin não encontrado (%s).\n"
-#define MSGTR_SKIN_SKINCFG_SkinCfgReadError "Erro na leitura do arquivo de configuração do skin (%s).\n"
 #define MSGTR_SKIN_LABEL "Skins:"
 
 // --- gtk menus

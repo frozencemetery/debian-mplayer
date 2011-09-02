@@ -20,8 +20,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-//#define DUMP2FILE
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -50,8 +48,6 @@
 #include "cookies.h"
 #include "url.h"
 
-extern int stream_cache_size;
-
 /* Variables for the command line option -user, -passwd, -bandwidth,
    -user-agent and -nocookies */
 
@@ -61,13 +57,14 @@ int   network_bandwidth=0;
 int   network_cookies_enabled = 0;
 char *network_useragent=NULL;
 char *network_referrer=NULL;
+char **network_http_header_fields=NULL;
 
 /* IPv6 options */
 int   network_ipv4_only_proxy = 0;
 
 
 const mime_struct_t mime_type_table[] = {
-#ifdef CONFIG_LIBAVFORMAT
+#ifdef CONFIG_FFMPEG
 	// Flash Video
 	{ "video/x-flv", DEMUXER_TYPE_LAVF_PREFERRED},
 	// do not force any demuxer in this case!
@@ -115,13 +112,11 @@ const mime_struct_t mime_type_table[] = {
 
 streaming_ctrl_t *
 streaming_ctrl_new(void) {
-	streaming_ctrl_t *streaming_ctrl;
-	streaming_ctrl = malloc(sizeof(streaming_ctrl_t));
+	streaming_ctrl_t *streaming_ctrl = calloc(1, sizeof(*streaming_ctrl));
 	if( streaming_ctrl==NULL ) {
 		mp_msg(MSGT_NETWORK,MSGL_FATAL,MSGTR_MemAllocFailed);
 		return NULL;
 	}
-	memset( streaming_ctrl, 0, sizeof(streaming_ctrl_t) );
 	return streaming_ctrl;
 }
 
@@ -129,9 +124,9 @@ void
 streaming_ctrl_free( streaming_ctrl_t *streaming_ctrl ) {
 	if( streaming_ctrl==NULL ) return;
 	if( streaming_ctrl->url ) url_free( streaming_ctrl->url );
-	if( streaming_ctrl->buffer ) free( streaming_ctrl->buffer );
-	if( streaming_ctrl->data ) free( streaming_ctrl->data );
-	free( streaming_ctrl );
+	free(streaming_ctrl->buffer);
+	free(streaming_ctrl->data);
+	free(streaming_ctrl);
 }
 
 URL_t*
@@ -149,7 +144,6 @@ check4proxies( URL_t *url ) {
 		proxy = getenv("http_proxy");
 		if( proxy!=NULL ) {
 			// We got a proxy, build the URL to use it
-			int len;
 			char *new_url;
 			URL_t *tmp_url;
 			URL_t *proxy_url = url_new( proxy );
@@ -170,14 +164,12 @@ check4proxies( URL_t *url ) {
 #endif
 
 			mp_msg(MSGT_NETWORK,MSGL_V,"Using HTTP proxy: %s\n", proxy_url->url );
-			len = strlen( proxy_url->hostname ) + strlen( url->url ) + 20;	// 20 = http_proxy:// + port
-			new_url = malloc( len+1 );
+			new_url = get_http_proxy_url(proxy_url, url->url);
 			if( new_url==NULL ) {
 				mp_msg(MSGT_NETWORK,MSGL_FATAL,MSGTR_MemAllocFailed);
 				url_free(proxy_url);
 				return url_out;
 			}
-			sprintf(new_url, "http_proxy://%s:%d/%s", proxy_url->hostname, proxy_url->port, url->url );
 			tmp_url = url_new( new_url );
 			if( tmp_url==NULL ) {
 				free( new_url );
@@ -207,20 +199,24 @@ http_send_request( URL_t *url, off_t pos ) {
 	if( !strcasecmp(url->protocol, "http_proxy") ) {
 		proxy = 1;
 		server_url = url_new( (url->file)+1 );
-		http_set_uri( http_hdr, server_url->url );
+		if (!server_url) {
+			mp_msg(MSGT_NETWORK, MSGL_ERR, "Invalid URL '%s' to proxify\n", url->file+1);
+			goto err_out;
+		}
+		http_set_uri( http_hdr, server_url->noauth_url );
 	} else {
 		server_url = url;
 		http_set_uri( http_hdr, server_url->file );
 	}
 	if (server_url->port && server_url->port != 80)
-	    snprintf(str, 256, "Host: %s:%d", server_url->hostname, server_url->port );
+	    snprintf(str, sizeof(str), "Host: %s:%d", server_url->hostname, server_url->port );
 	else
-	    snprintf(str, 256, "Host: %s", server_url->hostname );
+	    snprintf(str, sizeof(str), "Host: %s", server_url->hostname );
 	http_set_field( http_hdr, str);
 	if (network_useragent)
-	    snprintf(str, 256, "User-Agent: %s", network_useragent);
+	    snprintf(str, sizeof(str), "User-Agent: %s", network_useragent);
 	else
-	    snprintf(str, 256, "User-Agent: %s", mplayer_version);
+	    snprintf(str, sizeof(str), "User-Agent: %s", mplayer_version);
         http_set_field(http_hdr, str);
 
 	if (network_referrer) {
@@ -245,14 +241,22 @@ http_send_request( URL_t *url, off_t pos ) {
 
 	if(pos>0) {
 	// Extend http_send_request with possibility to do partial content retrieval
-	    snprintf(str, 256, "Range: bytes=%"PRId64"-", (int64_t)pos);
+	    snprintf(str, sizeof(str), "Range: bytes=%"PRId64"-", (int64_t)pos);
 	    http_set_field(http_hdr, str);
 	}
 
 	if (network_cookies_enabled) cookies_set( http_hdr, server_url->hostname, server_url->url );
 
+	if (network_http_header_fields) {
+		int i=0;
+		while (network_http_header_fields[i])
+			http_set_field(http_hdr, network_http_header_fields[i++]);
+	}
+
 	http_set_field( http_hdr, "Connection: close");
-	http_add_basic_authentication( http_hdr, url->username, url->password );
+	if (proxy)
+		http_add_basic_proxy_authentication(http_hdr, url->username, url->password);
+	http_add_basic_authentication(http_hdr, server_url->username, server_url->password);
 	if( http_build_request( http_hdr )==NULL ) {
 		goto err_out;
 	}
@@ -329,14 +333,10 @@ http_authenticate(HTTP_header_t *http_hdr, URL_t *url, int *auth_retry) {
 		return -1;
 	}
 	if( *auth_retry>0 ) {
-		if( url->username ) {
-			free( url->username );
-			url->username = NULL;
-		}
-		if( url->password ) {
-			free( url->password );
-			url->password = NULL;
-		}
+		free(url->username);
+		url->username = NULL;
+		free(url->password);
+		url->password = NULL;
 	}
 
 	aut = http_get_field(http_hdr, "WWW-Authenticate");
@@ -468,10 +468,6 @@ nop_streaming_read( int fd, char *buffer, int size, streaming_ctrl_t *stream_ctr
 int
 nop_streaming_seek( int fd, off_t pos, streaming_ctrl_t *stream_ctrl ) {
 	return -1;
-	// To shut up gcc warning
-	fd++;
-	pos++;
-	stream_ctrl=NULL;
 }
 
 

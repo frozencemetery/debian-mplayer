@@ -118,7 +118,7 @@ static const char help_text[]=
 #define MSGTR_ForcedAudioCodec "Forcerad audiocodec: %s\n"
 #define MSGTR_Video_NoVideo "Video: ingen video\n"
 #define MSGTR_NotInitializeVOPorVO "\nFATALT: Kunde inte initiera videofilter (-vf) eller video-ut (-vo).\n"
-#define MSGTR_Paused "\n  =====  PAUSE  =====\r" // no more than 23 characters (status line for audio files)
+#define MSGTR_Paused "  =====  PAUSE  =====" // no more than 23 characters (status line for audio files)
 #define MSGTR_PlaylistLoadUnable "\nOförmögen att ladda spellista %s.\n"
 #define MSGTR_Exit_SIGILL_RTCpuSel \
 "- MPlayer krachade av en 'Illegal Instruction'.\n"\
@@ -600,26 +600,18 @@ static const char help_text[]=
 
 // --- skin loader error messages
 #define MSGTR_SKIN_ERRORMESSAGE "[skin] fel i skinkonfigureringsfil på rad %d: %s"
-#define MSGTR_SKIN_WARNING1 "[skin] varning i konfigurationsfil på rad %d:\nwidget (%s) funnen, men ingen \"section\" funnen före"
-#define MSGTR_SKIN_WARNING2 "[skin] varning i konfigurationsfil på rad %d:\nwidget (%s) funnen, men ingen \"subsection\" funnen före"
-#define MSGTR_SKIN_WARNING3 "[skin] varning i konfigurationsfil på rad %d:\ndenna undersektion stödjs inte av widget (%s)"
 #define MSGTR_SKIN_BITMAP_16bit  "16-bitar eller lägre bitmappar stödjs inte (%s).\n"
 #define MSGTR_SKIN_BITMAP_FileNotFound  "fil ej funnen (%s)\n"
-#define MSGTR_SKIN_BITMAP_BMPReadError "BMP läsfel (%s)\n"
-#define MSGTR_SKIN_BITMAP_TGAReadError "TGA läsfel (%s)\n"
 #define MSGTR_SKIN_BITMAP_PNGReadError "PNG läsfel (%s)\n"
-#define MSGTR_SKIN_BITMAP_RLENotSupported "RLE-packad TGA stödjs ej (%s)\n"
-#define MSGTR_SKIN_BITMAP_UnknownFileType "okänd filtyp (%s)\n"
 #define MSGTR_SKIN_BITMAP_ConversionError "24-bitars till 32-bitars konverteringsfel (%s)\n"
-#define MSGTR_SKIN_BITMAP_UnknownMessage "okänt meddelande: %s\n"
-#define MSGTR_SKIN_FONT_NotEnoughtMemory "ej tillräckligt minne\n"
+#define MSGTR_SKIN_UnknownMessage "okänt meddelande: %s\n"
+#define MSGTR_SKIN_NotEnoughMemory "ej tillräckligt minne\n"
 #define MSGTR_SKIN_FONT_TooManyFontsDeclared "Allt för många fonter deklarerade.\n"
 #define MSGTR_SKIN_FONT_FontFileNotFound "Fontfil ej funnen.\n"
 #define MSGTR_SKIN_FONT_FontImageNotFound "Fontbildsfil ej funnen.\n"
-#define MSGTR_SKIN_FONT_NonExistentFontID "icke-existerande fontidentifkator (%s)\n"
+#define MSGTR_SKIN_FONT_NonExistentFont "icke-existerande fontidentifkator (%s)\n"
 #define MSGTR_SKIN_UnknownParameter "okänd parameter (%s)\n"
 #define MSGTR_SKIN_SKINCFG_SkinNotFound "Skin ej funnen (%s).\n"
-#define MSGTR_SKIN_SKINCFG_SkinCfgReadError "skinkonfigurationsfilsläsfel (%s)\n"
 #define MSGTR_SKIN_LABEL "Skin:"
 
 // --- gtk menus
@@ -904,7 +896,7 @@ static const char help_text[]=
 #define MSGTR_AO_SGI_CantSetParms_Samplerate "[AO SGI] init: setparams misslyckades: %s\nKunde inte sätta önskad samplerate.\n" // -''-
 #define MSGTR_AO_SGI_CantSetAlRate "[AO SGI] init: AL_RATE var inte accepterad på given resurs.\n"
 #define MSGTR_AO_SGI_CantGetParms "[AO SGI] init: getparams misslyckades: %s\n"
-#define MSGTR_AO_SGI_SampleRateInfo "[AO SGI] init: samplerate är nu %lf (önskad rate var %lf)\n" // -''- also rate?
+#define MSGTR_AO_SGI_SampleRateInfo "[AO SGI] init: samplerate är nu %f (önskad rate var %f)\n" // -''- also rate?
 #define MSGTR_AO_SGI_InitConfigError "[AO SGI] init: %s\n"
 #define MSGTR_AO_SGI_InitOpenAudioFailed "[AO SGI] init: Oförmögen att öppna audiokanal: %s\n"
 #define MSGTR_AO_SGI_Uninit "[AO SGI] uninit: ...\n" // FIXME translate?

@@ -120,7 +120,7 @@ static const char help_text[]=
 #define MSGTR_ForcedAudioCodec "Wymuszam kodek audio: %s\n"
 #define MSGTR_Video_NoVideo "Wideo: brak obrazu\n"
 #define MSGTR_NotInitializeVOPorVO "\nBłąd krytyczny: Nie mogę zainicjalizować filtrów (-vf) lub wyjścia video (-vo).\n"
-#define MSGTR_Paused "\n  =====  PAUZA  =====\r" // no more than 23 characters (status line for audio files)
+#define MSGTR_Paused "  =====  PAUZA  =====" // no more than 23 characters (status line for audio files)
 #define MSGTR_PlaylistLoadUnable "\nNie mogę wczytać listy odtwarzania %s.\n"
 #define MSGTR_Exit_SIGILL_RTCpuSel \
 "- MPlayer zakończył prace z powodu błędu 'Niedozwolona Instrukcja'.\n"\
@@ -150,7 +150,6 @@ static const char help_text[]=
 #define MSGTR_IncreaseRTCMaxUserFreq "Spróbuj dodać \"echo %lu > /proc/sys/dev/rtc/max-user-freq\" do skryptów startowych swojego systemu.\n"
 #define MSGTR_LinuxRTCInitErrorPieOn "Błąd RTC Linuxa w ioctl (rtc_pie_on): %s\n"
 #define MSGTR_UsingTimingType "Używam synchronizacji %s.\n"
-#define MSGTR_NoIdleAndGui "Opcja -idle nie może być używana z GMPlayer.\n"
 #define MSGTR_MenuInitialized "Menu zainicjowane: %s\n"
 #define MSGTR_MenuInitFailed "Nie mogę zainicjować menu.\n"
 #define MSGTR_Getch2InitializedTwice "UWAGA: getch2_init wywołany dwukrotnie!\n"
@@ -189,7 +188,6 @@ static const char help_text[]=
 #define MSGTR_EdloutBadStop "Pominięcie EDL odwołane, ostatni start > stop\n"
 #define MSGTR_EdloutStartSkip "Pominięcie EDL rozpoczęte, wciśnij ponownie 'i' by zakończyć blok.\n"
 #define MSGTR_EdloutEndSkip "Pominięcie EDL zakończone, wiersz zapisany.\n"
-#define MSGTR_MPEndposNoSizeBased "Opcja MPlayer -endpos nie obsługuje jeszcze jednostek rozmiaru.\n"
 
 // mplayer.c OSD
 
@@ -597,7 +595,7 @@ static const char help_text[]=
 // Coś na temat było w encoding-guide.xml albo mencoder.xml
 
 #define MSGTR_CacheFill "\rWypełnienie pamięci cache: %5.2f%% (%"PRId64" bajtów)   "
-#define MSGTR_NoBindFound "Brak akcji dla klawisza '%s'."
+#define MSGTR_NoBindFound "Brak akcji dla klawisza '%s'.\n"
 #define MSGTR_FailedToOpen "Otwieranie %s nie powiodło się.\n"
 
 // dec_video.c & dec_audio.c:
@@ -708,7 +706,6 @@ static const char help_text[]=
 #define MSGTR_NEMFMR "Za mało pamięci na renderowanie menu."
 #define MSGTR_IDFGCVD "Brak sterownika video zgodnego z GUI."
 #define MSGTR_NEEDLAVC "Niestety, nie można odtwarzać plików innych niż MPEG przy użyciu urządzenia DXR3/H+ bez kowersji.\nProszę włączyć lavc w polu sterowania DXR3/H+."
-#define MSGTR_UNKNOWNWINDOWTYPE "Okno nieznanego typu ..."
 
 // --- skin loader error messages
 #define MSGTR_SKIN_ERRORMESSAGE "[skórka] błąd w pliku konfiguracyjnym skórki, linia %d: %s"
@@ -719,22 +716,17 @@ static const char help_text[]=
 #define MSGTR_SKIN_SkinFileNotReadable "[skórka] nie mogę odczytać pliku ( %s ).\n"
 #define MSGTR_SKIN_BITMAP_16bit  "Bitmapy o głębokości <=16 bitów nie są obsgługiwane (%s).\n"
 #define MSGTR_SKIN_BITMAP_FileNotFound  "Pliku nie znaleziono (%s)\n"
-#define MSGTR_SKIN_BITMAP_BMPReadError "Błąd odczytu BMP (%s)\n"
-#define MSGTR_SKIN_BITMAP_TGAReadError "Błąd odczytu TGA (%s)\n"
 #define MSGTR_SKIN_BITMAP_PNGReadError "Błąd odczytu PNG (%s)\n"
-#define MSGTR_SKIN_BITMAP_RLENotSupported "TGA spakowany RLE nie jest obsługiwany (%s)\n"
-#define MSGTR_SKIN_BITMAP_UnknownFileType "nieznany typ pliku (%s)\n"
 #define MSGTR_SKIN_BITMAP_ConversionError "Błąd konwersji 24 bitów do 32 bitów (%s)\n"
-#define MSGTR_SKIN_BITMAP_UnknownMessage "nieznana wiadomość: %s\n"
-#define MSGTR_SKIN_FONT_NotEnoughtMemory "za mało pamięci\n"
+#define MSGTR_SKIN_UnknownMessage "nieznana wiadomość: %s\n"
+#define MSGTR_SKIN_NotEnoughMemory "za mało pamięci\n"
 #define MSGTR_SKIN_FONT_TooManyFontsDeclared "Zadeklarowano za dużo czcionek.\n"
 #define MSGTR_SKIN_FONT_FontFileNotFound "Nie znalazłem pliku z czcionką.\n"
 #define MSGTR_SKIN_FONT_FontImageNotFound "Nie znalazłem pliku z obrazem czcionki.\n"
-#define MSGTR_SKIN_FONT_NonExistentFontID "Nieistniejący identyfikator czcionki (%s)\n"
+#define MSGTR_SKIN_FONT_NonExistentFont "Nieistniejący identyfikator czcionki (%s)\n"
 #define MSGTR_SKIN_UnknownParameter "nieznany parametr (%s)\n"
 #define MSGTR_SKIN_SKINCFG_SkinNotFound "Skórka nie znaleziona (%s).\n"
 #define MSGTR_SKIN_SKINCFG_SelectedSkinNotFound "Wybrana skórka ( %s ) nie odnaleziona, próbuję 'default'...\n"
-#define MSGTR_SKIN_SKINCFG_SkinCfgReadError "błąd odczytu pliku konfiguracyjnego skórki (%s)\n"
 #define MSGTR_SKIN_LABEL "Skórki:"
 
 // --- gtk menus
@@ -928,14 +920,8 @@ static const char help_text[]=
 #define MSGTR_MSGBOX_LABEL_Error "Błąd!"
 #define MSGTR_MSGBOX_LABEL_Warning "Uwaga!"
 
-// bitmap.c
-
-#define MSGTR_NotEnoughMemoryC32To1 "[c32to1] za mało pamięci na obraz\n"
-#define MSGTR_NotEnoughMemoryC1To32 "[c1to32] za mało pamięci na obraz\n"
-
 // cfg.c
 
-#define MSGTR_ConfigFileReadError "[cfg] błąd wczytywania pliku konfiguracyjnego ...\n"
 #define MSGTR_UnableToSaveOption "[cfg] Nie udało się zapisać opcji '%s'.\n"
 
 // interface.c
@@ -943,7 +929,6 @@ static const char help_text[]=
 #define MSGTR_DeletingSubtitles "[GUI] Usuwam napisy.\n"
 #define MSGTR_LoadingSubtitles "[GUI] Wczytuję napisy: %s\n"
 #define MSGTR_AddingVideoFilter "[GUI] Dodaję filtr video: %s\n"
-#define MSGTR_RemovingVideoFilter "[GUI] Usuwam filtr video: %s\n"
 
 // mw.c
 
@@ -951,7 +936,6 @@ static const char help_text[]=
 
 // ws.c
 
-#define MSGTR_WS_CouldNotOpenDisplay "[ws] Nie udało sie otworzyć ekranu.\n"
 #define MSGTR_WS_RemoteDisplay "[ws] Ekran zdalny, wyłączam XMITSHM.\n"
 #define MSGTR_WS_NoXshm "[ws] Niestety Twój system nie obsługuje rozszerzeń dzielonej pamięci X.\n"
 #define MSGTR_WS_NoXshape "[ws] Niestety Twój system nie obsługuje rozszerzenia XShape.\n"
@@ -1103,7 +1087,7 @@ static const char help_text[]=
 #define MSGTR_AO_SGI_CantSetParms_Samplerate "[AO SGI] init: setparms nie powiodło się %s\nNie udało sie ustawić wybranej częstotliwości próbkowania.\n"
 #define MSGTR_AO_SGI_CantSetAlRate "[AO SGI] init: AL_RATE nie został zakceptowany przy podanym źródle.\n"
 #define MSGTR_AO_SGI_CantGetParms "[AO SGI] init: getparams nie powiodło się: %s\n"
-#define MSGTR_AO_SGI_SampleRateInfo "[AO SGI] init: częstotliwość próbkowania: %lf (wymagana skala %lf)\n"
+#define MSGTR_AO_SGI_SampleRateInfo "[AO SGI] init: częstotliwość próbkowania: %f (wymagana skala %f)\n"
 #define MSGTR_AO_SGI_InitConfigError "[AO SGI] init: %s\n"
 #define MSGTR_AO_SGI_InitOpenAudioFailed "[AO SGI] init: Nie udało się otworzyć kanału dźwięku: %s\n"
 #define MSGTR_AO_SGI_Uninit "[AO SGI] uninit: ...\n"
@@ -1209,7 +1193,6 @@ static const char help_text[]=
 #define MSGTR_INPUT_INPUT_ErrBuffer2SmallForCmd "Bufor jest za mały na polecenie %s\n"
 #define MSGTR_INPUT_INPUT_ErrWhyHere "Co my robimy??\n"
 #define MSGTR_INPUT_INPUT_ErrCantInitJoystick "Nie mogę zainicjować dżojstika\n"
-#define MSGTR_INPUT_INPUT_ErrCantStatFile "Nie moge podać statystyk %s: %s\n"
 #define MSGTR_INPUT_INPUT_ErrCantOpenFile "Nie moge otworzyć %s: %s\n"
 #define MSGTR_INPUT_INPUT_ErrCantInitAppleRemote "Nie mogę zainicjować Apple Remote.\n"
 
@@ -1311,7 +1294,7 @@ static const char help_text[]=
 #define MSGTR_MPDEMUX_ASF_UnknownASFStreamType "nieznany typ strumienia ASF\n"
 #define MSGTR_MPDEMUX_ASF_Failed2ParseHTTPResponse "Błąd interpretacji odpowiedzi HTTP.\n"
 #define MSGTR_MPDEMUX_ASF_ServerReturn "Serwer zwrócił %d:%s\n"
-#define MSGTR_MPDEMUX_ASF_ASFHTTPParseWarnCuttedPragma "Ostrzeżenie intepretacji ASF HTTP : Pragma %s obcięte z %d bajtów do %d\n"
+#define MSGTR_MPDEMUX_ASF_ASFHTTPParseWarnCuttedPragma "Ostrzeżenie intepretacji ASF HTTP : Pragma %s obcięte z %zd bajtów do %d\n"
 #define MSGTR_MPDEMUX_ASF_SocketWriteError "błąd zapisu gniazda: %s\n"
 #define MSGTR_MPDEMUX_ASF_HeaderParseFailed "Błąd interpretacji nagłówka.\n"
 #define MSGTR_MPDEMUX_ASF_NoStreamFound "Nie odnaleziono strumienia.\n"

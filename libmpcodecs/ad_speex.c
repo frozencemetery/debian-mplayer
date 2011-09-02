@@ -63,11 +63,8 @@ static int init(sh_audio_t *sh) {
   const uint8_t *hdr = (const uint8_t *)(sh->wf + 1);
   const SpeexMode *spx_mode;
   const SpeexStereoState st_st = SPEEX_STEREO_STATE_INIT; // hack
-  if (!sh->wf || sh->wf->cbSize < 80) {
-    mp_msg(MSGT_DECAUDIO, MSGL_FATAL, "Missing extradata!\n");
-    return 0;
-  }
-  ctx->hdr = speex_packet_to_header((char *)&sh->wf[1], sh->wf->cbSize);
+  if (sh->wf && sh->wf->cbSize >= 80)
+    ctx->hdr = speex_packet_to_header((char *)&sh->wf[1], sh->wf->cbSize);
   if (!ctx->hdr && sh->wf->cbSize == 0x72 && hdr[0] == 1 && hdr[1] == 0) {
     // speex.acm format: raw SpeexHeader dump
     ctx->hdr = calloc(1, sizeof(*ctx->hdr));
@@ -86,8 +83,18 @@ static int init(sh_audio_t *sh) {
     ctx->hdr->frames_per_packet = read_le32(&hdr);
   }
   if (!ctx->hdr) {
-    mp_msg(MSGT_DECAUDIO, MSGL_FATAL, "Invalid extradata!\n");
-    return 0;
+    mp_msg(MSGT_DECAUDIO, MSGL_ERR, "Invalid or missing extradata! Assuming defaults.\n");
+    ctx->hdr = calloc(1, sizeof(*ctx->hdr));
+    ctx->hdr->frames_per_packet = 1;
+    ctx->hdr->mode = 0;
+    if (sh->wf) {
+      ctx->hdr->nb_channels = sh->wf->nChannels;
+      ctx->hdr->rate = sh->wf->nSamplesPerSec;
+      if (ctx->hdr->rate > 16000)
+        ctx->hdr->mode = 2;
+      else if (ctx->hdr->rate > 8000)
+        ctx->hdr->mode = 1;
+    }
   }
   if (ctx->hdr->nb_channels != 1 && ctx->hdr->nb_channels != 2) {
     mp_msg(MSGT_DECAUDIO, MSGL_WARN, "Invalid number of channels (%i), "
@@ -126,8 +133,7 @@ static void uninit(sh_audio_t *sh) {
   if (ctx) {
     speex_bits_destroy(&ctx->bits);
     speex_decoder_destroy(ctx->dec_context);
-    if (ctx->hdr)
-      free(ctx->hdr);
+    free(ctx->hdr);
     free(ctx);
   }
   ctx = NULL;
@@ -135,6 +141,7 @@ static void uninit(sh_audio_t *sh) {
 
 static int decode_audio(sh_audio_t *sh, unsigned char *buf,
                         int minlen, int maxlen) {
+  double pts;
   context_t *ctx = sh->context;
   int len, framelen, framesamples;
   char *packet;
@@ -145,8 +152,14 @@ static int decode_audio(sh_audio_t *sh, unsigned char *buf,
     mp_msg(MSGT_DECAUDIO, MSGL_V, "maxlen too small in decode_audio\n");
     return -1;
   }
-  len = ds_get_packet(sh->ds, (unsigned char **)&packet);
+  len = ds_get_packet_pts(sh->ds, (unsigned char **)&packet, &pts);
   if (len <= 0) return -1;
+  if (sh->pts == MP_NOPTS_VALUE)
+    sh->pts = 0;
+  if (pts != MP_NOPTS_VALUE) {
+    sh->pts = pts;
+    sh->pts_bytes = 0;
+  }
   speex_bits_read_from(&ctx->bits, packet, len);
   i = ctx->hdr->frames_per_packet;
   do {
@@ -157,6 +170,7 @@ static int decode_audio(sh_audio_t *sh, unsigned char *buf,
       speex_decode_stereo_int((short *)buf, framesamples, &ctx->stereo);
     buf = &buf[framelen];
   } while (--i > 0);
+  sh->pts_bytes += ctx->hdr->frames_per_packet * framelen;
   return ctx->hdr->frames_per_packet * framelen;
 }
 

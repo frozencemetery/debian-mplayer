@@ -345,9 +345,10 @@ static int asf_init_audio_stream(demuxer_t *demuxer,struct asf_priv* asf, sh_aud
   uint8_t *buffer = *buf;
   int pos = *ppos;
 
-  sh_audio->wf=calloc((streamh->type_size<sizeof(WAVEFORMATEX))?sizeof(WAVEFORMATEX):streamh->type_size,1);
+  sh_audio->wf=calloc(FFMAX(streamh->type_size, sizeof(*sh_audio->wf)), 1);
   memcpy(sh_audio->wf,buffer,streamh->type_size);
   le2me_WAVEFORMATEX(sh_audio->wf);
+  sh_audio->format=sh_audio->wf->wFormatTag;
   if( mp_msg_test(MSGT_HEADER,MSGL_V) ) print_wave_header(sh_audio->wf,MSGL_V);
   if(ASF_LOAD_GUID_PREFIX(streamh->concealment)==ASF_GUID_PREFIX_audio_conceal_interleave){
     buffer = &hdr[pos];
@@ -440,7 +441,7 @@ int read_asf_header(demuxer_t *demuxer,struct asf_priv* asf){
       le2me_ASF_stream_header_t(streamh);
       audio_pos += 64; //16+16+4+4+4+16+4;
       buffer = &hdr[audio_pos];
-      sh_audio=new_sh_audio(demuxer,streamh->stream_no & 0x7F);
+      sh_audio=new_sh_audio(demuxer,streamh->stream_no & 0x7F, NULL);
       sh_audio->needs_parsing = 1;
       mp_msg(MSGT_DEMUX, MSGL_INFO, MSGTR_AudioID, "asfheader", streamh->stream_no & 0x7F);
       ++audio_streams;
@@ -478,7 +479,7 @@ int read_asf_header(demuxer_t *demuxer,struct asf_priv* asf){
     if (pos > hdr_len) goto len_err_out;
     switch(ASF_LOAD_GUID_PREFIX(streamh->type)){
       case ASF_GUID_PREFIX_audio_stream: {
-        sh_audio_t* sh_audio=new_sh_audio(demuxer,streamh->stream_no & 0x7F);
+        sh_audio_t* sh_audio=new_sh_audio(demuxer,streamh->stream_no & 0x7F, NULL);
         mp_msg(MSGT_DEMUX, MSGL_INFO, MSGTR_AudioID, "asfheader", streamh->stream_no & 0x7F);
         ++audio_streams;
         if (!asf_init_audio_stream(demuxer, asf, sh_audio, streamh, &pos, &buffer, hdr, hdr_len))
@@ -494,10 +495,10 @@ int read_asf_header(demuxer_t *demuxer,struct asf_priv* asf){
         len=streamh->type_size-(4+4+1+2);
 	++video_streams;
 //        sh_video->bih=malloc(chunksize); memset(sh_video->bih,0,chunksize);
-        sh_video->bih=calloc((len<sizeof(BITMAPINFOHEADER))?sizeof(BITMAPINFOHEADER):len,1);
+        sh_video->bih=calloc((len<sizeof(*sh_video->bih))?sizeof(*sh_video->bih):len,1);
         memcpy(sh_video->bih,&buffer[4+4+1+2],len);
 	le2me_BITMAPINFOHEADER(sh_video->bih);
-	if (sh_video->bih->biSize > len && sh_video->bih->biSize > sizeof(BITMAPINFOHEADER))
+	if (sh_video->bih->biSize > len && sh_video->bih->biSize > sizeof(*sh_video->bih))
 		sh_video->bih->biSize = len;
         if (sh_video->bih->biCompression == mmioFOURCC('D', 'V', 'R', ' ')) {
           //mp_msg(MSGT_DEMUXER, MSGL_WARN, MSGTR_MPDEMUX_ASFHDR_DVRWantsLibavformat);
@@ -542,7 +543,7 @@ int read_asf_header(demuxer_t *demuxer,struct asf_priv* asf){
       asf->packetsize=fileh->max_packet_size;
       asf->packet=malloc(asf->packetsize); // !!!
       asf->packetrate=fileh->max_bitrate/8.0/(double)asf->packetsize;
-      asf->movielength=(fileh->play_duration-10000*fileh->preroll)/10000000.0;
+      asf->movielength=FFMAX(0.0, (fileh->play_duration / 10000.0 - fileh->preroll) / 1000.0);
   }
 
   // find content header
@@ -631,8 +632,7 @@ int read_asf_header(demuxer_t *demuxer,struct asf_priv* asf){
         for( i=0 ; i<stream_count ; i++ ) {
           stream_id = AV_RL16(ptr);
           ptr += sizeof(uint16_t);
-          memcpy(&max_bitrate, ptr, sizeof(uint32_t));// workaround unaligment bug on sparc
-          max_bitrate = le2me_32(max_bitrate);
+          max_bitrate = AV_RL32(ptr);
           ptr += sizeof(uint32_t);
           mp_msg(MSGT_HEADER,MSGL_V,"   stream id=[0x%x][%u]\n", stream_id, stream_id );
           mp_msg(MSGT_HEADER,MSGL_V,"   max bitrate=[0x%x][%u]\n", max_bitrate, max_bitrate );
@@ -652,8 +652,7 @@ int read_asf_header(demuxer_t *demuxer,struct asf_priv* asf){
     return 0;
   }
   // read length of chunk
-  stream_read(demuxer->stream, (char *)&data_len, sizeof(data_len));
-  data_len = le2me_64(data_len);
+  data_len = stream_read_qword_le(demuxer->stream);
   demuxer->movi_start = stream_tell(demuxer->stream) + 26;
   demuxer->movi_end = start + data_len;
   mp_msg(MSGT_HEADER, MSGL_V, "Found movie at 0x%X - 0x%X\n",
@@ -664,7 +663,7 @@ if(streams) {
   // as the servers often do not care about what we requested.
 #if 0
   uint32_t vr = 0, ar = 0,i;
-#ifdef CONFIG_NETWORK
+#ifdef CONFIG_NETWORKING
   if( demuxer->stream->streaming_ctrl!=NULL ) {
 	  if( demuxer->stream->streaming_ctrl->bandwidth!=0 && demuxer->stream->streaming_ctrl->data!=NULL ) {
 		  best_audio = ((asf_http_streaming_ctrl_t*)demuxer->stream->streaming_ctrl->data)->audio_id;
@@ -712,7 +711,7 @@ return 1;
 len_err_out:
   mp_msg(MSGT_HEADER, MSGL_FATAL, MSGTR_MPDEMUX_ASFHDR_InvalidLengthInASFHeader);
 err_out:
-  if (hdr) free(hdr);
-  if (streams) free(streams);
+  free(hdr);
+  free(streams);
   return 0;
 }

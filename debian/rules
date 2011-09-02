@@ -45,15 +45,11 @@ CONFIGURE_FLAGS = \
 	--enable-xvmc \
 	--enable-menu \
 	--disable-arts \
-	--enable-largefiles \
 	--language=all \
 	--disable-libdvdcss-internal \
 	--disable-dvdread-internal \
-	--disable-libavutil_a \
-	--disable-libavcodec_a \
-	--disable-libavformat_a \
-	--disable-libpostproc_a \
-	--disable-libswscale_a \
+	--disable-ffmpeg_a \
+	--enable-joystick \
 	$(archconf)
 
 ifeq ($(DEB_HOST_ARCH),i386)
@@ -87,7 +83,10 @@ CONFIGURE_FLAGS += --enable-debug
 endif
 
 ifeq (linux,$(DEB_HOST_ARCH_OS))
-    CONFIGURE_FLAGS += --enable-mga --enable-3dfx --enable-tdfxfb --enable-joystick
+    CONFIGURE_FLAGS += --enable-mga --enable-3dfx --enable-tdfxfb
+    sound_backend := alsa
+else
+    sound_backend := oss
 endif
 
 # See http://wiki.debian.org/Teams/Dpkg/DebianRules; #465282  and
@@ -110,12 +109,14 @@ debian/mplayer/usr/bin/mplayer debian/mencoder/usr/bin/mencoder:
 	$(CLEAN_ENV) \
 	./configure $(CONFIGURE_FLAGS) --disable-gui
 	$(CLEAN_ENV) \
-	$(MAKE) $(NUMJOBS) mplayer mencoder
+	$(MAKE) $(NUMJOBS) mplayer mencoder V=1
 	$(MAKE) install-mplayer DESTDIR=$(CURDIR)/debian/mplayer
 	$(MAKE) install-mplayer-man DESTDIR=$(CURDIR)/debian/mplayer
 	$(MAKE) install-mencoder DESTDIR=$(CURDIR)/debian/mencoder
 	$(MAKE) install-mencoder-man DESTDIR=$(CURDIR)/debian/mplayer
 	install -D -m 644 debian/mplayer.conf \
+	                  $(CURDIR)/debian/mplayer/etc/mplayer/mplayer.conf
+	sed -e "s/@SOUND_BACKEND@/$(sound_backend)/" -i \
 	                  $(CURDIR)/debian/mplayer/etc/mplayer/mplayer.conf
 
 
@@ -131,7 +132,7 @@ DOCS/HTML/en/index.html:
 build-indep:
 	dh_testdir
 	dh_prep -i
-	test ! -f DOCS/HTML/en/index.html || $(MAKE) -f debian/rules DOCS/HTML/en/index.html
+	test -f DOCS/HTML/en/index.html || $(MAKE) -f debian/rules DOCS/HTML/en/index.html
 
 # commands to compile the documentation
 install-indep: build-indep
@@ -145,8 +146,8 @@ install-indep: build-indep
 clean:
 	dh_testdir
 	dh_testroot
-	[ ! -f config.mak ] || $(MAKE) -C DOCS/xml releaseclean && $(MAKE) distclean
-	dh_clean snapshot_version
+	[ ! -f config.mak ] || ( $(MAKE) -C DOCS/xml releaseclean && $(MAKE) distclean )
+	dh_clean
 	! test -d .git || quilt pop -a || test $$? = 2
 
 # Build architecture-independent packages
@@ -169,7 +170,7 @@ binary-arch: install-arch
 	dh_fixperms -a
 	dh_makeshlibs -a
 	dh_installdeb
-	dh_shlibdeps
+	dh_shlibdeps -- --ignore-missing-info
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

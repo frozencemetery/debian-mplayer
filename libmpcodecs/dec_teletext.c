@@ -62,7 +62,7 @@
  * 4. libmpcodecs/dec_teletext.c: prepare_visible_page(...)
  *      processing page. adding number of just received by background process
  *      teletext page, adding current time,etc.
- * 5. libvo/sub.c: vo_update_text_teletext(...)
+ * 5. sub/sub.c: vo_update_text_teletext(...)
  *      rendering displayable osd with text and graphics
  *
  * TODO:
@@ -88,7 +88,7 @@
 #include <math.h>
 #include <stdio.h>
 
-#ifdef HAVE_PTHREADS
+#if HAVE_PTHREADS
 // pthreads are needed for async updates from v4l(2)
 // FIXME: try to avoid using pthread calls when running only a single
 // thread as e.g. with DVB teletext
@@ -148,7 +148,7 @@ typedef struct {
     int pll_fixed;
     /// vbi stream properties (buffer size,bytes per line, etc)
     tt_stream_props* ptsp;
-#ifdef HAVE_PTHREADS
+#if HAVE_PTHREADS
     pthread_mutex_t buffer_mutex;
 #endif
 
@@ -1101,8 +1101,7 @@ static int decode_pkt0(priv_vbi_t* priv,unsigned char* data,int magAddr)
         if(d[i]&0x80){
             pll_add(priv,2,4);
 
-            if(priv->mag[magAddr].pt)
-                  free(priv->mag[magAddr].pt);
+            free(priv->mag[magAddr].pt);
             priv->mag[magAddr].pt=NULL;
             priv->mag[magAddr].order=0;
             return 0;
@@ -1640,7 +1639,7 @@ static int teletext_set_format(priv_vbi_t * priv, teletext_format flag)
  */
 static void vbi_add_dec(priv_vbi_t * priv, char *dec)
 {
-    int count, shift;
+    int count;
     if (!dec)
         return;
     if (!priv->on)
@@ -1659,7 +1658,6 @@ static void vbi_add_dec(priv_vbi_t * priv, char *dec)
         else
             priv->pagenumdec=0;
     } else {
-        shift = count * 4;
         count++;
         priv->pagenumdec=
             (((priv->pagenumdec)<<4|(*dec-'0'))&0xfff)|(count<<12);
@@ -1754,10 +1752,8 @@ int teletext_control(void* p, int cmd, void *arg)
     }
     case TV_VBI_CONTROL_STOP:
     {
-        if(priv->mag)
-            free(priv->mag);
-        if(priv->ptsp)
-            free(priv->ptsp);
+        free(priv->mag);
+        free(priv->ptsp);
         destroy_cache(priv);
         priv->page_changed=1;
         pthread_mutex_destroy(&priv->buffer_mutex);

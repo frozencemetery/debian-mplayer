@@ -3,7 +3,7 @@
 //... Okay enough of the hw, now send the other two!
 //
 // Updated by: Gabrov <gabrov@freemail.hu>
-// Sync'ed with help_mp-en.h r31032 (2010. 04. 25.)
+// Sync'ed with help_mp-en.h r32066 (2010. 09. 26.)
 
 
 // ========================= MPlayer help ===========================
@@ -121,7 +121,7 @@ static const char help_text[]=
 #define MSGTR_ForcedAudioCodec "Kényszerített audio codec: %s\n"
 #define MSGTR_Video_NoVideo "Video: nincs video!!!\n"
 #define MSGTR_NotInitializeVOPorVO "\nHIBA: Nem sikerült a video filterek (-vf) vagy a video kimenet (-vo) inicializálása!\n"
-#define MSGTR_Paused "\n  =====  SZÜNET  =====\r"
+#define MSGTR_Paused "  =====  SZÜNET  ====="
 #define MSGTR_PlaylistLoadUnable "\nLejátszási lista (%s) betöltése sikertelen.\n"
 #define MSGTR_Exit_SIGILL_RTCpuSel \
 "- Az MPlayer egy 'illegális utasítást' hajtott végre.\n"\
@@ -155,7 +155,6 @@ static const char help_text[]=
 #define MSGTR_IncreaseRTCMaxUserFreq "Próbáld ki ezt: \"echo %lu > /proc/sys/dev/rtc/max-user-freq\" hozzáadni a rendszer indító script-jeidhez!\n"
 #define MSGTR_LinuxRTCInitErrorPieOn "Linux RTC inicializálási hiba az ioctl-ben (rtc_pie_on): %s\n"
 #define MSGTR_UsingTimingType "%s időzítés használata.\n"
-#define MSGTR_NoIdleAndGui "Az -idle opció nem használható a GMPlayerrel.\n"
 #define MSGTR_MenuInitialized "Menü inicializálva: %s\n"
 #define MSGTR_MenuInitFailed "Menü inicializálás nem sikerült.\n"
 #define MSGTR_Getch2InitializedTwice "FIGYELEM: getch2_init kétszer lett meghívva!\n"
@@ -179,9 +178,13 @@ static const char help_text[]=
 #define MSGTR_DvdnavNavSpuClutChange "DVDNAV esemény: Nav SPU CLUT váltás\n"
 #define MSGTR_DvdnavNavSeekDone "DVDNAV esemény: Nav keresés kész\n"
 #define MSGTR_MenuCall "Menü hívás\n"
+#define MSGTR_MasterQuit "-udp_slave kapcsoló: kilépés, mivel a mester kilépett\n"
+#define MSGTR_InvalidIP "-udp-ip kapcsoló: helytelen IP cím\n"
+
 
 // --- edit decision lists
 #define MSGTR_EdlOutOfMem "Nem lehet elegendő memóriát foglalni az EDL adatoknak.\n"
+#define MSGTR_EdlOutOfMemFile "Nem foglalható le elegendő memória az EDL fájl nevének [%s].\n"
 #define MSGTR_EdlRecordsNo "%d EDL akciók olvasása.\n"
 #define MSGTR_EdlQueueEmpty "Nincs olyan EDL akció, amivel foglalkozni kellene.\n"
 #define MSGTR_EdlCantOpenForWrite "Az EDL fájlba [%s] nem lehet írni.\n"
@@ -195,7 +198,6 @@ static const char help_text[]=
 #define MSGTR_EdloutBadStop "EDL skip visszavonva, az utolsó start > stop\n"
 #define MSGTR_EdloutStartSkip "EDL skip eleje, nyomd meg az 'i'-t a blokk befejezéséhez.\n"
 #define MSGTR_EdloutEndSkip "EDL skip vége, a sor kiírva.\n"
-#define MSGTR_MPEndposNoSizeBased "Az MPlayer -endpos opciója jelenleg még nem támogatja a méretbeli megadást.\n"
 
 // mplayer.c OSD
 #define MSGTR_OSDenabled "bekapcsolva"
@@ -209,6 +211,8 @@ static const char help_text[]=
 #define MSGTR_OSDChapter "Fejezet: (%d) %s"
 #define MSGTR_OSDAngle "Szög: %d/%d"
 #define MSGTR_OSDDeinterlace "Deinterlace: %s"
+#define MSGTR_OSDCapturing "Mentés: %s"
+#define MSGTR_OSDCapturingFailure "Mentés sikertelen"
 
 // property values
 #define MSGTR_Enabled "bekapcsolva"
@@ -567,33 +571,24 @@ static const char help_text[]=
 #define MSGTR_NEMFMR "Nincs elég memória a menü rendereléséhez."
 #define MSGTR_IDFGCVD "Nem találtam GUI-kompatibilis videó meghajtót."
 #define MSGTR_NEEDLAVC "Nem MPEG fájl lejátszása nem lehetséges a DXR3/H+ hardverrel újrakódolás nélkül.\nKapcsold be a lavc opciót a DXR3/H+ konfigurációs panelen."
-#define MSGTR_UNKNOWNWINDOWTYPE "Ismeretlen ablak típust találtam ..."
 
 // --- skin loader error messages
 #define MSGTR_SKIN_ERRORMESSAGE "[skin] hiba a skin konfigurációs fájljának %d. sorában: %s"
-#define MSGTR_SKIN_WARNING1 "[skin] figyelmeztetés: a skin konfigurációs fájljának %d. sorában: widget (%s) megvan, de nincs előtte \"section\""
-#define MSGTR_SKIN_WARNING2 "[skin] figyelmeztetés: a skin konfigurációs fájljának %d. sorában: widget (%s) megvan, de nincs előtte \"subsection\""
-#define MSGTR_SKIN_WARNING3 "[skin] figyelmeztetés: a skin konfigurációs fájljának %d. sorában: ez az elem nem használható ebben az alrészben (%s)"
 #define MSGTR_SKIN_SkinFileNotFound "[skin] a fájl ( %s ) nem található.\n"
 #define MSGTR_SKIN_SkinFileNotReadable "[skin] fájl ( %s ) nem olvasható.\n"
 #define MSGTR_SKIN_BITMAP_16bit  "16 vagy kevesebb bites bitmap nem támogatott (%s).\n"
 #define MSGTR_SKIN_BITMAP_FileNotFound  "A fájl nem található (%s)\n"
-#define MSGTR_SKIN_BITMAP_BMPReadError "BMP olvasási hiba (%s)\n"
-#define MSGTR_SKIN_BITMAP_TGAReadError "TGA olvasási hiba (%s)\n"
 #define MSGTR_SKIN_BITMAP_PNGReadError "PNG olvasási hiba (%s)\n"
-#define MSGTR_SKIN_BITMAP_RLENotSupported "RLE tömörített TGA-k nincsenek támogatva (%s)\n"
-#define MSGTR_SKIN_BITMAP_UnknownFileType "ismeretlen tipusú fájl (%s)\n"
 #define MSGTR_SKIN_BITMAP_ConversionError "hiba a 24-ről 32 bitre konvertálás közben (%s)\n"
-#define MSGTR_SKIN_BITMAP_UnknownMessage "ismeretlen üzenet: %s\n"
-#define MSGTR_SKIN_FONT_NotEnoughtMemory "nincs elég memória\n"
+#define MSGTR_SKIN_UnknownMessage "ismeretlen üzenet: %s\n"
+#define MSGTR_SKIN_NotEnoughMemory "nincs elég memória\n"
 #define MSGTR_SKIN_FONT_TooManyFontsDeclared "Túl sok betűtipus van deklarálva.\n"
 #define MSGTR_SKIN_FONT_FontFileNotFound "Nem találom a betűtipus fájlt.\n"
 #define MSGTR_SKIN_FONT_FontImageNotFound "Nem találom a betűtipus képfájlt.\n"
-#define MSGTR_SKIN_FONT_NonExistentFontID "nemlétező betűtipus azonosító (%s)\n"
+#define MSGTR_SKIN_FONT_NonExistentFont "nemlétező betűtipus azonosító (%s)\n"
 #define MSGTR_SKIN_UnknownParameter "ismeretlen paraméter (%s)\n"
 #define MSGTR_SKIN_SKINCFG_SkinNotFound "Skin nem található (%s).\n"
 #define MSGTR_SKIN_SKINCFG_SelectedSkinNotFound "A kiválasztott skin ( %s ) nem található, a 'default'-ot próbálom meg...\n"
-#define MSGTR_SKIN_SKINCFG_SkinCfgReadError "Skin konfigurációs fájl olvasási hiba (%s).\n"
 #define MSGTR_SKIN_LABEL "Skin-ek:"
 
 // --- GTK menus
@@ -788,25 +783,18 @@ static const char help_text[]=
 #define MSGTR_MSGBOX_LABEL_Error "Hiba!"
 #define MSGTR_MSGBOX_LABEL_Warning "Figyelmeztetés!"
 
-// bitmap.c
-#define MSGTR_NotEnoughMemoryC32To1 "[c32to1] nincs elég memória a képhez\n"
-#define MSGTR_NotEnoughMemoryC1To32 "[c1to32] nincs elég memória a képhez\n"
-
 // cfg.c
-#define MSGTR_ConfigFileReadError "[cfg] hiba a konfigurációs fájl olvasásakor ...\n"
 #define MSGTR_UnableToSaveOption "[cfg] A(z) '%s' opciót nem sikerült elmenteni.\n"
 
 // interface.c
 #define MSGTR_DeletingSubtitles "[GUI] Feliratok törlése.\n"
 #define MSGTR_LoadingSubtitles "[GUI] Feliratok betöltése: %s\n"
 #define MSGTR_AddingVideoFilter "[GUI] Videó szűrő hozzáadása: %s\n"
-#define MSGTR_RemovingVideoFilter "[GUI] Videó szűrő eltávolítása: %s\n"
 
 // mw.c
 #define MSGTR_NotAFile "Úgy tűnik, hogy ez nem fájl: %s !\n"
 
 // ws.c
-#define MSGTR_WS_CouldNotOpenDisplay "[ws] A képernyő nem nyitható meg.\n"
 #define MSGTR_WS_RemoteDisplay "[ws] Távoli képernyő, XMITSHM kikapcsolva.\n"
 #define MSGTR_WS_NoXshm "[ws] Bocs, a rendszered nem támogatja az X osztott memória kiterjesztést.\n"
 #define MSGTR_WS_NoXshape "[ws] Bocs, a rendszered nem támogatja az XShape kiterjesztést.\n"
@@ -1105,9 +1093,7 @@ static const char help_text[]=
 // vo_yuv4mpeg.c
 #define MSGTR_VO_YUV4MPEG_InterlacedHeightDivisibleBy4 "Az interlaced módhoz néggyel osztható kép magasság szükséges."
 #define MSGTR_VO_YUV4MPEG_InterlacedLineBufAllocFail "Nem sikerült sor buffert foglalni az interlaced módhoz."
-#define MSGTR_VO_YUV4MPEG_InterlacedInputNotRGB "Input nem RGB, nem lehet szétválasztani a színeket mezőnként!"
 #define MSGTR_VO_YUV4MPEG_WidthDivisibleBy2 "A kép szélességnek kettővel oszthatónak kell lennie."
-#define MSGTR_VO_YUV4MPEG_NoMemRGBFrameBuf "Nincs elég memória az RGB framebuffer lefoglalásához."
 #define MSGTR_VO_YUV4MPEG_OutFileOpenError "Nincs elegendő memória vagy fájl handle a(z) \"%s\" írásához!"
 #define MSGTR_VO_YUV4MPEG_OutFileWriteError "Hiba a kép kimenetre írása közben!"
 #define MSGTR_VO_YUV4MPEG_UnknownSubDev "Ismeretlen aleszköz: %s"
@@ -1205,7 +1191,7 @@ static const char help_text[]=
 #define MSGTR_AO_SGI_CantSetParms_Samplerate "[AO SGI] init: setparams sikertelen: %s\nNem sikerült beállítani az előírt samplerate-et.\n"
 #define MSGTR_AO_SGI_CantSetAlRate "[AO SGI] init: AL_RATE-et nem fogadta el a kiválasztott erőforrás.\n"
 #define MSGTR_AO_SGI_CantGetParms "[AO SGI] init: getparams sikertelen: %s\n"
-#define MSGTR_AO_SGI_SampleRateInfo "[AO SGI] init: samplerate most már %lf (előírt ráta: %lf)\n"
+#define MSGTR_AO_SGI_SampleRateInfo "[AO SGI] init: samplerate most már %f (előírt ráta: %f)\n"
 #define MSGTR_AO_SGI_InitConfigError "[AO SGI] init: %s\n"
 #define MSGTR_AO_SGI_InitOpenAudioFailed "[AO SGI] init: Nem tudom megnyitni az audio csatornát: %s\n"
 #define MSGTR_AO_SGI_Uninit "[AO SGI] uninit: ...\n"
@@ -1365,7 +1351,6 @@ static const char help_text[]=
 #define MSGTR_INPUT_INPUT_ErrBuffer2SmallForCmd "A buffer túl kicsi a(z) %s parancshoz\n"
 #define MSGTR_INPUT_INPUT_ErrWhyHere "Mit keresünk mi itt?\n"
 #define MSGTR_INPUT_INPUT_ErrCantInitJoystick "A bemeneti borkormány inicializálása nem sikerült\n"
-#define MSGTR_INPUT_INPUT_ErrCantStatFile "Nem stat-olható %s: %s\n"
 #define MSGTR_INPUT_INPUT_ErrCantOpenFile "Nem nyitható meg %s: %s\n"
 #define MSGTR_INPUT_INPUT_ErrCantInitAppleRemote "Apple Remote inicializálása nem sikerült.\n"
 
@@ -1444,8 +1429,8 @@ static const char help_text[]=
 #define MSGTR_LeaveTelecineMode "\ndemux_mpg: 30000/1001fps NTSC formátumot találtam, frameráta váltás.\n"
 #define MSGTR_EnterTelecineMode "\ndemux_mpg: 24000/1001fps progresszív NTSC formátumot találtam, frameráta váltás.\n"
 
-#define MSGTR_CacheFill "\rCache feltöltés: %5.2f%% (%"PRId64" bytes)   "
-#define MSGTR_NoBindFound "Nincs semmi sem összerendelve a(z) '%s' gombbal."
+#define MSGTR_CacheFill "\rCache feltöltés: %5.2f%% (%"PRId64" bájt)   "
+#define MSGTR_NoBindFound "Nincs semmi sem összerendelve a(z) '%s' gombbal.\n"
 #define MSGTR_FailedToOpen "Nem lehet megnyitni: %s.\n"
 
 #define MSGTR_VideoID "[%s] Megtalált videó folyam, -vid %d\n"
@@ -1841,7 +1826,7 @@ static const char help_text[]=
 #define MSGTR_MPDEMUX_ASF_UnknownASFStreamType "Ismeretlen ASF folyam típus\n"
 #define MSGTR_MPDEMUX_ASF_Failed2ParseHTTPResponse "Sikertelen a HTTP válasz értelmezése.\n"
 #define MSGTR_MPDEMUX_ASF_ServerReturn "Szerver válasz %d:%s\n"
-#define MSGTR_MPDEMUX_ASF_ASFHTTPParseWarnCuttedPragma "ASF HTTP ÉRTELMEZÉSI HIBA : %s pragma levágva %d bájtról %d bájtra\n"
+#define MSGTR_MPDEMUX_ASF_ASFHTTPParseWarnCuttedPragma "ASF HTTP ÉRTELMEZÉSI FIGYELMEZTETÉS : %s pragma levágva %zd bájtról %d bájtra\n"
 #define MSGTR_MPDEMUX_ASF_SocketWriteError "socket írási hiba : %s\n"
 #define MSGTR_MPDEMUX_ASF_HeaderParseFailed "Sikertelen a fájléc értelmezése.\n"
 #define MSGTR_MPDEMUX_ASF_NoStreamFound "Nem található folyam.\n"
@@ -1895,6 +1880,7 @@ static const char help_text[]=
 #define MSGTR_SMBFileNotFound "Nem nyitható meg a hálózatról: '%s'\n"
 #define MSGTR_SMBNotCompiled "Nincs befordítva az MPlayerbe az SMB támogatás\n"
 
+#define MSGTR_CantOpenBluray "Nem tudom megnyitni a Blu-ray eszközt: %s\n"
 #define MSGTR_CantOpenDVD "Nem tudom megnyitni a DVD eszközt: %s (%s)\n"
 
 // stream_cdda.c
@@ -1965,6 +1951,11 @@ static const char help_text[]=
 #define MSGTR_DVDsubtitleChannel "Kiválasztott DVD felirat csatorna: %d nyelv: %c%c\n"
 #define MSGTR_DVDsubtitleLanguage "felirat ( sid ): %d nyelv: %s\n"
 #define MSGTR_DVDnumSubtitles "feliratok szám a lemezen: %d\n"
+
+// stream_bluray.c
+#define MSGTR_BlurayNoDevice "Nem lett megadva Blu-ray eszköz/hely ...\n"
+#define MSGTR_BlurayNoTitles "Itt nem található Blu-ray-kompatibilis sáv.\n"
+#define MSGTR_BlurayOK "Blu-ray sikeresen megnyitva.\n"
 
 // stream_radio.c
 #define MSGTR_RADIO_ChannelNamesDetected "[radio] Rádió csatornák neve megtalálva.\n"
@@ -2110,3 +2101,7 @@ static const char help_text[]=
 
 // url.c
 #define MSGTR_MPDEMUX_URL_StringAlreadyEscaped "A karakterlánc már escape-ltnek tűnik az url_escape-ben %c%c1%c2\n"
+
+// feliratok
+#define MSGTR_SUBTITLES_SubRip_UnknownFontColor "SubRip: ismeretlen betű szín a feliratban: %s\n"
+

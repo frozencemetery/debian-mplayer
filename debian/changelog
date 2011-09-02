@@ -1,12 +1,43 @@
-mplayer (2:1.0~rc4.dfsg1-3) UNRELEASED; urgency=low
-
-  [ Reinhard Tartler ]
-  * prepare new upload
+mplayer (2:1.0~rc4.dfsg1+svn33713-2) unstable; urgency=low
 
   [ Andres Mejia ]
   * Update to my @debian.org email.
 
- -- Andres Mejia <amejia@debian.org>  Sun, 17 Jul 2011 14:17:27 -0400
+  [ Reinhard Tartler ]
+  * Upload to unstable
+
+ -- Reinhard Tartler <siretart@tauware.de>  Fri, 02 Sep 2011 09:22:11 +0200
+
+mplayer (2:1.0~rc4.dfsg1+svn33713-1) experimental; urgency=low
+
+  * New upstream snapshot
+    - update 23mplayer-debug-printf.patch
+    - fixes miscompilation with gcc 4.6, Closes: #623304
+    - improved internal mkv demuxer, Closes: #595452
+    - Fixed segfault due to missing sanitation on playlist files,
+      Closes: #591525
+    - Fixed byteorder on 16-bit displays, Closes: #594093
+    - tighten build depends on libav
+    - --enable-largefile switch has been dropped
+    - add build dependency on yasm
+  * Fix build dependency on libjpeg-dev, Closes: #634277
+  * rewrite debian/copyright in DEP5 format
+  * fix clean target
+  * don't remove snapshot_version file
+  * enable XVID, MP3 and X264 encoders
+  * simply architecture specific dependencies, Closes: #634773
+  * make buildlogs verbose
+  * unbreak building mplayer-doc package
+  * don't fail debian package build if not all shlibdeps information could be retrieved
+  * update configure flags for static libav* libraries
+  * fix spelling in mplayer-dbg description, Closes: #617826
+  * enable blueray support, Closes: #577761
+
+  [ Robert Millan ]
+  * Select oss as default audio output module on kFreeBSD, Closes: #598431
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 25 Jun 2011 09:05:54 +0200
+>>>>>>> master.experimental
 
 mplayer (2:1.0~rc4.dfsg1-2) unstable; urgency=low
 

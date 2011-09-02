@@ -33,12 +33,13 @@
 #include "demuxer.h"
 #include "stheader.h"
 #include "m_option.h"
-#include "libvo/sub.h"
+#include "sub/sub.h"
 
 #include "libavformat/avformat.h"
 #include "libavformat/avio.h"
 #include "libavutil/avutil.h"
 #include "libavutil/avstring.h"
+#include "libavutil/mathematics.h"
 #include "libavcodec/opt.h"
 
 #include "mp_taglists.h"
@@ -47,9 +48,6 @@
 #define SMALL_MAX_PROBE_SIZE (32 * 1024)
 #define PROBE_BUF_SIZE (2*1024*1024)
 
-extern char *audio_lang;
-extern char *dvdsub_lang;
-extern int dvdsub_id;
 static unsigned int opt_probesize = 0;
 static unsigned int opt_analyzeduration = 0;
 static char *opt_format;
@@ -80,6 +78,7 @@ typedef struct lavf_priv {
     int vstreams[MAX_V_STREAMS];
     int sstreams[MAX_S_STREAMS];
     int cur_program;
+    int nb_streams_last;
 }lavf_priv_t;
 
 static int mp_read(void *opaque, uint8_t *buf, int size) {
@@ -140,7 +139,7 @@ static int64_t mp_read_seek(void *opaque, int stream_idx, int64_t ts, int flags)
 static void list_formats(void) {
     AVInputFormat *fmt;
     mp_msg(MSGT_DEMUX, MSGL_INFO, "Available lavf input formats:\n");
-    for (fmt = first_iformat; fmt; fmt = fmt->next)
+    for (fmt = av_iformat_next(NULL); fmt; av_iformat_next(fmt))
         mp_msg(MSGT_DEMUX, MSGL_INFO, "%15s : %s\n", fmt->name, fmt->long_name);
 }
 
@@ -213,6 +212,7 @@ static const char * const preferred_list[] = {
     "gxf",
     "nut",
     "nuv",
+    "matroska,webm",
     "mov,mp4,m4a,3gp,3g2,mj2",
     "mpc",
     "mpc8",
@@ -222,6 +222,7 @@ static const char * const preferred_list[] = {
     "vqf",
     "w64",
     "wv",
+    "yuv4mpegpipe",
     NULL
 };
 
@@ -270,15 +271,15 @@ static void handle_stream(demuxer_t *demuxer, AVFormatContext *avfc, int i) {
         codec->codec_tag = override_tag;
 
     switch(codec->codec_type){
-        case CODEC_TYPE_AUDIO:{
+        case AVMEDIA_TYPE_AUDIO:{
             WAVEFORMATEX *wf;
             sh_audio_t* sh_audio;
-            sh_audio = new_sh_audio_aid(demuxer, i, priv->audio_streams);
+            sh_audio = new_sh_audio_aid(demuxer, i, priv->audio_streams, lang ? lang->value : NULL);
             if(!sh_audio)
                 break;
             stream_type = "audio";
             priv->astreams[priv->audio_streams] = i;
-            wf= calloc(sizeof(WAVEFORMATEX) + codec->extradata_size, 1);
+            wf= calloc(sizeof(*wf) + codec->extradata_size, 1);
             // mp4a tag is used for all mp4 files no matter what they actually contain
             if(codec->codec_tag == MKTAG('m', 'p', '4', 'a'))
                 codec->codec_tag= 0;
@@ -331,40 +332,39 @@ static void handle_stream(demuxer_t *demuxer, AVFormatContext *avfc, int i) {
             }
             if (title && title->value)
                 mp_msg(MSGT_IDENTIFY, MSGL_INFO, "ID_AID_%d_NAME=%s\n", priv->audio_streams, title->value);
-            if (lang && lang->value) {
-              sh_audio->lang = strdup(lang->value);
-              mp_msg(MSGT_IDENTIFY, MSGL_INFO, "ID_AID_%d_LANG=%s\n", priv->audio_streams, sh_audio->lang);
-            }
             if (st->disposition & AV_DISPOSITION_DEFAULT)
               sh_audio->default_track = 1;
             if(mp_msg_test(MSGT_HEADER,MSGL_V) ) print_wave_header(sh_audio->wf, MSGL_V);
-            // select the first audio stream
-            if (!demuxer->audio->sh) {
+            // select the first audio stream if auto-selection is requested
+            if (demuxer->audio->id == -1) {
                 demuxer->audio->id = i;
                 demuxer->audio->sh= demuxer->a_streams[i];
-            } else
+            }
+            if (demuxer->audio->id != i)
                 st->discard= AVDISCARD_ALL;
             stream_id = priv->audio_streams++;
             break;
         }
-        case CODEC_TYPE_VIDEO:{
+        case AVMEDIA_TYPE_VIDEO:{
             sh_video_t* sh_video;
             BITMAPINFOHEADER *bih;
             sh_video=new_sh_video_vid(demuxer, i, priv->video_streams);
             if(!sh_video) break;
             stream_type = "video";
             priv->vstreams[priv->video_streams] = i;
-            bih=calloc(sizeof(BITMAPINFOHEADER) + codec->extradata_size,1);
+            bih=calloc(sizeof(*bih) + codec->extradata_size,1);
 
             if(codec->codec_id == CODEC_ID_RAWVIDEO) {
                 switch (codec->pix_fmt) {
                     case PIX_FMT_RGB24:
                         codec->codec_tag= MKTAG(24, 'B', 'G', 'R');
+                    case PIX_FMT_BGR24:
+                        codec->codec_tag= MKTAG(24, 'R', 'G', 'B');
                 }
             }
             if(!codec->codec_tag)
                 codec->codec_tag= av_codec_get_tag(mp_bmp_taglists, codec->codec_id);
-            bih->biSize= sizeof(BITMAPINFOHEADER) + codec->extradata_size;
+            bih->biSize= sizeof(*bih) + codec->extradata_size;
             bih->biWidth= codec->width;
             bih->biHeight= codec->height;
             bih->biBitCount= codec->bits_per_coded_sample;
@@ -407,16 +407,17 @@ static void handle_stream(demuxer_t *demuxer, AVFormatContext *avfc, int i) {
                 int biClrUsed;
                 int biClrImportant;
             */
-            if(demuxer->video->id != i && demuxer->video->id != -1)
-                st->discard= AVDISCARD_ALL;
-            else{
+            // select the first video stream if auto-selection is requested
+            if(demuxer->video->id == -1) {
                 demuxer->video->id = i;
                 demuxer->video->sh= demuxer->v_streams[i];
             }
+            if(demuxer->video->id != i)
+                st->discard= AVDISCARD_ALL;
             stream_id = priv->video_streams++;
             break;
         }
-        case CODEC_TYPE_SUBTITLE:{
+        case AVMEDIA_TYPE_SUBTITLE:{
             sh_sub_t* sh_sub;
             char type;
             /* only support text subtitles for now */
@@ -428,11 +429,17 @@ static void handle_stream(demuxer_t *demuxer, AVFormatContext *avfc, int i) {
                 type = 'a';
             else if(codec->codec_id == CODEC_ID_DVD_SUBTITLE)
                 type = 'v';
+            else if(codec->codec_id == CODEC_ID_XSUB)
+                type = 'x';
+            else if(codec->codec_id == CODEC_ID_DVB_SUBTITLE)
+                type = 'b';
             else if(codec->codec_id == CODEC_ID_DVB_TELETEXT)
                 type = 'd';
+            else if(codec->codec_id == CODEC_ID_HDMV_PGS_SUBTITLE)
+                type = 'p';
             else
                 break;
-            sh_sub = new_sh_sub_sid(demuxer, i, priv->sub_streams);
+            sh_sub = new_sh_sub_sid(demuxer, i, priv->sub_streams, lang ? lang->value : NULL);
             if(!sh_sub) break;
             stream_type = "subtitle";
             priv->sstreams[priv->sub_streams] = i;
@@ -444,20 +451,18 @@ static void handle_stream(demuxer_t *demuxer, AVFormatContext *avfc, int i) {
             }
             if (title && title->value)
                 mp_msg(MSGT_IDENTIFY, MSGL_INFO, "ID_SID_%d_NAME=%s\n", priv->sub_streams, title->value);
-            if (lang && lang->value) {
-              sh_sub->lang = strdup(lang->value);
-              mp_msg(MSGT_IDENTIFY, MSGL_INFO, "ID_SID_%d_LANG=%s\n", priv->sub_streams, sh_sub->lang);
-            }
             if (st->disposition & AV_DISPOSITION_DEFAULT)
               sh_sub->default_track = 1;
             stream_id = priv->sub_streams++;
             break;
         }
-        case CODEC_TYPE_ATTACHMENT:{
-            if (st->codec->codec_id == CODEC_ID_TTF)
-                demuxer_add_attachment(demuxer, st->filename,
+        case AVMEDIA_TYPE_ATTACHMENT:{
+            if (st->codec->codec_id == CODEC_ID_TTF) {
+                AVMetadataTag *fnametag = av_metadata_get(st->metadata, "filename", NULL, 0);
+                demuxer_add_attachment(demuxer, fnametag ? fnametag->value : NULL,
                                        "application/x-truetype-font",
                                        codec->extradata, codec->extradata_size);
+            }
             break;
         }
         default:
@@ -465,7 +470,10 @@ static void handle_stream(demuxer_t *demuxer, AVFormatContext *avfc, int i) {
     }
     if (stream_type) {
         AVCodec *avc = avcodec_find_decoder(codec->codec_id);
-        mp_msg(MSGT_DEMUX, MSGL_INFO, "[lavf] stream %d: %s (%s), -%cid %d", i, stream_type, avc ? avc->name : "unknown", *stream_type, stream_id);
+        const char *codec_name = avc ? avc->name : "unknown";
+        if (!avc && *stream_type == 's' && demuxer->s_streams[i])
+            codec_name = sh_sub_type2str(((sh_sub_t *)demuxer->s_streams[i])->type);
+        mp_msg(MSGT_DEMUX, MSGL_INFO, "[lavf] stream %d: %s (%s), -%cid %d", i, stream_type, codec_name, *stream_type, stream_id);
         if (lang && lang->value && *stream_type != 'v')
             mp_msg(MSGT_DEMUX, MSGL_INFO, ", -%clang %s", *stream_type, lang->value);
         if (title && title->value)
@@ -521,10 +529,12 @@ static demuxer_t* demux_open_lavf(demuxer_t *demuxer){
     } else
         av_strlcat(mp_filename, "foobar.dummy", sizeof(mp_filename));
 
-    priv->pb = av_alloc_put_byte(priv->buffer, BIO_BUFFER_SIZE, 0,
-                                 demuxer, mp_read, NULL, mp_seek);
-    priv->pb->read_seek = mp_read_seek;
-    priv->pb->is_streamed = !demuxer->stream->end_pos || (demuxer->stream->flags & MP_STREAM_SEEK) != MP_STREAM_SEEK;
+    if (!(priv->avif->flags & AVFMT_NOFILE)) {
+        priv->pb = av_alloc_put_byte(priv->buffer, BIO_BUFFER_SIZE, 0,
+                                     demuxer, mp_read, NULL, mp_seek);
+        priv->pb->read_seek = mp_read_seek;
+        priv->pb->is_streamed = !demuxer->stream->end_pos || (demuxer->stream->flags & MP_STREAM_SEEK) != MP_STREAM_SEEK;
+    }
 
     if(av_open_input_stream(&avfc, priv->pb, mp_filename, priv->avif, &ap)<0){
         mp_msg(MSGT_HEADER,MSGL_ERR,"LAVF_header: av_open_input_stream() failed\n");
@@ -539,7 +549,6 @@ static demuxer_t* demux_open_lavf(demuxer_t *demuxer){
     }
 
     /* Add metadata. */
-    av_metadata_conv(avfc, NULL, avfc->iformat->metadata_conv);
     while((t = av_metadata_get(avfc->metadata, "", t, AV_METADATA_IGNORE_SUFFIX)))
         demux_info_add(demuxer, t->key, t->value);
 
@@ -553,12 +562,15 @@ static demuxer_t* demux_open_lavf(demuxer_t *demuxer){
 
     for(i=0; i<avfc->nb_streams; i++)
         handle_stream(demuxer, avfc, i);
+    priv->nb_streams_last = avfc->nb_streams;
+
     if(avfc->nb_programs) {
         int p;
         for (p = 0; p < avfc->nb_programs; p++) {
             AVProgram *program = avfc->programs[p];
             t = av_metadata_get(program->metadata, "title", NULL, 0);
             mp_msg(MSGT_HEADER,MSGL_INFO,"LAVF: Program %d %s\n", program->id, t ? t->value : "");
+            mp_msg(MSGT_IDENTIFY, MSGL_V, "PROGRAM_ID=%d\n", program->id);
         }
     }
 
@@ -590,6 +602,11 @@ static int demux_lavf_fill_buffer(demuxer_t *demux, demux_stream_t *dsds){
     if(av_read_frame(priv->avfc, &pkt) < 0)
         return 0;
 
+    // handle any new streams that might have been added
+    for (id = priv->nb_streams_last; id < priv->avfc->nb_streams; id++)
+        handle_stream(demux, priv->avfc, id);
+    priv->nb_streams_last = priv->avfc->nb_streams;
+
     id= pkt.stream_index;
 
     if(id==demux->audio->id){
@@ -616,13 +633,9 @@ static int demux_lavf_fill_buffer(demuxer_t *demux, demux_stream_t *dsds){
     }
 
     if(pkt.destruct == av_destruct_packet && !CONFIG_MEMALIGN_HACK){
-        dp=malloc(sizeof(demux_packet_t));
+        dp=new_demux_packet(0);
         dp->len=pkt.size;
-        dp->next=NULL;
-        dp->refcount=1;
-        dp->master=NULL;
         dp->buffer=pkt.data;
-        dp->stream_pts = MP_NOPTS_VALUE;
         pkt.destruct= NULL;
     }else{
         dp=new_demux_packet(pkt.size);
@@ -633,14 +646,14 @@ static int demux_lavf_fill_buffer(demuxer_t *demux, demux_stream_t *dsds){
     if(pkt.pts != AV_NOPTS_VALUE){
         dp->pts=pkt.pts * av_q2d(priv->avfc->streams[id]->time_base);
         priv->last_pts= dp->pts * AV_TIME_BASE;
-        // always set endpts for subtitles, even if PKT_FLAG_KEY is not set,
+        // always set endpts for subtitles, even if AV_PKT_FLAG_KEY is not set,
         // otherwise they will stay on screen to long if e.g. ASS is demuxed from mkv
-        if((ds == demux->sub || (pkt.flags & PKT_FLAG_KEY)) &&
+        if((ds == demux->sub || (pkt.flags & AV_PKT_FLAG_KEY)) &&
            pkt.convergence_duration > 0)
             dp->endpts = dp->pts + pkt.convergence_duration * av_q2d(priv->avfc->streams[id]->time_base);
     }
     dp->pos=demux->filepos;
-    dp->flags= !!(pkt.flags&PKT_FLAG_KEY);
+    dp->flags= !!(pkt.flags&AV_PKT_FLAG_KEY);
     // append packet to DS stream:
     ds_add_packet(ds,dp);
     return 1;
@@ -652,7 +665,8 @@ static void demux_seek_lavf(demuxer_t *demuxer, float rel_seek_secs, float audio
     mp_msg(MSGT_DEMUX,MSGL_DBG2,"demux_seek_lavf(%p, %f, %f, %d)\n", demuxer, rel_seek_secs, audio_delay, flags);
 
     if (flags & SEEK_ABSOLUTE) {
-      priv->last_pts = priv->avfc->start_time;
+      priv->last_pts = priv->avfc->start_time != AV_NOPTS_VALUE ?
+                       priv->avfc->start_time : 0;
     } else {
       if (rel_seek_secs < 0) avsflags = AVSEEK_FLAG_BACKWARD;
     }
@@ -780,20 +794,32 @@ redo:
             {
                 switch(priv->avfc->streams[program->stream_index[i]]->codec->codec_type)
                 {
-                    case CODEC_TYPE_VIDEO:
+                    case AVMEDIA_TYPE_VIDEO:
                         if(prog->vid == -2)
                             prog->vid = program->stream_index[i];
                         break;
-                    case CODEC_TYPE_AUDIO:
+                    case AVMEDIA_TYPE_AUDIO:
                         if(prog->aid == -2)
                             prog->aid = program->stream_index[i];
                         break;
-                    case CODEC_TYPE_SUBTITLE:
+                    case AVMEDIA_TYPE_SUBTITLE:
                         if(prog->sid == -2 && priv->avfc->streams[program->stream_index[i]]->codec->codec_id == CODEC_ID_TEXT)
                             prog->sid = program->stream_index[i];
                         break;
                 }
             }
+            if (prog->aid >= 0 && prog->aid < MAX_A_STREAMS &&
+                demuxer->a_streams[prog->aid]) {
+                sh_audio_t *sh = demuxer->a_streams[prog->aid];
+                prog->aid = sh->aid;
+            } else
+                prog->aid = -2;
+            if (prog->vid >= 0 && prog->vid < MAX_V_STREAMS &&
+                demuxer->v_streams[prog->vid]) {
+                sh_video_t *sh = demuxer->v_streams[prog->vid];
+                prog->vid = sh->vid;
+            } else
+                prog->vid = -2;
             if(prog->progid == -1 && prog->vid == -2 && prog->aid == -2)
             {
                 p = (p + 1) % priv->avfc->nb_programs;
@@ -814,7 +840,7 @@ static void demux_close_lavf(demuxer_t *demuxer)
     lavf_priv_t* priv = demuxer->priv;
     if (priv){
         if(priv->avfc)
-       {
+        {
          av_freep(&priv->avfc->key);
          av_close_input_stream(priv->avfc);
         }

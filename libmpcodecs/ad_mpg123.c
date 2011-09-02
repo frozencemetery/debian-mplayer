@@ -25,6 +25,7 @@
 #include "config.h"
 
 #include "ad_internal.h"
+#include "dec_audio.h"
 
 static const ad_info_t info = {
     "MPEG 1.0/2.0/2.5 layers I, II, III",
@@ -71,10 +72,6 @@ LIBAD_EXTERN(mpg123)
 
 /* Switch for updating bitrate info of VBR files. Not essential. */
 #define AD_MPG123_MEAN_BITRATE
-
-/* Funny thing, that. I assume I shall use it for selecting mpg123 channels.
- * Please correct me if I guessed wrong. */
-extern int fakemono;
 
 struct ad_mpg123_context {
     mpg123_handle *handle;
@@ -210,6 +207,9 @@ static int preinit(sh_audio_t *sh)
 #ifdef AD_MPG123_SEEKBUFFER
     mpg123_param(con->handle, MPG123_ADD_FLAGS, 0x100, 0.0);
 #endif
+    /* Do not bail out on malformed streams at all.
+     * MPlayer does not handle a decoder throwing the towel on crappy input. */
+    mpg123_param(con->handle, MPG123_RESYNC_LIMIT, -1, 0.0);
 
     /* Open decisions: Configure libmpg123 to force encoding (or stay open about
      * library builds that support only float or int32 output), (de)configure
