@@ -5,6 +5,8 @@ mplayer (2:1.0~rc4.dfsg1+svn33713-2) unstable; urgency=low
 
   [ Reinhard Tartler ]
   * Upload to unstable
+  * Enable joystick support on Linux only, Closes: #638408
+  * Rebuild fixes toolchain issue on arm, Closes: #637077
 
  -- Reinhard Tartler <siretart@tauware.de>  Fri, 02 Sep 2011 09:22:11 +0200
 
@@ -37,7 +39,6 @@ mplayer (2:1.0~rc4.dfsg1+svn33713-1) experimental; urgency=low
   * Select oss as default audio output module on kFreeBSD, Closes: #598431
 
  -- Reinhard Tartler <siretart@tauware.de>  Sat, 25 Jun 2011 09:05:54 +0200
->>>>>>> master.experimental
 
 mplayer (2:1.0~rc4.dfsg1-2) unstable; urgency=low
 
