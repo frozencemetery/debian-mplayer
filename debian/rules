@@ -54,7 +54,6 @@ CONFIGURE_FLAGS = \
 	--disable-libavformat_a \
 	--disable-libpostproc_a \
 	--disable-libswscale_a \
-	--enable-joystick \
 	$(archconf)
 
 ifeq ($(DEB_HOST_ARCH),i386)
@@ -88,7 +87,7 @@ CONFIGURE_FLAGS += --enable-debug
 endif
 
 ifeq (linux,$(DEB_HOST_ARCH_OS))
-    CONFIGURE_FLAGS += --enable-mga --enable-3dfx --enable-tdfxfb
+    CONFIGURE_FLAGS += --enable-mga --enable-3dfx --enable-tdfxfb --enable-joystick
 endif
 
 # See http://wiki.debian.org/Teams/Dpkg/DebianRules; #465282  and
