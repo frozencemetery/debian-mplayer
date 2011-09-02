@@ -49,7 +49,6 @@ CONFIGURE_FLAGS = \
 	--disable-libdvdcss-internal \
 	--disable-dvdread-internal \
 	--disable-ffmpeg_a \
-	--enable-joystick \
 	$(archconf)
 
 ifeq ($(DEB_HOST_ARCH),i386)
@@ -83,7 +82,7 @@ CONFIGURE_FLAGS += --enable-debug
 endif
 
 ifeq (linux,$(DEB_HOST_ARCH_OS))
-    CONFIGURE_FLAGS += --enable-mga --enable-3dfx --enable-tdfxfb
+    CONFIGURE_FLAGS += --enable-mga --enable-3dfx --enable-tdfxfb --enable-joystick
     sound_backend := alsa
 else
     sound_backend := oss
