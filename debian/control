@@ -113,7 +113,9 @@ Depends:
 Replaces:
  mencoder (<< 2:1.0~rc3+svn20090426-2),
  mplayer-doc (<< 2:1.0~rc3+svn20090426-2),
- mplayer-nogui (<< 2:1.0~rc3+svn20090426-2)
+ mplayer-nogui (<< 2:1.0~rc3+svn20090426-2),
+ mplayer2
+Conflicts: mplayer2
 Description: movie player for Unix-like systems
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
@@ -141,6 +143,8 @@ Depends:
  ${misc:Depends}
 Recommends:
  ffmpeg-dbg
+Replaces: mplayer2-dbg
+Conflicts: mplayer2-dbg
 Description: debugging symbols for MPlayer
  This package contains the debugging symbols for MPlayer, a movie
  player for Unix-like systems.
