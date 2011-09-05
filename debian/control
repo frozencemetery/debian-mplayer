@@ -139,7 +139,7 @@ Architecture: any
 Section: debug
 Priority: extra
 Depends:
- mplayer,
+ mplayer (= ${binary:Version}),
  ${misc:Depends}
 Recommends:
  ffmpeg-dbg
