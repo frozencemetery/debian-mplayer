@@ -1,3 +1,9 @@
+mplayer (2:1.0~rc4.dfsg1+svn33713-2~bpo60+1) squeeze-backports; urgency=low
+
+  * Backport to squeeze.
+
+ -- Josselin Mouette <joss@debian.org>  Sat, 08 Oct 2011 15:35:37 +0200
+
 mplayer (2:1.0~rc4.dfsg1+svn33713-2) unstable; urgency=low
 
   [ Andres Mejia ]
