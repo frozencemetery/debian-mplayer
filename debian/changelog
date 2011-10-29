@@ -1,3 +1,17 @@
+mplayer (2:1.0~rc4.dfsg1+svn33713-3) unstable; urgency=high
+
+  [ Alessio Treglia ]
+  * Properly set Replaces/Conflicts on mplayer2{,-dbg} to avoid
+    file overwrite errors.
+  * Adjust versioning of mplayer listed in the mplayer-dbg's Depends field.
+
+  [ Reinhard Tartler ]
+  * Fix build failure on sparc after recent binutils change.
+  * Urgency medium bumped because of RC-level bugfix
+    and speeding up x264 transition.
+
+ -- Reinhard Tartler <siretart@tauware.de>  Sat, 29 Oct 2011 10:29:57 +0200
+
 mplayer (2:1.0~rc4.dfsg1+svn33713-2) unstable; urgency=low
 
   [ Andres Mejia ]
