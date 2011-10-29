@@ -69,6 +69,13 @@ endif
 ifeq ($(DEB_HOST_ARCH),powerpc)
   CONFIGURE_FLAGS += --enable-runtime-cpudetection
 endif
+# when run on a sparc64 kernel, configure will normally select v9 asm.
+# this is hidden when running on buildds with 32bit kernel personality.
+# because of #644856, this will currently lead to a FTBFS
+# therefore, we force a 'generic' target.
+ifeq ($(DEB_HOST_GNU_CPU),sparc)
+        confflags += --target=generic
+endif
 ifeq ($(DEB_HOST_ARCH),alpha)
 #Avoid high optimization through gcc.
 # see http://permalink.gmane.org/gmane.linux.debian.ports.alpha/7295
