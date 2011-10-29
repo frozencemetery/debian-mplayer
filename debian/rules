@@ -73,7 +73,7 @@ endif
 # this is hidden when running on buildds with 32bit kernel personality.
 # because of #644856, this will currently lead to a FTBFS
 # therefore, we force a 'generic' target.
-ifeq ($(DEB_HOST_GNU_CPU),sparc)
+ifeq ($(DEB_HOST_ARCH),sparc)
         confflags += --target=generic
 endif
 ifeq ($(DEB_HOST_ARCH),alpha)
