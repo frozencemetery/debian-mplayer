@@ -74,7 +74,7 @@ endif
 # because of #644856, this will currently lead to a FTBFS
 # therefore, we force a 'generic' target.
 ifeq ($(DEB_HOST_ARCH),sparc)
-        confflags += --target=generic
+  archconf += --target=generic
 endif
 ifeq ($(DEB_HOST_ARCH),alpha)
 #Avoid high optimization through gcc.
