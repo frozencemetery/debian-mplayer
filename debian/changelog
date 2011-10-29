@@ -1,7 +1,7 @@
-mplayer (2:1.0~rc4.dfsg1+svn33713-4) unstable; urgency=high
+mplayer (2:1.0~rc4.dfsg1+svn33713-4) unstable; urgency=low
 
   * Brown paperbag upload.
-  * Really fix build failure on sparce after recent binutils change.
+  * Really fix build failure on sparc after recent binutils change.
 
  -- Reinhard Tartler <siretart@tauware.de>  Sat, 29 Oct 2011 11:35:25 +0200
 
