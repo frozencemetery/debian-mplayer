@@ -131,9 +131,7 @@ install-arch: build-arch
 
 ###### build-indep
 DOCS/HTML/en/index.html:
-	sh debian/all-lang-config-mak.sh > config.mak
-	cd DOCS/xml && ./configure
-	$(MAKE) -C DOCS/xml html-chunked
+	$(MAKE) html-chunked
 
 build-indep:
 	dh_testdir
@@ -152,9 +150,7 @@ install-indep: build-indep
 clean:
 	dh_testdir
 	dh_testroot
-	[ ! -f config.mak ] || ( $(MAKE) -C DOCS/xml releaseclean && $(MAKE) distclean )
-	dh_clean
-	! test -d .git || quilt pop -a || test $$? = 2
+	-test -f config.mak && $(MAKE) distclean
 
 # Build architecture-independent packages
 binary-indep: install-indep
