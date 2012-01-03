@@ -25,6 +25,7 @@
 #include <commctrl.h>
 #include "path.h"
 #include "gui/interface.h"
+#include "gui/ui/actions.h"
 #include "mp_msg.h"
 #include "help_mp.h"
 #include "mpcommon.h"
@@ -44,13 +45,10 @@ int get_video_colors(sh_video_t *sh_video, const char *item, int *value);
 guiInterface_t guiInfo;
 int addurl = 0;
 
-void guiLoadSubtitle(char *name)
+void mplayerLoadSubtitle(const char *name)
 {
-    if (!guiInfo.Playing)
-    {
-        guiInfo.SubtitleChanged = 1;
-        return;
-    }
+    if (!guiInfo.Playing) return;
+
     if (subdata)
     {
         mp_msg(MSGT_GPLAYER, MSGL_INFO, MSGTR_DeletingSubtitles);
@@ -78,7 +76,7 @@ void guiLoadSubtitle(char *name)
     if (name)
     {
         mp_msg(MSGT_GPLAYER, MSGL_INFO, MSGTR_LoadingSubtitles, name);
-        subdata = sub_read_file(strdup(name), guiInfo.FPS);
+        subdata = sub_read_file(strdup(name), (guiInfo.sh_video ? guiInfo.sh_video->fps : 0));
         if (!subdata) mp_msg(MSGT_GPLAYER, MSGL_ERR, MSGTR_CantLoadSub,name);
         sub_name = (malloc(2 * sizeof(char*))); /* when mplayer will be restarted */
         sub_name[0] = strdup(name);               /* sub_name[0] will be read */
@@ -112,7 +110,7 @@ int display_openfilewindow(gui_t *gui, int add)
                            "Avisynth Scripts (*.avs)\0*.avs\0"
                            "Audio Files (*.mp3;*.wav;*.ra)\0*.mp3;*.wav;*.ra\000";
     fileopen.nFilterIndex = 0;
-    fileopen.lpstrTitle = "Add file(s)...";
+    fileopen.lpstrTitle = acp(MSGTR_FileSelect);
     fileopen.Flags = OFN_ALLOWMULTISELECT | OFN_FILEMUSTEXIST| OFN_LONGNAMES | OFN_EXPLORER| OFN_READONLY | OFN_HIDEREADONLY;
     fileopen.lpstrFile = filelist;
     fileopen.lpstrCustomFilter = NULL;
@@ -129,10 +127,13 @@ int display_openfilewindow(gui_t *gui, int add)
         do
         {
             filespec = &fileopen.lpstrFile[fileopen.nFileOffset];
-            filename[0] = 0;
-            strcat(filename, directory);
-            strcat(filename, "\\");
-            strcat(filename, filespec);
+            strcpy(filename, directory);
+
+            if (*filespec)
+            {
+                strcat(filename, "/");
+                strcat(filename, filespec);
+            }
 
             if (GetFileAttributes(filename) & FILE_ATTRIBUTE_DIRECTORY)
                 mp_msg(MSGT_GPLAYER, MSGL_V, "[GUI] %s is a directory, skipping...\n", filename);
@@ -170,14 +171,14 @@ void display_opensubtitlewindow(gui_t *gui)
     subtitleopen.lpstrFilter = "All Files (*.*)\0*.*\0"
                                "Subtitle Files (*.srt;*.txt;*.vob)\0*.srt;*.txt;*.vob\0";
     subtitleopen.nFilterIndex = 0;
-    subtitleopen.lpstrTitle = "Add Subtitle...";
+    subtitleopen.lpstrTitle = acp(MSGTR_SubtitleSelect);
     subtitleopen.Flags = OFN_FILEMUSTEXIST | OFN_LONGNAMES | OFN_EXPLORER | OFN_READONLY | OFN_HIDEREADONLY;
     subtitleopen.lpstrFile = subtitlefile;
     subtitleopen.lpstrCustomFilter = NULL;
     subtitleopen.nMaxFile = MAXFILE;
 
     if(GetOpenFileName(&subtitleopen))
-        guiLoadSubtitle(subtitlefile);
+        mplayerLoadSubtitle(subtitlefile);
 }
 
 static void display_loadplaylistwindow(gui_t *gui)
@@ -194,7 +195,7 @@ static void display_loadplaylistwindow(gui_t *gui)
     playlistopen.lpstrFilter = "All Files (*.*)\0*.*\0"
                                "Playlist Files (*.m3u;*.pls;*.txt)\0*.m3u;*.pls;*.txt\0";
     playlistopen.nFilterIndex = 0;
-    playlistopen.lpstrTitle = "Load Playlist...";
+    playlistopen.lpstrTitle = acp(MSGTR_PlaylistSelect);
     playlistopen.Flags = OFN_FILEMUSTEXIST | OFN_LONGNAMES | OFN_EXPLORER | OFN_READONLY | OFN_HIDEREADONLY;
     playlistopen.lpstrFile = playlistfile;
     playlistopen.lpstrCustomFilter = NULL;
@@ -221,7 +222,7 @@ static void display_saveplaylistwindow(gui_t* gui)
     playlistsave.hInstance = GetModuleHandle(NULL);
     playlistsave.lpstrFilter = "Playlist Files (*.pls)\0*.pls\0";
     playlistsave.nFilterIndex = 0;
-    playlistsave.lpstrTitle = "Save Playlist...";
+    playlistsave.lpstrTitle = acp(MSGTR_PlaylistSave);
     playlistsave.Flags = OFN_LONGNAMES | OFN_EXPLORER | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY;
     playlistsave.lpstrFile = playlistname;
     playlistsave.lpstrCustomFilter = NULL;
@@ -269,7 +270,7 @@ static LRESULT CALLBACK OpenUrlWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPAR
     switch (iMsg)
     {
         case WM_CREATE:
-            wdg = CreateWindow("button", "Ok",
+            wdg = CreateWindow("button", acp(MSGTR_Ok),
                                WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                                4, 43, 80, 25, hwnd,
                                (HMENU) ID_OK,
@@ -277,7 +278,7 @@ static LRESULT CALLBACK OpenUrlWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPAR
                                NULL);
             SendMessage(wdg, WM_SETFONT, (WPARAM) GetStockObject(DEFAULT_GUI_FONT), 0);
 
-            wdg = CreateWindow("button", "Cancel",
+            wdg = CreateWindow("button", acp(MSGTR_Cancel),
                                WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                                90, 43, 80, 25, hwnd,
                                (HMENU) ID_CANCEL,
@@ -359,7 +360,7 @@ LRESULT CALLBACK SubUrlWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPara
             switch (LOWORD(wParam))
             {
                 case VK_RETURN:
-                    SendMessage(FindWindow(NULL, "MPlayer - Open URL..."), WM_COMMAND, (WPARAM) ID_OK, 0);
+                    SendMessage(FindWindow(NULL, acp(MSGTR_Network)), WM_COMMAND, (WPARAM) ID_OK, 0);
                     break;
             }
     }
@@ -374,7 +375,7 @@ void display_openurlwindow(gui_t *gui, int add)
     int x, y;
 
     if(add) addurl = 1;
-    if(FindWindow(NULL, "MPlayer - Open URL...")) return;
+    if(FindWindow(NULL, acp(MSGTR_Network))) return;
     wc.style         = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc   = OpenUrlWndProc;
     wc.cbClsExtra    = 0;
@@ -383,13 +384,13 @@ void display_openurlwindow(gui_t *gui, int add)
     wc.hCursor       = LoadCursor(NULL,IDC_ARROW);
     wc.hIcon         = gui->icon;
     wc.hbrBackground = SOLID_GREY2;
-    wc.lpszClassName = "MPlayer - URL";
+    wc.lpszClassName = acp(MSGTR_Network);
     wc.lpszMenuName  = NULL;
     RegisterClass(&wc);
     x = (GetSystemMetrics(SM_CXSCREEN) / 2) - (320 / 2);
     y = (GetSystemMetrics(SM_CYSCREEN) / 2) - (100 / 2);
-    hWnd = CreateWindow("MPlayer - URL",
-                        "MPlayer - Open URL...",
+    hWnd = CreateWindow(acp(MSGTR_Network),
+                        acp(MSGTR_Network),
                         WS_POPUPWINDOW | WS_CAPTION,
                         x,
                         y,
@@ -399,7 +400,7 @@ void display_openurlwindow(gui_t *gui, int add)
                         NULL,
                         hInstance,
                         NULL);
-   SetWindowLongPtr(hWnd, GWLP_USERDATA, (DWORD) gui);
+   SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR) gui);
    ShowWindow(hWnd, SW_SHOW);
    UpdateWindow(hWnd);
 }
@@ -407,13 +408,13 @@ void display_openurlwindow(gui_t *gui, int add)
 static void create_playlistmenu(gui_t *gui)
 {
     gui->playlistmenu = CreatePopupMenu();
-    AppendMenu(gui->playlistmenu, MF_STRING, ID_ADDFILE, "Add File...");
-    AppendMenu(gui->playlistmenu, MF_STRING, ID_ADDURL, "Add Url...");
+    AppendMenu(gui->playlistmenu, MF_STRING, ID_ADDFILE, acp(MSGTR_PLAYLIST_AddFile));
+    AppendMenu(gui->playlistmenu, MF_STRING, ID_ADDURL, acp(MSGTR_PLAYLIST_AddURL));
     AppendMenu(gui->playlistmenu, MF_SEPARATOR, 0, 0);
-    AppendMenu(gui->playlistmenu, MF_STRING, ID_REMOVE, "Remove Selected");
-    AppendMenu(gui->playlistmenu, MF_STRING, ID_CLEAR, "Clear Playlist");
+    AppendMenu(gui->playlistmenu, MF_STRING, ID_REMOVE, acp(MSGTR_Remove));
+    AppendMenu(gui->playlistmenu, MF_STRING, ID_CLEAR, acp(MSGTR_Clear));
     AppendMenu(gui->playlistmenu, MF_SEPARATOR, 0, 0);
-    AppendMenu(gui->playlistmenu, MF_STRING, ID_CLOSE, "Close");
+    AppendMenu(gui->playlistmenu, MF_STRING, ID_CLOSE, acp(MSGTR_Close));
 }
 
 static void updatetracklist(HWND hwnd)
@@ -439,7 +440,7 @@ static LRESULT CALLBACK PlayListWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPA
     {
         case WM_CREATE:
         {
-            wdg = CreateWindow("button", "Play",
+            wdg = CreateWindow("button", acp(MSGTR_MENU_Play),
                                WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                                4, 10, 80, 25, hwnd,
                                (HMENU) ID_PLAY,
@@ -447,7 +448,7 @@ static LRESULT CALLBACK PlayListWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPA
                                NULL);
             SendMessage(wdg, WM_SETFONT, (WPARAM) GetStockObject(DEFAULT_GUI_FONT), 0);
 
-            wdg = CreateWindow ("button", "Up",
+            wdg = CreateWindow ("button", acp(MSGTR_Up),
                                 WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                                 4, 37, 80, 25, hwnd,
                                 (HMENU) ID_UP,
@@ -455,7 +456,7 @@ static LRESULT CALLBACK PlayListWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPA
                                 NULL);
             SendMessage(wdg, WM_SETFONT,(WPARAM) GetStockObject(DEFAULT_GUI_FONT), 0);
 
-            wdg = CreateWindow ("button", "Down",
+            wdg = CreateWindow ("button", acp(MSGTR_Down),
                                 WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                                 4, 64, 80, 25, hwnd,
                                 (HMENU) ID_DOWN,
@@ -463,7 +464,7 @@ static LRESULT CALLBACK PlayListWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPA
                                 NULL);
             SendMessage(wdg, WM_SETFONT, (WPARAM) GetStockObject(DEFAULT_GUI_FONT),0);
 
-            wdg = CreateWindow ("button", "Remove",
+            wdg = CreateWindow ("button", acp(MSGTR_Remove),
                                 WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                                 4, 91, 80, 25, hwnd,
                                 (HMENU) ID_REMOVE,
@@ -471,7 +472,7 @@ static LRESULT CALLBACK PlayListWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPA
                                 NULL);
             SendMessage(wdg, WM_SETFONT, (WPARAM) GetStockObject(DEFAULT_GUI_FONT),0);
 
-            wdg = CreateWindow ("button", "Load",
+            wdg = CreateWindow ("button", acp(MSGTR_Load),
                                 WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                                 4, 118, 80, 25, hwnd,
                                 (HMENU) ID_PLAYLISTLOAD,
@@ -479,7 +480,7 @@ static LRESULT CALLBACK PlayListWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPA
                                 NULL);
             SendMessage(wdg, WM_SETFONT, (WPARAM) GetStockObject(DEFAULT_GUI_FONT),0);
 
-            wdg = CreateWindow ("button", "Save",
+            wdg = CreateWindow ("button", acp(MSGTR_Save),
                                 WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                                 4, 145, 80, 25, hwnd,
                                 (HMENU) ID_PLAYLISTSAVE,
@@ -487,7 +488,7 @@ static LRESULT CALLBACK PlayListWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPA
                                 NULL);
             SendMessage(wdg, WM_SETFONT, (WPARAM) GetStockObject(DEFAULT_GUI_FONT),0);
 
-            wdg = CreateWindow ("button", "Close",
+            wdg = CreateWindow ("button", acp(MSGTR_Close),
                                 WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                                 4, 193, 80, 25, hwnd,
                                 (HMENU) ID_CLOSE,
@@ -525,7 +526,7 @@ static LRESULT CALLBACK PlayListWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPA
                     {
                 case ID_PLAY:
                         if(selected) pl->current = selected - 1;
-                        uiSetFileName(NULL, pl->tracks[pl->current]->filename, STREAMTYPE_STREAM);
+                        uiSetFileName(NULL, pl->tracks[pl->current]->filename, STREAMTYPE_FILE);
                         gui->startplay(gui);
                     }
                     return 0;
@@ -609,13 +610,13 @@ static LRESULT CALLBACK PlayListWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPA
 
 void update_playlistwindow(void)
 {
-    HWND hWnd = FindWindow(NULL, "MPlayer Playlist");
+    HWND hWnd = FindWindow(NULL, acp(MSGTR_PlayList));
     if (hWnd) updatetracklist(hWnd);
 }
 
 void display_playlistwindow(gui_t *gui)
 {
-    HWND hWnd = FindWindow(NULL, "MPlayer Playlist");
+    HWND hWnd = FindWindow(NULL, acp(MSGTR_PlayList));
     HINSTANCE hInstance = GetModuleHandle(NULL);
     WNDCLASS wc;
     int x, y;
@@ -634,14 +635,14 @@ void display_playlistwindow(gui_t *gui)
     wc.hCursor       = LoadCursor(NULL,IDC_ARROW);
     wc.hIcon         = gui->icon;
     wc.hbrBackground = SOLID_GREY2;
-    wc.lpszClassName = "MPlayer - Playlist";
+    wc.lpszClassName = acp(MSGTR_PlayList);
     wc.lpszMenuName  = NULL;
     RegisterClass(&wc);
     create_playlistmenu(gui);
     x = (GetSystemMetrics(SM_CXSCREEN) / 2) - (400 / 2);   /* Erik: center popup window on screen */
     y = (GetSystemMetrics(SM_CYSCREEN) / 2) - (254 / 2);
-    hWnd = CreateWindow("MPlayer - Playlist",
-                        "MPlayer Playlist",
+    hWnd = CreateWindow(acp(MSGTR_PlayList),
+                        acp(MSGTR_PlayList),
                         WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX,
                         x,
                         y,
@@ -651,7 +652,7 @@ void display_playlistwindow(gui_t *gui)
                         NULL,
                         hInstance,
                         NULL);
-   SetWindowLongPtr(hWnd, GWLP_USERDATA, (DWORD)gui);
+   SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)gui);
    updatetracklist(hWnd);
    DragAcceptFiles(hWnd,TRUE);
    ShowWindow(hWnd, SW_SHOW);
@@ -662,7 +663,7 @@ static LRESULT CALLBACK SkinBrowserWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, 
 {
     static HWND listbox;
     static char skinspath[MAX_PATH];
-    gui_t* gui = (gui_t*) GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    gui_t* mygui = (gui_t*) GetWindowLongPtr(hwnd, GWLP_USERDATA);
     switch (iMsg)
     {
         case WM_CREATE:
@@ -708,19 +709,19 @@ static LRESULT CALLBACK SkinBrowserWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, 
                     int len = SendMessage(listbox, LB_GETTEXTLEN, index, 0);
                     if (len)
                     {
-                        if (guiInfo.Playing) guiGetEvent(guiSetState, (void *) GUI_STOP);
+                        if (guiInfo.Playing) gui(GUI_SET_STATE, (void *) GUI_STOP);
                         free(skinName);
                         skinName = malloc(len + 1);
                         SendMessage(listbox, LB_GETTEXT, (WPARAM) index, (LPARAM) skinName);
                         /* fill out the full pathname to the skin */
                         strcpy(skinspath, get_path("skins"));
-                        strcat(skinspath, "\\");
+                        strcat(skinspath, "/");
                         strcat(skinspath, skinName);
                         ShowWindow(hwnd, SW_HIDE);
                         Shell_NotifyIcon(NIM_DELETE, &nid);
-                        destroy_window(gui);
-                        create_window(gui, skinspath);
-                        create_subwindow(gui, skinspath);
+                        destroy_window(mygui);
+                        create_window(mygui, skinspath);
+                        create_subwindow(mygui);
                         SendMessage(hwnd, WM_CLOSE, 0, 0); /* Avoid crashing when switching skin */
                     }
                 }
@@ -733,7 +734,7 @@ static LRESULT CALLBACK SkinBrowserWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, 
 
 void display_skinbrowser(gui_t* gui)
 {
-    HWND hWnd = FindWindow(NULL, "Skin Browser");
+    HWND hWnd = FindWindow(NULL, acp(MSGTR_SkinBrowser));
     HINSTANCE hInstance = GetModuleHandle(NULL);
     WNDCLASS wc;
     int x, y;
@@ -752,13 +753,13 @@ void display_skinbrowser(gui_t* gui)
     wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
     wc.hIcon         = gui->icon;
     wc.hbrBackground = SOLID_GREY2;
-    wc.lpszClassName = "Skin Browser";
+    wc.lpszClassName = acp(MSGTR_SkinBrowser);
     wc.lpszMenuName  = NULL;
     RegisterClass(&wc);
     x = (GetSystemMetrics(SM_CXSCREEN) / 2) - (180 / 2);
     y = (GetSystemMetrics(SM_CYSCREEN) / 2) - (102 / 2);
-    hWnd = CreateWindow("Skin Browser",
-                        "Skin Browser",
+    hWnd = CreateWindow(acp(MSGTR_SkinBrowser),
+                        acp(MSGTR_SkinBrowser),
                         WS_POPUPWINDOW |WS_CAPTION,
                         x,
                         y,
@@ -768,7 +769,7 @@ void display_skinbrowser(gui_t* gui)
                         NULL,
                         hInstance,
                         NULL);
-   SetWindowLongPtr(hWnd, GWLP_USERDATA, (DWORD) gui);
+   SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR) gui);
    ShowWindow(hWnd, SW_SHOW);
    UpdateWindow(hWnd);
 }
@@ -786,7 +787,7 @@ static LRESULT CALLBACK TitleChapterWndProc(HWND hwnd, UINT iMsg, WPARAM wParam,
     switch (iMsg)
     {
         case WM_CREATE:
-            wdg = CreateWindow("button", "Ok",
+            wdg = CreateWindow("button", acp(MSGTR_Ok),
                                WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                                4, 43, 80, 25, hwnd,
                                (HMENU) ID_OK,
@@ -794,7 +795,7 @@ static LRESULT CALLBACK TitleChapterWndProc(HWND hwnd, UINT iMsg, WPARAM wParam,
                                NULL);
                               SendMessage(wdg, WM_SETFONT, (WPARAM) GetStockObject(DEFAULT_GUI_FONT), 0);
 
-            wdg = CreateWindow("button", "Cancel",
+            wdg = CreateWindow("button", acp(MSGTR_Cancel),
                                WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                                90, 43, 80, 25, hwnd,
                                (HMENU) ID_CANCEL,
@@ -821,17 +822,17 @@ static LRESULT CALLBACK TitleChapterWndProc(HWND hwnd, UINT iMsg, WPARAM wParam,
                                  NULL);
             SendMessage(chapter, WM_SETFONT, (WPARAM) GetStockObject(DEFAULT_GUI_FONT), 0);
 
-            for (i=0; i<guiInfo.DVD.titles; i++)
+            for (i=0; i<guiInfo.Tracks; i++)
             {
                 /* we have to reverse the order here because of the way CB_INSERTSTRING adds items */
-                sprintf(&titles[i], "%d", guiInfo.DVD.titles - i);
+                sprintf(&titles[i], "%d", guiInfo.Tracks - i);
                 SendDlgItemMessage(hwnd, ID_TITLESEL, CB_INSERTSTRING, 0, (LPARAM) &titles[i]);
             }
             SendDlgItemMessage(hwnd, ID_TITLESEL, CB_SETCURSEL, dvd_title, 0);
 
-            for (j=0; j<guiInfo.DVD.chapters; j++)
+            for (j=0; j<guiInfo.Chapters; j++)
             {
-                sprintf(&chapters[j], "%d", guiInfo.DVD.chapters - j);
+                sprintf(&chapters[j], "%d", guiInfo.Chapters - j);
                 SendDlgItemMessage(hwnd, ID_CHAPTERSEL, CB_INSERTSTRING, 0, (LPARAM) &chapters[j]);
             }
             SendDlgItemMessage(hwnd, ID_CHAPTERSEL, CB_SETCURSEL, dvd_chapter, 0);
@@ -846,10 +847,10 @@ static LRESULT CALLBACK TitleChapterWndProc(HWND hwnd, UINT iMsg, WPARAM wParam,
                     return 0;
                 case ID_OK:
                 {
-                    guiInfo.DVD.current_title = SendMessage(title, CB_GETCURSEL, 0, 0) + 1;
-                    guiInfo.DVD.current_chapter = SendMessage(chapter, CB_GETCURSEL, 0, 0) + 1;
+                    guiInfo.Track = SendMessage(title, CB_GETCURSEL, 0, 0) + 1;
+                    guiInfo.Chapter = SendMessage(chapter, CB_GETCURSEL, 0, 0) + 1;
 
-                    if((guiInfo.DVD.current_title != 0 || guiInfo.DVD.current_chapter != 0))
+                    if((guiInfo.Track != 0 || guiInfo.Chapter != 0))
                     {
                         gui->startplay(gui);
                         DestroyWindow(hwnd);
@@ -871,7 +872,7 @@ void display_chapterselwindow(gui_t *gui)
     int x, y;
 
     if (guiInfo.StreamType != STREAMTYPE_DVD) return;
-    if (FindWindow(NULL, "Select Title/Chapter...")) return;
+    if (FindWindow(NULL, acp(MSGTR_SelectTitleChapter))) return;
 
     wc.style         = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc   = TitleChapterWndProc;
@@ -881,13 +882,13 @@ void display_chapterselwindow(gui_t *gui)
     wc.hCursor       = LoadCursor(NULL,IDC_ARROW);
     wc.hIcon         = gui->icon;
     wc.hbrBackground = SOLID_GREY2;
-    wc.lpszClassName = "Select Title/Chapter...";
+    wc.lpszClassName = acp(MSGTR_SelectTitleChapter);
     wc.lpszMenuName  = NULL;
     RegisterClass(&wc);
     x = (GetSystemMetrics(SM_CXSCREEN) / 2) - (180 / 2);
     y = (GetSystemMetrics(SM_CYSCREEN) / 2) - (100 / 2);
-    hWnd = CreateWindow("Select Title/Chapter...",
-                        "Select Title/Chapter...",
+    hWnd = CreateWindow(acp(MSGTR_SelectTitleChapter),
+                        acp(MSGTR_SelectTitleChapter),
                         WS_POPUPWINDOW | WS_CAPTION,
                         x,
                         y,
@@ -897,7 +898,7 @@ void display_chapterselwindow(gui_t *gui)
                         NULL,
                         hInstance,
                         NULL);
-   SetWindowLongPtr(hWnd, GWLP_USERDATA, (DWORD) gui);
+   SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR) gui);
    ShowWindow(hWnd, SW_SHOW);
    UpdateWindow(hWnd);
 }
@@ -911,7 +912,7 @@ static LRESULT CALLBACK EqWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lP
     {
         case WM_CREATE:
         {
-            btn = CreateWindow("button", "Reset",
+            btn = CreateWindow("button", acp(MSGTR_Clear),
                                WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                                157, 143, 80, 25, hwnd,
                                (HMENU) ID_DEFAULTS,
@@ -919,7 +920,7 @@ static LRESULT CALLBACK EqWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lP
                                NULL);
             SendMessage(btn, WM_SETFONT, (WPARAM) GetStockObject(DEFAULT_GUI_FONT), 0);
 
-            btn = CreateWindow("button", "Close",
+            btn = CreateWindow("button", acp(MSGTR_Close),
                                WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                                243, 143, 80, 25, hwnd,
                                (HMENU) ID_CLOSE,
@@ -927,7 +928,7 @@ static LRESULT CALLBACK EqWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lP
                                NULL);
             SendMessage(btn, WM_SETFONT, (WPARAM) GetStockObject(DEFAULT_GUI_FONT), 0);
 
-            label = CreateWindow("static", "Brightness",
+            label = CreateWindow("static", acp(MSGTR_EQU_Brightness),
                                  WS_CHILD | WS_VISIBLE,
                                  12, 122, 70, 15, hwnd,
                                  NULL,
@@ -935,7 +936,7 @@ static LRESULT CALLBACK EqWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lP
                                  NULL);
             SendMessage(label, WM_SETFONT, (WPARAM) GetStockObject(DEFAULT_GUI_FONT), 0);
 
-            label = CreateWindow("static", "Contrast",
+            label = CreateWindow("static", acp(MSGTR_EQU_Contrast),
                                  WS_CHILD | WS_VISIBLE,
                                  99, 122, 70, 15, hwnd,
                                  NULL,
@@ -943,14 +944,14 @@ static LRESULT CALLBACK EqWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lP
                                  NULL);
             SendMessage(label, WM_SETFONT, (WPARAM) GetStockObject(DEFAULT_GUI_FONT), 0);
 
-            label = CreateWindow("static", "Hue",
+            label = CreateWindow("static", acp(MSGTR_EQU_Hue),
                                  WS_CHILD | WS_VISIBLE,
                                  191, 122, 70, 15, hwnd,
                                  NULL,
                                  ((LPCREATESTRUCT) lParam) -> hInstance, NULL);
             SendMessage(label, WM_SETFONT, (WPARAM) GetStockObject(DEFAULT_GUI_FONT), 0);
 
-            label = CreateWindow("static", "Saturation",
+            label = CreateWindow("static", acp(MSGTR_EQU_Saturation),
                                  WS_CHILD | WS_VISIBLE,
                                  260, 122, 70, 15, hwnd,
                                  NULL,
@@ -1086,7 +1087,7 @@ void display_eqwindow(gui_t *gui)
     int x, y;
 
     if(!guiInfo.sh_video) return;
-    if(FindWindow(NULL, "MPlayer - Equalizer")) return;
+    if(FindWindow(NULL, acp(MSGTR_Equalizer))) return;
     wc.style         = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc   = EqWndProc;
     wc.cbClsExtra    = 0;
@@ -1095,13 +1096,13 @@ void display_eqwindow(gui_t *gui)
     wc.hCursor       = LoadCursor(NULL,IDC_ARROW);
     wc.hIcon         = gui->icon;
     wc.hbrBackground = SOLID_GREY2;
-    wc.lpszClassName = "MPlayer - Equalizer";
+    wc.lpszClassName = acp(MSGTR_Equalizer);
     wc.lpszMenuName  = NULL;
     RegisterClass(&wc);
     x = (GetSystemMetrics(SM_CXSCREEN) / 2) - (332 / 2);
     y = (GetSystemMetrics(SM_CYSCREEN) / 2) - (200 / 2);
-    hWnd = CreateWindow("MPlayer - Equalizer",
-                        "MPlayer - Equalizer",
+    hWnd = CreateWindow(acp(MSGTR_Equalizer),
+                        acp(MSGTR_Equalizer),
                         WS_POPUPWINDOW | WS_CAPTION,
                         x,
                         y,
@@ -1111,7 +1112,7 @@ void display_eqwindow(gui_t *gui)
                         NULL,
                         hInstance,
                         NULL);
-   SetWindowLongPtr(hWnd, GWLP_USERDATA, (DWORD) gui);
+   SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR) gui);
    ShowWindow(hWnd, SW_SHOW);
    UpdateWindow(hWnd);
 }

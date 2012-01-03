@@ -290,6 +290,8 @@ int stream_read_internal(stream_t *s, void *buf, int len)
 #ifdef CONFIG_NETWORKING
     if( s->streaming_ctrl!=NULL && s->streaming_ctrl->streaming_read ) {
       len=s->streaming_ctrl->streaming_read(s->fd, buf, len, s->streaming_ctrl);
+      if (s->streaming_ctrl->status == streaming_stopped_e)
+        s->eof = 1;
     } else
 #endif
     if (s->fill_buffer)
@@ -306,22 +308,29 @@ int stream_read_internal(stream_t *s, void *buf, int len)
     len= s->fill_buffer ? s->fill_buffer(s, buf, len) : 0;
   }
   if(len<=0){
+    off_t pos = s->pos;
+    // do not retry if this looks like proper eof
+    if (s->eof || (s->end_pos && pos == s->end_pos))
+      goto eof_out;
     // dvdnav has some horrible hacks to "suspend" reads,
     // we need to skip this code or seeks will hang.
-    if (!s->eof && s->type != STREAMTYPE_DVDNAV) {
-      // just in case this is an error e.g. due to network
-      // timeout reset and retry
-      // Seeking is used as a hack to make network streams
-      // reopen the connection, ideally they would implement
-      // e.g. a STREAM_CTRL_RECONNECT to do this
-      off_t pos = s->pos;
-      s->eof=1;
-      stream_reset(s);
-      stream_seek_internal(s, pos);
-      // make sure EOF is set to ensure no endless loops
-      s->eof=1;
-      return stream_read_internal(s, buf, orig_len);
-    }
+    if (s->type == STREAMTYPE_DVDNAV)
+      goto eof_out;
+
+    // just in case this is an error e.g. due to network
+    // timeout reset and retry
+    // Seeking is used as a hack to make network streams
+    // reopen the connection, ideally they would implement
+    // e.g. a STREAM_CTRL_RECONNECT to do this
+    s->eof=1;
+    stream_reset(s);
+    if (stream_seek_internal(s, pos) >= 0 || s->pos != pos) // seek failed
+      goto eof_out;
+    // make sure EOF is set to ensure no endless loops
+    s->eof=1;
+    return stream_read_internal(s, buf, orig_len);
+
+eof_out:
     s->eof=1;
     return 0;
   }
@@ -579,30 +588,30 @@ static uint16_t get_be16_inc(const uint8_t **buf)
 }
 
 /**
- * Find a newline character in buffer
+ * Find a termination character in buffer
  * \param buf buffer to search
  * \param len amount of bytes to search in buffer, may not overread
  * \param utf16 chose between UTF-8/ASCII/other and LE and BE UTF-16
  *              0 = UTF-8/ASCII/other, 1 = UTF-16-LE, 2 = UTF-16-BE
  */
-static const uint8_t *find_newline(const uint8_t *buf, int len, int utf16)
+static const uint8_t *find_term_char(const uint8_t *buf, int len, uint8_t term, int utf16)
 {
   uint32_t c;
   const uint8_t *end = buf + len;
   switch (utf16) {
   case 0:
-    return (uint8_t *)memchr(buf, '\n', len);
+    return (uint8_t *)memchr(buf, term, len);
   case 1:
     while (buf < end - 1) {
       GET_UTF16(c, buf < end - 1 ? get_le16_inc(&buf) : 0, return NULL;)
-      if (buf <= end && c == '\n')
+      if (buf <= end && c == term)
         return buf - 1;
     }
     break;
   case 2:
     while (buf < end - 1) {
       GET_UTF16(c, buf < end - 1 ? get_be16_inc(&buf) : 0, return NULL;)
-      if (buf <= end && c == '\n')
+      if (buf <= end && c == term)
         return buf - 1;
     }
     break;
@@ -651,7 +660,9 @@ static int copy_characters(uint8_t *dst, int dstsize,
   return 0;
 }
 
-unsigned char* stream_read_line(stream_t *s,unsigned char* mem, int max, int utf16) {
+uint8_t *stream_read_until(stream_t *s, uint8_t *mem, int max,
+                           uint8_t term, int utf16)
+{
   int len;
   const unsigned char *end;
   unsigned char *ptr = mem;
@@ -663,7 +674,7 @@ unsigned char* stream_read_line(stream_t *s,unsigned char* mem, int max, int utf
     if(len <= 0 &&
        (!cache_stream_fill_buffer(s) ||
         (len = s->buf_len-s->buf_pos) <= 0)) break;
-    end = find_newline(s->buffer+s->buf_pos, len, utf16);
+    end = find_term_char(s->buffer+s->buf_pos, len, term, utf16);
     if(end) len = end - (s->buffer+s->buf_pos) + 1;
     if(len > 0 && max > 0) {
       int l = copy_characters(ptr, max, s->buffer+s->buf_pos, &len, utf16);

@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "config.h"
 #include "help_mp.h"
@@ -106,8 +107,8 @@ void uiShowMenu( int mx,int my )
 
  menuItem = 0;
 
- wsMoveWindow( &guiApp.menuWindow,False,x,y );
- wsMoveTopWindow( wsDisplay,guiApp.menuWindow.WindowID );
+ wsMoveWindow( &guiApp.menuWindow,True,x,y );
+ wsRaiseWindowTop( wsDisplay,guiApp.menuWindow.WindowID );
  wsSetLayer( wsDisplay,guiApp.menuWindow.WindowID,1 );
  menuRender=1;
  wsVisibleWindow( &guiApp.menuWindow,wsShowWindow );

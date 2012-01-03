@@ -155,7 +155,6 @@ static const char help_text[]=
 #define MSGTR_UnknownAudio "Ukjent/manglende lydformat, bruker nosound\n"
 
 // LIRC:
-#define MSGTR_SettingUpLIRC "Setter opp lirc støtte...\n"
 #define MSGTR_LIRCopenfailed "Feil under åpning av lirc!\n"
 #define MSGTR_LIRCcfgerr "Feil under lesing av lirc konfigurasjonsfil %s!\n"
 
@@ -230,7 +229,7 @@ static const char help_text[]=
 #define MSGTR_MENU_SubtitleLanguages "Tekst språk"
 #define MSGTR_MENU_SkinBrowser "Skin velger"
 #define MSGTR_MENU_Preferences "Preferanser"
-#define MSGTR_MENU_Exit "Avslutt..."
+#define MSGTR_MENU_Exit "Avslutt"
 
 // --- messagebox
 #define MSGTR_MSGBOX_LABEL_FatalError "fatal feil..."

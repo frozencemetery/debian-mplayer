@@ -31,8 +31,10 @@
 #include "help_mp.h"
 #include "stream/stream.h"
 
-#include "gui/interface.h"
+#include "gui/cfg.h"
 #include "gui/ui/widgets.h"
+#include "gui/util/list.h"
+#include "gui/util/mem.h"
 #include "playlist.h"
 #include "tools.h"
 
@@ -156,7 +158,7 @@ void HidePlayList( void )
 {
  if ( !PlayList ) return;
  NrOfSelected=NrOfEntrys=0;
- gfree( (void **)&CLListSelected ); gfree( (void **)&CLFileSelected );
+ nfree( CLListSelected ); nfree( CLFileSelected );
  free( old_path );
  old_path=strdup( current_path );
  gtk_widget_hide( PlayList );
@@ -189,7 +191,7 @@ static void plButtonReleased( GtkButton * button,gpointer user_data )
   case 1: // ok
        {
         int i;
-	if ( plList ) gtkSet( gtkDelPl,0,NULL );
+	if ( plList ) listSet( gtkDelPl,NULL );
 	for ( i=0;i<NrOfSelected;i++ )
 	 {
 	  plItem * item;
@@ -201,13 +203,13 @@ static void plButtonReleased( GtkButton * button,gpointer user_data )
 	  if ( !item->name ) item->name = strdup( text[0] );
 	  item->path=g_filename_from_utf8( text[1], -1, NULL, NULL, NULL );
 	  if ( !item->path ) item->path = strdup( text[1] );
-	  gtkSet( gtkAddPlItem,0,(void*)item );
+	  listSet( gtkAddPlItem,item );
 	 }
 	if ( plCurrent )
 	 {
 	  uiSetFileName( plCurrent->path,plCurrent->name,STREAMTYPE_FILE );
-//	  guiSetDF( guiInfo.Filename,plCurrent->path,plCurrent->name );
-//	  guiInfo.FilenameChanged=1;
+//	  setddup( &guiInfo.Filename,plCurrent->path,plCurrent->name );
+//	  guiInfo.NewPlay=GUI_FILE_NEW;
 //	  guiInfo.StreamType=STREAMTYPE_FILE;
 	 }
        }
@@ -271,6 +273,29 @@ static void plButtonReleased( GtkButton * button,gpointer user_data )
        }
        break;
  }
+}
+
+static gboolean plKeyReleased( GtkWidget * widget,
+                               GdkEventKey * event,
+                               gpointer user_data )
+{
+ if (event->keyval == GDK_Return)
+  {
+   if ( GTK_WIDGET_TYPE( widget ) == GTK_TYPE_BUTTON ) plButtonReleased( NULL, user_data );
+   else
+    {
+     switch ( (int) user_data )
+      {
+       case 0:
+            plButtonReleased( NULL, (void *) 3 );
+            break;
+       case 1:
+            plButtonReleased( NULL, (void *) 2 );
+            break;
+      }
+    }
+  }
+ return FALSE;
 }
 
 static gboolean plEvent ( GtkWidget * widget,
@@ -487,10 +512,12 @@ GtkWidget * create_PlayList( void )
   gtk_ctree_expand( GTK_CTREE( CTDirTree ),parent );
   gtk_widget_show( CTDirTree );
 
-  old_path = fsHistory[0];
+  if ( fsHistory[0] ) old_path = g_filename_from_utf8( fsHistory[0], -1, NULL, NULL, NULL );
 
   gtk_clist_set_column_widget( GTK_CLIST( CTDirTree ),0,
     AddLabel( MSGTR_PLAYLIST_DirectoryTree,NULL ) );
+
+  gtk_clist_column_title_passive( GTK_CLIST( CTDirTree ),0 );
 
   vbox2=AddVBox(
     AddFrame( NULL,1,hbox1,1 ),0 );
@@ -510,6 +537,8 @@ GtkWidget * create_PlayList( void )
 
   gtk_clist_set_column_widget( GTK_CLIST( CLFiles ),0,
     AddLabel( MSGTR_PLAYLIST_Files,NULL ) );
+
+  gtk_clist_column_title_passive( GTK_CLIST( CLFiles ),0 );
 
   AddHSeparator( vbox2 );
 
@@ -533,6 +562,8 @@ GtkWidget * create_PlayList( void )
   gtk_clist_set_column_widget( GTK_CLIST( CLSelected ),1,
     AddLabel( MSGTR_PLAYLIST_Path,NULL ) );
 
+  gtk_clist_column_title_passive( GTK_CLIST( CLSelected ),0 );
+
   AddHSeparator( vbox1 );
 
   hbuttonbox1=AddHButtonBox( vbox1 );
@@ -551,14 +582,20 @@ GtkWidget * create_PlayList( void )
   gtk_signal_connect( GTK_OBJECT( CLFiles ),"select_row",GTK_SIGNAL_FUNC( plRowSelect ),(void *)0 );
   gtk_signal_connect( GTK_OBJECT( CLFiles ),"unselect_row",GTK_SIGNAL_FUNC( plUnRowSelect ),(void *)0 );
   gtk_signal_connect( GTK_OBJECT( CLFiles ),"event",GTK_SIGNAL_FUNC( plEvent ),(void *)0 );
+  gtk_signal_connect( GTK_OBJECT( CLFiles ),"key_release_event",GTK_SIGNAL_FUNC( plKeyReleased ),(void *)0 );
   sigSel=gtk_signal_connect( GTK_OBJECT( CLSelected ),"select_row",GTK_SIGNAL_FUNC( plRowSelect ),(void*)1 );
   sigUnsel=gtk_signal_connect( GTK_OBJECT( CLSelected ),"unselect_row",GTK_SIGNAL_FUNC( plUnRowSelect ),(void*)1 );
   sigEvent=gtk_signal_connect( GTK_OBJECT( CLSelected ),"event",GTK_SIGNAL_FUNC( plEvent ),(void *)1 );
+  gtk_signal_connect( GTK_OBJECT( CLSelected ),"key_release_event",GTK_SIGNAL_FUNC( plKeyReleased ),(void *)1 );
 
-  gtk_signal_connect( GTK_OBJECT( Add ),"clicked",GTK_SIGNAL_FUNC( plButtonReleased ),(void*)3 );
-  gtk_signal_connect( GTK_OBJECT( Remove ),"clicked",GTK_SIGNAL_FUNC( plButtonReleased ),(void*)2 );
-  gtk_signal_connect( GTK_OBJECT( Ok ),"clicked",GTK_SIGNAL_FUNC( plButtonReleased ),(void*)1 );
-  gtk_signal_connect( GTK_OBJECT( Cancel ),"clicked",GTK_SIGNAL_FUNC( plButtonReleased ),(void*)0 );
+  gtk_signal_connect( GTK_OBJECT( Add ),"released",GTK_SIGNAL_FUNC( plButtonReleased ),(void*)3 );
+  gtk_signal_connect( GTK_OBJECT( Add ),"key_release_event",GTK_SIGNAL_FUNC( plKeyReleased ),(void*)3 );
+  gtk_signal_connect( GTK_OBJECT( Remove ),"released",GTK_SIGNAL_FUNC( plButtonReleased ),(void*)2 );
+  gtk_signal_connect( GTK_OBJECT( Remove ),"key_release_event",GTK_SIGNAL_FUNC( plKeyReleased ),(void*)2 );
+  gtk_signal_connect( GTK_OBJECT( Ok ),"released",GTK_SIGNAL_FUNC( plButtonReleased ),(void*)1 );
+  gtk_signal_connect( GTK_OBJECT( Ok ),"key_release_event",GTK_SIGNAL_FUNC( plKeyReleased ),(void*)1 );
+  gtk_signal_connect( GTK_OBJECT( Cancel ),"released",GTK_SIGNAL_FUNC( plButtonReleased ),(void*)0 );
+  gtk_signal_connect( GTK_OBJECT( Cancel ),"key_release_event",GTK_SIGNAL_FUNC( plKeyReleased ),(void*)0 );
 
   gtk_window_add_accel_group( GTK_WINDOW( PlayList ),accel_group );
 

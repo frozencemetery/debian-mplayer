@@ -98,6 +98,7 @@
 #define STREAM_CTRL_GET_NUM_ANGLES 9
 #define STREAM_CTRL_GET_ANGLE 10
 #define STREAM_CTRL_SET_ANGLE 11
+#define STREAM_CTRL_GET_NUM_TITLES 12
 
 
 typedef enum {
@@ -278,7 +279,11 @@ inline static int stream_read(stream_t *s,char* mem,int total){
   return total;
 }
 
-unsigned char* stream_read_line(stream_t *s,unsigned char* mem, int max, int utf16);
+uint8_t *stream_read_until(stream_t *s, uint8_t *mem, int max, uint8_t term, int utf16);
+inline static uint8_t *stream_read_line(stream_t *s, uint8_t *mem, int max, int utf16)
+{
+  return stream_read_until(s, mem, max, '\n', utf16);
+}
 
 inline static int stream_eof(stream_t *s){
   return s->eof;
@@ -290,11 +295,11 @@ inline static off_t stream_tell(stream_t *s){
 
 inline static int stream_seek(stream_t *s,off_t pos){
 
-  mp_dbg(MSGT_DEMUX, MSGL_DBG3, "seek to 0x%qX\n",(long long)pos);
+  mp_dbg(MSGT_DEMUX, MSGL_DBG3, "seek to 0x%"PRIX64"\n", pos);
 
   if (pos < 0) {
-    mp_msg(MSGT_DEMUX, MSGL_ERR, "Invalid seek to negative position %llx!\n",
-           (long long)pos);
+    mp_msg(MSGT_DEMUX, MSGL_ERR,
+           "Invalid seek to negative position %"PRIx64"!\n", pos);
     pos = 0;
   }
   if(pos<s->pos){

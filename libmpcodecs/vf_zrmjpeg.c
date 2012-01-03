@@ -27,7 +27,7 @@
  */
 
 /**
- * \file vf_zrmjpeg.c
+ * \file
  *
  * \brief Does mjpeg encoding as required by the zrmjpeg filter as well
  * as by the zr video driver.
@@ -39,11 +39,10 @@
 #include <inttypes.h>
 
 #include "config.h"
+#include "av_helpers.h"
 #include "mp_msg.h"
-
 #include "img_format.h"
 #include "mp_image.h"
-#include "vd_ffmpeg.h"
 #include "vf.h"
 
 /* We need this #define because we need ../libavcodec/common.h to #define
@@ -54,6 +53,7 @@
 
 #undef malloc
 #undef free
+#undef strcasecmp
 
 /* some convenient #define's, is this portable enough? */
 /// Printout  with vf_zrmjpeg: prefix at VERBOSE level
@@ -111,7 +111,7 @@ static void convert_matrix(MpegEncContext *s, int (*qmat)[64],
 
 	for(qscale = qmin; qscale <= qmax; qscale++) {
 		int i;
-		if (s->dsp.fdct == ff_jpeg_fdct_islow) {
+		if (s->dsp.fdct == ff_jpeg_fdct_islow_8) {
 			for (i = 0; i < 64; i++) {
 				const int j = s->dsp.idct_permutation[i];
 /* 16 <= qscale * quant_matrix[i] <= 7905

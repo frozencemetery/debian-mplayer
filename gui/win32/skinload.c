@@ -21,6 +21,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
@@ -31,6 +32,7 @@
 #include "libswscale/swscale.h"
 #include "libavutil/imgutils.h"
 #include "gui.h"
+#include "gui/util/mem.h"
 #include "gui/util/bitmap.h"
 
 #define MAX_LINESIZE 256
@@ -45,51 +47,46 @@ static const evName evNames[] =
 {
     {   evNone,                 "evNone"                },
     {   evPlay,                 "evPlay"                },
-    {   evDropFile,             "evDropFile"            },
     {   evStop,                 "evStop"                },
     {   evPause,                "evPause"               },
     {   evPrev,                 "evPrev"                },
     {   evNext,                 "evNext"                },
     {   evLoad,                 "evLoad"                },
-    {   evEqualizer,            "evEqualizer"           },
-    {   evPlayList,             "evPlaylist"            },
-    {   evExit,                 "evExit"                },
-    {   evIconify,              "evIconify"             },
-    {   evIncBalance,           "evIncBalance"          },
-    {   evDecBalance,           "evDecBalance"          },
-    {   evFullScreen,           "evFullScreen"          },
-    {   evFName,                "evFName"               },
-    {   evMovieTime,            "evMovieTime"           },
-    {   evAbout,                "evAbout"               },
     {   evLoadPlay,             "evLoadPlay"            },
-    {   evPreferences,          "evPreferences"         },
-    {   evSkinBrowser,          "evSkinBrowser"         },
+    {   evLoadAudioFile,        "evLoadAudioFile"       },
+    {   evLoadSubtitle,         "evLoadSubtitle"        },
+    {   evDropSubtitle,         "evDropSubtitle"        },
+    {   evPlaylist,             "evPlaylist"            },
+    {   evPlayCD,               "evPlayCD"              },
+    {   evPlayVCD,              "evPlayVCD"             },
+    {   evPlayDVD,              "evPlayDVD"             },
+    {   evLoadURL,              "evSetURL"              }, // legacy
+    {   evLoadURL,              "evLoadURL"             },
+    {   evPlaySwitchToPause,    "evPlaySwitchToPause"   },
+    {   evPauseSwitchToPlay,    "evPauseSwitchToPlay"   },
     {   evBackward10sec,        "evBackward10sec"       },
     {   evForward10sec,         "evForward10sec"        },
     {   evBackward1min,         "evBackward1min"        },
     {   evForward1min,          "evForward1min"         },
     {   evBackward10min,        "evBackward10min"       },
     {   evForward10min,         "evForward10min"        },
+    {   evSetMoviePosition,     "evSetMoviePosition"    },
+    {   evHalfSize,             "evHalfSize"            },
+    {   evDoubleSize,           "evDoubleSize"          },
+    {   evFullScreen,           "evFullScreen"          },
+    {   evNormalSize,           "evNormalSize"          },
+    {   evSetAspect,            "evSetAspect"           },
     {   evIncVolume,            "evIncVolume"           },
     {   evDecVolume,            "evDecVolume"           },
-    {   evMute,                 "evMute"                },
-    {   evIncAudioBufDelay,     "evIncAudioBufDelay"    },
-    {   evDecAudioBufDelay,     "evDecAudioBufDelay"    },
-    {   evPlaySwitchToPause,    "evPlaySwitchToPause"   },
-    {   evPauseSwitchToPlay,    "evPauseSwitchToPlay"   },
-    {   evNormalSize,           "evNormalSize"          },
-    {   evDoubleSize,           "evDoubleSize"          },
-    {   evSetMoviePosition,     "evSetMoviePosition"    },
     {   evSetVolume,            "evSetVolume"           },
+    {   evMute,                 "evMute"                },
     {   evSetBalance,           "evSetBalance"          },
-    {   evHelp,                 "evHelp"                },
-    {   evLoadSubtitle,         "evLoadSubtitle"        },
-    {   evPlayDVD,              "evPlayDVD"             },
-    {   evPlayVCD,              "evPlayVCD"             },
-    {   evSetURL,               "evSetURL"              },
-    {   evLoadAudioFile,        "evLoadAudioFile"       },
-    {   evDropSubtitle,         "evDropSubtitle"        },
-    {   evSetAspect,            "evSetAspect"           }
+    {   evEqualizer,            "evEqualizer"           },
+    {   evAbout,                "evAbout"               },
+    {   evPreferences,          "evPreferences"         },
+    {   evSkinBrowser,          "evSkinBrowser"         },
+    {   evIconify,              "evIconify"             },
+    {   evExit,                 "evExit"                }
 };
 
 static const int evBoxs = sizeof(evNames) / sizeof(evName);
@@ -104,7 +101,7 @@ static char *geteventname(int event)
 }
 
 /* reads a complete image as is into image buffer */
-static image *pngRead(skin_t *skin, unsigned char *fname)
+static image *pngRead(skin_t *skin, const char *fname)
 {
     int i;
     guiImage bmp;
@@ -118,7 +115,7 @@ static image *pngRead(skin_t *skin, unsigned char *fname)
     if(!(fp = fopen(fname, "rb")))
     {
         filename = calloc(1, strlen(skin->skindir) + strlen(fname) + 6);
-        sprintf(filename, "%s\\%s.png", skin->skindir, fname);
+        sprintf(filename, "%s/%s.png", skin->skindir, fname);
         if(!(fp = fopen(filename, "rb")))
         {
             mp_msg(MSGT_GPLAYER, MSGL_ERR, "[png] cannot find image %s\n", filename);
@@ -217,55 +214,41 @@ static void freeskin(skin_t *skin)
 {
     unsigned int i;
 
-    free(skin->skindir);
-    skin->skindir = NULL;
+    nfree(skin->skindir);
 
     for (i=1; i<=skin->lastusedid; i++)
         skin->removewidget(skin, i);
 
-    free(skin->widgets);
-    skin->widgets = NULL;
+    nfree(skin->widgets);
 
     freeimages(skin);
     for(i=0; i<skin->windowcount; i++)
     {
-        free(skin->windows[i]->name);
-        skin->windows[i]->name = NULL;
+        nfree(skin->windows[i]->name);
         free(skin->windows[i]);
     }
 
-    free(skin->windows);
-    skin->windows = NULL;
+    nfree(skin->windows);
 
     for (i=0; i<skin->fontcount; i++)
     {
         unsigned int x;
 
-        free(skin->fonts[i]->name);
-        skin->fonts[i]->name = NULL;
-
-        free(skin->fonts[i]->id);
-        skin->fonts[i]->id = NULL;
+        nfree(skin->fonts[i]->name);
+        nfree(skin->fonts[i]->id);
 
         for (x=0; x<skin->fonts[i]->charcount; x++)
-        {
-            free(skin->fonts[i]->chars[x]);
-            skin->fonts[i]->chars[x] = NULL;
-        }
+            nfree(skin->fonts[i]->chars[x]);
 
-        free(skin->fonts[i]->chars);
-        skin->fonts[i]->chars = NULL;
+        nfree(skin->fonts[i]->chars);
 
-        free(skin->fonts[i]);
-        skin->fonts[i] = NULL;
+        nfree(skin->fonts[i]);
     }
-    free(skin->fonts);
-    skin->fonts = NULL;
+    nfree(skin->fonts);
 #ifdef DEBUG
     mp_msg(MSGT_GPLAYER, MSGL_DBG4, "[SKIN FREE] skin freed\n");
 #endif
-    free(skin);
-    skin = NULL;
+    nfree(skin);
 }
 
 static void removewidget(skin_t *skin, int id)
@@ -279,8 +262,7 @@ static void removewidget(skin_t *skin, int id)
         if(skin->widgets[i]->id == id)
         {
             free(skin->widgets[i]->label);
-            free(skin->widgets[i]);
-            skin->widgets[i] = NULL;
+            nfree(skin->widgets[i]);
         }
         else
         {
@@ -522,10 +504,13 @@ static void loadfonts(skin_t* skin)
         char *tmp = calloc(1, MAX_LINESIZE);
         char *desc = calloc(1, MAX_LINESIZE);
         filename = calloc(1, strlen(skin->skindir) + strlen(skin->fonts[x]->name) + 6);
-        sprintf(filename, "%s\\%s.fnt", skin->skindir, skin->fonts[x]->name);
+        sprintf(filename, "%s/%s.fnt", skin->skindir, skin->fonts[x]->name);
         if(!(fp = fopen(filename,"rb")))
         {
             mp_msg(MSGT_GPLAYER, MSGL_ERR, "[FONT LOAD] Font not found \"%s\"\n", skin->fonts[x]->name);
+            free(tmp);
+            free(desc);
+            free(filename);
             return;
         }
         while(!feof(fp))
@@ -611,11 +596,14 @@ skin_t* loadskin(char* skindir, int desktopbpp)
     skin->skindir = strdup(skindir);
 
     filename = calloc(1, strlen(skin->skindir) + strlen("skin") + 2);
-    sprintf(filename, "%s\\skin", skin->skindir);
+    sprintf(filename, "%s/skin", skin->skindir);
     if(!(fp = fopen(filename, "rb")))
     {
         mp_msg(MSGT_GPLAYER, MSGL_FATAL, "[SKIN LOAD] Skin \"%s\" not found\n", skindir);
         skin->freeskin(skin);
+        free(tmp);
+        free(desc);
+        free(filename);
         return NULL;
     }
 

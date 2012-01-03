@@ -80,6 +80,9 @@ static unsigned my_read(int fd, char *buffer, int len, streaming_ctrl_t *sc) {
  * \param fd file descriptor to read from
  * \param sc streaming_ctrl_t whose buffer is consumed before reading from fd
  * \return number of real data before next metadata block starts or 0 on error
+ *
+ * You can use unsv://samples.mplayerhq.hu/V-codecs/VP5/vp5_artefacts.nsv to
+ * test.
  */
 static unsigned uvox_meta_read(int fd, streaming_ctrl_t *sc) {
   unsigned metaint;
@@ -674,7 +677,7 @@ http_debug_hdr( HTTP_header_t *http_hdr ) {
 	mp_msg(MSGT_NETWORK,MSGL_V,"method:             [%s]\n", http_hdr->method );
 	mp_msg(MSGT_NETWORK,MSGL_V,"status code:        [%d]\n", http_hdr->status_code );
 	mp_msg(MSGT_NETWORK,MSGL_V,"reason phrase:      [%s]\n", http_hdr->reason_phrase );
-	mp_msg(MSGT_NETWORK,MSGL_V,"body size:          [%zd]\n", http_hdr->body_size );
+	mp_msg(MSGT_NETWORK,MSGL_V,"body size:          [%zu]\n", http_hdr->body_size );
 
 	mp_msg(MSGT_NETWORK,MSGL_V,"Fields:\n");
 	field = http_hdr->first_field;
