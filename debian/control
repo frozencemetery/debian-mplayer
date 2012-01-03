@@ -5,8 +5,7 @@ Maintainer: Debian multimedia packages maintainers <pkg-multimedia-maintainers@l
 Uploaders:
  A Mennucc1 <mennucc1@debian.org>,
  Reinhard Tartler <siretart@tauware.de>,
- Andres Mejia <mcitadel@gmail.com>
-DM-Upload-Allowed: yes
+ Andres Mejia <amejia@debian.org>
 Standards-Version: 3.9.1
 Vcs-Git: git://git.debian.org/git/pkg-multimedia/mplayer.git
 Vcs-Browser: http://git.debian.org/?p=pkg-multimedia/mplayer.git;a=summary
@@ -114,7 +113,9 @@ Depends:
 Replaces:
  mencoder (<< 2:1.0~rc3+svn20090426-2),
  mplayer-doc (<< 2:1.0~rc3+svn20090426-2),
- mplayer-nogui (<< 2:1.0~rc3+svn20090426-2)
+ mplayer-nogui (<< 2:1.0~rc3+svn20090426-2),
+ mplayer2
+Conflicts: mplayer2
 Description: movie player for Unix-like systems
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
@@ -138,10 +139,12 @@ Architecture: any
 Section: debug
 Priority: extra
 Depends:
- mplayer,
+ mplayer (= ${binary:Version}),
  ${misc:Depends}
 Recommends:
  ffmpeg-dbg
+Replaces: mplayer2-dbg
+Conflicts: mplayer2-dbg
 Description: debugging symbols for MPlayer
  This package contains the debugging symbols for MPlayer, a movie
  player for Unix-like systems.
