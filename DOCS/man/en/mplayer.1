@@ -1,4 +1,4 @@
-.\" $Revision: 33689 $
+.\" $Revision: 34463 $
 .\" MPlayer (C) 2000-2010 MPlayer Team
 .\" This man page was/is done by Gabucino, Diego Biurrun, Jonas Jermann
 .
@@ -3026,10 +3026,6 @@ you really know how to set it correctly.
 .PD 1
 .
 .TP
-.B "alsa5\ \ "
-ALSA 0.5 audio output driver
-.
-.TP
 .B "oss\ \ \ \ "
 OSS audio output driver
 .PD 0
@@ -3602,8 +3598,9 @@ Specify the screen width for video output drivers which
 do not know the screen resolution like fbdev, x11 and TV-out.
 .
 .TP
-.B \-stop\-xscreensaver (X11 only)
-Turns off xscreensaver at startup and turns it on again on exit.
+.B \-(no)stop\-xscreensaver (X11 only)
+Turns off xscreensaver at startup and turns it on again on exit
+(default: enabled).
 If your screensaver supports neither the XSS nor XResetScreenSaver
 API please use \-heartbeat\-cmd instead.
 .
@@ -4122,6 +4119,19 @@ even if you do not get any error message.
 Use glxinfo or a similar tool to display the supported OpenGL extensions.
 .PD 0
 .RSs
+.IPs backend=<n>
+Select the backend/OpenGL implementation to use (default: -1).
+.RSss
+-1: Autoselect
+.br
+0: Win32/WGL
+.br
+1: X11/GLX
+.br
+2: SDL
+.br
+3: X11/EGL (highly experimental)
+.RE
 .IPs (no)ati\-hack
 ATI drivers may give a corrupted image when PBOs are used (when using \-dr
 or force\-pbo).
@@ -4234,39 +4244,45 @@ Do not do any conversion.
 Select the scaling function to use for luminance scaling.
 Only valid for yuv modes 2, 3, 4 and 6.
 .RSss
-0: Use simple linear filtering (default).
-.br
-1: Use bicubic B-spline filtering (better quality).
+.IPs 0
+Use simple linear filtering (default).
+.IPs 1
+Use bicubic B-spline filtering (better quality).
 Needs one additional texture unit.
 Older cards will not be able to handle this for chroma at least in fullscreen mode.
-.br
-2: Use cubic filtering in horizontal, linear filtering in vertical direction.
+.IPs 2
+Use cubic filtering in horizontal, linear filtering in vertical direction.
 Works on a few more cards than method 1.
-.br
-3: Same as 1 but does not use a lookup texture.
+.IPs 3
+Same as 1 but does not use a lookup texture.
 Might be faster on some cards.
-.br
-4: Use experimental unsharp masking with 3x3 support and a default strength of 0.5 (see filter-strength).
-.br
-5: Use experimental unsharp masking with 5x5 support and a default strength of 0.5 (see filter-strength).
+.IPs 4
+Use experimental unsharp masking with 3x3 support and a default strength of 0.5 (see filter-strength).
+.IPs 5
+Use experimental unsharp masking with 5x5 support and a default strength of 0.5 (see filter-strength).
 .RE
 .IPs cscale=<n>
 Select the scaling function to use for chrominance scaling.
 For details see lscale.
 .IPs filter-strength=<value>
 Set the effect strength for the lscale/cscale filters that support it.
+.IPs noise-strength=<value>
+Set how much noise to add. 0 to disable (default), 1.0 for level suitable
+for dithering to 6 bit.
 .IPs stereo=<value>
 Select a method for stereo display.
-You may have to use -aspect to fix the aspect value.
+You may have to use \-aspect to fix the aspect value.
+Add 32 to swap left and right side.
 Experimental, do not expect too much from it.
 .RSss
-0: Normal 2D display
-.br
-1: left-right split input to full-color red-cyan stereo.
-.br
-2: left-right split input to full-color red-cyan stereo.
-.br
-3: left-right split input to quadbuffered stereo.
+.IPs 0
+normal 2D display
+.IPs 1
+Convert side by side input to full-color red-cyan stereo.
+.IPs 2
+Convert side by side input to full-color green-magenta stereo.
+.IPs 3
+Convert side by side input to quadbuffered stereo.
 Only supported by very few OpenGL cards.
 .RE
 .RE
@@ -5149,6 +5165,9 @@ Visualize motion vectors.
 .REss
 .IPs vstats
 Prints some statistics and stores them in ./vstats_*.log.
+.IPs wait_keyframe
+Wait for a keyframe before displaying anything.
+Avoids broken frames at startup or after seeking with some formats.
 .RE
 .
 .TP
@@ -6985,6 +7004,26 @@ drop the frame (default: 0.15).
 FFmpeg deinterlacing filter, same as \-vf pp=fd
 .
 .TP
+.B lavfi=filtergraph
+FFmpeg libavfilter wrapper.
+\fIfiltergraph\fR defines a whole libavfilter graph with one input and one output.
+See http://www.ffmpeg.org/\:libavfilter.html#SEC4 for details.
+.sp 1
+As a special case, if \fIfiltergraph\fR is \fB$\fIword\fR then the value of
+the \fIword\fR environment variable is used; this is necessary if commas are
+present in the graph description, as mplayer uses them as a delimiter
+between filters.
+.sp 1
+.I NOTE:
+This filter is considered experimental, it may interact strangely with other
+filters.
+.sp 1
+.I EXAMPLE:
+.br
+overlay="movie=$small_video, scale=160:120 [ca]; [in] [ca] overlay=16:8"
+mplayer -vf lavfi='$overlay' $big_video
+.
+.TP
 .B kerndeint[=thresh[:map[:order[:sharp[:twoway]]]]]
 Donald Graft's adaptive kernel deinterlacer.
 Deinterlaces parts of a video if a configurable threshold is exceeded.
@@ -7840,6 +7879,14 @@ side by side parallel (left eye left, right eye right)
 .B sbsr or side_by_side_right_first
 .RS
 side by side crosseye (right eye left, left eye right)
+.RE
+.B sbs2l or side_by_side_half_width_left_first
+.RS
+side by side with half width resolution (left eye left, right eye right)
+.RE
+.B sbs2r or side_by_side_half_width_right_first
+.RS
+side by side with half width resolution (right eye left, left eye right)
 .RE
 .B abl or above_below_left_first
 .RS
@@ -10759,7 +10806,7 @@ Controls the decision performed by b_adapt.
 A higher b_bias produces more B-frames (default: 0).
 .
 .TP
-.B (no)b_pyramid
+.B b_pyramid=<normal|strict|none>
 Allows B-frames to be used as references for predicting other frames.
 For example, consider 3 consecutive B-frames: I0 B1 B2 B3 P4.
 Without this option, B-frames follow the same pattern as MPEG-[124].
@@ -10774,6 +10821,17 @@ However, this is an experimental option: it is not fully tuned and
 may not always help.
 Requires bframes >= 2.
 Disadvantage: increases decoding delay to 2 frames.
+.PD 0
+.RSs
+.IPs normal
+Allow B-frames as references as described above (not Blu-ray compatible).
+.IPs strict
+Disallow P-frames referencing B-frames. Gives worse compression, but is
+required for Blu-ray compatibility.
+.IPs "none\ "
+Disable using B-frames as references.
+.RE
+.PD 1
 .
 .TP
 .B (no)deblock

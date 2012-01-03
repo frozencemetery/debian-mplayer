@@ -19,11 +19,15 @@
 #ifndef MPLAYER_GUI_BITMAP_H
 #define MPLAYER_GUI_BITMAP_H
 
-#define MP_TRANSPARENT 0xffff00ff   // transparent color (opaque fuchsia/magenta)
-#define ALPHA_OPAQUE   0xff000000
+/**
+ * @def GUI_TRANSPARENT
+ * transparent color (opaque fuchsia/magenta)
+ */
+#define GUI_TRANSPARENT 0xffff00ff
+#define ALPHA_OPAQUE    0xff000000
 
 // for legacy reasons, we must treat all kind of fuchsia/magenta as transparent
-#define IS_TRANSPARENT(c) ((ALPHA_OPAQUE | (c)) == MP_TRANSPARENT)
+#define IS_TRANSPARENT(c) ((ALPHA_OPAQUE | (c)) == GUI_TRANSPARENT)
 
 typedef struct {
     unsigned long Width;
@@ -33,8 +37,8 @@ typedef struct {
     char *Image;
 } guiImage;
 
-void bpFree(guiImage *bf);
-int bpRead(char *fname, guiImage *bf);
-int bpRenderMask(guiImage *in, guiImage *out);
+void bpFree(guiImage *img);
+int bpRead(const char *fname, guiImage *img);
+int bpRenderMask(const guiImage *in, guiImage *out);
 
 #endif /* MPLAYER_GUI_BITMAP_H */

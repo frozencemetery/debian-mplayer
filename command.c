@@ -28,6 +28,7 @@
 #include "libmpdemux/demuxer.h"
 #include "libmpdemux/stheader.h"
 #include "codec-cfg.h"
+#include "mp_msg.h"
 #include "mplayer.h"
 #include "sub/sub.h"
 #include "m_option.h"
@@ -214,7 +215,7 @@ static void log_sub(void)
 }
 
 
-/// \defgroup Properties
+/// \defgroup properties Properties
 ///@{
 
 /// \defgroup GeneralProperties General properties
@@ -512,6 +513,17 @@ static int mp_property_chapter(m_option_t *prop, int action, void *arg,
                     MSGTR_OSDChapter, 0, MSGTR_Unknown);
     free(chapter_name);
     return M_PROPERTY_OK;
+}
+
+/// Number of titles in file
+static int mp_property_titles(m_option_t *prop, int action, void *arg,
+                              MPContext *mpctx)
+{
+    if (!mpctx->demuxer)
+        return M_PROPERTY_UNAVAILABLE;
+    if (mpctx->demuxer->num_titles == 0)
+        stream_control(mpctx->demuxer->stream, STREAM_CTRL_GET_NUM_TITLES, &mpctx->demuxer->num_titles);
+    return m_property_int_ro(prop, action, arg, mpctx->demuxer->num_titles);
 }
 
 /// Number of chapters in file
@@ -1075,7 +1087,7 @@ static int mp_property_fullscreen(m_option_t *prop, int action, void *arg,
     case M_PROPERTY_STEP_DOWN:
 #ifdef CONFIG_GUI
         if (use_gui)
-            guiGetEvent(guiIEvent, (char *) MP_CMD_VO_FULLSCREEN);
+            gui(GUI_RUN_COMMAND, (void *) MP_CMD_VO_FULLSCREEN);
         else
 #endif
         if (vo_config_count)
@@ -2141,6 +2153,8 @@ static const m_option_t mp_properties[] = {
      M_OPT_MIN, 0, 0, NULL },
     { "chapter", mp_property_chapter, CONF_TYPE_INT,
      M_OPT_MIN, 0, 0, NULL },
+    { "titles", mp_property_titles, CONF_TYPE_INT,
+     0, 0, 0, NULL },
     { "chapters", mp_property_chapters, CONF_TYPE_INT,
      0, 0, 0, NULL },
     { "angle", mp_property_angle, CONF_TYPE_INT,
@@ -2495,6 +2509,7 @@ static const char *property_error_string(int error_value)
     }
     return "UNKNOWN";
 }
+///@}
 
 static void remove_subtitle_range(MPContext *mpctx, int start, int count)
 {
@@ -2558,7 +2573,7 @@ static struct mp_eosd_source overlay_source = {
 static void overlay_add(char *file, int id, int x, int y, unsigned col)
 {
     FILE *f;
-    unsigned w, h, bpp, maxval;
+    int w, h, bpp, maxval;
     uint8_t *data;
     struct mp_eosd_image *img;
 
@@ -2801,10 +2816,10 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
                     int i = 0;
                     if (n > 0)
                         for (i = 0; i < n; i++)
-                            uiNext();
+                            gui(GUI_RUN_COMMAND, (void *)MP_CMD_PLAY_TREE_STEP);
                     else
                         for (i = 0; i < -1 * n; i++)
-                            uiPrev();
+                            gui(GUI_RUN_COMMAND, (void *)-MP_CMD_PLAY_TREE_STEP);
                 } else
 #endif
                 {
@@ -2966,7 +2981,7 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
 #ifdef CONFIG_GUI
             // playtree_iter isn't used by the GUI
             if (use_gui)
-                uiStop();
+                gui(GUI_RUN_COMMAND, (void *)MP_CMD_STOP);
             else
 #endif
             // Go back to the starting point.
@@ -3509,6 +3524,11 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
         break;
 
         default:
+#ifdef CONFIG_GUI
+                if (use_gui && cmd->id == MP_CMD_GUI)
+                    gui(GUI_RUN_MESSAGE, cmd->args[0].v.s);
+                else
+#endif
                 mp_msg(MSGT_CPLAYER, MSGL_V,
                        "Received unknown cmd %s\n", cmd->name);
         }

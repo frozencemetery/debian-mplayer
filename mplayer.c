@@ -145,24 +145,6 @@ int enable_mouse_movements;
 float start_volume = -1;
 double start_pts   = MP_NOPTS_VALUE;
 char *heartbeat_cmd;
-
-m_config_t *mconfig;
-
-//**************************************************************************//
-//             Config file
-//**************************************************************************//
-
-static int cfg_inc_verbose(m_option_t *conf)
-{
-    ++verbose;
-    return 0;
-}
-
-static int cfg_include(m_option_t *conf, const char *filename)
-{
-    return m_config_parse_config_file(mconfig, filename);
-}
-
 static int max_framesize;
 
 int noconsolecontrols;
@@ -584,7 +566,7 @@ void uninit_player(unsigned int mask)
             uninit_audio(mpctx->sh_audio);
 #ifdef CONFIG_GUI
         if (use_gui)
-            guiGetEvent(guiSetAfilter, (char *)NULL);
+            gui(GUI_SET_AFILTER, NULL);
 #endif
         mpctx->sh_audio      = NULL;
         mpctx->mixer.afilter = NULL;
@@ -877,7 +859,7 @@ static void parse_cfgfiles(m_config_t *conf)
     char *conffile;
     int conffile_fd;
     if (!disable_system_conf &&
-        m_config_parse_config_file(conf, MPLAYER_CONFDIR "/mplayer.conf") < 0)
+        m_config_parse_config_file(conf, MPLAYER_CONFDIR "/mplayer.conf", 1) < 0)
         exit_player(EXIT_NONE);
     if ((conffile = get_path("")) == NULL) {
         mp_msg(MSGT_CPLAYER, MSGL_WARN, MSGTR_NoHomeDir);
@@ -897,7 +879,7 @@ static void parse_cfgfiles(m_config_t *conf)
                 close(conffile_fd);
             }
             if (!disable_user_conf &&
-                m_config_parse_config_file(conf, conffile) < 0)
+                m_config_parse_config_file(conf, conffile, 1) < 0)
                 exit_player(EXIT_NONE);
             free(conffile);
         }
@@ -974,7 +956,7 @@ static int try_load_config(m_config_t *conf, const char *file)
     if (stat(file, &st))
         return 0;
     mp_msg(MSGT_CPLAYER, MSGL_INFO, MSGTR_LoadingConfig, file);
-    m_config_parse_config_file(conf, file);
+    m_config_parse_config_file(conf, file, 0);
     return 1;
 }
 
@@ -1006,6 +988,17 @@ static void load_per_file_config(m_config_t *conf, const char *const file)
 
         free(confpath);
     }
+}
+
+static int load_profile_config(m_config_t *conf, const char *const file)
+{
+    if (file) {
+        load_per_protocol_config(conf, file);
+        load_per_extension_config(conf, file);
+        load_per_file_config(conf, file);
+    }
+
+    return file != NULL;
 }
 
 /* When libmpdemux performs a blocking operation (network connection or
@@ -1042,7 +1035,7 @@ static int playtree_add_playlist(play_tree_t *entry)
 #ifdef CONFIG_GUI
     if (use_gui) {
         if (entry) {
-            import_playtree_playlist_into_gui(entry, mconfig);
+            guiPlaylistAdd(entry, mconfig);
             play_tree_free_list(entry, 1);
         }
     } else
@@ -1334,7 +1327,7 @@ static int build_afilter_chain(sh_audio_t *sh_audio, ao_data_t *ao_data)
     if (!sh_audio) {
 #ifdef CONFIG_GUI
         if (use_gui)
-            guiGetEvent(guiSetAfilter, (char *)NULL);
+            gui(GUI_SET_AFILTER, NULL);
 #endif
         mpctx->mixer.afilter = NULL;
         return 0;
@@ -1359,7 +1352,7 @@ static int build_afilter_chain(sh_audio_t *sh_audio, ao_data_t *ao_data)
     mpctx->mixer.afilter = sh_audio->afilter;
 #ifdef CONFIG_GUI
     if (use_gui)
-        guiGetEvent(guiSetAfilter, (char *)sh_audio->afilter);
+        gui(GUI_SET_AFILTER, sh_audio->afilter);
 #endif
     return result;
 }
@@ -1591,7 +1584,8 @@ static void update_osd_msg(void)
             int percentage = -1;
             char percentage_text[10];
             char fractions_text[4];
-            int pts = demuxer_get_current_time(mpctx->demuxer);
+            double pts = demuxer_get_current_time(mpctx->demuxer);
+            int pts_seconds = pts;
 
             if (mpctx->osd_show_percentage)
                 percentage = demuxer_get_percent_pos(mpctx->demuxer);
@@ -1604,8 +1598,7 @@ static void update_osd_msg(void)
             if (osd_fractions == 1) {
                 // print fractions as sub-second timestamp
                 snprintf(fractions_text, sizeof(fractions_text), ".%02d",
-                         (int)((mpctx->sh_video->pts - pts) * 100 + 0.5)
-                         % 100);
+                         (int)((pts - pts_seconds) * 100) % 100);
             } else if (osd_fractions == 2) {
                 // print fractions by estimating the frame count within the
                 // second
@@ -1616,7 +1609,7 @@ static void update_osd_msg(void)
                 // we add 0.2 and cut off at the decimal point, which proved
                 // as good heuristic
                 snprintf(fractions_text, sizeof(fractions_text), ".%02d",
-                         (int)((mpctx->sh_video->pts - pts) *
+                         (int)((pts - pts_seconds) *
                                mpctx->sh_video->fps + 0.2));
             } else {
                 // do not print fractions
@@ -1626,13 +1619,13 @@ static void update_osd_msg(void)
             if (osd_level == 3)
                 snprintf(osd_text_timer, 63,
                          "%c %02d:%02d:%02d%s / %02d:%02d:%02d%s",
-                         mpctx->osd_function, pts / 3600, (pts / 60) % 60, pts % 60,
+                         mpctx->osd_function, pts_seconds / 3600, (pts_seconds / 60) % 60, pts_seconds % 60,
                          fractions_text, len / 3600, (len / 60) % 60, len % 60,
                          percentage_text);
             else
                 snprintf(osd_text_timer, 63, "%c %02d:%02d:%02d%s%s",
-                         mpctx->osd_function, pts / 3600, (pts / 60) % 60,
-                         pts % 60, fractions_text, percentage_text);
+                         mpctx->osd_function, pts_seconds / 3600, (pts_seconds / 60) % 60,
+                         pts_seconds % 60, fractions_text, percentage_text);
         } else
             osd_text_timer[0] = 0;
 
@@ -2038,9 +2031,9 @@ static void mp_dvdnav_save_smpi(int in_size,
     mpctx->nav_in_size = -1;
 
     if (in_size > 0)
-    mpctx->nav_buffer  = malloc(in_size);
+        mpctx->nav_buffer = malloc(in_size);
     if (mpctx->nav_buffer) {
-    mpctx->nav_start   = start;
+        mpctx->nav_start   = start;
         mpctx->nav_in_size = in_size;
         memcpy(mpctx->nav_buffer, start, in_size);
     }
@@ -2447,29 +2440,6 @@ static double update_video(int *blit_frame)
 
             if (full_frame) {
                 sh_video->timer += frame_time;
-
-                // Time-based PTS recalculation.
-                // The key to maintaining A-V sync is to not touch PTS until the proper frame is reached
-                if (sh_video->pts != MP_NOPTS_VALUE) {
-                    if (sh_video->last_pts != MP_NOPTS_VALUE) {
-                        double pts     = sh_video->last_pts + frame_time;
-                        double ptsdiff = fabs(pts - sh_video->pts);
-
-                        // Allow starting PTS recalculation at the appropriate frame only
-                        mpctx->framestep_found |= (ptsdiff <= frame_time * 1.5);
-
-                        // replace PTS only if we're not too close and not too far
-                        // and a correctly timed frame has been found, otherwise
-                        // keep pts to eliminate rounding errors or catch up with stream
-                        if (ptsdiff > frame_time * 20)
-                            mpctx->framestep_found = 0;
-                        if (ptsdiff * 10 > frame_time && mpctx->framestep_found)
-                            sh_video->pts = pts;
-                        else
-                            mp_dbg(MSGT_AVSYNC, MSGL_DBG2, "Keeping PTS at %6.2f\n", sh_video->pts);
-                    }
-                    sh_video->last_pts = sh_video->pts;
-                }
                 if (mpctx->sh_audio)
                     mpctx->delay -= frame_time;
                 // video_read_frame can change fps (e.g. for ASF video)
@@ -2537,7 +2507,7 @@ static void pause_loop(void)
     }
 #ifdef CONFIG_GUI
     if (use_gui)
-        guiGetEvent(guiSetState, (void *)GUI_PAUSE);
+        gui(GUI_SET_STATE, (void *)GUI_PAUSE);
 #endif
     if (mpctx->video_out && mpctx->sh_video && vo_config_count)
         mpctx->video_out->control(VOCTRL_PAUSE, NULL);
@@ -2556,8 +2526,8 @@ static void pause_loop(void)
             mpctx->video_out->check_events();
 #ifdef CONFIG_GUI
         if (use_gui) {
-            guiEventHandling();
-            guiGetEvent(guiReDraw, NULL);
+            gui(GUI_HANDLE_EVENTS, 0);
+            gui(GUI_REDRAW, 0);
             if (guiInfo.Playing != GUI_PAUSE || (rel_seek_secs || abs_seek_pos))
                 break;
         }
@@ -2604,7 +2574,7 @@ static void pause_loop(void)
         if (guiInfo.Playing == GUI_STOP)
             mpctx->eof = 1;
         else
-            guiGetEvent(guiSetState, (void *)GUI_PLAY);
+            gui(GUI_SET_STATE, (void *)GUI_PLAY);
     }
 #endif
 }
@@ -2713,7 +2683,6 @@ static int seek(MPContext *mpctx, double amount, int style)
         mpctx->num_buffered_frames = 0;
         mpctx->delay           = 0;
         mpctx->time_frame      = 0;
-        mpctx->framestep_found = 0;
         // Not all demuxers set d_video->pts during seek, so this value
         // (which is used by at least vobsub and edl code below) may
         // be completely wrong (probably 0).
@@ -2761,9 +2730,8 @@ static int seek(MPContext *mpctx, double amount, int style)
 int main(int argc, char *argv[])
 {
     int opt_exit = 0; // Flag indicating whether MPlayer should exit without playing anything.
+    int profile_config_loaded;
     int i;
-
-    int gui_no_filename = 0;
 
     common_preinit();
 
@@ -2845,7 +2813,7 @@ int main(int argc, char *argv[])
 #endif
     if (use_gui && mpctx->playtree_iter) {
         char cwd[PATH_MAX + 2];
-        // Free Playtree and Playtree-Iter as it's not used by the GUI.
+        // Free playtree_iter as it's not used in connection with the GUI.
         play_tree_iter_free(mpctx->playtree_iter);
         mpctx->playtree_iter = NULL;
 
@@ -2855,7 +2823,7 @@ int main(int argc, char *argv[])
             play_tree_add_bpf(mpctx->playtree, cwd);
         }
         // Import initital playtree into GUI.
-        import_initial_playtree_into_gui(mpctx->playtree, mconfig, enqueue);
+        guiPlaylistInitialize(mpctx->playtree, mconfig, enqueue);
     }
 #endif /* CONFIG_GUI */
 
@@ -2920,14 +2888,10 @@ int main(int argc, char *argv[])
     if (opt_exit)
         exit_player(EXIT_NONE);
 
-    if (!filename) {
-        if (use_gui)
-            gui_no_filename = 1;
-        else if (!player_idle_mode) {
-            // no file/vcd/dvd -> show HELP:
-            mp_msg(MSGT_CPLAYER, MSGL_INFO, help_text);
-            exit_player_with_rc(EXIT_NONE, 0);
-        }
+    if (!filename && !player_idle_mode && !use_gui) {
+        // no file/vcd/dvd -> show HELP:
+        mp_msg(MSGT_CPLAYER, MSGL_INFO, help_text);
+        exit_player_with_rc(EXIT_NONE, 0);
     }
 
     /* Display what configure line was used */
@@ -2935,7 +2899,7 @@ int main(int argc, char *argv[])
 
     // Many users forget to include command line in bugreports...
     if (mp_msg_test(MSGT_CPLAYER, MSGL_V)) {
-        mp_msg(MSGT_CPLAYER, MSGL_INFO, MSGTR_CommandLine);
+        mp_msg(MSGT_CPLAYER, MSGL_INFO, "CommandLine:");
         for (i = 1; i < argc; i++)
             mp_msg(MSGT_CPLAYER, MSGL_INFO, " '%s'", argv[i]);
         mp_msg(MSGT_CPLAYER, MSGL_INFO, "\n");
@@ -2963,7 +2927,7 @@ int main(int argc, char *argv[])
                 close(rtc_fd);
                 rtc_fd = -1;
             } else
-                mp_msg(MSGT_CPLAYER, MSGL_V, MSGTR_UsingRTCTiming, irqp);
+                mp_msg(MSGT_CPLAYER, MSGL_V, "Using Linux hardware RTC timing (%ldHz).\n", irqp);
         }
     }
 #ifdef CONFIG_GUI
@@ -2998,16 +2962,16 @@ int main(int argc, char *argv[])
 #ifdef CONFIG_MENU
     if (use_menu) {
         if (menu_cfg && menu_init(mpctx, menu_cfg))
-            mp_msg(MSGT_CPLAYER, MSGL_V, MSGTR_MenuInitialized, menu_cfg);
+            mp_msg(MSGT_CPLAYER, MSGL_V, "Menu initialized: %s\n", menu_cfg);
         else {
             menu_cfg = get_path("menu.conf");
             if (menu_init(mpctx, menu_cfg))
-                mp_msg(MSGT_CPLAYER, MSGL_V, MSGTR_MenuInitialized, menu_cfg);
+                mp_msg(MSGT_CPLAYER, MSGL_V, "Menu initialized: %s\n", menu_cfg);
             else {
                 if (menu_init(mpctx, MPLAYER_CONFDIR "/menu.conf"))
-                    mp_msg(MSGT_CPLAYER, MSGL_V, MSGTR_MenuInitialized, MPLAYER_CONFDIR "/menu.conf");
+                    mp_msg(MSGT_CPLAYER, MSGL_V,  "Menu initialized: %s\n", MPLAYER_CONFDIR "/menu.conf");
                 else {
-                    mp_msg(MSGT_CPLAYER, MSGL_ERR, MSGTR_MenuInitFailed);
+                    mp_msg(MSGT_CPLAYER, MSGL_ERR, "Menu init failed.\n");
                     use_menu = 0;
                 }
             }
@@ -3038,7 +3002,9 @@ int main(int argc, char *argv[])
 #ifdef CONFIG_SIGHANDLER
     // fatal errors:
     signal(SIGBUS, exit_sighandler); // bus error
+#ifndef __WINE__                      // hack: the Wine executable will crash else
     signal(SIGSEGV, exit_sighandler); // segfault
+#endif
     signal(SIGILL, exit_sighandler); // illegal instruction
     signal(SIGFPE, exit_sighandler); // floating point exc.
     signal(SIGABRT, exit_sighandler); // abort()
@@ -3051,8 +3017,8 @@ int main(int argc, char *argv[])
 #ifdef CONFIG_GUI
     if (use_gui) {
         guiInit();
-        guiGetEvent(guiSetContext, mpctx);
-        guiGetEvent(guiSetState, (void *)((gui_no_filename) ? GUI_STOP : GUI_PLAY));
+        gui(GUI_SET_CONTEXT, mpctx);
+        gui(GUI_SET_STATE, (void *)(filename ? GUI_PLAY : GUI_STOP));
     }
 #endif
 
@@ -3064,11 +3030,7 @@ play_next_file:
     mpctx->global_sub_size = 0;
     memset(mpctx->sub_counts, 0, sizeof(mpctx->sub_counts));
 
-    if (filename) {
-        load_per_protocol_config(mconfig, filename);
-        load_per_extension_config(mconfig, filename);
-        load_per_file_config(mconfig, filename);
-    }
+    profile_config_loaded = load_profile_config(mconfig, filename);
 
     if (video_driver_list)
         load_per_output_config(mconfig, PROFILE_CFG_VO, video_driver_list[0]);
@@ -3090,37 +3052,20 @@ play_next_file:
 #ifdef CONFIG_GUI
     if (use_gui) {
         mpctx->file_format = DEMUXER_TYPE_UNKNOWN;
-        guiGetEvent(guiSetDefaults, 0);
         while (guiInfo.Playing != GUI_PLAY) {
             mp_cmd_t *cmd;
             usec_sleep(20000);
-            guiEventHandling();
-            guiGetEvent(guiReDraw, NULL);
+            gui(GUI_HANDLE_EVENTS, 0);
+            gui(GUI_REDRAW, 0);
             if ((cmd = mp_input_get_cmd(0, 0, 0)) != NULL) {
-                guiGetEvent(guiIEvent, (char *)cmd->id);
+                if (cmd->id == MP_CMD_GUI)
+                    gui(GUI_RUN_MESSAGE, cmd->args[0].v.s);
+                else
+                    gui(GUI_RUN_COMMAND, (void *)cmd->id);
                 mp_cmd_free(cmd);
             }
         }
-        guiGetEvent(guiSetParameters, NULL);
-        if (guiInfo.StreamType == STREAMTYPE_STREAM) {
-            play_tree_t *entry = play_tree_new();
-            play_tree_add_file(entry, guiInfo.Filename);
-            if (mpctx->playtree)
-                play_tree_free_list(mpctx->playtree->child, 1);
-            else
-                mpctx->playtree = play_tree_new();
-            play_tree_set_child(mpctx->playtree, entry);
-            if (mpctx->playtree) {
-                mpctx->playtree_iter = play_tree_iter_new(mpctx->playtree, mconfig);
-                if (mpctx->playtree_iter) {
-                    if (play_tree_iter_step(mpctx->playtree_iter, 0, 0) != PLAY_TREE_ITER_ENTRY) {
-                        play_tree_iter_free(mpctx->playtree_iter);
-                        mpctx->playtree_iter = NULL;
-                    }
-                    filename = play_tree_iter_get_file(mpctx->playtree_iter, 1);
-                }
-            }
-        }
+        gui(GUI_PREPARE, 0);
     }
 #endif /* CONFIG_GUI */
 
@@ -3183,6 +3128,8 @@ play_next_file:
             filename = play_tree_iter_get_file(mpctx->playtree_iter, 1);
         }
     }
+
+    if (!profile_config_loaded) load_profile_config(mconfig, filename);
 //---------------------------------------------------------------------------
 
     if (mpctx->video_out && vo_config_count)
@@ -3244,7 +3191,7 @@ play_next_file:
 
 #ifdef CONFIG_GUI
     if (use_gui)
-        guiGetEvent(guiSetStream, (char *)mpctx->stream);
+        gui(GUI_SET_STREAM, mpctx->stream);
 #endif
 
     if (mpctx->file_format == DEMUXER_TYPE_PLAYLIST) {
@@ -3620,7 +3567,6 @@ goto_enable_cache:
 
     {
         mpctx->num_buffered_frames = 0;
-        mpctx->framestep_found     = 0;
 
         // Make sure old OSD does not stay around,
         // e.g. with -fixed-vo and same-resolution files
@@ -3677,18 +3623,9 @@ goto_enable_cache:
 
 #ifdef CONFIG_GUI
         if (use_gui) {
-            if (mpctx->sh_audio)
-                guiInfo.AudioType = mpctx->sh_audio->channels;
-            else
-                guiInfo.AudioType = 0;
-            if (!mpctx->sh_video && mpctx->sh_audio)
-                guiGetEvent(guiSetAudioOnly, (char *)1);
-            else
-                guiGetEvent(guiSetAudioOnly, (char *)0);
-            guiGetEvent(guiSetFileFormat, (char *)mpctx->demuxer->file_format);
-            if (guiGetEvent(guiSetValues, (char *)mpctx->sh_video))
+            if (!gui(GUI_SET_VIDEO, mpctx->sh_video))
                 goto goto_next_file;
-            guiGetEvent(guiSetDemuxer, (char *)mpctx->demuxer);
+            gui(GUI_SET_AUDIO, mpctx->sh_audio);
         }
 #endif
 
@@ -3821,7 +3758,7 @@ goto_enable_cache:
 
 #ifdef CONFIG_GUI
                 if (use_gui)
-                    guiEventHandling();
+                    gui(GUI_HANDLE_EVENTS, 0);
 #endif
 
                 current_module = "vo_check_events";
@@ -3992,7 +3929,7 @@ goto_enable_cache:
 
 #ifdef CONFIG_GUI
             if (use_gui) {
-                guiEventHandling();
+                gui(GUI_HANDLE_EVENTS, 0);
                 if (mpctx->demuxer->file_format == DEMUXER_TYPE_AVI && mpctx->sh_video && mpctx->sh_video->video.dwLength > 2) {
                     // get pos from frame number / total frames
                     guiInfo.Position = (float)mpctx->d_video->pack_no * 100.0f / mpctx->sh_video->video.dwLength;
@@ -4000,22 +3937,22 @@ goto_enable_cache:
                     guiInfo.Position = demuxer_get_percent_pos(mpctx->demuxer);
                 }
                 if (mpctx->sh_video)
-                    guiInfo.TimeSec = mpctx->sh_video->pts;
+                    guiInfo.ElapsedTime = mpctx->sh_video->pts;
                 else if (mpctx->sh_audio)
-                    guiInfo.TimeSec = playing_audio_pts(mpctx->sh_audio, mpctx->d_audio, mpctx->audio_out);
-                guiInfo.LengthInSec = demuxer_get_time_length(mpctx->demuxer);
-                guiGetEvent(guiReDraw, NULL);
-                guiGetEvent(guiSetVolume, NULL);
+                    guiInfo.ElapsedTime = playing_audio_pts(mpctx->sh_audio, mpctx->d_audio, mpctx->audio_out);
+                guiInfo.RunningTime = demuxer_get_time_length(mpctx->demuxer);
+                gui(GUI_SET_MIXER, 0);
+                gui(GUI_REDRAW, 0);
                 if (guiInfo.Playing == GUI_STOP)
                     break;                  // STOP
                 if (guiInfo.Playing == GUI_PAUSE)
                     mpctx->osd_function = OSD_PAUSE;
-                if (guiInfo.DiskChanged || guiInfo.NewPlay)
+                if (guiInfo.NewPlay)
                     goto goto_next_file;
 #ifdef CONFIG_DVDREAD
                 if (mpctx->stream->type == STREAMTYPE_DVD) {
                     dvd_priv_t *dvdp = mpctx->stream->priv;
-                    guiInfo.DVD.current_chapter = dvd_chapter_from_cell(dvdp, guiInfo.DVD.current_title - 1, dvdp->cur_cell) + 1;
+                    guiInfo.Chapter = dvd_chapter_from_cell(dvdp, guiInfo.Track - 1, dvdp->cur_cell) + 1;
                 }
 #endif
             }
@@ -4108,20 +4045,17 @@ goto_next_file:  // don't jump here after ao/vo/getch initialization!
     }
 
 #ifdef CONFIG_GUI
-    if (use_gui && !mpctx->playtree_iter) {
-#ifdef CONFIG_DVDREAD
-        if (!guiInfo.DiskChanged)
-#endif
-        uiEnd();
-    }
+    if (use_gui)
+        if (guiInfo.NewPlay != GUI_FILE_SAME)
+            gui(GUI_END_FILE, 0);
 #endif
 
     if (
 #ifdef CONFIG_GUI
         (use_gui && guiInfo.Playing) ||
 #endif
-                                              mpctx->playtree_iter != NULL || player_idle_mode) {
-        if (!mpctx->playtree_iter)
+                                        mpctx->playtree_iter != NULL || player_idle_mode) {
+        if (!mpctx->playtree_iter && !use_gui)
             filename = NULL;
         mpctx->eof = 0;
         goto play_next_file;

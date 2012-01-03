@@ -27,11 +27,16 @@
 #include "config.h"
 #include "gmplayer.h"
 #include "gui/app.h"
+#include "gui/interface.h"
 #include "gui/skin/font.h"
 #include "gui/skin/skin.h"
+#include "gui/util/list.h"
+#include "gui/util/mem.h"
+#include "gui/util/string.h"
 #include "gui/wm/ws.h"
 
 #include "help_mp.h"
+#include "mp_msg.h"
 #include "libvo/x11_common.h"
 #include "libvo/fastmemcpy.h"
 #include "libvo/wskeys.h"
@@ -50,6 +55,11 @@
 #include "m_property.h"
 #include "mp_core.h"
 #include "mpcommon.h"
+
+#define CLEAR_FILE 1
+#define CLEAR_VCD  2
+#define CLEAR_DVD  4
+#define CLEAR_ALL  (CLEAR_FILE + CLEAR_VCD + CLEAR_DVD)
 
 #define GUI_REDRAW_WAIT 375
 
@@ -75,7 +85,7 @@ int             i,pot = 0;
 void uiMainDraw( void )
 {
 
- if ( guiApp.mainWindow.State == wsWindowClosed ) guiExit( EXIT_QUIT );
+ if ( guiApp.mainWindow.State == wsWindowClosed ) mplayer( MPLAYER_EXIT_GUI, EXIT_QUIT, 0 );
 
  if ( guiApp.mainWindow.Visible == wsWindowNotVisible ||
       !mainVisible ) return;
@@ -94,6 +104,32 @@ void uiMainDraw( void )
 // XFlush( wsDisplay );
 }
 
+static void guiInfoMediumClear (int what)
+{
+  if (what & CLEAR_FILE)
+  {
+    nfree(guiInfo.Filename);
+    nfree(guiInfo.SubtitleFilename);
+    nfree(guiInfo.AudioFilename);
+    listSet(gtkDelPl, NULL);
+  }
+
+#ifdef CONFIG_VCD
+  if (what & CLEAR_VCD) guiInfo.Tracks = 0;
+#endif
+
+#ifdef CONFIG_DVDREAD
+  if (what & CLEAR_DVD)
+  {
+    guiInfo.AudioStreams = 0;
+    guiInfo.Subtitles = 0;
+    guiInfo.Tracks = 0;
+    guiInfo.Chapters = 0;
+    guiInfo.Angles = 0;
+  }
+#endif
+}
+
 static unsigned last_redraw_time = 0;
 
 void uiEventHandling( int msg,float param )
@@ -105,47 +141,50 @@ void uiEventHandling( int msg,float param )
   {
 // --- user events
    case evExit:
-        guiExit( EXIT_QUIT );
+        mplayer( MPLAYER_EXIT_GUI, EXIT_QUIT, 0 );
         break;
 
-   case evPlayNetwork:
-        gfree( (void **)&guiInfo.Subtitlename );
-	gfree( (void **)&guiInfo.AudioFile );
-	guiInfo.StreamType=STREAMTYPE_STREAM;
-        goto play;
-   case evSetURL:
-        gtkShow( evPlayNetwork,NULL );
+   case evLoadURL:
+        gtkShow( evLoadURL,NULL );
 	break;
 
-   case evSetAudio:
-        if ( !guiInfo.demuxer || audio_id == iparam ) break;
+   case ivSetAudio:
+        if ( !mpctx_get_demuxer(guiInfo.mpcontext) || audio_id == iparam ) break;
 	audio_id=iparam;
 	goto play;
 
-   case evSetVideo:
-        if ( !guiInfo.demuxer || video_id == iparam ) break;
+   case ivSetVideo:
+        if ( !mpctx_get_demuxer(guiInfo.mpcontext) || video_id == iparam ) break;
 	video_id=iparam;
 	goto play;
 
-   case evSetSubtitle:
+   case ivSetSubtitle:
         mp_property_do("sub",M_PROPERTY_SET,&iparam,guiInfo.mpcontext);
 	break;
 
+#ifdef CONFIG_CDDA
+   case ivSetCDTrack:
+        guiInfo.Track=iparam;
+   case evPlayCD:
+ 	guiInfoMediumClear ( CLEAR_ALL );
+	guiInfo.StreamType=STREAMTYPE_CDDA;
+	goto play;
+#endif
 #ifdef CONFIG_VCD
-   case evSetVCDTrack:
+   case ivSetVCDTrack:
         guiInfo.Track=iparam;
    case evPlayVCD:
- 	gtkSet( gtkClearStruct,0,(void *)guiALL );
+ 	guiInfoMediumClear ( CLEAR_ALL );
 	guiInfo.StreamType=STREAMTYPE_VCD;
 	goto play;
 #endif
 #ifdef CONFIG_DVDREAD
    case evPlayDVD:
-        guiInfo.DVD.current_title=1;
-        guiInfo.DVD.current_chapter=1;
-        guiInfo.DVD.current_angle=1;
+        guiInfo.Track=1;
+        guiInfo.Chapter=1;
+        guiInfo.Angle=1;
 play_dvd_2:
- 	gtkSet( gtkClearStruct,0,(void *)(guiALL - guiDVD) );
+ 	guiInfoMediumClear( CLEAR_ALL - CLEAR_DVD );
         guiInfo.StreamType=STREAMTYPE_DVD;
 	goto play;
 #endif
@@ -155,67 +194,73 @@ play:
 
         if ( ( msg == evPlaySwitchToPause )&&( guiInfo.Playing == GUI_PAUSE ) ) goto NoPause;
 
-	if ( gtkSet( gtkGetCurrPlItem,0,NULL ) &&( guiInfo.StreamType == STREAMTYPE_FILE ) )
+	if ( listSet( gtkGetCurrPlItem,NULL ) &&( guiInfo.StreamType == STREAMTYPE_FILE ) )
 	 {
-	  plItem * next = gtkSet( gtkGetCurrPlItem,0,NULL );
+	  plItem * next = listSet( gtkGetCurrPlItem,NULL );
 	  plLastPlayed=next;
-	  uiSetFileName( next->path,next->name,STREAMTYPE_FILE );
+	  uiSetFileName( next->path,next->name,SAME_STREAMTYPE );
 	 }
 
         switch ( guiInfo.StreamType )
          {
-	  case STREAMTYPE_STREAM:
 	  case STREAMTYPE_FILE:
-	       gtkSet( gtkClearStruct,0,(void *)(guiALL - guiFilenames) );
+	  case STREAMTYPE_STREAM:
+	       guiInfoMediumClear( CLEAR_ALL - CLEAR_FILE );
+	       if ( !guiInfo.Track )
+	         guiInfo.Track=1;
+	       guiInfo.NewPlay=GUI_FILE_NEW;
 	       break;
-#ifdef CONFIG_VCD
-          case STREAMTYPE_VCD:
-	       gtkSet( gtkClearStruct,0,(void *)(guiALL - guiVCD - guiFilenames) );
-	       if ( !cdrom_device ) cdrom_device=gstrdup( DEFAULT_CDROM_DEVICE );
-	       uiSetFileName( NULL,cdrom_device,STREAMTYPE_VCD );
+#ifdef CONFIG_CDDA
+          case STREAMTYPE_CDDA:
+	       guiInfoMediumClear( CLEAR_ALL - CLEAR_VCD - CLEAR_FILE );
 	       if ( guiInfo.Playing != GUI_PAUSE )
 	        {
 		 if ( !guiInfo.Track )
                    guiInfo.Track=1;
-                 guiInfo.DiskChanged=1;
+                 guiInfo.NewPlay=GUI_FILE_SAME;
+		}
+	       break;
+#endif
+#ifdef CONFIG_VCD
+          case STREAMTYPE_VCD:
+	       guiInfoMediumClear( CLEAR_ALL - CLEAR_VCD - CLEAR_FILE );
+	       if ( guiInfo.Playing != GUI_PAUSE )
+	        {
+		 if ( !guiInfo.Track )
+                   guiInfo.Track=2;
+                 guiInfo.NewPlay=GUI_FILE_SAME;
 		}
 	       break;
 #endif
 #ifdef CONFIG_DVDREAD
           case STREAMTYPE_DVD:
-	       gtkSet( gtkClearStruct,0,(void *)(guiALL - guiDVD - guiFilenames) );
-	       if ( !dvd_device ) dvd_device=gstrdup( DEFAULT_DVD_DEVICE );
-	       uiSetFileName( NULL,dvd_device,STREAMTYPE_DVD );
+	       guiInfoMediumClear( CLEAR_ALL - CLEAR_DVD - CLEAR_FILE );
 	       if ( guiInfo.Playing != GUI_PAUSE )
 	        {
-		 guiInfo.Title=guiInfo.DVD.current_title;
-		 guiInfo.Chapter=guiInfo.DVD.current_chapter;
-		 guiInfo.Angle=guiInfo.DVD.current_angle;
-                 guiInfo.DiskChanged=1;
+                 guiInfo.NewPlay=GUI_FILE_SAME;
 		}
                break;
 #endif
          }
-	guiInfo.NewPlay=1;
         uiPlay();
         break;
 #ifdef CONFIG_DVDREAD
-   case evSetDVDSubtitle:
+   case ivSetDVDSubtitle:
         dvdsub_id=iparam;
         goto play_dvd_2;
         break;
-   case evSetDVDAudio:
+   case ivSetDVDAudio:
         audio_id=iparam;
         goto play_dvd_2;
         break;
-   case evSetDVDChapter:
-        guiInfo.DVD.current_chapter=iparam;
+   case ivSetDVDChapter:
+        guiInfo.Chapter=iparam;
         goto play_dvd_2;
         break;
-   case evSetDVDTitle:
-        guiInfo.DVD.current_title=iparam;
-	guiInfo.DVD.current_chapter=1;
-	guiInfo.DVD.current_angle=1;
+   case ivSetDVDTitle:
+        guiInfo.Track=iparam;
+	guiInfo.Chapter=1;
+	guiInfo.Angle=1;
         goto play_dvd_2;
         break;
 #endif
@@ -229,26 +274,25 @@ NoPause:
    case evStop:
 	guiInfo.Playing=GUI_STOP;
 	uiState();
-	guiInfo.NoWindow=False;
 	break;
 
    case evLoadPlay:
         uiMainAutoPlay=1;
 //	guiInfo.StreamType=STREAMTYPE_FILE;
    case evLoad:
-	gtkSet( gtkDelPl,0,NULL );
+	listSet( gtkDelPl,NULL );
         gtkShow( evLoad,NULL );
         break;
    case evLoadSubtitle:  gtkShow( evLoadSubtitle,NULL );  break;
    case evDropSubtitle:
-	gfree( (void **)&guiInfo.Subtitlename );
-	guiLoadSubtitle( NULL );
+	nfree( guiInfo.SubtitleFilename );
+	mplayerLoadSubtitle( NULL );
 	break;
    case evLoadAudioFile: gtkShow( evLoadAudioFile,NULL ); break;
    case evPrev: uiPrev(); break;
    case evNext: uiNext(); break;
 
-   case evPlayList:    gtkShow( evPlayList,NULL );        break;
+   case evPlaylist:    gtkShow( evPlaylist,NULL );        break;
    case evSkinBrowser: gtkShow( evSkinBrowser,skinName ); break;
    case evAbout:       gtkShow( evAbout,NULL );           break;
    case evPreferences: gtkShow( evPreferences,NULL );     break;
@@ -298,50 +342,51 @@ set_volume:
          }
         break;
    case evHalfSize:
-        btnSet( evFullScreen,btnReleased );
-        if ( guiInfo.Playing )
+        if ( guiInfo.VideoWindow && guiInfo.Playing )
          {
           if ( guiApp.subWindow.isFullScreen )
            {
             uiFullScreen();
            }
-          wsResizeWindow( &guiApp.subWindow, guiInfo.MovieWidth / 2, guiInfo.MovieHeight / 2 );
-          wsMoveWindow( &guiApp.subWindow, 0,
-                        ( wsMaxX - guiInfo.MovieWidth/2  )/2 + wsOrgX,
-                        ( wsMaxY - guiInfo.MovieHeight/2 )/2 + wsOrgY  );
+          wsResizeWindow( &guiApp.subWindow, guiInfo.VideoWidth / 2, guiInfo.VideoHeight / 2 );
+          wsMoveWindow( &guiApp.subWindow, False, guiApp.sub.x, guiApp.sub.y );
+          btnSet( evFullScreen,btnReleased );
          }
         break;
    case evDoubleSize:
-    	btnSet( evFullScreen,btnReleased );
-        if ( guiInfo.Playing )
+        if ( guiInfo.VideoWindow && guiInfo.Playing )
          {
           if ( guiApp.subWindow.isFullScreen )
            {
             uiFullScreen();
            }
-          wsResizeWindow( &guiApp.subWindow, guiInfo.MovieWidth * 2, guiInfo.MovieHeight * 2 );
-          wsMoveWindow( &guiApp.subWindow, 0,
-                        ( wsMaxX - guiInfo.MovieWidth*2  )/2 + wsOrgX,
-                        ( wsMaxY - guiInfo.MovieHeight*2 )/2 + wsOrgY  );
+          wsResizeWindow( &guiApp.subWindow, guiInfo.VideoWidth * 2, guiInfo.VideoHeight * 2 );
+          wsMoveWindowWithin( &guiApp.subWindow, False, guiApp.sub.x, guiApp.sub.y );
+          btnSet( evFullScreen,btnReleased );
          }
         break;
    case evNormalSize:
-	btnSet( evFullScreen,btnReleased );
-        if ( guiInfo.Playing )
+        if ( guiInfo.VideoWindow && guiInfo.Playing )
          {
           if ( guiApp.subWindow.isFullScreen )
            {
             uiFullScreen();
            }
-          wsResizeWindow( &guiApp.subWindow, guiInfo.MovieWidth, guiInfo.MovieHeight );
-          wsMoveWindow( &guiApp.subWindow, 0,
-                        ( wsMaxX - guiInfo.MovieWidth  )/2 + wsOrgX,
-                        ( wsMaxY - guiInfo.MovieHeight )/2 + wsOrgY  );
+          wsResizeWindow( &guiApp.subWindow, guiInfo.VideoWidth, guiInfo.VideoHeight );
+          wsMoveWindow( &guiApp.subWindow, False, guiApp.sub.x, guiApp.sub.y );
+          btnSet( evFullScreen,btnReleased );
 	  break;
          } else if ( !guiApp.subWindow.isFullScreen ) break;
    case evFullScreen:
-        if ( !guiInfo.Playing && !gtkShowVideoWindow ) break;
-        uiFullScreen();
+        if ( guiInfo.VideoWindow && guiInfo.Playing )
+         {
+          uiFullScreen();
+          if ( !guiApp.subWindow.isFullScreen )
+           {
+            wsResizeWindow( &guiApp.subWindow, guiInfo.VideoWidth, guiInfo.VideoHeight );
+            wsMoveWindow( &guiApp.subWindow, False, guiApp.sub.x, guiApp.sub.y );
+           }
+         }
 	if ( guiApp.subWindow.isFullScreen ) btnSet( evFullScreen,btnPressed );
 	 else btnSet( evFullScreen,btnReleased );
         break;
@@ -357,19 +402,19 @@ set_volume:
 	 }
 	wsClearWindow( guiApp.subWindow );
 #ifdef CONFIG_DVDREAD
-	if ( guiInfo.StreamType == STREAMTYPE_DVD || guiInfo.StreamType == STREAMTYPE_VCD ) goto play_dvd_2;
+	if ( guiInfo.StreamType == STREAMTYPE_VCD || guiInfo.StreamType == STREAMTYPE_DVD ) goto play_dvd_2;
 	 else
 #endif
-	 guiInfo.NewPlay=1;
+	 guiInfo.NewPlay=GUI_FILE_NEW;
 	break;
 
 // --- timer events
-   case evRedraw:
+   case ivRedraw:
         {
           unsigned now = GetTimerMS();
           if ((now > last_redraw_time) &&
               (now < last_redraw_time + GUI_REDRAW_WAIT) &&
-              !uiPlaybarFade)
+              !uiPlaybarFade && (iparam == 0))
             break;
           last_redraw_time = now;
         }
@@ -407,7 +452,7 @@ void uiMainMouseHandle( int Button,int X,int Y,int RX,int RY )
  switch ( Button )
   {
    case wsPMMouseButton:
-	  gtkShow( evHidePopUpMenu,NULL );
+	  gtkShow( ivHidePopUpMenu,NULL );
           uiShowMenu( RX,RY );
           itemtype=itPRMButton;
           break;
@@ -416,7 +461,7 @@ void uiMainMouseHandle( int Button,int X,int Y,int RX,int RY )
           break;
 
    case wsPLMouseButton:
-	  gtkShow( evHidePopUpMenu,NULL );
+	  gtkShow( ivHidePopUpMenu,NULL );
           sx=X; sy=Y; boxMoved=1; itemtype=itPLMButton;
           SelectedItem=currentselected;
           if ( SelectedItem == -1 ) break;
@@ -463,7 +508,7 @@ void uiMainMouseHandle( int Button,int X,int Y,int RX,int RY )
           break;
 
    case wsRRMouseButton:
-        gtkShow( evShowPopUpMenu,NULL );
+        gtkShow( ivShowPopUpMenu,NULL );
         break;
 
 // --- rolled mouse ... de szar :)))
@@ -485,7 +530,7 @@ rollerhandled:
           switch ( itemtype )
            {
             case itPLMButton:
-                 wsMoveWindow( &guiApp.mainWindow,False,RX - abs( sx ),RY - abs( sy ) );
+                 wsMoveWindow( &guiApp.mainWindow,True,RX - abs( sx ),RY - abs( sy ) );
                  uiMainRender=0;
                  break;
             case itPRMButton:
@@ -546,9 +591,8 @@ void uiMainKeyHandle( int KeyCode,int Type,int Key )
       case wsXF86Next:         msg=evNext; break;
       case wsXF86Media:        msg=evLoad; break;
       case wsEscape:
-    	    if ( guiApp.subWindow.isFullScreen )
+    	    if ( guiInfo.VideoWindow && guiInfo.Playing && guiApp.subWindow.isFullScreen )
 	     {
-	      if ( guiInfo.event_struct ) ((XEvent *)guiInfo.event_struct)->type=None;
 	      uiEventHandling( evNormalSize,0 );
 	      return;
 	     }
@@ -592,7 +636,7 @@ void uiDandDHandler(int num,char** files)
 	  if((len=strlen(++ext)) && (type=strstr(supported,ext)) &&\
 	     (type-supported)%4 == 0 && *(type+len) == '/'){
 	    /* handle subtitle file */
-	    gfree((void**)&subtitles);
+	    nfree(subtitles);
 	    subtitles = str;
 	    continue;
 	  }
@@ -602,7 +646,7 @@ void uiDandDHandler(int num,char** files)
       /* clear playlist */
       if (filename == NULL) {
 	filename = files[f];
-	gtkSet(gtkDelPl,0,NULL);
+	listSet(gtkDelPl,NULL);
       }
 
       item = calloc(1,sizeof(plItem));
@@ -617,7 +661,7 @@ void uiDandDHandler(int num,char** files)
 	item->name = strdup(str);
 	item->path = strdup("");
       }
-      gtkSet(gtkAddPlItem,0,(void*)item);
+      listSet(gtkAddPlItem,item);
     } else {
       mp_msg( MSGT_GPLAYER,MSGL_WARN,MSGTR_NotAFile,str );
     }
@@ -630,8 +674,8 @@ void uiDandDHandler(int num,char** files)
     uiEventHandling( evPlay,0 );
   }
   if (subtitles) {
-    gfree((void**)&guiInfo.Subtitlename);
-    guiInfo.Subtitlename = subtitles;
-    guiLoadSubtitle(guiInfo.Subtitlename);
+    nfree(guiInfo.SubtitleFilename);
+    guiInfo.SubtitleFilename = subtitles;
+    mplayerLoadSubtitle(guiInfo.SubtitleFilename);
   }
 }

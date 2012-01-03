@@ -104,11 +104,11 @@ enum CouplingPoint {
  * Output configuration status
  */
 enum OCStatus {
-    OC_NONE,        //< Output unconfigured
-    OC_TRIAL_PCE,   //< Output configuration under trial specified by an inband PCE
-    OC_TRIAL_FRAME, //< Output configuration under trial specified by a frame header
-    OC_GLOBAL_HDR,  //< Output configuration set in a global header but not yet locked
-    OC_LOCKED,      //< Output configuration locked in place
+    OC_NONE,        ///< Output unconfigured
+    OC_TRIAL_PCE,   ///< Output configuration under trial specified by an inband PCE
+    OC_TRIAL_FRAME, ///< Output configuration under trial specified by a frame header
+    OC_GLOBAL_HDR,  ///< Output configuration set in a global header but not yet locked
+    OC_LOCKED,      ///< Output configuration locked in place
 };
 
 /**
@@ -251,6 +251,7 @@ typedef struct {
  */
 typedef struct {
     AVCodecContext *avctx;
+    AVFrame frame;
 
     MPEG4AudioConfig m4ac;
 
@@ -258,7 +259,7 @@ typedef struct {
     DynamicRangeControl che_drc;
 
     /**
-     * @defgroup elements Channel element related data.
+     * @name Channel element related data
      * @{
      */
     enum ChannelPosition che_pos[4][MAX_ELEM_ID]; /**< channel element channel mapping with the
@@ -270,14 +271,15 @@ typedef struct {
     /** @} */
 
     /**
-     * @defgroup temporary aligned temporary buffers (We do not want to have these on the stack.)
+     * @name temporary aligned temporary buffers
+     * (We do not want to have these on the stack.)
      * @{
      */
     DECLARE_ALIGNED(32, float, buf_mdct)[1024];
     /** @} */
 
     /**
-     * @defgroup tables   Computed / set up during initialization.
+     * @name Computed / set up during initialization
      * @{
      */
     FFTContext mdct;
@@ -289,7 +291,7 @@ typedef struct {
     /** @} */
 
     /**
-     * @defgroup output   Members used for output interleaving.
+     * @name Members used for output interleaving
      * @{
      */
     float *output_data[MAX_CHANNELS];                 ///< Points to each element's 'ret' buffer (PCM output).

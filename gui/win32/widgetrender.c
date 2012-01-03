@@ -26,6 +26,7 @@
 #include <windows.h>
 
 #include "gui/util/bitmap.h"
+#include "gui/util/string.h"
 #include "gui/interface.h"
 #include "gui.h"
 
@@ -127,25 +128,25 @@ static char *generatetextfromlabel(widget *item)
     }
     strcpy(text, item->label);
     if(item->type == tySlabel) return text;
-    stringreplace(text, "$1", "%.2i:%.2i:%.2i", guiInfo.TimeSec / 3600,
-                 (guiInfo.TimeSec / 60) % 60, guiInfo.TimeSec % 60);
-    stringreplace(text, "$2", "%.4i:%.2i", guiInfo.TimeSec / 60, guiInfo.TimeSec % 60);
-    stringreplace(text, "$3", "%.2i", guiInfo.TimeSec / 3600);
-    stringreplace(text, "$4", "%.2i", (guiInfo.TimeSec / 60) % 60);
-    stringreplace(text, "$5", "%.2i", guiInfo.TimeSec % 60);
-    stringreplace(text, "$6", "%.2i:%.2i:%.2i", guiInfo.LengthInSec / 3600,
-                 (guiInfo.LengthInSec / 60) % 60, guiInfo.LengthInSec % 60);
-    stringreplace(text, "$7", "%.4i:%.2i", guiInfo.LengthInSec / 60, guiInfo.LengthInSec % 60);
-    stringreplace(text, "$8", "%i:%.2i:%.2i", guiInfo.TimeSec / 3600,
-                 (guiInfo.TimeSec / 60) % 60, guiInfo.TimeSec % 60);
+    stringreplace(text, "$1", "%.2i:%.2i:%.2i", guiInfo.ElapsedTime / 3600,
+                 (guiInfo.ElapsedTime / 60) % 60, guiInfo.ElapsedTime % 60);
+    stringreplace(text, "$2", "%.4i:%.2i", guiInfo.ElapsedTime / 60, guiInfo.ElapsedTime % 60);
+    stringreplace(text, "$3", "%.2i", guiInfo.ElapsedTime / 3600);
+    stringreplace(text, "$4", "%.2i", (guiInfo.ElapsedTime / 60) % 60);
+    stringreplace(text, "$5", "%.2i", guiInfo.ElapsedTime % 60);
+    stringreplace(text, "$6", "%.2i:%.2i:%.2i", guiInfo.RunningTime / 3600,
+                 (guiInfo.RunningTime / 60) % 60, guiInfo.RunningTime % 60);
+    stringreplace(text, "$7", "%.4i:%.2i", guiInfo.RunningTime / 60, guiInfo.RunningTime % 60);
+    stringreplace(text, "$8", "%i:%.2i:%.2i", guiInfo.ElapsedTime / 3600,
+                 (guiInfo.ElapsedTime / 60) % 60, guiInfo.ElapsedTime % 60);
     stringreplace(text, "$v", "%3.2f", guiInfo.Volume);
     stringreplace(text, "$V", "%3.1f", guiInfo.Volume);
     stringreplace(text, "$b", "%3.2f", guiInfo.Balance);
     stringreplace(text, "$B", "%3.1f", guiInfo.Balance);
     stringreplace(text, "$t", "%.2i", guiInfo.Track);
-    stringreplace(text, "$o", "%s", guiInfo.Filename);
-    stringreplace(text, "$x", "%i", guiInfo.MovieWidth);
-    stringreplace(text, "$y", "%i", guiInfo.MovieHeight);
+    stringreplace(text, "$o", "%s", acp(TranslateFilename(0, tmp, sizeof(tmp))));
+    stringreplace(text, "$x", "%i", guiInfo.VideoWidth);
+    stringreplace(text, "$y", "%i", guiInfo.VideoHeight);
     stringreplace(text, "$C", "%s", guiInfo.sh_video ? codecname : "");
     stringreplace(text, "$$", "$");
 
@@ -156,8 +157,8 @@ static char *generatetextfromlabel(widget *item)
         else if(guiInfo.Playing == GUI_PAUSE) stringreplace(text, NULL, "e");
     }
 
-    if(guiInfo.AudioType == 0) stringreplace(text, "$a", "n");
-    else if(guiInfo.AudioType == 1) stringreplace(text, "$a", "m");
+    if(guiInfo.AudioChannels == 0) stringreplace(text, "$a", "n");
+    else if(guiInfo.AudioChannels == 1) stringreplace(text, "$a", "m");
     else stringreplace(text, "$a", "t");
 
     if(guiInfo.StreamType == 0)
@@ -168,16 +169,8 @@ static char *generatetextfromlabel(widget *item)
 #endif
     else stringreplace(text, "$T", "u");
 
-    if(guiInfo.Filename)
-    {
-        for (i=0; i<strlen(guiInfo.Filename); i++)
-            tmp[i] = tolower(guiInfo.Filename[i]);
-        stringreplace(text, "$f", tmp);
-
-        for (i=0; i<strlen(guiInfo.Filename); i++)
-            tmp[i] = toupper(guiInfo.Filename[i]);
-        stringreplace(text, "$F", tmp);
-    }
+    stringreplace(text, "$f", acp(TranslateFilename(1, tmp, sizeof(tmp))));
+    stringreplace(text, "$F", acp(TranslateFilename(2, tmp, sizeof(tmp))));
 
     return text;
 }

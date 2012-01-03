@@ -24,11 +24,11 @@
 #include "render.h"
 #include "gui/interface.h"
 #include "gui/skin/font.h"
+#include "gui/util/string.h"
 
 #include "access_mpcontext.h"
 #include "codec-cfg.h"
 #include "config.h"
-#include "help_mp.h"
 #include "libavutil/avstring.h"
 #include "libmpdemux/stheader.h"
 #include "mixer.h"
@@ -39,75 +39,6 @@
 
 static char *image_buffer;
 static int image_width;
-
-static void TranslateFilename(int c, char *tmp, size_t tmplen)
-{
-    int i;
-    char *p;
-    size_t len;
-
-    switch (guiInfo.StreamType) {
-    case STREAMTYPE_STREAM:
-        av_strlcpy(tmp, guiInfo.Filename, tmplen);
-        break;
-
-    case STREAMTYPE_FILE:
-        if (guiInfo.Filename && guiInfo.Filename[0]) {
-            p = strrchr(guiInfo.Filename, '/');
-
-            if (p)
-                av_strlcpy(tmp, p + 1, tmplen);
-            else
-                av_strlcpy(tmp, guiInfo.Filename, tmplen);
-
-            len = strlen(tmp);
-
-            if (len > 3 && tmp[len - 3] == '.')
-                tmp[len - 3] = 0;
-            else if (len > 4 && tmp[len - 4] == '.')
-                tmp[len - 4] = 0;
-            else if (len > 5 && tmp[len - 5] == '.')
-                tmp[len - 5] = 0;
-        } else
-            av_strlcpy(tmp, MSGTR_NoFileLoaded, tmplen);
-        break;
-
-#ifdef CONFIG_DVDREAD
-    case STREAMTYPE_DVD:
-        if (guiInfo.DVD.current_chapter)
-            snprintf(tmp, tmplen, MSGTR_Chapter, guiInfo.DVD.current_chapter);
-        else
-            av_strlcat(tmp, MSGTR_NoChapter, tmplen);
-        break;
-#endif
-
-#ifdef CONFIG_VCD
-    case STREAMTYPE_VCD:
-        snprintf(tmp, tmplen, MSGTR_VCDTrack, guiInfo.Track);
-        break;
-#endif
-
-    default:
-        av_strlcpy(tmp, MSGTR_NoMediaOpened, tmplen);
-        break;
-    }
-
-    if (c) {
-        for (i = 0; tmp[i]; i++) {
-            int t = 0;
-
-            if (c == 1)
-                if (tmp[i] >= 'A' && tmp[i] <= 'Z')
-                    t = 32;
-
-            if (c == 2)
-                if (tmp[i] >= 'a' && tmp[i] <= 'z')
-                    t = -32;
-
-            tmp[i] = (char)(tmp[i] + t);
-        }
-    }
-}
 
 static char *Translate(char *str)
 {
@@ -148,44 +79,44 @@ static char *Translate(char *str)
                 break;
 
             case '6':
-                t = guiInfo.LengthInSec;
+                t = guiInfo.RunningTime;
                 goto calclengthhhmmss;
 
             case '1':
-                t = guiInfo.TimeSec;
+                t = guiInfo.ElapsedTime;
 calclengthhhmmss:
                 snprintf(tmp, sizeof(tmp), "%02d:%02d:%02d", t / 3600, t / 60 % 60, t % 60);
                 av_strlcat(trbuf, tmp, sizeof(trbuf));
                 break;
 
             case '7':
-                t = guiInfo.LengthInSec;
+                t = guiInfo.RunningTime;
                 goto calclengthmmmmss;
 
             case '2':
-                t = guiInfo.TimeSec;
+                t = guiInfo.ElapsedTime;
 calclengthmmmmss:
                 snprintf(tmp, sizeof(tmp), "%04d:%02d", t / 60, t % 60);
                 av_strlcat(trbuf, tmp, sizeof(trbuf));
                 break;
 
             case '3':
-                snprintf(tmp, sizeof(tmp), "%02d", guiInfo.TimeSec / 3600);
+                snprintf(tmp, sizeof(tmp), "%02d", guiInfo.ElapsedTime / 3600);
                 av_strlcat(trbuf, tmp, sizeof(trbuf));
                 break;
 
             case '4':
-                snprintf(tmp, sizeof(tmp), "%02d", (guiInfo.TimeSec / 60) % 60);
+                snprintf(tmp, sizeof(tmp), "%02d", (guiInfo.ElapsedTime / 60) % 60);
                 av_strlcat(trbuf, tmp, sizeof(trbuf));
                 break;
 
             case '5':
-                snprintf(tmp, sizeof(tmp), "%02d", guiInfo.TimeSec % 60);
+                snprintf(tmp, sizeof(tmp), "%02d", guiInfo.ElapsedTime % 60);
                 av_strlcat(trbuf, tmp, sizeof(trbuf));
                 break;
 
             case '8':
-                snprintf(tmp, sizeof(tmp), "%01d:%02d:%02d", guiInfo.TimeSec / 3600, (guiInfo.TimeSec / 60) % 60, guiInfo.TimeSec % 60);
+                snprintf(tmp, sizeof(tmp), "%01d:%02d:%02d", guiInfo.ElapsedTime / 3600, (guiInfo.ElapsedTime / 60) % 60, guiInfo.ElapsedTime % 60);
                 av_strlcat(trbuf, tmp, sizeof(trbuf));
                 break;
 
@@ -209,23 +140,18 @@ calclengthmmmmss:
                 av_strlcat(trbuf, tmp, sizeof(trbuf));
                 break;
 
-            case 'd':
-                snprintf(tmp, sizeof(tmp), "%d", guiInfo.FrameDrop);
-                av_strlcat(trbuf, tmp, sizeof(trbuf));
-                break;
-
             case 'x':
-                snprintf(tmp, sizeof(tmp), "%d", guiInfo.MovieWidth);
+                snprintf(tmp, sizeof(tmp), "%d", guiInfo.VideoWidth);
                 av_strlcat(trbuf, tmp, sizeof(trbuf));
                 break;
 
             case 'y':
-                snprintf(tmp, sizeof(tmp), "%d", guiInfo.MovieHeight);
+                snprintf(tmp, sizeof(tmp), "%d", guiInfo.VideoHeight);
                 av_strlcat(trbuf, tmp, sizeof(trbuf));
                 break;
 
             case 'C':
-                snprintf(tmp, sizeof(tmp), "%s", guiInfo.sh_video ? ((sh_video_t *)guiInfo.sh_video)->codec->name : "");
+                snprintf(tmp, sizeof(tmp), "%s", guiInfo.sh_video ? guiInfo.sh_video->codec->name : "");
                 av_strlcat(trbuf, tmp, sizeof(trbuf));
                 break;
 
@@ -254,7 +180,7 @@ calclengthmmmmss:
                     break;
                 }
 
-                switch (guiInfo.AudioType) {
+                switch (guiInfo.AudioChannels) {
                 case 0:
                     av_strlcat(trbuf, "n", sizeof(trbuf));
                     break;
@@ -276,15 +202,21 @@ calclengthmmmmss:
                     av_strlcat(trbuf, "f", sizeof(trbuf));
                     break;
 
+                case STREAMTYPE_STREAM:
+                    av_strlcat(trbuf, "u", sizeof(trbuf));
+                    break;
+
+#ifdef CONFIG_CDDA
+                case STREAMTYPE_CDDA:
+                    av_strlcat(trbuf, "a", sizeof(trbuf));
+                    break;
+#endif
+
 #ifdef CONFIG_VCD
                 case STREAMTYPE_VCD:
                     av_strlcat(trbuf, "v", sizeof(trbuf));
                     break;
 #endif
-
-                case STREAMTYPE_STREAM:
-                    av_strlcat(trbuf, "u", sizeof(trbuf));
-                    break;
 
 #ifdef CONFIG_DVDREAD
                 case STREAMTYPE_DVD:
@@ -434,7 +366,7 @@ void RenderAll(wsTWindow *window, wItem *Items, int nrItems, char *db)
         case itSLabel:
             if (item->width == -1)
                 item->width = fntTextWidth(item->fontid, item->label);
-            image = fntRender(item, 0, item->label);
+            image = fntTextRender(item, 0, item->label);
             if (image)
                 PutImage(image, item->x, item->y, 1, 0);
             break;
@@ -472,7 +404,7 @@ void RenderAll(wsTWindow *window, wItem *Items, int nrItems, char *db)
                 }
             }
 
-            image = fntRender(item, x, t);
+            image = fntTextRender(item, x, t);
         }
 
             if (image)

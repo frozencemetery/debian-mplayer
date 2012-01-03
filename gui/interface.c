@@ -16,6 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -24,6 +26,9 @@
 #include "skin/skin.h"
 #include "ui/gmplayer.h"
 #include "ui/widgets.h"
+#include "util/list.h"
+#include "util/mem.h"
+#include "util/string.h"
 #include "wm/ws.h"
 #include "wm/wsxdnd.h"
 
@@ -32,6 +37,7 @@
 #include "help_mp.h"
 #include "input/input.h"
 #include "libaf/equalizer.h"
+#include "libavutil/common.h"
 #include "libmpcodecs/dec_audio.h"
 #include "libmpcodecs/dec_video.h"
 #include "libmpcodecs/vd.h"
@@ -50,112 +56,14 @@
 #include "stream/stream_dvd.h"
 #endif
 
-guiInterface_t guiInfo;
-
-int guiWinID = -1;
-
-char *skinName;
-char *skinDirInHome;
-char *skinMPlayerDir;
-
-plItem *plCurrent    = NULL;
-plItem *plList       = NULL;
-plItem *plLastPlayed = NULL;
-
-urlItem *URLList = NULL;
-
-char *fsHistory[fsPersistant_MaxPos] = { NULL, NULL, NULL, NULL, NULL };
-
-float gtkEquChannels[6][10];
+guiInterface_t guiInfo = {
+    .StreamType = STREAMTYPE_DUMMY,
+    .Balance    = 50.0f
+};
 
 static int initialized;
 
-int gstrcmp(const char *a, const char *b)
-{
-    if (!a && !b)
-        return 0;
-    if (!a || !b)
-        return -1;
-
-    return strcmp(a, b);
-}
-
-static int gstrncmp(const char *a, const char *b, int size)
-{
-    if (!a && !b)
-        return 0;
-    if (!a || !b)
-        return -1;
-
-    return strncmp(a, b, size);
-}
-
-char *gstrdup(const char *str)
-{
-    if (!str)
-        return NULL;
-
-    return strdup(str);
-}
-
-char *gstrchr(char *str, int c)
-{
-    if (!str)
-        return NULL;
-
-    return strchr(str, c);
-}
-
-void gfree(void **p)
-{
-    free(*p);
-    *p = NULL;
-}
-
-/**
- * \brief This actually creates a new list containing only one element...
- */
-void gaddlist(char ***list, const char *entry)
-{
-    int i;
-
-    if (*list) {
-        for (i = 0; (*list)[i]; i++)
-            free((*list)[i]);
-
-        free(*list);
-    }
-
-    *list      = malloc(2 * sizeof(char **));
-    (*list)[0] = gstrdup(entry);
-    (*list)[1] = NULL;
-}
-
-/**
- * \brief This replaces a string starting with search by replace.
- * If not found, replace is appended.
- */
-static void greplace(char ***list, const char *search, const char *replace)
-{
-    int i   = 0;
-    int len = (search ? strlen(search) : 0);
-
-    if (*list) {
-        for (i = 0; (*list)[i]; i++) {
-            if (search && (strncmp((*list)[i], search, len) == 0)) {
-                free((*list)[i]);
-                (*list)[i] = gstrdup(replace);
-                return;
-            }
-        }
-
-        *list = realloc(*list, (i + 2) * sizeof(char *));
-    } else
-        *list = malloc(2 * sizeof(char *));
-
-    (*list)[i]     = gstrdup(replace);
-    (*list)[i + 1] = NULL;
-}
+/* MPlayer -> GUI */
 
 void guiInit(void)
 {
@@ -163,11 +71,10 @@ void guiInit(void)
 
     mp_msg(MSGT_GPLAYER, MSGL_V, "GUI init.\n");
 
-    memset(&guiInfo, 0, sizeof(guiInfo));
-    guiInfo.Balance    = 50.0f;
-    guiInfo.StreamType = -1;
-
-    memset(&gtkEquChannels, 0, sizeof(gtkEquChannels));
+    if (!cdrom_device)
+        cdrom_device = strdup(DEFAULT_CDROM_DEVICE);
+    if (!dvd_device)
+        dvd_device = strdup(DEFAULT_DVD_DEVICE);
 
 #ifdef CONFIG_DXR3
     if (!gtkDXR3Device)
@@ -202,8 +109,8 @@ void guiInit(void)
     skinDirInHome  = get_path("skins");
     skinMPlayerDir = MPLAYER_DATADIR "/skins";
 
-    mp_dbg(MSGT_GPLAYER, MSGL_DBG2, "[interface] skin directory #1: %s\n", skinDirInHome);
-    mp_dbg(MSGT_GPLAYER, MSGL_DBG2, "[interface] skin directory #2: %s\n", skinMPlayerDir);
+    mp_msg(MSGT_GPLAYER, MSGL_DBG2, "[interface] skin directory #1: %s\n", skinDirInHome);
+    mp_msg(MSGT_GPLAYER, MSGL_DBG2, "[interface] skin directory #2: %s\n", skinMPlayerDir);
 
     if (!skinName)
         skinName = strdup("default");
@@ -220,11 +127,11 @@ void guiInit(void)
     switch (i) {
     case -1:
         gmp_msg(MSGT_GPLAYER, MSGL_FATAL, MSGTR_SKIN_SKINCFG_SkinNotFound, skinName);
-        guiExit(EXIT_ERROR);
+        mplayer(MPLAYER_EXIT_GUI, EXIT_ERROR, 0);
 
     case -2:
         gmp_msg(MSGT_GPLAYER, MSGL_FATAL, MSGTR_SKIN_SKINCFG_SkinCfgError, skinName);
-        guiExit(EXIT_ERROR);
+        mplayer(MPLAYER_EXIT_GUI, EXIT_ERROR, 0);
     }
 
     // initialize windows
@@ -233,7 +140,7 @@ void guiInit(void)
 
     if (!mainDrawBuffer) {
         gmp_msg(MSGT_GPLAYER, MSGL_FATAL, MSGTR_NEMDB);
-        guiExit(EXIT_ERROR);
+        mplayer(MPLAYER_EXIT_GUI, EXIT_ERROR, 0);
     }
 
     if (gui_save_pos) {
@@ -261,6 +168,8 @@ void guiInit(void)
     wsCreateImage(&guiApp.subWindow, guiApp.sub.Bitmap.Width, guiApp.sub.Bitmap.Height);
     wsXDNDMakeAwareness(&guiApp.subWindow);
 
+    WinID = guiApp.subWindow.WindowID;
+
     uiMenuInit();
     uiPlaybarInit();
 
@@ -271,9 +180,9 @@ void guiInit(void)
     wsSetShape(&guiApp.mainWindow, guiApp.main.Mask.Image);
     wsXDNDMakeAwareness(&guiApp.mainWindow);
 
-    mp_dbg(MSGT_GPLAYER, MSGL_DBG2, "[interface] screen depth: %d\n", wsDepthOnScreen);
-    mp_dbg(MSGT_GPLAYER, MSGL_DBG2, "[interface] mainWindow ID: 0x%x\n", (int)guiApp.mainWindow.WindowID);
-    mp_dbg(MSGT_GPLAYER, MSGL_DBG2, "[interface] subWindow ID: 0x%x\n", (int)guiApp.subWindow.WindowID);
+    mp_msg(MSGT_GPLAYER, MSGL_DBG2, "[interface] screen depth: %d\n", wsDepthOnScreen);
+    mp_msg(MSGT_GPLAYER, MSGL_DBG2, "[interface] mainWindow ID: 0x%x\n", (int)guiApp.mainWindow.WindowID);
+    mp_msg(MSGT_GPLAYER, MSGL_DBG2, "[interface] subWindow ID: 0x%x\n", (int)guiApp.subWindow.WindowID);
 
     guiApp.mainWindow.ReDraw       = (void *)uiMainDraw;
     guiApp.mainWindow.MouseHandler = uiMainMouseHandle;
@@ -303,31 +212,9 @@ void guiInit(void)
 
     wsVisibleWindow(&guiApp.mainWindow, wsShowWindow);
 
-#if 0
-    wsVisibleWindow(&guiApp.subWindow, wsShowWindow);
-    {
-        XEvent xev;
-
-        do
-            XNextEvent(wsDisplay, &xev);
-        while (xev.type != MapNotify || xev.xmap.event != guiApp.subWindow.WindowID);
-
-        guiApp.subWindow.Mapped = wsMapped;
-    }
-
-    if (!fullscreen)
-        fullscreen = gtkLoadFullscreen;
-
-    if (fullscreen) {
-        uiFullScreen();
-        btnModify(evFullScreen, btnPressed);
-    }
-#else
-    if (!fullscreen)
-        fullscreen = gtkLoadFullscreen;
-
     if (gtkShowVideoWindow) {
         wsVisibleWindow(&guiApp.subWindow, wsShowWindow);
+
         {
             XEvent xev;
 
@@ -336,46 +223,30 @@ void guiInit(void)
             while (xev.type != MapNotify || xev.xmap.event != guiApp.subWindow.WindowID);
 
             guiApp.subWindow.Mapped = wsMapped;
+            guiInfo.VideoWindow     = True;
         }
 
-        if (fullscreen) {
+        if (gtkLoadFullscreen)
             uiFullScreen();
-            btnModify(evFullScreen, btnPressed);
-        }
-    } else {
-        if (fullscreen) {
-            wsVisibleWindow(&guiApp.subWindow, wsShowWindow);
-            {
-                XEvent xev;
+    } else
+        wsSetBackgroundRGB(&guiApp.subWindow, 0, 0, 0);
 
-                do
-                    XNextEvent(wsDisplay, &xev);
-                while (xev.type != MapNotify || xev.xmap.event != guiApp.subWindow.WindowID);
-
-                guiApp.subWindow.Mapped = wsMapped;
-            }
-            guiInfo.Playing = GUI_PAUSE; // because of !gtkShowVideoWindow...
-            uiFullScreen();        // ...guiInfo.Playing is required
-            wsVisibleWindow(&guiApp.subWindow, wsHideWindow);
-            btnModify(evFullScreen, btnPressed);
-        }
-    }
-#endif
+    if (gtkLoadFullscreen)
+        btnSet(evFullScreen, btnPressed);
 
     guiInfo.Playing = GUI_STOP;
 
     uiSubRender = 1;
 
-    if (filename)
-        uiSetFileName(NULL, filename, STREAMTYPE_FILE);
-
-    if (plCurrent && !filename)
+    if (plCurrent && !filename) {
         uiSetFileName(plCurrent->path, plCurrent->name, STREAMTYPE_FILE);
+        filename = NULL; // don't start playing
+    }
 
     if (subdata)
-        guiSetFilename(guiInfo.Subtitlename, subdata->filename);
+        setdup(&guiInfo.SubtitleFilename, subdata->filename);
 
-    guiLoadFont();
+    mplayerLoadFont();
 
     initialized = 1;
 }
@@ -388,8 +259,8 @@ void guiDone(void)
         if (gui_save_pos) {
             gui_main_pos_x = guiApp.mainWindow.X;
             gui_main_pos_y = guiApp.mainWindow.Y;
-            gui_sub_pos_x  = guiApp.subWindow.X;
-            gui_sub_pos_y  = guiApp.subWindow.Y;
+            gui_sub_pos_x  = guiApp.sub.x;
+            gui_sub_pos_y  = guiApp.sub.y;
         }
 
 #ifdef CONFIG_ASS
@@ -412,109 +283,6 @@ void guiDone(void)
     }
 
     mp_msg(MSGT_GPLAYER, MSGL_V, "GUI done.\n");
-}
-
-void guiExit(enum exit_reason how)
-{
-    exit_player_with_rc(how, how >= EXIT_ERROR);
-}
-
-void guiLoadFont(void)
-{
-#ifdef CONFIG_FREETYPE
-    load_font_ft(vo_image_width, vo_image_height, &vo_font, font_name, osd_font_scale_factor);
-#else
-    if (vo_font) {
-        int i;
-
-        free(vo_font->name);
-        free(vo_font->fpath);
-
-        for (i = 0; i < 16; i++) {
-            if (vo_font->pic_a[i]) {
-                free(vo_font->pic_a[i]->bmp);
-                free(vo_font->pic_a[i]->pal);
-            }
-        }
-
-        for (i = 0; i < 16; i++) {
-            if (vo_font->pic_b[i]) {
-                free(vo_font->pic_b[i]->bmp);
-                free(vo_font->pic_b[i]->pal);
-            }
-        }
-
-        free(vo_font);
-        vo_font = NULL;
-    }
-
-    if (font_name) {
-        vo_font = read_font_desc(font_name, font_factor, 0);
-
-        if (!vo_font)
-            gmp_msg(MSGT_GPLAYER, MSGL_ERR, MSGTR_CantLoadFont, font_name);
-    } else {
-        font_name = gstrdup(get_path("font/font.desc"));
-        vo_font   = read_font_desc(font_name, font_factor, 0);
-
-        if (!vo_font) {
-            gfree((void **)&font_name);
-            font_name = gstrdup(MPLAYER_DATADIR "/font/font.desc");
-            vo_font   = read_font_desc(font_name, font_factor, 0);
-        }
-    }
-#endif
-}
-
-void guiLoadSubtitle(char *name)
-{
-    if (guiInfo.Playing == 0) {
-        guiInfo.SubtitleChanged = 1; // what is this for? (mw)
-        return;
-    }
-
-    if (subdata) {
-        mp_msg(MSGT_GPLAYER, MSGL_INFO, MSGTR_DeletingSubtitles);
-
-        sub_free(subdata);
-        subdata = NULL;
-        vo_sub  = NULL;
-
-        if (vo_osd_list) {
-            int len;
-            mp_osd_obj_t *osd;
-
-            osd = vo_osd_list;
-
-            while (osd) {
-                if (osd->type == OSDTYPE_SUBTITLE)
-                    break;
-
-                osd = osd->next;
-            }
-
-            if (osd && (osd->flags & OSDFLAG_VISIBLE)) {
-                len = osd->stride * (osd->bbox.y2 - osd->bbox.y1);
-                memset(osd->bitmap_buffer, 0, len);
-                memset(osd->alpha_buffer, 0, len);
-            }
-        }
-    }
-
-    if (name) {
-        mp_msg(MSGT_GPLAYER, MSGL_INFO, MSGTR_LoadingSubtitles, name);
-
-        subdata = sub_read_file(name, guiInfo.FPS);
-
-        if (!subdata)
-            gmp_msg(MSGT_GPLAYER, MSGL_ERR, MSGTR_CantLoadSub, name);
-
-        sub_name    = (malloc(2 * sizeof(char *))); // when mplayer will be restarted
-        sub_name[0] = strdup(name);                 // sub_name[0] will be read
-        sub_name[1] = NULL;
-    }
-
-    update_set_of_subtitles();
 }
 
 static void add_vf(char *str)
@@ -552,270 +320,119 @@ static void add_vf(char *str)
     mp_msg(MSGT_GPLAYER, MSGL_INFO, MSGTR_AddingVideoFilter, str);
 }
 
-int guiGetEvent(int type, void *arg)
+int gui(int what, void *data)
 {
     mixer_t *mixer = NULL;
-
-    stream_t *stream = arg;
-
+    stream_t *stream;
 #ifdef CONFIG_DVDREAD
-    dvd_priv_t *dvdp = arg;
+    dvd_priv_t *dvd;
 #endif
+    plItem *next;
+    int msg, state;
 
     if (guiInfo.mpcontext)
         mixer = mpctx_get_mixer(guiInfo.mpcontext);
 
-    switch (type) {
-    case guiXEvent:
-        guiInfo.event_struct = arg;
-        wsEvents(wsDisplay, arg);
-        gtkEventHandling();
+    switch (what) {
+    case GUI_SET_CONTEXT:
+        guiInfo.mpcontext = data;
         break;
 
-    case guiSetState:
+    case GUI_SET_STATE:
 
-        switch ((int)arg) {
+        switch ((int)data) {
+        case GUI_STOP:
         case GUI_PLAY:
 // if ( !gtkShowVideoWindow ) wsVisibleWindow( &guiApp.subWindow,wsHideWindow );
-            guiInfo.Playing = GUI_PLAY;
-            break;
-
-        case GUI_STOP:
-// if ( !gtkShowVideoWindow ) wsVisibleWindow( &guiApp.subWindow,wsHideWindow );
-            guiInfo.Playing = GUI_STOP;
-            break;
-
         case GUI_PAUSE:
-            guiInfo.Playing = GUI_PAUSE;
+            guiInfo.Playing = (int)data;
             break;
         }
 
         uiState();
         break;
 
-    case guiSetFileName:
-        if (arg)
-            guiSetFilename(guiInfo.Filename, arg);
+    case GUI_HANDLE_EVENTS:
+        if (!guiInfo.Playing || !guiInfo.VideoWindow)
+            wsHandleEvents();
+        wsAutohideCursor();
+        gtkEventHandling();
         break;
 
-    case guiSetAudioOnly:
+    case GUI_RUN_COMMAND:
 
-        guiInfo.AudioOnly = (int)arg;
+        mp_msg(MSGT_GPLAYER, MSGL_DBG2, "[interface] GUI_RUN_COMMAND: %d\n", (int)data);
 
-        if ((int)arg) {
-            guiInfo.NoWindow = True;
-            wsVisibleWindow(&guiApp.subWindow, wsHideWindow);
-        } else
-            wsVisibleWindow(&guiApp.subWindow, wsShowWindow);
-
-        break;
-
-    case guiSetContext:
-        guiInfo.mpcontext = arg;
-    // NOTE TO MYSELF: is break missing?
-
-    case guiSetDemuxer:
-        guiInfo.demuxer = arg;
-        break;
-
-    case guiSetAfilter:
-        guiInfo.afilter = arg;
-        break;
-
-    case guiSetShVideo:
-
-        if (!guiApp.subWindow.isFullScreen) {
-            wsResizeWindow(&guiApp.subWindow, vo_dwidth, vo_dheight);
-            wsMoveWindow(&guiApp.subWindow, True, guiApp.sub.x, guiApp.sub.y);
-        }
-
-        guiInfo.MovieWidth  = vo_dwidth;
-        guiInfo.MovieHeight = vo_dheight;
-
-        if (guiWinID >= 0)
-            wsMoveWindow(&guiApp.mainWindow, 0, 0, vo_dheight);
-
-        WinID = guiApp.subWindow.WindowID;
-        break;
-
-#ifdef CONFIG_DVDREAD
-    case guiSetDVD:
-        guiInfo.DVD.titles   = dvdp->vmg_file->tt_srpt->nr_of_srpts;
-        guiInfo.DVD.chapters = dvdp->vmg_file->tt_srpt->title[dvd_title].nr_of_ptts;
-        guiInfo.DVD.angles   = dvdp->vmg_file->tt_srpt->title[dvd_title].nr_of_angles;
-        guiInfo.DVD.nr_of_audio_channels = dvdp->nr_of_channels;
-        memcpy(guiInfo.DVD.audio_streams, dvdp->audio_streams, sizeof(dvdp->audio_streams));
-        guiInfo.DVD.nr_of_subtitles = dvdp->nr_of_subtitles;
-        memcpy(guiInfo.DVD.subtitles, dvdp->subtitles, sizeof(dvdp->subtitles));
-        guiInfo.DVD.current_title   = dvd_title + 1;
-        guiInfo.DVD.current_chapter = dvd_chapter + 1;
-        guiInfo.DVD.current_angle   = dvd_angle + 1;
-        guiInfo.Track = dvd_title + 1;
-        break;
-#endif
-
-    case guiSetStream:
-
-        guiInfo.StreamType = stream->type;
-
-        switch (stream->type) {
-#ifdef CONFIG_DVDREAD
-        case STREAMTYPE_DVD:
-            guiGetEvent(guiSetDVD, stream->priv);
-            break;
-#endif
-
-#ifdef CONFIG_VCD
-        case STREAMTYPE_VCD:
-            guiInfo.VCDTracks = 0;
-            stream_control(stream, STREAM_CTRL_GET_NUM_CHAPTERS, &guiInfo.VCDTracks);
-            break;
-#endif
-
-        default:
-            break;
-        }
-
-        break;
-
-    case guiIEvent:
-
-        mp_dbg(MSGT_GPLAYER, MSGL_DBG2, "[interface] guiIEvent: %d\n", (int)arg);
-
-        switch ((int)arg) {
-        case MP_CMD_QUIT:
-            uiEventHandling(evExit, 0);
-            break;
-
+        switch ((int)data) {
         case MP_CMD_VO_FULLSCREEN:
             uiEventHandling(evFullScreen, 0);
             break;
+
+        case MP_CMD_PLAY_TREE_STEP:
+            uiEventHandling(evNext, 0);
+            break;
+
+        case -MP_CMD_PLAY_TREE_STEP:
+            uiEventHandling(evPrev, 0);
+            break;
+
+        case MP_CMD_STOP:
+            uiEventHandling(evStop, 0);
+            break;
+
+        case MP_CMD_QUIT:
+            uiEventHandling(evExit, 0);
+            break;
         }
 
         break;
 
-    case guiReDraw:
-        uiEventHandling(evRedraw, 0);
+    case GUI_RUN_MESSAGE:
+        mp_msg(MSGT_GPLAYER, MSGL_DBG2, "[interface] GUI_RUN_MESSAGE: %s\n", (const char *)data);
+        msg = appFindMessage((const char *)data);
+        if (appFindItem(msg))
+            uiEventHandling(msg, 0);
         break;
 
-    case guiSetVolume:
-        if (mixer) {
-            float l, r;
+    case GUI_PREPARE:
 
-            mixer_getvolume(mixer, &l, &r);
-            guiInfo.Volume = (r > l ? r : l);
+        wsVisibleMouse(&guiApp.subWindow, wsHideMouseCursor);
 
-            if (r != l)
-                guiInfo.Balance = ((r - l) + 100) * 0.5f;
-            else
-                guiInfo.Balance = 50.0f;
-
-            btnModify(evSetVolume, guiInfo.Volume);
-            btnModify(evSetBalance, guiInfo.Balance);
-        }
-        break;
-
-    case guiSetFileFormat:
-        guiInfo.FileFormat = (int)arg;
-        break;
-
-    case guiSetValues:
-
-        // video
-
-        guiInfo.sh_video = arg;
-
-        if (arg) {
-            sh_video_t *sh = arg;
-            guiInfo.FPS = sh->fps;
-        }
-
-        if (guiInfo.NoWindow)
-            wsVisibleWindow(&guiApp.subWindow, wsHideWindow);
-
-        if (guiInfo.StreamType == STREAMTYPE_STREAM)
-            btnSet(evSetMoviePosition, btnDisabled);
-        else
-            btnSet(evSetMoviePosition, btnReleased);
-
-        // audio
-
-        if (mixer) {
-            float l, r;
-
-            mixer_getvolume(mixer, &l, &r);
-            guiInfo.Volume = (r > l ? r : l);
-
-            if (r != l)
-                guiInfo.Balance = ((r - l) + 100) * 0.5f;
-            else
-                guiInfo.Balance = 50.0f;
-
-            btnModify(evSetVolume, guiInfo.Volume);
-            btnModify(evSetBalance, guiInfo.Balance);
-        }
-
-        if (gtkEnableAudioEqualizer) {
-            equalizer_t eq;
-            int i, j;
-
-            for (i = 0; i < 6; i++) {
-                for (j = 0; j < 10; j++) {
-                    eq.channel = i;
-                    eq.band    = j;
-                    eq.gain    = gtkEquChannels[i][j];
-                    gtkSet(gtkSetEqualizer, 0, &eq);
-                }
-            }
-        }
-
-        // subtitle
-
-#ifdef CONFIG_DXR3
-        if (video_driver_list && !gstrcmp(video_driver_list[0], "dxr3") && (guiInfo.FileFormat != DEMUXER_TYPE_MPEG_PS) && !gtkVfLAVC) {
-            gtkMessageBox(GTK_MB_FATAL, MSGTR_NEEDLAVC);
-            guiInfo.Playing = 0;
-            return True;
-        }
-#endif
-
-        break;
-
-    case guiSetDefaults:
-
-// if ( guiInfo.Playing == 1 && guiInfo.FilenameChanged )
-        if (guiInfo.FilenameChanged) {
+        if (guiInfo.NewPlay == GUI_FILE_NEW) {
+            dvd_title = 0;
             audio_id  = -1;
             video_id  = -1;
             dvdsub_id = -1;
             vobsub_id = -1;
+
             stream_cache_size = -1;
             autosync  = 0;
-            dvd_title = 0;
             force_fps = 0;
         }
 
-        guiInfo.demuxer  = NULL;
-        guiInfo.sh_video = NULL;
-        wsPostRedisplay(&guiApp.subWindow);
-
-        break;
-
-    case guiSetParameters:
-
-        guiGetEvent(guiSetDefaults, NULL);
-
         switch (guiInfo.StreamType) {
-        case STREAMTYPE_PLAYLIST:
+        case STREAMTYPE_FILE:
+        case STREAMTYPE_STREAM:
             break;
+
+#ifdef CONFIG_CDDA
+        case STREAMTYPE_CDDA:
+        {
+            char tmp[512];
+
+            sprintf(tmp, "cdda://%d", guiInfo.Track);
+            uiSetFileName(NULL, tmp, SAME_STREAMTYPE);
+        }
+        break;
+#endif
 
 #ifdef CONFIG_VCD
         case STREAMTYPE_VCD:
         {
             char tmp[512];
 
-            sprintf(tmp, "vcd://%d", guiInfo.Track + 1);
-            guiSetFilename(guiInfo.Filename, tmp);
+            sprintf(tmp, "vcd://%d", guiInfo.Track);
+            uiSetFileName(NULL, tmp, SAME_STREAMTYPE);
         }
         break;
 #endif
@@ -825,8 +442,8 @@ int guiGetEvent(int type, void *arg)
         {
             char tmp[512];
 
-            sprintf(tmp, "dvd://%d", guiInfo.Title);
-            guiSetFilename(guiInfo.Filename, tmp);
+            sprintf(tmp, "dvd://%d", guiInfo.Track);
+            uiSetFileName(NULL, tmp, SAME_STREAMTYPE);
         }
 
             dvd_chapter = guiInfo.Chapter;
@@ -834,14 +451,6 @@ int guiGetEvent(int type, void *arg)
 
             break;
 #endif
-        }
-
-// if ( guiInfo.StreamType != STREAMTYPE_PLAYLIST ) // Does not make problems anymore!
-        {
-            if (guiInfo.Filename)
-                filename = gstrdup(guiInfo.Filename);
-            else if (filename)
-                guiSetFilename(guiInfo.Filename, filename);
         }
 
         // video opts
@@ -859,18 +468,18 @@ int guiGetEvent(int type, void *arg)
 
         if (!video_driver_list && !video_driver_list[0]) {
             gmp_msg(MSGT_GPLAYER, MSGL_FATAL, MSGTR_IDFGCVD);
-            guiExit(EXIT_ERROR);
+            mplayer(MPLAYER_EXIT_GUI, EXIT_ERROR, 0);
         }
 
         {
             int i = 0;
 
-            guiInfo.NoWindow = False;
+            guiInfo.VideoWindow = True;
 
             while (video_out_drivers[i++]) {
                 if (video_out_drivers[i - 1]->control(VOCTRL_GUISUPPORT, NULL) == VO_TRUE) {
                     if ((video_driver_list && !gstrcmp(video_driver_list[0], (char *)video_out_drivers[i - 1]->info->short_name)) && (video_out_drivers[i - 1]->control(VOCTRL_GUI_NOWINDOW, NULL) == VO_TRUE)) {
-                        guiInfo.NoWindow = True;
+                        guiInfo.VideoWindow = False;
                         break;
                     }
                 }
@@ -974,7 +583,7 @@ int guiGetEvent(int type, void *arg)
 
         // subtitle
 
-// subdata->filename=gstrdup( guiInfo.Subtitlename );
+// subdata->filename=gstrdup( guiInfo.SubtitleFilename );
         stream_dump_type = 0;
 
         if (gtkSubDumpMPSub)
@@ -984,7 +593,7 @@ int guiGetEvent(int type, void *arg)
             stream_dump_type = 6;
 
         gtkSubDumpMPSub = gtkSubDumpSrt = 0;
-        guiLoadFont();
+        mplayerLoadFont();
 
         // misc
 
@@ -994,15 +603,13 @@ int guiGetEvent(int type, void *arg)
         if (gtkAutoSyncOn)
             autosync = gtkAutoSync;
 
-        if (guiInfo.AudioFile)
-            audio_stream = gstrdup(guiInfo.AudioFile);
-        else if (guiInfo.FilenameChanged)
-            gfree((void **)&audio_stream);
+        if (guiInfo.AudioFilename)
+            audio_stream = gstrdup(guiInfo.AudioFilename);
+        else if (guiInfo.NewPlay == GUI_FILE_NEW)
+            nfree(audio_stream);
 
 // audio_stream = NULL;
 
-        guiInfo.DiskChanged     = 0;
-        guiInfo.FilenameChanged = 0;
         guiInfo.NewPlay = 0;
 
 #ifdef CONFIG_ASS
@@ -1013,360 +620,249 @@ int guiGetEvent(int type, void *arg)
 #endif
 
         break;
-    }
 
-    return False;
-}
+    case GUI_SET_STREAM:
 
-void guiEventHandling(void)
-{
-    if (!guiInfo.Playing || guiInfo.NoWindow)
-        wsHandleEvents();
+        stream = data;
+        guiInfo.StreamType = stream->type;
 
-    gtkEventHandling();
-}
-
-// ---
-#if defined(MP_DEBUG) && 0
-void list(void)
-{
-    plItem *next = plList;
-
-    printf("--- list ---\n");
-
-    while (next || next->next) {
-        printf("item: %s/%s\n", next->path, next->name);
-
-        if (next->next)
-            next = next->next;
-        else
+        switch (guiInfo.StreamType) {
+#ifdef CONFIG_CDDA
+        case STREAMTYPE_CDDA:
+            guiInfo.Tracks = 0;
+            stream_control(stream, STREAM_CTRL_GET_NUM_TITLES, &guiInfo.Tracks);
             break;
-    }
-
-    printf("--- end of list ---\n");
-}
-#else
-#define list();
-#endif
-
-void *gtkSet(int cmd, float fparam, void *vparam)
-{
-    equalizer_t *eq   = (equalizer_t *)vparam;
-    plItem *item      = (plItem *)vparam;
-    urlItem *url_item = (urlItem *)vparam;
-    int is_added      = True;
-
-    switch (cmd) {
-    // handle playlist
-
-    // add item to playlist
-    case gtkAddPlItem:
-
-        if (plList) {
-            plItem *next = plList;
-
-            while (next->next)
-// {
-// printf( "%s\n",next->name );
-                next = next->next;
-// }
-
-            next->next = item;
-            item->prev = next;
-            item->next = NULL;
-        } else {
-            item->prev = item->next = NULL;
-            plCurrent  = plList = item;
-        }
-
-        list();
-
-        return NULL;
-
-    // add item into playlist after current
-    case gtkInsertPlItem:
-        if (plCurrent) {
-            plItem *curr = plCurrent;
-            item->next = curr->next;
-
-            if (item->next)
-                item->next->prev = item;
-
-            item->prev = curr;
-            curr->next = item;
-            plCurrent  = plCurrent->next;
-
-            return plCurrent;
-        } else
-            return gtkSet(gtkAddPlItem, 0, (void *)item);
-        return NULL;   // NOTE TO MYSELF: remove this
-
-    // get next item from playlist
-    case gtkGetNextPlItem:
-        if (plCurrent && plCurrent->next) {
-            plCurrent = plCurrent->next;
-// if (!plCurrent && plList)
-// {
-// plItem *next = plList;
-//
-// while (next->next)
-// {
-// if (!next->next) break;
-// next = next->next;
-// }
-//
-// plCurrent = next;
-// }
-            return plCurrent;
-        }
-
-        return NULL;
-
-    // get previous item from playlist
-    case gtkGetPrevPlItem:
-        if (plCurrent && plCurrent->prev) {
-            plCurrent = plCurrent->prev;
-// if ( !plCurrent && plList ) plCurrent=plList;
-            return plCurrent;
-        }
-
-        return NULL;
-
-    // set current item
-    case gtkSetCurrPlItem:
-        plCurrent = item;
-        return plCurrent;
-
-    // get current item
-    case gtkGetCurrPlItem:
-        return plCurrent;
-
-    // delete current item
-    case gtkDelCurrPlItem:
-    {
-        plItem *curr = plCurrent;
-
-        if (!curr)
-            return NULL;
-
-        if (curr->prev)
-            curr->prev->next = curr->next;
-        if (curr->next)
-            curr->next->prev = curr->prev;
-        if (curr == plList)
-            plList = curr->next;
-
-        plCurrent = curr->next;
-
-        // free it
-        free(curr->path);
-        free(curr->name);
-        free(curr);
-    }
-
-        uiCurr();   // instead of using uiNext && uiPrev
-
-        return plCurrent;
-
-    // delete list
-    case gtkDelPl:
-    {
-        plItem *curr = plList;
-        plItem *next;
-
-        if (!plList)
-            return NULL;
-
-        if (!curr->next) {
-            free(curr->path);
-            free(curr->name);
-            free(curr);
-        } else {
-            while (curr->next) {
-                next = curr->next;
-                free(curr->path);
-                free(curr->name);
-                free(curr);
-                curr = next;
-            }
-        }
-
-        plList    = NULL;
-        plCurrent = NULL;
-    }
-
-        return NULL;
-
-    // handle url
-    case gtkAddURLItem:
-        if (URLList) {
-            urlItem *next_url = URLList;
-            is_added = False;
-
-            while (next_url->next) {
-                if (!gstrcmp(next_url->url, url_item->url)) {
-                    is_added = True;
-                    break;
-                }
-
-                next_url = next_url->next;
-            }
-
-            if (!is_added && gstrcmp(next_url->url, url_item->url))
-                next_url->next = url_item;
-        } else {
-            url_item->next = NULL;
-            URLList = url_item;
-        }
-
-        return NULL;
-
-        // subtitle
-
-#ifndef CONFIG_FREETYPE
-    case gtkSetFontFactor:
-        font_factor = fparam;
-        guiLoadFont();
-        return NULL;
-#else
-    case gtkSetFontOutLine:
-        subtitle_font_thickness = (8.0f / 100.0f) * fparam;
-        guiLoadFont();
-        return NULL;
-
-    case gtkSetFontBlur:
-        subtitle_font_radius = (8.0f / 100.0f) * fparam;
-        guiLoadFont();
-        return NULL;
-
-    case gtkSetFontTextScale:
-        text_font_scale_factor = fparam;
-        guiLoadFont();
-        return NULL;
-
-    case gtkSetFontOSDScale:
-        osd_font_scale_factor = fparam;
-        guiLoadFont();
-        return NULL;
-
-    case gtkSetFontEncoding:
-        gfree((void **)&subtitle_font_encoding);
-        subtitle_font_encoding = gstrdup((char *)vparam);
-        guiLoadFont();
-        return NULL;
-
-    case gtkSetFontAutoScale:
-        subtitle_autoscale = (int)fparam;
-        guiLoadFont();
-        return NULL;
-#endif
-
-#ifdef CONFIG_ICONV
-    case gtkSetSubEncoding:
-        gfree((void **)&sub_cp);
-        sub_cp = gstrdup((char *)vparam);
-        break;
-#endif
-
-    // misc
-
-    case gtkClearStruct:
-
-        if ((unsigned int)vparam & guiFilenames) {
-            gfree((void **)&guiInfo.Filename);
-            gfree((void **)&guiInfo.Subtitlename);
-            gfree((void **)&guiInfo.AudioFile);
-            gtkSet(gtkDelPl, 0, NULL);
-        }
-
-#ifdef CONFIG_DVDREAD
-        if ((unsigned int)vparam & guiDVD)
-            memset(&guiInfo.DVD, 0, sizeof(guiDVDStruct));
 #endif
 
 #ifdef CONFIG_VCD
-        if ((unsigned int)vparam & guiVCD)
-            guiInfo.VCDTracks = 0;
+        case STREAMTYPE_VCD:
+            guiInfo.Tracks = 0;
+            stream_control(stream, STREAM_CTRL_GET_NUM_TITLES, &guiInfo.Tracks);
+            break;
 #endif
 
-        return NULL;
+#ifdef CONFIG_DVDREAD
+        case STREAMTYPE_DVD:
+            guiInfo.Tracks = 0;
+            stream_control(stream, STREAM_CTRL_GET_NUM_TITLES, &guiInfo.Tracks);
+            guiInfo.Chapters = 0;
+            stream_control(stream, STREAM_CTRL_GET_NUM_CHAPTERS, &guiInfo.Chapters);
+            guiInfo.Angles = 0;
+            stream_control(stream, STREAM_CTRL_GET_NUM_ANGLES, &guiInfo.Angles);
+            dvd = stream->priv;
+            guiInfo.AudioStreams = dvd->nr_of_channels;
+            memcpy(guiInfo.AudioStream, dvd->audio_streams, sizeof(dvd->audio_streams));
+            guiInfo.Subtitles = dvd->nr_of_subtitles;
+            memcpy(guiInfo.Subtitle, dvd->subtitles, sizeof(dvd->subtitles));
+            guiInfo.Track   = dvd_title + 1;
+            guiInfo.Chapter = dvd_chapter + 1;
+            guiInfo.Angle   = dvd_angle + 1;
+            break;
+#endif
 
-    case gtkSetExtraStereo:
-        gtkAOExtraStereoMul = fparam;
-        if (guiInfo.afilter)
-            af_control_any_rev(guiInfo.afilter, AF_CONTROL_ES_MUL | AF_CONTROL_SET, &gtkAOExtraStereoMul);
-        return NULL;
+        default:
+            break;
+        }
 
-    case gtkSetPanscan:
-    {
-        mp_cmd_t *mp_cmd;
+        break;
 
-        mp_cmd       = calloc(1, sizeof(*mp_cmd));
-        mp_cmd->id   = MP_CMD_PANSCAN;
-        mp_cmd->name = strdup("panscan");
-        mp_cmd->args[0].v.f = fparam;
-        mp_cmd->args[1].v.i = 1;
-        mp_input_queue_cmd(mp_cmd);
-    }
+    case GUI_SET_AFILTER:
+        guiInfo.afilter = data;
+        break;
 
-        return NULL;
+    case GUI_SET_VIDEO:
 
-    case gtkSetAutoq:
-        auto_quality = (int)fparam;
-        return NULL;
+        // video
 
-    // set equalizers
+        guiInfo.sh_video = data;
 
-    case gtkSetContrast:
-        if (guiInfo.sh_video)
-            set_video_colors(guiInfo.sh_video, "contrast", (int)fparam);
-        return NULL;
+        state = (guiInfo.StreamType == STREAMTYPE_STREAM ? btnDisabled : btnReleased);
+        btnSet(evForward10sec, state);
+        btnSet(evBackward10sec, state);
+        btnSet(evForward1min, state);
+        btnSet(evBackward1min, state);
+        btnSet(evForward10min, state);
+        btnSet(evBackward10min, state);
+        btnSet(evSetMoviePosition, state);
 
-    case gtkSetBrightness:
-        if (guiInfo.sh_video)
-            set_video_colors(guiInfo.sh_video, "brightness", (int)fparam);
-        return NULL;
+#ifdef CONFIG_DXR3
+        if (video_driver_list && !gstrcmp(video_driver_list[0], "dxr3") && (((demuxer_t *)mpctx_get_demuxer(guiInfo.mpcontext))->file_format != DEMUXER_TYPE_MPEG_PS) && !gtkVfLAVC) {
+            gtkMessageBox(GTK_MB_FATAL, MSGTR_NEEDLAVC);
+            return False;
+        }
+#endif
 
-    case gtkSetHue:
-        if (guiInfo.sh_video)
-            set_video_colors(guiInfo.sh_video, "hue", (int)fparam);
-        return NULL;
+        break;
 
-    case gtkSetSaturation:
-        if (guiInfo.sh_video)
-            set_video_colors(guiInfo.sh_video, "saturation", (int)fparam);
-        return NULL;
+    case GUI_SET_AUDIO:
 
-    case gtkSetEqualizer:
-    {
-        af_control_ext_t tmp;
+        guiInfo.AudioChannels = data ? ((sh_audio_t *)data)->channels : 0;
 
-        if (eq) {
-            gtkEquChannels[eq->channel][eq->band] = eq->gain;
-            tmp.ch  = eq->channel;
-            tmp.arg = gtkEquChannels[eq->channel];
+        if (data && !guiInfo.sh_video)
+            guiInfo.VideoWindow = False;
 
-            if (guiInfo.afilter)
-                af_control_any_rev(guiInfo.afilter, AF_CONTROL_EQUALIZER_GAIN | AF_CONTROL_SET, &tmp);
-        } else {
-            int i;
+        gui(GUI_SET_MIXER, 0);
 
-            memset(gtkEquChannels, 0, sizeof(gtkEquChannels));
+        if (gtkEnableAudioEqualizer) {
+            equalizer_t eq;
+            unsigned int i, j;
 
-            if (guiInfo.afilter) {
-                for (i = 0; i < 6; i++) {
-                    tmp.ch  = i;
-                    tmp.arg = gtkEquChannels[i];
-                    af_control_any_rev(guiInfo.afilter, AF_CONTROL_EQUALIZER_GAIN | AF_CONTROL_SET, &tmp);
+            for (i = 0; i < FF_ARRAY_ELEMS(gtkEquChannels); i++) {
+                for (j = 0; j < FF_ARRAY_ELEMS(*gtkEquChannels); j++) {
+                    eq.channel = i;
+                    eq.band    = j;
+                    eq.gain    = gtkEquChannels[i][j];
+                    mplayer(MPLAYER_SET_EQUALIZER, 0, &eq);
                 }
             }
         }
 
-        return NULL;
-    }
+        // These must be done here (in the last call from MPlayer before
+        // playback starts) and not in GUI_SETUP_VIDEO_WINDOW, because...
+
+        // ...without video there will be no call to GUI_SETUP_VIDEO_WINDOW
+        if (!guiInfo.VideoWindow) {
+            wsVisibleWindow(&guiApp.subWindow, wsHideWindow);
+            btnSet(evFullScreen, (gtkLoadFullscreen ? btnPressed : btnReleased));
+        }
+
+        // ...option variable fullscreen determines whether MPlayer will handle
+        //    the window given by WinID as fullscreen window (and will do aspect
+        //    scaling then) or not - quite rubbish
+        fullscreen = gtkLoadFullscreen;
+
+        break;
+
+    case GUI_SET_MIXER:
+        if (mixer) {
+            float l, r;
+            static float last_balance = -1;
+
+            mixer_getvolume(mixer, &l, &r);
+
+            guiInfo.Volume = FFMAX(l, r);
+            btnModify(evSetVolume, guiInfo.Volume);
+
+            if (guiInfo.Balance != last_balance) {
+                if (guiInfo.Volume)
+                    guiInfo.Balance = ((r - l) / guiInfo.Volume + 1.0) * 50.0;
+                else
+                    guiInfo.Balance = 50.0f;
+
+                last_balance = guiInfo.Balance;
+                btnModify(evSetBalance, guiInfo.Balance);
+            }
+        }
+        break;
+
+    case GUI_REDRAW:
+        uiEventHandling(ivRedraw, 0);
+        break;
+
+    case GUI_SETUP_VIDEO_WINDOW:
+
+        guiInfo.VideoWidth  = vo_dwidth;
+        guiInfo.VideoHeight = vo_dheight;
+
+        if (!guiApp.subWindow.isFullScreen || !guiApp.subWindow.Mapped) {
+            if (!guiApp.subWindow.isFullScreen)
+                wsResizeWindow(&guiApp.subWindow, guiInfo.VideoWidth, guiInfo.VideoHeight);
+
+            wsMoveWindow(&guiApp.subWindow, False, guiApp.sub.x, guiApp.sub.y);
+
+            if (!guiApp.subWindow.Mapped)
+                wsVisibleWindow(&guiApp.subWindow, wsShowWindow);
+        }
+
+        if (gtkLoadFullscreen ^ guiApp.subWindow.isFullScreen)
+            uiEventHandling(evFullScreen, 0);
+
+        if (guiWinID >= 0)
+            wsMoveWindow(&guiApp.mainWindow, True, 0, guiInfo.VideoHeight);
+
+        break;
+
+    case GUI_HANDLE_X_EVENT:
+        wsEvents(wsDisplay, data);
+        gtkEventHandling();
+        break;
+
+    case GUI_END_FILE:
+
+        uiEventHandling(ivRedraw, 1);
+
+        guiInfo.sh_video = NULL;
+
+        if (!uiGotoTheNext && guiInfo.Playing) {
+            uiGotoTheNext = 1;
+            break;
+        }
+
+#ifdef CONFIG_CDDA
+        if (guiInfo.StreamType == STREAMTYPE_CDDA) {
+            uiNext();
+
+            if (guiInfo.Playing)
+                break;
+        }
+#endif
+
+        if (guiInfo.Playing && (next = listSet(gtkGetNextPlItem, NULL)) && (plLastPlayed != next)) {
+            plLastPlayed = next;
+            uiSetFileName(next->path, next->name, STREAMTYPE_FILE);
+            guiInfo.NewPlay = GUI_FILE_NEW;
+            guiInfo.Track++;
+        } else {
+            if (guiInfo.NewPlay == GUI_FILE_NEW)
+                break;
+
+            filename = NULL;
+
+            guiInfo.ElapsedTime   = 0;
+            guiInfo.Position      = 0;
+            guiInfo.AudioChannels = 0;
+
+#ifdef CONFIG_DVDREAD
+            guiInfo.Track   = 1;
+            guiInfo.Chapter = 1;
+            guiInfo.Angle   = 1;
+#endif
+
+            if (gtkShowVideoWindow) {
+                guiInfo.VideoWindow = True;
+                guiInfo.VideoWidth  = guiApp.sub.width;
+                guiInfo.VideoHeight = guiApp.sub.height;
+
+                if (!guiApp.subWindow.isFullScreen) {
+                    wsResizeWindow(&guiApp.subWindow, guiInfo.VideoWidth, guiInfo.VideoHeight);
+                    wsMoveWindow(&guiApp.subWindow, False, guiApp.sub.x, guiApp.sub.y);
+                }
+
+                if (!guiApp.subWindow.Mapped)
+                    wsVisibleWindow(&guiApp.subWindow, wsShowWindow);
+
+                if (gtkLoadFullscreen ^ guiApp.subWindow.isFullScreen)
+                    uiEventHandling(evFullScreen, 0);
+            } else {
+                wsVisibleWindow(&guiApp.subWindow, wsHideWindow);
+                guiInfo.VideoWindow = False;
+                btnSet(evFullScreen, (gtkLoadFullscreen ? btnPressed : btnReleased));
+            }
+
+            gui(GUI_SET_STATE, (void *)GUI_STOP);
+
+            wsHandleEvents();
+            uiSubRender = 1;
+            wsSetBackgroundRGB(&guiApp.subWindow, guiApp.sub.R, guiApp.sub.G, guiApp.sub.B);
+            wsClearWindow(guiApp.subWindow);
+            wsPostRedisplay(&guiApp.subWindow);
+            wsVisibleMouse(&guiApp.subWindow, wsShowMouseCursor);
+        }
+
+        break;
     }
 
-    return NULL;
+    return True;
 }
 
 // This function adds/inserts one file into the gui playlist.
@@ -1383,7 +879,7 @@ static int import_file_into_gui(char *temp, int insert)
     else
         pathname[strlen(pathname) - strlen(filename)] = 0;
 
-    mp_dbg(MSGT_GPLAYER, MSGL_DBG2, "[interface] playtree, add: %s/%s\n", pathname, filename);
+    mp_msg(MSGT_GPLAYER, MSGL_DBG2, "[interface] playtree, add: %s/%s\n", pathname, filename);
 
     item = calloc(1, sizeof(plItem));
 
@@ -1394,9 +890,9 @@ static int import_file_into_gui(char *temp, int insert)
     item->path = pathname;
 
     if (insert)
-        gtkSet(gtkInsertPlItem, 0, (void *)item);            // inserts the item after current, and makes current=item
+        listSet(gtkInsertPlItem, item);           // inserts the item after current, and makes current=item
     else
-        gtkSet(gtkAddPlItem, 0, (void *)item);
+        listSet(gtkAddPlItem, item);
 
     return 1;
 }
@@ -1405,13 +901,13 @@ static int import_file_into_gui(char *temp, int insert)
 // into the gui playlist by either:
 // - overwriting gui pl (enqueue=0)
 // - appending it to gui pl (enqueue=1)
-int import_initial_playtree_into_gui(play_tree_t *my_playtree, m_config_t *config, int enqueue)
+int guiPlaylistInitialize(play_tree_t *my_playtree, m_config_t *config, int enqueue)
 {
     play_tree_iter_t *my_pt_iter = NULL;
     int result = 0;
 
     if (!enqueue)
-        gtkSet(gtkDelPl, 0, 0);             // delete playlist before "appending"
+        listSet(gtkDelPl, NULL);             // delete playlist before "appending"
 
     if ((my_pt_iter = pt_iter_create(&my_playtree, config))) {
         while ((filename = pt_iter_get_next_file(my_pt_iter)) != NULL)
@@ -1423,26 +919,24 @@ int import_initial_playtree_into_gui(play_tree_t *my_playtree, m_config_t *confi
     uiCurr();   // update filename
     uiGotoTheNext = 1;
 
-    if (!enqueue)
-        filename = guiInfo.Filename;             // Backward compatibility; if file is specified on commandline,
-                                                 // gmplayer does directly start in Play-Mode.
-    else
-        filename = NULL;
+    if (enqueue)
+        filename = NULL;            // don't start playing
 
     return result;
 }
 
 // This function imports and inserts an playtree, that is created "on the fly",
 // for example by parsing some MOV-Reference-File; or by loading an playlist
-// with "File Open".
+// with "File Open". (The latter, actually, isn't allowed in MPlayer and thus
+// not working which is why this function won't get called for that reason.)
 // The file which contained the playlist is thereby replaced with it's contents.
-int import_playtree_playlist_into_gui(play_tree_t *my_playtree, m_config_t *config)
+int guiPlaylistAdd(play_tree_t *my_playtree, m_config_t *config)
 {
     play_tree_iter_t *my_pt_iter = NULL;
     int result = 0;
     plItem *save;
 
-    save = (plItem *)gtkSet(gtkGetCurrPlItem, 0, 0);    // save current item
+    save = (plItem *)listSet(gtkGetCurrPlItem, NULL);    // save current item
 
     if ((my_pt_iter = pt_iter_create(&my_playtree, config))) {
         while ((filename = pt_iter_get_next_file(my_pt_iter)) != NULL)
@@ -1454,17 +948,245 @@ int import_playtree_playlist_into_gui(play_tree_t *my_playtree, m_config_t *conf
     }
 
     if (save)
-        gtkSet(gtkSetCurrPlItem, 0, (void *)save);
+        listSet(gtkSetCurrPlItem, save);
     else
-        gtkSet(gtkSetCurrPlItem, 0, (void *)plList);     // go to head, if plList was empty before
+        listSet(gtkSetCurrPlItem, plList);    // go to head, if plList was empty before
 
     if (save && result)
-        gtkSet(gtkDelCurrPlItem, 0, 0);
+        listSet(gtkDelCurrPlItem, NULL);
 
     uiCurr();   // update filename
-    filename = NULL;
 
     return result;
+}
+
+/* GUI -> MPlayer */
+
+void mplayer(int what, float value, void *data)
+{
+    equalizer_t *eq = (equalizer_t *)data;
+
+    switch (what) {
+        // subtitle
+
+#ifndef CONFIG_FREETYPE
+    case MPLAYER_SET_FONT_FACTOR:
+        font_factor = value;
+        mplayerLoadFont();
+        break;
+#else
+    case MPLAYER_SET_FONT_OUTLINE:
+        subtitle_font_thickness = (8.0f / 100.0f) * value;
+        mplayerLoadFont();
+        break;
+
+    case MPLAYER_SET_FONT_BLUR:
+        subtitle_font_radius = (8.0f / 100.0f) * value;
+        mplayerLoadFont();
+        break;
+
+    case MPLAYER_SET_FONT_TEXTSCALE:
+        text_font_scale_factor = value;
+        mplayerLoadFont();
+        break;
+
+    case MPLAYER_SET_FONT_OSDSCALE:
+        osd_font_scale_factor = value;
+        mplayerLoadFont();
+        break;
+
+    case MPLAYER_SET_FONT_ENCODING:
+        nfree(subtitle_font_encoding);
+        subtitle_font_encoding = gstrdup((char *)data);
+        mplayerLoadFont();
+        break;
+
+    case MPLAYER_SET_FONT_AUTOSCALE:
+        subtitle_autoscale = (int)value;
+        mplayerLoadFont();
+        break;
+#endif
+
+#ifdef CONFIG_ICONV
+    case MPLAYER_SET_SUB_ENCODING:
+        nfree(sub_cp);
+        sub_cp = gstrdup((char *)data);
+        break;
+#endif
+
+    case MPLAYER_SET_EXTRA_STEREO:
+        gtkAOExtraStereoMul = value;
+        if (guiInfo.afilter)
+            af_control_any_rev(guiInfo.afilter, AF_CONTROL_ES_MUL | AF_CONTROL_SET, &gtkAOExtraStereoMul);
+        break;
+
+    case MPLAYER_SET_PANSCAN:
+    {
+        mp_cmd_t *mp_cmd;
+
+        mp_cmd       = calloc(1, sizeof(*mp_cmd));
+        mp_cmd->id   = MP_CMD_PANSCAN;
+        mp_cmd->name = strdup("panscan");
+        mp_cmd->args[0].v.f = value;
+        mp_cmd->args[1].v.i = 1;
+        mp_input_queue_cmd(mp_cmd);
+    }
+    break;
+
+    case MPLAYER_SET_AUTO_QUALITY:
+        auto_quality = (int)value;
+        break;
+
+    // set equalizers
+
+    case MPLAYER_SET_CONTRAST:
+        if (guiInfo.sh_video)
+            set_video_colors(guiInfo.sh_video, "contrast", (int)value);
+        break;
+
+    case MPLAYER_SET_BRIGHTNESS:
+        if (guiInfo.sh_video)
+            set_video_colors(guiInfo.sh_video, "brightness", (int)value);
+        break;
+
+    case MPLAYER_SET_HUE:
+        if (guiInfo.sh_video)
+            set_video_colors(guiInfo.sh_video, "hue", (int)value);
+        break;
+
+    case MPLAYER_SET_SATURATION:
+        if (guiInfo.sh_video)
+            set_video_colors(guiInfo.sh_video, "saturation", (int)value);
+        break;
+
+    case MPLAYER_SET_EQUALIZER:
+    {
+        af_control_ext_t tmp;
+
+        if (eq) {
+            gtkEquChannels[eq->channel][eq->band] = eq->gain;
+            tmp.ch  = eq->channel;
+            tmp.arg = gtkEquChannels[eq->channel];
+
+            if (guiInfo.afilter)
+                af_control_any_rev(guiInfo.afilter, AF_CONTROL_EQUALIZER_GAIN | AF_CONTROL_SET, &tmp);
+        } else {
+            unsigned int i;
+
+            memset(gtkEquChannels, 0, sizeof(gtkEquChannels));
+
+            if (guiInfo.afilter) {
+                for (i = 0; i < FF_ARRAY_ELEMS(gtkEquChannels); i++) {
+                    tmp.ch  = i;
+                    tmp.arg = gtkEquChannels[i];
+                    af_control_any_rev(guiInfo.afilter, AF_CONTROL_EQUALIZER_GAIN | AF_CONTROL_SET, &tmp);
+                }
+            }
+        }
+
+        break;
+    }
+
+    case MPLAYER_EXIT_GUI:
+        exit_player_with_rc((enum exit_reason)value, (enum exit_reason)value >= EXIT_ERROR);
+        break;
+    }
+}
+
+void mplayerLoadFont(void)
+{
+#ifdef CONFIG_FREETYPE
+    load_font_ft(vo_image_width, vo_image_height, &vo_font, font_name, osd_font_scale_factor);
+#else
+    if (vo_font) {
+        int i;
+
+        free(vo_font->name);
+        free(vo_font->fpath);
+
+        for (i = 0; i < 16; i++) {
+            if (vo_font->pic_a[i]) {
+                free(vo_font->pic_a[i]->bmp);
+                free(vo_font->pic_a[i]->pal);
+            }
+        }
+
+        for (i = 0; i < 16; i++) {
+            if (vo_font->pic_b[i]) {
+                free(vo_font->pic_b[i]->bmp);
+                free(vo_font->pic_b[i]->pal);
+            }
+        }
+
+        free(vo_font);
+        vo_font = NULL;
+    }
+
+    if (font_name) {
+        vo_font = read_font_desc(font_name, font_factor, 0);
+
+        if (!vo_font)
+            gmp_msg(MSGT_GPLAYER, MSGL_ERR, MSGTR_CantLoadFont, font_name);
+    } else {
+        font_name = gstrdup(get_path("font/font.desc"));
+        vo_font   = read_font_desc(font_name, font_factor, 0);
+
+        if (!vo_font) {
+            nfree(font_name);
+            font_name = gstrdup(MPLAYER_DATADIR "/font/font.desc");
+            vo_font   = read_font_desc(font_name, font_factor, 0);
+        }
+    }
+#endif
+}
+
+void mplayerLoadSubtitle(const char *name)
+{
+    if (guiInfo.Playing == 0)
+        return;
+
+    if (subdata) {
+        mp_msg(MSGT_GPLAYER, MSGL_INFO, MSGTR_DeletingSubtitles);
+
+        sub_free(subdata);
+        subdata = NULL;
+        vo_sub  = NULL;
+
+        if (vo_osd_list) {
+            int len;
+            mp_osd_obj_t *osd;
+
+            osd = vo_osd_list;
+
+            while (osd) {
+                if (osd->type == OSDTYPE_SUBTITLE)
+                    break;
+
+                osd = osd->next;
+            }
+
+            if (osd && (osd->flags & OSDFLAG_VISIBLE)) {
+                len = osd->stride * (osd->bbox.y2 - osd->bbox.y1);
+                memset(osd->bitmap_buffer, 0, len);
+                memset(osd->alpha_buffer, 0, len);
+            }
+        }
+    }
+
+    if (name) {
+        mp_msg(MSGT_GPLAYER, MSGL_INFO, MSGTR_LoadingSubtitles, name);
+
+        subdata = sub_read_file(name, (guiInfo.sh_video ? guiInfo.sh_video->fps : 0));
+
+        if (!subdata)
+            gmp_msg(MSGT_GPLAYER, MSGL_ERR, MSGTR_CantLoadSub, name);
+
+        sub_name    = (malloc(2 * sizeof(char *))); // when mplayer will be restarted
+        sub_name[0] = strdup(name);                 // sub_name[0] will be read
+        sub_name[1] = NULL;
+    }
+
+    update_set_of_subtitles();
 }
 
 // NOTE TO MYSELF: This function is nonsense.

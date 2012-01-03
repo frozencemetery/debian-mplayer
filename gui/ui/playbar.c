@@ -26,8 +26,10 @@
 
 #include "config.h"
 #include "gui/app.h"
+#include "gui/interface.h"
 #include "gui/skin/font.h"
 #include "gui/skin/skin.h"
+#include "gui/util/mem.h"
 #include "gui/wm/ws.h"
 
 #include "help_mp.h"
@@ -81,7 +83,7 @@ static void uiPlaybarDraw( void )
 	  uiPlaybarFade=0;
 	  vo_mouse_autohide=0;
 	 }
-        wsMoveWindow( &guiApp.playbarWindow,0,x,playbarLength );
+        wsMoveWindow( &guiApp.playbarWindow,True,x,playbarLength );
 	break;
    case 2: // fade out
 	playbarLength+=10;
@@ -93,7 +95,7 @@ static void uiPlaybarDraw( void )
           wsVisibleWindow( &guiApp.playbarWindow,wsHideWindow );
 	  return;
 	 }
-        wsMoveWindow( &guiApp.playbarWindow,0,x,playbarLength );
+        wsMoveWindow( &guiApp.playbarWindow,True,x,playbarLength );
 	break;
   }
 
@@ -130,18 +132,18 @@ static void uiPlaybarMouseHandle( int Button, int X, int Y, int RX, int RY )
  switch ( Button )
   {
    case wsPMMouseButton:
-        gtkShow( evHidePopUpMenu,NULL );
+        gtkShow( ivHidePopUpMenu,NULL );
         uiShowMenu( RX,RY );
         break;
    case wsRMMouseButton:
         uiHideMenu( RX,RY,0 );
         break;
    case wsRRMouseButton:
-        gtkShow( evShowPopUpMenu,NULL );
+        gtkShow( ivShowPopUpMenu,NULL );
 	break;
 // ---
    case wsPLMouseButton:
-	gtkShow( evHidePopUpMenu,NULL );
+	gtkShow( ivHidePopUpMenu,NULL );
         SelectedItem=currentselected;
         if ( SelectedItem == -1 ) break; // yeees, i'm move the fucking window
         item=&guiApp.playbarItems[SelectedItem];
@@ -242,12 +244,12 @@ void uiPlaybarInit( void )
 {
  if ( !guiApp.playbarIsPresent ) return;
 
- gfree( (void**)&playbarDrawBuffer );
+ nfree( playbarDrawBuffer );
 
  if ( ( playbarDrawBuffer = malloc( guiApp.playbar.Bitmap.ImageSize ) ) == NULL )
   {
    gmp_msg( MSGT_GPLAYER,MSGL_FATAL,MSGTR_NEMDB );
-   guiExit( EXIT_ERROR );
+   mplayer( MPLAYER_EXIT_GUI, EXIT_ERROR, 0 );
   }
 
  guiApp.playbarWindow.Parent=guiApp.subWindow.WindowID;
