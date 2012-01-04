@@ -107,6 +107,7 @@ build-arch:
 	dh_prep -a
 	$(MAKE) -f debian/rules debian/mplayer/usr/bin/mplayer
 	$(MAKE) -f debian/rules debian/mencoder/usr/bin/mencoder
+	$(MAKE) -f debian/rules debian/mplayer-gui/usr/bin/gmplayer
 
 # build non-gui version
 # & mencoder
@@ -124,6 +125,19 @@ debian/mplayer/usr/bin/mplayer debian/mencoder/usr/bin/mencoder:
 	                  $(CURDIR)/debian/mplayer/etc/mplayer/mplayer.conf
 	sed -e "s/@SOUND_BACKEND@/$(sound_backend)/" -i \
 	                  $(CURDIR)/debian/mplayer/etc/mplayer/mplayer.conf
+
+# build gui version
+debian/mplayer-gui/usr/bin/gmplayer:
+	dh_testdir
+	$(CLEAN_ENV) \
+	./configure $(CONFIGURE_FLAGS) --enable-gui
+	$(CLEAN_ENV) \
+	$(MAKE) $(NUMJOBS) mplayer
+	install -D -m 755 mplayer $(CURDIR)/debian/mplayer-gui/usr/bin/gmplayer
+	install -D -m 644 etc/mplayer.desktop \
+	                  $(CURDIR)/debian/mplayer-gui/usr/share/applications/mplayer.desktop
+	install -D -m 644 etc/mplayer.png \
+	                  $(CURDIR)/debian/mplayer-gui/usr/share/pixmaps/mplayer.png
 
 
 # binaries already installed via build rules as we have to build several flavors
