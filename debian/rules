@@ -92,10 +92,6 @@ else
     sound_backend := oss
 endif
 
-# See http://wiki.debian.org/Teams/Dpkg/DebianRules; #465282  and
-# https://wiki.ubuntu.com/DistCompilerFlags
-CLEAN_ENV=env -u CFLAGS -u CPPFLAGS -u LDFLAGS -u FFLAGS -u CXXFLAGS
-
 build: build-arch build-indep
 
 ####### build-arch
