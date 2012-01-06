@@ -1,4 +1,4 @@
-mplayer (2:1.0~rc4+svn34492-1) UNRELEASED; urgency=low
+mplayer (2:1.0~rc4.dfsg1+svn34492-1) UNRELEASED; urgency=low
 
   [ Rico Tzschichholz ]
   * New upstream snapshot, Closes: #650339, #643621
