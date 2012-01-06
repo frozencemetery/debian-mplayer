@@ -99,12 +99,7 @@ Description: movie player for Unix-like systems
  .
  Another big feature of MPlayer is the wide range of supported output
  drivers. It works with X11, Xv, DGA, OpenGL, SVGAlib, fbdev,
- DirectFB, but also SDL (plus all its drivers) and some
- low level card-specific drivers (for Matrox, 3Dfx and Radeon, Mach64
- and Permedia3). Most of them support software or hardware scaling,
- therefore allowing fullscreen display.  MPlayer is also able
- to use some hardware MPEG decoder boards, such as the DVB
- and DXR3/Hollywood+.
+ DirectFB, but also SDL.
  .
  This package includes the gui variant of mplayer.
 
@@ -158,12 +153,7 @@ Description: movie player for Unix-like systems
  .
  Another big feature of MPlayer is the wide range of supported output
  drivers. It works with X11, Xv, DGA, OpenGL, SVGAlib, fbdev,
- DirectFB, but also SDL (plus all its drivers) and some
- low level card-specific drivers (for Matrox, 3Dfx and Radeon, Mach64
- and Permedia3). Most of them support software or hardware scaling,
- therefore allowing fullscreen display.  MPlayer is also able
- to use some hardware MPEG decoder boards, such as the DVB
- and DXR3/Hollywood+.
+ DirectFB, but also SDL.
  .
  Not all of the upstream code is distributed in the source tarball.
  See the README.Debian and copyright files for details.

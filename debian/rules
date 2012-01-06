@@ -86,7 +86,7 @@ CONFIGURE_FLAGS += --enable-debug
 endif
 
 ifeq (linux,$(DEB_HOST_ARCH_OS))
-    CONFIGURE_FLAGS += --enable-mga --enable-3dfx --enable-tdfxfb --enable-joystick
+    CONFIGURE_FLAGS += --enable-joystick
     sound_backend := alsa
 else
     sound_backend := oss
