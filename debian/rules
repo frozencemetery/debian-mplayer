@@ -33,6 +33,7 @@ DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 DEB_HOST_ARCH       ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 DEB_HOST_ARCH_OS    ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
 DEB_HOST_ARCH_CPU   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_CPU)
+DEB_VENDOR          ?= $(shell dpkg-vendor --query Vendor)
 
 
 # XXX enable-menu is frowned upon by upstream
@@ -98,6 +99,7 @@ build: build-arch build-indep
 build-arch:
 	dh_testdir
 	dh_prep -a
+	echo "svn r$(SVN_VERSION) ($(DEB_VENDOR)), built with gcc" > VERSION
 	$(MAKE) -f debian/rules debian/mplayer/usr/bin/mplayer
 	$(MAKE) -f debian/rules debian/mencoder/usr/bin/mencoder
 	$(MAKE) -f debian/rules debian/mplayer-gui/usr/bin/gmplayer
@@ -157,6 +159,7 @@ install-indep: build-indep
 clean:
 	dh_testdir
 	dh_testroot
+	dh_clean VERSION
 	-test -f config.mak && $(MAKE) distclean
 
 # Build architecture-independent packages
