@@ -1,17 +1,23 @@
-mplayer (2:1.0~rc4.dfsg1+svn34492-1) UNRELEASED; urgency=low
+mplayer (2:1.0~rc4.dfsg1+svn34492-1) experimental; urgency=low
 
   [ Rico Tzschichholz ]
-  * New upstream snapshot, Closes: #650339, #643621
+  * New upstream snapshot, Closes: #650339, #643621, #481807
   * Imported Upstream version 1.0~rc4+svn34492
   * Bump standards version
   * Bump dependency on libav >= 4:0.8~, Closes: #653887
   * Fix build-indep
 
   [ Reinhard Tartler ]
-  * Build mplayer-gui again
+  * Build mplayer-gui again, Closes: #568514
   * Drop debian/all-lang-config-mak.sh, no longer needed
+  * include .dfsg1 in version number
+  * remove get-orig-source target
+  * no longer prune compiler flags from the environment
+  * No longer advertise nor build 3fdx, mga and dxr3 backends,
+    Closes: #496106, #442181, #533546
+  * beautify mplayer version identification string
 
- -- Reinhard Tartler <siretart@tauware.de>  Fri, 06 Jan 2012 12:05:35 +0100
+ -- Reinhard Tartler <siretart@tauware.de>  Fri, 06 Jan 2012 16:26:01 +0100
 
 mplayer (2:1.0~rc4.dfsg1+svn33713-5) unstable; urgency=low
 
