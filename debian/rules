@@ -28,9 +28,6 @@ UPSTREAM_VERSION := $(shell echo $(DEB_VERSION) | sed -r 's/[^:]+://; s/-[^-]+$$
 SVN_VERSION := $(shell echo $(UPSTREAM_VERSION) | sed -nr 's/^[0-9.:-~]+\+svn([0-9]+)$$/\1/p')
 
 
-#UPSTREAMSOURCE := upstream SVN repository
-UPSTREAMSOURCE := http://www1.mplayerhq.hu/MPlayer/releases/MPlayer-1.0rc1.tar.bz2
-
 DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 DEB_HOST_ARCH       ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
@@ -192,10 +189,6 @@ binary-arch: install-arch
 	dh_builddeb
 
 binary: binary-indep binary-arch
-
-get-orig-source:
-	dh_testdir
-	sh debian/get-orig-source.sh -d $(SVN_VERSION)
 
 PHONY += build clean binary-indep binary-arch binary-common binary 
 PHONY += install binary binary-arch binary-indep clean checkroot get-orig-source
