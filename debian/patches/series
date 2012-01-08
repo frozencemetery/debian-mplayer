@@ -1,2 +1,3 @@
 23mplayer-debug-printf.patch
 50_Hurd_PATH_MAX.patch
+51_FTBFS_arm.patch

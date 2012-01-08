@@ -1,0 +1,17 @@
+Author: Reinhard Tartler <siretart@tauware.de>
+Description: avoid FTBFS on arm
+
+https://buildd.debian.org/status/fetch.php?pkg=mplayer&arch=armel&ver=2%3A1.0~rc4.dfsg1%2Bsvn34492-1&stamp=1325969800
+
+diff --git a/configure b/configure
+index 253336a..b067065 100755
+--- a/configure
++++ b/configure
+@@ -2920,7 +2920,6 @@ if arm ; then
+     extra_cflags="$extra_cflags -mthumb"
+     def_armthumb='#define CONFIG_THUMB 1'
+   else
+-    extra_cflags="$extra_cflags -marm"
+     def_armthumb='#define CONFIG_THUMB 0'
+   fi
+   echores "$armthumb"
