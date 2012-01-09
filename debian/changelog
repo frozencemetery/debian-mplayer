@@ -1,3 +1,10 @@
+mplayer (2:1.0~rc4.dfsg1+svn34492-3) experimental; urgency=low
+
+  * Build against external libmpeg2
+  * drop 51_FTBFS_arm.patch again
+
+ -- Reinhard Tartler <siretart@tauware.de>  Mon, 09 Jan 2012 22:23:38 +0100
+
 mplayer (2:1.0~rc4.dfsg1+svn34492-2) experimental; urgency=low
 
   * no longer build depend on libcdparanoia-dev on the Hurd
