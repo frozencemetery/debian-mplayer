@@ -44,8 +44,9 @@ CONFIGURE_FLAGS = \
 	--enable-menu \
 	--disable-arts \
 	--language=all \
-	--disable-libdvdcss-internal \
 	--disable-dvdread-internal \
+	--disable-libdvdcss-internal \
+	--disable-libmpeg2-internal \
 	--disable-ffmpeg_a \
 	$(archconf)
 

@@ -45,6 +45,7 @@ Build-Depends:
  liblzo2-dev,
  libmp3lame-dev,
  libmpcdec-dev,
+ libmpeg2-4-dev,
  libncurses5-dev,
  libopenal-dev,
  libpng12-dev | libpng-dev,
