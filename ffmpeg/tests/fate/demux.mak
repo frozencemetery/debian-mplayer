@@ -10,6 +10,9 @@ fate-bink-demux: CMD = crc -i $(SAMPLES)/bink/Snd0a7d9b58.dee -vn -acodec copy
 FATE_TESTS += fate-bink-demux-video
 fate-bink-demux-video: CMD = framecrc -i $(SAMPLES)/bink/hol2br.bik
 
+FATE_TESTS += fate-bmv
+fate-bmv: CMD = framecrc -i $(SAMPLES)/bmv/SURFING-partial.BMV -pix_fmt rgb24
+
 FATE_TESTS += fate-caf
 fate-caf: CMD = crc -i $(SAMPLES)/caf/caf-pcm16.caf
 
@@ -76,5 +79,17 @@ fate-sierra-vmd: CMD = framecrc -i $(SAMPLES)/vmd/12.vmd -vsync 0 -pix_fmt rgb24
 FATE_TESTS += fate-siff
 fate-siff: CMD = framecrc -i $(SAMPLES)/SIFF/INTRO_B.VB -t 3 -pix_fmt rgb24
 
+FATE_TESTS += fate-smjpeg
+fate-smjpeg: CMD = framecrc -i $(SAMPLES)/smjpeg/scenwin.mjpg -vcodec copy
+
 FATE_TESTS += fate-westwood-aud
 fate-westwood-aud: CMD = md5 -i $(SAMPLES)/westwood-aud/excellent.aud -f s16le
+
+FATE_TESTS += fate-wtv-demux
+fate-wtv-demux: CMD = framecrc -i $(SAMPLES)/wtv/law-and-order-partial.wtv -vcodec copy -acodec copy
+
+FATE_TESTS += fate-xmv-demux
+fate-xmv-demux: CMD = framecrc -i $(SAMPLES)/xmv/logos1p.fmv -vcodec copy -acodec copy
+
+FATE_TESTS += fate-xwma-demux
+fate-xwma-demux: CMD = crc -i $(SAMPLES)/xwma/ergon.xwma -acodec copy

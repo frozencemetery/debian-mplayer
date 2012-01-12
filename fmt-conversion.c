@@ -57,6 +57,8 @@ static const struct {
     {IMGFMT_RGB8,    PIX_FMT_BGR8},
     {IMGFMT_RGB4,    PIX_FMT_BGR4},
     {IMGFMT_BGR8,    PIX_FMT_PAL8},
+// NB: This works only because PIX_FMT_0RGB32 is a CPP Macro.
+//     note that most other PIX_FMT values are enums
 #ifdef PIX_FMT_0RGB32
     {IMGFMT_BGR32,   PIX_FMT_0RGB32},
 #endif
@@ -91,6 +93,8 @@ static const struct {
     {IMGFMT_422P16_BE,  PIX_FMT_YUV422P16BE},
     {IMGFMT_422P10_LE,  PIX_FMT_YUV422P10LE},
     {IMGFMT_422P10_BE,  PIX_FMT_YUV422P10BE},
+    {IMGFMT_422P9_LE,   PIX_FMT_YUV422P9LE},
+    {IMGFMT_422P9_BE,   PIX_FMT_YUV422P9BE},
     {IMGFMT_444P16_LE,  PIX_FMT_YUV444P16LE},
     {IMGFMT_444P16_BE,  PIX_FMT_YUV444P16BE},
     {IMGFMT_444P10_LE,  PIX_FMT_YUV444P10LE},

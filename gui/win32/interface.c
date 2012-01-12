@@ -21,6 +21,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include "config.h"
+
+#if defined(CONFIG_LIBCDIO)
+#include <cdio/cdda.h>
+#elif defined(CONFIG_CDDA)
+#include <cdda_interface.h>
+#endif
+
 #include <windows.h>
 
 #if defined(__CYGWIN__) || defined(__WINE__)
@@ -62,9 +70,6 @@
 #include "mpcommon.h"
 #include "gui.h"
 #include "dialogs.h"
-#ifdef CONFIG_LIBCDIO
-#include <cdio/cdio.h>
-#endif
 
 #define SAME_STREAMTYPE (STREAMTYPE_DUMMY - 1)
 
@@ -227,17 +232,40 @@ static void guiSetEvent(int event)
             break;
         }
 #endif
-#ifdef CONFIG_LIBCDIO
+#ifdef CONFIG_CDDA
         case evPlayCD:
         {
             int i;
             char track[10];
             char trackname[10];
-            CdIo_t *p_cdio = cdio_open(NULL, DRIVER_UNKNOWN);
-            track_t i_tracks;
+#ifdef CONFIG_LIBCDIO
+            cdrom_drive_t *cd;
+#else
+            cdrom_drive *cd;
+#endif
+            int i_tracks;
 
-            if(p_cdio == NULL) printf("Couldn't find a driver.\n");
-            i_tracks = cdio_get_num_tracks(p_cdio);
+#ifdef __WINE__
+            // cdrom_device is in the Windows style (D:\), which needs to be
+            // converted for MPlayer, so that it will find the device in the
+            // Linux filesystem.
+            cdrom_device = unix_device(cdrom_device);
+#endif
+            cd = cdda_identify(cdrom_device, 0, NULL);
+            if (cd)
+            {
+                if (cdda_open(cd) != 0)
+                {
+                    cdda_close(cd);
+                    cd = NULL;
+                }
+            }
+            if(!cd)
+            {
+                printf("Couldn't find a driver.\n");
+                break;
+            }
+            i_tracks = cdda_tracks(cd);
 
             mygui->playlist->clear_playlist(mygui->playlist);
             for(i=0;i<i_tracks;i++)
@@ -246,7 +274,7 @@ static void guiSetEvent(int event)
                 sprintf(trackname, "Track %d", i+1);
                 mygui->playlist->add_track(mygui->playlist, track, NULL, trackname, 0);
             }
-            cdio_destroy(p_cdio);
+            cdda_close(cd);
             mygui->startplay(mygui);
             break;
         }
@@ -639,10 +667,13 @@ int gui(int what, void *data)
             {
 #ifdef CONFIG_DVDREAD
                 case STREAMTYPE_DVD:
+                    guiInfo.Tracks = 0;
+                    stream_control(stream, STREAM_CTRL_GET_NUM_TITLES, &guiInfo.Tracks);
+                    guiInfo.Chapters = 0;
+                    stream_control(stream, STREAM_CTRL_GET_NUM_CHAPTERS, &guiInfo.Chapters);
+                    guiInfo.Angles = 0;
+                    stream_control(stream, STREAM_CTRL_GET_NUM_ANGLES, &guiInfo.Angles);
                     dvdp = stream->priv;
-                    guiInfo.Tracks = dvdp->vmg_file->tt_srpt->nr_of_srpts;
-                    guiInfo.Chapters = dvdp->vmg_file->tt_srpt->title[dvd_title].nr_of_ptts;
-                    guiInfo.Angles = dvdp->vmg_file->tt_srpt->title[dvd_title].nr_of_angles;
                     guiInfo.AudioStreams = dvdp->nr_of_channels;
                     memcpy(guiInfo.AudioStream, dvdp->audio_streams, sizeof(dvdp->audio_streams));
                     guiInfo.Subtitles = dvdp->nr_of_subtitles;
