@@ -1,3 +1,10 @@
+mplayer (2:1.0~rc4.dfsg1+svn34540-4) unstable; urgency=low
+
+  * New upstream snapshot
+  * upload to unstable
+
+ -- Reinhard Tartler <siretart@tauware.de>  Thu, 12 Jan 2012 22:23:28 +0100
+
 mplayer (2:1.0~rc4.dfsg1+svn34492-3) experimental; urgency=low
 
   * Build against external libmpeg2
