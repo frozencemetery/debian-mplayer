@@ -49,8 +49,8 @@ static av_cold int ulti_decode_init(AVCodecContext *avctx)
     s->width = avctx->width;
     s->height = avctx->height;
     s->blocks = (s->width / 8) * (s->height / 8);
-    avctx->pix_fmt = PIX_FMT_YUV410P;
-    avctx->coded_frame = (AVFrame*) &s->frame;
+    avctx->pix_fmt = AV_PIX_FMT_YUV410P;
+    avctx->coded_frame = &s->frame;
     s->ulti_codebook = ulti_codebook;
 
     return 0;
@@ -209,7 +209,7 @@ static void ulti_grad(AVFrame *frame, int x, int y, uint8_t *Y, int chroma, int 
 }
 
 static int ulti_decode_frame(AVCodecContext *avctx,
-                             void *data, int *data_size,
+                             void *data, int *got_frame,
                              AVPacket *avpkt)
 {
     const uint8_t *buf = avpkt->data;
@@ -406,7 +406,7 @@ static int ulti_decode_frame(AVCodecContext *avctx,
         }
     }
 
-    *data_size=sizeof(AVFrame);
+    *got_frame = 1;
     *(AVFrame*)data= s->frame;
 
     return buf_size;
@@ -420,12 +420,11 @@ err:
 AVCodec ff_ulti_decoder = {
     .name           = "ultimotion",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_ULTI,
+    .id             = AV_CODEC_ID_ULTI,
     .priv_data_size = sizeof(UltimotionDecodeContext),
     .init           = ulti_decode_init,
     .close          = ulti_decode_end,
     .decode         = ulti_decode_frame,
     .capabilities   = CODEC_CAP_DR1,
-    .long_name = NULL_IF_CONFIG_SMALL("IBM UltiMotion"),
+    .long_name      = NULL_IF_CONFIG_SMALL("IBM UltiMotion"),
 };
-

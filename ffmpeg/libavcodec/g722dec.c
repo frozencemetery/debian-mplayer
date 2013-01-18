@@ -34,15 +34,17 @@
  *       respectively of each byte are ignored.
  */
 
+#include "libavutil/channel_layout.h"
+#include "libavutil/opt.h"
 #include "avcodec.h"
 #include "get_bits.h"
 #include "g722.h"
-#include "libavutil/opt.h"
+#include "internal.h"
 
 #define OFFSET(x) offsetof(G722Context, x)
 #define AD AV_OPT_FLAG_AUDIO_PARAM | AV_OPT_FLAG_DECODING_PARAM
 static const AVOption options[] = {
-    { "bits_per_codeword", "Bits per G722 codeword", OFFSET(bits_per_codeword), AV_OPT_TYPE_FLAGS, { 8 }, 6, 8, AD },
+    { "bits_per_codeword", "Bits per G722 codeword", OFFSET(bits_per_codeword), AV_OPT_TYPE_FLAGS, { .i64 = 8 }, 6, 8, AD },
     { NULL }
 };
 
@@ -57,11 +59,9 @@ static av_cold int g722_decode_init(AVCodecContext * avctx)
 {
     G722Context *c = avctx->priv_data;
 
-    if (avctx->channels != 1) {
-        av_log(avctx, AV_LOG_ERROR, "Only mono tracks are allowed.\n");
-        return AVERROR_INVALIDDATA;
-    }
-    avctx->sample_fmt = AV_SAMPLE_FMT_S16;
+    avctx->channels       = 1;
+    avctx->channel_layout = AV_CH_LAYOUT_MONO;
+    avctx->sample_fmt     = AV_SAMPLE_FMT_S16;
 
     c->band[0].scale_factor = 8;
     c->band[1].scale_factor = 2;
@@ -96,7 +96,7 @@ static int g722_decode_frame(AVCodecContext *avctx, void *data,
 
     /* get output buffer */
     c->frame.nb_samples = avpkt->size * 2;
-    if ((ret = avctx->get_buffer(avctx, &c->frame)) < 0) {
+    if ((ret = ff_get_buffer(avctx, &c->frame)) < 0) {
         av_log(avctx, AV_LOG_ERROR, "get_buffer() failed\n");
         return ret;
     }
@@ -126,8 +126,8 @@ static int g722_decode_frame(AVCodecContext *avctx, void *data,
         c->prev_samples[c->prev_samples_pos++] = rlow - rhigh;
         ff_g722_apply_qmf(c->prev_samples + c->prev_samples_pos - 24,
                           &xout1, &xout2);
-        *out_buf++ = av_clip_int16(xout1 >> 12);
-        *out_buf++ = av_clip_int16(xout2 >> 12);
+        *out_buf++ = av_clip_int16(xout1 >> 11);
+        *out_buf++ = av_clip_int16(xout2 >> 11);
         if (c->prev_samples_pos >= PREV_SAMPLES_BUF_SIZE) {
             memmove(c->prev_samples, c->prev_samples + c->prev_samples_pos - 22,
                     22 * sizeof(c->prev_samples[0]));
@@ -144,7 +144,7 @@ static int g722_decode_frame(AVCodecContext *avctx, void *data,
 AVCodec ff_adpcm_g722_decoder = {
     .name           = "g722",
     .type           = AVMEDIA_TYPE_AUDIO,
-    .id             = CODEC_ID_ADPCM_G722,
+    .id             = AV_CODEC_ID_ADPCM_G722,
     .priv_data_size = sizeof(G722Context),
     .init           = g722_decode_init,
     .decode         = g722_decode_frame,

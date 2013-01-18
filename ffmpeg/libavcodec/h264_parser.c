@@ -37,7 +37,6 @@ static int ff_h264_find_frame_end(H264Context *h, const uint8_t *buf, int buf_si
     int i;
     uint32_t state;
     ParseContext *pc = &(h->s.parse_context);
-//printf("first %02X%02X%02X%02X\n", buf[0], buf[1],buf[2],buf[3]);
 //    mb_addr= pc->mb_addr - 1;
     state= pc->state;
     if(state>13)
@@ -251,6 +250,13 @@ static int h264_parse(AVCodecParserContext *s,
         h->got_first = 1;
         if (avctx->extradata_size) {
             h->s.avctx = avctx;
+            // must be done like in the decoder.
+            // otherwise opening the parser, creating extradata,
+            // and then closing and opening again
+            // will cause has_b_frames to be always set.
+            // NB: estimate_timings_from_pts behaves exactly like this.
+            if (!avctx->has_b_frames)
+                h->s.low_delay = 1;
             ff_h264_decode_extradata(h);
         }
     }
@@ -335,7 +341,7 @@ static int init(AVCodecParserContext *s)
 }
 
 AVCodecParser ff_h264_parser = {
-    .codec_ids      = { CODEC_ID_H264 },
+    .codec_ids      = { AV_CODEC_ID_H264 },
     .priv_data_size = sizeof(H264Context),
     .parser_init    = init,
     .parser_parse   = h264_parse,

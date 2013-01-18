@@ -24,9 +24,11 @@
  * ASCII/ANSI art decoder
  */
 
+#include "libavutil/common.h"
 #include "libavutil/lfg.h"
 #include "avcodec.h"
 #include "cga_data.h"
+#include "internal.h"
 
 #define ATTR_BOLD         0x01  /**< Bold/Bright-foreground (mode 1) */
 #define ATTR_FAINT        0x02  /**< Faint (mode 2) */
@@ -73,7 +75,7 @@ typedef struct {
 static av_cold int decode_init(AVCodecContext *avctx)
 {
     AnsiContext *s = avctx->priv_data;
-    avctx->pix_fmt = PIX_FMT_PAL8;
+    avctx->pix_fmt = AV_PIX_FMT_PAL8;
 
     /* defaults */
     s->font        = ff_vga16_font;
@@ -221,7 +223,7 @@ static int execute_code(AVCodecContext * avctx, int c)
             if (s->frame.data[0])
                 avctx->release_buffer(avctx, &s->frame);
             avcodec_set_dimensions(avctx, width, height);
-            ret = avctx->get_buffer(avctx, &s->frame);
+            ret = ff_get_buffer(avctx, &s->frame);
             if (ret < 0) {
                 av_log(avctx, AV_LOG_ERROR, "get_buffer() failed\n");
                 return ret;
@@ -309,7 +311,7 @@ static int execute_code(AVCodecContext * avctx, int c)
 }
 
 static int decode_frame(AVCodecContext *avctx,
-                            void *data, int *data_size,
+                            void *data, int *got_frame,
                             AVPacket *avpkt)
 {
     AnsiContext *s = avctx->priv_data;
@@ -323,6 +325,11 @@ static int decode_frame(AVCodecContext *avctx,
         av_log(avctx, AV_LOG_ERROR, "get_buffer() failed\n");
         return ret;
     }
+    if (!avctx->frame_number) {
+        memset(s->frame.data[0], 0, avctx->height * FFABS(s->frame.linesize[0]));
+        memset(s->frame.data[1], 0, AVPALETTE_SIZE);
+    }
+
     s->frame.pict_type           = AV_PICTURE_TYPE_I;
     s->frame.palette_has_changed = 1;
     memcpy(s->frame.data[1], ff_cga_palette, 16 * 4);
@@ -368,7 +375,6 @@ static int decode_frame(AVCodecContext *avctx,
             } else {
                 s->state = STATE_NORMAL;
                 draw_char(avctx, 0x1B);
-                    return -1;
                 continue;
             }
             break;
@@ -409,7 +415,7 @@ static int decode_frame(AVCodecContext *avctx,
         buf++;
     }
 
-    *data_size = sizeof(AVFrame);
+    *got_frame = 1;
     *(AVFrame*)data = s->frame;
     return buf_size;
 }
@@ -425,7 +431,7 @@ static av_cold int decode_close(AVCodecContext *avctx)
 AVCodec ff_ansi_decoder = {
     .name           = "ansi",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_ANSI,
+    .id             = AV_CODEC_ID_ANSI,
     .priv_data_size = sizeof(AnsiContext),
     .init           = decode_init,
     .close          = decode_close,

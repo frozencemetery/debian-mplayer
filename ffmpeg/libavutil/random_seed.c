@@ -18,7 +18,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include "config.h"
+
+#if HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#if HAVE_CRYPTGENRANDOM
+#include <windows.h>
+#include <wincrypt.h>
+#endif
 #include <fcntl.h>
 #include <math.h>
 #include <time.h>
@@ -27,6 +35,7 @@
 
 static int read_random(uint32_t *dst, const char *file)
 {
+#if HAVE_UNISTD_H
     int fd = open(file, O_RDONLY);
     int err = -1;
 
@@ -36,6 +45,9 @@ static int read_random(uint32_t *dst, const char *file)
     close(fd);
 
     return err;
+#else
+    return -1;
+#endif
 }
 
 static uint32_t get_generic_seed(void)
@@ -73,6 +85,17 @@ static uint32_t get_generic_seed(void)
 uint32_t av_get_random_seed(void)
 {
     uint32_t seed;
+
+#if HAVE_CRYPTGENRANDOM
+    HCRYPTPROV provider;
+    if (CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL,
+                            CRYPT_VERIFYCONTEXT | CRYPT_SILENT)) {
+        BOOL ret = CryptGenRandom(provider, sizeof(seed), (PBYTE) &seed);
+        CryptReleaseContext(provider, 0);
+        if (ret)
+            return seed;
+    }
+#endif
 
     if (read_random(&seed, "/dev/urandom") == sizeof(seed))
         return seed;

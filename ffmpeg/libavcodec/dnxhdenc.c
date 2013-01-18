@@ -29,15 +29,15 @@
 #include "libavutil/opt.h"
 #include "avcodec.h"
 #include "dsputil.h"
+#include "internal.h"
 #include "mpegvideo.h"
-#include "mpegvideo_common.h"
 #include "dnxhdenc.h"
 
 #define VE AV_OPT_FLAG_VIDEO_PARAM | AV_OPT_FLAG_ENCODING_PARAM
 #define DNX10BIT_QMAT_SHIFT 18 // The largest value that will not lead to overflow for 10bit samples.
 
 static const AVOption options[]={
-    {"nitris_compat", "encode with Avid Nitris compatibility", offsetof(DNXHDEncContext, nitris_compat), AV_OPT_TYPE_INT, {.dbl = 0}, 0, 1, VE},
+    {"nitris_compat", "encode with Avid Nitris compatibility", offsetof(DNXHDEncContext, nitris_compat), AV_OPT_TYPE_INT, {.i64 = 0}, 0, 1, VE},
 {NULL}
 };
 static const AVClass class = { "dnxhd", av_default_item_name, options, LIBAVUTIL_VERSION_INT };
@@ -233,10 +233,10 @@ static int dnxhd_encode_init(AVCodecContext *avctx)
     int i, index, bit_depth;
 
     switch (avctx->pix_fmt) {
-    case PIX_FMT_YUV422P:
+    case AV_PIX_FMT_YUV422P:
         bit_depth = 8;
         break;
-    case PIX_FMT_YUV422P10:
+    case AV_PIX_FMT_YUV422P10:
         bit_depth = 10;
         break;
     default:
@@ -260,10 +260,10 @@ static int dnxhd_encode_init(AVCodecContext *avctx)
 
     avctx->bits_per_raw_sample = ctx->cid_table->bit_depth;
 
-    dsputil_init(&ctx->m.dsp, avctx);
+    ff_dsputil_init(&ctx->m.dsp, avctx);
     ff_dct_common_init(&ctx->m);
     if (!ctx->m.dct_quantize)
-        ctx->m.dct_quantize = dct_quantize_c;
+        ctx->m.dct_quantize = ff_dct_quantize_c;
 
     if (ctx->cid_table->bit_depth == 10) {
        ctx->m.dct_quantize = dnxhd_10bit_dct_quantize;
@@ -274,9 +274,8 @@ static int dnxhd_encode_init(AVCodecContext *avctx)
        ctx->block_width_l2 = 3;
     }
 
-#if HAVE_MMX
-    ff_dnxhd_init_mmx(ctx);
-#endif
+    if (ARCH_X86)
+        ff_dnxhdenc_init_x86(ctx);
 
     ctx->m.mb_height = (avctx->height + 15) / 16;
     ctx->m.mb_width  = (avctx->width  + 15) / 16;
@@ -903,18 +902,21 @@ static void dnxhd_load_picture(DNXHDEncContext *ctx, const AVFrame *frame)
     ctx->cur_field = frame->interlaced_frame && !frame->top_field_first;
 }
 
-static int dnxhd_encode_picture(AVCodecContext *avctx, unsigned char *buf, int buf_size, void *data)
+static int dnxhd_encode_picture(AVCodecContext *avctx, AVPacket *pkt,
+                                const AVFrame *frame, int *got_packet)
 {
     DNXHDEncContext *ctx = avctx->priv_data;
     int first_field = 1;
     int offset, i, ret;
+    uint8_t *buf;
 
-    if (buf_size < ctx->cid_table->frame_size) {
+    if ((ret = ff_alloc_packet(pkt, ctx->cid_table->frame_size)) < 0) {
         av_log(avctx, AV_LOG_ERROR, "output buffer is too small to compress picture\n");
-        return -1;
+        return ret;
     }
+    buf = pkt->data;
 
-    dnxhd_load_picture(ctx, data);
+    dnxhd_load_picture(ctx, frame);
 
  encode_coding_unit:
     for (i = 0; i < 3; i++) {
@@ -955,13 +957,14 @@ static int dnxhd_encode_picture(AVCodecContext *avctx, unsigned char *buf, int b
         first_field     = 0;
         ctx->cur_field ^= 1;
         buf      += ctx->cid_table->coding_unit_size;
-        buf_size -= ctx->cid_table->coding_unit_size;
         goto encode_coding_unit;
     }
 
     ctx->frame.quality = ctx->qscale*FF_QP2LAMBDA;
 
-    return ctx->cid_table->frame_size;
+    pkt->flags |= AV_PKT_FLAG_KEY;
+    *got_packet = 1;
+    return 0;
 }
 
 static int dnxhd_encode_end(AVCodecContext *avctx)
@@ -996,13 +999,15 @@ static int dnxhd_encode_end(AVCodecContext *avctx)
 AVCodec ff_dnxhd_encoder = {
     .name           = "dnxhd",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_DNXHD,
+    .id             = AV_CODEC_ID_DNXHD,
     .priv_data_size = sizeof(DNXHDEncContext),
     .init           = dnxhd_encode_init,
-    .encode         = dnxhd_encode_picture,
+    .encode2        = dnxhd_encode_picture,
     .close          = dnxhd_encode_end,
-    .capabilities = CODEC_CAP_SLICE_THREADS,
-    .pix_fmts = (const enum PixelFormat[]){PIX_FMT_YUV422P, PIX_FMT_YUV422P10, PIX_FMT_NONE},
-    .long_name = NULL_IF_CONFIG_SMALL("VC3/DNxHD"),
-    .priv_class = &class,
+    .capabilities   = CODEC_CAP_SLICE_THREADS,
+    .pix_fmts       = (const enum AVPixelFormat[]){ AV_PIX_FMT_YUV422P,
+                                                  AV_PIX_FMT_YUV422P10,
+                                                  AV_PIX_FMT_NONE },
+    .long_name      = NULL_IF_CONFIG_SMALL("VC3/DNxHD"),
+    .priv_class     = &class,
 };

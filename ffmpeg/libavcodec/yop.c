@@ -27,6 +27,7 @@
 
 #include "avcodec.h"
 #include "get_bits.h"
+#include "internal.h"
 
 typedef struct YopDecContext {
     AVFrame frame;
@@ -35,7 +36,6 @@ typedef struct YopDecContext {
     int num_pal_colors;
     int first_color[2];
     int frame_data_length;
-    int row_pos;
 
     uint8_t *low_nibble;
     uint8_t *srcptr;
@@ -89,7 +89,7 @@ static av_cold int yop_decode_init(AVCodecContext *avctx)
         return -1;
     }
 
-    avctx->pix_fmt = PIX_FMT_PAL8;
+    avctx->pix_fmt = AV_PIX_FMT_PAL8;
 
     s->num_pal_colors = avctx->extradata[0];
     s->first_color[0] = avctx->extradata[1];
@@ -172,44 +172,26 @@ static uint8_t yop_get_next_nibble(YopDecContext *s)
     return ret;
 }
 
-/**
- * Take s->dstptr to the next macroblock in sequence.
- */
-static void yop_next_macroblock(YopDecContext *s)
-{
-    // If we are advancing to the next row of macroblocks
-    if (s->row_pos == s->frame.linesize[0] - 2) {
-        s->dstptr  += s->frame.linesize[0];
-        s->row_pos =  0;
-    }else {
-        s->row_pos += 2;
-    }
-    s->dstptr += 2;
-}
-
-static int yop_decode_frame(AVCodecContext *avctx, void *data, int *data_size,
+static int yop_decode_frame(AVCodecContext *avctx, void *data, int *got_frame,
                             AVPacket *avpkt)
 {
     YopDecContext *s = avctx->priv_data;
     int tag, firstcolor, is_odd_frame;
-    int ret, i;
+    int ret, i, x, y;
     uint32_t *palette;
 
     if (s->frame.data[0])
         avctx->release_buffer(avctx, &s->frame);
 
-    ret = avctx->get_buffer(avctx, &s->frame);
+    ret = ff_get_buffer(avctx, &s->frame);
     if (ret < 0) {
         av_log(avctx, AV_LOG_ERROR, "get_buffer() failed\n");
         return ret;
     }
 
-    s->frame.linesize[0] = avctx->width;
-
     s->dstbuf     = s->frame.data[0];
     s->dstptr     = s->frame.data[0];
     s->srcptr     = avpkt->data + 4;
-    s->row_pos    = 0;
     s->low_nibble = NULL;
 
     is_odd_frame = avpkt->data[0];
@@ -223,26 +205,31 @@ static int yop_decode_frame(AVCodecContext *avctx, void *data, int *data_size,
 
     s->frame.palette_has_changed = 1;
 
-    while (s->dstptr - s->dstbuf <
-           avctx->width * avctx->height &&
-           s->srcptr - avpkt->data < avpkt->size) {
-
-        tag = yop_get_next_nibble(s);
-
-        if (tag != 0xf) {
-            yop_paint_block(s, tag);
-        }else {
-            tag = yop_get_next_nibble(s);
-            ret = yop_copy_previous_block(s, tag);
-            if (ret < 0) {
-                avctx->release_buffer(avctx, &s->frame);
-                return ret;
+    for (y = 0; y < avctx->height; y += 2) {
+        for (x = 0; x < avctx->width; x += 2) {
+            if (s->srcptr - avpkt->data >= avpkt->size) {
+                av_log(avctx, AV_LOG_ERROR, "Packet too small.\n");
+                return AVERROR_INVALIDDATA;
             }
+
+            tag = yop_get_next_nibble(s);
+
+            if (tag != 0xf) {
+                yop_paint_block(s, tag);
+            } else {
+                tag = yop_get_next_nibble(s);
+                ret = yop_copy_previous_block(s, tag);
+                if (ret < 0) {
+                    avctx->release_buffer(avctx, &s->frame);
+                    return ret;
+                }
+            }
+            s->dstptr += 2;
         }
-        yop_next_macroblock(s);
+        s->dstptr += 2*s->frame.linesize[0] - x;
     }
 
-    *data_size        = sizeof(AVFrame);
+    *got_frame = 1;
     *(AVFrame *) data = s->frame;
     return avpkt->size;
 }
@@ -250,10 +237,11 @@ static int yop_decode_frame(AVCodecContext *avctx, void *data, int *data_size,
 AVCodec ff_yop_decoder = {
     .name           = "yop",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_YOP,
+    .id             = AV_CODEC_ID_YOP,
     .priv_data_size = sizeof(YopDecContext),
     .init           = yop_decode_init,
     .close          = yop_decode_close,
     .decode         = yop_decode_frame,
-    .long_name = NULL_IF_CONFIG_SMALL("Psygnosis YOP Video"),
+    .long_name      = NULL_IF_CONFIG_SMALL("Psygnosis YOP Video"),
+    .capabilities   = CODEC_CAP_DR1,
 };

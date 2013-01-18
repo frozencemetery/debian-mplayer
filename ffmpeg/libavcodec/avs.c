@@ -44,14 +44,14 @@ typedef enum {
 
 static int
 avs_decode_frame(AVCodecContext * avctx,
-                 void *data, int *data_size, AVPacket *avpkt)
+                 void *data, int *got_frame, AVPacket *avpkt)
 {
     const uint8_t *buf = avpkt->data;
     const uint8_t *buf_end = avpkt->data + avpkt->size;
     int buf_size = avpkt->size;
     AvsContext *const avs = avctx->priv_data;
     AVFrame *picture = data;
-    AVFrame *const p = (AVFrame *) & avs->picture;
+    AVFrame *const p =  &avs->picture;
     const uint8_t *table, *vect;
     uint8_t *out;
     int i, j, x, y, stride, vect_w = 3, vect_h = 3;
@@ -149,15 +149,16 @@ avs_decode_frame(AVCodecContext * avctx,
             align_get_bits(&change_map);
     }
 
-    *picture = *(AVFrame *) & avs->picture;
-    *data_size = sizeof(AVPicture);
+    *picture   = avs->picture;
+    *got_frame = 1;
 
     return buf_size;
 }
 
 static av_cold int avs_decode_init(AVCodecContext * avctx)
 {
-    avctx->pix_fmt = PIX_FMT_PAL8;
+    avctx->pix_fmt = AV_PIX_FMT_PAL8;
+    avcodec_set_dimensions(avctx, 318, 198);
     return 0;
 }
 
@@ -173,11 +174,11 @@ static av_cold int avs_decode_end(AVCodecContext *avctx)
 AVCodec ff_avs_decoder = {
     .name           = "avs",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_AVS,
+    .id             = AV_CODEC_ID_AVS,
     .priv_data_size = sizeof(AvsContext),
     .init           = avs_decode_init,
     .decode         = avs_decode_frame,
     .close          = avs_decode_end,
     .capabilities   = CODEC_CAP_DR1,
-    .long_name = NULL_IF_CONFIG_SMALL("AVS (Audio Video Standard) video"),
+    .long_name      = NULL_IF_CONFIG_SMALL("AVS (Audio Video Standard) video"),
 };

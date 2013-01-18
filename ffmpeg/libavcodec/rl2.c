@@ -30,8 +30,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "libavutil/internal.h"
 #include "libavutil/intreadwrite.h"
+#include "libavutil/mem.h"
 #include "avcodec.h"
+#include "internal.h"
 
 
 #define EXTRADATA1_SIZE (6 + 256 * 3) ///< video base, clr count, palette
@@ -64,7 +67,7 @@ static void rl2_rle_decode(Rl2Context *s,const unsigned char* in,int size,
     const unsigned char* back_frame = s->back_frame;
     const unsigned char* in_end = in + size;
     const unsigned char* out_end = out + stride * s->avctx->height;
-    unsigned char* line_end = out + s->avctx->width;
+    unsigned char* line_end;
 
     /** copy start of the background frame */
     for(i=0;i<=base_y;i++){
@@ -132,7 +135,7 @@ static av_cold int rl2_decode_init(AVCodecContext *avctx)
     int back_size;
     int i;
     s->avctx = avctx;
-    avctx->pix_fmt = PIX_FMT_PAL8;
+    avctx->pix_fmt = AV_PIX_FMT_PAL8;
 
     /** parse extra data */
     if(!avctx->extradata || avctx->extradata_size < EXTRADATA1_SIZE){
@@ -169,7 +172,7 @@ static av_cold int rl2_decode_init(AVCodecContext *avctx)
 
 
 static int rl2_decode_frame(AVCodecContext *avctx,
-                              void *data, int *data_size,
+                              void *data, int *got_frame,
                               AVPacket *avpkt)
 {
     const uint8_t *buf = avpkt->data;
@@ -181,7 +184,7 @@ static int rl2_decode_frame(AVCodecContext *avctx,
 
     /** get buffer */
     s->frame.reference= 0;
-    if(avctx->get_buffer(avctx, &s->frame)) {
+    if(ff_get_buffer(avctx, &s->frame)) {
         av_log(s->avctx, AV_LOG_ERROR, "get_buffer() failed\n");
         return -1;
     }
@@ -192,7 +195,7 @@ static int rl2_decode_frame(AVCodecContext *avctx,
     /** make the palette available on the way out */
     memcpy(s->frame.data[1], s->palette, AVPALETTE_SIZE);
 
-    *data_size = sizeof(AVFrame);
+    *got_frame = 1;
     *(AVFrame*)data = s->frame;
 
     /** report that the buffer was completely consumed */
@@ -221,12 +224,11 @@ static av_cold int rl2_decode_end(AVCodecContext *avctx)
 AVCodec ff_rl2_decoder = {
     .name           = "rl2",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_RL2,
+    .id             = AV_CODEC_ID_RL2,
     .priv_data_size = sizeof(Rl2Context),
     .init           = rl2_decode_init,
     .close          = rl2_decode_end,
     .decode         = rl2_decode_frame,
     .capabilities   = CODEC_CAP_DR1,
-    .long_name = NULL_IF_CONFIG_SMALL("RL2 video"),
+    .long_name      = NULL_IF_CONFIG_SMALL("RL2 video"),
 };
-

@@ -21,18 +21,19 @@
 
 #include "avcodec.h"
 #include "bytestream.h"
+#include "internal.h"
 #include "put_bits.h"
 #include "pnm.h"
 
 
 static int pnm_decode_frame(AVCodecContext *avctx, void *data,
-                            int *data_size, AVPacket *avpkt)
+                            int *got_frame, AVPacket *avpkt)
 {
     const uint8_t *buf   = avpkt->data;
     int buf_size         = avpkt->size;
     PNMContext * const s = avctx->priv_data;
     AVFrame *picture     = data;
-    AVFrame * const p    = (AVFrame*)&s->picture;
+    AVFrame * const p    = &s->picture;
     int i, j, n, linesize, h, upgrade = 0;
     unsigned char *ptr;
     int components, sample_len;
@@ -48,7 +49,7 @@ static int pnm_decode_frame(AVCodecContext *avctx, void *data,
         avctx->release_buffer(avctx, p);
 
     p->reference = 0;
-    if (avctx->get_buffer(avctx, p) < 0) {
+    if (ff_get_buffer(avctx, p) < 0) {
         av_log(avctx, AV_LOG_ERROR, "get_buffer() failed\n");
         return -1;
     }
@@ -58,33 +59,33 @@ static int pnm_decode_frame(AVCodecContext *avctx, void *data,
     switch (avctx->pix_fmt) {
     default:
         return -1;
-    case PIX_FMT_RGB48BE:
+    case AV_PIX_FMT_RGB48BE:
         n = avctx->width * 6;
         components=3;
         sample_len=16;
         goto do_read;
-    case PIX_FMT_RGB24:
+    case AV_PIX_FMT_RGB24:
         n = avctx->width * 3;
         components=3;
         sample_len=8;
         goto do_read;
-    case PIX_FMT_GRAY8:
+    case AV_PIX_FMT_GRAY8:
         n = avctx->width;
         components=1;
         sample_len=8;
         if (s->maxval < 255)
             upgrade = 1;
         goto do_read;
-    case PIX_FMT_GRAY16BE:
-    case PIX_FMT_GRAY16LE:
+    case AV_PIX_FMT_GRAY16BE:
+    case AV_PIX_FMT_GRAY16LE:
         n = avctx->width * 2;
         components=1;
         sample_len=16;
         if (s->maxval < 65535)
             upgrade = 2;
         goto do_read;
-    case PIX_FMT_MONOWHITE:
-    case PIX_FMT_MONOBLACK:
+    case AV_PIX_FMT_MONOWHITE:
+    case AV_PIX_FMT_MONOBLACK:
         n = (avctx->width + 7) >> 3;
         components=1;
         sample_len=1;
@@ -133,7 +134,7 @@ static int pnm_decode_frame(AVCodecContext *avctx, void *data,
         }
         }
         break;
-    case PIX_FMT_YUV420P:
+    case AV_PIX_FMT_YUV420P:
         {
             unsigned char *ptr1, *ptr2;
 
@@ -161,7 +162,7 @@ static int pnm_decode_frame(AVCodecContext *avctx, void *data,
             }
         }
         break;
-    case PIX_FMT_RGB32:
+    case AV_PIX_FMT_RGB32:
         ptr      = p->data[0];
         linesize = p->linesize[0];
         if (s->bytestream + avctx->width * avctx->height * 4 > s->bytestream_end)
@@ -180,8 +181,8 @@ static int pnm_decode_frame(AVCodecContext *avctx, void *data,
         }
         break;
     }
-    *picture   = *(AVFrame*)&s->picture;
-    *data_size = sizeof(AVPicture);
+    *picture   = s->picture;
+    *got_frame = 1;
 
     return s->bytestream - s->bytestream_start;
 }
@@ -191,14 +192,13 @@ static int pnm_decode_frame(AVCodecContext *avctx, void *data,
 AVCodec ff_pgm_decoder = {
     .name           = "pgm",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_PGM,
+    .id             = AV_CODEC_ID_PGM,
     .priv_data_size = sizeof(PNMContext),
     .init           = ff_pnm_init,
     .close          = ff_pnm_end,
     .decode         = pnm_decode_frame,
     .capabilities   = CODEC_CAP_DR1,
-    .pix_fmts  = (const enum PixelFormat[]){PIX_FMT_GRAY8, PIX_FMT_GRAY16BE, PIX_FMT_NONE},
-    .long_name = NULL_IF_CONFIG_SMALL("PGM (Portable GrayMap) image"),
+    .long_name      = NULL_IF_CONFIG_SMALL("PGM (Portable GrayMap) image"),
 };
 #endif
 
@@ -206,14 +206,13 @@ AVCodec ff_pgm_decoder = {
 AVCodec ff_pgmyuv_decoder = {
     .name           = "pgmyuv",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_PGMYUV,
+    .id             = AV_CODEC_ID_PGMYUV,
     .priv_data_size = sizeof(PNMContext),
     .init           = ff_pnm_init,
     .close          = ff_pnm_end,
     .decode         = pnm_decode_frame,
     .capabilities   = CODEC_CAP_DR1,
-    .pix_fmts  = (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_NONE},
-    .long_name = NULL_IF_CONFIG_SMALL("PGMYUV (Portable GrayMap YUV) image"),
+    .long_name      = NULL_IF_CONFIG_SMALL("PGMYUV (Portable GrayMap YUV) image"),
 };
 #endif
 
@@ -221,14 +220,13 @@ AVCodec ff_pgmyuv_decoder = {
 AVCodec ff_ppm_decoder = {
     .name           = "ppm",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_PPM,
+    .id             = AV_CODEC_ID_PPM,
     .priv_data_size = sizeof(PNMContext),
     .init           = ff_pnm_init,
     .close          = ff_pnm_end,
     .decode         = pnm_decode_frame,
     .capabilities   = CODEC_CAP_DR1,
-    .pix_fmts  = (const enum PixelFormat[]){PIX_FMT_RGB24, PIX_FMT_RGB48BE, PIX_FMT_NONE},
-    .long_name = NULL_IF_CONFIG_SMALL("PPM (Portable PixelMap) image"),
+    .long_name      = NULL_IF_CONFIG_SMALL("PPM (Portable PixelMap) image"),
 };
 #endif
 
@@ -236,14 +234,13 @@ AVCodec ff_ppm_decoder = {
 AVCodec ff_pbm_decoder = {
     .name           = "pbm",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_PBM,
+    .id             = AV_CODEC_ID_PBM,
     .priv_data_size = sizeof(PNMContext),
     .init           = ff_pnm_init,
     .close          = ff_pnm_end,
     .decode         = pnm_decode_frame,
     .capabilities   = CODEC_CAP_DR1,
-    .pix_fmts  = (const enum PixelFormat[]){PIX_FMT_MONOWHITE, PIX_FMT_NONE},
-    .long_name = NULL_IF_CONFIG_SMALL("PBM (Portable BitMap) image"),
+    .long_name      = NULL_IF_CONFIG_SMALL("PBM (Portable BitMap) image"),
 };
 #endif
 
@@ -251,13 +248,12 @@ AVCodec ff_pbm_decoder = {
 AVCodec ff_pam_decoder = {
     .name           = "pam",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_PAM,
+    .id             = AV_CODEC_ID_PAM,
     .priv_data_size = sizeof(PNMContext),
     .init           = ff_pnm_init,
     .close          = ff_pnm_end,
     .decode         = pnm_decode_frame,
     .capabilities   = CODEC_CAP_DR1,
-    .pix_fmts  = (const enum PixelFormat[]){PIX_FMT_RGB24, PIX_FMT_RGB32, PIX_FMT_GRAY8, PIX_FMT_MONOWHITE, PIX_FMT_NONE},
-    .long_name = NULL_IF_CONFIG_SMALL("PAM (Portable AnyMap) image"),
+    .long_name      = NULL_IF_CONFIG_SMALL("PAM (Portable AnyMap) image"),
 };
 #endif

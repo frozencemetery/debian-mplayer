@@ -26,6 +26,9 @@
 #ifndef AVUTIL_MEM_H
 #define AVUTIL_MEM_H
 
+#include <limits.h>
+#include <stdint.h>
+
 #include "attributes.h"
 #include "avutil.h"
 
@@ -35,7 +38,7 @@
  */
 
 
-#if defined(__ICC) && _ICC < 1200 || defined(__SUNPRO_C)
+#if defined(__ICC) && __ICC < 1200 || defined(__SUNPRO_C)
     #define DECLARE_ALIGNED(n,t,v)      t __attribute__ ((aligned (n))) v
     #define DECLARE_ASM_CONST(n,t,v)    const t __attribute__ ((aligned (n))) v
 #elif defined(__TI_COMPILER_VERSION__)
@@ -63,9 +66,9 @@
 #endif
 
 #if AV_GCC_VERSION_AT_LEAST(4,3)
-    #define av_alloc_size(n) __attribute__((alloc_size(n)))
+    #define av_alloc_size(...) __attribute__((alloc_size(__VA_ARGS__)))
 #else
-    #define av_alloc_size(n)
+    #define av_alloc_size(...)
 #endif
 
 /**
@@ -77,6 +80,22 @@
  * @see av_mallocz()
  */
 void *av_malloc(size_t size) av_malloc_attrib av_alloc_size(1);
+
+/**
+ * Helper function to allocate a block of size * nmemb bytes with
+ * using av_malloc()
+ * @param nmemb Number of elements
+ * @param size Size of the single element
+ * @return Pointer to the allocated block, NULL if the block cannot
+ * be allocated.
+ * @see av_malloc()
+ */
+av_alloc_size(1, 2) static inline void *av_malloc_array(size_t nmemb, size_t size)
+{
+    if (size <= 0 || nmemb >= INT_MAX / size)
+        return NULL;
+    return av_malloc(nmemb * size);
+}
 
 /**
  * Allocate or reallocate a block of memory.
@@ -113,6 +132,23 @@ void av_free(void *ptr);
 void *av_mallocz(size_t size) av_malloc_attrib av_alloc_size(1);
 
 /**
+ * Helper function to allocate a block of size * nmemb bytes with
+ * using av_mallocz()
+ * @param nmemb Number of elements
+ * @param size Size of the single element
+ * @return Pointer to the allocated block, NULL if the block cannot
+ * be allocated.
+ * @see av_mallocz()
+ * @see av_malloc_array()
+ */
+av_alloc_size(1, 2) static inline void *av_mallocz_array(size_t nmemb, size_t size)
+{
+    if (size <= 0 || nmemb >= INT_MAX / size)
+        return NULL;
+    return av_mallocz(nmemb * size);
+}
+
+/**
  * Duplicate the string s.
  * @param s string to be duplicated
  * @return Pointer to a newly allocated string containing a
@@ -128,6 +164,17 @@ char *av_strdup(const char *s) av_malloc_attrib;
  * @see av_free()
  */
 void av_freep(void *ptr);
+
+/**
+ * @brief deliberately overlapping memcpy implementation
+ * @param dst destination buffer
+ * @param back how many bytes back we start (the initial size of the overlapping window)
+ * @param cnt number of bytes to copy, must be >= 0
+ *
+ * cnt > back is valid, this will copy the bytes we just copied,
+ * thus creating a repeating pattern with a period length of back.
+ */
+void av_memcpy_backptr(uint8_t *dst, int back, int cnt);
 
 /**
  * @}

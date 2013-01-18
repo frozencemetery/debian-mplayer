@@ -19,18 +19,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef AVCODEC_GSMDEC_DATA
-#define AVCODEC_GSMDEC_DATA
+#ifndef AVCODEC_GSMDEC_DATA_H
+#define AVCODEC_GSMDEC_DATA_H
 
 #include <stdint.h>
 #include "avcodec.h"
 
-// input and output sizes in byte
-#define GSM_BLOCK_SIZE    33
-#define GSM_MS_BLOCK_SIZE 65
-#define GSM_FRAME_SIZE   160
-
-typedef struct {
+typedef struct GSMContext {
     AVFrame frame;
     // Contains first 120 elements from the previous frame
     // (used by long_term_synth according to the "lag"),
@@ -46,4 +41,4 @@ typedef struct {
 extern const uint16_t ff_gsm_long_term_gain_tab[4];
 extern const int16_t ff_gsm_dequant_tab[64][8];
 
-#endif /* AVCODEC_GSMDEC_DATA */
+#endif /* AVCODEC_GSMDEC_DATA_H */

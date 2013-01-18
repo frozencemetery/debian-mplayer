@@ -34,16 +34,9 @@
 
 typedef struct AascContext {
     AVCodecContext *avctx;
+    GetByteContext gb;
     AVFrame frame;
 } AascContext;
-
-#define FETCH_NEXT_STREAM_BYTE() \
-    if (stream_ptr >= buf_size) \
-    { \
-      av_log(s->avctx, AV_LOG_ERROR, " AASC: stream ptr just went out of bounds (fetch)\n"); \
-      break; \
-    } \
-    stream_byte = buf[stream_ptr++];
 
 static av_cold int aasc_decode_init(AVCodecContext *avctx)
 {
@@ -51,18 +44,18 @@ static av_cold int aasc_decode_init(AVCodecContext *avctx)
 
     s->avctx = avctx;
 
-    avctx->pix_fmt = PIX_FMT_BGR24;
+    avctx->pix_fmt = AV_PIX_FMT_BGR24;
 
     return 0;
 }
 
 static int aasc_decode_frame(AVCodecContext *avctx,
-                              void *data, int *data_size,
+                              void *data, int *got_frame,
                               AVPacket *avpkt)
 {
     const uint8_t *buf = avpkt->data;
-    int buf_size = avpkt->size;
-    AascContext *s = avctx->priv_data;
+    int buf_size       = avpkt->size;
+    AascContext *s     = avctx->priv_data;
     int compr, i, stride;
 
     s->frame.reference = 1;
@@ -72,26 +65,27 @@ static int aasc_decode_frame(AVCodecContext *avctx,
         return -1;
     }
 
-    compr = AV_RL32(buf);
-    buf += 4;
+    compr     = AV_RL32(buf);
+    buf      += 4;
     buf_size -= 4;
-    switch(compr){
+    switch (compr) {
     case 0:
         stride = (avctx->width * 3 + 3) & ~3;
-        for(i = avctx->height - 1; i >= 0; i--){
-            memcpy(s->frame.data[0] + i*s->frame.linesize[0], buf, avctx->width*3);
+        for (i = avctx->height - 1; i >= 0; i--) {
+            memcpy(s->frame.data[0] + i * s->frame.linesize[0], buf, avctx->width * 3);
             buf += stride;
         }
         break;
     case 1:
-        ff_msrle_decode(avctx, (AVPicture*)&s->frame, 8, buf - 4, buf_size + 4);
+        bytestream2_init(&s->gb, buf - 4, buf_size + 4);
+        ff_msrle_decode(avctx, (AVPicture*)&s->frame, 8, &s->gb);
         break;
     default:
         av_log(avctx, AV_LOG_ERROR, "Unknown compression type %d\n", compr);
         return -1;
     }
 
-    *data_size = sizeof(AVFrame);
+    *got_frame = 1;
     *(AVFrame*)data = s->frame;
 
     /* report that the buffer was completely consumed */
@@ -112,11 +106,11 @@ static av_cold int aasc_decode_end(AVCodecContext *avctx)
 AVCodec ff_aasc_decoder = {
     .name           = "aasc",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_AASC,
+    .id             = AV_CODEC_ID_AASC,
     .priv_data_size = sizeof(AascContext),
     .init           = aasc_decode_init,
     .close          = aasc_decode_end,
     .decode         = aasc_decode_frame,
     .capabilities   = CODEC_CAP_DR1,
-    .long_name = NULL_IF_CONFIG_SMALL("Autodesk RLE"),
+    .long_name      = NULL_IF_CONFIG_SMALL("Autodesk RLE"),
 };

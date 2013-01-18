@@ -27,6 +27,7 @@
 #include "avcodec.h"
 #include "get_bits.h"
 #include "golomb.h"
+#include "internal.h"
 #include "mathops.h"
 
 enum LOCO_MODE {LOCO_UNKN=0, LOCO_CYUY2=-1, LOCO_CRGB=-2, LOCO_CRGBA=-3, LOCO_CYV12=-4,
@@ -157,20 +158,20 @@ static int loco_decode_plane(LOCOContext *l, uint8_t *data, int width, int heigh
 }
 
 static int decode_frame(AVCodecContext *avctx,
-                        void *data, int *data_size,
+                        void *data, int *got_frame,
                         AVPacket *avpkt)
 {
     const uint8_t *buf = avpkt->data;
     int buf_size = avpkt->size;
     LOCOContext * const l = avctx->priv_data;
-    AVFrame * const p= (AVFrame*)&l->pic;
+    AVFrame * const p = &l->pic;
     int decoded;
 
     if(p->data[0])
         avctx->release_buffer(avctx, p);
 
     p->reference = 0;
-    if(avctx->get_buffer(avctx, p) < 0){
+    if(ff_get_buffer(avctx, p) < 0){
         av_log(avctx, AV_LOG_ERROR, "get_buffer() failed\n");
         return -1;
     }
@@ -222,7 +223,7 @@ static int decode_frame(AVCodecContext *avctx,
         break;
     }
 
-    *data_size = sizeof(AVFrame);
+    *got_frame      = 1;
     *(AVFrame*)data = l->pic;
 
     return buf_size;
@@ -254,16 +255,16 @@ static av_cold int decode_init(AVCodecContext *avctx){
     l->mode = AV_RL32(avctx->extradata + 4);
     switch(l->mode) {
     case LOCO_CYUY2: case LOCO_YUY2: case LOCO_UYVY:
-        avctx->pix_fmt = PIX_FMT_YUV422P;
+        avctx->pix_fmt = AV_PIX_FMT_YUV422P;
         break;
     case LOCO_CRGB: case LOCO_RGB:
-        avctx->pix_fmt = PIX_FMT_BGR24;
+        avctx->pix_fmt = AV_PIX_FMT_BGR24;
         break;
     case LOCO_CYV12: case LOCO_YV12:
-        avctx->pix_fmt = PIX_FMT_YUV420P;
+        avctx->pix_fmt = AV_PIX_FMT_YUV420P;
         break;
     case LOCO_CRGBA: case LOCO_RGBA:
-        avctx->pix_fmt = PIX_FMT_RGB32;
+        avctx->pix_fmt = AV_PIX_FMT_RGB32;
         break;
     default:
         av_log(avctx, AV_LOG_INFO, "Unknown colorspace, index = %i\n", l->mode);
@@ -288,11 +289,11 @@ static av_cold int decode_end(AVCodecContext *avctx){
 AVCodec ff_loco_decoder = {
     .name           = "loco",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_LOCO,
+    .id             = AV_CODEC_ID_LOCO,
     .priv_data_size = sizeof(LOCOContext),
     .init           = decode_init,
     .close          = decode_end,
     .decode         = decode_frame,
     .capabilities   = CODEC_CAP_DR1,
-    .long_name = NULL_IF_CONFIG_SMALL("LOCO"),
+    .long_name      = NULL_IF_CONFIG_SMALL("LOCO"),
 };

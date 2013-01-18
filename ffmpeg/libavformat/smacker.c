@@ -24,6 +24,7 @@
  */
 
 #include "libavutil/bswap.h"
+#include "libavutil/channel_layout.h"
 #include "libavutil/intreadwrite.h"
 #include "avformat.h"
 #include "internal.h"
@@ -98,7 +99,7 @@ static int smacker_probe(AVProbeData *p)
         return 0;
 }
 
-static int smacker_read_header(AVFormatContext *s, AVFormatParameters *ap)
+static int smacker_read_header(AVFormatContext *s)
 {
     AVIOContext *pb = s->pb;
     SmackerContext *smk = s->priv_data;
@@ -161,9 +162,9 @@ static int smacker_read_header(AVFormatContext *s, AVFormatParameters *ap)
     smk->videoindex = st->index;
     st->codec->width = smk->width;
     st->codec->height = smk->height;
-    st->codec->pix_fmt = PIX_FMT_PAL8;
+    st->codec->pix_fmt = AV_PIX_FMT_PAL8;
     st->codec->codec_type = AVMEDIA_TYPE_VIDEO;
-    st->codec->codec_id = CODEC_ID_SMACKVIDEO;
+    st->codec->codec_id = AV_CODEC_ID_SMACKVIDEO;
     st->codec->codec_tag = smk->magic;
     /* Smacker uses 100000 as internal timebase */
     if(smk->pts_inc < 0)
@@ -182,20 +183,26 @@ static int smacker_read_header(AVFormatContext *s, AVFormatParameters *ap)
             smk->indexes[i] = ast[i]->index;
             ast[i]->codec->codec_type = AVMEDIA_TYPE_AUDIO;
             if (smk->aflags[i] & SMK_AUD_BINKAUD) {
-                ast[i]->codec->codec_id = CODEC_ID_BINKAUDIO_RDFT;
+                ast[i]->codec->codec_id = AV_CODEC_ID_BINKAUDIO_RDFT;
             } else if (smk->aflags[i] & SMK_AUD_USEDCT) {
-                ast[i]->codec->codec_id = CODEC_ID_BINKAUDIO_DCT;
+                ast[i]->codec->codec_id = AV_CODEC_ID_BINKAUDIO_DCT;
             } else if (smk->aflags[i] & SMK_AUD_PACKED){
-                ast[i]->codec->codec_id = CODEC_ID_SMACKAUDIO;
+                ast[i]->codec->codec_id = AV_CODEC_ID_SMACKAUDIO;
                 ast[i]->codec->codec_tag = MKTAG('S', 'M', 'K', 'A');
             } else {
-                ast[i]->codec->codec_id = CODEC_ID_PCM_U8;
+                ast[i]->codec->codec_id = AV_CODEC_ID_PCM_U8;
             }
-            ast[i]->codec->channels = (smk->aflags[i] & SMK_AUD_STEREO) ? 2 : 1;
+            if (smk->aflags[i] & SMK_AUD_STEREO) {
+                ast[i]->codec->channels       = 2;
+                ast[i]->codec->channel_layout = AV_CH_LAYOUT_STEREO;
+            } else {
+                ast[i]->codec->channels       = 1;
+                ast[i]->codec->channel_layout = AV_CH_LAYOUT_MONO;
+            }
             ast[i]->codec->sample_rate = smk->rates[i];
             ast[i]->codec->bits_per_coded_sample = (smk->aflags[i] & SMK_AUD_16BITS) ? 16 : 8;
-            if(ast[i]->codec->bits_per_coded_sample == 16 && ast[i]->codec->codec_id == CODEC_ID_PCM_U8)
-                ast[i]->codec->codec_id = CODEC_ID_PCM_S16LE;
+            if(ast[i]->codec->bits_per_coded_sample == 16 && ast[i]->codec->codec_id == AV_CODEC_ID_PCM_U8)
+                ast[i]->codec->codec_id = AV_CODEC_ID_PCM_S16LE;
             avpriv_set_pts_info(ast[i], 64, 1, ast[i]->codec->sample_rate
                     * ast[i]->codec->channels * ast[i]->codec->bits_per_coded_sample / 8);
         }
@@ -265,8 +272,15 @@ static int smacker_read_packet(AVFormatContext *s, AVPacket *pkt)
                     sz += (t & 0x7F) + 1;
                     pal += ((t & 0x7F) + 1) * 3;
                 } else if(t & 0x40){ /* copy with offset */
-                    off = avio_r8(s->pb) * 3;
+                    off = avio_r8(s->pb);
                     j = (t & 0x3F) + 1;
+                    if (off + j > 0xff) {
+                        av_log(s, AV_LOG_ERROR,
+                               "Invalid palette update, offset=%d length=%d extends beyond palette size\n",
+                               off, j);
+                        return AVERROR_INVALIDDATA;
+                    }
+                    off *= 3;
                     while(j-- && sz < 256) {
                         *pal++ = oldpal[off + 0];
                         *pal++ = oldpal[off + 1];

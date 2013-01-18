@@ -25,6 +25,7 @@
 #include "libavutil/imgutils.h"
 #include "avcodec.h"
 #include "bytestream.h"
+#include "internal.h"
 #include "lzw.h"
 
 #define GCE_DISPOSAL_NONE       0
@@ -281,7 +282,8 @@ static av_cold int gif_decode_init(AVCodecContext *avctx)
     return 0;
 }
 
-static int gif_decode_frame(AVCodecContext *avctx, void *data, int *data_size, AVPacket *avpkt)
+static int gif_decode_frame(AVCodecContext *avctx, void *data, int *got_frame,
+                            AVPacket *avpkt)
 {
     const uint8_t *buf = avpkt->data;
     int buf_size = avpkt->size;
@@ -294,14 +296,14 @@ static int gif_decode_frame(AVCodecContext *avctx, void *data, int *data_size, A
     if (gif_read_header1(s) < 0)
         return -1;
 
-    avctx->pix_fmt = PIX_FMT_PAL8;
+    avctx->pix_fmt = AV_PIX_FMT_PAL8;
     if (av_image_check_size(s->screen_width, s->screen_height, 0, avctx))
         return -1;
     avcodec_set_dimensions(avctx, s->screen_width, s->screen_height);
 
     if (s->picture.data[0])
         avctx->release_buffer(avctx, &s->picture);
-    if (avctx->get_buffer(avctx, &s->picture) < 0) {
+    if (ff_get_buffer(avctx, &s->picture) < 0) {
         av_log(avctx, AV_LOG_ERROR, "get_buffer() failed\n");
         return -1;
     }
@@ -311,7 +313,7 @@ static int gif_decode_frame(AVCodecContext *avctx, void *data, int *data_size, A
         return ret;
 
     *picture = s->picture;
-    *data_size = sizeof(AVPicture);
+    *got_frame = 1;
     return s->bytestream - buf;
 }
 
@@ -328,11 +330,11 @@ static av_cold int gif_decode_close(AVCodecContext *avctx)
 AVCodec ff_gif_decoder = {
     .name           = "gif",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_GIF,
+    .id             = AV_CODEC_ID_GIF,
     .priv_data_size = sizeof(GifState),
     .init           = gif_decode_init,
     .close          = gif_decode_close,
     .decode         = gif_decode_frame,
     .capabilities   = CODEC_CAP_DR1,
-    .long_name = NULL_IF_CONFIG_SMALL("GIF (Graphics Interchange Format)"),
+    .long_name      = NULL_IF_CONFIG_SMALL("GIF (Graphics Interchange Format)"),
 };

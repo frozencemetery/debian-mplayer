@@ -29,10 +29,12 @@
 
 #include "avcodec.h"
 #include "bytestream.h"
+#include "internal.h"
 
 #define KMVC_KEYFRAME 0x80
 #define KMVC_PALETTE  0x40
 #define KMVC_METHOD   0x0F
+#define MAX_PALSIZE   256
 
 /*
  * Decoder context
@@ -43,7 +45,7 @@ typedef struct KmvcContext {
 
     int setpal;
     int palsize;
-    uint32_t pal[256];
+    uint32_t pal[MAX_PALSIZE];
     uint8_t *cur, *prev;
     uint8_t *frm0, *frm1;
     GetByteContext g;
@@ -241,7 +243,8 @@ static int kmvc_decode_inter_8x8(KmvcContext * ctx, int w, int h)
     return 0;
 }
 
-static int decode_frame(AVCodecContext * avctx, void *data, int *data_size, AVPacket *avpkt)
+static int decode_frame(AVCodecContext * avctx, void *data, int *got_frame,
+                        AVPacket *avpkt)
 {
     KmvcContext *const ctx = avctx->priv_data;
     uint8_t *out, *src;
@@ -256,7 +259,7 @@ static int decode_frame(AVCodecContext * avctx, void *data, int *data_size, AVPa
 
     ctx->pic.reference = 1;
     ctx->pic.buffer_hints = FF_BUFFER_HINTS_VALID;
-    if (avctx->get_buffer(avctx, &ctx->pic) < 0) {
+    if (ff_get_buffer(avctx, &ctx->pic) < 0) {
         av_log(avctx, AV_LOG_ERROR, "get_buffer() failed\n");
         return -1;
     }
@@ -342,7 +345,7 @@ static int decode_frame(AVCodecContext * avctx, void *data, int *data_size, AVPa
         ctx->prev = ctx->frm1;
     }
 
-    *data_size = sizeof(AVFrame);
+    *got_frame = 1;
     *(AVFrame *) data = ctx->pic;
 
     /* always report that the buffer was completely consumed */
@@ -376,10 +379,15 @@ static av_cold int decode_init(AVCodecContext * avctx)
     }
 
     if (avctx->extradata_size < 12) {
-        av_log(NULL, 0, "Extradata missing, decoding may not work properly...\n");
+        av_log(avctx, AV_LOG_WARNING,
+               "Extradata missing, decoding may not work properly...\n");
         c->palsize = 127;
     } else {
         c->palsize = AV_RL16(avctx->extradata + 10);
+        if (c->palsize >= MAX_PALSIZE) {
+            av_log(avctx, AV_LOG_ERROR, "KMVC palette too large\n");
+            return AVERROR_INVALIDDATA;
+        }
     }
 
     if (avctx->extradata_size == 1036) {        // palette in extradata
@@ -391,7 +399,7 @@ static av_cold int decode_init(AVCodecContext * avctx)
         c->setpal = 1;
     }
 
-    avctx->pix_fmt = PIX_FMT_PAL8;
+    avctx->pix_fmt = AV_PIX_FMT_PAL8;
 
     return 0;
 }
@@ -416,11 +424,11 @@ static av_cold int decode_end(AVCodecContext * avctx)
 AVCodec ff_kmvc_decoder = {
     .name           = "kmvc",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_KMVC,
+    .id             = AV_CODEC_ID_KMVC,
     .priv_data_size = sizeof(KmvcContext),
     .init           = decode_init,
     .close          = decode_end,
     .decode         = decode_frame,
     .capabilities   = CODEC_CAP_DR1,
-    .long_name = NULL_IF_CONFIG_SMALL("Karl Morton's video codec"),
+    .long_name      = NULL_IF_CONFIG_SMALL("Karl Morton's video codec"),
 };

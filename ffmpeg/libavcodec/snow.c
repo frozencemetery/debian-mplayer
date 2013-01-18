@@ -24,6 +24,7 @@
 #include "avcodec.h"
 #include "dsputil.h"
 #include "dwt.h"
+#include "internal.h"
 #include "snow.h"
 #include "snowdata.h"
 
@@ -99,7 +100,7 @@ static void init_qexp(void){
     double v=128;
 
     for(i=0; i<QROOT; i++){
-        qexp[i]= lrintf(v);
+        ff_qexp[i]= lrintf(v);
         v *= pow(2, 1.0 / QROOT);
     }
 }
@@ -143,7 +144,7 @@ static void mc_block(Plane *p, uint8_t *dst, const uint8_t *src, int stride, int
 
     int x, y, b, r, l;
     int16_t tmpIt   [64*(32+HTAPS_MAX)];
-    uint8_t tmp2t[3][stride*(32+HTAPS_MAX)];
+    uint8_t tmp2t[3][64*(32+HTAPS_MAX)];
     int16_t *tmpI= tmpIt;
     uint8_t *tmp2= tmp2t[0];
     const uint8_t *hpel[11];
@@ -181,7 +182,7 @@ static void mc_block(Plane *p, uint8_t *dst, const uint8_t *src, int stride, int
                 tmp2[x]= am;
             }
             tmpI+= 64;
-            tmp2+= stride;
+            tmp2+= 64;
             src += stride;
         }
         src -= stride*y;
@@ -210,7 +211,7 @@ static void mc_block(Plane *p, uint8_t *dst, const uint8_t *src, int stride, int
                 tmp2[x]= am;
             }
             src += stride;
-            tmp2+= stride;
+            tmp2+= 64;
         }
         src -= stride*y;
     }
@@ -237,12 +238,12 @@ static void mc_block(Plane *p, uint8_t *dst, const uint8_t *src, int stride, int
                 tmp2[x]= am;
             }
             tmpI+= 64;
-            tmp2+= stride;
+            tmp2+= 64;
         }
     }
 
     hpel[ 0]= src;
-    hpel[ 1]= tmp2t[0] + stride*(HTAPS_MAX/2-1);
+    hpel[ 1]= tmp2t[0] + 64*(HTAPS_MAX/2-1);
     hpel[ 2]= src + 1;
 
     hpel[ 4]= tmp2t[1];
@@ -250,14 +251,21 @@ static void mc_block(Plane *p, uint8_t *dst, const uint8_t *src, int stride, int
     hpel[ 6]= tmp2t[1] + 1;
 
     hpel[ 8]= src + stride;
-    hpel[ 9]= hpel[1] + stride;
+    hpel[ 9]= hpel[1] + 64;
     hpel[10]= hpel[8] + 1;
 
+#define MC_STRIDE(x) (needs[x] ? 64 : stride)
+
     if(b==15){
-        const uint8_t *src1= hpel[dx/8 + dy/8*4  ];
-        const uint8_t *src2= hpel[dx/8 + dy/8*4+1];
-        const uint8_t *src3= hpel[dx/8 + dy/8*4+4];
-        const uint8_t *src4= hpel[dx/8 + dy/8*4+5];
+        int dxy = dx / 8 + dy / 8 * 4;
+        const uint8_t *src1 = hpel[dxy    ];
+        const uint8_t *src2 = hpel[dxy + 1];
+        const uint8_t *src3 = hpel[dxy + 4];
+        const uint8_t *src4 = hpel[dxy + 5];
+        int stride1 = MC_STRIDE(dxy);
+        int stride2 = MC_STRIDE(dxy + 1);
+        int stride3 = MC_STRIDE(dxy + 4);
+        int stride4 = MC_STRIDE(dxy + 5);
         dx&=7;
         dy&=7;
         for(y=0; y < b_h; y++){
@@ -265,23 +273,25 @@ static void mc_block(Plane *p, uint8_t *dst, const uint8_t *src, int stride, int
                 dst[x]= ((8-dx)*(8-dy)*src1[x] + dx*(8-dy)*src2[x]+
                          (8-dx)*   dy *src3[x] + dx*   dy *src4[x]+32)>>6;
             }
-            src1+=stride;
-            src2+=stride;
-            src3+=stride;
-            src4+=stride;
+            src1+=stride1;
+            src2+=stride2;
+            src3+=stride3;
+            src4+=stride4;
             dst +=stride;
         }
     }else{
         const uint8_t *src1= hpel[l];
         const uint8_t *src2= hpel[r];
+        int stride1 = MC_STRIDE(l);
+        int stride2 = MC_STRIDE(r);
         int a= weight[((dx&7) + (8*(dy&7)))];
         int b= 8-a;
         for(y=0; y < b_h; y++){
             for(x=0; x < b_w; x++){
                 dst[x]= (a*src1[x] + b*src2[x] + 4)>>3;
             }
-            src1+=stride;
-            src2+=stride;
+            src1+=stride1;
+            src2+=stride2;
             dst +=stride;
         }
     }
@@ -339,7 +349,7 @@ void ff_snow_pred_block(SnowContext *s, uint8_t *dst, uint8_t *tmp, int stride, 
         src += sx + sy*stride;
         if(   (unsigned)sx >= w - b_w - (HTAPS_MAX-2)
            || (unsigned)sy >= h - b_h - (HTAPS_MAX-2)){
-            s->dsp.emulated_edge_mc(tmp + MB_SIZE, src, stride, b_w+HTAPS_MAX-1, b_h+HTAPS_MAX-1, sx, sy, w, h);
+            s->vdsp.emulated_edge_mc(tmp + MB_SIZE, src, stride, b_w+HTAPS_MAX-1, b_h+HTAPS_MAX-1, sx, sy, w, h);
             src= tmp + MB_SIZE;
         }
 //        assert(b_w == b_h || 2*b_w == b_h || b_w == 2*b_h);
@@ -385,12 +395,14 @@ mca( 8, 8,8)
 av_cold int ff_snow_common_init(AVCodecContext *avctx){
     SnowContext *s = avctx->priv_data;
     int width, height;
-    int i, j;
+    int i, j, ret;
+    int emu_buf_size;
 
     s->avctx= avctx;
     s->max_ref_frames=1; //just make sure its not an invalid value in case of no initial keyframe
 
-    dsputil_init(&s->dsp, avctx);
+    ff_dsputil_init(&s->dsp, avctx);
+    ff_videodsp_init(&s->vdsp, 8);
     ff_dwt_init(&s->dwt);
 
 #define mcf(dx,dy)\
@@ -438,17 +450,27 @@ av_cold int ff_snow_common_init(AVCodecContext *avctx){
     width= s->avctx->width;
     height= s->avctx->height;
 
-    s->spatial_idwt_buffer= av_mallocz(width*height*sizeof(IDWTELEM));
-    s->spatial_dwt_buffer= av_mallocz(width*height*sizeof(DWTELEM)); //FIXME this does not belong here
+    FF_ALLOCZ_OR_GOTO(avctx, s->spatial_idwt_buffer, width * height * sizeof(IDWTELEM), fail);
+    FF_ALLOCZ_OR_GOTO(avctx, s->spatial_dwt_buffer,  width * height * sizeof(DWTELEM),  fail); //FIXME this does not belong here
+    FF_ALLOCZ_OR_GOTO(avctx, s->temp_dwt_buffer,     width * sizeof(DWTELEM),  fail);
+    FF_ALLOCZ_OR_GOTO(avctx, s->temp_idwt_buffer,    width * sizeof(IDWTELEM), fail);
+    FF_ALLOC_OR_GOTO(avctx,  s->run_buffer,          ((width + 1) >> 1) * ((height + 1) >> 1) * sizeof(*s->run_buffer), fail);
 
     for(i=0; i<MAX_REF_FRAMES; i++)
         for(j=0; j<MAX_REF_FRAMES; j++)
-            scale_mv_ref[i][j] = 256*(i+1)/(j+1);
+            ff_scale_mv_ref[i][j] = 256*(i+1)/(j+1);
 
-    s->avctx->get_buffer(s->avctx, &s->mconly_picture);
-    s->scratchbuf = av_malloc(s->mconly_picture.linesize[0]*7*MB_SIZE);
+    if ((ret = ff_get_buffer(s->avctx, &s->mconly_picture)) < 0) {
+        av_log(s->avctx, AV_LOG_ERROR, "get_buffer() failed\n");
+        return ret;
+    }
+    FF_ALLOC_OR_GOTO(avctx, s->scratchbuf, s->mconly_picture.linesize[0]*7*MB_SIZE, fail);
+    emu_buf_size = s->mconly_picture.linesize[0] * (2 * MB_SIZE + HTAPS_MAX - 1);
+    FF_ALLOC_OR_GOTO(avctx, s->emu_edge_buffer, emu_buf_size, fail);
 
     return 0;
+fail:
+    return AVERROR(ENOMEM);
 }
 
 int ff_snow_common_init_after_header(AVCodecContext *avctx) {
@@ -603,7 +625,7 @@ int ff_snow_frame_start(SnowContext *s){
     }
 
     s->current_picture.reference= 1;
-    if(s->avctx->get_buffer(s->avctx, &s->current_picture) < 0){
+    if(ff_get_buffer(s->avctx, &s->current_picture) < 0){
         av_log(s->avctx, AV_LOG_ERROR, "get_buffer() failed\n");
         return -1;
     }
@@ -618,7 +640,10 @@ av_cold void ff_snow_common_end(SnowContext *s)
     int plane_index, level, orientation, i;
 
     av_freep(&s->spatial_dwt_buffer);
+    av_freep(&s->temp_dwt_buffer);
     av_freep(&s->spatial_idwt_buffer);
+    av_freep(&s->temp_idwt_buffer);
+    av_freep(&s->run_buffer);
 
     s->m.me.temp= NULL;
     av_freep(&s->m.me.scratchpad);
@@ -628,6 +653,7 @@ av_cold void ff_snow_common_end(SnowContext *s)
 
     av_freep(&s->block);
     av_freep(&s->scratchbuf);
+    av_freep(&s->emu_edge_buffer);
 
     for(i=0; i<MAX_REF_FRAMES; i++){
         av_freep(&s->ref_mvs[i]);
@@ -650,4 +676,3 @@ av_cold void ff_snow_common_end(SnowContext *s)
     if (s->current_picture.data[0])
         s->avctx->release_buffer(s->avctx, &s->current_picture);
 }
-

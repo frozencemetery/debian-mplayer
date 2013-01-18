@@ -25,6 +25,7 @@
 #include "dsputil.h"
 #include "binkdata.h"
 #include "binkdsp.h"
+#include "internal.h"
 #include "mathops.h"
 
 #define BITSTREAM_READER_LE
@@ -146,6 +147,8 @@ enum BlockTypes {
  */
 static void init_lengths(BinkContext *c, int width, int bw)
 {
+    width = FFALIGN(width, 8);
+
     c->bundle[BINK_SRC_BLOCK_TYPES].len = av_log2((width >> 3) + 511) + 1;
 
     c->bundle[BINK_SRC_SUB_BLOCK_TYPES].len = av_log2((width >> 4) + 511) + 1;
@@ -231,7 +234,7 @@ static void merge(GetBitContext *gb, uint8_t *dst, uint8_t *src, int size)
  */
 static void read_tree(GetBitContext *gb, Tree *tree)
 {
-    uint8_t tmp1[16], tmp2[16], *in = tmp1, *out = tmp2;
+    uint8_t tmp1[16] = { 0 }, tmp2[16], *in = tmp1, *out = tmp2;
     int i, t, len;
 
     tree->vlc_num = get_bits(gb, 4);
@@ -242,7 +245,6 @@ static void read_tree(GetBitContext *gb, Tree *tree)
     }
     if (get_bits1(gb)) {
         len = get_bits(gb, 3);
-        memset(tmp1, 0, sizeof(tmp1));
         for (i = 0; i <= len; i++) {
             tree->syms[i] = get_bits(gb, 4);
             tmp1[tree->syms[i]] = 1;
@@ -1159,7 +1161,7 @@ static int bink_decode_plane(BinkContext *c, GetBitContext *gb, int plane_idx,
     return 0;
 }
 
-static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, AVPacket *pkt)
+static int decode_frame(AVCodecContext *avctx, void *data, int *got_frame, AVPacket *pkt)
 {
     BinkContext * const c = avctx->priv_data;
     GetBitContext gb;
@@ -1170,7 +1172,7 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, AVPac
         if(c->pic.data[0])
             avctx->release_buffer(avctx, &c->pic);
 
-        if(avctx->get_buffer(avctx, &c->pic) < 0){
+        if(ff_get_buffer(avctx, &c->pic) < 0){
             av_log(avctx, AV_LOG_ERROR, "get_buffer() failed\n");
             return -1;
         }
@@ -1206,7 +1208,7 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, AVPac
     }
     emms_c();
 
-    *data_size = sizeof(AVFrame);
+    *got_frame = 1;
     *(AVFrame*)data = c->pic;
 
     if (c->version > 'b')
@@ -1295,10 +1297,10 @@ static av_cold int decode_init(AVCodecContext *avctx)
         return 1;
     }
 
-    avctx->pix_fmt = c->has_alpha ? PIX_FMT_YUVA420P : PIX_FMT_YUV420P;
+    avctx->pix_fmt = c->has_alpha ? AV_PIX_FMT_YUVA420P : AV_PIX_FMT_YUV420P;
 
     avctx->idct_algo = FF_IDCT_BINK;
-    dsputil_init(&c->dsp, avctx);
+    ff_dsputil_init(&c->dsp, avctx);
     ff_binkdsp_init(&c->bdsp);
 
     init_bundles(c);
@@ -1329,10 +1331,11 @@ static av_cold int decode_end(AVCodecContext *avctx)
 AVCodec ff_bink_decoder = {
     .name           = "binkvideo",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_BINKVIDEO,
+    .id             = AV_CODEC_ID_BINKVIDEO,
     .priv_data_size = sizeof(BinkContext),
     .init           = decode_init,
     .close          = decode_end,
     .decode         = decode_frame,
-    .long_name = NULL_IF_CONFIG_SMALL("Bink video"),
+    .long_name      = NULL_IF_CONFIG_SMALL("Bink video"),
+    .capabilities   = CODEC_CAP_DR1,
 };

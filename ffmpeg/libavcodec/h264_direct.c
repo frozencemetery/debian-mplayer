@@ -54,14 +54,17 @@ void ff_h264_direct_dist_scale_factor(H264Context * const h){
     const int poc = h->s.current_picture_ptr->field_poc[ s->picture_structure == PICT_BOTTOM_FIELD ];
     const int poc1 = h->ref_list[1][0].poc;
     int i, field;
-    for(field=0; field<2; field++){
-        const int poc  = h->s.current_picture_ptr->field_poc[field];
-        const int poc1 = h->ref_list[1][0].field_poc[field];
-        for(i=0; i < 2*h->ref_count[0]; i++)
-            h->dist_scale_factor_field[field][i^field] = get_scale_factor(h, poc, poc1, i+16);
-    }
 
-    for(i=0; i<h->ref_count[0]; i++){
+    if (FRAME_MBAFF)
+        for (field = 0; field < 2; field++){
+            const int poc  = h->s.current_picture_ptr->field_poc[field];
+            const int poc1 = h->ref_list[1][0].field_poc[field];
+            for (i = 0; i < 2 * h->ref_count[0]; i++)
+                h->dist_scale_factor_field[field][i^field] =
+                    get_scale_factor(h, poc, poc1, i+16);
+        }
+
+    for (i = 0; i < h->ref_count[0]; i++){
         h->dist_scale_factor[i] = get_scale_factor(h, poc, poc1, i);
     }
 }
@@ -83,13 +86,14 @@ static void fill_colmap(H264Context *h, int map[2][16+32], int list, int field, 
 
             if     (!interl)
                 poc |= 3;
-            else if( interl && (poc&3) == 3) //FIXME store all MBAFF references so this isnt needed
+            else if( interl && (poc&3) == 3) // FIXME: store all MBAFF references so this is not needed
                 poc= (poc&~3) + rfield + 1;
 
             for(j=start; j<end; j++){
                 if (4 * h->ref_list[0][j].frame_num + (h->ref_list[0][j].f.reference & 3) == poc) {
                     int cur_ref= mbafi ? (j-16)^field : j;
-                    map[list][2*old_ref + (rfield^field) + 16] = cur_ref;
+                    if (ref1->mbaff)
+                        map[list][2 * old_ref + (rfield^field) + 16] = cur_ref;
                     if(rfield == field || !interl)
                         map[list][old_ref] = cur_ref;
                     break;
@@ -130,7 +134,7 @@ void ff_h264_direct_ref_list_init(H264Context * const h){
         h->col_fieldoff = 2 * h->ref_list[1][0].f.reference - 3;
     }
 
-    if (cur->f.pict_type != AV_PICTURE_TYPE_B || h->direct_spatial_mv_pred)
+    if (h->slice_type_nos != AV_PICTURE_TYPE_B || h->direct_spatial_mv_pred)
         return;
 
     for(list=0; list<2; list++){
@@ -153,7 +157,8 @@ static void await_reference_mb_row(H264Context * const h, Picture *ref, int mb_y
     //FIXME it can be safe to access mb stuff
     //even if pixels aren't deblocked yet
 
-    ff_thread_await_progress((AVFrame*)ref, FFMIN(16*mb_y >> ref_field_picture, ref_height-1),
+    ff_thread_await_progress(&ref->f,
+                             FFMIN(16 * mb_y >> ref_field_picture, ref_height - 1),
                              ref_field_picture && ref_field);
 }
 
@@ -252,6 +257,10 @@ static void pred_spatial_direct_motion(H264Context * const h, int *mb_type){
             mb_type_col[1] = h->ref_list[1][0].f.mb_type[mb_xy + s->mb_stride];
             b8_stride = 2+4*s->mb_stride;
             b4_stride *= 6;
+            if (IS_INTERLACED(mb_type_col[0]) != IS_INTERLACED(mb_type_col[1])) {
+                mb_type_col[0] &= ~MB_TYPE_INTERLACED;
+                mb_type_col[1] &= ~MB_TYPE_INTERLACED;
+            }
 
             sub_mb_type |= MB_TYPE_16x16|MB_TYPE_DIRECT2; /* B_SUB_8x8 */
             if(    (mb_type_col[0] & MB_TYPE_16x16_OR_INTRA)
@@ -438,6 +447,10 @@ static void pred_temp_direct_motion(H264Context * const h, int *mb_type){
             mb_type_col[1] = h->ref_list[1][0].f.mb_type[mb_xy + s->mb_stride];
             b8_stride = 2+4*s->mb_stride;
             b4_stride *= 6;
+            if (IS_INTERLACED(mb_type_col[0]) != IS_INTERLACED(mb_type_col[1])) {
+                mb_type_col[0] &= ~MB_TYPE_INTERLACED;
+                mb_type_col[1] &= ~MB_TYPE_INTERLACED;
+            }
 
             sub_mb_type = MB_TYPE_16x16|MB_TYPE_P0L0|MB_TYPE_P0L1|MB_TYPE_DIRECT2; /* B_SUB_8x8 */
 

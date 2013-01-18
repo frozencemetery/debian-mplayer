@@ -50,8 +50,8 @@
 
 #ifdef CONFIG_ICONV
 #include <iconv.h>
-char *sub_cp=NULL;
 #endif
+char *sub_cp=NULL;
 #ifdef CONFIG_FRIBIDI
 #include <fribidi/fribidi.h>
 char *fribidi_charset = NULL;   ///character set that will be passed to FriBiDi
@@ -652,6 +652,7 @@ static subtitle *sub_read_line_ssa(stream_t *st,subtitle *current, int utf16) {
 	     line3[LINE_LEN+1],
 	     *line2;
 	char *tmp;
+	const char *brace;
 
 	do {
 		if (!stream_read_line (st, line, LINE_LEN, utf16)) return NULL;
@@ -669,11 +670,13 @@ static subtitle *sub_read_line_ssa(stream_t *st,subtitle *current, int utf16) {
 
         line2=strchr(line3, ',');
         if (!line2) return NULL;
+        brace = strchr(line2, '{');
 
         for (comma = 4; comma < max_comma; comma ++)
           {
             tmp = line2;
             if(!(tmp=strchr(++tmp, ','))) break;
+            if(brace && brace < tmp) break; // comma inside command
             if(*(++tmp) == ' ') break;
                   /* a space after a comma means we're already in a sentence */
             line2 = tmp;
@@ -1474,7 +1477,7 @@ sub_data* sub_read_file (const char *filename, float fps) {
 	    int l,k;
 	    k = -1;
 	    if ((l=strlen(filename))>4){
-		    char *exts[] = {".utf", ".utf8", ".utf-8" };
+		    static const char exts[][8] = {".utf", ".utf8", ".utf-8" };
 		    for (k=3;--k>=0;)
 			if (l >= strlen(exts[k]) && !strcasecmp(filename+(l - strlen(exts[k])), exts[k])){
 			    sub_utf8 = 1;
@@ -2493,6 +2496,7 @@ void sub_free( sub_data * subd )
  * @param len length of text in txt
  * @param endpts pts at which this subtitle text should be removed again
  * @param strip_markup if strip markup is set (!= 0), markup tags like <b></b> are ignored
+ *                     and fribidi is used to process right-to-left markers
  *
  * <> and {} are interpreted as comment delimiters, "\n", "\N", '\n', '\r'
  * and '\0' are interpreted as newlines, duplicate, leading and trailing
@@ -2562,7 +2566,18 @@ void sub_add_text(subtitle *sub, const char *txt, int len, double endpts, int st
   if (sub->lines < SUB_MAX_TEXT &&
       strlen(sub->text[sub->lines]))
     sub->lines++;
+  if (sub->lines > 1 &&
+      strcmp(sub->text[sub->lines-1], sub->text[sub->lines-2]) == 0) {
+    // remove duplicate lines. These can happen with some
+    // "clever" ASS effects.
+    sub->lines--;
+    sub->endpts[sub->lines-1] =
+      FFMAX(sub->endpts[sub->lines-1],
+            sub->endpts[sub->lines]);
+    free(sub->text[sub->lines]);
+  }
 #ifdef CONFIG_FRIBIDI
+  if (strip_markup)
   sub = sub_fribidi(sub, sub_utf8, orig_lines);
 #endif
 }

@@ -3,12 +3,15 @@ NAME = avutil
 HEADERS = adler32.h                                                     \
           aes.h                                                         \
           attributes.h                                                  \
+          audio_fifo.h                                                  \
           audioconvert.h                                                \
           avassert.h                                                    \
           avstring.h                                                    \
           avutil.h                                                      \
           base64.h                                                      \
+          blowfish.h                                                    \
           bswap.h                                                       \
+          channel_layout.h                                              \
           common.h                                                      \
           cpu.h                                                         \
           crc.h                                                         \
@@ -17,15 +20,16 @@ HEADERS = adler32.h                                                     \
           fifo.h                                                        \
           file.h                                                        \
           imgutils.h                                                    \
+          intfloat.h                                                    \
           intfloat_readwrite.h                                          \
           intreadwrite.h                                                \
           lfg.h                                                         \
           log.h                                                         \
-          lzo.h                                                         \
           mathematics.h                                                 \
           md5.h                                                         \
           mem.h                                                         \
           dict.h                                                        \
+          old_pix_fmts.h                                                \
           opt.h                                                         \
           parseutils.h                                                  \
           pixdesc.h                                                     \
@@ -34,14 +38,26 @@ HEADERS = adler32.h                                                     \
           rational.h                                                    \
           samplefmt.h                                                   \
           sha.h                                                         \
+          time.h                                                        \
+          version.h                                                     \
+          xtea.h                                                        \
+
+HEADERS-$(CONFIG_LZO)                   += lzo.h
+
+ARCH_HEADERS = bswap.h                                                  \
+               intmath.h                                                \
+               intreadwrite.h                                           \
+               timer.h                                                  \
 
 BUILT_HEADERS = avconfig.h
 
 OBJS = adler32.o                                                        \
        aes.o                                                            \
-       audioconvert.o                                                   \
+       audio_fifo.o                                                     \
        avstring.o                                                       \
        base64.o                                                         \
+       blowfish.o                                                       \
+       channel_layout.o                                                 \
        cpu.o                                                            \
        crc.o                                                            \
        des.o                                                            \
@@ -49,13 +65,14 @@ OBJS = adler32.o                                                        \
        eval.o                                                           \
        fifo.o                                                           \
        file.o                                                           \
+       float_dsp.o                                                      \
        imgutils.o                                                       \
        intfloat_readwrite.o                                             \
-       inverse.o                                                        \
+       intmath.o                                                        \
        lfg.o                                                            \
        lls.o                                                            \
        log.o                                                            \
-       lzo.o                                                            \
+       log2_tab.o                                                       \
        mathematics.o                                                    \
        md5.o                                                            \
        mem.o                                                            \
@@ -68,19 +85,32 @@ OBJS = adler32.o                                                        \
        rc4.o                                                            \
        samplefmt.o                                                      \
        sha.o                                                            \
+       time.o                                                           \
        tree.o                                                           \
        utils.o                                                          \
+       xtea.o                                                           \
 
-OBJS-$(ARCH_ARM) += arm/cpu.o
-OBJS-$(ARCH_PPC) += ppc/cpu.o
-OBJS-$(ARCH_X86) += x86/cpu.o
+OBJS-$(CONFIG_LZO)                      += lzo.o
 
-TESTPROGS = adler32 aes avstring base64 cpu crc des eval file fifo lfg lls \
-            md5 opt parseutils rational sha tree
-TESTPROGS-$(HAVE_LZO1X_999_COMPRESS) += lzo
+OBJS += $(COMPAT_OBJS:%=../compat/%)
 
-DIRS = arm bfin sh4 x86
+SKIPHEADERS          = old_pix_fmts.h
 
-ARCH_HEADERS = bswap.h intmath.h intreadwrite.h timer.h
-
-$(SUBDIR)lzo-test$(EXESUF): ELIBS = -llzo2
+TESTPROGS = adler32                                                     \
+            aes                                                         \
+            avstring                                                    \
+            base64                                                      \
+            blowfish                                                    \
+            cpu                                                         \
+            crc                                                         \
+            des                                                         \
+            eval                                                        \
+            fifo                                                        \
+            lfg                                                         \
+            lls                                                         \
+            md5                                                         \
+            opt                                                         \
+            parseutils                                                  \
+            sha                                                         \
+            tree                                                        \
+            xtea                                                        \

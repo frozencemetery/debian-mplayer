@@ -27,10 +27,13 @@
 /* #define DEBUG */
 
 #include "libavutil/eval.h"
+#include "libavutil/internal.h"
 #include "libavutil/mathematics.h"
 #include "avfilter.h"
+#include "internal.h"
+#include "video.h"
 
-static const char *var_names[] = {
+static const char *const var_names[] = {
     "E",           ///< Euler number
     "INTERLACED",  ///< tell if the current frame is interlaced
     "N",           ///< frame number (starting at zero)
@@ -65,7 +68,7 @@ typedef struct {
     double var_values[VAR_VARS_NB];
 } SetPTSContext;
 
-static av_cold int init(AVFilterContext *ctx, const char *args, void *opaque)
+static av_cold int init(AVFilterContext *ctx, const char *args)
 {
     SetPTSContext *setpts = ctx->priv;
     int ret;
@@ -92,43 +95,43 @@ static int config_input(AVFilterLink *inlink)
 
     setpts->var_values[VAR_TB] = av_q2d(inlink->time_base);
 
-    av_log(inlink->src, AV_LOG_INFO, "TB:%f\n", setpts->var_values[VAR_TB]);
+    av_log(inlink->src, AV_LOG_VERBOSE, "TB:%f\n", setpts->var_values[VAR_TB]);
     return 0;
 }
 
 #define D2TS(d)  (isnan(d) ? AV_NOPTS_VALUE : (int64_t)(d))
 #define TS2D(ts) ((ts) == AV_NOPTS_VALUE ? NAN : (double)(ts))
 
-static void start_frame(AVFilterLink *inlink, AVFilterBufferRef *inpicref)
+static int filter_frame(AVFilterLink *inlink, AVFilterBufferRef *frame)
 {
     SetPTSContext *setpts = inlink->dst->priv;
+    int64_t in_pts = frame->pts;
     double d;
-    AVFilterBufferRef *outpicref = avfilter_ref_buffer(inpicref, ~0);
 
     if (isnan(setpts->var_values[VAR_STARTPTS]))
-        setpts->var_values[VAR_STARTPTS] = TS2D(inpicref->pts);
+        setpts->var_values[VAR_STARTPTS] = TS2D(frame->pts);
 
-    setpts->var_values[VAR_INTERLACED] = inpicref->video->interlaced;
-    setpts->var_values[VAR_PTS       ] = TS2D(inpicref->pts);
-    setpts->var_values[VAR_POS       ] = inpicref->pos == -1 ? NAN : inpicref->pos;
+    setpts->var_values[VAR_INTERLACED] = frame->video->interlaced;
+    setpts->var_values[VAR_PTS       ] = TS2D(frame->pts);
+    setpts->var_values[VAR_POS       ] = frame->pos == -1 ? NAN : frame->pos;
 
     d = av_expr_eval(setpts->expr, setpts->var_values, NULL);
-    outpicref->pts = D2TS(d);
+    frame->pts = D2TS(d);
 
 #ifdef DEBUG
     av_log(inlink->dst, AV_LOG_DEBUG,
            "n:%"PRId64" interlaced:%d pos:%"PRId64" pts:%"PRId64" t:%f -> pts:%"PRId64" t:%f\n",
            (int64_t)setpts->var_values[VAR_N],
            (int)setpts->var_values[VAR_INTERLACED],
-           inpicref ->pos,
-           inpicref ->pts, inpicref ->pts * av_q2d(inlink->time_base),
-           outpicref->pts, outpicref->pts * av_q2d(inlink->time_base));
+           frame->pos, in_pts, in_pts * av_q2d(inlink->time_base),
+           frame->pts, frame->pts * av_q2d(inlink->time_base));
 #endif
 
+
     setpts->var_values[VAR_N] += 1.0;
-    setpts->var_values[VAR_PREV_INPTS ] = TS2D(inpicref ->pts);
-    setpts->var_values[VAR_PREV_OUTPTS] = TS2D(outpicref->pts);
-    avfilter_start_frame(inlink->dst->outputs[0], outpicref);
+    setpts->var_values[VAR_PREV_INPTS ] = TS2D(in_pts);
+    setpts->var_values[VAR_PREV_OUTPTS] = TS2D(frame->pts);
+    return ff_filter_frame(inlink->dst->outputs[0], frame);
 }
 
 static av_cold void uninit(AVFilterContext *ctx)
@@ -138,6 +141,25 @@ static av_cold void uninit(AVFilterContext *ctx)
     setpts->expr = NULL;
 }
 
+static const AVFilterPad avfilter_vf_setpts_inputs[] = {
+    {
+        .name             = "default",
+        .type             = AVMEDIA_TYPE_VIDEO,
+        .get_video_buffer = ff_null_get_video_buffer,
+        .config_props     = config_input,
+        .filter_frame     = filter_frame,
+    },
+    { NULL }
+};
+
+static const AVFilterPad avfilter_vf_setpts_outputs[] = {
+    {
+        .name = "default",
+        .type = AVMEDIA_TYPE_VIDEO,
+    },
+    { NULL }
+};
+
 AVFilter avfilter_vf_setpts = {
     .name      = "setpts",
     .description = NULL_IF_CONFIG_SMALL("Set PTS for the output video frame."),
@@ -146,13 +168,6 @@ AVFilter avfilter_vf_setpts = {
 
     .priv_size = sizeof(SetPTSContext),
 
-    .inputs    = (AVFilterPad[]) {{ .name             = "default",
-                                    .type             = AVMEDIA_TYPE_VIDEO,
-                                    .get_video_buffer = avfilter_null_get_video_buffer,
-                                    .config_props     = config_input,
-                                    .start_frame      = start_frame, },
-                                  { .name = NULL }},
-    .outputs   = (AVFilterPad[]) {{ .name             = "default",
-                                    .type             = AVMEDIA_TYPE_VIDEO, },
-                                  { .name = NULL}},
+    .inputs    = avfilter_vf_setpts_inputs,
+    .outputs   = avfilter_vf_setpts_outputs,
 };

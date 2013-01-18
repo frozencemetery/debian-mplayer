@@ -22,7 +22,7 @@
 #include "util/bitmap.h"
 #include "wm/ws.h"
 
-// User events
+/* User events */
 
 #define evNone              0
 
@@ -68,11 +68,12 @@
 #define evAbout             12
 #define evPreferences       14
 #define evSkinBrowser       15
+#define evMenu              33
 
 #define evIconify           11
 #define evExit              1000
 
-// Internal events
+/* Internal events */
 
 #define ivSetAudio          45
 #define ivSetVideo          46
@@ -88,13 +89,14 @@
 #define ivSetCDTrack      5014
 
 #define ivRedraw          7002
+#define ivPlayDVD         7003
 
 typedef struct {
     int message;
     const char *name;
 } evName;
 
-// Skin items
+/* Skin items */
 
 #define itNone      0
 #define itButton    101
@@ -109,13 +111,13 @@ typedef struct {
 #define itPLMButton (itNone - 1)
 #define itPRMButton (itNone - 2)
 
-// Button states
+/* Button states */
 
 #define btnDisabled 0
 #define btnReleased 1
 #define btnPressed  2
 
-// Item definition
+/* Item definition */
 
 #define MAX_ITEMS 64
 
@@ -153,8 +155,8 @@ typedef struct {
     wsTWindow mainWindow;
     int mainDecoration;
 
-    wItem sub;
-    wsTWindow subWindow;
+    wItem video;
+    wsTWindow videoWindow;
 
     wItem playbar;
     wsTWindow playbarWindow;

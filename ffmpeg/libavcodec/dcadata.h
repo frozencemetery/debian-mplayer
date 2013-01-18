@@ -28,12 +28,6 @@
 
 /* Generic tables */
 
-static const uint32_t dca_sample_rates[16] =
-{
-    0, 8000, 16000, 32000, 0, 0, 11025, 22050, 44100, 0, 0,
-    12000, 24000, 48000, 96000, 192000
-};
-
 static const uint32_t dca_bit_rates[32] =
 {
     32000, 56000, 64000, 96000, 112000, 128000,
@@ -7528,7 +7522,7 @@ static const float dca_downmix_coeffs[65] = {
   0.001412537544623, 0.001000000000000, 0.000501187233627, 0.000251188643151, 0.000000000000000,
 };
 
-static const uint8_t dca_default_coeffs[16][5][2] = {
+static const uint8_t dca_default_coeffs[10][5][2] = {
     { { 13, 13 },                                                 },
     { {  0, 64 }, { 64,  0 },                                     },
     { {  0, 64 }, { 64,  0 },                                     },

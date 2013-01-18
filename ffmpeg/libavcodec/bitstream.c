@@ -29,6 +29,7 @@
  */
 
 #include "avcodec.h"
+#include "mathops.h"
 #include "get_bits.h"
 #include "put_bits.h"
 
@@ -46,7 +47,7 @@ void avpriv_align_put_bits(PutBitContext *s)
     put_bits(s,s->bit_left & 7,0);
 }
 
-void ff_put_string(PutBitContext *pb, const char *string, int terminate_string)
+void avpriv_put_string(PutBitContext *pb, const char *string, int terminate_string)
 {
     while(*string){
         put_bits(pb, 8, *string);
@@ -114,10 +115,10 @@ static int alloc_table(VLC *vlc, int size, int use_static)
 }
 
 static av_always_inline uint32_t bitswap_32(uint32_t x) {
-    return (uint32_t)av_reverse[x&0xFF]<<24
-         | (uint32_t)av_reverse[(x>>8)&0xFF]<<16
-         | (uint32_t)av_reverse[(x>>16)&0xFF]<<8
-         | (uint32_t)av_reverse[x>>24];
+    return (uint32_t)ff_reverse[x&0xFF]<<24
+         | (uint32_t)ff_reverse[(x>>8)&0xFF]<<16
+         | (uint32_t)ff_reverse[(x>>16)&0xFF]<<8
+         | (uint32_t)ff_reverse[x>>24];
 }
 
 typedef struct {
@@ -168,7 +169,7 @@ static int build_table(VLC *vlc, int table_nb_bits, int nb_codes,
         table[i][0] = -1; //codes
     }
 
-    /* first pass: map codes and compute auxillary table sizes */
+    /* first pass: map codes and compute auxiliary table sizes */
     for (i = 0; i < nb_codes; i++) {
         n = codes[i].bits;
         code = codes[i].code;
@@ -253,9 +254,9 @@ static int build_table(VLC *vlc, int table_nb_bits, int nb_codes,
    (byte/word/long) to store the 'bits', 'codes', and 'symbols' tables.
 
    'use_static' should be set to 1 for tables, which should be freed
-   with av_free_static(), 0 if free_vlc() will be used.
+   with av_free_static(), 0 if ff_free_vlc() will be used.
 */
-int init_vlc_sparse(VLC *vlc, int nb_bits, int nb_codes,
+int ff_init_vlc_sparse(VLC *vlc, int nb_bits, int nb_codes,
              const void *bits, int bits_wrap, int bits_size,
              const void *codes, int codes_wrap, int codes_size,
              const void *symbols, int symbols_wrap, int symbols_size,
@@ -318,8 +319,7 @@ int init_vlc_sparse(VLC *vlc, int nb_bits, int nb_codes,
 }
 
 
-void free_vlc(VLC *vlc)
+void ff_free_vlc(VLC *vlc)
 {
     av_freep(&vlc->table);
 }
-

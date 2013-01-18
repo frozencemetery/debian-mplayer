@@ -40,8 +40,8 @@ typedef struct JvContext {
 static av_cold int decode_init(AVCodecContext *avctx)
 {
     JvContext *s = avctx->priv_data;
-    avctx->pix_fmt = PIX_FMT_PAL8;
-    dsputil_init(&s->dsp, avctx);
+    avctx->pix_fmt = AV_PIX_FMT_PAL8;
+    ff_dsputil_init(&s->dsp, avctx);
     return 0;
 }
 
@@ -129,7 +129,7 @@ static inline void decode8x8(GetBitContext *gb, uint8_t *dst, int linesize, DSPC
 }
 
 static int decode_frame(AVCodecContext *avctx,
-                        void *data, int *data_size,
+                        void *data, int *got_frame,
                         AVPacket *avpkt)
 {
     JvContext *s           = avctx->priv_data;
@@ -150,7 +150,7 @@ static int decode_frame(AVCodecContext *avctx,
 
         if (video_type == 0 || video_type == 1) {
             GetBitContext gb;
-            init_get_bits(&gb, buf, FFMIN(video_size, (buf_end - buf) * 8));
+            init_get_bits(&gb, buf, 8 * FFMIN(video_size, buf_end - buf));
 
             for (j = 0; j < avctx->height; j += 8)
                 for (i = 0; i < avctx->width; i += 8)
@@ -185,7 +185,7 @@ static int decode_frame(AVCodecContext *avctx,
         s->palette_has_changed       = 0;
         memcpy(s->frame.data[1], s->palette, AVPALETTE_SIZE);
 
-        *data_size      = sizeof(AVFrame);
+        *got_frame = 1;
         *(AVFrame*)data = s->frame;
     }
 
@@ -206,7 +206,7 @@ AVCodec ff_jv_decoder = {
     .name           = "jv",
     .long_name      = NULL_IF_CONFIG_SMALL("Bitmap Brothers JV video"),
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_JV,
+    .id             = AV_CODEC_ID_JV,
     .priv_data_size = sizeof(JvContext),
     .init           = decode_init,
     .close          = decode_close,

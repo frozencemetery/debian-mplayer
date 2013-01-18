@@ -23,11 +23,19 @@
  * color source
  */
 
+#include <stdio.h>
+#include <string.h>
+
 #include "avfilter.h"
+#include "formats.h"
+#include "internal.h"
+#include "video.h"
 #include "libavutil/pixdesc.h"
 #include "libavutil/colorspace.h"
 #include "libavutil/imgutils.h"
+#include "libavutil/internal.h"
 #include "libavutil/mathematics.h"
+#include "libavutil/mem.h"
 #include "libavutil/parseutils.h"
 #include "drawutils.h"
 
@@ -41,7 +49,7 @@ typedef struct {
     uint64_t pts;
 } ColorContext;
 
-static av_cold int color_init(AVFilterContext *ctx, const char *args, void *opaque)
+static av_cold int color_init(AVFilterContext *ctx, const char *args)
 {
     ColorContext *color = ctx->priv;
     char color_string[128] = "black";
@@ -85,22 +93,22 @@ static av_cold void color_uninit(AVFilterContext *ctx)
 
 static int query_formats(AVFilterContext *ctx)
 {
-    static const enum PixelFormat pix_fmts[] = {
-        PIX_FMT_ARGB,         PIX_FMT_RGBA,
-        PIX_FMT_ABGR,         PIX_FMT_BGRA,
-        PIX_FMT_RGB24,        PIX_FMT_BGR24,
+    static const enum AVPixelFormat pix_fmts[] = {
+        AV_PIX_FMT_ARGB,         AV_PIX_FMT_RGBA,
+        AV_PIX_FMT_ABGR,         AV_PIX_FMT_BGRA,
+        AV_PIX_FMT_RGB24,        AV_PIX_FMT_BGR24,
 
-        PIX_FMT_YUV444P,      PIX_FMT_YUV422P,
-        PIX_FMT_YUV420P,      PIX_FMT_YUV411P,
-        PIX_FMT_YUV410P,      PIX_FMT_YUV440P,
-        PIX_FMT_YUVJ444P,     PIX_FMT_YUVJ422P,
-        PIX_FMT_YUVJ420P,     PIX_FMT_YUVJ440P,
-        PIX_FMT_YUVA420P,
+        AV_PIX_FMT_YUV444P,      AV_PIX_FMT_YUV422P,
+        AV_PIX_FMT_YUV420P,      AV_PIX_FMT_YUV411P,
+        AV_PIX_FMT_YUV410P,      AV_PIX_FMT_YUV440P,
+        AV_PIX_FMT_YUVJ444P,     AV_PIX_FMT_YUVJ422P,
+        AV_PIX_FMT_YUVJ420P,     AV_PIX_FMT_YUVJ440P,
+        AV_PIX_FMT_YUVA420P,
 
-        PIX_FMT_NONE
+        AV_PIX_FMT_NONE
     };
 
-    avfilter_set_common_formats(ctx, avfilter_make_format_list(pix_fmts));
+    ff_set_common_formats(ctx, ff_make_format_list(pix_fmts));
     return 0;
 }
 
@@ -110,7 +118,7 @@ static int color_config_props(AVFilterLink *inlink)
     ColorContext *color = ctx->priv;
     uint8_t rgba_color[4];
     int is_packed_rgba;
-    const AVPixFmtDescriptor *pix_desc = &av_pix_fmt_descriptors[inlink->format];
+    const AVPixFmtDescriptor *pix_desc = av_pix_fmt_desc_get(inlink->format);
 
     color->hsub = pix_desc->log2_chroma_w;
     color->vsub = pix_desc->log2_chroma_h;
@@ -124,7 +132,7 @@ static int color_config_props(AVFilterLink *inlink)
     ff_fill_line_with_color(color->line, color->line_step, color->w, color->color,
                             inlink->format, rgba_color, &is_packed_rgba, NULL);
 
-    av_log(ctx, AV_LOG_INFO, "w:%d h:%d r:%d/%d color:0x%02x%02x%02x%02x[%s]\n",
+    av_log(ctx, AV_LOG_VERBOSE, "w:%d h:%d r:%d/%d color:0x%02x%02x%02x%02x[%s]\n",
            color->w, color->h, color->time_base.den, color->time_base.num,
            color->color[0], color->color[1], color->color[2], color->color[3],
            is_packed_rgba ? "rgba" : "yuva");
@@ -138,21 +146,30 @@ static int color_config_props(AVFilterLink *inlink)
 static int color_request_frame(AVFilterLink *link)
 {
     ColorContext *color = link->src->priv;
-    AVFilterBufferRef *picref = avfilter_get_video_buffer(link, AV_PERM_WRITE, color->w, color->h);
+    AVFilterBufferRef *picref = ff_get_video_buffer(link, AV_PERM_WRITE, color->w, color->h);
+
+    if (!picref)
+        return AVERROR(ENOMEM);
+
     picref->video->pixel_aspect = (AVRational) {1, 1};
     picref->pts                 = color->pts++;
     picref->pos                 = -1;
 
-    avfilter_start_frame(link, avfilter_ref_buffer(picref, ~0));
     ff_draw_rectangle(picref->data, picref->linesize,
                       color->line, color->line_step, color->hsub, color->vsub,
                       0, 0, color->w, color->h);
-    avfilter_draw_slice(link, 0, color->h, 1);
-    avfilter_end_frame(link);
-    avfilter_unref_buffer(picref);
-
-    return 0;
+    return ff_filter_frame(link, picref);
 }
+
+static const AVFilterPad avfilter_vsrc_color_outputs[] = {
+    {
+        .name          = "default",
+        .type          = AVMEDIA_TYPE_VIDEO,
+        .request_frame = color_request_frame,
+        .config_props  = color_config_props
+    },
+    { NULL }
+};
 
 AVFilter avfilter_vsrc_color = {
     .name        = "color",
@@ -164,11 +181,7 @@ AVFilter avfilter_vsrc_color = {
 
     .query_formats = query_formats,
 
-    .inputs    = (AVFilterPad[]) {{ .name = NULL}},
+    .inputs    = NULL,
 
-    .outputs   = (AVFilterPad[]) {{ .name            = "default",
-                                    .type            = AVMEDIA_TYPE_VIDEO,
-                                    .request_frame   = color_request_frame,
-                                    .config_props    = color_config_props },
-                                  { .name = NULL}},
+    .outputs   = avfilter_vsrc_color_outputs,
 };

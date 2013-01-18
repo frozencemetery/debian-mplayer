@@ -24,6 +24,7 @@
 #include "avcodec.h"
 #include "dsputil.h"
 #include "dwt.h"
+#include "internal.h"
 #include "snow.h"
 
 #include "rangecoder.h"
@@ -42,7 +43,7 @@ static av_always_inline void predict_slice_buffered(SnowContext *s, slice_buffer
     int x, y, mb_x;
     int block_size = MB_SIZE >> s->block_max_depth;
     int block_w    = plane_index ? block_size/2 : block_size;
-    const uint8_t *obmc  = plane_index ? obmc_tab[s->block_max_depth+1] : obmc_tab[s->block_max_depth];
+    const uint8_t *obmc  = plane_index ? ff_obmc_tab[s->block_max_depth+1] : ff_obmc_tab[s->block_max_depth];
     int obmc_stride= plane_index ? block_size : 2*block_size;
     int ref_stride= s->current_picture.linesize[plane_index];
     uint8_t *dst8= s->current_picture.data[plane_index];
@@ -95,7 +96,7 @@ static inline void decode_subband_slice_buffered(SnowContext *s, SubBand *b, sli
     const int w= b->width;
     int y;
     const int qlog= av_clip(s->qlog + b->qlog, 0, QROOT*16);
-    int qmul= qexp[qlog&(QROOT-1)]<<(qlog>>QSHIFT);
+    int qmul= ff_qexp[qlog&(QROOT-1)]<<(qlog>>QSHIFT);
     int qadd= (s->qbias*qmul)>>QBIAS_SHIFT;
     int new_index = 0;
 
@@ -132,7 +133,7 @@ static inline void decode_subband_slice_buffered(SnowContext *s, SubBand *b, sli
     return;
 }
 
-static void decode_q_branch(SnowContext *s, int level, int x, int y){
+static int decode_q_branch(SnowContext *s, int level, int x, int y){
     const int w= s->b_width << s->block_max_depth;
     const int rem_depth= s->block_max_depth - level;
     const int index= (x + y*w) << rem_depth;
@@ -142,10 +143,11 @@ static void decode_q_branch(SnowContext *s, int level, int x, int y){
     const BlockNode *tl    = y && x ? &s->block[index-w-1] : left;
     const BlockNode *tr    = y && trx<w && ((x&1)==0 || level==0) ? &s->block[index-w+(1<<rem_depth)] : tl; //FIXME use lt
     int s_context= 2*left->level + 2*top->level + tl->level + tr->level;
+    int res;
 
     if(s->keyframe){
         set_blocks(s, level, x, y, null_block.color[0], null_block.color[1], null_block.color[2], null_block.mx, null_block.my, null_block.ref, BLOCK_INTRA);
-        return;
+        return 0;
     }
 
     if(level==s->block_max_depth || get_rac(&s->c, &s->block_state[4 + s_context])){
@@ -168,23 +170,29 @@ static void decode_q_branch(SnowContext *s, int level, int x, int y){
         }else{
             if(s->ref_frames > 1)
                 ref= get_symbol(&s->c, &s->block_state[128 + 1024 + 32*ref_context], 0);
+            if (ref >= s->ref_frames) {
+                av_log(s->avctx, AV_LOG_ERROR, "Invalid ref\n");
+                return AVERROR_INVALIDDATA;
+            }
             pred_mv(s, &mx, &my, ref, left, top, tr);
             mx+= get_symbol(&s->c, &s->block_state[128 + 32*(mx_context + 16*!!ref)], 1);
             my+= get_symbol(&s->c, &s->block_state[128 + 32*(my_context + 16*!!ref)], 1);
         }
         set_blocks(s, level, x, y, l, cb, cr, mx, my, ref, type);
     }else{
-        decode_q_branch(s, level+1, 2*x+0, 2*y+0);
-        decode_q_branch(s, level+1, 2*x+1, 2*y+0);
-        decode_q_branch(s, level+1, 2*x+0, 2*y+1);
-        decode_q_branch(s, level+1, 2*x+1, 2*y+1);
+        if ((res = decode_q_branch(s, level+1, 2*x+0, 2*y+0)) < 0 ||
+            (res = decode_q_branch(s, level+1, 2*x+1, 2*y+0)) < 0 ||
+            (res = decode_q_branch(s, level+1, 2*x+0, 2*y+1)) < 0 ||
+            (res = decode_q_branch(s, level+1, 2*x+1, 2*y+1)) < 0)
+            return res;
     }
+    return 0;
 }
 
 static void dequantize_slice_buffered(SnowContext *s, slice_buffer * sb, SubBand *b, IDWTELEM *src, int stride, int start_y, int end_y){
     const int w= b->width;
     const int qlog= av_clip(s->qlog + b->qlog, 0, QROOT*16);
-    const int qmul= qexp[qlog&(QROOT-1)]<<(qlog>>QSHIFT);
+    const int qmul= ff_qexp[qlog&(QROOT-1)]<<(qlog>>QSHIFT);
     const int qadd= (s->qbias*qmul)>>QBIAS_SHIFT;
     int x,y;
 
@@ -327,6 +335,11 @@ static int decode_header(SnowContext *s){
         return -1;
     }
 
+    if (s->chroma_h_shift != 1 || s->chroma_v_shift != 1) {
+        av_log(s->avctx, AV_LOG_ERROR, "Invalid chroma shift\n");
+        return AVERROR_PATCHWELCOME;
+    }
+
     s->qlog           += get_symbol(&s->c, s->header_state, 1);
     s->mv_scale       += get_symbol(&s->c, s->header_state, 1);
     s->qbias          += get_symbol(&s->c, s->header_state, 1);
@@ -342,26 +355,36 @@ static int decode_header(SnowContext *s){
 
 static av_cold int decode_init(AVCodecContext *avctx)
 {
-    avctx->pix_fmt= PIX_FMT_YUV420P;
+    int ret;
 
-    ff_snow_common_init(avctx);
+    avctx->pix_fmt= AV_PIX_FMT_YUV420P;
+
+    if ((ret = ff_snow_common_init(avctx)) < 0) {
+        ff_snow_common_end(avctx->priv_data);
+        return ret;
+    }
 
     return 0;
 }
 
-static void decode_blocks(SnowContext *s){
+static int decode_blocks(SnowContext *s){
     int x, y;
     int w= s->b_width;
     int h= s->b_height;
+    int res;
 
     for(y=0; y<h; y++){
         for(x=0; x<w; x++){
-            decode_q_branch(s, 0, x, y);
+            if ((res = decode_q_branch(s, 0, x, y)) < 0)
+                return res;
         }
     }
+    return 0;
 }
 
-static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, AVPacket *avpkt){
+static int decode_frame(AVCodecContext *avctx, void *data, int *got_frame,
+                        AVPacket *avpkt)
+{
     const uint8_t *buf = avpkt->data;
     int buf_size = avpkt->size;
     SnowContext *s = avctx->priv_data;
@@ -369,6 +392,7 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, AVPac
     int bytes_read;
     AVFrame *picture = data;
     int level, orientation, plane_index;
+    int res;
 
     ff_init_range_decoder(c, buf, buf_size);
     ff_build_rac_states(c, 0.05*(1LL<<32), 256-8);
@@ -380,7 +404,12 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, AVPac
 
     // realloc slice buffer for the case that spatial_decomposition_count changed
     ff_slice_buffer_destroy(&s->sb);
-    ff_slice_buffer_init(&s->sb, s->plane[0].height, (MB_SIZE >> s->block_max_depth) + s->spatial_decomposition_count * 8 + 1, s->plane[0].width, s->spatial_idwt_buffer);
+    if ((res = ff_slice_buffer_init(&s->sb, s->plane[0].height,
+                                    (MB_SIZE >> s->block_max_depth) +
+                                    s->spatial_decomposition_count * 8 + 1,
+                                    s->plane[0].width,
+                                    s->spatial_idwt_buffer)) < 0)
+        return res;
 
     for(plane_index=0; plane_index<3; plane_index++){
         Plane *p= &s->plane[plane_index];
@@ -397,7 +426,8 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, AVPac
     if(avctx->debug&FF_DEBUG_PICT_INFO)
         av_log(avctx, AV_LOG_ERROR, "keyframe:%d qlog:%d\n", s->keyframe, s->qlog);
 
-    decode_blocks(s);
+    if ((res = decode_blocks(s)) < 0)
+        return res;
 
     for(plane_index=0; plane_index<3; plane_index++){
         Plane *p= &s->plane[plane_index];
@@ -480,7 +510,7 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, AVPac
             }
 
             for(; yd<slice_h; yd+=4){
-                ff_spatial_idwt_buffered_slice(&s->dwt, cs, &s->sb, w, h, 1, s->spatial_decomposition_type, s->spatial_decomposition_count, yd);
+                ff_spatial_idwt_buffered_slice(&s->dwt, cs, &s->sb, s->temp_idwt_buffer, w, h, 1, s->spatial_decomposition_type, s->spatial_decomposition_count, yd);
             }
 
             if(s->qlog == LOSSLESS_QLOG){
@@ -514,7 +544,7 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, AVPac
     else
         *picture= s->mconly_picture;
 
-    *data_size = sizeof(AVFrame);
+    *got_frame = 1;
 
     bytes_read= c->bytestream - c->bytestream_start;
     if(bytes_read ==0) av_log(s->avctx, AV_LOG_ERROR, "error at end of frame\n"); //FIXME
@@ -536,11 +566,11 @@ static av_cold int decode_end(AVCodecContext *avctx)
 AVCodec ff_snow_decoder = {
     .name           = "snow",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_SNOW,
+    .id             = AV_CODEC_ID_SNOW,
     .priv_data_size = sizeof(SnowContext),
     .init           = decode_init,
     .close          = decode_end,
     .decode         = decode_frame,
     .capabilities   = CODEC_CAP_DR1 /*| CODEC_CAP_DRAW_HORIZ_BAND*/,
-    .long_name = NULL_IF_CONFIG_SMALL("Snow"),
+    .long_name      = NULL_IF_CONFIG_SMALL("Snow"),
 };

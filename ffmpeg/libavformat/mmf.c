@@ -18,6 +18,8 @@
  * License along with Libav; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
+
+#include "libavutil/channel_layout.h"
 #include "avformat.h"
 #include "internal.h"
 #include "avio_internal.h"
@@ -180,8 +182,7 @@ static int mmf_probe(AVProbeData *p)
 }
 
 /* mmf input */
-static int mmf_read_header(AVFormatContext *s,
-                           AVFormatParameters *ap)
+static int mmf_read_header(AVFormatContext *s)
 {
     MMFContext *mmf = s->priv_data;
     unsigned int tag;
@@ -247,9 +248,10 @@ static int mmf_read_header(AVFormatContext *s,
         return AVERROR(ENOMEM);
 
     st->codec->codec_type = AVMEDIA_TYPE_AUDIO;
-    st->codec->codec_id = CODEC_ID_ADPCM_YAMAHA;
+    st->codec->codec_id = AV_CODEC_ID_ADPCM_YAMAHA;
     st->codec->sample_rate = rate;
     st->codec->channels = 1;
+    st->codec->channel_layout = AV_CH_LAYOUT_MONO;
     st->codec->bits_per_coded_sample = 4;
     st->codec->bit_rate = st->codec->sample_rate * st->codec->bits_per_coded_sample;
 
@@ -298,7 +300,7 @@ AVInputFormat ff_mmf_demuxer = {
     .read_probe     = mmf_probe,
     .read_header    = mmf_read_header,
     .read_packet    = mmf_read_packet,
-    .read_seek      = pcm_read_seek,
+    .read_seek      = ff_pcm_read_seek,
 };
 #endif
 #if CONFIG_MMF_MUXER
@@ -308,8 +310,8 @@ AVOutputFormat ff_mmf_muxer = {
     .mime_type         = "application/vnd.smaf",
     .extensions        = "mmf",
     .priv_data_size    = sizeof(MMFContext),
-    .audio_codec       = CODEC_ID_ADPCM_YAMAHA,
-    .video_codec       = CODEC_ID_NONE,
+    .audio_codec       = AV_CODEC_ID_ADPCM_YAMAHA,
+    .video_codec       = AV_CODEC_ID_NONE,
     .write_header      = mmf_write_header,
     .write_packet      = mmf_write_packet,
     .write_trailer     = mmf_write_trailer,

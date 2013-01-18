@@ -36,6 +36,9 @@
 #include "libavutil/imgutils.h"
 #include "libavformat/avformat.h"
 #include "avfilter.h"
+#include "formats.h"
+#include "internal.h"
+#include "video.h"
 
 typedef struct {
     const AVClass *class;
@@ -59,8 +62,8 @@ typedef struct {
 static const AVOption movie_options[]= {
 {"format_name",  "set format name",         OFFSET(format_name),  AV_OPT_TYPE_STRING, {.str =  0},  CHAR_MIN, CHAR_MAX },
 {"f",            "set format name",         OFFSET(format_name),  AV_OPT_TYPE_STRING, {.str =  0},  CHAR_MIN, CHAR_MAX },
-{"stream_index", "set stream index",        OFFSET(stream_index), AV_OPT_TYPE_INT,    {.dbl = -1},  -1,       INT_MAX  },
-{"si",           "set stream index",        OFFSET(stream_index), AV_OPT_TYPE_INT,    {.dbl = -1},  -1,       INT_MAX  },
+{"stream_index", "set stream index",        OFFSET(stream_index), AV_OPT_TYPE_INT,    {.i64 = -1},  -1,       INT_MAX  },
+{"si",           "set stream index",        OFFSET(stream_index), AV_OPT_TYPE_INT,    {.i64 = -1},  -1,       INT_MAX  },
 {"seek_point",   "set seekpoint (seconds)", OFFSET(seek_point_d), AV_OPT_TYPE_DOUBLE, {.dbl =  0},  0,        (INT64_MAX-1) / 1000000 },
 {"sp",           "set seekpoint (seconds)", OFFSET(seek_point_d), AV_OPT_TYPE_DOUBLE, {.dbl =  0},  0,        (INT64_MAX-1) / 1000000 },
 {NULL},
@@ -152,14 +155,14 @@ static int movie_init(AVFilterContext *ctx)
     movie->w = movie->codec_ctx->width;
     movie->h = movie->codec_ctx->height;
 
-    av_log(ctx, AV_LOG_INFO, "seek_point:%"PRIi64" format_name:%s file_name:%s stream_index:%d\n",
+    av_log(ctx, AV_LOG_VERBOSE, "seek_point:%"PRIi64" format_name:%s file_name:%s stream_index:%d\n",
            movie->seek_point, movie->format_name, movie->file_name,
            movie->stream_index);
 
     return 0;
 }
 
-static av_cold int init(AVFilterContext *ctx, const char *args, void *opaque)
+static av_cold int init(AVFilterContext *ctx, const char *args)
 {
     MovieContext *movie = ctx->priv;
     int ret;
@@ -194,15 +197,15 @@ static av_cold void uninit(AVFilterContext *ctx)
     if (movie->format_ctx)
         avformat_close_input(&movie->format_ctx);
     avfilter_unref_buffer(movie->picref);
-    av_freep(&movie->frame);
+    avcodec_free_frame(&movie->frame);
 }
 
 static int query_formats(AVFilterContext *ctx)
 {
     MovieContext *movie = ctx->priv;
-    enum PixelFormat pix_fmts[] = { movie->codec_ctx->pix_fmt, PIX_FMT_NONE };
+    enum AVPixelFormat pix_fmts[] = { movie->codec_ctx->pix_fmt, AV_PIX_FMT_NONE };
 
-    avfilter_set_common_formats(ctx, avfilter_make_format_list(pix_fmts));
+    ff_set_common_formats(ctx, ff_make_format_list(pix_fmts));
     return 0;
 }
 
@@ -235,8 +238,8 @@ static int movie_get_frame(AVFilterLink *outlink)
 
             if (frame_decoded) {
                 /* FIXME: avoid the memcpy */
-                movie->picref = avfilter_get_video_buffer(outlink, AV_PERM_WRITE | AV_PERM_PRESERVE |
-                                                          AV_PERM_REUSE2, outlink->w, outlink->h);
+                movie->picref = ff_get_video_buffer(outlink, AV_PERM_WRITE | AV_PERM_PRESERVE |
+                                                    AV_PERM_REUSE2, outlink->w, outlink->h);
                 av_image_copy(movie->picref->data, movie->picref->linesize,
                               movie->frame->data,  movie->frame->linesize,
                               movie->picref->format, outlink->w, outlink->h);
@@ -252,7 +255,7 @@ static int movie_get_frame(AVFilterLink *outlink)
                 if (!movie->frame->sample_aspect_ratio.num)
                     movie->picref->video->pixel_aspect = st->sample_aspect_ratio;
                 av_dlog(outlink->src,
-                        "movie_get_frame(): file:'%s' pts:%"PRId64" time:%lf pos:%"PRId64" aspect:%d/%d\n",
+                        "movie_get_frame(): file:'%s' pts:%"PRId64" time:%f pos:%"PRId64" aspect:%d/%d\n",
                         movie->file_name, movie->picref->pts,
                         (double)movie->picref->pts * av_q2d(st->time_base),
                         movie->picref->pos,
@@ -276,7 +279,6 @@ static int movie_get_frame(AVFilterLink *outlink)
 
 static int request_frame(AVFilterLink *outlink)
 {
-    AVFilterBufferRef *outpicref;
     MovieContext *movie = outlink->src->priv;
     int ret;
 
@@ -285,15 +287,21 @@ static int request_frame(AVFilterLink *outlink)
     if ((ret = movie_get_frame(outlink)) < 0)
         return ret;
 
-    outpicref = avfilter_ref_buffer(movie->picref, ~0);
-    avfilter_start_frame(outlink, outpicref);
-    avfilter_draw_slice(outlink, 0, outlink->h, 1);
-    avfilter_end_frame(outlink);
-    avfilter_unref_buffer(movie->picref);
+    ret = ff_filter_frame(outlink, movie->picref);
     movie->picref = NULL;
 
-    return 0;
+    return ret;
 }
+
+static const AVFilterPad avfilter_vsrc_movie_outputs[] = {
+    {
+        .name          = "default",
+        .type          = AVMEDIA_TYPE_VIDEO,
+        .request_frame = request_frame,
+        .config_props  = config_output_props,
+    },
+    { NULL }
+};
 
 AVFilter avfilter_vsrc_movie = {
     .name          = "movie",
@@ -303,10 +311,6 @@ AVFilter avfilter_vsrc_movie = {
     .uninit        = uninit,
     .query_formats = query_formats,
 
-    .inputs    = (AVFilterPad[]) {{ .name = NULL }},
-    .outputs   = (AVFilterPad[]) {{ .name            = "default",
-                                    .type            = AVMEDIA_TYPE_VIDEO,
-                                    .request_frame   = request_frame,
-                                    .config_props    = config_output_props, },
-                                  { .name = NULL}},
+    .inputs    = NULL,
+    .outputs   = avfilter_vsrc_movie_outputs,
 };

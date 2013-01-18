@@ -27,8 +27,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "libavutil/common.h"
 #include "libavutil/intreadwrite.h"
 #include "avcodec.h"
+#include "internal.h"
 
 #include <zlib.h>
 
@@ -36,7 +38,6 @@
  * Decoder context
  */
 typedef struct DxaDecContext {
-    AVCodecContext *avctx;
     AVFrame pic, prev;
 
     int dsize;
@@ -188,7 +189,7 @@ static int decode_13(AVCodecContext *avctx, DxaDecContext *c, uint8_t* dst, uint
     return 0;
 }
 
-static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, AVPacket *avpkt)
+static int decode_frame(AVCodecContext *avctx, void *data, int *got_frame, AVPacket *avpkt)
 {
     const uint8_t *buf = avpkt->data;
     int buf_size = avpkt->size;
@@ -215,7 +216,7 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, AVPac
         buf_size -= 768+4;
     }
 
-    if(avctx->get_buffer(avctx, &c->pic) < 0){
+    if(ff_get_buffer(avctx, &c->pic) < 0){
         av_log(avctx, AV_LOG_ERROR, "get_buffer() failed\n");
         return -1;
     }
@@ -281,7 +282,7 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, AVPac
     if(c->pic.data[0])
         avctx->release_buffer(avctx, &c->pic);
 
-    *data_size = sizeof(AVFrame);
+    *got_frame = 1;
     *(AVFrame*)data = c->prev;
 
     /* always report that the buffer was completely consumed */
@@ -292,8 +293,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
 {
     DxaDecContext * const c = avctx->priv_data;
 
-    c->avctx = avctx;
-    avctx->pix_fmt = PIX_FMT_PAL8;
+    avctx->pix_fmt = AV_PIX_FMT_PAL8;
 
     c->dsize = avctx->width * avctx->height * 2;
     if((c->decomp_buf = av_malloc(c->dsize)) == NULL) {
@@ -320,12 +320,11 @@ static av_cold int decode_end(AVCodecContext *avctx)
 AVCodec ff_dxa_decoder = {
     .name           = "dxa",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_DXA,
+    .id             = AV_CODEC_ID_DXA,
     .priv_data_size = sizeof(DxaDecContext),
     .init           = decode_init,
     .close          = decode_end,
     .decode         = decode_frame,
     .capabilities   = CODEC_CAP_DR1,
-    .long_name = NULL_IF_CONFIG_SMALL("Feeble Files/ScummVM DXA"),
+    .long_name      = NULL_IF_CONFIG_SMALL("Feeble Files/ScummVM DXA"),
 };
-

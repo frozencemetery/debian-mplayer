@@ -721,7 +721,7 @@ static LRESULT CALLBACK SkinBrowserWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, 
                         Shell_NotifyIcon(NIM_DELETE, &nid);
                         destroy_window(mygui);
                         create_window(mygui, skinspath);
-                        create_subwindow(mygui);
+                        create_videowindow(mygui);
                         SendMessage(hwnd, WM_CLOSE, 0, 0); /* Avoid crashing when switching skin */
                     }
                 }
@@ -774,7 +774,6 @@ void display_skinbrowser(gui_t* gui)
    UpdateWindow(hWnd);
 }
 
-#ifdef CONFIG_DVDREAD
 static LRESULT CALLBACK TitleChapterWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
     static HWND title;
@@ -902,7 +901,6 @@ void display_chapterselwindow(gui_t *gui)
    ShowWindow(hWnd, SW_SHOW);
    UpdateWindow(hWnd);
 }
-#endif
 
 static LRESULT CALLBACK EqWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {

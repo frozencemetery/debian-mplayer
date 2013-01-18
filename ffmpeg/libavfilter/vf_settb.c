@@ -23,14 +23,19 @@
  * Set timebase for the output link.
  */
 
+#include <inttypes.h>
+#include <stdio.h>
+
 #include "libavutil/avstring.h"
 #include "libavutil/eval.h"
+#include "libavutil/internal.h"
 #include "libavutil/mathematics.h"
 #include "libavutil/rational.h"
 #include "avfilter.h"
 #include "internal.h"
+#include "video.h"
 
-static const char *var_names[] = {
+static const char *const var_names[] = {
     "E",
     "PHI",
     "PI",
@@ -53,7 +58,7 @@ typedef struct {
     double var_values[VAR_VARS_NB];
 } SetTBContext;
 
-static av_cold int init(AVFilterContext *ctx, const char *args, void *opaque)
+static av_cold int init(AVFilterContext *ctx, const char *args)
 {
     SetTBContext *settb = ctx->priv;
     av_strlcpy(settb->tb_expr, "intb", sizeof(settb->tb_expr));
@@ -96,30 +101,47 @@ static int config_output_props(AVFilterLink *outlink)
     }
 
     outlink->time_base = time_base;
-    av_log(outlink->src, AV_LOG_INFO, "tb:%d/%d -> tb:%d/%d\n",
+    av_log(outlink->src, AV_LOG_VERBOSE, "tb:%d/%d -> tb:%d/%d\n",
            inlink ->time_base.num, inlink ->time_base.den,
            outlink->time_base.num, outlink->time_base.den);
 
     return 0;
 }
 
-static void start_frame(AVFilterLink *inlink, AVFilterBufferRef *picref)
+static int filter_frame(AVFilterLink *inlink, AVFilterBufferRef *frame)
 {
     AVFilterContext *ctx = inlink->dst;
     AVFilterLink *outlink = ctx->outputs[0];
-    AVFilterBufferRef *picref2 = picref;
 
     if (av_cmp_q(inlink->time_base, outlink->time_base)) {
-        picref2 = avfilter_ref_buffer(picref, ~0);
-        picref2->pts = av_rescale_q(picref->pts, inlink->time_base, outlink->time_base);
+        int64_t orig_pts = frame->pts;
+        frame->pts = av_rescale_q(frame->pts, inlink->time_base, outlink->time_base);
         av_log(ctx, AV_LOG_DEBUG, "tb:%d/%d pts:%"PRId64" -> tb:%d/%d pts:%"PRId64"\n",
-               inlink ->time_base.num, inlink ->time_base.den, picref ->pts,
-               outlink->time_base.num, outlink->time_base.den, picref2->pts);
-        avfilter_unref_buffer(picref);
+               inlink ->time_base.num, inlink ->time_base.den, orig_pts,
+               outlink->time_base.num, outlink->time_base.den, frame->pts);
     }
 
-    avfilter_start_frame(outlink, picref2);
+    return ff_filter_frame(outlink, frame);
 }
+
+static const AVFilterPad avfilter_vf_settb_inputs[] = {
+    {
+        .name             = "default",
+        .type             = AVMEDIA_TYPE_VIDEO,
+        .get_video_buffer = ff_null_get_video_buffer,
+        .filter_frame     = filter_frame,
+    },
+    { NULL }
+};
+
+static const AVFilterPad avfilter_vf_settb_outputs[] = {
+    {
+        .name         = "default",
+        .type         = AVMEDIA_TYPE_VIDEO,
+        .config_props = config_output_props,
+    },
+    { NULL }
+};
 
 AVFilter avfilter_vf_settb = {
     .name      = "settb",
@@ -128,15 +150,7 @@ AVFilter avfilter_vf_settb = {
 
     .priv_size = sizeof(SetTBContext),
 
-    .inputs    = (AVFilterPad[]) {{ .name             = "default",
-                                    .type             = AVMEDIA_TYPE_VIDEO,
-                                    .get_video_buffer = avfilter_null_get_video_buffer,
-                                    .start_frame      = start_frame,
-                                    .end_frame        = avfilter_null_end_frame },
-                                  { .name = NULL }},
+    .inputs    = avfilter_vf_settb_inputs,
 
-    .outputs   = (AVFilterPad[]) {{ .name            = "default",
-                                    .type            = AVMEDIA_TYPE_VIDEO,
-                                    .config_props    = config_output_props, },
-                                  { .name = NULL}},
+    .outputs   = avfilter_vf_settb_outputs,
 };

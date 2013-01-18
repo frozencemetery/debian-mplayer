@@ -25,8 +25,12 @@
  * based heavily on vf_negate.c by Bobby Bingham
  */
 
+#include "libavutil/common.h"
 #include "libavutil/pixdesc.h"
 #include "avfilter.h"
+#include "formats.h"
+#include "internal.h"
+#include "video.h"
 
 typedef struct {
     int factor, fade_per_frame;
@@ -34,7 +38,7 @@ typedef struct {
     int hsub, vsub, bpp;
 } FadeContext;
 
-static av_cold int init(AVFilterContext *ctx, const char *args, void *opaque)
+static av_cold int init(AVFilterContext *ctx, const char *args)
 {
     FadeContext *fade = ctx->priv;
     unsigned int nb_frames;
@@ -61,7 +65,7 @@ static av_cold int init(AVFilterContext *ctx, const char *args, void *opaque)
     }
     fade->stop_frame = fade->start_frame + nb_frames;
 
-    av_log(ctx, AV_LOG_INFO,
+    av_log(ctx, AV_LOG_VERBOSE,
            "type:%s start_frame:%d nb_frames:%d\n",
            in_out, fade->start_frame, nb_frames);
     return 0;
@@ -69,23 +73,23 @@ static av_cold int init(AVFilterContext *ctx, const char *args, void *opaque)
 
 static int query_formats(AVFilterContext *ctx)
 {
-    const static enum PixelFormat pix_fmts[] = {
-        PIX_FMT_YUV444P,  PIX_FMT_YUV422P,  PIX_FMT_YUV420P,
-        PIX_FMT_YUV411P,  PIX_FMT_YUV410P,
-        PIX_FMT_YUVJ444P, PIX_FMT_YUVJ422P, PIX_FMT_YUVJ420P,
-        PIX_FMT_YUV440P,  PIX_FMT_YUVJ440P,
-        PIX_FMT_RGB24,    PIX_FMT_BGR24,
-        PIX_FMT_NONE
+    static const enum AVPixelFormat pix_fmts[] = {
+        AV_PIX_FMT_YUV444P,  AV_PIX_FMT_YUV422P,  AV_PIX_FMT_YUV420P,
+        AV_PIX_FMT_YUV411P,  AV_PIX_FMT_YUV410P,
+        AV_PIX_FMT_YUVJ444P, AV_PIX_FMT_YUVJ422P, AV_PIX_FMT_YUVJ420P,
+        AV_PIX_FMT_YUV440P,  AV_PIX_FMT_YUVJ440P,
+        AV_PIX_FMT_RGB24,    AV_PIX_FMT_BGR24,
+        AV_PIX_FMT_NONE
     };
 
-    avfilter_set_common_formats(ctx, avfilter_make_format_list(pix_fmts));
+    ff_set_common_formats(ctx, ff_make_format_list(pix_fmts));
     return 0;
 }
 
 static int config_props(AVFilterLink *inlink)
 {
     FadeContext *fade = inlink->dst->priv;
-    const AVPixFmtDescriptor *pixdesc = &av_pix_fmt_descriptors[inlink->format];
+    const AVPixFmtDescriptor *pixdesc = av_pix_fmt_desc_get(inlink->format);
 
     fade->hsub = pixdesc->log2_chroma_w;
     fade->vsub = pixdesc->log2_chroma_h;
@@ -94,17 +98,16 @@ static int config_props(AVFilterLink *inlink)
     return 0;
 }
 
-static void draw_slice(AVFilterLink *inlink, int y, int h, int slice_dir)
+static int filter_frame(AVFilterLink *inlink, AVFilterBufferRef *frame)
 {
     FadeContext *fade = inlink->dst->priv;
-    AVFilterBufferRef *outpic = inlink->cur_buf;
     uint8_t *p;
     int i, j, plane;
 
     if (fade->factor < UINT16_MAX) {
         /* luma or rgb plane */
-        for (i = 0; i < h; i++) {
-            p = outpic->data[0] + (y+i) * outpic->linesize[0];
+        for (i = 0; i < frame->video->h; i++) {
+            p = frame->data[0] + i * frame->linesize[0];
             for (j = 0; j < inlink->w * fade->bpp; j++) {
                 /* fade->factor is using 16 lower-order bits for decimal
                  * places. 32768 = 1 << 15, it is an integer representation
@@ -114,11 +117,11 @@ static void draw_slice(AVFilterLink *inlink, int y, int h, int slice_dir)
             }
         }
 
-        if (outpic->data[1] && outpic->data[2]) {
+        if (frame->data[1] && frame->data[2]) {
             /* chroma planes */
             for (plane = 1; plane < 3; plane++) {
-                for (i = 0; i < h; i++) {
-                    p = outpic->data[plane] + ((y+i) >> fade->vsub) * outpic->linesize[plane];
+                for (i = 0; i < frame->video->h; i++) {
+                    p = frame->data[plane] + (i >> fade->vsub) * frame->linesize[plane];
                     for (j = 0; j < inlink->w >> fade->hsub; j++) {
                         /* 8421367 = ((128 << 1) + 1) << 15. It is an integer
                          * representation of 128.5. The .5 is for rounding
@@ -131,21 +134,35 @@ static void draw_slice(AVFilterLink *inlink, int y, int h, int slice_dir)
         }
     }
 
-    avfilter_draw_slice(inlink->dst->outputs[0], y, h, slice_dir);
-}
-
-static void end_frame(AVFilterLink *inlink)
-{
-    FadeContext *fade = inlink->dst->priv;
-
-    avfilter_end_frame(inlink->dst->outputs[0]);
-
     if (fade->frame_index >= fade->start_frame &&
         fade->frame_index <= fade->stop_frame)
         fade->factor += fade->fade_per_frame;
     fade->factor = av_clip_uint16(fade->factor);
     fade->frame_index++;
+
+    return ff_filter_frame(inlink->dst->outputs[0], frame);
 }
+
+static const AVFilterPad avfilter_vf_fade_inputs[] = {
+    {
+        .name             = "default",
+        .type             = AVMEDIA_TYPE_VIDEO,
+        .config_props     = config_props,
+        .get_video_buffer = ff_null_get_video_buffer,
+        .filter_frame     = filter_frame,
+        .min_perms        = AV_PERM_READ | AV_PERM_WRITE,
+        .rej_perms        = AV_PERM_PRESERVE,
+    },
+    { NULL }
+};
+
+static const AVFilterPad avfilter_vf_fade_outputs[] = {
+    {
+        .name = "default",
+        .type = AVMEDIA_TYPE_VIDEO,
+    },
+    { NULL }
+};
 
 AVFilter avfilter_vf_fade = {
     .name          = "fade",
@@ -154,17 +171,6 @@ AVFilter avfilter_vf_fade = {
     .priv_size     = sizeof(FadeContext),
     .query_formats = query_formats,
 
-    .inputs    = (AVFilterPad[]) {{ .name            = "default",
-                                    .type            = AVMEDIA_TYPE_VIDEO,
-                                    .config_props    = config_props,
-                                    .get_video_buffer = avfilter_null_get_video_buffer,
-                                    .start_frame      = avfilter_null_start_frame,
-                                    .draw_slice      = draw_slice,
-                                    .end_frame       = end_frame,
-                                    .min_perms       = AV_PERM_READ | AV_PERM_WRITE,
-                                    .rej_perms       = AV_PERM_PRESERVE, },
-                                  { .name = NULL}},
-    .outputs   = (AVFilterPad[]) {{ .name            = "default",
-                                    .type            = AVMEDIA_TYPE_VIDEO, },
-                                  { .name = NULL}},
+    .inputs    = avfilter_vf_fade_inputs,
+    .outputs   = avfilter_vf_fade_outputs,
 };

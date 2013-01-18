@@ -19,6 +19,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <stdlib.h>
+#include <string.h>
+
 #include "libavutil/imgutils.h"
 #include "avcodec.h"
 #include "pnm.h"
@@ -65,14 +68,14 @@ int ff_pnm_decode_header(AVCodecContext *avctx, PNMContext * const s)
         return -1;
 
     if (s->type==1 || s->type==4) {
-        avctx->pix_fmt = PIX_FMT_MONOWHITE;
+        avctx->pix_fmt = AV_PIX_FMT_MONOWHITE;
     } else if (s->type==2 || s->type==5) {
-        if (avctx->codec_id == CODEC_ID_PGMYUV)
-            avctx->pix_fmt = PIX_FMT_YUV420P;
+        if (avctx->codec_id == AV_CODEC_ID_PGMYUV)
+            avctx->pix_fmt = AV_PIX_FMT_YUV420P;
         else
-            avctx->pix_fmt = PIX_FMT_GRAY8;
+            avctx->pix_fmt = AV_PIX_FMT_GRAY8;
     } else if (s->type==3 || s->type==6) {
-        avctx->pix_fmt = PIX_FMT_RGB24;
+        avctx->pix_fmt = AV_PIX_FMT_RGB24;
     } else if (s->type==7) {
         w      = -1;
         h      = -1;
@@ -93,7 +96,9 @@ int ff_pnm_decode_header(AVCodecContext *avctx, PNMContext * const s)
             } else if (!strcmp(buf1, "MAXVAL")) {
                 pnm_get(s, buf1, sizeof(buf1));
                 maxval = strtol(buf1, NULL, 10);
-            } else if (!strcmp(buf1, "TUPLETYPE")) {
+            } else if (!strcmp(buf1, "TUPLTYPE") ||
+                       /* libavcodec used to write invalid files */
+                       !strcmp(buf1, "TUPLETYPE")) {
                 pnm_get(s, tuple_type, sizeof(tuple_type));
             } else if (!strcmp(buf1, "ENDHDR")) {
                 break;
@@ -109,19 +114,19 @@ int ff_pnm_decode_header(AVCodecContext *avctx, PNMContext * const s)
         avctx->height = h;
         if (depth == 1) {
             if (maxval == 1)
-                avctx->pix_fmt = PIX_FMT_MONOWHITE;
+                avctx->pix_fmt = AV_PIX_FMT_MONOWHITE;
             else
-                avctx->pix_fmt = PIX_FMT_GRAY8;
+                avctx->pix_fmt = AV_PIX_FMT_GRAY8;
         } else if (depth == 3) {
             if (maxval < 256) {
-            avctx->pix_fmt = PIX_FMT_RGB24;
+            avctx->pix_fmt = AV_PIX_FMT_RGB24;
             } else {
                 av_log(avctx, AV_LOG_ERROR, "16-bit components are only supported for grayscale\n");
-                avctx->pix_fmt = PIX_FMT_NONE;
+                avctx->pix_fmt = AV_PIX_FMT_NONE;
                 return -1;
             }
         } else if (depth == 4) {
-            avctx->pix_fmt = PIX_FMT_RGB32;
+            avctx->pix_fmt = AV_PIX_FMT_RGB32;
         } else {
             return -1;
         }
@@ -137,7 +142,7 @@ int ff_pnm_decode_header(AVCodecContext *avctx, PNMContext * const s)
     avctx->height = atoi(buf1);
     if(av_image_check_size(avctx->width, avctx->height, 0, avctx))
         return -1;
-    if (avctx->pix_fmt != PIX_FMT_MONOWHITE) {
+    if (avctx->pix_fmt != AV_PIX_FMT_MONOWHITE) {
         pnm_get(s, buf1, sizeof(buf1));
         s->maxval = atoi(buf1);
         if (s->maxval <= 0) {
@@ -145,23 +150,23 @@ int ff_pnm_decode_header(AVCodecContext *avctx, PNMContext * const s)
             s->maxval = 255;
         }
         if (s->maxval >= 256) {
-            if (avctx->pix_fmt == PIX_FMT_GRAY8) {
-                avctx->pix_fmt = PIX_FMT_GRAY16BE;
+            if (avctx->pix_fmt == AV_PIX_FMT_GRAY8) {
+                avctx->pix_fmt = AV_PIX_FMT_GRAY16BE;
                 if (s->maxval != 65535)
-                    avctx->pix_fmt = PIX_FMT_GRAY16;
-            } else if (avctx->pix_fmt == PIX_FMT_RGB24) {
+                    avctx->pix_fmt = AV_PIX_FMT_GRAY16;
+            } else if (avctx->pix_fmt == AV_PIX_FMT_RGB24) {
                 if (s->maxval > 255)
-                    avctx->pix_fmt = PIX_FMT_RGB48BE;
+                    avctx->pix_fmt = AV_PIX_FMT_RGB48BE;
             } else {
                 av_log(avctx, AV_LOG_ERROR, "Unsupported pixel format\n");
-                avctx->pix_fmt = PIX_FMT_NONE;
+                avctx->pix_fmt = AV_PIX_FMT_NONE;
                 return -1;
             }
         }
     }else
         s->maxval=1;
     /* more check if YUV420 */
-    if (avctx->pix_fmt == PIX_FMT_YUV420P) {
+    if (avctx->pix_fmt == AV_PIX_FMT_YUV420P) {
         if ((avctx->width & 1) != 0)
             return -1;
         h = (avctx->height * 2);
@@ -187,8 +192,8 @@ av_cold int ff_pnm_init(AVCodecContext *avctx)
 {
     PNMContext *s = avctx->priv_data;
 
-    avcodec_get_frame_defaults((AVFrame*)&s->picture);
-    avctx->coded_frame = (AVFrame*)&s->picture;
+    avcodec_get_frame_defaults(&s->picture);
+    avctx->coded_frame = &s->picture;
 
     return 0;
 }

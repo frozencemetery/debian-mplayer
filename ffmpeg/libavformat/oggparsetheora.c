@@ -53,9 +53,11 @@ theora_header (AVFormatContext * s, int idx)
         os->private = thp;
     }
 
-    if (os->buf[os->pstart] == 0x80) {
+    switch (os->buf[os->pstart]) {
+    case 0x80: {
         GetBitContext gb;
         int width, height;
+        AVRational timebase;
 
         init_get_bits(&gb, os->buf + os->pstart, os->psize*8);
 
@@ -85,14 +87,14 @@ theora_header (AVFormatContext * s, int idx)
 
             skip_bits(&gb, 16);
         }
-        st->codec->time_base.den = get_bits_long(&gb, 32);
-        st->codec->time_base.num = get_bits_long(&gb, 32);
-        if (!(st->codec->time_base.num > 0 && st->codec->time_base.den > 0)) {
+        timebase.den = get_bits_long(&gb, 32);
+        timebase.num = get_bits_long(&gb, 32);
+        if (!(timebase.num > 0 && timebase.den > 0)) {
             av_log(s, AV_LOG_WARNING, "Invalid time base in theora stream, assuming 25 FPS\n");
-            st->codec->time_base.num = 1;
-            st->codec->time_base.den = 25;
+            timebase.num = 1;
+            timebase.den = 25;
         }
-        avpriv_set_pts_info(st, 64, st->codec->time_base.num, st->codec->time_base.den);
+        avpriv_set_pts_info(st, 64, timebase.num, timebase.den);
 
         st->sample_aspect_ratio.num = get_bits_long(&gb, 24);
         st->sample_aspect_ratio.den = get_bits_long(&gb, 24);
@@ -106,11 +108,19 @@ theora_header (AVFormatContext * s, int idx)
         thp->gpmask = (1 << thp->gpshift) - 1;
 
         st->codec->codec_type = AVMEDIA_TYPE_VIDEO;
-        st->codec->codec_id = CODEC_ID_THEORA;
+        st->codec->codec_id = AV_CODEC_ID_THEORA;
         st->need_parsing = AVSTREAM_PARSE_HEADERS;
 
-    } else if (os->buf[os->pstart] == 0x83) {
-        ff_vorbis_comment (s, &st->metadata, os->buf + os->pstart + 7, os->psize - 8);
+    }
+    break;
+    case 0x81:
+        ff_vorbis_comment(s, &st->metadata, os->buf + os->pstart + 7, os->psize - 8);
+    case 0x82:
+        if (!thp->version)
+            return -1;
+        break;
+    default:
+        return -1;
     }
 
     st->codec->extradata = av_realloc (st->codec->extradata,
@@ -130,8 +140,13 @@ theora_gptopts(AVFormatContext *ctx, int idx, uint64_t gp, int64_t *dts)
     struct ogg *ogg = ctx->priv_data;
     struct ogg_stream *os = ogg->streams + idx;
     struct theora_params *thp = os->private;
-    uint64_t iframe = gp >> thp->gpshift;
-    uint64_t pframe = gp & thp->gpmask;
+    uint64_t iframe, pframe;
+
+    if (!thp)
+        return AV_NOPTS_VALUE;
+
+    iframe = gp >> thp->gpshift;
+    pframe = gp & thp->gpmask;
 
     if (thp->version < 0x030201)
         iframe++;
@@ -149,5 +164,6 @@ const struct ogg_codec ff_theora_codec = {
     .magic = "\200theora",
     .magicsize = 7,
     .header = theora_header,
-    .gptopts = theora_gptopts
+    .gptopts = theora_gptopts,
+    .nb_header = 3,
 };

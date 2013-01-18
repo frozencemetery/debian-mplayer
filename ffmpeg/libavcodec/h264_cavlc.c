@@ -566,13 +566,13 @@ static int decode_residual(H264Context *h, GetBitContext *gb, DCTELEM *block, in
     else{
         if (max_coeff <= 8) {
             if (max_coeff == 4)
-                zeros_left = get_vlc2(gb, (chroma_dc_total_zeros_vlc-1)[total_coeff].table,
+                zeros_left = get_vlc2(gb, chroma_dc_total_zeros_vlc[total_coeff - 1].table,
                                       CHROMA_DC_TOTAL_ZEROS_VLC_BITS, 1);
             else
-                zeros_left = get_vlc2(gb, (chroma422_dc_total_zeros_vlc-1)[total_coeff].table,
+                zeros_left = get_vlc2(gb, chroma422_dc_total_zeros_vlc[total_coeff - 1].table,
                                       CHROMA422_DC_TOTAL_ZEROS_VLC_BITS, 1);
         } else {
-            zeros_left= get_vlc2(gb, (total_zeros_vlc-1)[ total_coeff ].table, TOTAL_ZEROS_VLC_BITS, 1);
+            zeros_left= get_vlc2(gb, total_zeros_vlc[total_coeff - 1].table, TOTAL_ZEROS_VLC_BITS, 1);
         }
     }
 
@@ -582,7 +582,7 @@ static int decode_residual(H264Context *h, GetBitContext *gb, DCTELEM *block, in
         ((type*)block)[*scantable] = level[0]; \
         for(i=1;i<total_coeff && zeros_left > 0;i++) { \
             if(zeros_left < 7) \
-                run_before= get_vlc2(gb, (run_vlc-1)[zeros_left].table, RUN_VLC_BITS, 1); \
+                run_before= get_vlc2(gb, run_vlc[zeros_left - 1].table, RUN_VLC_BITS, 1); \
             else \
                 run_before= get_vlc2(gb, run7_vlc.table, RUN7_VLC_BITS, 2); \
             zeros_left -= run_before; \
@@ -597,7 +597,7 @@ static int decode_residual(H264Context *h, GetBitContext *gb, DCTELEM *block, in
         ((type*)block)[*scantable] = ((int)(level[0] * qmul[*scantable] + 32))>>6; \
         for(i=1;i<total_coeff && zeros_left > 0;i++) { \
             if(zeros_left < 7) \
-                run_before= get_vlc2(gb, (run_vlc-1)[zeros_left].table, RUN_VLC_BITS, 1); \
+                run_before= get_vlc2(gb, run_vlc[zeros_left - 1].table, RUN_VLC_BITS, 1); \
             else \
                 run_before= get_vlc2(gb, run7_vlc.table, RUN7_VLC_BITS, 2); \
             zeros_left -= run_before; \
@@ -610,15 +610,16 @@ static int decode_residual(H264Context *h, GetBitContext *gb, DCTELEM *block, in
         } \
     }
 
+    if (zeros_left < 0) {
+        av_log(h->s.avctx, AV_LOG_ERROR,
+               "negative number of zero coeffs at %d %d\n", s->mb_x, s->mb_y);
+        return AVERROR_INVALIDDATA;
+    }
+
     if (h->pixel_shift) {
         STORE_BLOCK(int32_t)
     } else {
         STORE_BLOCK(int16_t)
-    }
-
-    if(zeros_left<0){
-        av_log(h->s.avctx, AV_LOG_ERROR, "negative number of zero coeffs at %d %d\n", s->mb_x, s->mb_y);
-        return -1;
     }
 
     return 0;
@@ -764,8 +765,8 @@ decode_intra_mb:
 
     if(IS_INTRA_PCM(mb_type)){
         unsigned int x;
-        static const uint16_t mb_sizes[4] = {256,384,512,768};
-        const int mb_size = mb_sizes[h->sps.chroma_format_idc]*h->sps.bit_depth_luma >> 3;
+        const int mb_size = ff_h264_mb_sizes[h->sps.chroma_format_idc] *
+                            h->sps.bit_depth_luma >> 3;
 
         // We assume these blocks are very rare so we do not optimize it.
         align_get_bits(&s->gb);
@@ -782,11 +783,6 @@ decode_intra_mb:
 
         s->current_picture.f.mb_type[mb_xy] = mb_type;
         return 0;
-    }
-
-    if(MB_MBAFF){
-        h->ref_count[0] <<= 1;
-        h->ref_count[1] <<= 1;
     }
 
     fill_decode_neighbors(h, mb_type);
@@ -822,12 +818,12 @@ decode_intra_mb:
             if( ff_h264_check_intra4x4_pred_mode(h) < 0)
                 return -1;
         }else{
-            h->intra16x16_pred_mode= ff_h264_check_intra_pred_mode(h, h->intra16x16_pred_mode);
+            h->intra16x16_pred_mode= ff_h264_check_intra_pred_mode(h, h->intra16x16_pred_mode, 0);
             if(h->intra16x16_pred_mode < 0)
                 return -1;
         }
         if(decode_chroma){
-            pred_mode= ff_h264_check_intra_pred_mode(h, get_ue_golomb_31(&s->gb));
+            pred_mode= ff_h264_check_intra_pred_mode(h, get_ue_golomb_31(&s->gb), 1);
             if(pred_mode < 0)
                 return -1;
             h->chroma_pred_mode= pred_mode;
@@ -868,7 +864,7 @@ decode_intra_mb:
         }
 
         for(list=0; list<h->list_count; list++){
-            int ref_count= IS_REF0(mb_type) ? 1 : h->ref_count[list];
+            int ref_count = IS_REF0(mb_type) ? 1 : h->ref_count[list] << MB_MBAFF;
             for(i=0; i<4; i++){
                 if(IS_DIRECT(h->sub_mb_type[i])) continue;
                 if(IS_DIR(h->sub_mb_type[i], 0, list)){
@@ -948,13 +944,14 @@ decode_intra_mb:
             for(list=0; list<h->list_count; list++){
                     unsigned int val;
                     if(IS_DIR(mb_type, 0, list)){
-                        if(h->ref_count[list]==1){
+                        int rc = h->ref_count[list] << MB_MBAFF;
+                        if (rc == 1) {
                             val= 0;
-                        }else if(h->ref_count[list]==2){
+                        } else if (rc == 2) {
                             val= get_bits1(&s->gb)^1;
                         }else{
                             val= get_ue_golomb_31(&s->gb);
-                            if(val >= h->ref_count[list]){
+                            if (val >= rc) {
                                 av_log(h->s.avctx, AV_LOG_ERROR, "ref %u overflow\n", val);
                                 return -1;
                             }
@@ -978,13 +975,14 @@ decode_intra_mb:
                     for(i=0; i<2; i++){
                         unsigned int val;
                         if(IS_DIR(mb_type, i, list)){
-                            if(h->ref_count[list] == 1){
+                            int rc = h->ref_count[list] << MB_MBAFF;
+                            if (rc == 1) {
                                 val= 0;
-                            }else if(h->ref_count[list] == 2){
+                            } else if (rc == 2) {
                                 val= get_bits1(&s->gb)^1;
                             }else{
                                 val= get_ue_golomb_31(&s->gb);
-                                if(val >= h->ref_count[list]){
+                                if (val >= rc) {
                                     av_log(h->s.avctx, AV_LOG_ERROR, "ref %u overflow\n", val);
                                     return -1;
                                 }
@@ -1015,13 +1013,14 @@ decode_intra_mb:
                     for(i=0; i<2; i++){
                         unsigned int val;
                         if(IS_DIR(mb_type, i, list)){ //FIXME optimize
-                            if(h->ref_count[list]==1){
+                            int rc = h->ref_count[list] << MB_MBAFF;
+                            if (rc == 1) {
                                 val= 0;
-                            }else if(h->ref_count[list]==2){
+                            } else if (rc == 2) {
                                 val= get_bits1(&s->gb)^1;
                             }else{
                                 val= get_ue_golomb_31(&s->gb);
-                                if(val >= h->ref_count[list]){
+                                if (val >= rc) {
                                     av_log(h->s.avctx, AV_LOG_ERROR, "ref %u overflow\n", val);
                                     return -1;
                                 }
@@ -1180,11 +1179,5 @@ decode_intra_mb:
     s->current_picture.f.qscale_table[mb_xy] = s->qscale;
     write_back_non_zero_count(h);
 
-    if(MB_MBAFF){
-        h->ref_count[0] >>= 1;
-        h->ref_count[1] >>= 1;
-    }
-
     return 0;
 }
-

@@ -79,7 +79,7 @@ char *skinName = NULL;
 char *codecname = NULL;
 int uiGotoTheNext = 1;
 static gui_t *mygui = NULL;
-static int update_subwindow(void);
+static int update_videowindow(void);
 static RECT old_rect;
 static DWORD style;
 static HANDLE hThread;
@@ -354,14 +354,12 @@ static void guiSetEvent(int event)
         {
             switch(guiInfo.StreamType)
             {
-#ifdef CONFIG_DVDREAD
                 case STREAMTYPE_DVD:
                 {
                     guiInfo.NewPlay = GUI_FILE_SAME;
                     gui(GUI_SET_STATE, (void *) GUI_PLAY);
                     break;
                 }
-#endif
                 default:
                 {
                     guiInfo.NewPlay = GUI_FILE_NEW;
@@ -415,13 +413,11 @@ void uiNext(void)
     if(guiInfo.Playing == GUI_PAUSE) return;
     switch(guiInfo.StreamType)
     {
-#ifdef CONFIG_DVDREAD
         case STREAMTYPE_DVD:
             if(guiInfo.Chapter == (guiInfo.Chapters - 1))
                 return;
             guiInfo.Chapter++;
             break;
-#endif
         default:
             if(mygui->playlist->current == (mygui->playlist->trackcount - 1))
                 return;
@@ -437,13 +433,11 @@ void uiPrev(void)
     if(guiInfo.Playing == GUI_PAUSE) return;
     switch(guiInfo.StreamType)
     {
-#ifdef CONFIG_DVDREAD
         case STREAMTYPE_DVD:
             if(guiInfo.Chapter == 1)
                 return;
             guiInfo.Chapter--;
             break;
-#endif
         default:
             if(mygui->playlist->current == 0)
                 return;
@@ -483,10 +477,10 @@ void uiFullScreen( void )
 {
     if(!guiInfo.sh_video) return;
 
-    if(sub_window)
+    if(video_window)
     {
-        if(!fullscreen && IsWindowVisible(mygui->subwindow) && !IsIconic(mygui->subwindow))
-           GetWindowRect(mygui->subwindow, &old_rect);
+        if(!fullscreen && IsWindowVisible(mygui->videowindow) && !IsIconic(mygui->videowindow))
+           GetWindowRect(mygui->videowindow, &old_rect);
 
         if(fullscreen)
         {
@@ -496,11 +490,11 @@ void uiFullScreen( void )
             fullscreen = 1;
             style = WS_VISIBLE | WS_POPUP;
         }
-        SetWindowLong(mygui->subwindow, GWL_STYLE, style);
-        update_subwindow();
+        SetWindowLong(mygui->videowindow, GWL_STYLE, style);
+        update_videowindow();
     }
     video_out->control(VOCTRL_FULLSCREEN, 0);
-    if(sub_window) ShowWindow(mygui->subwindow, SW_SHOW);
+    if(video_window) ShowWindow(mygui->videowindow, SW_SHOW);
 }
 
 static unsigned __stdcall GuiThread(void* param)
@@ -596,7 +590,6 @@ int gui(int what, void *data)
                     uiSetFileName(NULL, mygui->playlist->tracks[mygui->playlist->current]->filename, SAME_STREAMTYPE);
                     guiInfo.Track = mygui->playlist->current + 1;
                     break;
-#ifdef CONFIG_DVDREAD
                 case STREAMTYPE_DVD:
                 {
                     char tmp[512];
@@ -606,16 +599,15 @@ int gui(int what, void *data)
                     uiSetFileName(NULL, tmp, SAME_STREAMTYPE);
                     break;
                 }
-#endif
             }
             guiInfo.VideoWindow = 1;
-            if(gtkAONorm) greplace(&af_cfg.list, "volnorm", "volnorm");
+            if(gtkAONorm) listRepl(&af_cfg.list, "volnorm", "volnorm");
             if(gtkAOExtraStereo)
             {
                 char *name = malloc(12 + 20 + 1);
                 snprintf(name, 12 + 20, "extrastereo=%f", gtkAOExtraStereoMul);
                 name[12 + 20] = 0;
-                greplace(&af_cfg.list, "extrastereo", name);
+                listRepl(&af_cfg.list, "extrastereo", name);
                 free(name);
             }
             if(gtkCacheOn) stream_cache_size = gtkCacheSize;
@@ -626,8 +618,8 @@ int gui(int what, void *data)
         case GUI_SET_AUDIO:
         {
             if (data && !guiInfo.sh_video) guiInfo.VideoWindow = 0;
-            if(IsWindowVisible(mygui->subwindow) && !guiInfo.VideoWindow)
-                ShowWindow(mygui->subwindow, SW_HIDE);
+            if(IsWindowVisible(mygui->videowindow) && !guiInfo.VideoWindow)
+                ShowWindow(mygui->videowindow, SW_HIDE);
             break;
         }
         case GUI_SET_CONTEXT:
@@ -641,11 +633,11 @@ int gui(int what, void *data)
                 sh_video_t *sh = data;
                 codecname = sh->codec->name;
 
-                /* we have video, show the subwindow */
-                if(!IsWindowVisible(mygui->subwindow) || IsIconic(mygui->subwindow))
-                    ShowWindow(mygui->subwindow, SW_SHOWNORMAL);
+                /* we have video, show the video window */
+                if(!IsWindowVisible(mygui->videowindow) || IsIconic(mygui->videowindow))
+                    ShowWindow(mygui->videowindow, SW_SHOWNORMAL);
                 if(WinID == -1)
-                    update_subwindow();
+                    update_videowindow();
 
             }
             break;
@@ -655,9 +647,9 @@ int gui(int what, void *data)
             guiInfo.VideoWidth = vo_dwidth;
             guiInfo.VideoHeight = vo_dheight;
 
-            sub_aspect = (float)guiInfo.VideoWidth/guiInfo.VideoHeight;
+            video_aspect = (float)guiInfo.VideoWidth/guiInfo.VideoHeight;
             if(WinID != -1)
-               update_subwindow();
+               update_videowindow();
             break;
         }
         case GUI_SET_STREAM:
@@ -665,7 +657,6 @@ int gui(int what, void *data)
             guiInfo.StreamType = stream->type;
             switch(stream->type)
             {
-#ifdef CONFIG_DVDREAD
                 case STREAMTYPE_DVD:
                     guiInfo.Tracks = 0;
                     stream_control(stream, STREAM_CTRL_GET_NUM_TITLES, &guiInfo.Tracks);
@@ -673,16 +664,17 @@ int gui(int what, void *data)
                     stream_control(stream, STREAM_CTRL_GET_NUM_CHAPTERS, &guiInfo.Chapters);
                     guiInfo.Angles = 0;
                     stream_control(stream, STREAM_CTRL_GET_NUM_ANGLES, &guiInfo.Angles);
+#ifdef CONFIG_DVDREAD
                     dvdp = stream->priv;
                     guiInfo.AudioStreams = dvdp->nr_of_channels;
                     memcpy(guiInfo.AudioStream, dvdp->audio_streams, sizeof(dvdp->audio_streams));
                     guiInfo.Subtitles = dvdp->nr_of_subtitles;
                     memcpy(guiInfo.Subtitle, dvdp->subtitles, sizeof(dvdp->subtitles));
+#endif
                     guiInfo.Chapter = dvd_chapter + 1;
                     guiInfo.Angle = dvd_angle + 1;
                     guiInfo.Track = dvd_title + 1;
                     break;
-#endif
             }
             break;
         }
@@ -707,7 +699,7 @@ int gui(int what, void *data)
                     guiInfo.Playing = GUI_STOP;
                     if(movie_aspect >= 0)
                         movie_aspect = -1;
-                    update_subwindow();
+                    update_videowindow();
                     break;
                 }
                 case GUI_PAUSE:
@@ -796,11 +788,9 @@ int gui(int what, void *data)
           guiInfo.Position = 0;
           guiInfo.AudioChannels = 0;
 
-#ifdef CONFIG_DVDREAD
           guiInfo.Track = 1;
           guiInfo.Chapter = 1;
           guiInfo.Angle = 1;
-#endif
 
           if (mygui->playlist->current == (mygui->playlist->trackcount - 1))
               mygui->playlist->current = 0;
@@ -809,7 +799,7 @@ int gui(int what, void *data)
           if(style == WS_VISIBLE | WS_POPUP)
           {
               style = WS_OVERLAPPEDWINDOW | WS_SIZEBOX;
-              SetWindowLong(mygui->subwindow, GWL_STYLE, style);
+              SetWindowLong(mygui->videowindow, GWL_STYLE, style);
           }
           gui(GUI_SET_STATE, (void *) GUI_STOP);
           break;
@@ -900,37 +890,37 @@ int guiPlaylistAdd(play_tree_t *my_playtree, m_config_t *config)
     return result;
 }
 
-static int update_subwindow(void)
+static int update_videowindow(void)
 {
     int x,y;
     RECT rd;
     WINDOWPOS wp;
 
-    if(!sub_window)
+    if(!video_window)
     {
         WinID = -1;
 
-        if(IsWindowVisible(mygui->subwindow) && guiInfo.sh_video && guiInfo.Playing)
+        if(IsWindowVisible(mygui->videowindow) && guiInfo.sh_video && guiInfo.Playing)
         {
-            ShowWindow(mygui->subwindow, SW_HIDE);
+            ShowWindow(mygui->videowindow, SW_HIDE);
             return 0;
         }
         else if(!guiInfo.VideoWindow)
             return 0;
-        else ShowWindow(mygui->subwindow, SW_SHOW);
+        else ShowWindow(mygui->videowindow, SW_SHOW);
     }
 
     /* we've come out of fullscreen at the end of file */
-    if((!IsWindowVisible(mygui->subwindow) || IsIconic(mygui->subwindow)) && guiInfo.VideoWindow)
-        ShowWindow(mygui->subwindow, SW_SHOWNORMAL);
+    if((!IsWindowVisible(mygui->videowindow) || IsIconic(mygui->videowindow)) && guiInfo.VideoWindow)
+        ShowWindow(mygui->videowindow, SW_SHOWNORMAL);
 
     /* get our current window coordinates */
-    GetWindowRect(mygui->subwindow, &rd);
+    GetWindowRect(mygui->videowindow, &rd);
 
     x = rd.left;
     y = rd.top;
 
-    /* restore sub window position when coming out of fullscreen */
+    /* restore video window position when coming out of fullscreen */
     if(x <= 0) x = old_rect.left;
     if(y <= 0) y = old_rect.top;
 
@@ -940,12 +930,12 @@ static int update_subwindow(void)
         int i;
 
         for (i=0; i<mygui->skin->windowcount; i++)
-            if(mygui->skin->windows[i]->type == wiSub)
+            if(mygui->skin->windows[i]->type == wiVideo)
                 desc = mygui->skin->windows[i];
 
         rd.right = rd.left+desc->base->bitmap[0]->width;
         rd.bottom = rd.top+desc->base->bitmap[0]->height;
-        sub_aspect = (float)(rd.right-rd.left)/(rd.bottom-rd.top);
+        video_aspect = (float)(rd.right-rd.left)/(rd.bottom-rd.top);
     }
     else
     {
@@ -953,14 +943,14 @@ static int update_subwindow(void)
         rd.bottom = rd.top+guiInfo.VideoHeight;
 
         if (movie_aspect > 0.0)       // forced aspect from the cmdline
-            sub_aspect = movie_aspect;
+            video_aspect = movie_aspect;
     }
 
 
     AdjustWindowRect(&rd, WS_OVERLAPPEDWINDOW | WS_SIZEBOX, 0);
-    SetWindowPos(mygui->subwindow, 0, x, y, rd.right-rd.left, rd.bottom-rd.top, SWP_NOOWNERZORDER);
+    SetWindowPos(mygui->videowindow, 0, x, y, rd.right-rd.left, rd.bottom-rd.top, SWP_NOOWNERZORDER);
 
-    wp.hwnd = mygui->subwindow;
+    wp.hwnd = mygui->videowindow;
     wp.x = rd.left;
     wp.y = rd.top;
     wp.cx = rd.right-rd.left;
@@ -969,9 +959,9 @@ static int update_subwindow(void)
 
     /* erase the bitmap image if there's video */
     if(guiInfo.Playing != GUI_STOP && guiInfo.sh_video)
-        SendMessage(mygui->subwindow, WM_ERASEBKGND, (WPARAM)GetDC(mygui->subwindow), 0);
+        SendMessage(mygui->videowindow, WM_ERASEBKGND, (WPARAM)GetDC(mygui->videowindow), 0);
 
     /* reset the window aspect */
-    SendMessage(mygui->subwindow, WM_WINDOWPOSCHANGED, 0, (LPARAM)&wp);
+    SendMessage(mygui->videowindow, WM_WINDOWPOSCHANGED, 0, (LPARAM)&wp);
     return 0;
 }

@@ -53,7 +53,7 @@ typedef struct XMVAudioTrack {
     uint16_t block_align;
     uint16_t block_samples;
 
-    enum CodecID codec_id;
+    enum AVCodecID codec_id;
 } XMVAudioTrack;
 
 typedef struct XMVVideoPacket {
@@ -126,8 +126,7 @@ static int xmv_probe(AVProbeData *p)
     return 0;
 }
 
-static int xmv_read_header(AVFormatContext *s,
-                           AVFormatParameters *ap)
+static int xmv_read_header(AVFormatContext *s)
 {
     XMVDemuxContext *xmv = s->priv_data;
     AVIOContext     *pb  = s->pb;
@@ -158,7 +157,7 @@ static int xmv_read_header(AVFormatContext *s,
     avpriv_set_pts_info(vst, 32, 1, 1000);
 
     vst->codec->codec_type = AVMEDIA_TYPE_VIDEO;
-    vst->codec->codec_id   = CODEC_ID_WMV2;
+    vst->codec->codec_id   = AV_CODEC_ID_WMV2;
     vst->codec->codec_tag  = MKBETAG('W', 'M', 'V', '2');
     vst->codec->width      = avio_rl32(pb);
     vst->codec->height     = avio_rl32(pb);
@@ -299,7 +298,7 @@ static int xmv_process_packet_header(AVFormatContext *s)
      * short for every audio track. But as playing around with XMV files with
      * ADPCM audio showed, taking the extra 4 bytes from the audio data gives
      * you either completely distorted audio or click (when skipping the
-     * remaining 68 bytes of the ADPCM block). Substracting 4 bytes for every
+     * remaining 68 bytes of the ADPCM block). Subtracting 4 bytes for every
      * audio track from the video data works at least for the audio. Probably
      * some alignment thing?
      * The video data has (always?) lots of padding, so it should work out...

@@ -70,6 +70,7 @@ SRCS_COMMON-$(FAAD)                  += libmpcodecs/ad_faad.c
 SRCS_COMMON-$(FASTMEMCPY)            += libvo/aclib.c
 SRCS_COMMON-$(FFMPEG)                += av_helpers.c                \
                                         av_opts.c                   \
+                                        libaf/af_lavcac3enc.c       \
                                         libaf/af_lavcresample.c     \
                                         libmpcodecs/ad_ffmpeg.c     \
                                         libmpcodecs/ad_spdif.c      \
@@ -77,7 +78,6 @@ SRCS_COMMON-$(FFMPEG)                += av_helpers.c                \
                                         libmpcodecs/vf_geq.c        \
                                         libmpcodecs/vf_lavc.c       \
                                         libmpcodecs/vf_lavcdeint.c  \
-                                        libmpcodecs/vf_pp.c         \
                                         libmpcodecs/vf_screenshot.c \
                                         libmpdemux/demux_lavf.c     \
                                         stream/stream_ffmpeg.c      \
@@ -86,8 +86,7 @@ SRCS_COMMON-$(FFMPEG)                += av_helpers.c                \
 SRCS_COMMON-$(CONFIG_VF_LAVFI)      +=  libmpcodecs/vf_lavfi.c
 
 # These filters use private headers and do not work with shared FFmpeg.
-SRCS_COMMON-$(FFMPEG_A)              += libaf/af_lavcac3enc.c    \
-                                        libmpcodecs/vf_fspp.c    \
+SRCS_COMMON-$(FFMPEG_A)              += libmpcodecs/vf_fspp.c    \
                                         libmpcodecs/vf_mcdeint.c \
                                         libmpcodecs/vf_qp.c      \
                                         libmpcodecs/vf_spp.c     \
@@ -210,6 +209,7 @@ SRCS_COMMON-$(NETWORKING)            += stream/stream_netstream.c \
                                         stream/realrtsp/xbuffer.c \
 
 SRCS_COMMON-$(PNG)                   += libmpcodecs/vd_mpng.c
+SRCS_COMMON-$(POSTPROC)              += libmpcodecs/vf_pp.c
 SRCS_COMMON-$(PRIORITY)              += osdep/priority.c
 SRCS_COMMON-$(PVR)                   += stream/stream_pvr.c
 SRCS_COMMON-$(QTX_CODECS)            += libmpcodecs/ad_qtaudio.c \
@@ -517,10 +517,10 @@ SRCS_MPLAYER-$(FFMPEG)       += libvo/vo_png.c
 SRCS_MPLAYER-$(GGI)          += libvo/vo_ggi.c
 SRCS_MPLAYER-$(GIF)          += libvo/vo_gif89a.c
 SRCS_MPLAYER-$(GL)           += libvo/gl_common.c libvo/vo_gl.c \
-                                libvo/vo_gl2.c libvo/csputils.c
+                                libvo/csputils.c
 SRCS_MPLAYER-$(GL_SDL)       += libvo/sdl_common.c
-SRCS_MPLAYER-$(GL_WIN32)     += libvo/w32_common.c
-SRCS_MPLAYER-$(GL_X11)       += libvo/x11_common.c
+SRCS_MPLAYER-$(GL_WIN32)     += libvo/w32_common.c libvo/vo_gl2.c
+SRCS_MPLAYER-$(GL_X11)       += libvo/x11_common.c libvo/vo_gl2.c
 SRCS_MPLAYER-$(MATRIXVIEW)   += libvo/vo_matrixview.c libvo/matrixview.c
 SRCS_MPLAYER-$(GUI)          += gui/util/bitmap.c \
                                 gui/util/list.c \
@@ -545,7 +545,7 @@ SRCS_MPLAYER-$(GUI_GTK)      += gui/app.c \
                                 gui/ui/menu.c \
                                 gui/ui/playbar.c \
                                 gui/ui/render.c \
-                                gui/ui/sub.c \
+                                gui/ui/video.c \
                                 gui/ui/widgets.c \
                                 gui/util/cut.c \
                                 gui/wm/ws.c \
@@ -689,7 +689,8 @@ SRCS_MENCODER = mencoder.c \
                 $(SRCS_MENCODER-yes)
 
 # (linking) order matters for these libraries
-FFMPEGPARTS = libpostproc libswscale libavfilter libavformat libavcodec libavutil
+FFMPEGPARTS_ALL = libpostproc libavfilter libavformat libavcodec libswscale libswresample libavutil
+FFMPEGPARTS = $(foreach part, $(FFMPEGPARTS_ALL), $(if $(wildcard ffmpeg/$(part)), $(part)))
 FFMPEGLIBS  = $(foreach part, $(FFMPEGPARTS), ffmpeg/$(part)/$(part).a)
 FFMPEGFILES = $(foreach part, $(FFMPEGPARTS), $(wildcard $(addprefix ffmpeg/$(part)/,*.[chS] /*/*.[chS] /*/*.asm)))
 
@@ -759,6 +760,9 @@ ADDSUFFIXES     = $(foreach suf,$(1),$(addsuffix $(suf),$(2)))
 ADD_ALL_DIRS    = $(call ADDSUFFIXES,$(1),$(ALL_DIRS))
 ADD_ALL_EXESUFS = $(1) $(call ADDSUFFIXES,$(EXESUFS_ALL),$(1))
 
+GUI_ICONSIZES = 16x16 22x22 24x24 32x32 48x48 256x256
+
+
 
 ###### generic rules #######
 
@@ -806,6 +810,9 @@ config.mak: configure
 	@echo "############################################################"
 	@echo "####### Please run ./configure again - it's changed! #######"
 	@echo "############################################################"
+
+checkhelp: help/help_mp*.h
+	help/help_check.sh $(CC) $^
 
 help_mp.h: help/help_mp-en.h $(HELP_FILE)
 	help/help_create.sh $(HELP_FILE) $(CHARSET)
@@ -905,12 +912,12 @@ install-dirs:
 install-%: %$(EXESUF) install-dirs
 	$(INSTALL) -m 755 $(INSTALLSTRIP) $< $(BINDIR)
 
-install-gui: install-mplayer
+install-gui: install-mplayer install-gui-icons
 	-ln -sf mplayer$(EXESUF) $(BINDIR)/gmplayer$(EXESUF)
-	$(INSTALL) -d $(DATADIR)/skins $(prefix)/share/pixmaps $(prefix)/share/applications
-	$(INSTALL) -m 644 etc/mplayer.png $(prefix)/share/pixmaps/
+	$(INSTALL) -d $(DATADIR)/skins $(prefix)/share/applications
 	$(INSTALL) -m 644 etc/mplayer.desktop $(prefix)/share/applications/
 
+install-gui-icons:    $(foreach size,$(GUI_ICONSIZES),install-gui-icon-$(size))
 install-gui-man:      $(foreach lang,$(MAN_LANGS),install-gui-man-$(lang))
 install-mencoder-man: $(foreach lang,$(MAN_LANGS),install-mencoder-man-$(lang))
 install-mplayer-man:  $(foreach lang,$(MAN_LANGS),install-mplayer-man-$(lang))
@@ -924,6 +931,12 @@ install-mencoder-man-en: install-mplayer-man-en
 install-mplayer-man-en:
 	$(INSTALL) -d $(MANDIR)/man1
 	$(INSTALL) -m 644 DOCS/man/en/mplayer.1 $(MANDIR)/man1/
+
+define GUI_ICON_RULE
+install-gui-icon-$(size):
+	$(INSTALL) -d $(prefix)/share/icons/hicolor/$(size)/apps
+	$(INSTALL) -m 644 etc/mplayer$(size).png $(prefix)/share/icons/hicolor/$(size)/apps/mplayer.png
+endef
 
 define GUI_MAN_RULE
 install-gui-man-$(lang): install-mplayer-man-$(lang)
@@ -941,6 +954,7 @@ install-mplayer-man-$(lang):
 	$(INSTALL) -m 644 DOCS/man/$(lang)/mplayer.1 $(MANDIR)/$(lang)/man1/
 endef
 
+$(foreach size,$(GUI_ICONSIZES),$(eval $(GUI_ICON_RULE)))
 $(foreach lang,$(filter-out en,$(MAN_LANG_ALL)),$(eval $(GUI_MAN_RULE)))
 $(foreach lang,$(filter-out en,$(MAN_LANG_ALL)),$(eval $(MENCODER_MAN_RULE)))
 $(foreach lang,$(filter-out en,$(MAN_LANG_ALL)),$(eval $(MPLAYER_MAN_RULE)))
@@ -949,7 +963,7 @@ uninstall:
 	rm -f $(BINDIR)/mplayer$(EXESUF) $(BINDIR)/gmplayer$(EXESUF)
 	rm -f $(BINDIR)/mencoder$(EXESUF)
 	rm -f $(MANDIR)/man1/mencoder.1 $(MANDIR)/man1/mplayer.1
-	rm -f $(prefix)/share/pixmaps/mplayer.png
+	rm -f $(foreach size,$(GUI_ICONSIZES),$(prefix)/share/icons/hicolor/$(size)/apps/mplayer.png)
 	rm -f $(prefix)/share/applications/mplayer.desktop
 	rm -f $(MANDIR)/man1/mplayer.1 $(MANDIR)/man1/mencoder.1
 	rm -f $(foreach lang,$(MAN_LANGS),$(foreach man,mplayer.1 mencoder.1,$(MANDIR)/$(lang)/man1/$(man)))
@@ -959,10 +973,10 @@ clean:
 	-rm -rf tests/res
 	-rm -f $(call ADD_ALL_DIRS,/*.o /*.a /*.ho /*~)
 	-rm -f $(call ADD_ALL_EXESUFS,mplayer mencoder)
+	-rm -rf DOCS/tech/doxygen DOCS/HTML
 
 distclean: clean testsclean toolsclean driversclean dhahelperclean
 	-$(MAKE) -C ffmpeg $@
-	-rm -rf DOCS/tech/doxygen DOCS/HTML
 	-rm -f DOCS/xml/html-chunk.xsl DOCS/xml/html-single.xsl
 	-rm -f $(call ADD_ALL_DIRS,/*.d)
 	-rm -f config.* codecs.conf.h help_mp.h version.h TAGS tags
@@ -1160,7 +1174,7 @@ dhahelperclean:
 -include $(DEP_FILES) $(DRIVER_DEP_FILES) $(TESTS_DEP_FILES) $(TOOLS_DEP_FILES) $(DHAHELPER_DEP_FILES)
 
 .PHONY: all doxygen *install* *tools drivers dhahelper*
-.PHONY: checkheaders *clean tests check_checksums fatetest
+.PHONY: checkheaders *clean tests check_checksums fatetest checkhelp
 .PHONY: doc html-chunked* html-single* xmllint*
 
 # Disable suffix rules.  Most of the builtin rules are suffix rules,

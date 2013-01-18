@@ -7,7 +7,7 @@
  * (http://v4l2spec.bytesex.org/v4l2spec/capture.c)
  *
  * Thanks to Michael Niedermayer for providing the mapping between
- * V4L2_PIX_FMT_* and PIX_FMT_*
+ * V4L2_PIX_FMT_* and AV_PIX_FMT_*
  *
  *
  * This file is part of Libav.
@@ -42,7 +42,6 @@
 #else
 #include <linux/videodev2.h>
 #endif
-#include <time.h>
 #include "libavutil/imgutils.h"
 #include "libavutil/log.h"
 #include "libavutil/opt.h"
@@ -85,28 +84,28 @@ struct buff_data {
 };
 
 struct fmt_map {
-    enum PixelFormat ff_fmt;
-    enum CodecID codec_id;
+    enum AVPixelFormat ff_fmt;
+    enum AVCodecID codec_id;
     uint32_t v4l2_fmt;
 };
 
 static struct fmt_map fmt_conversion_table[] = {
     //ff_fmt           codec_id           v4l2_fmt
-    { PIX_FMT_YUV420P, CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_YUV420  },
-    { PIX_FMT_YUV422P, CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_YUV422P },
-    { PIX_FMT_YUYV422, CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_YUYV    },
-    { PIX_FMT_UYVY422, CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_UYVY    },
-    { PIX_FMT_YUV411P, CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_YUV411P },
-    { PIX_FMT_YUV410P, CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_YUV410  },
-    { PIX_FMT_RGB555,  CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_RGB555  },
-    { PIX_FMT_RGB565,  CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_RGB565  },
-    { PIX_FMT_BGR24,   CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_BGR24   },
-    { PIX_FMT_RGB24,   CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_RGB24   },
-    { PIX_FMT_BGRA,    CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_BGR32   },
-    { PIX_FMT_GRAY8,   CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_GREY    },
-    { PIX_FMT_NV12,    CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_NV12    },
-    { PIX_FMT_NONE,    CODEC_ID_MJPEG,    V4L2_PIX_FMT_MJPEG   },
-    { PIX_FMT_NONE,    CODEC_ID_MJPEG,    V4L2_PIX_FMT_JPEG    },
+    { AV_PIX_FMT_YUV420P, AV_CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_YUV420  },
+    { AV_PIX_FMT_YUV422P, AV_CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_YUV422P },
+    { AV_PIX_FMT_YUYV422, AV_CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_YUYV    },
+    { AV_PIX_FMT_UYVY422, AV_CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_UYVY    },
+    { AV_PIX_FMT_YUV411P, AV_CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_YUV411P },
+    { AV_PIX_FMT_YUV410P, AV_CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_YUV410  },
+    { AV_PIX_FMT_RGB555,  AV_CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_RGB555  },
+    { AV_PIX_FMT_RGB565,  AV_CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_RGB565  },
+    { AV_PIX_FMT_BGR24,   AV_CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_BGR24   },
+    { AV_PIX_FMT_RGB24,   AV_CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_RGB24   },
+    { AV_PIX_FMT_BGRA,    AV_CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_BGR32   },
+    { AV_PIX_FMT_GRAY8,   AV_CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_GREY    },
+    { AV_PIX_FMT_NV12,    AV_CODEC_ID_RAWVIDEO, V4L2_PIX_FMT_NV12    },
+    { AV_PIX_FMT_NONE,    AV_CODEC_ID_MJPEG,    V4L2_PIX_FMT_MJPEG   },
+    { AV_PIX_FMT_NONE,    AV_CODEC_ID_MJPEG,    V4L2_PIX_FMT_JPEG    },
 };
 
 static int device_open(AVFormatContext *ctx)
@@ -221,14 +220,14 @@ static int first_field(int fd)
     return 1;
 }
 
-static uint32_t fmt_ff2v4l(enum PixelFormat pix_fmt, enum CodecID codec_id)
+static uint32_t fmt_ff2v4l(enum AVPixelFormat pix_fmt, enum AVCodecID codec_id)
 {
     int i;
 
     for (i = 0; i < FF_ARRAY_ELEMS(fmt_conversion_table); i++) {
-        if ((codec_id == CODEC_ID_NONE ||
+        if ((codec_id == AV_CODEC_ID_NONE ||
              fmt_conversion_table[i].codec_id == codec_id) &&
-            (pix_fmt == PIX_FMT_NONE ||
+            (pix_fmt == AV_PIX_FMT_NONE ||
              fmt_conversion_table[i].ff_fmt == pix_fmt)) {
             return fmt_conversion_table[i].v4l2_fmt;
         }
@@ -237,7 +236,7 @@ static uint32_t fmt_ff2v4l(enum PixelFormat pix_fmt, enum CodecID codec_id)
     return 0;
 }
 
-static enum PixelFormat fmt_v4l2ff(uint32_t v4l2_fmt, enum CodecID codec_id)
+static enum AVPixelFormat fmt_v4l2ff(uint32_t v4l2_fmt, enum AVCodecID codec_id)
 {
     int i;
 
@@ -248,10 +247,10 @@ static enum PixelFormat fmt_v4l2ff(uint32_t v4l2_fmt, enum CodecID codec_id)
         }
     }
 
-    return PIX_FMT_NONE;
+    return AV_PIX_FMT_NONE;
 }
 
-static enum CodecID fmt_v4l2codec(uint32_t v4l2_fmt)
+static enum AVCodecID fmt_v4l2codec(uint32_t v4l2_fmt)
 {
     int i;
 
@@ -261,7 +260,7 @@ static enum CodecID fmt_v4l2codec(uint32_t v4l2_fmt)
         }
     }
 
-    return CODEC_ID_NONE;
+    return AV_CODEC_ID_NONE;
 }
 
 #if HAVE_STRUCT_V4L2_FRMIVALENUM_DISCRETE
@@ -295,8 +294,8 @@ static void list_formats(AVFormatContext *ctx, int fd, int type)
     struct v4l2_fmtdesc vfd = { .type = V4L2_BUF_TYPE_VIDEO_CAPTURE };
 
     while(!ioctl(fd, VIDIOC_ENUM_FMT, &vfd)) {
-        enum CodecID codec_id = fmt_v4l2codec(vfd.pixelformat);
-        enum PixelFormat pix_fmt = fmt_v4l2ff(vfd.pixelformat, codec_id);
+        enum AVCodecID codec_id = fmt_v4l2codec(vfd.pixelformat);
+        enum AVPixelFormat pix_fmt = fmt_v4l2ff(vfd.pixelformat, codec_id);
 
         vfd.index++;
 
@@ -543,7 +542,7 @@ static void mmap_close(struct video_data *s)
     av_free(s->buf_len);
 }
 
-static int v4l2_set_parameters(AVFormatContext *s1, AVFormatParameters *ap)
+static int v4l2_set_parameters(AVFormatContext *s1)
 {
     struct video_data *s = s1->priv_data;
     struct v4l2_input input = { 0 };
@@ -646,10 +645,10 @@ static int v4l2_set_parameters(AVFormatContext *s1, AVFormatParameters *ap)
 }
 
 static uint32_t device_try_init(AVFormatContext *s1,
-                                enum PixelFormat pix_fmt,
+                                enum AVPixelFormat pix_fmt,
                                 int *width,
                                 int *height,
-                                enum CodecID *codec_id)
+                                enum AVCodecID *codec_id)
 {
     uint32_t desired_format = fmt_ff2v4l(pix_fmt, s1->video_codec_id);
 
@@ -659,7 +658,7 @@ static uint32_t device_try_init(AVFormatContext *s1,
 
         desired_format = 0;
         for (i = 0; i<FF_ARRAY_ELEMS(fmt_conversion_table); i++) {
-            if (s1->video_codec_id == CODEC_ID_NONE ||
+            if (s1->video_codec_id == AV_CODEC_ID_NONE ||
                 fmt_conversion_table[i].codec_id == s1->video_codec_id) {
                 desired_format = fmt_conversion_table[i].v4l2_fmt;
                 if (device_init(s1, width, height, desired_format) >= 0) {
@@ -672,20 +671,20 @@ static uint32_t device_try_init(AVFormatContext *s1,
 
     if (desired_format != 0) {
         *codec_id = fmt_v4l2codec(desired_format);
-        assert(*codec_id != CODEC_ID_NONE);
+        assert(*codec_id != AV_CODEC_ID_NONE);
     }
 
     return desired_format;
 }
 
-static int v4l2_read_header(AVFormatContext *s1, AVFormatParameters *ap)
+static int v4l2_read_header(AVFormatContext *s1)
 {
     struct video_data *s = s1->priv_data;
     AVStream *st;
     int res = 0;
     uint32_t desired_format;
-    enum CodecID codec_id;
-    enum PixelFormat pix_fmt = PIX_FMT_NONE;
+    enum AVCodecID codec_id;
+    enum AVPixelFormat pix_fmt = AV_PIX_FMT_NONE;
 
     st = avformat_new_stream(s1, NULL);
     if (!st) {
@@ -722,7 +721,7 @@ static int v4l2_read_header(AVFormatContext *s1, AVFormatParameters *ap)
 
         pix_fmt = av_get_pix_fmt(s->pixel_format);
 
-        if (pix_fmt == PIX_FMT_NONE && !codec) {
+        if (pix_fmt == AV_PIX_FMT_NONE && !codec) {
             av_log(s1, AV_LOG_ERROR, "No such input format: %s.\n",
                    s->pixel_format);
 
@@ -766,7 +765,7 @@ static int v4l2_read_header(AVFormatContext *s1, AVFormatParameters *ap)
 
     s->frame_format = desired_format;
 
-    if ((res = v4l2_set_parameters(s1, ap) < 0))
+    if ((res = v4l2_set_parameters(s1) < 0))
         goto out;
 
     st->codec->pix_fmt = fmt_v4l2ff(desired_format, codec_id);
@@ -783,7 +782,7 @@ static int v4l2_read_header(AVFormatContext *s1, AVFormatParameters *ap)
 
     st->codec->codec_type = AVMEDIA_TYPE_VIDEO;
     st->codec->codec_id = codec_id;
-    if (codec_id == CODEC_ID_RAWVIDEO)
+    if (codec_id == AV_CODEC_ID_RAWVIDEO)
         st->codec->codec_tag =
             avcodec_pix_fmt_to_codec_tag(st->codec->pix_fmt);
     st->codec->width = s->width;
@@ -827,15 +826,15 @@ static int v4l2_read_close(AVFormatContext *s1)
 #define DEC AV_OPT_FLAG_DECODING_PARAM
 static const AVOption options[] = {
     { "standard",     "TV standard, used only by analog frame grabber",            OFFSET(standard),     AV_OPT_TYPE_STRING, {.str = NULL }, 0, 0,       DEC },
-    { "channel",      "TV channel, used only by frame grabber",                    OFFSET(channel),      AV_OPT_TYPE_INT,    {.dbl = 0 },    0, INT_MAX, DEC },
+    { "channel",      "TV channel, used only by frame grabber",                    OFFSET(channel),      AV_OPT_TYPE_INT,    {.i64 = 0 },    0, INT_MAX, DEC },
     { "video_size",   "A string describing frame size, such as 640x480 or hd720.", OFFSET(video_size),   AV_OPT_TYPE_STRING, {.str = NULL},  0, 0,       DEC },
     { "pixel_format", "Preferred pixel format",                                    OFFSET(pixel_format), AV_OPT_TYPE_STRING, {.str = NULL},  0, 0,       DEC },
     { "input_format", "Preferred pixel format (for raw video) or codec name",      OFFSET(pixel_format), AV_OPT_TYPE_STRING, {.str = NULL},  0, 0,       DEC },
     { "framerate",    "",                                                          OFFSET(framerate),    AV_OPT_TYPE_STRING, {.str = NULL},  0, 0,       DEC },
-    { "list_formats", "List available formats and exit",                           OFFSET(list_format),  AV_OPT_TYPE_INT,    {.dbl = 0 },  0, INT_MAX, DEC, "list_formats" },
-    { "all",          "Show all available formats",                                OFFSET(list_format),  AV_OPT_TYPE_CONST,  {.dbl = V4L_ALLFORMATS  },    0, INT_MAX, DEC, "list_formats" },
-    { "raw",          "Show only non-compressed formats",                          OFFSET(list_format),  AV_OPT_TYPE_CONST,  {.dbl = V4L_RAWFORMATS  },    0, INT_MAX, DEC, "list_formats" },
-    { "compressed",   "Show only compressed formats",                              OFFSET(list_format),  AV_OPT_TYPE_CONST,  {.dbl = V4L_COMPFORMATS },    0, INT_MAX, DEC, "list_formats" },
+    { "list_formats", "List available formats and exit",                           OFFSET(list_format),  AV_OPT_TYPE_INT,    {.i64 = 0 },  0, INT_MAX, DEC, "list_formats" },
+    { "all",          "Show all available formats",                                OFFSET(list_format),  AV_OPT_TYPE_CONST,  {.i64 = V4L_ALLFORMATS  },    0, INT_MAX, DEC, "list_formats" },
+    { "raw",          "Show only non-compressed formats",                          OFFSET(list_format),  AV_OPT_TYPE_CONST,  {.i64 = V4L_RAWFORMATS  },    0, INT_MAX, DEC, "list_formats" },
+    { "compressed",   "Show only compressed formats",                              OFFSET(list_format),  AV_OPT_TYPE_CONST,  {.i64 = V4L_COMPFORMATS },    0, INT_MAX, DEC, "list_formats" },
     { NULL },
 };
 

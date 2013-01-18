@@ -19,7 +19,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <string.h>
+
 #include "libavutil/intreadwrite.h"
+#include "libavutil/mem.h"
 #include "avcodec.h"
 
 typedef struct H264BSFContext {
@@ -190,4 +193,3 @@ AVBitStreamFilter ff_h264_mp4toannexb_bsf = {
     sizeof(H264BSFContext),
     h264_mp4toannexb_filter,
 };
-

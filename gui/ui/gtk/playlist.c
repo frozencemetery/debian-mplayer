@@ -89,6 +89,8 @@ static void scan_dir( char * path );
 
 void ShowPlayList( void )
 {
+ plItem * next;
+
  if ( PlayList ) gtkActive( PlayList );
   else PlayList=create_PlayList();
 
@@ -130,10 +132,10 @@ void ShowPlayList( void )
 
  gtk_clist_freeze( GTK_CLIST( CLSelected ) );
  gtk_clist_clear( GTK_CLIST( CLSelected ) );
- if ( plList )
+ next = listMgr( PLAYLIST_GET,0 );
+ if ( next )
   {
    gchar * name, * path;
-   plItem * next = plList;
    while ( next || next->next )
     {
      char * text[1][3]; text[0][2]="";
@@ -191,10 +193,10 @@ static void plButtonReleased( GtkButton * button,gpointer user_data )
   case 1: // ok
        {
         int i;
-	if ( plList ) listSet( gtkDelPl,NULL );
+        plItem * item;
+	listMgr( PLAYLIST_DELETE,0 );
 	for ( i=0;i<NrOfSelected;i++ )
 	 {
-	  plItem * item;
 	  char * text[3];
 	  item=calloc( 1,sizeof( plItem ) );
 	  gtk_clist_get_text( GTK_CLIST( CLSelected ),i,0,&text[0] );
@@ -203,12 +205,13 @@ static void plButtonReleased( GtkButton * button,gpointer user_data )
 	  if ( !item->name ) item->name = strdup( text[0] );
 	  item->path=g_filename_from_utf8( text[1], -1, NULL, NULL, NULL );
 	  if ( !item->path ) item->path = strdup( text[1] );
-	  listSet( gtkAddPlItem,item );
+	  listMgr( PLAYLIST_ITEM_APPEND,item );
 	 }
-	if ( plCurrent )
+	item = listMgr( PLAYLIST_ITEM_GET_CURR,0 );
+	if ( item )
 	 {
-	  uiSetFileName( plCurrent->path,plCurrent->name,STREAMTYPE_FILE );
-//	  setddup( &guiInfo.Filename,plCurrent->path,plCurrent->name );
+	  uiSetFileName( item->path,item->name,STREAMTYPE_FILE );
+//	  setddup( &guiInfo.Filename,item->path,item->name );
 //	  guiInfo.NewPlay=GUI_FILE_NEW;
 //	  guiInfo.StreamType=STREAMTYPE_FILE;
 	 }
@@ -304,8 +307,6 @@ static gboolean plEvent ( GtkWidget * widget,
 {
   GdkEventButton *bevent;
   gint row, col;
-
-  (void) user_data;
 
   bevent = (GdkEventButton *) event;
 
@@ -439,14 +440,14 @@ static void scan_dir( char * path )
   }
 }
 
-static void plCTRow(GtkWidget * widget, gint row, gint column, GdkEventButton * bevent, gpointer data)
+static void plCTRow(GtkCList * clist, gint row, gint column, GdkEvent * event, gpointer user_data)
 {
  DirNodeType  * DirNode;
  GtkCTreeNode * node;
- node=gtk_ctree_node_nth( GTK_CTREE( widget ),row );
- DirNode=gtk_ctree_node_get_row_data( GTK_CTREE( widget ),node );
+ node=gtk_ctree_node_nth( GTK_CTREE( clist ),row );
+ DirNode=gtk_ctree_node_get_row_data( GTK_CTREE( clist ),node );
  current_path=DirNode->path;
- gtk_ctree_expand( GTK_CTREE( widget ),node );
+ gtk_ctree_expand( GTK_CTREE( clist ),node );
  scan_dir( DirNode->path );
  free( CLFileSelected );
  CLFileSelected=calloc( 1,NrOfEntrys * sizeof( int ) );

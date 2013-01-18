@@ -21,7 +21,27 @@
  * null audio filter
  */
 
+#include "audio.h"
 #include "avfilter.h"
+#include "internal.h"
+#include "libavutil/internal.h"
+
+static const AVFilterPad avfilter_af_anull_inputs[] = {
+    {
+        .name             = "default",
+        .type             = AVMEDIA_TYPE_AUDIO,
+        .get_audio_buffer = ff_null_get_audio_buffer,
+    },
+    { NULL }
+};
+
+static const AVFilterPad avfilter_af_anull_outputs[] = {
+    {
+        .name = "default",
+        .type = AVMEDIA_TYPE_AUDIO,
+    },
+    { NULL }
+};
 
 AVFilter avfilter_af_anull = {
     .name      = "anull",
@@ -29,13 +49,7 @@ AVFilter avfilter_af_anull = {
 
     .priv_size = 0,
 
-    .inputs    = (AVFilterPad[]) {{ .name             = "default",
-                                    .type             = AVMEDIA_TYPE_AUDIO,
-                                    .get_audio_buffer = avfilter_null_get_audio_buffer,
-                                    .filter_samples   = avfilter_null_filter_samples },
-                                  { .name = NULL}},
+    .inputs    = avfilter_af_anull_inputs,
 
-    .outputs   = (AVFilterPad[]) {{ .name             = "default",
-                                    .type             = AVMEDIA_TYPE_AUDIO, },
-                                  { .name = NULL}},
+    .outputs   = avfilter_af_anull_outputs,
 };

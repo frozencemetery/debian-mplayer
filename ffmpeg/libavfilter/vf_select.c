@@ -25,10 +25,13 @@
 
 #include "libavutil/eval.h"
 #include "libavutil/fifo.h"
+#include "libavutil/internal.h"
 #include "libavutil/mathematics.h"
 #include "avfilter.h"
+#include "internal.h"
+#include "video.h"
 
-static const char *var_names[] = {
+static const char *const var_names[] = {
     "E",                 ///< Euler number
     "PHI",               ///< golden ratio
     "PI",                ///< greek pi
@@ -120,7 +123,7 @@ typedef struct {
     AVFifoBuffer *pending_frames; ///< FIFO buffer of video frames
 } SelectContext;
 
-static av_cold int init(AVFilterContext *ctx, const char *args, void *opaque)
+static av_cold int init(AVFilterContext *ctx, const char *args)
 {
     SelectContext *select = ctx->priv;
     int ret;
@@ -225,45 +228,28 @@ static int select_frame(AVFilterContext *ctx, AVFilterBufferRef *picref)
     return res;
 }
 
-static void start_frame(AVFilterLink *inlink, AVFilterBufferRef *picref)
+static int filter_frame(AVFilterLink *inlink, AVFilterBufferRef *frame)
 {
     SelectContext *select = inlink->dst->priv;
 
-    select->select = select_frame(inlink->dst, picref);
+    select->select = select_frame(inlink->dst, frame);
     if (select->select) {
         /* frame was requested through poll_frame */
         if (select->cache_frames) {
-            if (!av_fifo_space(select->pending_frames))
+            if (!av_fifo_space(select->pending_frames)) {
                 av_log(inlink->dst, AV_LOG_ERROR,
                        "Buffering limit reached, cannot cache more frames\n");
-            else
-                av_fifo_generic_write(select->pending_frames, &picref,
-                                      sizeof(picref), NULL);
-            return;
+                avfilter_unref_bufferp(&frame);
+            } else
+                av_fifo_generic_write(select->pending_frames, &frame,
+                                      sizeof(frame), NULL);
+            return 0;
         }
-        avfilter_start_frame(inlink->dst->outputs[0], avfilter_ref_buffer(picref, ~0));
+        return ff_filter_frame(inlink->dst->outputs[0], frame);
     }
-}
 
-static void draw_slice(AVFilterLink *inlink, int y, int h, int slice_dir)
-{
-    SelectContext *select = inlink->dst->priv;
-
-    if (select->select && !select->cache_frames)
-        avfilter_draw_slice(inlink->dst->outputs[0], y, h, slice_dir);
-}
-
-static void end_frame(AVFilterLink *inlink)
-{
-    SelectContext *select = inlink->dst->priv;
-    AVFilterBufferRef *picref = inlink->cur_buf;
-
-    if (select->select) {
-        if (select->cache_frames)
-            return;
-        avfilter_end_frame(inlink->dst->outputs[0]);
-    }
-    avfilter_unref_buffer(picref);
+    avfilter_unref_bufferp(&frame);
+    return 0;
 }
 
 static int request_frame(AVFilterLink *outlink)
@@ -275,16 +261,13 @@ static int request_frame(AVFilterLink *outlink)
 
     if (av_fifo_size(select->pending_frames)) {
         AVFilterBufferRef *picref;
+
         av_fifo_generic_read(select->pending_frames, &picref, sizeof(picref), NULL);
-        avfilter_start_frame(outlink, avfilter_ref_buffer(picref, ~0));
-        avfilter_draw_slice(outlink, 0, outlink->h, 1);
-        avfilter_end_frame(outlink);
-        avfilter_unref_buffer(picref);
-        return 0;
+        return ff_filter_frame(outlink, picref);
     }
 
     while (!select->select) {
-        int ret = avfilter_request_frame(inlink);
+        int ret = ff_request_frame(inlink);
         if (ret < 0)
             return ret;
     }
@@ -299,12 +282,12 @@ static int poll_frame(AVFilterLink *outlink)
     int count, ret;
 
     if (!av_fifo_size(select->pending_frames)) {
-        if ((count = avfilter_poll_frame(inlink)) <= 0)
+        if ((count = ff_poll_frame(inlink)) <= 0)
             return count;
         /* request frame from input, and apply select condition to it */
         select->cache_frames = 1;
         while (count-- && av_fifo_space(select->pending_frames)) {
-            ret = avfilter_request_frame(inlink);
+            ret = ff_request_frame(inlink);
             if (ret < 0)
                 break;
         }
@@ -329,6 +312,27 @@ static av_cold void uninit(AVFilterContext *ctx)
     select->pending_frames = NULL;
 }
 
+static const AVFilterPad avfilter_vf_select_inputs[] = {
+    {
+        .name             = "default",
+        .type             = AVMEDIA_TYPE_VIDEO,
+        .get_video_buffer = ff_null_get_video_buffer,
+        .config_props     = config_input,
+        .filter_frame     = filter_frame,
+    },
+    { NULL }
+};
+
+static const AVFilterPad avfilter_vf_select_outputs[] = {
+    {
+        .name          = "default",
+        .type          = AVMEDIA_TYPE_VIDEO,
+        .poll_frame    = poll_frame,
+        .request_frame = request_frame,
+    },
+    { NULL }
+};
+
 AVFilter avfilter_vf_select = {
     .name      = "select",
     .description = NULL_IF_CONFIG_SMALL("Select frames to pass in output."),
@@ -337,17 +341,6 @@ AVFilter avfilter_vf_select = {
 
     .priv_size = sizeof(SelectContext),
 
-    .inputs    = (AVFilterPad[]) {{ .name             = "default",
-                                    .type             = AVMEDIA_TYPE_VIDEO,
-                                    .get_video_buffer = avfilter_null_get_video_buffer,
-                                    .config_props     = config_input,
-                                    .start_frame      = start_frame,
-                                    .draw_slice       = draw_slice,
-                                    .end_frame        = end_frame },
-                                  { .name = NULL }},
-    .outputs   = (AVFilterPad[]) {{ .name             = "default",
-                                    .type             = AVMEDIA_TYPE_VIDEO,
-                                    .poll_frame       = poll_frame,
-                                    .request_frame    = request_frame, },
-                                  { .name = NULL}},
+    .inputs    = avfilter_vf_select_inputs,
+    .outputs   = avfilter_vf_select_outputs,
 };

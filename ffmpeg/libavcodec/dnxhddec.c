@@ -30,6 +30,7 @@
 #include "get_bits.h"
 #include "dnxhddata.h"
 #include "dsputil.h"
+#include "internal.h"
 
 typedef struct DNXHDContext {
     AVCodecContext *avctx;
@@ -79,9 +80,9 @@ static int dnxhd_init_vlc(DNXHDContext *ctx, int cid)
         }
         ctx->cid_table = &ff_dnxhd_cid_table[index];
 
-        free_vlc(&ctx->ac_vlc);
-        free_vlc(&ctx->dc_vlc);
-        free_vlc(&ctx->run_vlc);
+        ff_free_vlc(&ctx->ac_vlc);
+        ff_free_vlc(&ctx->dc_vlc);
+        ff_free_vlc(&ctx->run_vlc);
 
         init_vlc(&ctx->ac_vlc, DNXHD_VLC_BITS, 257,
                  ctx->cid_table->ac_bits, 1, 1,
@@ -124,18 +125,18 @@ static int dnxhd_decode_header(DNXHDContext *ctx, const uint8_t *buf, int buf_si
     av_dlog(ctx->avctx, "width %d, height %d\n", ctx->width, ctx->height);
 
     if (buf[0x21] & 0x40) {
-        ctx->avctx->pix_fmt = PIX_FMT_YUV422P10;
+        ctx->avctx->pix_fmt = AV_PIX_FMT_YUV422P10;
         ctx->avctx->bits_per_raw_sample = 10;
         if (ctx->bit_depth != 10) {
-            dsputil_init(&ctx->dsp, ctx->avctx);
+            ff_dsputil_init(&ctx->dsp, ctx->avctx);
             ctx->bit_depth = 10;
             ctx->decode_dct_block = dnxhd_decode_dct_block_10;
         }
     } else {
-        ctx->avctx->pix_fmt = PIX_FMT_YUV422P;
+        ctx->avctx->pix_fmt = AV_PIX_FMT_YUV422P;
         ctx->avctx->bits_per_raw_sample = 8;
         if (ctx->bit_depth != 8) {
-            dsputil_init(&ctx->dsp, ctx->avctx);
+            ff_dsputil_init(&ctx->dsp, ctx->avctx);
             ctx->bit_depth = 8;
             ctx->decode_dct_block = dnxhd_decode_dct_block_8;
         }
@@ -208,18 +209,14 @@ static av_always_inline void dnxhd_decode_dct_block(DNXHDContext *ctx,
         ctx->last_dc[component] += level;
     }
     block[0] = ctx->last_dc[component];
-    //av_log(ctx->avctx, AV_LOG_DEBUG, "dc %d\n", block[0]);
 
     for (i = 1; ; i++) {
         UPDATE_CACHE(bs, &ctx->gb);
         GET_VLC(index1, bs, &ctx->gb, ctx->ac_vlc.table,
                 DNXHD_VLC_BITS, 2);
-        //av_log(ctx->avctx, AV_LOG_DEBUG, "index %d\n", index1);
         level = ctx->cid_table->ac_level[index1];
-        if (!level) { /* EOB */
-            //av_log(ctx->avctx, AV_LOG_DEBUG, "EOB\n");
+        if (!level) /* EOB */
             break;
-        }
 
         sign = SHOW_SBITS(bs, &ctx->gb, 1);
         SKIP_BITS(bs, &ctx->gb, 1);
@@ -242,14 +239,11 @@ static av_always_inline void dnxhd_decode_dct_block(DNXHDContext *ctx,
         }
 
         j = ctx->scantable.permutated[i];
-        //av_log(ctx->avctx, AV_LOG_DEBUG, "j %d\n", j);
-        //av_log(ctx->avctx, AV_LOG_DEBUG, "level %d, weight %d\n", level, weight_matrix[i]);
         level = (2*level+1) * qscale * weight_matrix[i];
         if (level_bias < 32 || weight_matrix[i] != level_bias)
             level += level_bias;
         level >>= level_shift;
 
-        //av_log(NULL, AV_LOG_DEBUG, "i %d, j %d, end level %d\n", i, j, level);
         block[j] = (level^sign) - sign;
     }
 
@@ -279,7 +273,6 @@ static int dnxhd_decode_macroblock(DNXHDContext *ctx, int x, int y)
 
     qscale = get_bits(&ctx->gb, 11);
     skip_bits1(&ctx->gb);
-    //av_log(ctx->avctx, AV_LOG_DEBUG, "qscale %d\n", qscale);
 
     for (i = 0; i < 8; i++) {
         ctx->dsp.clear_block(ctx->blocks[i]);
@@ -336,7 +329,7 @@ static int dnxhd_decode_macroblocks(DNXHDContext *ctx, const uint8_t *buf, int b
     return 0;
 }
 
-static int dnxhd_decode_frame(AVCodecContext *avctx, void *data, int *data_size,
+static int dnxhd_decode_frame(AVCodecContext *avctx, void *data, int *got_frame,
                               AVPacket *avpkt)
 {
     const uint8_t *buf = avpkt->data;
@@ -365,7 +358,7 @@ static int dnxhd_decode_frame(AVCodecContext *avctx, void *data, int *data_size,
     if (first_field) {
         if (ctx->picture.data[0])
             avctx->release_buffer(avctx, &ctx->picture);
-        if (avctx->get_buffer(avctx, &ctx->picture) < 0) {
+        if (ff_get_buffer(avctx, &ctx->picture) < 0) {
             av_log(avctx, AV_LOG_ERROR, "get_buffer() failed\n");
             return -1;
         }
@@ -381,7 +374,7 @@ static int dnxhd_decode_frame(AVCodecContext *avctx, void *data, int *data_size,
     }
 
     *picture = ctx->picture;
-    *data_size = sizeof(AVPicture);
+    *got_frame = 1;
     return buf_size;
 }
 
@@ -391,20 +384,20 @@ static av_cold int dnxhd_decode_close(AVCodecContext *avctx)
 
     if (ctx->picture.data[0])
         avctx->release_buffer(avctx, &ctx->picture);
-    free_vlc(&ctx->ac_vlc);
-    free_vlc(&ctx->dc_vlc);
-    free_vlc(&ctx->run_vlc);
+    ff_free_vlc(&ctx->ac_vlc);
+    ff_free_vlc(&ctx->dc_vlc);
+    ff_free_vlc(&ctx->run_vlc);
     return 0;
 }
 
 AVCodec ff_dnxhd_decoder = {
     .name           = "dnxhd",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_DNXHD,
+    .id             = AV_CODEC_ID_DNXHD,
     .priv_data_size = sizeof(DNXHDContext),
     .init           = dnxhd_decode_init,
     .close          = dnxhd_decode_close,
     .decode         = dnxhd_decode_frame,
     .capabilities   = CODEC_CAP_DR1,
-    .long_name = NULL_IF_CONFIG_SMALL("VC3/DNxHD"),
+    .long_name      = NULL_IF_CONFIG_SMALL("VC3/DNxHD"),
 };

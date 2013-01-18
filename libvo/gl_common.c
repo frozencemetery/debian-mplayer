@@ -44,6 +44,7 @@
 #include "aspect.h"
 #include "pnm_loader.h"
 
+GLenum (GLAPIENTRY *mpglGetError)(void);
 void (GLAPIENTRY *mpglBegin)(GLenum);
 void (GLAPIENTRY *mpglEnd)(void);
 void (GLAPIENTRY *mpglViewport)(GLint, GLint, GLsizei, GLsizei);
@@ -270,8 +271,10 @@ int glFindFormat(uint32_t fmt, int *bpp, GLint *gl_texfmt,
   }
 
   *bpp = IMGFMT_IS_BGR(fmt)?IMGFMT_BGR_DEPTH(fmt):IMGFMT_RGB_DEPTH(fmt);
-  *gl_texfmt = 3;
+  *gl_texfmt = GL_RGB;
   switch (fmt) {
+    case IMGFMT_RGB64NE:
+      *gl_texfmt = GL_RGBA16;
     case IMGFMT_RGB48NE:
       *gl_format = GL_RGB;
       *gl_type = GL_UNSIGNED_SHORT;
@@ -281,7 +284,7 @@ int glFindFormat(uint32_t fmt, int *bpp, GLint *gl_texfmt,
       *gl_type = GL_UNSIGNED_BYTE;
       break;
     case IMGFMT_RGBA:
-      *gl_texfmt = 4;
+      *gl_texfmt = GL_RGBA;
       *gl_format = GL_RGBA;
       *gl_type = GL_UNSIGNED_BYTE;
       break;
@@ -296,7 +299,7 @@ int glFindFormat(uint32_t fmt, int *bpp, GLint *gl_texfmt,
       supported = 0; // no native YV12 support
     case IMGFMT_Y800:
     case IMGFMT_Y8:
-      *gl_texfmt = 1;
+      *gl_texfmt = GL_LUMINANCE;
       *bpp = 8;
       *gl_format = GL_LUMINANCE;
       *gl_type = GL_UNSIGNED_BYTE;
@@ -349,12 +352,12 @@ int glFindFormat(uint32_t fmt, int *bpp, GLint *gl_texfmt,
       *gl_type = GL_UNSIGNED_BYTE;
       break;
     case IMGFMT_BGRA:
-      *gl_texfmt = 4;
+      *gl_texfmt = GL_RGBA;
       *gl_format = GL_BGRA;
       *gl_type = GL_UNSIGNED_BYTE;
       break;
     default:
-      *gl_texfmt = 4;
+      *gl_texfmt = GL_RGBA;
       *gl_format = GL_RGBA;
       *gl_type = GL_UNSIGNED_BYTE;
       supported = 0;
@@ -400,6 +403,7 @@ typedef struct {
 static const extfunc_desc_t extfuncs[] = {
   // these aren't extension functions but we query them anyway to allow
   // different "backends" with one binary
+  DEF_FUNC_DESC(GetError),
   DEF_FUNC_DESC(Begin),
   DEF_FUNC_DESC(End),
   DEF_FUNC_DESC(Viewport),
@@ -497,7 +501,7 @@ static const extfunc_desc_t extfuncs[] = {
 static void getFunctions(void *(*getProcAddress)(const GLubyte *),
                          const char *ext2) {
   const extfunc_desc_t *dsc;
-  const char *extensions;
+  const char *extensions = NULL;
   char *allexts;
 
   if (!getProcAddress)
@@ -505,10 +509,13 @@ static void getFunctions(void *(*getProcAddress)(const GLubyte *),
 
   // special case, we need glGetString before starting to find the other functions
   mpglGetString = getProcAddress("glGetString");
+#if defined(CONFIG_GL_WIN32) || defined(CONFIG_GL_X11)
   if (!mpglGetString)
       mpglGetString = glGetString;
+#endif
 
-  extensions = (const char *)mpglGetString(GL_EXTENSIONS);
+  if (mpglGetString)
+    extensions = (const char *)mpglGetString(GL_EXTENSIONS);
   if (!extensions) extensions = "";
   if (!ext2) ext2 = "";
   allexts = malloc(strlen(extensions) + strlen(ext2) + 2);
@@ -1034,7 +1041,9 @@ static const char unsharp_filt_template[] =
   "TEX b.g, coord2.zwzw, texture[%c], %s;\n"
   "DP3 b, b, {0.25, 0.25, 0.25};\n"
   "SUB b.r, a.r, b.r;\n"
-  "MAD yuv.%c, b.r, {%e}, a.r;\n";
+  // NOTE: destination component is only write mask, not swizzle
+  // so calculate result in all three components
+  "MAD yuv.%c, b.rrrr, {%e, %e, %e}, a.rrrr;\n";
 
 static const char unsharp_filt_template2[] =
   "PARAM dcoord%c = {%e, %e, %e, %e};\n"
@@ -1058,7 +1067,9 @@ static const char unsharp_filt_template2[] =
   "TEX b.g, coord2.zwzw, texture[%c], %s;\n"
   "DP4 b.r, b, {-0.1171875, -0.1171875, -0.1171875, -0.09765625};\n"
   "MAD b.r, a.r, {0.859375}, b.r;\n"
-  "MAD yuv.%c, b.r, {%e}, a.r;\n";
+  // NOTE: destination component is only write mask, not swizzle
+  // so calculate result in all three components
+  "MAD yuv.%c, b.rrrr, {%e, %e, %e}, a.rrrr;\n";
 
 static const char yuv_prog_template[] =
   "PARAM ycoef = {%e, %e, %e};\n"
@@ -1258,7 +1269,7 @@ static void add_scaler(int scaler, char **prog_pos, int *remain, char *texs,
                out_comp, 0.5 * ptw, 0.5 * pth, 0.5 * ptw, -0.5 * pth,
                in_tex, out_comp, in_tex, out_comp, in_tex,
                in_tex, ttype, in_tex, ttype, in_tex, ttype, in_tex, ttype,
-               in_tex, ttype, out_comp, strength);
+               in_tex, ttype, out_comp, strength, strength, strength);
       break;
     case YUV_SCALER_UNSHARP2:
       snprintf(*prog_pos, *remain, unsharp_filt_template2,
@@ -1268,7 +1279,7 @@ static void add_scaler(int scaler, char **prog_pos, int *remain, char *texs,
                in_tex, ttype, in_tex, ttype, in_tex, ttype, in_tex, ttype,
                in_tex, ttype, in_tex, out_comp, in_tex, out_comp,
                in_tex, ttype, in_tex, ttype, in_tex, ttype,
-               in_tex, ttype, out_comp, strength);
+               in_tex, ttype, out_comp, strength, strength, strength);
       break;
   }
   *remain -= strlen(*prog_pos);
@@ -2031,7 +2042,7 @@ static void *sdlgpa(const GLubyte *name) {
 }
 
 static int setGlWindow_sdl(MPGLContext *ctx) {
-  if (sdl_set_mode(0, SDL_OPENGL | SDL_RESIZABLE) < 0)
+  if (!sdl_set_mode(0, SDL_OPENGL | SDL_RESIZABLE))
     return SET_WINDOW_FAILED;
   SDL_GL_LoadLibrary(NULL);
   getFunctions(sdlgpa, NULL);

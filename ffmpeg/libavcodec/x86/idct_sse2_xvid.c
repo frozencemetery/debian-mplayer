@@ -39,9 +39,13 @@
  */
 
 #include "libavcodec/dsputil.h"
-#include "libavutil/x86_cpu.h"
+#include "libavutil/internal.h"
+#include "libavutil/mem.h"
+#include "libavutil/x86/asm.h"
 #include "idct_xvid.h"
 #include "dsputil_mmx.h"
+
+#if HAVE_INLINE_ASM
 
 /**
  * @file
@@ -401,3 +405,5 @@ void ff_idct_xvid_sse2_add(uint8_t *dest, int line_size, short *block)
     ff_idct_xvid_sse2(block);
     ff_add_pixels_clamped_mmx(block, dest, line_size);
 }
+
+#endif /* HAVE_INLINE_ASM */

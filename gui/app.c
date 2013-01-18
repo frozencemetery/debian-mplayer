@@ -79,6 +79,7 @@ static const evName evNames[] = {
     { evAbout,             "evAbout"             },
     { evPreferences,       "evPreferences"       },
     { evSkinBrowser,       "evSkinBrowser"       },
+    { evMenu,              "evMenu"              },
     { evIconify,           "evIconify"           },
     { evExit,              "evExit"              }
 };
@@ -107,7 +108,7 @@ void appFreeStruct(void)
     appClearItem(&guiApp.main);
     guiApp.mainDecoration = 0;
 
-    appClearItem(&guiApp.sub);
+    appClearItem(&guiApp.video);
 
     appClearItem(&guiApp.playbar);
     guiApp.playbarIsPresent = 0;
@@ -160,7 +161,7 @@ wItem *appFindItem(int event)
     wItem *item;
     int i, n;
 
-    if (guiApp.subWindow.isFullScreen && guiApp.playbarIsPresent) {
+    if (guiApp.videoWindow.isFullScreen && guiApp.playbarIsPresent) {
         item = guiApp.playbarItems;
         n    = guiApp.IndexOfPlaybarItems;
     } else {

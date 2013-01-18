@@ -16,15 +16,21 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include "config.h"
 #include "file.h"
 #include "log.h"
+#include "mem.h"
 #include <fcntl.h>
 #include <sys/stat.h>
+#if HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#if HAVE_IO_H
+#include <io.h>
+#endif
 #if HAVE_MMAP
 #include <sys/mman.h>
 #elif HAVE_MAPVIEWOFFILE
-#include <io.h>
 #include <windows.h>
 #endif
 
@@ -129,21 +135,3 @@ void av_file_unmap(uint8_t *bufptr, size_t size)
     av_free(bufptr);
 #endif
 }
-
-#ifdef TEST
-
-#undef printf
-
-int main(void)
-{
-    uint8_t *buf;
-    size_t size;
-    if (av_file_map("file.c", &buf, &size, 0, NULL) < 0)
-        return 1;
-
-    buf[0] = 's';
-    printf("%s", buf);
-    av_file_unmap(buf, size);
-    return 0;
-}
-#endif

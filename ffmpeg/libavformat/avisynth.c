@@ -41,7 +41,7 @@ typedef struct {
   int next_stream;
 } AVISynthContext;
 
-static int avisynth_read_header(AVFormatContext *s, AVFormatParameters *ap)
+static int avisynth_read_header(AVFormatContext *s)
 {
   AVISynthContext *avs = s->priv_data;
   HRESULT res;
@@ -49,10 +49,15 @@ static int avisynth_read_header(AVFormatContext *s, AVFormatParameters *ap)
   DWORD id;
   AVStream *st;
   AVISynthStream *stream;
+  wchar_t filename_wchar[1024] = { 0 };
+  char filename_char[1024] = { 0 };
 
   AVIFileInit();
 
-  res = AVIFileOpen(&avs->file, s->filename, OF_READ|OF_SHARE_DENY_WRITE, NULL);
+  /* avisynth can't accept UTF-8 filename */
+  MultiByteToWideChar(CP_UTF8, 0, s->filename, -1, filename_wchar, 1024);
+  WideCharToMultiByte(CP_THREAD_ACP, 0, filename_wchar, -1, filename_char, 1024, NULL, NULL);
+  res = AVIFileOpen(&avs->file, filename_char, OF_READ|OF_SHARE_DENY_WRITE, NULL);
   if (res != S_OK)
     {
       av_log(s, AV_LOG_ERROR, "AVIFileOpen failed with error %ld", res);
@@ -115,8 +120,11 @@ static int avisynth_read_header(AVFormatContext *s, AVFormatParameters *ap)
                   st = avformat_new_stream(s, NULL);
                   st->id = id;
                   st->codec->codec_type = AVMEDIA_TYPE_VIDEO;
-                  st->r_frame_rate.num = stream->info.dwRate;
-                  st->r_frame_rate.den = stream->info.dwScale;
+                  st->avg_frame_rate.num = stream->info.dwRate;
+                  st->avg_frame_rate.den = stream->info.dwScale;
+#if FF_API_R_FRAME_RATE
+                  st->r_frame_rate = st->avg_frame_rate;
+#endif
 
                   st->codec->width = imgfmt.bmiHeader.biWidth;
                   st->codec->height = imgfmt.bmiHeader.biHeight;

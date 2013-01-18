@@ -37,6 +37,9 @@
 //#undef NDEBUG
 #include <assert.h>
 
+#define MAX_LOG2_MAX_FRAME_NUM    (12 + 4)
+#define MIN_LOG2_MAX_FRAME_NUM    4
+
 static const AVRational pixel_aspect[17]={
  {0, 1},
  {1, 1},
@@ -227,8 +230,7 @@ static inline int decode_vui_parameters(H264Context *h, SPS *sps){
         sps->num_reorder_frames= get_ue_golomb(&s->gb);
         get_ue_golomb(&s->gb); /*max_dec_frame_buffering*/
 
-        if(s->gb.size_in_bits < get_bits_count(&s->gb)){
-            av_log(h->s.avctx, AV_LOG_ERROR, "Overread VUI by %d bits\n", get_bits_count(&s->gb) - s->gb.size_in_bits);
+        if (get_bits_left(&s->gb) < 0) {
             sps->num_reorder_frames=0;
             sps->bitstream_restriction_flag= 0;
         }
@@ -237,6 +239,10 @@ static inline int decode_vui_parameters(H264Context *h, SPS *sps){
             av_log(h->s.avctx, AV_LOG_ERROR, "illegal num_reorder_frames %d\n", sps->num_reorder_frames);
             return -1;
         }
+    }
+    if (get_bits_left(&s->gb) < 0) {
+        av_log(h->s.avctx, AV_LOG_ERROR, "Overread VUI by %d bits\n", -get_bits_left(&s->gb));
+        return AVERROR_INVALIDDATA;
     }
 
     return 0;
@@ -298,7 +304,7 @@ int ff_h264_decode_seq_parameter_set(H264Context *h){
     MpegEncContext * const s = &h->s;
     int profile_idc, level_idc, constraint_set_flags = 0;
     unsigned int sps_id;
-    int i;
+    int i, log2_max_frame_num_minus4;
     SPS *sps;
 
     profile_idc= get_bits(&s->gb, 8);
@@ -327,10 +333,18 @@ int ff_h264_decode_seq_parameter_set(H264Context *h){
     memset(sps->scaling_matrix8, 16, sizeof(sps->scaling_matrix8));
     sps->scaling_matrix_present = 0;
 
-    if(sps->profile_idc >= 100){ //high profile
+    if (sps->profile_idc == 100 || sps->profile_idc == 110 ||
+        sps->profile_idc == 122 || sps->profile_idc == 244 ||
+        sps->profile_idc ==  44 || sps->profile_idc ==  83 ||
+        sps->profile_idc ==  86 || sps->profile_idc == 118 ||
+        sps->profile_idc == 128 || sps->profile_idc == 144) {
         sps->chroma_format_idc= get_ue_golomb_31(&s->gb);
-        if(sps->chroma_format_idc == 3)
+        if(sps->chroma_format_idc > 3) {
+            av_log(h->s.avctx, AV_LOG_ERROR, "chroma_format_idc (%u) out of range\n", sps->chroma_format_idc);
+            goto fail;
+        } else if(sps->chroma_format_idc == 3) {
             sps->residual_color_transform_flag = get_bits1(&s->gb);
+        }
         sps->bit_depth_luma   = get_ue_golomb(&s->gb) + 8;
         sps->bit_depth_chroma = get_ue_golomb(&s->gb) + 8;
         sps->transform_bypass = get_bits1(&s->gb);
@@ -341,7 +355,16 @@ int ff_h264_decode_seq_parameter_set(H264Context *h){
         sps->bit_depth_chroma = 8;
     }
 
-    sps->log2_max_frame_num= get_ue_golomb(&s->gb) + 4;
+    log2_max_frame_num_minus4 = get_ue_golomb(&s->gb);
+    if (log2_max_frame_num_minus4 < MIN_LOG2_MAX_FRAME_NUM - 4 ||
+        log2_max_frame_num_minus4 > MAX_LOG2_MAX_FRAME_NUM - 4) {
+        av_log(h->s.avctx, AV_LOG_ERROR,
+               "log2_max_frame_num_minus4 out of range (0-12): %d\n",
+               log2_max_frame_num_minus4);
+        goto fail;
+    }
+    sps->log2_max_frame_num = log2_max_frame_num_minus4 + 4;
+
     sps->poc_type= get_ue_golomb_31(&s->gb);
 
     if(sps->poc_type == 0){ //FIXME #define
@@ -424,6 +447,7 @@ int ff_h264_decode_seq_parameter_set(H264Context *h){
         sps->sar.den= 1;
 
     if(s->avctx->debug&FF_DEBUG_PICT_INFO){
+        static const char csp[4][5] = { "Gray", "420", "422", "444" };
         av_log(h->s.avctx, AV_LOG_DEBUG, "sps:%u profile:%d/%d poc:%d ref:%d %dx%d %s %s crop:%d/%d/%d/%d %s %s %d/%d\n",
                sps_id, sps->profile_idc, sps->level_idc,
                sps->poc_type,
@@ -434,15 +458,18 @@ int ff_h264_decode_seq_parameter_set(H264Context *h){
                sps->crop_left, sps->crop_right,
                sps->crop_top, sps->crop_bottom,
                sps->vui_parameters_present_flag ? "VUI" : "",
-               ((const char*[]){"Gray","420","422","444"})[sps->chroma_format_idc],
+               csp[sps->chroma_format_idc],
                sps->timing_info_present_flag ? sps->num_units_in_tick : 0,
                sps->timing_info_present_flag ? sps->time_scale : 0
                );
     }
+    sps->new = 1;
 
     av_free(h->sps_buffers[sps_id]);
-    h->sps_buffers[sps_id]= sps;
-    h->sps = *sps;
+    h->sps_buffers[sps_id] = sps;
+    h->sps                 = *sps;
+    h->current_sps_id      = sps_id;
+
     return 0;
 fail:
     av_free(sps);
@@ -468,6 +495,9 @@ int ff_h264_decode_picture_parameter_set(H264Context *h, int bit_length){
     if(pps_id >= MAX_PPS_COUNT) {
         av_log(h->s.avctx, AV_LOG_ERROR, "pps_id (%d) out of range\n", pps_id);
         return -1;
+    } else if (h->sps.bit_depth_luma > 10) {
+        av_log(h->s.avctx, AV_LOG_ERROR, "Unimplemented luma bit depth=%d (max=10)\n", h->sps.bit_depth_luma);
+        return AVERROR_PATCHWELCOME;
     }
 
     pps= av_mallocz(sizeof(PPS));

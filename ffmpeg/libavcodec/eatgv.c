@@ -31,8 +31,8 @@
 #include "avcodec.h"
 #define BITSTREAM_READER_LE
 #include "get_bits.h"
-#include "libavutil/lzo.h"
 #include "libavutil/imgutils.h"
+#include "libavutil/mem.h"
 
 #define EA_PREAMBLE_SIZE    8
 #define kVGT_TAG MKTAG('k', 'V', 'G', 'T')
@@ -54,7 +54,7 @@ static av_cold int tgv_decode_init(AVCodecContext *avctx){
     TgvContext *s = avctx->priv_data;
     s->avctx = avctx;
     avctx->time_base = (AVRational){1, 15};
-    avctx->pix_fmt = PIX_FMT_PAL8;
+    avctx->pix_fmt = AV_PIX_FMT_PAL8;
     return 0;
 }
 
@@ -64,7 +64,7 @@ static av_cold int tgv_decode_init(AVCodecContext *avctx){
  */
 static int unpack(const uint8_t *src, const uint8_t *src_end, unsigned char *dst, int width, int height) {
     unsigned char *dst_end = dst + width*height;
-    int size, size1, size2, av_uninit(offset), run;
+    int size, size1, size2, offset, run;
     unsigned char *dst_start = dst;
 
     if (src[0] & 0x01)
@@ -136,7 +136,6 @@ static int unpack(const uint8_t *src, const uint8_t *src_end, unsigned char *dst
  * @return 0 on success, -1 on critical buffer underflow
  */
 static int tgv_decode_inter(TgvContext * s, const uint8_t *buf, const uint8_t *buf_end){
-    unsigned char *frame0_end = s->last_frame.data[0] + s->avctx->width*s->last_frame.linesize[0];
     int num_mvs;
     int num_blocks_raw;
     int num_blocks_packed;
@@ -154,6 +153,12 @@ static int tgv_decode_inter(TgvContext * s, const uint8_t *buf, const uint8_t *b
     num_blocks_packed = AV_RL16(&buf[4]);
     vector_bits       = AV_RL16(&buf[6]);
     buf += 12;
+
+    if (vector_bits > MIN_CACHE_BITS || !vector_bits) {
+        av_log(s->avctx, AV_LOG_ERROR,
+               "Invalid value for motion vector bits: %d\n", vector_bits);
+        return AVERROR_INVALIDDATA;
+    }
 
     /* allocate codebook buffers as necessary */
     if (num_mvs > s->num_mvs) {
@@ -205,12 +210,15 @@ static int tgv_decode_inter(TgvContext * s, const uint8_t *buf, const uint8_t *b
         int src_stride;
 
         if (vector < num_mvs) {
-            src = s->last_frame.data[0] +
-                  (y*4 + s->mv_codebook[vector][1])*s->last_frame.linesize[0] +
-                   x*4 + s->mv_codebook[vector][0];
-            src_stride = s->last_frame.linesize[0];
-            if (src+3*src_stride+3>=frame0_end)
+            int mx = x * 4 + s->mv_codebook[vector][0];
+            int my = y * 4 + s->mv_codebook[vector][1];
+
+            if (   mx < 0 || mx + 4 > s->avctx->width
+                || my < 0 || my + 4 > s->avctx->height)
                 continue;
+
+            src = s->last_frame.data[0] + mx + my * s->last_frame.linesize[0];
+            src_stride = s->last_frame.linesize[0];
         }else{
             int offset = vector - num_mvs;
             if (offset<num_blocks_raw)
@@ -241,7 +249,7 @@ static void cond_release_buffer(AVFrame *pic)
 }
 
 static int tgv_decode_frame(AVCodecContext *avctx,
-                            void *data, int *data_size,
+                            void *data, int *got_frame,
                             AVPacket *avpkt)
 {
     const uint8_t *buf = avpkt->data;
@@ -286,8 +294,7 @@ static int tgv_decode_frame(AVCodecContext *avctx,
         s->frame.buffer_hints = FF_BUFFER_HINTS_VALID;
         s->frame.linesize[0] = s->width;
 
-        /* allocate additional 12 bytes to accommodate av_memcpy_backptr() OUTBUF_PADDED optimisation */
-        s->frame.data[0] = av_malloc(s->width*s->height + 12);
+        s->frame.data[0] = av_malloc(s->width * s->height);
         if (!s->frame.data[0])
             return AVERROR(ENOMEM);
         s->frame.data[1] = av_malloc(AVPALETTE_SIZE);
@@ -318,7 +325,7 @@ static int tgv_decode_frame(AVCodecContext *avctx,
         }
     }
 
-    *data_size = sizeof(AVFrame);
+    *got_frame = 1;
     *(AVFrame*)data = s->frame;
 
     return buf_size;
@@ -337,10 +344,10 @@ static av_cold int tgv_decode_end(AVCodecContext *avctx)
 AVCodec ff_eatgv_decoder = {
     .name           = "eatgv",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_TGV,
+    .id             = AV_CODEC_ID_TGV,
     .priv_data_size = sizeof(TgvContext),
     .init           = tgv_decode_init,
     .close          = tgv_decode_end,
     .decode         = tgv_decode_frame,
-    .long_name = NULL_IF_CONFIG_SMALL("Electronic Arts TGV video"),
+    .long_name      = NULL_IF_CONFIG_SMALL("Electronic Arts TGV video"),
 };

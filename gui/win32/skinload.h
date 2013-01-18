@@ -112,7 +112,7 @@ struct skin_t
 
 skin_t *loadskin(char *skindir, int desktopbpp);
 
-// --- Widget types ---
+/* --- Widget types --- */
 
 #define tyBase          1
 #define tyButton        2
@@ -123,14 +123,14 @@ skin_t *loadskin(char *skindir, int desktopbpp);
 #define tySlabel        7
 #define tyDlabel        8
 
-// --- Window types ---
+/* --- Window types --- */
 
 #define wiMain          1
-#define wiSub           2
+#define wiVideo         2
 #define wiMenu          3
 #define wiPlaybar       4
 
-// --- User events ------
+/* --- User events --- */
 
 #define evNone              0
 #define evPlay              1
@@ -175,11 +175,12 @@ skin_t *loadskin(char *skindir, int desktopbpp);
 #define evAbout             12
 #define evPreferences       14
 #define evSkinBrowser       15
+#define evMenu              33
 
 #define evIconify           11
 #define evExit              1000
 
-// --- Internal events ---
+/* --- Internal events --- */
 
 #define ivSetAudio          45
 #define ivSetVideo          46
@@ -195,5 +196,6 @@ skin_t *loadskin(char *skindir, int desktopbpp);
 #define ivSetCDTrack      5014
 
 #define ivRedraw          7002
+#define ivPlayDVD         7003
 
 #endif /* MPLAYER_GUI_SKINLOAD_H */

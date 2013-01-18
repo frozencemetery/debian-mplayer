@@ -21,15 +21,20 @@
  * null audio source
  */
 
+#include <inttypes.h>
+#include <stdio.h>
+
+#include "libavutil/channel_layout.h"
+#include "libavutil/internal.h"
 #include "avfilter.h"
-#include "libavutil/audioconvert.h"
+#include "internal.h"
 
 typedef struct {
     uint64_t channel_layout;
     int64_t sample_rate;
 } ANullContext;
 
-static int init(AVFilterContext *ctx, const char *args, void *opaque)
+static int init(AVFilterContext *ctx, const char *args)
 {
     ANullContext *priv = ctx->priv;
     char channel_layout_str[128] = "";
@@ -67,7 +72,7 @@ static int config_props(AVFilterLink *outlink)
 
     chans_nb = av_get_channel_layout_nb_channels(priv->channel_layout);
     av_get_channel_layout_string(buf, sizeof(buf), chans_nb, priv->channel_layout);
-    av_log(outlink->src, AV_LOG_INFO,
+    av_log(outlink->src, AV_LOG_VERBOSE,
            "sample_rate:%"PRId64 " channel_layout:%"PRId64 " channel_layout_description:'%s'\n",
            priv->sample_rate, priv->channel_layout, buf);
 
@@ -79,6 +84,16 @@ static int request_frame(AVFilterLink *link)
     return -1;
 }
 
+static const AVFilterPad avfilter_asrc_anullsrc_outputs[] = {
+    {
+        .name          = "default",
+        .type          = AVMEDIA_TYPE_AUDIO,
+        .config_props  = config_props,
+        .request_frame = request_frame,
+    },
+    { NULL }
+};
+
 AVFilter avfilter_asrc_anullsrc = {
     .name        = "anullsrc",
     .description = NULL_IF_CONFIG_SMALL("Null audio source, never return audio frames."),
@@ -86,11 +101,7 @@ AVFilter avfilter_asrc_anullsrc = {
     .init        = init,
     .priv_size   = sizeof(ANullContext),
 
-    .inputs      = (AVFilterPad[]) {{ .name = NULL}},
+    .inputs      = NULL,
 
-    .outputs     = (AVFilterPad[]) {{ .name = "default",
-                                      .type = AVMEDIA_TYPE_AUDIO,
-                                      .config_props = config_props,
-                                      .request_frame = request_frame, },
-                                    { .name = NULL}},
+    .outputs     = avfilter_asrc_anullsrc_outputs,
 };

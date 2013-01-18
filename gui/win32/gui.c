@@ -48,7 +48,7 @@
 #include "dialogs.h"
 #include "version.h"
 
-// HACK around bug in old mingw
+/* HACK around bug in old mingw */
 #undef INVALID_FILE_ATTRIBUTES
 #define INVALID_FILE_ATTRIBUTES ((DWORD)-1)
 
@@ -59,7 +59,7 @@
 #endif
 
 /* Globals / Externs */
-float sub_aspect;
+float video_aspect;
 
 DWORD oldtime;
 NOTIFYICONDATA nid;
@@ -344,10 +344,10 @@ static void updatedisplay(gui_t *gui, HWND hwnd)
     RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE);
 }
 
-static LRESULT CALLBACK SubProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK VideoProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     gui_t *gui = (gui_t *) GetWindowLongPtr(hWnd, GWLP_USERDATA);
-    if (gui && (gui->subwindow != hWnd)) return FALSE;
+    if (gui && (gui->videowindow != hWnd)) return FALSE;
 
     switch (message)
     {
@@ -451,11 +451,9 @@ static LRESULT CALLBACK SubProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
                 case ID_NTRACK:
                     handlemsg(hWnd, evNext);
                     break;
-#ifdef CONFIG_DVDREAD
                 case ID_CHAPTERSEL:
                     display_chapterselwindow(gui);
                     break;
-#endif
                 case ID_FULLSCREEN:
                     mp_input_queue_cmd(mp_input_parse_cmd("vo_fullscreen"));
                     break;
@@ -509,7 +507,7 @@ static LRESULT CALLBACK SubProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
                 gui->playlist->add_track(gui->playlist, (const char *) wParam, NULL, NULL, 0);
                 gui->playercontrol(evLoadPlay);
             }
-            SetForegroundWindow(gui->subwindow);
+            SetForegroundWindow(gui->videowindow);
             return 0;
         }
         case WM_LBUTTONDOWN:
@@ -532,7 +530,7 @@ static LRESULT CALLBACK SubProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
             ClientToScreen(hWnd, &point);
             if(guiInfo.StreamType == STREAMTYPE_DVD)
                 EnableMenuItem(gui->dvdmenu, ID_CHAPTERSEL, MF_BYCOMMAND | MF_ENABLED);
-            TrackPopupMenu(gui->submenu, 0, point.x, point.y, 0, hWnd, NULL);
+            TrackPopupMenu(gui->videomenu, 0, point.x, point.y, 0, hWnd, NULL);
             return 0;
         }
         case WM_LBUTTONDBLCLK:
@@ -612,11 +610,11 @@ static LRESULT CALLBACK SubProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
             rect_height = rd.bottom - rd.top;
 
             /* maintain our aspect ratio */
-            tmpheight = ((float)rect_width/sub_aspect);
+            tmpheight = ((float)rect_width/video_aspect);
             tmpheight += tmpheight % 2;
             if(tmpheight > rect_height)
             {
-                rect_width = ((float)rect_height*sub_aspect);
+                rect_width = ((float)rect_height*video_aspect);
                 rect_width += rect_width % 2;
             }
             else rect_height = tmpheight;
@@ -658,7 +656,7 @@ static LRESULT CALLBACK SubProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
                 window *desc = NULL;
 
                 for (i=0; i<gui->skin->windowcount; i++)
-                    if(gui->skin->windows[i]->type == wiSub)
+                    if(gui->skin->windows[i]->type == wiVideo)
                         desc = gui->skin->windows[i];
 
                 SelectObject(hMemDC, get_bitmap(hWnd));
@@ -864,9 +862,11 @@ static LRESULT CALLBACK EventProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
                     char menuitem[MAX_PATH];
                     int flags = MF_STRING, enable = 0;
                     mp_msg(MSGT_GPLAYER, MSGL_V, "[GUI] checking %s for CD/VCD/SVCD/DVDs\n", device + pos);
+#ifdef CONFIG_DVDREAD
                     sprintf(searchpath, "%sVIDEO_TS", device + pos);
                     if(GetFileAttributes(searchpath) != INVALID_FILE_ATTRIBUTES)
                         enable = 1;
+#endif
                     sprintf(searchpath, "%sMpegav", device + pos);
                     if(GetFileAttributes(searchpath) != INVALID_FILE_ATTRIBUTES)
                         enable = 1;
@@ -1045,22 +1045,18 @@ static LRESULT CALLBACK EventProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
                             sprintf(searchpath, "%sVIDEO_TS", device + pos);
                             if(GetFileAttributes(searchpath) != INVALID_FILE_ATTRIBUTES)
                             {
-#ifdef CONFIG_DVDREAD
                                 free(dvd_device);
                                 dvd_device = strdup(device + pos);
                                 handlemsg(hWnd, evPlayDVD);
-#endif
                             }
                             sprintf(searchpath, "%sTrack01.cda", device + pos);
                             if(GetFileAttributes(searchpath) != INVALID_FILE_ATTRIBUTES)
                             {
-#ifdef CONFIG_CDDA
                                 free(cdrom_device);
                                 cdrom_device = strdup(device + pos);
                                 /* mplayer doesn't seem to like the trailing \ after the device name */
                                 cdrom_device[2]=0;
                                 handlemsg(hWnd, evPlayCD);
-#endif
                             } else {
                                 HANDLE searchhndl;
                                 WIN32_FIND_DATA finddata;
@@ -1144,12 +1140,12 @@ int destroy_window(gui_t *gui)
     gui_main_pos_x = rd.left;
     gui_main_pos_y = rd.top;
 
-    /* sub window position */
-    if(IsIconic(gui->subwindow))
-        ShowWindow(gui->subwindow, SW_SHOWNORMAL);
-    GetWindowRect(gui->subwindow, &rd);
-    gui_sub_pos_x = rd.left;
-    gui_sub_pos_y = rd.top;
+    /* video window position */
+    if(IsIconic(gui->videowindow))
+        ShowWindow(gui->videowindow, SW_SHOWNORMAL);
+    GetWindowRect(gui->videowindow, &rd);
+    gui_video_pos_x = rd.left;
+    gui_video_pos_y = rd.top;
 
     for(i=0; i<gui->window_priv_count; i++)
     {
@@ -1165,10 +1161,10 @@ int destroy_window(gui_t *gui)
         DestroyWindow(gui->mainwindow);
     gui->mainwindow = NULL;
 
-    /* destroy the sub window */
-    if(gui->subwindow)
-        DestroyWindow(gui->subwindow);
-    gui->subwindow = NULL;
+    /* destroy the video window */
+    if(gui->videowindow)
+        DestroyWindow(gui->videowindow);
+    gui->videowindow = NULL;
 
     UnregisterClass(gui->classname, 0);
     DestroyIcon(gui->icon);
@@ -1230,28 +1226,28 @@ static void create_traymenu(gui_t *gui)
     AppendMenu(gui->traymenu, MF_STRING, IDEXIT, acp(MSGTR_MENU_Exit));
 }
 
-static void create_submenu(gui_t *gui)
+static void create_videomenu(gui_t *gui)
 {
-    gui->submenu = CreatePopupMenu();
+    gui->videomenu = CreatePopupMenu();
     gui->dvdmenu = CreatePopupMenu();
     gui->aspectmenu = CreatePopupMenu();
     gui->subtitlemenu = CreatePopupMenu();
-    AppendMenu(gui->submenu, MF_STRING | MF_POPUP, (UINT_PTR) gui->trayplaymenu, acp(MSGTR_MENU_Open));
-    AppendMenu(gui->submenu, MF_SEPARATOR, 0, 0);
-    AppendMenu(gui->submenu, MF_STRING, ID_SEEKB, acp(MSGTR_MENU_SeekBack));
-    AppendMenu(gui->submenu, MF_STRING, ID_PTRACK, acp(MSGTR_MENU_PrevStream));
-    AppendMenu(gui->submenu, MF_STRING, ID_PLAY, acp(MSGTR_MENU_Play "/" MSGTR_MENU_Pause));
-    AppendMenu(gui->submenu, MF_STRING, ID_STOP, acp(MSGTR_MENU_Stop));
-    AppendMenu(gui->submenu, MF_STRING, ID_NTRACK, acp(MSGTR_MENU_NextStream));
-    AppendMenu(gui->submenu, MF_STRING, ID_SEEKF, acp(MSGTR_MENU_SeekForw));
-    AppendMenu(gui->submenu, MF_SEPARATOR, 0, 0);
-    AppendMenu(gui->submenu, MF_STRING, ID_FULLSCREEN, acp(MSGTR_MENU_FullScreen));
-    AppendMenu(gui->submenu, MF_STRING, ID_MUTE, acp(MSGTR_MENU_Mute));
-    AppendMenu(gui->submenu, MF_SEPARATOR, 0, 0);
-    AppendMenu(gui->submenu, MF_STRING | MF_POPUP, (UINT_PTR) gui->aspectmenu, acp(MSGTR_MENU_AspectRatio));
-    AppendMenu(gui->submenu, MF_STRING | MF_POPUP, (UINT_PTR) gui->subtitlemenu, acp(MSGTR_MENU_Subtitles));
-    AppendMenu(gui->submenu, MF_STRING | MF_POPUP, (UINT_PTR) gui->dvdmenu, acp(MSGTR_MENU_DVD));
+    AppendMenu(gui->videomenu, MF_STRING | MF_POPUP, (UINT_PTR) gui->trayplaymenu, acp(MSGTR_MENU_Open));
+    AppendMenu(gui->videomenu, MF_SEPARATOR, 0, 0);
+    AppendMenu(gui->videomenu, MF_STRING, ID_SEEKB, acp(MSGTR_MENU_SeekBack));
+    AppendMenu(gui->videomenu, MF_STRING, ID_PTRACK, acp(MSGTR_MENU_PrevStream));
+    AppendMenu(gui->videomenu, MF_STRING, ID_PLAY, acp(MSGTR_MENU_Play "/" MSGTR_MENU_Pause));
+    AppendMenu(gui->videomenu, MF_STRING, ID_STOP, acp(MSGTR_MENU_Stop));
+    AppendMenu(gui->videomenu, MF_STRING, ID_NTRACK, acp(MSGTR_MENU_NextStream));
+    AppendMenu(gui->videomenu, MF_STRING, ID_SEEKF, acp(MSGTR_MENU_SeekForw));
+    AppendMenu(gui->videomenu, MF_SEPARATOR, 0, 0);
+    AppendMenu(gui->videomenu, MF_STRING, ID_FULLSCREEN, acp(MSGTR_MENU_FullScreen));
+    AppendMenu(gui->videomenu, MF_STRING, ID_MUTE, acp(MSGTR_MENU_Mute));
+    AppendMenu(gui->videomenu, MF_SEPARATOR, 0, 0);
+    AppendMenu(gui->videomenu, MF_STRING | MF_POPUP, (UINT_PTR) gui->aspectmenu, acp(MSGTR_MENU_AspectRatio));
+    AppendMenu(gui->videomenu, MF_STRING | MF_POPUP, (UINT_PTR) gui->subtitlemenu, acp(MSGTR_MENU_Subtitles));
 #ifdef CONFIG_DVDREAD
+    AppendMenu(gui->videomenu, MF_STRING | MF_POPUP, (UINT_PTR) gui->dvdmenu, acp(MSGTR_MENU_DVD));
     AppendMenu(gui->dvdmenu, MF_STRING | MF_GRAYED, ID_CHAPTERSEL, acp(MSGTR_SelectTitleChapter));
 #endif
     AppendMenu(gui->subtitlemenu, MF_STRING, IDSUB_TOGGLE, acp(MSGTR_MENU_SubtitlesOnOff));
@@ -1261,8 +1257,8 @@ static void create_submenu(gui_t *gui)
     AppendMenu(gui->aspectmenu, MF_STRING, ID_ASPECT3, "2.35");
     AppendMenu(gui->aspectmenu, MF_SEPARATOR, 0, 0);
     AppendMenu(gui->aspectmenu, MF_STRING, ID_ASPECT4, acp(MSGTR_MENU_Original));
-    AppendMenu(gui->submenu, MF_SEPARATOR, 0, 0);
-    AppendMenu(gui->submenu, MF_STRING, IDEXIT, acp(MSGTR_MENU_Exit));
+    AppendMenu(gui->videomenu, MF_SEPARATOR, 0, 0);
+    AppendMenu(gui->videomenu, MF_STRING, IDEXIT, acp(MSGTR_MENU_Exit));
 }
 
 static void maketransparent(HWND hwnd, COLORREF crTransparent)
@@ -1373,8 +1369,8 @@ static int window_render(gui_t *gui, HWND hWnd, HDC hdc, window_priv_t *priv, wi
     return 0;
 }
 
-/* creates the sub (AKA video) window,*/
-int create_subwindow(gui_t *gui)
+/* creates the video window */
+int create_videowindow(gui_t *gui)
 {
     HINSTANCE instance = GetModuleHandle(NULL);
     WNDCLASS wc;
@@ -1389,7 +1385,7 @@ int create_subwindow(gui_t *gui)
     vo_colorkey = 0xff00ff;
 
     for (i=0; i<gui->skin->windowcount; i++)
-        if(gui->skin->windows[i]->type == wiSub)
+        if(gui->skin->windows[i]->type == wiVideo)
             desc = gui->skin->windows[i];
 
     if(!desc)
@@ -1401,7 +1397,7 @@ int create_subwindow(gui_t *gui)
     windowcolor = vo_colorkey;
     colorbrush = CreateSolidBrush(windowcolor);
     wc.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
-    wc.lpfnWndProc = SubProc;
+    wc.lpfnWndProc = VideoProc;
     wc.cbClsExtra = 0;
     wc.cbWndExtra = 0;
     wc.hInstance = instance;
@@ -1412,23 +1408,23 @@ int create_subwindow(gui_t *gui)
     wc.lpszMenuName = NULL;
     RegisterClass(&wc);
 
-    /* create the sub window menu */
-    create_submenu(gui);
+    /* create the video window menu */
+    create_videomenu(gui);
 
     rect.top = rect.left = 100;
     rect.bottom = rect.top+desc->base->bitmap[0]->height;
     rect.right = rect.left+desc->base->bitmap[0]->width;
 
     /* our window aspect */
-    sub_aspect = (float)(rect.right-rect.left)/(rect.bottom-rect.top);
+    video_aspect = (float)(rect.right-rect.left)/(rect.bottom-rect.top);
 
     style = fullscreen?WS_VISIBLE | WS_POPUP:WS_OVERLAPPEDWINDOW | WS_SYSMENU | WS_MINIMIZEBOX;
     AdjustWindowRect(&rect, style, 0);
 
-    if (gui_sub_pos_x >= 0)
-        x = gui_sub_pos_x;
-    if (gui_sub_pos_y >= 0)
-        y = gui_sub_pos_y;
+    if (gui_video_pos_x >= 0)
+        x = gui_video_pos_x;
+    if (gui_video_pos_y >= 0)
+        y = gui_video_pos_y;
 
     /* out of bounds check */
     if (x <= -1 || (x+(rect.right-rect.left) > GetSystemMetrics(SM_CXSCREEN)))
@@ -1438,7 +1434,7 @@ int create_subwindow(gui_t *gui)
 
     hWnd = CreateWindowEx(0, "MPlayer - Video", "MPlayer - Video", style,
                           x, y, rect.right-rect.left, rect.bottom-rect.top,
-                          gui->subwindow, NULL, instance, NULL);
+                          gui->videowindow, NULL, instance, NULL);
 
     /* load all the window images */
     window_render(gui, hWnd, hdc, priv, desc, binfo);
@@ -1446,11 +1442,11 @@ int create_subwindow(gui_t *gui)
     /* enable drag and drop support */
     DragAcceptFiles(hWnd, TRUE);
 
-    gui->subwindow = hWnd;
-    if(sub_window)
-        WinID = gui->subwindow;
-    ShowWindow(gui->subwindow, SW_SHOW);
-    UpdateWindow(gui->subwindow);
+    gui->videowindow = hWnd;
+    if(video_window)
+        WinID = gui->videowindow;
+    ShowWindow(gui->videowindow, SW_SHOW);
+    UpdateWindow(gui->videowindow);
     return 0;
 }
 
@@ -1605,7 +1601,7 @@ gui_t *create_gui(char *skindir, void (*playercontrol)(int event))
 
     sprintf(temp, "%s/%s", skindir, skinName);
     if(create_window(gui, temp)) return NULL;
-    if(create_subwindow(gui)) return NULL;
+    if(create_videowindow(gui)) return NULL;
     if(console) console_toggle();
     return gui;
 }

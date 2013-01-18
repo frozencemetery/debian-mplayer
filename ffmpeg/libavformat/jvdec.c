@@ -25,6 +25,7 @@
  * @author Peter Ross <pross@xvid.org>
  */
 
+#include "libavutil/channel_layout.h"
 #include "libavutil/intreadwrite.h"
 #include "avformat.h"
 #include "internal.h"
@@ -58,8 +59,7 @@ static int read_probe(AVProbeData *pd)
     return 0;
 }
 
-static int read_header(AVFormatContext *s,
-                       AVFormatParameters *ap)
+static int read_header(AVFormatContext *s)
 {
     JVDemuxContext *jv = s->priv_data;
     AVIOContext *pb = s->pb;
@@ -76,10 +76,11 @@ static int read_header(AVFormatContext *s,
         return AVERROR(ENOMEM);
 
     vst->codec->codec_type  = AVMEDIA_TYPE_VIDEO;
-    vst->codec->codec_id    = CODEC_ID_JV;
+    vst->codec->codec_id    = AV_CODEC_ID_JV;
     vst->codec->codec_tag   = 0; /* no fourcc */
     vst->codec->width       = avio_rl16(pb);
     vst->codec->height      = avio_rl16(pb);
+    vst->duration           =
     vst->nb_frames          =
     ast->nb_index_entries   = avio_rl16(pb);
     avpriv_set_pts_info(vst, 64, avio_rl16(pb), 1000);
@@ -87,10 +88,11 @@ static int read_header(AVFormatContext *s,
     avio_skip(pb, 4);
 
     ast->codec->codec_type  = AVMEDIA_TYPE_AUDIO;
-    ast->codec->codec_id    = CODEC_ID_PCM_U8;
+    ast->codec->codec_id    = AV_CODEC_ID_PCM_U8;
     ast->codec->codec_tag   = 0; /* no fourcc */
     ast->codec->sample_rate = avio_rl16(pb);
     ast->codec->channels    = 1;
+    ast->codec->channel_layout = AV_CH_LAYOUT_MONO;
     avpriv_set_pts_info(ast, 64, 1, ast->codec->sample_rate);
 
     avio_skip(pb, 10);
@@ -208,10 +210,11 @@ static int read_seek(AVFormatContext *s, int stream_index,
 
     if (i < 0 || i >= ast->nb_index_entries)
         return 0;
+    if (avio_seek(s->pb, ast->index_entries[i].pos, SEEK_SET) < 0)
+        return -1;
 
     jv->state = JV_AUDIO;
     jv->pts   = i;
-    avio_seek(s->pb, ast->index_entries[i].pos, SEEK_SET);
     return 0;
 }
 

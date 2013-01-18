@@ -27,6 +27,7 @@
 #include "msmpeg4data.h"
 #include "intrax8huf.h"
 #include "intrax8.h"
+#include "intrax8dsp.h"
 
 #define MAX_TABLE_DEPTH(table_bits, max_bits) ((max_bits+table_bits-1)/table_bits)
 
@@ -303,9 +304,9 @@ static int x8_setup_spatial_predictor(IntraX8Context * const w, const int chroma
     int sum;
     int quant;
 
-    s->dsp.x8_setup_spatial_compensation(s->dest[chroma], s->edge_emu_buffer,
-                                          s->current_picture.f.linesize[chroma>0],
-                                          &range, &sum, w->edges);
+    w->dsp.setup_spatial_compensation(s->dest[chroma], s->edge_emu_buffer,
+                                      s->current_picture.f.linesize[chroma>0],
+                                      &range, &sum, w->edges);
     if(chroma){
         w->orient=w->chroma_orient;
         quant=w->quant_dc_chroma;
@@ -639,7 +640,7 @@ static int x8_decode_intra_mb(IntraX8Context* const w, const int chroma){
     if(w->flat_dc){
         dsp_x8_put_solidcolor(w->predicted_dc, s->dest[chroma], s->current_picture.f.linesize[!!chroma]);
     }else{
-        s->dsp.x8_spatial_compensation[w->orient]( s->edge_emu_buffer,
+        w->dsp.spatial_compensation[w->orient]( s->edge_emu_buffer,
                                             s->dest[chroma],
                                             s->current_picture.f.linesize[!!chroma] );
     }
@@ -659,10 +660,10 @@ block_placed:
         int linesize = s->current_picture.f.linesize[!!chroma];
 
         if(!( (w->edges&2) || ( zeros_only && (w->orient|4)==4 ) )){
-            s->dsp.x8_h_loop_filter(ptr, linesize, w->quant);
+            w->dsp.h_loop_filter(ptr, linesize, w->quant);
         }
         if(!( (w->edges&1) || ( zeros_only && (w->orient|8)==8 ) )){
-            s->dsp.x8_v_loop_filter(ptr, linesize, w->quant);
+            w->dsp.v_loop_filter(ptr, linesize, w->quant);
         }
     }
     return 0;
@@ -696,9 +697,11 @@ av_cold void ff_intrax8_common_init(IntraX8Context * w, MpegEncContext * const s
     assert(s->mb_width>0);
     w->prediction_table=av_mallocz(s->mb_width*2*2);//two rows, 2 blocks per cannon mb
 
-    ff_init_scantable(s->dsp.idct_permutation, &w->scantable[0], wmv1_scantable[0]);
-    ff_init_scantable(s->dsp.idct_permutation, &w->scantable[1], wmv1_scantable[2]);
-    ff_init_scantable(s->dsp.idct_permutation, &w->scantable[2], wmv1_scantable[3]);
+    ff_init_scantable(s->dsp.idct_permutation, &w->scantable[0], ff_wmv1_scantable[0]);
+    ff_init_scantable(s->dsp.idct_permutation, &w->scantable[1], ff_wmv1_scantable[2]);
+    ff_init_scantable(s->dsp.idct_permutation, &w->scantable[2], ff_wmv1_scantable[3]);
+
+    ff_intrax8dsp_init(&w->dsp);
 }
 
 /**
@@ -716,12 +719,11 @@ av_cold void ff_intrax8_common_end(IntraX8Context * w)
  * The parent codec must call MPV_frame_start(), ff_er_frame_start() before calling this function.
  * The parent codec must call ff_er_frame_end(), MPV_frame_end() after calling this function.
  * This function does not use MPV_decode_mb().
- * lowres decoding is theoretically impossible.
  * @param w pointer to IntraX8Context
  * @param dquant doubled quantizer, it would be odd in case of VC-1 halfpq==1.
  * @param quant_offset offset away from zero
  */
-//FIXME extern uint8_t wmv3_dc_scale_table[32];
+//FIXME extern uint8_t ff_wmv3_dc_scale_table[32];
 int ff_intrax8_decode_picture(IntraX8Context * const w, int dquant, int quant_offset){
     MpegEncContext * const s= w->s;
     int mb_xy;

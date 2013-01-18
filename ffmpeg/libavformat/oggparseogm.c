@@ -56,7 +56,7 @@ ogm_header(AVFormatContext *s, int idx)
             st->codec->codec_tag = tag;
         } else if (*p == 't') {
             st->codec->codec_type = AVMEDIA_TYPE_SUBTITLE;
-            st->codec->codec_id = CODEC_ID_TEXT;
+            st->codec->codec_id = AV_CODEC_ID_TEXT;
             p += 12;
         } else {
             uint8_t acid[5];
@@ -80,9 +80,7 @@ ogm_header(AVFormatContext *s, int idx)
         if(st->codec->codec_type == AVMEDIA_TYPE_VIDEO){
             st->codec->width = bytestream_get_le32(&p);
             st->codec->height = bytestream_get_le32(&p);
-            st->codec->time_base.den = spu * 10000000;
-            st->codec->time_base.num = time_unit;
-            avpriv_set_pts_info(st, 64, st->codec->time_base.num, st->codec->time_base.den);
+            avpriv_set_pts_info(st, 64, time_unit, spu * 10000000);
         } else {
             st->codec->channels = bytestream_get_le16(&p);
             p += 2;                 /* block_align */
@@ -117,8 +115,7 @@ ogm_dshow_header(AVFormatContext *s, int idx)
     if(t == 0x05589f80){
         st->codec->codec_type = AVMEDIA_TYPE_VIDEO;
         st->codec->codec_id = ff_codec_get_id(ff_codec_bmp_tags, AV_RL32(p + 68));
-        st->codec->time_base.den = 10000000;
-        st->codec->time_base.num = AV_RL64(p + 164);
+        avpriv_set_pts_info(st, 64, AV_RL64(p + 164), 10000000);
         st->codec->width = AV_RL32(p + 176);
         st->codec->height = AV_RL32(p + 180);
     } else if(t == 0x05589f81){
@@ -159,6 +156,7 @@ const struct ogg_codec ff_ogm_video_codec = {
     .header = ogm_header,
     .packet = ogm_packet,
     .granule_is_start = 1,
+    .nb_header = 2,
 };
 
 const struct ogg_codec ff_ogm_audio_codec = {
@@ -167,6 +165,7 @@ const struct ogg_codec ff_ogm_audio_codec = {
     .header = ogm_header,
     .packet = ogm_packet,
     .granule_is_start = 1,
+    .nb_header = 2,
 };
 
 const struct ogg_codec ff_ogm_text_codec = {
@@ -175,6 +174,7 @@ const struct ogg_codec ff_ogm_text_codec = {
     .header = ogm_header,
     .packet = ogm_packet,
     .granule_is_start = 1,
+    .nb_header = 2,
 };
 
 const struct ogg_codec ff_ogm_old_codec = {
@@ -183,4 +183,5 @@ const struct ogg_codec ff_ogm_old_codec = {
     .header = ogm_dshow_header,
     .packet = ogm_packet,
     .granule_is_start = 1,
+    .nb_header = 1,
 };
