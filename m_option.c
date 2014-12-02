@@ -23,6 +23,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -32,8 +33,10 @@
 #include "m_option.h"
 //#include "m_config.h"
 #include "mp_msg.h"
+#include "mp_global.h"
 #include "stream/url.h"
 #include "libavutil/avstring.h"
+#include "libavutil/attributes.h"
 
 // Don't free for 'production' atm
 #ifndef MP_DEBUG
@@ -153,10 +156,9 @@ const m_option_type_t m_option_type_flag = {
 
 // Integer
 
-static int parse_int(const m_option_t* opt,const char *name, const char *param, void* dst, int src) {
+static int parse_int(const m_option_t* opt,const char *name, const char *param, void* dst, int av_unused src) {
   long long tmp_int;
   char *endptr;
-  src = 0;
 
   if (param == NULL)
     return M_OPT_MISSING_PARAM;
@@ -226,10 +228,9 @@ const m_option_type_t m_option_type_int64 = {
 #undef VAL
 #define VAL(x) (*(double*)(x))
 
-static int parse_double(const m_option_t* opt,const char *name, const char *param, void* dst, int src) {
+static int parse_double(const m_option_t* opt,const char *name, const char *param, void* dst, int av_unused src) {
   double tmp_float;
   char* endptr;
-  src = 0;
 
   if (param == NULL)
     return M_OPT_MISSING_PARAM;
@@ -275,8 +276,7 @@ static int parse_double(const m_option_t* opt,const char *name, const char *para
   return 1;
 }
 
-static char* print_double(const m_option_t* opt,  const void* val) {
-  opt = NULL;
+static char* print_double(const m_option_t* av_unused opt,  const void* val) {
   return dup_printf("%f",VAL(val));
 }
 
@@ -303,8 +303,7 @@ static int parse_float(const m_option_t* opt,const char *name, const char *param
     return r;
 }
 
-static char* print_float(const m_option_t* opt,  const void* val) {
-  opt = NULL;
+static char* print_float(const m_option_t* av_unused opt,  const void* val) {
   return dup_printf("%f",VAL(val));
 }
 
@@ -472,7 +471,7 @@ static void free_str_list(void* dst) {
 }
 
 static int str_list_add(char** add, int n,void* dst,int pre) {
-  char** lst = VAL(dst);
+  char** lst;
   int ln;
 
   if(!dst) return M_OPT_PARSER_ERR;
@@ -962,7 +961,7 @@ const m_option_type_t m_option_type_print_func = {
 static int parse_subconf(const m_option_t* opt,const char *name, const char *param, void* dst, int src) {
   char *subparam;
   char *subopt;
-  int nr = 0,i,r;
+  int nr = 0,i,r = 1;
   const m_option_t *subopts;
   const char *p;
   char** lst = NULL;
@@ -978,14 +977,12 @@ static int parse_subconf(const m_option_t* opt,const char *name, const char *par
 
   while(p[0])
     {
-      int sscanf_ret = 1;
       int optlen = strcspn(p, ":=");
       /* clear out */
       subopt[0] = subparam[0] = 0;
       av_strlcpy(subopt, p, optlen + 1);
       p = &p[optlen];
       if (p[0] == '=') {
-        sscanf_ret = 2;
         p = &p[1];
         if (p[0] == '"') {
           p = &p[1];
@@ -994,7 +991,8 @@ static int parse_subconf(const m_option_t* opt,const char *name, const char *par
           p = &p[optlen];
           if (p[0] != '"') {
             mp_msg(MSGT_CFGPARSER, MSGL_ERR, "Terminating '\"' missing for '%s'\n", subopt);
-            return M_OPT_INVALID;
+            r = M_OPT_INVALID;
+            goto out;
           }
           p = &p[1];
         } else if (p[0] == '%') {
@@ -1002,7 +1000,8 @@ static int parse_subconf(const m_option_t* opt,const char *name, const char *par
           optlen = (int)strtol(p, (char**)&p, 0);
           if (!p || p[0] != '%' || (optlen > strlen(p) - 1)) {
             mp_msg(MSGT_CFGPARSER, MSGL_ERR, "Invalid length %i for '%s'\n", optlen, subopt);
-            return M_OPT_INVALID;
+            r = M_OPT_INVALID;
+            goto out;
           }
           p = &p[1];
           av_strlcpy(subparam, p, optlen + 1);
@@ -1017,41 +1016,39 @@ static int parse_subconf(const m_option_t* opt,const char *name, const char *par
         p = &p[1];
       else if (p[0]) {
         mp_msg(MSGT_CFGPARSER, MSGL_ERR, "Incorrect termination for '%s'\n", subopt);
-        return M_OPT_INVALID;
+        r = M_OPT_INVALID;
+        goto out;
       }
 
-      switch(sscanf_ret)
-	{
-	case 1:
-	  subparam[0] = 0;
-	case 2:
-	  for(i = 0 ; subopts[i].name ; i++) {
-	    if(!strcmp(subopts[i].name,subopt)) break;
-	  }
-	  if(!subopts[i].name) {
-	    mp_msg(MSGT_CFGPARSER, MSGL_ERR, "Option %s: Unknown suboption %s\n",name,subopt);
-	    return M_OPT_UNKNOWN;
-	  }
-	  r = m_option_parse(&subopts[i],subopt,
-			     subparam[0] == 0 ? NULL : subparam,NULL,src);
-	  if(r < 0) return r;
-	  if(dst) {
-	    lst = realloc(lst,2 * (nr+2) * sizeof(char*));
-	    lst[2*nr] = strdup(subopt);
-	    lst[2*nr+1] = subparam[0] == 0 ? NULL : strdup(subparam);
-	    memset(&lst[2*(nr+1)],0,2*sizeof(char*));
-	    nr++;
-	  }
-	  break;
-	}
+      for(i = 0 ; subopts[i].name ; i++) {
+        if(!strcmp(subopts[i].name,subopt)) break;
+      }
+      if(!subopts[i].name) {
+        mp_msg(MSGT_CFGPARSER, MSGL_ERR, "Option %s: Unknown suboption %s\n",name,subopt);
+        r = M_OPT_UNKNOWN;
+        goto out;
+      }
+      r = m_option_parse(&subopts[i],subopt,
+                         subparam[0] == 0 ? NULL : subparam,NULL,src);
+      if(r < 0) goto out;
+      if(dst) {
+        lst = realloc(lst,2 * (nr+2) * sizeof(char*));
+        lst[2*nr] = strdup(subopt);
+        lst[2*nr+1] = subparam[0] == 0 ? NULL : strdup(subparam);
+        memset(&lst[2*(nr+1)],0,2*sizeof(char*));
+        nr++;
+      }
     }
 
-  free(subparam);
-  free(subopt);
   if(dst)
     VAL(dst) = lst;
+  r = 1;
 
-  return 1;
+out:
+  free(subparam);
+  free(subopt);
+
+  return r;
 }
 
 const m_option_type_t m_option_type_subconfig = {
@@ -1076,12 +1073,20 @@ static struct {
 } mp_imgfmt_list[] = {
   {"444p16le", IMGFMT_444P16_LE},
   {"444p16be", IMGFMT_444P16_BE},
+  {"444p14le", IMGFMT_444P14_LE},
+  {"444p14be", IMGFMT_444P14_BE},
+  {"444p12le", IMGFMT_444P12_LE},
+  {"444p12be", IMGFMT_444P12_BE},
   {"444p10le", IMGFMT_444P10_LE},
   {"444p10be", IMGFMT_444P10_BE},
   {"444p9le",  IMGFMT_444P9_LE},
   {"444p9be",  IMGFMT_444P9_BE},
   {"422p16le", IMGFMT_422P16_LE},
   {"422p16be", IMGFMT_422P16_BE},
+  {"422p14le", IMGFMT_422P14_LE},
+  {"422p14be", IMGFMT_422P14_BE},
+  {"422p12le", IMGFMT_422P12_LE},
+  {"422p12be", IMGFMT_422P12_BE},
   {"422p10le", IMGFMT_422P10_LE},
   {"422p10be", IMGFMT_422P10_BE},
   {"422p9le",  IMGFMT_422P9_LE},
@@ -1117,6 +1122,9 @@ static struct {
   {"hm12", IMGFMT_HM12},
   {"y800", IMGFMT_Y800},
   {"y8",   IMGFMT_Y8},
+  {"y8a",  IMGFMT_Y8A},
+  {"y16be", IMGFMT_Y16_BE},
+  {"y16le", IMGFMT_Y16_LE},
   {"nv12", IMGFMT_NV12},
   {"nv21", IMGFMT_NV21},
   {"bgr24", IMGFMT_BGR24},
@@ -1146,6 +1154,12 @@ static struct {
   {"argb", IMGFMT_ARGB},
   {"bgra", IMGFMT_BGRA},
   {"abgr", IMGFMT_ABGR},
+  {"xyz12be",  IMGFMT_XYZ12LE},
+  {"xyz12le",  IMGFMT_XYZ12BE},
+  {"gbr14pbe", IMGFMT_GBR14PLE},
+  {"gbr14ple", IMGFMT_GBR14PBE},
+  {"gbr12pbe", IMGFMT_GBR12PLE},
+  {"gbr12ple", IMGFMT_GBR12PBE},
   {"gbr24p", IMGFMT_GBR24P},
   {"mjpeg", IMGFMT_MJPEG},
   {"mjpg", IMGFMT_MJPEG},
@@ -1302,7 +1316,10 @@ int parse_timestring(const char *str, double *time, char endchar)
     *time = 60*a + d;
   else if (sscanf(str, "%lf%n", &d, &len) >= 1)
     *time = d;
-  else
+  else if (strncasecmp(str, "nopts", 5) == 0) {
+    *time = MP_NOPTS_VALUE;
+    len = 5;
+  } else
     return 0; /* unsupported time format */
   if (str[len] && str[len] != endchar)
     return 0; /* invalid extra characters at the end */
@@ -1945,9 +1962,9 @@ const m_option_type_t m_option_type_obj_settings_list = {
 static int parse_obj_presets(const m_option_t* opt,const char *name,
 			    const char *param, void* dst, int src) {
   m_obj_presets_t* obj_p = (m_obj_presets_t*)opt->priv;
-  m_struct_t *in_desc,*out_desc;
+  const m_struct_t *in_desc,*out_desc;
   int s,i;
-  unsigned char* pre;
+  const unsigned char* pre;
   char* pre_name = NULL;
 
   if(!obj_p) {

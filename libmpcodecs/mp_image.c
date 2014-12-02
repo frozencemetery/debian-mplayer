@@ -121,9 +121,21 @@ void mp_image_setfmt(mp_image_t* mpi,unsigned int out_fmt){
         mpi->flags|=MP_IMGFLAG_SWAPPED;
         return;
     }
+    if (IMGFMT_IS_XYZ(out_fmt)) {
+        mpi->bpp=3*((IMGFMT_XYZ_DEPTH(out_fmt) + 7) & ~7);
+        return;
+    }
     mpi->num_planes=3;
     if (out_fmt == IMGFMT_GBR24P) {
         mpi->bpp=24;
+        mpi->flags|=MP_IMGFLAG_PLANAR;
+        return;
+    } else if (out_fmt == IMGFMT_GBR12P) {
+        mpi->bpp=36;
+        mpi->flags|=MP_IMGFLAG_PLANAR;
+        return;
+    } else if (out_fmt == IMGFMT_GBR14P) {
+        mpi->bpp=42;
         mpi->flags|=MP_IMGFLAG_PLANAR;
         return;
     }
@@ -152,28 +164,46 @@ void mp_image_setfmt(mp_image_t* mpi,unsigned int out_fmt){
     case IMGFMT_440P:
     case IMGFMT_444P16_LE:
     case IMGFMT_444P16_BE:
+    case IMGFMT_444P14_LE:
+    case IMGFMT_444P14_BE:
+    case IMGFMT_444P12_LE:
+    case IMGFMT_444P12_BE:
     case IMGFMT_444P10_LE:
     case IMGFMT_444P10_BE:
     case IMGFMT_444P9_LE:
     case IMGFMT_444P9_BE:
     case IMGFMT_422P16_LE:
     case IMGFMT_422P16_BE:
+    case IMGFMT_422P14_LE:
+    case IMGFMT_422P14_BE:
+    case IMGFMT_422P12_LE:
+    case IMGFMT_422P12_BE:
     case IMGFMT_422P10_LE:
     case IMGFMT_422P10_BE:
     case IMGFMT_422P9_LE:
     case IMGFMT_422P9_BE:
     case IMGFMT_420P16_LE:
     case IMGFMT_420P16_BE:
+    case IMGFMT_420P14_LE:
+    case IMGFMT_420P14_BE:
+    case IMGFMT_420P12_LE:
+    case IMGFMT_420P12_BE:
     case IMGFMT_420P10_LE:
     case IMGFMT_420P10_BE:
     case IMGFMT_420P9_LE:
     case IMGFMT_420P9_BE:
         return;
+    case IMGFMT_Y16_LE:
+    case IMGFMT_Y16_BE:
+        mpi->bpp=16;
     case IMGFMT_Y800:
     case IMGFMT_Y8:
         /* they're planar ones, but for easier handling use them as packed */
         mpi->flags&=~MP_IMGFLAG_PLANAR;
         mpi->num_planes=1;
+        return;
+    case IMGFMT_Y8A:
+        mpi->num_planes=2;
         return;
     case IMGFMT_UYVY:
         mpi->flags|=MP_IMGFLAG_SWAPPED;
@@ -210,7 +240,7 @@ mp_image_t* new_mp_image(int w,int h){
 void free_mp_image(mp_image_t* mpi){
     if(!mpi) return;
     if(mpi->flags&MP_IMGFLAG_ALLOCATED){
-        /* becouse we allocate the whole image in once */
+        /* because we allocate the whole image at once */
         av_free(mpi->planes[0]);
         if (mpi->flags & MP_IMGFLAG_RGB_PALETTE)
             av_free(mpi->planes[1]);

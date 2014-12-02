@@ -283,6 +283,11 @@ static int init_video(sh_video_t *sh_video, char *codecname, char *vfm,
                    sh_video->codec->name, sh_video->codec->drv);
             continue;
         }
+        /* only allow dummy codecs if specified via -vc */
+        if (sh_video->codec->flags & CODECS_FLAG_DUMMY && !codecname) {
+            continue;
+        }
+
         orig_w = sh_video->bih ? sh_video->bih->biWidth  : sh_video->disp_w;
         orig_h = sh_video->bih ? sh_video->bih->biHeight : sh_video->disp_h;
         sh_video->disp_w = orig_w;
@@ -419,12 +424,14 @@ void *decode_video(sh_video_t *sh_video, unsigned char *start, int in_size,
             sh_video->num_buffered_pts++;
         }
     }
+    if (correct_pts && mpi && drop_frame && sh_video->num_buffered_pts > 0)
+        sh_video->num_buffered_pts--;
 
     // some codecs are broken, and doesn't restore MMX state :(
     // it happens usually with broken/damaged files.
-    if (HAVE_AMD3DNOW && gCpuCaps.has3DNow) {
+    if (HAVE_AMD3DNOW_INLINE && gCpuCaps.has3DNow) {
         __asm__ volatile ("femms\n\t":::"memory");
-    } else if (HAVE_MMX && gCpuCaps.hasMMX) {
+    } else if (HAVE_MMX_INLINE && gCpuCaps.hasMMX) {
         __asm__ volatile ("emms\n\t":::"memory");
     }
 

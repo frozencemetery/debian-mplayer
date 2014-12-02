@@ -144,6 +144,7 @@ typedef struct {
   int non_interleaved;     // 1 if this stream is not properly interleaved,
                            // so e.g. subtitle handling must do explicit reads.
 //---------------
+  int fill_count;         // number of unsuccessful tries to get a packet
   int packs;              // number of packets in buffer
   int bytes;              // total bytes of packets in buffer
   demux_packet_t *first;  // read to first buffer after the current buffer from here
@@ -485,6 +486,7 @@ int demuxer_sub_track_by_lang(demuxer_t* demuxer, char* lang);
 // for subtitles, it is the first track with default attribute
 // for audio, additionally, the first track is selected if no track has default attribute set
 int demuxer_default_audio_track(demuxer_t* d);
+int demuxer_default_video_track(demuxer_t* d);
 int demuxer_default_sub_track(demuxer_t* d);
 
 #endif /* MPLAYER_DEMUXER_H */

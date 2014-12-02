@@ -16,18 +16,17 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <unistd.h>
-#include <string.h>
 
 #include "config.h"
 #include "mp_msg.h"
 #include "help_mp.h"
+#include "path.h"
 
-#include <libgen.h>
 #include <errno.h>
 
 #define FIRST_AC3_AID 128
@@ -44,6 +43,7 @@
 #include "libmpdemux/demuxer.h"
 
 static char* dvd_device_current;
+static int dvd_title;
 int dvd_angle=1;
 
 #define	LIBDVDREAD_VERSION(maj,min,micro)	((maj)*10000 + (min)*100 + (micro))
@@ -83,42 +83,6 @@ static const struct m_struct_st stream_opts = {
   &stream_priv_dflts,
   stream_opts_fields
 };
-
-int dvd_parse_chapter_range(const m_option_t *conf, const char *range) {
-  const char *s;
-  char *t;
-  if (!range)
-    return M_OPT_MISSING_PARAM;
-  s = range;
-  dvd_chapter = 1;
-  dvd_last_chapter = 0;
-  if(*range && isdigit(*range)) {
-    dvd_chapter = strtol(range, (char **) &s, 10);
-    if(range == s) {
-      mp_msg(MSGT_OPEN, MSGL_ERR, MSGTR_DVDinvalidChapterRange, range);
-      return M_OPT_INVALID;
-    }
-  }
-  if(*s == 0)
-    return 0;
-  else if(*s != '-') {
-    mp_msg(MSGT_OPEN, MSGL_ERR, MSGTR_DVDinvalidChapterRange, range);
-    return M_OPT_INVALID;
-  }
-  ++s;
-  if(*s == 0)
-      return 0;
-  if(! isdigit(*s)) {
-    mp_msg(MSGT_OPEN, MSGL_ERR, MSGTR_DVDinvalidChapterRange, range);
-    return M_OPT_INVALID;
-  }
-  dvd_last_chapter = strtol(s, &t, 10);
-  if (s == t || *t) {
-    mp_msg(MSGT_OPEN, MSGL_ERR, MSGTR_DVDinvalidChapterRange, range);
-    return M_OPT_INVALID;
-  }
-  return 0;
-}
 
 int dvd_chapter_from_cell(dvd_priv_t* dvd,int title,int cell)
 {
@@ -415,7 +379,7 @@ static void dvd_close(dvd_priv_t *d)
 
 static int fill_buffer(stream_t *s, char *buf, int len)
 {
-  off_t pos;
+  int64_t pos;
   if (len < 2048)
     return -1;
   pos = dvd_read_sector(s->priv, buf);
@@ -425,7 +389,7 @@ static int fill_buffer(stream_t *s, char *buf, int len)
   return 2048; // full sector
 }
 
-static int seek(stream_t *s, off_t newpos) {
+static int seek(stream_t *s, int64_t newpos) {
   s->pos=newpos; // real seek
   dvd_seek(s->priv,s->pos/2048);
   return 1;
@@ -503,7 +467,7 @@ static int seek_to_chapter(stream_t *stream, ifo_handle_t *vts_file, tt_srpt_t *
     dvd_priv_t *d = stream->priv;
     ptt_info_t ptt;
     pgc_t *pgc;
-    off_t pos;
+    int64_t pos;
 
     if(!vts_file || !tt_srpt)
        return 0;
@@ -532,7 +496,7 @@ static int seek_to_chapter(stream_t *stream, ifo_handle_t *vts_file, tt_srpt_t *
     d->packs_left     = -1;
     d->angle_seek     = 0;
 
-    pos = (off_t) d->cur_pack * 2048;
+    pos = d->cur_pack * 2048ull;
     mp_msg(MSGT_OPEN,MSGL_V,"\r\nSTREAM_DVD, seeked to chapter: %d, cell: %u, pos: %"PRIu64"\n",
         chapter, d->cur_pack, pos);
 
@@ -545,6 +509,8 @@ static void list_chapters(ifo_handle_t *vts_file, tt_srpt_t *tt_srpt, int title_
     unsigned int t=0;
     ptt_info_t *ptt;
     pgc_t *pgc;
+    if (!mp_msg_test(MSGT_IDENTIFY, MSGL_INFO))
+        return;
 
     title_no = tt_srpt->title[title_no].vts_ttn - 1;
     if(vts_file->vts_ptt_srpt->title[title_no].nr_of_ptts < 2)
@@ -554,7 +520,12 @@ static void list_chapters(ifo_handle_t *vts_file, tt_srpt_t *tt_srpt, int title_
     mp_msg(MSGT_IDENTIFY, MSGL_INFO, "CHAPTERS: ");
     for(i=0; i<vts_file->vts_ptt_srpt->title[title_no].nr_of_ptts; i++)
     {
+        int pgc_idx = ptt[i].pgcn-1;
+        if (pgc_idx < 0 || pgc_idx >= vts_file->vts_pgcit->nr_of_pgci_srp)
+            continue;
         pgc = vts_file->vts_pgcit->pgci_srp[ptt[i].pgcn-1].pgc;
+        if (!pgc)
+            continue;
         cell = pgc->program_map[ptt[i].pgn-1]; //here the cell is 1-based
         if(ptt[i].pgn<pgc->nr_of_programs)
             last_cell = pgc->program_map[ptt[i].pgn];
@@ -596,7 +567,7 @@ static int dvd_seek_to_time(stream_t *stream, ifo_handle_t *vts_file, double sec
     unsigned int i, j, k, timeunit, ac_time, tmap_sector=0, cell_sector=0, vobu_sector=0;
     int t=0;
     double tm, duration;
-    off_t pos = -1;
+    int64_t pos = -1;
     dvd_priv_t *d = stream->priv;
     vts_tmapt_t *vts_tmapt = vts_file->vts_tmapt;
 
@@ -623,7 +594,7 @@ static int dvd_seek_to_time(stream_t *stream, ifo_handle_t *vts_file, double sec
       }
     }
 
-    pos = ((off_t)cell_sector)<<11;
+    pos = cell_sector * 2048ull;
     stream_seek(stream, pos);
     do {
       stream_skip(stream, 2048);
@@ -631,7 +602,7 @@ static int dvd_seek_to_time(stream_t *stream, ifo_handle_t *vts_file, double sec
     } while(!t);
     tm = dvd_get_current_time(stream, -1);
 
-    pos = ((off_t)tmap_sector)<<11;
+    pos = tmap_sector * 2048ull;
     stream_seek(stream, pos);
     //now get current time in terms of the cell+cell time offset
     memset(&d->dsi_pack.dsi_gi.c_eltm, 0, sizeof(dvd_time_t));
@@ -640,7 +611,7 @@ static int dvd_seek_to_time(stream_t *stream, ifo_handle_t *vts_file, double sec
           break;
         tm = dvd_get_current_time(stream, -1);
     };
-    tmap_sector = stream->pos >> 11;
+    tmap_sector = stream->pos / 2048;
 
     //search closest VOBU sector
     k=(vts_file->vts_vobu_admap->last_byte + 1 - VOBU_ADMAP_SIZE)/4; //entries in the vobu admap
@@ -649,7 +620,7 @@ static int dvd_seek_to_time(stream_t *stream, ifo_handle_t *vts_file, double sec
         break;
     }
     vobu_sector = vts_file->vts_vobu_admap->vobu_start_sectors[i-1];
-    pos = ((off_t)vobu_sector) << 11;
+    pos = vobu_sector * 2048ull;
     stream_seek(stream, pos);
 
     return 1;
@@ -684,6 +655,11 @@ static int control(stream_t *stream,int cmd,void* arg)
             r = seek_to_chapter(stream, d->vts_file, d->tt_srpt, d->cur_title-1, *((unsigned int *)arg));
             if(! r) return STREAM_UNSUPPORTED;
 
+            return 1;
+        }
+        case STREAM_CTRL_GET_CURRENT_TITLE:
+        {
+            *((unsigned int *)arg) = d->cur_title - 1;
             return 1;
         }
         case STREAM_CTRL_GET_CURRENT_CHAPTER:
@@ -1053,8 +1029,8 @@ static int open_s(stream_t *stream,int mode, void* opts, int* file_format) {
     stream->seek = seek;
     stream->control = control;
     stream->close = stream_dvd_close;
-    stream->start_pos = (off_t)d->cur_pack*2048;
-    stream->end_pos = (off_t)(d->cur_pgc->cell_playback[d->last_cell-1].last_sector)*2048;
+    stream->start_pos = d->cur_pack*2048ull;
+    stream->end_pos = d->cur_pgc->cell_playback[d->last_cell-1].last_sector*2048ull;
     *file_format = DEMUXER_TYPE_MPEG_PS;
     mp_msg(MSGT_DVD,MSGL_V,"DVD start=%d end=%d  \n",d->cur_pack,d->cur_pgc->cell_playback[d->last_cell-1].last_sector);
     stream->priv = (void*)d;
@@ -1082,10 +1058,10 @@ static int ifo_stream_open (stream_t *stream, int mode, void *opts, int *file_fo
 
     mp_msg(MSGT_DVD, MSGL_INFO, ".IFO detected. Redirecting to dvd://\n");
 
-    filename = strdup(basename(stream->url));
+    filename = strdup(mp_basename(stream->url));
 
     spriv=calloc(1, sizeof(struct stream_priv_s));
-    spriv->device = strdup(dirname(stream->url));
+    spriv->device = mp_dirname(stream->url);
     if(!strncasecmp(filename,"vts_",4))
     {
         if(sscanf(filename+3, "_%02d_", &spriv->title)!=1)

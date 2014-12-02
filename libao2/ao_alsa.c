@@ -111,7 +111,7 @@ static int control(int cmd, void *arg)
       long get_vol, set_vol;
       float f_multi;
 
-      if(AF_FORMAT_IS_AC3(ao_data.format) || AF_FORMAT_IS_IEC61937(ao_data.format))
+      if(AF_FORMAT_IS_IEC61937(ao_data.format))
 	return CONTROL_TRUE;
 
       if(mixer_channel) {
@@ -169,12 +169,49 @@ static int control(int cmd, void *arg)
       }
 
       elem = snd_mixer_find_selem(handle, sid);
+      if (!elem && !mixer_channel) {
+        // if nothing specified just try picking the first
+        elem = snd_mixer_first_elem(handle);
+        if (elem)
+            mp_msg(MSGT_AO, MSGL_V, "[AO_ALSA] Auto-selected element %s\n", snd_mixer_selem_get_name(elem));
+      }
       if (!elem) {
 	mp_msg(MSGT_AO,MSGL_ERR,MSGTR_AO_ALSA_UnableToFindSimpleControl,
 	       snd_mixer_selem_id_get_name(sid), snd_mixer_selem_id_get_index(sid));
+        mp_msg(MSGT_AO, MSGL_INFO, "[AO_ALSA] Available elements for device:\n");
+        for (elem = snd_mixer_first_elem(handle); elem; elem = snd_mixer_elem_next(elem))
+            mp_msg(MSGT_AO, MSGL_INFO, "[AO_ALSA]  %s\n", snd_mixer_selem_get_name(elem));
+        mp_msg(MSGT_AO, MSGL_INFO, "\n");
 	snd_mixer_close(handle);
 	return CONTROL_ERROR;
 	}
+
+      if (!snd_mixer_selem_has_playback_volume(elem) &&
+          !snd_mixer_selem_has_playback_volume_joined(elem))
+      {
+          if (!snd_mixer_selem_has_playback_switch(elem))
+              return CONTROL_FALSE;
+          if (cmd == AOCONTROL_GET_VOLUME) {
+              int v;
+              snd_mixer_selem_get_playback_switch(elem, SND_MIXER_SCHN_FRONT_LEFT, &v);
+              vol->left = v ? 100 : 0;
+              snd_mixer_selem_get_playback_switch(elem, SND_MIXER_SCHN_FRONT_RIGHT, &v);
+              vol->right = v ? 100 : 0;
+              return CONTROL_TRUE;
+          }
+          // special case: only mute supported
+          if (vol->left != 0 && vol->left != 100 ||
+              vol->right != 0 && vol->right != 100)
+              return CONTROL_FALSE;
+          if (snd_mixer_selem_has_playback_switch_joined(elem)) {
+              if (vol->left != vol->right)
+                  return CONTROL_FALSE;
+          } else {
+              snd_mixer_selem_set_playback_switch(elem, SND_MIXER_SCHN_FRONT_RIGHT, vol->right != 0);
+          }
+          snd_mixer_selem_set_playback_switch(elem, SND_MIXER_SCHN_FRONT_LEFT, vol->left != 0);
+          return CONTROL_TRUE;
+      }
 
       snd_mixer_selem_get_playback_volume_range(elem,&pmin,&pmax);
       f_multi = (100 / (float)(pmax - pmin));
@@ -235,9 +272,9 @@ static void parse_device (char *dest, const char *src, int len)
   char *tmp;
   memmove(dest, src, len);
   dest[len] = 0;
-  while ((tmp = strrchr(dest, '.')))
+  while ((tmp = strchr(dest, '.')))
     tmp[0] = ',';
-  while ((tmp = strrchr(dest, '=')))
+  while ((tmp = strchr(dest, '=')))
     tmp[0] = ':';
 }
 
@@ -258,7 +295,8 @@ static int try_open_device(const char *device, int open_mode, int try_ac3)
   char *ac3_device, *args;
 
   if (try_ac3) {
-    /* to set the non-audio bit, use AES0=6 */
+    /* to set the non-audio bit, use AES0=6
+     * 6 == IEC958_AES0_NONAUDIO | IEC958_AES0_PRO_EMPHASIS_NONE */
     len = strlen(device);
     ac3_device = malloc(len + 7 + 1);
     if (!ac3_device)
@@ -410,7 +448,7 @@ static int init(int rate_hz, int channels, int format, int flags)
      * while opening the abstract alias for the spdif subdevice
      * 'iec958'
      */
-    if (AF_FORMAT_IS_AC3(format) || AF_FORMAT_IS_IEC61937(format)) {
+    if (AF_FORMAT_IS_IEC61937(format)) {
 	device.str = "iec958";
 	mp_msg(MSGT_AO,MSGL_V,"alsa-spdif-init: playing AC3/iec61937/iec958, %i channels\n", channels);
     }
@@ -461,7 +499,7 @@ static int init(int rate_hz, int channels, int format, int flags)
 
     if (!alsa_handler) {
       int open_mode = block ? 0 : SND_PCM_NONBLOCK;
-      int isac3 =  AF_FORMAT_IS_AC3(format) || AF_FORMAT_IS_IEC61937(format);
+      int isac3 =  AF_FORMAT_IS_IEC61937(format);
       //modes = 0, SND_PCM_NONBLOCK, SND_PCM_ASYNC
       mp_msg(MSGT_AO,MSGL_V,"alsa-init: opening device in %sblocking mode\n", block ? "" : "non-");
       if ((err = try_open_device(alsa_device, open_mode, isac3)) < 0)
@@ -787,13 +825,13 @@ static int play(void* data, int len, int flags)
 	mp_msg(MSGT_AO,MSGL_INFO,MSGTR_AO_ALSA_TryingToResetSoundcard);
 	if ((res = snd_pcm_prepare(alsa_handler)) < 0) {
 	  mp_msg(MSGT_AO,MSGL_ERR,MSGTR_AO_ALSA_PcmPrepareError, snd_strerror(res));
-	  return 0;
 	  break;
 	}
+	res = 0;
       }
   } while (res == 0);
 
-  return res < 0 ? res : res * bytes_per_sample;
+  return res < 0 ? 0 : res * bytes_per_sample;
 }
 
 /* how many byes are free in the buffer */

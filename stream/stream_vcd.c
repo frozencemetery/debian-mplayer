@@ -83,21 +83,20 @@ static int fill_buffer(stream_t *s, char* buffer, int max_len){
   return vcd_read(s->priv,buffer);
 }
 
-static int seek(stream_t *s,off_t newpos) {
+static int seek(stream_t *s, int64_t newpos) {
   s->pos = newpos;
   vcd_set_msf(s->priv,s->pos/VCD_SECTOR_DATA);
   return 1;
 }
 
 static int control(stream_t *stream, int cmd, void *arg) {
-  struct stream_priv_s *p = stream->priv;
+  mp_vcd_priv_t *vcd = stream->priv;
   switch(cmd) {
     case STREAM_CTRL_GET_NUM_TITLES:
     case STREAM_CTRL_GET_NUM_CHAPTERS:
     {
-      mp_vcd_priv_t *vcd = vcd_read_toc(stream->fd);
       if (!vcd)
-        break;
+        return STREAM_ERROR;
       *(unsigned int *)arg = vcd_end_track(vcd);
       return STREAM_OK;
     }
@@ -105,19 +104,19 @@ static int control(stream_t *stream, int cmd, void *arg) {
     {
       int r;
       unsigned int track = *(unsigned int *)arg + 1;
-      mp_vcd_priv_t *vcd = vcd_read_toc(stream->fd);
       if (!vcd)
-        break;
+        return STREAM_ERROR;
       r = vcd_seek_to_track(vcd, track);
       if (r >= 0) {
-        p->track = track;
+        vcd->track = track;
         return STREAM_OK;
       }
       break;
     }
+    case STREAM_CTRL_GET_CURRENT_TITLE:
     case STREAM_CTRL_GET_CURRENT_CHAPTER:
     {
-      *(unsigned int *)arg = p->track - 1;
+      *(unsigned int *)arg = vcd->track - 1;
       return STREAM_OK;
     }
   }
@@ -226,6 +225,8 @@ static int open_s(stream_t *stream,int mode, void* opts, int* file_format) {
     mp_msg(MSGT_OPEN,MSGL_WARN,"Error in CDRIOCSETBLOCKSIZE");
   }
 #endif
+
+  vcd->track = p->track;
 
   stream->fd = f;
   stream->type = STREAMTYPE_VCD;

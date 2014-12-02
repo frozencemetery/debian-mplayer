@@ -45,7 +45,6 @@ typedef struct
 typedef struct
 {
     char *name;
-    char *id;
     image *image;
     unsigned int charcount;
     char_t **chars;
@@ -62,12 +61,15 @@ typedef struct
     int width, height;              /* width and height of the button */
     int wwidth, wheight;            /* width and height of the widget */
     // ---
+    int maxwh;
     // ---
     int msg, msg2;
     int pressed, tmp;
     int key, key2;
     int phases;
     float value;
+    double zeropoint;
+    double arclength;
     image *bitmap[2];               /* Associated image(s) in imagepool */
     // ---
     font_t *font;
@@ -118,10 +120,11 @@ skin_t *loadskin(char *skindir, int desktopbpp);
 #define tyButton        2
 #define tyHpotmeter     3
 #define tyVpotmeter     4
-#define tyPotmeter      5
+#define tyPimage        5
 #define tyMenu          6
 #define tySlabel        7
 #define tyDlabel        8
+#define tyRpotmeter     9
 
 /* --- Window types --- */
 
@@ -132,70 +135,73 @@ skin_t *loadskin(char *skindir, int desktopbpp);
 
 /* --- User events --- */
 
-#define evNone              0
-#define evPlay              1
-#define evStop              2
-#define evPause             3
-#define evPrev              6
-#define evNext              7
-#define evLoad              8
-#define evLoadPlay          13
-#define evLoadAudioFile     42
-#define evLoadSubtitle      38
-#define evDropSubtitle      43
-#define evPlaylist          10
-#define evPlayCD            48
-#define evPlayVCD           40
-#define evPlayDVD           39
-#define evLoadURL         5013
-#define evPlaySwitchToPause 16
-#define evPauseSwitchToPlay 17
-
-#define evBackward10sec     18
-#define evForward10sec      19
-#define evBackward1min      20
-#define evForward1min       21
-#define evBackward10min     22
-#define evForward10min      23
-#define evSetMoviePosition  27
-
-#define evHalfSize          301
-#define evDoubleSize        25
-#define evFullScreen        26
-#define evNormalSize        24
-#define evSetAspect         44
-
-#define evIncVolume         31
-#define evDecVolume         32
-#define evSetVolume         28
-#define evMute              30
-#define evSetBalance        29
-#define evEqualizer         9
-
-#define evAbout             12
-#define evPreferences       14
-#define evSkinBrowser       15
-#define evMenu              33
-
-#define evIconify           11
-#define evExit              1000
+enum
+{
+  evNone,
+  evPlay,
+  evStop,
+  evPause,
+  evPrev,
+  evNext,
+  evLoad,
+  evLoadPlay,
+  evLoadAudioFile,
+  evLoadSubtitle,
+  evDropSubtitle,
+  evPlaylist,
+  evPlayCD,
+  evPlayVCD,
+  evPlayDVD,
+  evLoadURL,
+  evPlayTV,
+  evPlaySwitchToPause,
+  evPauseSwitchToPlay,
+  evBackward10sec,
+  evForward10sec,
+  evBackward1min,
+  evForward1min,
+  evBackward10min,
+  evForward10min,
+  evSetMoviePosition,
+  evHalfSize,
+  evDoubleSize,
+  evFullScreen,
+  evNormalSize,
+  evSetAspect,
+  evSetRotation,
+  evIncVolume,
+  evDecVolume,
+  evSetVolume,
+  evMute,
+  evSetBalance,
+  evEqualizer,
+  evAbout,
+  evPreferences,
+  evSkinBrowser,
+  evMenu,
+  evIconify,
+  evExit = 100
+};
 
 /* --- Internal events --- */
 
-#define ivSetAudio          45
-#define ivSetVideo          46
-#define ivSetSubtitle       47
-
-#define ivShowPopUpMenu   5005
-#define ivHidePopUpMenu   5006
-#define ivSetDVDAudio     5007
-#define ivSetDVDSubtitle  5008
-#define ivSetDVDTitle     5009
-#define ivSetDVDChapter   5010
-#define ivSetVCDTrack     5012
-#define ivSetCDTrack      5014
-
-#define ivRedraw          7002
-#define ivPlayDVD         7003
+enum
+{
+  ivSetVideo = 1000,
+  ivSetAudio,
+  ivSetSubtitle,
+  ivSetCDTrack,
+  ivSetVCDTrack,
+  ivSetDVDTitle,
+  ivSetDVDChapter,
+  ivSetDVDAudio,
+  ivSetDVDSubtitle,
+  ivPlayDVD,
+  ivSetVolume,
+  ivSetBalance,
+  ivShowPopUpMenu,
+  ivHidePopUpMenu,
+  ivRedraw
+};
 
 #endif /* MPLAYER_GUI_SKINLOAD_H */

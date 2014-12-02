@@ -140,13 +140,6 @@ vo_mga_flip_page(void)
 
 }
 
-static int
-draw_frame(uint8_t *src[])
-{
-    mp_msg(MSGT_VO,MSGL_WARN,"!!! mga::draw_frame() called !!!\n");
-    return 0;
-}
-
 static uint32_t get_image(mp_image_t *mpi){
     uint32_t bespitch = FFALIGN(mga_vid_config.src_width, 32);
     uint32_t bespitch2 = bespitch/2;
@@ -315,7 +308,7 @@ static int control(uint32_t request, void *data)
       return VO_TRUE;
 #endif
 
-#if defined(VO_XMGA) && defined(CONFIG_GUI)
+#if defined(VO_XMGA)
   case VOCTRL_GUISUPPORT:
     return VO_TRUE;
 #endif

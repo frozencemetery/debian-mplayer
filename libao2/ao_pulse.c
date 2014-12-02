@@ -156,7 +156,7 @@ static int init(int rate_hz, int channels, int format, int flags) {
         sink = strchr(devarg, ':');
         if (sink) *sink++ = 0;
         if (devarg[0]) host = devarg;
-        opts = strchr(sink, ':');
+        opts = sink ? strchr(sink, ':') : NULL;
         if (opts) {
             *opts++ = 0;
             if (!sink[0]) sink = NULL;
@@ -379,6 +379,13 @@ static void info_func(struct pa_context *c, const struct pa_sink_input_info *i, 
 
 static int control(int cmd, void *arg) {
     switch (cmd) {
+        case AOCONTROL_FILENAME:
+            pa_threaded_mainloop_lock(mainloop);
+            if (!waitop(pa_stream_set_name(stream, arg, success_cb, NULL))) {
+                GENERIC_ERR_MSG(context, "pa_stream_set_name() failed");
+                return CONTROL_ERROR;
+            }
+            return CONTROL_OK;
         case AOCONTROL_GET_VOLUME: {
             ao_control_vol_t *vol = arg;
             uint32_t devidx = pa_stream_get_index(stream);

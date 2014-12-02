@@ -111,7 +111,7 @@ static int read_toc(const char *dev)
     CDROM_TOC toc;
     char device[10];
 
-    sprintf(device, "\\\\.\\%s", dev);
+    snprintf(device, sizeof(device), "\\\\.\\%s", dev);
     drive = CreateFile(device, GENERIC_READ, FILE_SHARE_READ, NULL,
                        OPEN_EXISTING, 0, 0);
 
@@ -376,14 +376,14 @@ static int cddb_http_request(char *command,
                       cddb_data_t *cddb_data)
 {
     char request[4096];
-    int fd, ret = 0;
-    URL_t *url;
-    HTTP_header_t *http_hdr;
+    int fd = -1, ret = -1;
+    URL_t *url = NULL;
+    HTTP_header_t *http_hdr = NULL;
 
     if (reply_parser == NULL || command == NULL || cddb_data == NULL)
         return -1;
 
-    sprintf(request, "http://%s/~cddb/cddb.cgi?cmd=%s%s&proto=%d",
+    snprintf(request, sizeof(request), "http://%s/~cddb/cddb.cgi?cmd=%s%s&proto=%d",
             cddb_data->freedb_server, command, cddb_data->cddb_hello,
             cddb_data->freedb_proto_level);
     mp_msg(MSGT_OPEN, MSGL_INFO,"Request[%s]\n", request);
@@ -391,26 +391,27 @@ static int cddb_http_request(char *command,
     url = url_new(request);
     if (url == NULL) {
         mp_msg(MSGT_DEMUX, MSGL_ERR, MSGTR_MPDEMUX_CDDB_NotAValidURL);
-        return -1;
+        goto out;
     }
 
     fd = http_send_request(url,0);
     if (fd < 0) {
         mp_msg(MSGT_DEMUX, MSGL_ERR,
                MSGTR_MPDEMUX_CDDB_FailedToSendHTTPRequest);
-        return -1;
+        goto out;
     }
 
     http_hdr = http_read_response(fd);
     if (http_hdr == NULL) {
         mp_msg(MSGT_DEMUX, MSGL_ERR,
                MSGTR_MPDEMUX_CDDB_FailedToReadHTTPResponse);
-        return -1;
+        goto out;
     }
 
     http_debug_hdr(http_hdr);
     mp_msg(MSGT_OPEN, MSGL_INFO,"body=[%s]\n", http_hdr->body);
 
+    ret = 0;
     switch (http_hdr->status_code) {
     case 200:
         ret = reply_parser(http_hdr, cddb_data);
@@ -422,8 +423,10 @@ static int cddb_http_request(char *command,
         mp_msg(MSGT_DEMUX, MSGL_ERR, MSGTR_MPDEMUX_CDDB_HTTPErrorUnknown);
     }
 
-    http_free(http_hdr);
-    url_free(url);
+out:
+    if (fd >= 0) closesocket(fd);
+    if (http_hdr) http_free(http_hdr);
+    if (url) url_free(url);
 
     return ret;
 }
@@ -438,7 +441,7 @@ static int cddb_read_cache(cddb_data_t *cddb_data)
     if (cddb_data == NULL || cddb_data->cache_dir == NULL)
         return -1;
 
-    sprintf(file_name, "%s%08lx", cddb_data->cache_dir, cddb_data->disc_id);
+    snprintf(file_name, sizeof(file_name), "%s%08lx", cddb_data->cache_dir, cddb_data->disc_id);
 
     file_fd = open(file_name, O_RDONLY | O_BINARY);
     if (file_fd < 0) {
@@ -503,7 +506,7 @@ static int cddb_write_cache(cddb_data_t *cddb_data)
         }
     }
 
-    sprintf(file_name, "%s%08lx", cddb_data->cache_dir, cddb_data->disc_id);
+    snprintf(file_name, sizeof(file_name), "%s%08lx", cddb_data->cache_dir, cddb_data->disc_id);
 
     file_fd = creat(file_name, S_IRUSR | S_IWUSR);
     if (file_fd < 0) {
@@ -575,6 +578,7 @@ static int cddb_read_parse(HTTP_header_t *http_hdr, cddb_data_t *cddb_data)
         // do a sanity check
         if (http_hdr->body_size < (unsigned int)(ptr2 - ptr)) {
             mp_msg(MSGT_DEMUX, MSGL_ERR, MSGTR_MPDEMUX_CDDB_UnexpectedFIXME);
+            free(ptr);
             return -1;
         }
         cddb_data->xmcd_file                            = ptr;
@@ -590,7 +594,7 @@ static int cddb_read_parse(HTTP_header_t *http_hdr, cddb_data_t *cddb_data)
 static int cddb_request_titles(cddb_data_t *cddb_data)
 {
     char command[1024];
-    sprintf(command, "cddb+read+%s+%08lx",
+    snprintf(command, sizeof(command), "cddb+read+%s+%08lx",
             cddb_data->category, cddb_data->disc_id);
     return cddb_http_request(command, cddb_read_parse, cddb_data);
 }
@@ -757,7 +761,8 @@ static void cddb_create_hello(cddb_data_t *cddb_data)
         }
         user_name = getenv("LOGNAME");
     }
-    sprintf(cddb_data->cddb_hello, "&hello=%s+%s+%s",
+    snprintf(cddb_data->cddb_hello, sizeof(cddb_data->cddb_hello),
+            "&hello=%s+%s+%s",
             user_name, host_name, mplayer_version);
 }
 
@@ -770,8 +775,9 @@ static int cddb_retrieve(cddb_data_t *cddb_data)
 
     ptr = offsets;
     for (i = 0; i < cddb_data->tracks ; i++) {
-        ptr += sprintf(ptr, "%d+", cdtoc[i].frame);
-        if (ptr-offsets > sizeof offsets - 40) break;
+        unsigned space = sizeof(offsets) - (ptr - offsets);
+        if (space < 40) break;
+        ptr += snprintf(ptr, space, "%d+", cdtoc[i].frame);
     }
     ptr[0] = 0;
     time_len = (cdtoc[cddb_data->tracks].frame)/75;
@@ -787,7 +793,7 @@ static int cddb_retrieve(cddb_data_t *cddb_data)
         return -1;
     }
 
-    sprintf(command, "cddb+query+%08lx+%d+%s%d", cddb_data->disc_id,
+    snprintf(command, sizeof(command), "cddb+query+%08lx+%d+%s%d", cddb_data->disc_id,
             cddb_data->tracks, offsets, time_len);
     ret = cddb_http_request(command, cddb_query_parse, cddb_data);
     if (ret < 0)
@@ -838,13 +844,13 @@ int cddb_resolve(const char *dev, char **xmcd_file)
     if (home_dir == NULL) {
         cddb_data.cache_dir = NULL;
     } else {
-        cddb_data.cache_dir = malloc(strlen(home_dir)
-                                     + strlen(cddb_cache_dir) + 1);
+        unsigned len = strlen(home_dir) + strlen(cddb_cache_dir) + 1;
+        cddb_data.cache_dir = malloc(len);
         if (cddb_data.cache_dir == NULL) {
             mp_msg(MSGT_DEMUX, MSGL_ERR, MSGTR_MemAllocFailed);
             return -1;
         }
-        sprintf(cddb_data.cache_dir, "%s%s", home_dir, cddb_cache_dir);
+        snprintf(cddb_data.cache_dir, len, "%s%s", home_dir, cddb_cache_dir);
     }
 
     // Check for a cached file

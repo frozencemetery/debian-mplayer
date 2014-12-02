@@ -25,6 +25,7 @@
 #include "m_option.h"
 #include "m_struct.h"
 #include "av_helpers.h"
+#include "libmpdemux/demuxer.h"
 
 static int fill_buffer(stream_t *s, char *buffer, int max_len)
 {
@@ -42,7 +43,7 @@ static int write_buffer(stream_t *s, char *buffer, int len)
     return len;
 }
 
-static int seek(stream_t *s, off_t newpos)
+static int seek(stream_t *s, int64_t newpos)
 {
     s->pos = newpos;
     if (avio_seek(s->priv, s->pos, SEEK_SET) < 0) {
@@ -61,7 +62,7 @@ static int control(stream_t *s, int cmd, void *arg)
     case STREAM_CTRL_GET_SIZE:
         size = avio_size(s->priv);
         if(size >= 0) {
-            *(off_t *)arg = size;
+            *(uint64_t *)arg = size;
             return 1;
         }
         break;
@@ -120,7 +121,7 @@ static int open_f(stream_t *stream, int mode, void *opts, int *file_format)
     }
     if (!strncmp(filename, prefix, strlen(prefix)))
         filename += strlen(prefix);
-    dummy = !strncmp(filename, "rtsp:", 5);
+    dummy = !strncmp(filename, "rtsp:", 5) || !strncmp(filename, "dummy:", 6);
     mp_msg(MSGT_OPEN, MSGL_V, "[ffmpeg] Opening %s\n", filename);
 
     if (!dummy && avio_open(&ctx, filename, flags) < 0)
@@ -136,7 +137,9 @@ static int open_f(stream_t *stream, int mode, void *opts, int *file_format)
         stream->type = STREAMTYPE_STREAM;
         stream->seek = NULL;
     }
-    if (!dummy) {
+    if (dummy) {
+        *file_format = DEMUXER_TYPE_LAVF;
+    } else {
         stream->fill_buffer = fill_buffer;
         stream->write_buffer = write_buffer;
         stream->control = control;
@@ -154,7 +157,7 @@ const stream_info_t stream_info_ffmpeg = {
   "",
   "",
   open_f,
-  { "ffmpeg", "rtmp", NULL },
+  { "ffmpeg", "rtmp", "rtsp", "https", NULL },
   NULL,
   1 // Urls are an option string
 };

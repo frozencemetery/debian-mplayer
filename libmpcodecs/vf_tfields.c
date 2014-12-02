@@ -27,7 +27,7 @@
 #include "img_format.h"
 #include "mp_image.h"
 #include "vf.h"
-#include "libavutil/x86_cpu.h"
+#include "libavutil/x86/asm.h"
 #include "libmpdemux/demuxer.h"
 #include "libvo/fastmemcpy.h"
 
@@ -71,7 +71,7 @@ static void deint(unsigned char *dest, int ds, unsigned char *src, int ss, int w
 		fast_memcpy(dest, src, w);
 }
 
-#if HAVE_AMD3DNOW
+#if HAVE_AMD3DNOW_INLINE
 static void qpel_li_3DNOW(unsigned char *d, unsigned char *s, int w, int h, int ds, int ss, int up)
 {
 	int i, j, ssd=ss;
@@ -107,7 +107,7 @@ static void qpel_li_3DNOW(unsigned char *d, unsigned char *s, int w, int h, int 
 }
 #endif
 
-#if HAVE_MMX2
+#if HAVE_MMXEXT_INLINE
 static void qpel_li_MMX2(unsigned char *d, unsigned char *s, int w, int h, int ds, int ss, int up)
 {
 	int i, j, ssd=ss;
@@ -144,7 +144,7 @@ static void qpel_li_MMX2(unsigned char *d, unsigned char *s, int w, int h, int d
 }
 #endif
 
-#if HAVE_MMX
+#if HAVE_MMX_INLINE
 static void qpel_li_MMX(unsigned char *d, unsigned char *s, int w, int h, int ds, int ss, int up)
 {
 	int i, j, ssd=ss;
@@ -498,28 +498,27 @@ static void uninit(struct vf_instance *vf)
 
 static int vf_open(vf_instance_t *vf, char *args)
 {
-	struct vf_priv_s *p;
 	vf->config = config;
 	vf->put_image = put_image;
 	vf->query_format = query_format;
 	vf->uninit = uninit;
 	vf->default_reqs = VFCAP_ACCEPT_STRIDE;
-	vf->priv = p = calloc(1, sizeof(struct vf_priv_s));
+	vf->priv = calloc(1, sizeof(struct vf_priv_s));
 	vf->priv->mode = 4;
 	vf->priv->parity = -1;
 	if (args) sscanf(args, "%d:%d", &vf->priv->mode, &vf->priv->parity);
 	qpel_li = qpel_li_C;
 	qpel_4tap = qpel_4tap_C;
-#if HAVE_MMX
+#if HAVE_MMX_INLINE
 	if(gCpuCaps.hasMMX) qpel_li = qpel_li_MMX;
 #if HAVE_EBX_AVAILABLE
 	if(gCpuCaps.hasMMX) qpel_4tap = qpel_4tap_MMX;
 #endif
 #endif
-#if HAVE_MMX2
+#if HAVE_MMXEXT_INLINE
 	if(gCpuCaps.hasMMX2) qpel_li = qpel_li_MMX2;
 #endif
-#if HAVE_AMD3DNOW
+#if HAVE_AMD3DNOW_INLINE
 	if(gCpuCaps.has3DNow) qpel_li = qpel_li_3DNOW;
 #endif
 	return 1;

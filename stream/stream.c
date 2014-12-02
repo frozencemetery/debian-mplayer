@@ -16,6 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -104,6 +105,9 @@ static const stream_info_t* const auto_open_streams[] = {
 #endif
   &stream_info_rtp,
   &stream_info_udp,
+#ifdef CONFIG_FFMPEG
+  &stream_info_ffmpeg,
+#endif
   &stream_info_http2,
 #endif
 #ifdef CONFIG_DVBIN
@@ -137,9 +141,6 @@ static const stream_info_t* const auto_open_streams[] = {
 #endif
 #ifdef CONFIG_LIBBLURAY
   &stream_info_bluray,
-#endif
-#ifdef CONFIG_FFMPEG
-  &stream_info_ffmpeg,
 #endif
 
   &stream_info_null,
@@ -218,23 +219,19 @@ static stream_t* open_stream_plugin(const stream_info_t* sinfo, const char* file
 
 
 stream_t* open_stream_full(const char* filename,int mode, char** options, int* file_format) {
-  int i,j,l,r;
-  const stream_info_t* sinfo;
-  stream_t* s;
-  char *redirected_url = NULL;
+  int i,j;
 
   for(i = 0 ; auto_open_streams[i] ; i++) {
-    sinfo = auto_open_streams[i];
-    if(!sinfo->protocols) {
-      mp_msg(MSGT_OPEN,MSGL_WARN, MSGTR_StreamProtocolNULL, sinfo->name);
-      continue;
-    }
+    const stream_info_t *sinfo = auto_open_streams[i];
     for(j = 0 ; sinfo->protocols[j] ; j++) {
-      l = strlen(sinfo->protocols[j]);
+      int l = strlen(sinfo->protocols[j]);
       // l == 0 => Don't do protocol matching (ie network and filenames)
       if((l == 0 && !strstr(filename, "://")) ||
          ((strncasecmp(sinfo->protocols[j],filename,l) == 0) &&
 		      (strncmp("://",filename+l,3) == 0))) {
+	int r;
+	char *redirected_url = NULL;
+	stream_t* s;
 	*file_format = DEMUXER_TYPE_UNKNOWN;
 	s = open_stream_plugin(sinfo,filename,mode,options,file_format,&r,
 				&redirected_url);
@@ -286,7 +283,7 @@ static int stream_reconnect(stream_t *s)
 #define MAX_RECONNECT_RETRIES 5
 #define RECONNECT_SLEEP_MS 1000
     int retry = 0;
-    off_t pos = s->pos;
+    int64_t pos = s->pos;
     // Seeking is used as a hack to make network streams
     // reopen the connection, ideally they would implement
     // e.g. a STREAM_CTRL_RECONNECT to do this
@@ -362,10 +359,17 @@ int stream_fill_buffer(stream_t *s){
     return 0;
   s->buf_pos=0;
   s->buf_len=len;
+  while (s->buf_len < STREAM_BUFFER_MIN) {
+    assert(s->buf_len + STREAM_BUFFER_MIN < STREAM_BUFFER_SIZE);
+    len = stream_read_internal(s, s->buffer + s->buf_len, STREAM_BUFFER_MIN);
+    if (len <= 0)
+      break;
+    s->buf_len += len;
+  }
 //  printf("[%d]",len);fflush(stdout);
   if (s->capture_file)
     stream_capture_do(s);
-  return len;
+  return s->buf_len;
 }
 
 int stream_write_buffer(stream_t *s, unsigned char *buf, int len) {
@@ -380,7 +384,7 @@ int stream_write_buffer(stream_t *s, unsigned char *buf, int len) {
   return rd;
 }
 
-int stream_seek_internal(stream_t *s, off_t newpos)
+int stream_seek_internal(stream_t *s, int64_t newpos)
 {
 if(newpos==0 || newpos!=s->pos){
   switch(s->type){
@@ -428,9 +432,9 @@ if(newpos==0 || newpos!=s->pos){
   return -1;
 }
 
-int stream_seek_long(stream_t *s,off_t pos){
+int stream_seek_long(stream_t *s, int64_t pos){
   int res;
-off_t newpos=0;
+  int64_t newpos=0;
 
 //  if( mp_msg_test(MSGT_STREAM,MSGL_DBG3) ) printf("seek_long to 0x%X\n",(unsigned int)pos);
 
@@ -445,7 +449,7 @@ off_t newpos=0;
   if(s->sector_size)
       newpos = (pos/s->sector_size)*s->sector_size;
   else
-      newpos = pos&(~((off_t)STREAM_BUFFER_SIZE-1));
+      newpos = pos&(~((int64_t)STREAM_BUFFER_SIZE-1));
 
 if( mp_msg_test(MSGT_STREAM,MSGL_DBG3) ){
   mp_msg(MSGT_STREAM,MSGL_DBG3, "s->pos=%"PRIX64"  newpos=%"PRIX64"  new_bufpos=%"PRIX64"  buflen=%X  \n",
@@ -703,4 +707,40 @@ uint8_t *stream_read_until(stream_t *s, uint8_t *mem, int max,
   ptr[0] = 0;
   if(s->eof && ptr == mem) return NULL;
   return mem;
+}
+
+int parse_chapter_range(const m_option_t *conf, const char *range) {
+  const char *s;
+  char *t;
+  if (!range)
+    return M_OPT_MISSING_PARAM;
+  s = range;
+  dvd_chapter = 1;
+  dvd_last_chapter = 0;
+  if(*range && isdigit(*range)) {
+    dvd_chapter = strtol(range, (char **) &s, 10);
+    if(range == s) {
+      mp_msg(MSGT_OPEN, MSGL_ERR, MSGTR_DVDinvalidChapterRange, range);
+      return M_OPT_INVALID;
+    }
+  }
+  if(*s == 0)
+    return 0;
+  else if(*s != '-') {
+    mp_msg(MSGT_OPEN, MSGL_ERR, MSGTR_DVDinvalidChapterRange, range);
+    return M_OPT_INVALID;
+  }
+  ++s;
+  if(*s == 0)
+      return 0;
+  if(! isdigit(*s)) {
+    mp_msg(MSGT_OPEN, MSGL_ERR, MSGTR_DVDinvalidChapterRange, range);
+    return M_OPT_INVALID;
+  }
+  dvd_last_chapter = strtol(s, &t, 10);
+  if (s == t || *t) {
+    mp_msg(MSGT_OPEN, MSGL_ERR, MSGTR_DVDinvalidChapterRange, range);
+    return M_OPT_INVALID;
+  }
+  return 0;
 }

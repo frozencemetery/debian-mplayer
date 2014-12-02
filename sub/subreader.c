@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <ctype.h>
 
 #include <sys/types.h>
@@ -41,6 +42,7 @@
 #include "stream/stream.h"
 #include "libavutil/common.h"
 #include "libavutil/avstring.h"
+#include "osdep/osdep.h"
 
 #ifdef CONFIG_ENCA
 #include <enca.h>
@@ -163,7 +165,7 @@ static subtitle *sub_read_line_sami(stream_t* st, subtitle *current, int utf16) 
 	    s++;
 	    if (*s == 'P' || *s == 'p') { s++; state = 2; continue; } /* found '<P' */
 	    for (; *s != '>' && *s != '\0'; s++); /* skip remains of non-<P> TAG */
-	    if (s == '\0')
+	    if (*s == '\0')
 	      break;
 	    s++;
 	    continue;
@@ -274,7 +276,7 @@ static const char *sub_readtext(const char *source, char **dest) {
     }
 
     *dest= malloc (len+1);
-    if (!dest) {return ERR;}
+    if (!*dest) {return ERR;}
 
     strncpy(*dest, source, len);
     (*dest)[len]=0;
@@ -377,14 +379,14 @@ static subtitle *sub_ass_read_line_subviewer(stream_t *st, subtitle *current, in
     int h1, m1, s1, ms1, h2, m2, s2, ms2, j = 0;
 
     while (!current->text[0]) {
-        char line[LINE_LEN + 1], full_line[LINE_LEN + 1], sep;
+        char line[LINE_LEN + 1], full_line[LINE_LEN + 1];
         int i;
 
         /* Parse SubRip header */
         if (!stream_read_line(st, line, LINE_LEN, utf16))
             return NULL;
-        if (sscanf(line, "%d:%d:%d%[,.:]%d --> %d:%d:%d%[,.:]%d",
-                     &h1, &m1, &s1, &sep, &ms1, &h2, &m2, &s2, &sep, &ms2) < 10)
+        if (sscanf(line, "%d:%d:%d%*[,.:]%d --> %d:%d:%d%*[,.:]%d",
+                     &h1, &m1, &s1, &ms1, &h2, &m2, &s2, &ms2) < 8)
             continue;
 
         current->start = h1 * 360000 + m1 * 6000 + s1 * 100 + ms1 / 10;
@@ -441,7 +443,7 @@ static subtitle *sub_read_line_subviewer(stream_t *st,subtitle *current, int utf
 #endif
     while (!current->text[0]) {
 	if (!stream_read_line (st, line, LINE_LEN, utf16)) return NULL;
-	if ((len=sscanf (line, "%d:%d:%d%[,.:]%d --> %d:%d:%d%[,.:]%d",&a1,&a2,&a3,(char *)&i,&a4,&b1,&b2,&b3,(char *)&i,&b4)) < 10)
+	if ((len=sscanf (line, "%d:%d:%d%*[,.:]%d --> %d:%d:%d%*[,.:]%d",&a1,&a2,&a3,&a4,&b1,&b2,&b3,&b4)) < 8)
 	    continue;
 	current->start = a1*360000+a2*6000+a3*100+a4/10;
 	current->end   = b1*360000+b2*6000+b3*100+b4/10;
@@ -592,28 +594,69 @@ static subtitle *sub_read_line_rt(stream_t *st,subtitle *current, int utf16) {
     char line[LINE_LEN+1];
     int a1,a2,a3,a4,b1,b2,b3,b4;
     char *p=NULL,*next=NULL;
-    int len,plen;
+    int plen;
 
     while (!current->text[0]) {
+	int match = 0;
 	if (!stream_read_line (st, line, LINE_LEN, utf16)) return NULL;
 	//TODO: it seems that format of time is not easily determined, it may be 1:12, 1:12.0 or 0:1:12.0
 	//to describe the same moment in time. Maybe there are even more formats in use.
+	//This probably should be changed to do something nicer than
+	//"brute-forcing" a long list of format strings.
 	//if ((len=sscanf (line, "<Time Begin=\"%d:%d:%d.%d\" End=\"%d:%d:%d.%d\"",&a1,&a2,&a3,&a4,&b1,&b2,&b3,&b4)) < 8)
-	plen=a1=a2=a3=a4=b1=b2=b3=b4=0;
-	if (
-	((len=sscanf (line, "<%*[tT]ime %*[bB]egin=\"%d.%d\" %*[Ee]nd=\"%d.%d\"%*[^<]<clear/>%n",&a3,&a4,&b3,&b4,&plen)) < 4) &&
-	((len=sscanf (line, "<%*[tT]ime %*[bB]egin=\"%d.%d\" %*[Ee]nd=\"%d:%d.%d\"%*[^<]<clear/>%n",&a3,&a4,&b2,&b3,&b4,&plen)) < 5) &&
-	((len=sscanf (line, "<%*[tT]ime %*[bB]egin=\"%d:%d\" %*[Ee]nd=\"%d:%d\"%*[^<]<clear/>%n",&a2,&a3,&b2,&b3,&plen)) < 4) &&
-	((len=sscanf (line, "<%*[tT]ime %*[bB]egin=\"%d:%d\" %*[Ee]nd=\"%d:%d.%d\"%*[^<]<clear/>%n",&a2,&a3,&b2,&b3,&b4,&plen)) < 5) &&
-//	((len=sscanf (line, "<%*[tT]ime %*[bB]egin=\"%d:%d.%d\" %*[Ee]nd=\"%d:%d\"%*[^<]<clear/>%n",&a2,&a3,&a4,&b2,&b3,&plen)) < 5) &&
-	((len=sscanf (line, "<%*[tT]ime %*[bB]egin=\"%d:%d.%d\" %*[Ee]nd=\"%d:%d.%d\"%*[^<]<clear/>%n",&a2,&a3,&a4,&b2,&b3,&b4,&plen)) < 6) &&
-	((len=sscanf (line, "<%*[tT]ime %*[bB]egin=\"%d:%d:%d.%d\" %*[Ee]nd=\"%d:%d:%d.%d\"%*[^<]<clear/>%n",&a1,&a2,&a3,&a4,&b1,&b2,&b3,&b4,&plen)) < 8) &&
+	if (!match) {
+		plen=a1=a2=a3=a4=b1=b2=b3=b4=0;
+		match = sscanf(line, "<%*[tT]ime %*[bB]egin=\"%d.%d\" %*[Ee]nd=\"%d.%d\"%*[^<]<clear/>%n",&a3,&a4,&b3,&b4,&plen) >= 4;
+		match &= plen > 0;
+	}
+	if (!match) {
+		plen=a1=a2=a3=a4=b1=b2=b3=b4=0;
+		match = sscanf(line, "<%*[tT]ime %*[bB]egin=\"%d.%d\" %*[Ee]nd=\"%d:%d.%d\"%*[^<]<clear/>%n",&a3,&a4,&b2,&b3,&b4,&plen) >= 5;
+		match &= plen > 0;
+	}
+	if (!match) {
+		plen=a1=a2=a3=a4=b1=b2=b3=b4=0;
+		match = sscanf(line, "<%*[tT]ime %*[bB]egin=\"%d:%d\" %*[Ee]nd=\"%d:%d\"%*[^<]<clear/>%n",&a2,&a3,&b2,&b3,&plen) >= 4;
+		match &= plen > 0;
+	}
+	if (!match) {
+		plen=a1=a2=a3=a4=b1=b2=b3=b4=0;
+		match = sscanf(line, "<%*[tT]ime %*[bB]egin=\"%d:%d\" %*[Ee]nd=\"%d:%d.%d\"%*[^<]<clear/>%n",&a2,&a3,&b2,&b3,&b4,&plen) >= 5;
+		match &= plen > 0;
+	}
+//	sscanf(line, "<%*[tT]ime %*[bB]egin=\"%d:%d.%d\" %*[Ee]nd=\"%d:%d\"%*[^<]<clear/>%n",&a2,&a3,&a4,&b2,&b3,&plen) >= 5
+	if (!match) {
+		plen=a1=a2=a3=a4=b1=b2=b3=b4=0;
+		match = sscanf(line, "<%*[tT]ime %*[bB]egin=\"%d:%d.%d\" %*[Ee]nd=\"%d:%d.%d\"%*[^<]<clear/>%n",&a2,&a3,&a4,&b2,&b3,&b4,&plen) >= 6;
+		match &= plen > 0;
+	}
+	if (!match) {
+		plen=a1=a2=a3=a4=b1=b2=b3=b4=0;
+		match = sscanf(line, "<%*[tT]ime %*[bB]egin=\"%d:%d:%d.%d\" %*[Ee]nd=\"%d:%d:%d.%d\"%*[^<]<clear/>%n",&a1,&a2,&a3,&a4,&b1,&b2,&b3,&b4,&plen) >= 8;
+		match &= plen > 0;
+	}
 	//now try it without end time
-	((len=sscanf (line, "<%*[tT]ime %*[bB]egin=\"%d.%d\"%*[^<]<clear/>%n",&a3,&a4,&plen)) < 2) &&
-	((len=sscanf (line, "<%*[tT]ime %*[bB]egin=\"%d:%d\"%*[^<]<clear/>%n",&a2,&a3,&plen)) < 2) &&
-	((len=sscanf (line, "<%*[tT]ime %*[bB]egin=\"%d:%d.%d\"%*[^<]<clear/>%n",&a2,&a3,&a4,&plen)) < 3) &&
-	((len=sscanf (line, "<%*[tT]ime %*[bB]egin=\"%d:%d:%d.%d\"%*[^<]<clear/>%n",&a1,&a2,&a3,&a4,&plen)) < 4)
-	)
+	if (!match) {
+		plen=a1=a2=a3=a4=b1=b2=b3=b4=0;
+		match = sscanf(line, "<%*[tT]ime %*[bB]egin=\"%d.%d\"%*[^<]<clear/>%n",&a3,&a4,&plen) >= 2;
+		match &= plen > 0;
+	}
+	if (!match) {
+		plen=a1=a2=a3=a4=b1=b2=b3=b4=0;
+		match = sscanf(line, "<%*[tT]ime %*[bB]egin=\"%d:%d\"%*[^<]<clear/>%n",&a2,&a3,&plen) >= 2;
+		match &= plen > 0;
+	}
+	if (!match) {
+		plen=a1=a2=a3=a4=b1=b2=b3=b4=0;
+		match = sscanf(line, "<%*[tT]ime %*[bB]egin=\"%d:%d.%d\"%*[^<]<clear/>%n",&a2,&a3,&a4,&plen) >= 3;
+		match &= plen > 0;
+	}
+	if (!match) {
+		plen=a1=a2=a3=a4=b1=b2=b3=b4=0;
+		match = sscanf(line, "<%*[tT]ime %*[bB]egin=\"%d:%d:%d.%d\"%*[^<]<clear/>%n",&a1,&a2,&a3,&a4,&plen) >= 4;
+		match &= plen > 0;
+	}
+	if (!match)
 	    continue;
 	current->start = a1*360000+a2*6000+a3*100+a4/10;
 	current->end   = b1*360000+b2*6000+b3*100+b4/10;
@@ -677,7 +720,7 @@ static subtitle *sub_read_line_ssa(stream_t *st,subtitle *current, int utf16) {
             tmp = line2;
             if(!(tmp=strchr(++tmp, ','))) break;
             if(brace && brace < tmp) break; // comma inside command
-            if(*(++tmp) == ' ') break;
+            if(tmp[1] == ' ') break;
                   /* a space after a comma means we're already in a sentence */
             line2 = tmp;
           }
@@ -1097,9 +1140,11 @@ static subtitle *sub_read_line_jacosub(stream_t* st, subtitle * current, int utf
 	    }			//-- switch
 	}			//-- for
 	*q = '\0';
-	current->text[current->lines] = strdup(line1);
+	if (current->lines < SUB_MAX_TEXT)
+	    current->text[current->lines] = strdup(line1);
     }				//-- while
-    current->lines++;
+    if (current->lines < SUB_MAX_TEXT)
+        current->lines++;
     return current;
 }
 
@@ -1120,7 +1165,7 @@ static int sub_autodetect (stream_t* st, int *uses_time, int utf16) {
 		{*uses_time=1;return SUB_MPL2;}
 	if (sscanf (line, "%d:%d:%d.%d,%d:%d:%d.%d",     &i, &i, &i, &i, &i, &i, &i, &i)==8)
 		{*uses_time=1;return SUB_SUBRIP;}
-	if (sscanf (line, "%d:%d:%d%[,.:]%d --> %d:%d:%d%[,.:]%d", &i, &i, &i, (char *)&i, &i, &i, &i, &i, (char *)&i, &i)==10)
+	if (sscanf (line, "%d:%d:%d%*[,.:]%d --> %d:%d:%d%*[,.:]%d", &i, &i, &i, &i, &i, &i, &i, &i)==8)
 		{*uses_time=1;return SUB_SUBVIEWER;}
 	if (sscanf (line, "{T %d:%d:%d:%d",&i, &i, &i, &i)==4)
 		{*uses_time=1;return SUB_SUBVIEWER2;}
@@ -1198,12 +1243,12 @@ void	subcp_close (void)
 	}
 }
 
-subtitle* subcp_recode (subtitle *sub)
+void subcp_recode (subtitle *sub)
 {
 	int l=sub->lines;
 	size_t ileft, oleft;
 	char *op, *ip, *ot;
-	if(icdsc == (iconv_t)(-1)) return sub;
+	if(icdsc == (iconv_t)(-1)) return;
 
 	while (l){
 		ip = sub->text[--l];
@@ -1230,7 +1275,7 @@ subtitle* subcp_recode (subtitle *sub)
 		free (sub->text[l]);
 		sub->text[l] = ot;
 	}
-	return sub;
+	return;
 }
 #endif
 
@@ -1248,6 +1293,8 @@ int do_fribid_log2vis(int charset, const char *in, FriBidiChar *logical, FriBidi
   len = fribidi_remove_bidi_marks(visual, len, NULL, NULL, NULL);
   return len;
 }
+#endif
+
 
 /**
  * Do conversion necessary for right-to-left language support via fribidi.
@@ -1255,15 +1302,16 @@ int do_fribid_log2vis(int charset, const char *in, FriBidiChar *logical, FriBidi
  * @param sub_utf8 whether the subtitle is encoded in UTF-8
  * @param from first new subtitle, all lines before this are assumed to be already converted
  */
-static subtitle* sub_fribidi (subtitle *sub, int sub_utf8, int from)
+static int sub_fribidi (subtitle *sub, int av_unused sub_utf8, int av_unused from)
 {
+#ifdef CONFIG_FRIBIDI
   FriBidiChar logical[LINE_LEN+1], visual[LINE_LEN+1]; // Hopefully these two won't smash the stack
   char        *ip      = NULL, *op     = NULL;
   size_t len,orig_len;
   int l=sub->lines;
   int char_set_num;
   if (!flip_hebrew)
-    return sub;
+    return 1;
   fribidi_set_mirroring(1);
   fribidi_set_reorder_nsm(0);
 
@@ -1293,14 +1341,16 @@ static subtitle* sub_fribidi (subtitle *sub, int sub_utf8, int from)
     }
   }
   if (!from && l){
-    for (l = sub->lines; l;)
-      free (sub->text[--l]);
-    return ERR;
+    for (l = sub->lines; l; --l) {
+      free (sub->text[l]);
+      sub->text[l] = NULL;
+    }
+    sub->lines = 0;
+    return 0;
   }
-  return sub;
-}
-
 #endif
+  return 1;
+}
 
 static void adjust_subs_time(subtitle* sub, float subtime, float fps, int block,
                              int sub_num, int sub_uses_time) {
@@ -1517,12 +1567,9 @@ sub_data* sub_read_file (const char *filename, float fps) {
         sub=srp->read(fd,sub,utf16);
         if(!sub) break;   // EOF
 #ifdef CONFIG_ICONV
-	if ((sub!=ERR) && sub_utf8 == 2 && utf16 == 0) sub=subcp_recode(sub);
+	if ((sub!=ERR) && sub_utf8 == 2 && utf16 == 0) subcp_recode(sub);
 #endif
-#ifdef CONFIG_FRIBIDI
-	if (sub!=ERR) sub=sub_fribidi(sub,sub_utf8,0);
-#endif
-	if ( sub == ERR )
+	if ( sub == ERR || !sub_fribidi(sub,sub_utf8,0))
 	 {
 #ifdef CONFIG_ICONV
           subcp_close();
@@ -2507,9 +2554,7 @@ void sub_add_text(subtitle *sub, const char *txt, int len, double endpts, int st
   int double_newline = 1; // ignore newlines at the beginning
   int i, pos;
   char *buf;
-#ifdef CONFIG_FRIBIDI
-  int orig_lines = sub->lines;
-#endif
+  int av_unused orig_lines = sub->lines;
   if (sub->lines >= SUB_MAX_TEXT) return;
   pos = 0;
   buf = malloc(MAX_SUBLINE + 1);
@@ -2576,10 +2621,8 @@ void sub_add_text(subtitle *sub, const char *txt, int len, double endpts, int st
             sub->endpts[sub->lines]);
     free(sub->text[sub->lines]);
   }
-#ifdef CONFIG_FRIBIDI
   if (strip_markup)
-  sub = sub_fribidi(sub, sub_utf8, orig_lines);
-#endif
+    sub_fribidi(sub, sub_utf8, orig_lines);
 }
 
 #define MP_NOPTS_VALUE (-1LL<<63)

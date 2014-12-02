@@ -21,6 +21,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <string.h>
+#include <strings.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -28,6 +29,7 @@
 #include <unistd.h>
 #include <limits.h>
 
+#include "libavutil/attributes.h"
 
 #include "config.h"
 #include "mp_msg.h"
@@ -139,8 +141,6 @@ static char* replace_path(char* title , char* dir , int escape) {
     return title;
 }
 
-typedef int (*kill_warn)(const void*, const void*);
-
 static int mylstat(char *dir, char *file,struct stat* st) {
   int l = strlen(dir) + strlen(file);
   char s[l+2];
@@ -168,7 +168,9 @@ static int mylstat(char *dir, char *file,struct stat* st) {
   return stat(s,st);
 }
 
-static int compare(char **a, char **b){
+static int compare(const void *av, const void *bv){
+  const char * const *a = av;
+  const char * const *b = bv;
   if((*a)[strlen(*a) - 1] == '/') {
     if((*b)[strlen(*b) - 1] == '/')
       return strcmp(*b, *a) ;
@@ -313,12 +315,12 @@ bailout:
   free_extensions (extensions);
   closedir(dirp);
 
-  qsort(namelist, n, sizeof(char *), (kill_warn)compare);
-
   if (n < 0) {
     mp_msg(MSGT_GLOBAL,MSGL_ERR,MSGTR_LIBMENU_ReaddirError,strerror(errno));
+    free(namelist);
     return 0;
   }
+  qsort(namelist, n, sizeof(char *), compare);
   while(n--) {
     if((e = calloc(1,sizeof(list_entry_t))) != NULL){
     e->p.next = NULL;
@@ -415,11 +417,10 @@ static void clos(menu_t* menu) {
   free(mpriv->dir);
 }
 
-static int open_fs(menu_t* menu, char* args) {
+static int open_fs(menu_t* menu, char* av_unused args) {
   char *path = mpriv->path;
   int r = 0;
   char wd[PATH_MAX+1], b[PATH_MAX+1];
-  args = NULL; // Warning kill
 
   menu->draw = menu_list_draw;
   menu->read_cmd = read_cmd;

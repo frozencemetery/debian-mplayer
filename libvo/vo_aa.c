@@ -31,6 +31,7 @@
 #include <stdarg.h>
 #include <time.h>
 #include <string.h>
+#include <strings.h>
 #include <errno.h>
 
 #include "config.h"
@@ -612,6 +613,7 @@ static int parse_suboptions(const char *arg) {
         p->name = booleans_list[i] + 1;
         p->type = OPT_ARG_BOOL;
         p->valp = &booleans[i];
+        booleans[i] = -1;
     }
     memcpy(p, extra_opts, sizeof(extra_opts));
 
@@ -639,6 +641,7 @@ static int parse_suboptions(const char *arg) {
         }
         pseudoargv[2] = NULL;
         for (i=0; i<nbooleans; i++) {
+            if (booleans[i] == -1) continue;
             pseudoargc = 2;
             if (booleans[i]) pseudoargv[1] = booleans_list[i];
             else pseudoargv[1] = nobooleans_list[i];
@@ -665,10 +668,6 @@ static int parse_suboptions(const char *arg) {
 static int preinit(const char *arg)
 {
     char * hidis = NULL;
-    struct stat sbuf;
-    int fd, vt, major, minor;
-    FILE * fp;
-    char fname[12];
 
     if(arg)
     {
@@ -680,12 +679,16 @@ static int preinit(const char *arg)
 
     hidis=aa_getfirst(&aa_displayrecommended);
     if ( hidis==NULL ){
+	struct stat sbuf;
+	char fname[12];
+	FILE *fp;
+	int fd, vt;
 	/* check /dev/vcsa<vt> */
 	/* check only, if no driver is explicit set */
 	fd = dup (fileno (stderr));
 	fstat (fd, &sbuf);
-	major = sbuf.st_rdev >> 8;
-	vt = minor = sbuf.st_rdev & 0xff;
+	// vt number stored in device minor
+	vt = sbuf.st_rdev & 0xff;
 	close (fd);
 	sprintf (fname, "/dev/vcsa%2.2i", vt);
 	fp = fopen (fname, "w+");

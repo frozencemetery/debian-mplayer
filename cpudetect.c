@@ -16,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "libavutil/x86_cpu.h"
+#include "libavutil/x86/asm.h"
 #include "config.h"
 #include "cpudetect.h"
 #include "mp_msg.h"
@@ -56,7 +56,7 @@ CpuCaps gCpuCaps;
 #if CONFIG_RUNTIME_CPUDETECT
 /* I believe this code works.  However, it has only been used on a PII and PIII */
 
-#if defined(__linux__) && defined(_POSIX_SOURCE) && !ARCH_X86_64
+#if defined(__linux__) && !ARCH_X86_64
 static void sigill_handler_sse( int signal, struct sigcontext sc )
 {
    mp_msg(MSGT_CPUDETECT,MSGL_V, "SIGILL, " );
@@ -75,7 +75,7 @@ static void sigill_handler_sse( int signal, struct sigcontext sc )
 
    gCpuCaps.hasSSE=0;
 }
-#endif /* __linux__ && _POSIX_SOURCE */
+#endif /* __linux__ */
 
 #if (defined(__MINGW32__) || defined(__CYGWIN__)) && !ARCH_X86_64
 LONG CALLBACK win32_sig_handler_sse(EXCEPTION_POINTERS* ep)
@@ -177,7 +177,6 @@ static void check_os_katmai_support( void )
         mp_msg(MSGT_CPUDETECT,MSGL_V, gCpuCaps.hasSSE ? "yes.\n" : "no!\n" );
     }
 #elif defined(__linux__)
-#if defined(_POSIX_SOURCE)
     struct sigaction saved_sigill;
 
     /* Save the original signal handlers.
@@ -209,13 +208,6 @@ static void check_os_katmai_support( void )
      * safe to go ahead and hook out the SSE code throughout Mesa.
      */
     mp_msg(MSGT_CPUDETECT,MSGL_V, "Tests of OS support for SSE %s\n", gCpuCaps.hasSSE ? "passed." : "failed!" );
-#else
-    /* We can't use POSIX signal handling to test the availability of
-     * SSE, so we disable it by default.
-     */
-    mp_msg(MSGT_CPUDETECT,MSGL_WARN, "Cannot test OS support for SSE, disabling to be safe.\n" );
-    gCpuCaps.hasSSE=0;
-#endif /* _POSIX_SOURCE */
 #else
     /* Do nothing on other platforms for now.
      */
@@ -315,6 +307,9 @@ void GetCpuCaps( CpuCaps *caps)
         caps->hasSSE2 = (regs2[3] & (1 << 26 )) >> 26; // 0x4000000
         caps->hasSSE3 = (regs2[2] & 1);        // 0x0000001
         caps->hasSSSE3 = (regs2[2] & (1 << 9 )) >>  9; // 0x0000200
+        caps->hasSSE4 = (regs2[2] & (1 << 19 )) >> 19; // 0x0080000
+        caps->hasSSE42 = (regs2[2] & (1 << 20)) >> 20; // 0x0100000
+        caps->hasAVX  = (regs2[2] & (1 << 28 )) >> 28; // 0x10000000
         caps->hasMMX2 = caps->hasSSE; // SSE cpus supports mmxext too
         cl_size = ((regs2[1] >> 8) & 0xFF)*8;
         if(cl_size) caps->cl_size = cl_size;
@@ -457,7 +452,10 @@ void GetCpuCaps( CpuCaps *caps)
     caps->hasSSE2=0;
     caps->hasSSE3=0;
     caps->hasSSSE3=0;
+    caps->hasSSE4=0;
+    caps->hasSSE42=0;
     caps->hasSSE4a=0;
+    caps->hasAVX=0;
     caps->isX86=0;
     caps->hasAltiVec = 0;
 #if HAVE_ALTIVEC

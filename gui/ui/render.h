@@ -19,8 +19,9 @@
 #ifndef MPLAYER_GUI_RENDER_H
 #define MPLAYER_GUI_RENDER_H
 
-#include "gui/app.h"
+#include "gui/app/app.h"
+#include "gui/wm/ws.h"
 
-void RenderAll(wsTWindow *window, wItem *Items, int nrItems, char *db);
+void RenderAll(wsWindow *window, guiItem *items, int till, char *drawbuf);
 
 #endif /* MPLAYER_GUI_RENDER_H */

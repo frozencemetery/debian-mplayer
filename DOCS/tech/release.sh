@@ -2,8 +2,8 @@
 # will create checkouts and tarballs in the current dir
 ver=1.1
 dst=MPlayer-$ver
-#svnurl=svn://svn.mplayerhq.hu/mplayer/trunk
-svnurl=svn://svn.mplayerhq.hu/mplayer/branches/$ver
+svnurl=svn://svn.mplayerhq.hu/mplayer/trunk
+#svnurl=svn://svn.mplayerhq.hu/mplayer/branches/$ver
 
 rm -rf $dst/ $dst-DOCS/ $dst.tar*
 
@@ -25,7 +25,7 @@ mv $dst-DOCS/DOCS/HTML $dst/DOCS
 rm -rf $dst-DOCS/
 
 # git archive unfortunately is refused
-git clone --depth 1 git://git.videolan.org/ffmpeg.git $dst/ffmpeg
+git clone --depth 1 git://source.ffmpeg.org/ffmpeg.git $dst/ffmpeg
 rm -rf $dst/.git* $dst/ffmpeg/.git*
 
 # create .tar.gz and .tar.xz files

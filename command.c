@@ -16,10 +16,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#define _BSD_SOURCE
+
 #include <stdlib.h>
 #include <inttypes.h>
 #include <unistd.h>
 #include <string.h>
+#include <strings.h>
 
 #include "config.h"
 #include "command.h"
@@ -38,6 +41,7 @@
 #include "libmpcodecs/vf.h"
 #include "libmpcodecs/vd.h"
 #include "libvo/video_out.h"
+#include "libvo/aspect.h"
 #include "sub/font_load.h"
 #include "playtree.h"
 #include "libao2/audio_out.h"
@@ -72,27 +76,28 @@
 #include "libavutil/avstring.h"
 #include "edl.h"
 
+#define IS_STREAMTYPE(t) (mpctx->stream && mpctx->stream->type == STREAMTYPE_##t)
+
 static void rescale_input_coordinates(int ix, int iy, double *dx, double *dy)
 {
     //remove the borders, if any, and rescale to the range [0,1],[0,1]
-    if (vo_fs) {                //we are in full-screen mode
-        if (vo_screenwidth > vo_dwidth) //there are borders along the x axis
-            ix -= (vo_screenwidth - vo_dwidth) / 2;
-        if (vo_screenheight > vo_dheight)       //there are borders along the y axis (usual way)
-            iy -= (vo_screenheight - vo_dheight) / 2;
-
-        if (ix < 0 || ix > vo_dwidth) {
-            *dx = *dy = -1.0;
-            return;
-        }                       //we are on one of the borders
-        if (iy < 0 || iy > vo_dheight) {
-            *dx = *dy = -1.0;
-            return;
-        }                       //we are on one of the borders
+    int w = vo_dwidth, h = vo_dheight;
+    if (aspect_scaling()) {
+        aspect(&w, &h, A_WINZOOM);
+        panscan_calc_windowed();
+        w += vo_panscan_x;
+        h += vo_panscan_y;
+        ix -= (vo_dwidth  - w) / 2;
+        iy -= (vo_dheight - h) / 2;
+    }
+    if (ix < 0 || ix > w || iy < 0 || iy > h) {
+        // ignore movements outside movie area
+        *dx = *dy = -1.0;
+        return;
     }
 
-    *dx = (double) ix / (double) vo_dwidth;
-    *dy = (double) iy / (double) vo_dheight;
+    *dx = (double) ix / (double) w;
+    *dy = (double) iy / (double) h;
 
     mp_msg(MSGT_CPLAYER, MSGL_V,
            "\r\nrescaled coordinates: %.3f, %.3f, screen (%d x %d), vodisplay: (%d, %d), fullscreen: %d\r\n",
@@ -150,7 +155,7 @@ static void update_global_sub_size(MPContext *mpctx)
 
     // update number of demuxer sub streams
     for (i = 0; i < MAX_S_STREAMS; i++)
-        if (mpctx->demuxer->s_streams[i])
+        if (mpctx->demuxer && mpctx->demuxer->s_streams[i])
             cnt++;
     if (cnt > mpctx->sub_counts[SUB_SOURCE_DEMUX])
         mpctx->sub_counts[SUB_SOURCE_DEMUX] = cnt;
@@ -163,7 +168,7 @@ static void update_global_sub_size(MPContext *mpctx)
     // update global_sub_pos if we auto-detected a demuxer sub
     if (mpctx->global_sub_pos == -1) {
         int sub_id = -1;
-        if (mpctx->demuxer->sub)
+        if (mpctx->demuxer && mpctx->demuxer->sub)
             sub_id = mpctx->demuxer->sub->id;
         if (sub_id < 0)
             sub_id = dvdsub_id;
@@ -194,7 +199,7 @@ static void log_sub(void)
     fname = get_path("subtitle_log");
     f = fopen(fname, "a");
     if (!f)
-        return;
+        goto out;
     fprintf(f, "----------------------------------------------------------\n");
     if (subdata->sub_uses_time) {
         fprintf(f,
@@ -212,6 +217,8 @@ static void log_sub(void)
         fprintf(f, "%s\n", vo_sub_last->text[i]);
     }
     fclose(f);
+out:
+    free(fname);
 }
 
 
@@ -1060,6 +1067,7 @@ static int mp_property_fullscreen(m_option_t *prop, int action, void *arg,
         M_PROPERTY_CLAMP(prop, *(int *) arg);
         if (vo_fs == !!*(int *) arg)
             return M_PROPERTY_OK;
+        /* Fallthrough to toggle */
     case M_PROPERTY_STEP_UP:
     case M_PROPERTY_STEP_DOWN:
 #ifdef CONFIG_GUI
@@ -1078,7 +1086,8 @@ static int mp_property_fullscreen(m_option_t *prop, int action, void *arg,
 static int mp_property_deinterlace(m_option_t *prop, int action,
                                    void *arg, MPContext *mpctx)
 {
-    int deinterlace;
+    int deinterlace, deinterlace_old;
+    int result;
     vf_instance_t *vf;
     if (!mpctx->sh_video || !mpctx->sh_video->vfilter)
         return M_PROPERTY_UNAVAILABLE;
@@ -1093,16 +1102,19 @@ static int mp_property_deinterlace(m_option_t *prop, int action,
         if (!arg)
             return M_PROPERTY_ERROR;
         M_PROPERTY_CLAMP(prop, *(int *) arg);
-        vf->control(vf, VFCTRL_SET_DEINTERLACE, arg);
-        return M_PROPERTY_OK;
+        result = vf->control(vf, VFCTRL_SET_DEINTERLACE, arg);
+        return (result == CONTROL_OK) ? M_PROPERTY_OK : M_PROPERTY_UNAVAILABLE;
     case M_PROPERTY_STEP_UP:
     case M_PROPERTY_STEP_DOWN:
-        vf->control(vf, VFCTRL_GET_DEINTERLACE, &deinterlace);
-        deinterlace = !deinterlace;
-        vf->control(vf, VFCTRL_SET_DEINTERLACE, &deinterlace);
+        vf->control(vf, VFCTRL_GET_DEINTERLACE, &deinterlace_old);
+        deinterlace = !deinterlace_old;
+        result = vf->control(vf, VFCTRL_SET_DEINTERLACE, &deinterlace);
+        if (result != CONTROL_OK) {
+            deinterlace = deinterlace_old;
+        }
         set_osd_msg(OSD_MSG_SPEED, 1, osd_duration, MSGTR_OSDDeinterlace,
             deinterlace ? MSGTR_Enabled : MSGTR_Disabled);
-        return M_PROPERTY_OK;
+        return (result == CONTROL_OK) ? M_PROPERTY_OK : M_PROPERTY_UNAVAILABLE;
     }
     return M_PROPERTY_NOT_IMPLEMENTED;
 }
@@ -1111,7 +1123,7 @@ static int mp_property_capture(m_option_t *prop, int action,
                                void *arg, MPContext *mpctx)
 {
     int ret;
-    int capturing = !!mpctx->stream->capture_file;
+    int capturing = mpctx->stream && mpctx->stream->capture_file;
 
     if (!mpctx->stream)
         return M_PROPERTY_UNAVAILABLE;
@@ -1200,6 +1212,7 @@ static int mp_property_vo_flag(m_option_t *prop, int action, void *arg,
         M_PROPERTY_CLAMP(prop, *(int *) arg);
         if (*vo_var == !!*(int *) arg)
             return M_PROPERTY_OK;
+        /* Fallthrough to toggle */
     case M_PROPERTY_STEP_UP:
     case M_PROPERTY_STEP_DOWN:
         if (vo_config_count)
@@ -1484,7 +1497,12 @@ static int mp_property_sub(m_option_t *prop, int action, void *arg,
         }
         if (dvdsub_id >= 0) {
             char lang[40] = MSGTR_Unknown;
-            demuxer_sub_lang(mpctx->demuxer, dvdsub_id, lang, sizeof(lang));
+            int id = dvdsub_id;
+            // HACK: for DVDs sub->sh/id will be invalid until
+            // we actually get the first packet
+            if (d_sub && d_sub->sh)
+                id = d_sub->id;
+            demuxer_sub_lang(mpctx->demuxer, id, lang, sizeof(lang));
             snprintf(*(char **) arg, 63, "(%d) %s", dvdsub_id, lang);
             return M_PROPERTY_OK;
         }
@@ -1536,6 +1554,7 @@ static int mp_property_sub(m_option_t *prop, int action, void *arg,
         if (d_sub->id > -2)
             reset_spu = 1;
         d_sub->id = -2;
+        d_sub->sh = NULL;
     }
 #ifdef CONFIG_ASS
     ass_track = 0;
@@ -1586,8 +1605,8 @@ static int mp_property_sub(m_option_t *prop, int action, void *arg,
     }
 #ifdef CONFIG_DVDREAD
     if (vo_spudec
-        && (mpctx->stream->type == STREAMTYPE_DVD
-            || mpctx->stream->type == STREAMTYPE_DVDNAV)
+        && (IS_STREAMTYPE(DVD)
+            || IS_STREAMTYPE(DVDNAV))
         && dvdsub_id < 0 && reset_spu) {
         d_sub->id = -2;
         d_sub->sh = NULL;
@@ -1761,6 +1780,8 @@ static int mp_property_sub_by_type(m_option_t *prop, int action, void *arg,
                     while (new_pos >= 0
                             && sub_source(mpctx) != source)
                         new_pos--;
+                    // cache for next time
+                    max_sub_pos_for_source = new_pos;
                 }
                 else
                     new_pos = max_sub_pos_for_source;
@@ -2699,10 +2720,13 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
         case MP_CMD_SWITCH_RATIO:
             if (!sh_video)
                 break;
-            if (cmd->nargs == 0 || cmd->args[0].v.f == -1)
-                movie_aspect = (float) sh_video->disp_w / sh_video->disp_h;
-            else
+            if (cmd->nargs == 0)
+                movie_aspect = -1.0;
+            else if (cmd->args[0].v.f == -1 || cmd->args[0].v.f >= 0)
                 movie_aspect = cmd->args[0].v.f;
+            else
+                mp_msg(MSGT_CPLAYER, MSGL_WARN, MSGTR_InvalidSwitchRatio,
+                       cmd->args[0].v.f);
             mpcodecs_config_vo(sh_video, sh_video->disp_w, sh_video->disp_h, 0);
             break;
 
@@ -2740,10 +2764,11 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
             file_filter = cmd->args[0].v.i;
             break;
 
-        case MP_CMD_QUIT:
-            exit_player_with_rc(EXIT_QUIT,
-                                (cmd->nargs > 0) ? cmd->args[0].v.i : 0);
-
+        case MP_CMD_QUIT: {
+                int rc = cmd->nargs > 0 ? cmd->args[0].v.i : 0;
+                mp_cmd_free(cmd);
+                exit_player_with_rc(EXIT_QUIT, rc);
+            }
         case MP_CMD_PLAY_TREE_STEP:{
                 int n = cmd->args[0].v.i == 0 ? 1 : cmd->args[0].v.i;
                 int force = cmd->args[1].v.i;
@@ -2942,7 +2967,7 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
 
 #ifdef CONFIG_RADIO
         case MP_CMD_RADIO_STEP_CHANNEL:
-            if (mpctx->demuxer->stream->type == STREAMTYPE_RADIO) {
+            if (IS_STREAMTYPE(RADIO)) {
                 int v = cmd->args[0].v.i;
                 if (v > 0)
                     radio_step_channel(mpctx->demuxer->stream,
@@ -2959,7 +2984,7 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
             break;
 
         case MP_CMD_RADIO_SET_CHANNEL:
-            if (mpctx->demuxer->stream->type == STREAMTYPE_RADIO) {
+            if (IS_STREAMTYPE(RADIO)) {
                 radio_set_channel(mpctx->demuxer->stream, cmd->args[0].v.s);
                 if (radio_get_channel_name(mpctx->demuxer->stream)) {
                     set_osd_msg(OSD_MSG_RADIO_CHANNEL, 1, osd_duration,
@@ -2970,12 +2995,12 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
             break;
 
         case MP_CMD_RADIO_SET_FREQ:
-            if (mpctx->demuxer->stream->type == STREAMTYPE_RADIO)
+            if (IS_STREAMTYPE(RADIO))
                 radio_set_freq(mpctx->demuxer->stream, cmd->args[0].v.f);
             break;
 
         case MP_CMD_RADIO_STEP_FREQ:
-            if (mpctx->demuxer->stream->type == STREAMTYPE_RADIO)
+            if (IS_STREAMTYPE(RADIO))
                 radio_step_freq(mpctx->demuxer->stream, cmd->args[0].v.f);
             break;
 #endif
@@ -2990,7 +3015,7 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
                 tv_set_freq((tvi_handle_t *) (mpctx->demuxer->priv),
                             cmd->args[0].v.f * 16.0);
 #ifdef CONFIG_PVR
-            else if (mpctx->stream && mpctx->stream->type == STREAMTYPE_PVR) {
+            else if (IS_STREAMTYPE(PVR)) {
               pvr_set_freq (mpctx->stream, ROUND (cmd->args[0].v.f));
               set_osd_msg (OSD_MSG_TV_CHANNEL, 1, osd_duration, "%s: %s",
                            pvr_get_current_channelname (mpctx->stream),
@@ -3004,7 +3029,7 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
                 tv_step_freq((tvi_handle_t *) (mpctx->demuxer->priv),
                             cmd->args[0].v.f * 16.0);
 #ifdef CONFIG_PVR
-            else if (mpctx->stream && mpctx->stream->type == STREAMTYPE_PVR) {
+            else if (IS_STREAMTYPE(PVR)) {
               pvr_force_freq_step (mpctx->stream, ROUND (cmd->args[0].v.f));
               set_osd_msg (OSD_MSG_TV_CHANNEL, 1, osd_duration, "%s: f %d",
                            pvr_get_current_channelname (mpctx->stream),
@@ -3038,8 +3063,7 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
                     }
                 }
 #ifdef CONFIG_PVR
-                else if (mpctx->stream &&
-                         mpctx->stream->type == STREAMTYPE_PVR) {
+                else if (IS_STREAMTYPE(PVR)) {
                   pvr_set_channel_step (mpctx->stream, cmd->args[0].v.i);
                   set_osd_msg (OSD_MSG_TV_CHANNEL, 1, osd_duration, "%s: %s",
                                pvr_get_current_channelname (mpctx->stream),
@@ -3048,7 +3072,7 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
 #endif /* CONFIG_PVR */
             }
 #ifdef CONFIG_DVBIN
-            if (mpctx->stream->type == STREAMTYPE_DVB) {
+            if (IS_STREAMTYPE(DVB)) {
                     int dir;
                     int v = cmd->args[0].v.i;
 
@@ -3076,7 +3100,7 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
                 }
             }
 #ifdef CONFIG_PVR
-            else if (mpctx->stream && mpctx->stream->type == STREAMTYPE_PVR) {
+            else if (IS_STREAMTYPE(PVR)) {
               pvr_set_channel (mpctx->stream, cmd->args[0].v.s);
               set_osd_msg (OSD_MSG_TV_CHANNEL, 1, osd_duration, "%s: %s",
                            pvr_get_current_channelname (mpctx->stream),
@@ -3087,7 +3111,7 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
 
 #ifdef CONFIG_DVBIN
         case MP_CMD_DVB_SET_CHANNEL:
-            if (mpctx->stream->type == STREAMTYPE_DVB) {
+            if (IS_STREAMTYPE(DVB)) {
                         mpctx->last_dvb_step = 1;
 
                     if (dvb_set_channel
@@ -3107,7 +3131,7 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
                 }
             }
 #ifdef CONFIG_PVR
-            else if (mpctx->stream && mpctx->stream->type == STREAMTYPE_PVR) {
+            else if (IS_STREAMTYPE(PVR)) {
               pvr_set_lastchannel (mpctx->stream);
               set_osd_msg (OSD_MSG_TV_CHANNEL, 1, osd_duration, "%s: %s",
                            pvr_get_current_channelname (mpctx->stream),
@@ -3346,7 +3370,11 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
         case MP_CMD_RUN:
 #ifndef __MINGW32__
             if (!fork()) {
-                execl("/bin/sh", "sh", "-c", cmd->args[0].v.s, NULL);
+                char *exp_cmd = property_expand_string(mpctx, cmd->args[0].v.s);
+                if (exp_cmd) {
+                    execl("/bin/sh", "sh", "-c", exp_cmd, NULL);
+                    free(exp_cmd);
+                }
                 exit(0);
             }
 #endif
@@ -3363,7 +3391,7 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
                 pointer_y = cmd->args[1].v.i;
                 rescale_input_coordinates(pointer_x, pointer_y, &dx, &dy);
 #ifdef CONFIG_DVDNAV
-                if (mpctx->stream->type == STREAMTYPE_DVDNAV
+                if (IS_STREAMTYPE(DVDNAV)
                     && dx > 0.0 && dy > 0.0) {
                     int button = -1;
                     pointer_x = (int) (dx * (double) sh_video->disp_w);
@@ -3387,7 +3415,7 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
                 int button = -1;
                 int i;
                 mp_command_type command = 0;
-                if (mpctx->stream->type != STREAMTYPE_DVDNAV)
+                if (!IS_STREAMTYPE(DVDNAV))
                     break;
 
                 for (i = 0; mp_dvdnav_bindings[i].name; i++)
@@ -3404,7 +3432,7 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
             break;
 
         case MP_CMD_SWITCH_TITLE:
-            if (mpctx->stream->type == STREAMTYPE_DVDNAV)
+            if (IS_STREAMTYPE(DVDNAV))
                 mp_dvdnav_switch_title(mpctx->stream, cmd->args[0].v.i);
             break;
 
@@ -3416,6 +3444,7 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
             af_uninit(mpctx->mixer.afilter);
             af_init(mpctx->mixer.afilter);
         }
+        /* Fallthrough to add filters like for af_add */
     case MP_CMD_AF_ADD:
     case MP_CMD_AF_DEL:
         if (!sh_audio)

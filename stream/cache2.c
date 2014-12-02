@@ -29,7 +29,7 @@
 #define INITIAL_FILL_USLEEP_COUNT 10
 #define FILL_USLEEP_TIME 50000
 #define PREFILL_SLEEP_TIME 200
-#define CONTROL_SLEEP_TIME 0
+#define CONTROL_SLEEP_TIME 1
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,6 +40,7 @@
 #include <errno.h>
 
 #include "libavutil/avutil.h"
+#include "libavutil/common.h"
 #include "osdep/shmem.h"
 #include "osdep/timer.h"
 #if defined(__MINGW32__)
@@ -91,8 +92,9 @@ typedef struct {
   // callback
   stream_t* stream;
   volatile int control;
-  volatile unsigned control_uint_arg;
+  volatile uint64_t control_uint_arg;
   volatile double control_double_arg;
+  volatile char *control_char_p_arg;
   volatile struct stream_lang_req control_lang_arg;
   volatile int control_res;
   volatile double stream_time_length;
@@ -264,6 +266,7 @@ static int cache_fill(cache_vars_t *s)
 static int cache_execute_control(cache_vars_t *s) {
   double double_res;
   unsigned uint_res;
+  uint64_t uint64_res;
   int needs_flush = 0;
   static unsigned last;
   int quit = s->control == -2;
@@ -309,15 +312,24 @@ static int cache_execute_control(cache_vars_t *s) {
     case STREAM_CTRL_SET_ANGLE:
       needs_flush = 1;
       uint_res = s->control_uint_arg;
+    case STREAM_CTRL_GET_NUM_TITLES:
     case STREAM_CTRL_GET_NUM_CHAPTERS:
+    case STREAM_CTRL_GET_CURRENT_TITLE:
     case STREAM_CTRL_GET_CURRENT_CHAPTER:
     case STREAM_CTRL_GET_NUM_ANGLES:
     case STREAM_CTRL_GET_ANGLE:
       s->control_res = s->stream->control(s->stream, s->control, &uint_res);
       s->control_uint_arg = uint_res;
       break;
+    case STREAM_CTRL_GET_SIZE:
+      s->control_res = s->stream->control(s->stream, s->control, &uint64_res);
+      s->control_uint_arg = uint64_res;
+      break;
     case STREAM_CTRL_GET_LANG:
       s->control_res = s->stream->control(s->stream, s->control, (void *)&s->control_lang_arg);
+      break;
+    case STREAM_CTRL_GET_CURRENT_CHANNEL:
+      s->control_res = s->stream->control(s->stream, s->control, &s->control_char_p_arg);
       break;
     default:
       s->control_res = STREAM_UNSUPPORTED;
@@ -635,12 +647,19 @@ int cache_do_control(stream_t *stream, int cmd, void *arg) {
       return s->stream_time_pos != MP_NOPTS_VALUE ? STREAM_OK : STREAM_UNSUPPORTED;
     case STREAM_CTRL_GET_LANG:
       s->control_lang_arg = *(struct stream_lang_req *)arg;
+    case STREAM_CTRL_GET_NUM_TITLES:
     case STREAM_CTRL_GET_NUM_CHAPTERS:
+    case STREAM_CTRL_GET_CURRENT_TITLE:
     case STREAM_CTRL_GET_CURRENT_CHAPTER:
     case STREAM_CTRL_GET_ASPECT_RATIO:
     case STREAM_CTRL_GET_NUM_ANGLES:
     case STREAM_CTRL_GET_ANGLE:
+    case STREAM_CTRL_GET_SIZE:
     case -2:
+      s->control = cmd;
+      break;
+    case STREAM_CTRL_GET_CURRENT_CHANNEL:
+      s->control_char_p_arg = *(char **)arg;
       s->control = cmd;
       break;
     default:
@@ -674,14 +693,22 @@ int cache_do_control(stream_t *stream, int cmd, void *arg) {
     case STREAM_CTRL_GET_ASPECT_RATIO:
       *(double *)arg = s->control_double_arg;
       break;
+    case STREAM_CTRL_GET_NUM_TITLES:
     case STREAM_CTRL_GET_NUM_CHAPTERS:
+    case STREAM_CTRL_GET_CURRENT_TITLE:
     case STREAM_CTRL_GET_CURRENT_CHAPTER:
     case STREAM_CTRL_GET_NUM_ANGLES:
     case STREAM_CTRL_GET_ANGLE:
       *(unsigned *)arg = s->control_uint_arg;
       break;
+    case STREAM_CTRL_GET_SIZE:
+      *(uint64_t *)arg = s->control_uint_arg;
+      break;
     case STREAM_CTRL_GET_LANG:
       *(struct stream_lang_req *)arg = s->control_lang_arg;
+      break;
+    case STREAM_CTRL_GET_CURRENT_CHANNEL:
+      *(char **)arg = (char *)s->control_char_p_arg;
       break;
   }
   return s->control_res;

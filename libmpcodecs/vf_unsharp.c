@@ -181,6 +181,7 @@ static void get_image( struct vf_instance *vf, mp_image_t *mpi ) {
 
 static int put_image( struct vf_instance *vf, mp_image_t *mpi, double pts) {
     mp_image_t *dmpi = mpi->priv;
+    mpi->priv = NULL;
 
     if( !(mpi->flags & MP_IMGFLAG_DIRECT) )
         // no DR, so get a new image! hope we'll get DR buffer:
@@ -192,11 +193,11 @@ static int put_image( struct vf_instance *vf, mp_image_t *mpi, double pts) {
 
     vf_clone_mpi_attributes(dmpi, mpi);
 
-#if HAVE_MMX
+#if HAVE_MMX_INLINE
     if(gCpuCaps.hasMMX)
         __asm__ volatile ("emms\n\t");
 #endif
-#if HAVE_MMX2
+#if HAVE_MMXEXT_INLINE
     if(gCpuCaps.hasMMX2)
         __asm__ volatile ("sfence\n\t");
 #endif

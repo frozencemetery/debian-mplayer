@@ -21,11 +21,17 @@
  * @brief List management
  */
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "list.h"
+#include "mem.h"
 #include "string.h"
+#include "gui/app/gui.h"
+
+#include "mp_msg.h"
+#include "path.h"
 
 static plItem *plList;
 static plItem *plCurrent;
@@ -42,9 +48,13 @@ static urlItem *urlList;
  *         pointer to current list item (ITEM command) or
  *         NULL (DELETE or unknown command)
  *
+ * @note PLAYLIST_ITEM_GET_POS returns the position number as pointer value
+ *       (if @a data is NULL the last position number, i.e. number of items),
+ *       and position 0 means "not found"
  */
 void *listMgr(int cmd, void *data)
 {
+    uintptr_t pos;
     plItem *pdat  = (plItem *)data;
     urlItem *udat = (urlItem *)data;
 
@@ -90,6 +100,21 @@ void *listMgr(int cmd, void *data)
         } else
             return listMgr(PLAYLIST_ITEM_APPEND, pdat);
 
+    case PLAYLIST_ITEM_FIND:
+
+        if (plList) {
+            plItem *item = plList;
+
+            do {
+                if (gstrcmp(item->path, pdat->path) == 0 && gstrcmp(item->name, pdat->name) == 0)
+                    return item;
+
+                item = item->next;
+            } while (item);
+        }
+
+        return NULL;
+
     case PLAYLIST_ITEM_SET_CURR:
 
         plCurrent = pdat;
@@ -98,6 +123,31 @@ void *listMgr(int cmd, void *data)
     case PLAYLIST_ITEM_GET_CURR:
 
         return plCurrent;
+
+    case PLAYLIST_ITEM_GET_POS:
+
+        pos = 0;
+
+        if (plList) {
+            uintptr_t i  = 0;
+            plItem *item = plList;
+
+            do {
+                i++;
+
+                if (item == pdat) {
+                    pos = i;
+                    break;
+                }
+
+                item = item->next;
+            } while (item);
+
+            if (!pdat)
+                pos = i;
+        }
+
+        return (void *)pos;
 
     case PLAYLIST_ITEM_GET_PREV:
 
@@ -113,6 +163,19 @@ void *listMgr(int cmd, void *data)
         if (plCurrent && plCurrent->next) {
             plCurrent = plCurrent->next;
             return plCurrent;
+        }
+
+        return NULL;
+
+    case PLAYLIST_ITEM_GET_LAST:
+
+        if (plList) {
+            plItem *item = plList;
+
+            while (item->next)
+                item = item->next;
+
+            return item;
         }
 
         return NULL;
@@ -207,14 +270,11 @@ void *listMgr(int cmd, void *data)
 }
 
 /**
- * @brief Set list to @a entry.
+ * @brief Free a string list.
  *
- * @param list pointer to the char pointer list
- * @param entry the new (and only) element of the list
- *
- * @note Actually, a new list will be created and the old list will be freed.
+ * @param list pointer to the string list
  */
-void listSet(char ***list, const char *entry)
+void listFree(char ***list)
 {
     if (*list) {
         char **l = *list;
@@ -224,8 +284,21 @@ void listSet(char ***list, const char *entry)
             l++;
         }
 
-        free(*list);
+        nfree(*list);
     }
+}
+
+/**
+ * @brief Set string list to @a entry.
+ *
+ * @param list pointer to the string list
+ * @param entry the new (and only) element of the list
+ *
+ * @note Actually, a new list will be created and the old list will be freed.
+ */
+void listSet(char ***list, const char *entry)
+{
+    listFree(list);
 
     *list = malloc(2 * sizeof(char *));
 
@@ -236,11 +309,11 @@ void listSet(char ***list, const char *entry)
 }
 
 /**
- * @brief Replace the first element in list that starts with @a search.
+ * @brief Replace the first element in a string list that starts with @a search.
  *
  * @note If no such element is found, @a replace will be appended.
  *
- * @param list pointer to the char pointer list
+ * @param list pointer to the string list
  * @param search element to search
  * @param replace replacement element
  */
@@ -274,4 +347,79 @@ void listRepl(char ***list, const char *search, const char *replace)
 
     (*list)[i]     = strdup(replace);
     (*list)[i + 1] = NULL;
+}
+
+/**
+ * @brief Duplicate a string list (by allocating new memory).
+ *
+ * @note The list must be NULL-terminated.
+ *
+ * @param list string list to be duplicated
+ *
+ * @return duplicated list
+ */
+char **listDup(const char *const *list)
+{
+    char **dup = NULL;
+
+    if (list) {
+        int i = 0;
+
+        while (list[i])
+            i++;
+
+        dup = calloc(i + 1, sizeof(char *));
+
+        if (dup) {
+            while (--i >= 0)
+                dup[i] = strdup(list[i]);
+        }
+    }
+
+    return dup;
+}
+
+/**
+ * @brief Append or insert a file to the playlist.
+ *
+ * @param what file to be added
+ * @param how command (#PLAYLIST_ITEM_APPEND or #PLAYLIST_ITEM_INSERT) to be performed
+ *
+ * @return #True (ok) or #False (error)
+ */
+int add_to_gui_playlist(const char *what, int how)
+{
+    const char *file;
+    char *path;
+    plItem *item;
+
+    if (!what || !*what || (how != PLAYLIST_ITEM_APPEND && how != PLAYLIST_ITEM_INSERT))
+        return False;
+
+    file = mp_basename(what);
+    path = strdup(what);
+
+    if (!path)
+        return False;
+
+    if (file > what)
+        path[file - what - 1] = 0;
+    else
+        strcpy(path, ".");
+
+    item = calloc(1, sizeof(*item));
+
+    if (!item) {
+        free(path);
+        return False;
+    }
+
+    mp_msg(MSGT_GPLAYER, MSGL_DBG2, "[list] adding %s/%s\n", path, file);
+
+    item->name = strdup(file);
+    item->path = path;
+
+    listMgr(how, item);
+
+    return True;
 }

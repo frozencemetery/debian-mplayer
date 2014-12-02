@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <errno.h>
 
 #include "config.h"
@@ -270,12 +271,6 @@ static uint32_t  vidix_draw_image(mp_image_t *mpi){
     return VO_TRUE;
 }
 
-static int vidix_draw_frame(uint8_t *image[])
-{
-  mp_msg(MSGT_VO,MSGL_WARN, MSGTR_LIBVO_SUB_VIDIX_DummyVidixdrawframeWasCalled);
-  return -1;
-}
-
 static void     vidix_flip_page(void)
 {
   if( mp_msg_test(MSGT_VO,MSGL_DBG2) ) {
@@ -290,8 +285,7 @@ static void     vidix_flip_page(void)
 static void draw_alpha(int x0,int y0, int w,int h, unsigned char* src, unsigned char *srca, int stride)
 {
     uint32_t apitch,bespitch;
-    char *lvo_mem;
-    lvo_mem = vidix_mem + vidix_play.offsets[next_frame] + vidix_play.offset.y;
+    uint8_t *lvo_mem = vidix_mem + vidix_play.offsets[next_frame] + vidix_play.offset.y;
     apitch = vidix_play.dest.pitch.y-1;
     switch(vidix_play.fourcc){
     case IMGFMT_NV12:
@@ -692,7 +686,7 @@ int vidix_preinit(const char *drvname,vo_functions_t *server)
 	mp_msg(MSGT_VO,MSGL_V, "[VO_SUB_VIDIX] Author: %s.\n", vidix_cap.author);
 	/* we are able to tune up this stuff depend on fourcc format */
 	server->draw_slice=vidix_draw_slice;
-	server->draw_frame=vidix_draw_frame;
+	server->draw_frame=NULL;
 	server->flip_page=vidix_flip_page;
 	server->draw_osd=vidix_draw_osd;
 //	server_control = server->control;

@@ -84,6 +84,7 @@ char * sub_osd_names_short[] ={ "", "|>", "||", "[]", "<<" , ">>", "", "", "", "
 //static int vo_font_loaded=-1;
 font_desc_t* vo_font=NULL;
 font_desc_t* sub_font=NULL;
+char *subtitle_font_encoding = NULL;
 
 unsigned char* vo_osd_text=NULL;
 void* vo_osd_teletext_page=NULL;
@@ -942,6 +943,8 @@ static inline void vo_update_text_sub(mp_osd_obj_t *obj, int dxs, int dys)
 		    obj->params.subtitle.utbl[utblc++] = c;
 		    k++;
 		}
+		if (utblc > MAX_UCS)
+		    break;
 		obj->params.subtitle.utbl[utblc++] = ' ';
 	    }
 	    obj->params.subtitle.utbl[utblc - 1] = 0;
@@ -977,8 +980,10 @@ static inline void vo_update_text_sub(mp_osd_obj_t *obj, int dxs, int dys)
 
     if (obj->y < 0)
         obj->y = 0;
+    if (sub_pos <= 100 && obj->y > dys - h)
+        obj->y = FFMAX(dys - h, 0);
     if (obj->y > dys - h)
-        obj->y = dys - h;
+        h = FFMAX(dys - obj->y, 0);
 
     obj->bbox.y2 = obj->y + h;
 

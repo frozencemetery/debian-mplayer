@@ -43,6 +43,7 @@
 #include "subopt-helper.h"
 #include "mp_msg.h"
 #include "video_out.h"
+#define NO_DRAW_SLICE
 #include "video_out_internal.h"
 #include "mp_core.h"
 #include "help_mp.h"
@@ -134,8 +135,7 @@ static void jpeg_mkdir(const char *buf, int verbose) {
                     exit_player(EXIT_ERROR);
                 }
 
-                mp_msg(MSGT_VO, MSGL_INFO, "%s: %s - %s\n", info.short_name,
-                        buf, MSGTR_VO_DirExistsAndIsWritable);
+                mp_msg(MSGT_VO, MSGL_INFO, "%s: %s: %s\n", info.short_name, MSGTR_VO_OutputDirectory, buf);
                 break;
 
             default:
@@ -284,14 +284,6 @@ static void draw_osd(void)
 
 static void flip_page (void)
 {
-}
-
-/* ------------------------------------------------------------------------- */
-
-static int draw_slice(uint8_t *src[], int stride[], int w, int h,
-                           int x, int y)
-{
-    return 0;
 }
 
 /* ------------------------------------------------------------------------- */
