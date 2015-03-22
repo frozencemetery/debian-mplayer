@@ -54,7 +54,6 @@ Build-Depends:
  libsdl1.2-dev | libsdl1.1-dev,
  libsmbclient-dev,
  libspeex-dev,
- libsvga1-dev [i386 amd64],
  libswscale-ffmpeg-dev (>= 4:0.8~),
  libtheora-dev (>= 1.0~beta1),
  libvdpau-dev [i386 amd64],
