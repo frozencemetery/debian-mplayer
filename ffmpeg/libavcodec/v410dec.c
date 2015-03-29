@@ -3,72 +3,64 @@
  *
  * Copyright (c) 2011 Derek Buitenhuis
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include "libavutil/common.h"
 #include "libavutil/intreadwrite.h"
 #include "avcodec.h"
+#include "internal.h"
 
 static av_cold int v410_decode_init(AVCodecContext *avctx)
 {
-    avctx->pix_fmt             = PIX_FMT_YUV444P10;
+    avctx->pix_fmt             = AV_PIX_FMT_YUV444P10;
     avctx->bits_per_raw_sample = 10;
 
     if (avctx->width & 1) {
-        av_log(avctx, AV_LOG_ERROR, "v410 requires even width.\n");
-        return AVERROR_INVALIDDATA;
-    }
-
-    avctx->coded_frame = avcodec_alloc_frame();
-
-    if (!avctx->coded_frame) {
-        av_log(avctx, AV_LOG_ERROR, "Could not allocate frame.\n");
-        return AVERROR(ENOMEM);
+        if (avctx->err_recognition & AV_EF_EXPLODE) {
+            av_log(avctx, AV_LOG_ERROR, "v410 requires width to be even.\n");
+            return AVERROR_INVALIDDATA;
+        } else {
+            av_log(avctx, AV_LOG_WARNING, "v410 requires width to be even, continuing anyway.\n");
+        }
     }
 
     return 0;
 }
 
 static int v410_decode_frame(AVCodecContext *avctx, void *data,
-                             int *data_size, AVPacket *avpkt)
+                             int *got_frame, AVPacket *avpkt)
 {
-    AVFrame *pic = avctx->coded_frame;
+    AVFrame *pic = data;
     uint8_t *src = avpkt->data;
     uint16_t *y, *u, *v;
     uint32_t val;
-    int i, j;
-
-    if (pic->data[0])
-        avctx->release_buffer(avctx, pic);
+    int i, j, ret;
 
     if (avpkt->size < 4 * avctx->height * avctx->width) {
         av_log(avctx, AV_LOG_ERROR, "Insufficient input data.\n");
         return AVERROR(EINVAL);
     }
 
-    pic->reference = 0;
-
-    if (avctx->get_buffer(avctx, pic) < 0) {
-        av_log(avctx, AV_LOG_ERROR, "Could not allocate buffer.\n");
-        return AVERROR(ENOMEM);
-    }
+    if ((ret = ff_get_buffer(avctx, pic, 0)) < 0)
+        return ret;
 
     pic->key_frame = 1;
-    pic->pict_type = FF_I_TYPE;
+    pic->pict_type = AV_PICTURE_TYPE_I;
 
     y = (uint16_t *)pic->data[0];
     u = (uint16_t *)pic->data[1];
@@ -90,29 +82,17 @@ static int v410_decode_frame(AVCodecContext *avctx, void *data,
         v += pic->linesize[2] >> 1;
     }
 
-    *data_size = sizeof(AVFrame);
-    *(AVFrame *)data = *pic;
+    *got_frame = 1;
 
     return avpkt->size;
 }
 
-static av_cold int v410_decode_close(AVCodecContext *avctx)
-{
-    if (avctx->coded_frame->data[0])
-        avctx->release_buffer(avctx, avctx->coded_frame);
-
-    av_freep(&avctx->coded_frame);
-
-    return 0;
-}
-
 AVCodec ff_v410_decoder = {
     .name         = "v410",
+    .long_name    = NULL_IF_CONFIG_SMALL("Uncompressed 4:4:4 10-bit"),
     .type         = AVMEDIA_TYPE_VIDEO,
-    .id           = CODEC_ID_V410,
+    .id           = AV_CODEC_ID_V410,
     .init         = v410_decode_init,
     .decode       = v410_decode_frame,
-    .close        = v410_decode_close,
     .capabilities = CODEC_CAP_DR1,
-    .long_name    = NULL_IF_CONFIG_SMALL("Uncompressed 4:4:4 10-bit"),
 };

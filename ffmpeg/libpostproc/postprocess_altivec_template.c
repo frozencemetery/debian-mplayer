@@ -3,20 +3,20 @@
  *
  * based on code by Copyright (C) 2001-2003 Michael Niedermayer (michaelni@gmx.at)
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or modify
+ * FFmpeg is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Libav; if not, write to the Free Software
+ * along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -825,7 +825,7 @@ static inline void dering_altivec(uint8_t src[], int stride, PPContext *c) {
 #define doHorizDefFilter_altivec(a...) doHorizDefFilter_C(a)
 #define do_a_deblock_altivec(a...) do_a_deblock_C(a)
 
-static inline void RENAME(tempNoiseReducer)(uint8_t *src, int stride,
+static inline void tempNoiseReducer_altivec(uint8_t *src, int stride,
                                             uint8_t *tempBlurred, uint32_t *tempBlurredPast, int *maxNoise)
 {
     const vector signed char neg1 = vec_splat_s8(-1);

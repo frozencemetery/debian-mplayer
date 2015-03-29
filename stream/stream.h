@@ -29,10 +29,6 @@
 #include <sys/types.h>
 #include <fcntl.h>
 
-#ifndef O_BINARY
-#define O_BINARY 0
-#endif
-
 #define STREAMTYPE_DUMMY -1    // for placeholders, when the actual reading is handled in the demuxer
 #define STREAMTYPE_FILE 0      // read from seekable file
 #define STREAMTYPE_VCD  1      // raw mode-2 CDROM reading, 2324 bytes/sector
@@ -55,7 +51,8 @@
 #define STREAMTYPE_BLURAY 20
 #define STREAMTYPE_BD 21
 
-#define STREAM_BUFFER_SIZE 2048
+#define STREAM_BUFFER_MIN 2048
+#define STREAM_BUFFER_SIZE (2*STREAM_BUFFER_MIN) // must be at least 2*STREAM_BUFFER_MIN
 #define STREAM_MAX_SECTOR_SIZE (8*1024)
 
 #define VCD_SECTOR_SIZE 2352
@@ -99,7 +96,20 @@
 #define STREAM_CTRL_GET_ANGLE 10
 #define STREAM_CTRL_SET_ANGLE 11
 #define STREAM_CTRL_GET_NUM_TITLES 12
+#define STREAM_CTRL_GET_LANG 13
+#define STREAM_CTRL_GET_CURRENT_TITLE 14
+#define STREAM_CTRL_GET_CURRENT_CHANNEL 15
 
+enum stream_ctrl_type {
+	stream_ctrl_audio,
+	stream_ctrl_sub,
+};
+
+struct stream_lang_req {
+	enum stream_ctrl_type type;
+	int id;
+	char buf[40];
+};
 
 typedef enum {
 	streaming_stopped_e,
@@ -116,7 +126,7 @@ typedef struct streaming_control {
 	unsigned int buffer_pos;
 	unsigned int bandwidth;	// The downstream available
 	int (*streaming_read)( int fd, char *buffer, int buffer_size, struct streaming_control *stream_ctrl );
-	int (*streaming_seek)( int fd, off_t pos, struct streaming_control *stream_ctrl );
+	int (*streaming_seek)( int fd, int64_t pos, struct streaming_control *stream_ctrl );
 	void *data;
 } streaming_ctrl_t;
 
@@ -143,7 +153,7 @@ typedef struct stream {
   // Write
   int (*write_buffer)(struct stream *s, char* buffer, int len);
   // Seek
-  int (*seek)(struct stream *s,off_t pos);
+  int (*seek)(struct stream *s, int64_t pos);
   // Control
   // Will be later used to let streams like dvd and cdda report
   // their structure (ie tracks, chapters, etc)
@@ -157,7 +167,7 @@ typedef struct stream {
   int sector_size; // sector size (seek will be aligned on this size if non 0)
   int read_chunk; // maximum amount of data to read at once to limit latency (0 for default)
   unsigned int buf_pos,buf_len;
-  off_t pos,start_pos,end_pos;
+  int64_t pos,start_pos,end_pos;
   int eof;
   int mode; //STREAM_READ or STREAM_WRITE
   unsigned int cache_pid;
@@ -176,13 +186,13 @@ typedef struct stream {
 #endif
 
 int stream_fill_buffer(stream_t *s);
-int stream_seek_long(stream_t *s, off_t pos);
+int stream_seek_long(stream_t *s, int64_t pos);
 void stream_capture_do(stream_t *s);
 
 #ifdef CONFIG_STREAM_CACHE
-int stream_enable_cache(stream_t *stream,int size,int min,int prefill);
+int stream_enable_cache(stream_t *stream,int64_t size,int64_t min,int64_t prefill);
 int cache_stream_fill_buffer(stream_t *s);
-int cache_stream_seek_long(stream_t *s,off_t pos);
+int cache_stream_seek_long(stream_t *s,int64_t pos);
 #else
 // no cache, define wrappers:
 #define cache_stream_fill_buffer(x) stream_fill_buffer(x)
@@ -191,7 +201,8 @@ int cache_stream_seek_long(stream_t *s,off_t pos);
 #endif
 int stream_write_buffer(stream_t *s, unsigned char *buf, int len);
 
-inline static int stream_read_char(stream_t *s){
+static inline int stream_read_char(stream_t *s)
+{
   return (s->buf_pos<s->buf_len)?s->buffer[s->buf_pos++]:
     (cache_stream_fill_buffer(s)?s->buffer[s->buf_pos++]:-256);
 //  if(s->buf_pos<s->buf_len) return s->buffer[s->buf_pos++];
@@ -200,14 +211,16 @@ inline static int stream_read_char(stream_t *s){
 //  return 0; // EOF
 }
 
-inline static unsigned int stream_read_word(stream_t *s){
+static inline unsigned int stream_read_word(stream_t *s)
+{
   int x,y;
   x=stream_read_char(s);
   y=stream_read_char(s);
   return (x<<8)|y;
 }
 
-inline static unsigned int stream_read_dword(stream_t *s){
+static inline unsigned int stream_read_dword(stream_t *s)
+{
   unsigned int y;
   y=stream_read_char(s);
   y=(y<<8)|stream_read_char(s);
@@ -218,14 +231,16 @@ inline static unsigned int stream_read_dword(stream_t *s){
 
 #define stream_read_fourcc stream_read_dword_le
 
-inline static unsigned int stream_read_word_le(stream_t *s){
+static inline unsigned int stream_read_word_le(stream_t *s)
+{
   int x,y;
   x=stream_read_char(s);
   y=stream_read_char(s);
   return (y<<8)|x;
 }
 
-inline static unsigned int stream_read_dword_le(stream_t *s){
+static inline unsigned int stream_read_dword_le(stream_t *s)
+{
   unsigned int y;
   y=stream_read_char(s);
   y|=stream_read_char(s)<<8;
@@ -234,7 +249,8 @@ inline static unsigned int stream_read_dword_le(stream_t *s){
   return y;
 }
 
-inline static uint64_t stream_read_qword(stream_t *s){
+static inline uint64_t stream_read_qword(stream_t *s)
+{
   uint64_t y;
   y = stream_read_char(s);
   y=(y<<8)|stream_read_char(s);
@@ -247,14 +263,16 @@ inline static uint64_t stream_read_qword(stream_t *s){
   return y;
 }
 
-inline static uint64_t stream_read_qword_le(stream_t *s){
+static inline uint64_t stream_read_qword_le(stream_t *s)
+{
   uint64_t y;
   y = stream_read_dword_le(s);
   y|=(uint64_t)stream_read_dword_le(s)<<32;
   return y;
 }
 
-inline static unsigned int stream_read_int24(stream_t *s){
+static inline unsigned int stream_read_int24(stream_t *s)
+{
   unsigned int y;
   y = stream_read_char(s);
   y=(y<<8)|stream_read_char(s);
@@ -262,7 +280,8 @@ inline static unsigned int stream_read_int24(stream_t *s){
   return y;
 }
 
-inline static int stream_read(stream_t *s,char* mem,int total){
+static inline int stream_read(stream_t *s, char *mem, int total)
+{
   int len=total;
   while(len>0){
     int x;
@@ -280,20 +299,24 @@ inline static int stream_read(stream_t *s,char* mem,int total){
 }
 
 uint8_t *stream_read_until(stream_t *s, uint8_t *mem, int max, uint8_t term, int utf16);
-inline static uint8_t *stream_read_line(stream_t *s, uint8_t *mem, int max, int utf16)
+static inline uint8_t *stream_read_line(stream_t *s, uint8_t *mem,
+                                        int max, int utf16)
 {
   return stream_read_until(s, mem, max, '\n', utf16);
 }
 
-inline static int stream_eof(stream_t *s){
+static inline int stream_eof(stream_t *s)
+{
   return s->eof;
 }
 
-inline static off_t stream_tell(stream_t *s){
+static inline int64_t stream_tell(stream_t *s)
+{
   return s->pos+s->buf_pos-s->buf_len;
 }
 
-inline static int stream_seek(stream_t *s,off_t pos){
+static inline int stream_seek(stream_t *s, int64_t pos)
+{
 
   mp_dbg(MSGT_DEMUX, MSGL_DBG3, "seek to 0x%"PRIX64"\n", pos);
 
@@ -302,8 +325,10 @@ inline static int stream_seek(stream_t *s,off_t pos){
            "Invalid seek to negative position %"PRIx64"!\n", pos);
     pos = 0;
   }
+  if (s->buf_len == 0 && s->pos == pos)
+    return 1;
   if(pos<s->pos){
-    off_t x=pos-(s->pos-s->buf_len);
+    int64_t x=pos-(s->pos-s->buf_len);
     if(x>=0){
       s->buf_pos=x;
 //      putchar('*');fflush(stdout);
@@ -314,7 +339,8 @@ inline static int stream_seek(stream_t *s,off_t pos){
   return cache_stream_seek_long(s,pos);
 }
 
-inline static int stream_skip(stream_t *s,off_t len){
+static inline int stream_skip(stream_t *s, int64_t len)
+{
   if( len<0 || (len>2*STREAM_BUFFER_SIZE && (s->flags & MP_STREAM_SEEK_FW)) ) {
     // negative or big skip!
     return stream_seek(s,stream_tell(s)+len);
@@ -349,12 +375,11 @@ int stream_check_interrupt(int time);
 /// Internal read function bypassing the stream buffer
 int stream_read_internal(stream_t *s, void *buf, int len);
 /// Internal seek function bypassing the stream buffer
-int stream_seek_internal(stream_t *s, off_t newpos);
+int stream_seek_internal(stream_t *s, int64_t newpos);
 
 extern int bluray_angle;
 extern int bluray_chapter;
 extern int dvd_speed;
-extern int dvd_title;
 extern int dvd_chapter;
 extern int dvd_last_chapter;
 extern int dvd_angle;
@@ -374,5 +399,9 @@ typedef struct {
  int type;
  int channels;
 } stream_language_t;
+
+int bluray_id_from_lang(stream_t *s, enum stream_ctrl_type type, const char *lang);
+
+int parse_chapter_range(const m_option_t *conf, const char *range);
 
 #endif /* MPLAYER_STREAM_H */

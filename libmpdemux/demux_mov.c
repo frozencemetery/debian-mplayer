@@ -623,7 +623,7 @@ static int gen_sh_audio(sh_audio_t* sh, mov_track_t* trak, int timescale) {
 		   // ([int32_t size,int32_t type,some data ],repeat)
 		} my_stdata;
 #endif
-		int version, adjust;
+		int version = 0, adjust;
 		int is_vorbis = 0;
 		sh->format=trak->fourcc;
 
@@ -944,7 +944,7 @@ quit_vorbis_block:
 //		if(demuxer->audio->id==-1 || demuxer->audio->id==priv->track_db){
 //		    // (auto)selected audio track:
 //		    demuxer->audio->id=priv->track_db;
-//		    demuxer->audio->sh=sh; sh->ds=demuxer->audio;
+//		    demuxer->audio->sh=sh;
 //		}
     return 1;
 }
@@ -1143,8 +1143,8 @@ static int gen_sh_video(sh_video_t* sh, mov_track_t* trak, int timescale) {
 		    sh->disp_h=trak->tkdata[81]|(trak->tkdata[80]<<8);
 		  } else if(sh->disp_w!=(trak->tkdata[77]|(trak->tkdata[76]<<8))){
 		    // codec and display width differ... use display one for aspect
-		    sh->aspect=trak->tkdata[77]|(trak->tkdata[76]<<8);
-		    sh->aspect/=trak->tkdata[81]|(trak->tkdata[80]<<8);
+		    sh->original_aspect=trak->tkdata[77]|(trak->tkdata[76]<<8);
+		    sh->original_aspect/=trak->tkdata[81]|(trak->tkdata[80]<<8);
 		  }
 		}
 
@@ -1224,7 +1224,7 @@ static int gen_sh_video(sh_video_t* sh, mov_track_t* trak, int timescale) {
 		      if (count_flag & 0x8000)
 		        entry = i;
 		      // only care about top 8 bits of 16-bit R, G, or B value
-		      if (entry <= palette_count && entry >= 0)
+		      if (entry < palette_count && entry >= 0)
 		      {
 		        palette_map[entry * 4 + 2] = trak->stdata[hdr_ptr + 0];
 		        palette_map[entry * 4 + 1] = trak->stdata[hdr_ptr + 2];
@@ -1277,7 +1277,7 @@ static int gen_sh_video(sh_video_t* sh, mov_track_t* trak, int timescale) {
 //		if(demuxer->video->id==-1 || demuxer->video->id==priv->track_db){
 //		    // (auto)selected video track:
 //		    demuxer->video->id=priv->track_db;
-//		    demuxer->video->sh=sh; sh->ds=demuxer->video;
+//		    demuxer->video->sh=sh;
 //		}
     return 1;
 }
@@ -1981,7 +1981,7 @@ static demuxer_t* mov_read_header(demuxer_t* demuxer){
     if(demuxer->audio->id>=0){
 	sh_audio_t* sh=demuxer->a_streams[demuxer->audio->id];
 	if(sh){
-	    demuxer->audio->sh=sh; sh->ds=demuxer->audio;
+	    demuxer->audio->sh=sh;
 	} else {
 	    mp_msg(MSGT_DEMUX, MSGL_ERR, "MOV: selected audio stream (%d) does not exist\n",demuxer->audio->id);
 	    demuxer->audio->id=-2;
@@ -1990,7 +1990,7 @@ static demuxer_t* mov_read_header(demuxer_t* demuxer){
     if(demuxer->video->id>=0){
 	sh_video_t* sh=demuxer->v_streams[demuxer->video->id];
 	if(sh){
-	    demuxer->video->sh=sh; sh->ds=demuxer->video;
+	    demuxer->video->sh=sh;
 	} else {
 	    mp_msg(MSGT_DEMUX, MSGL_ERR, "MOV: selected video stream (%d) does not exist\n",demuxer->video->id);
 	    demuxer->video->id=-2;

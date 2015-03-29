@@ -54,6 +54,41 @@ char* ass_border_color = NULL;
 char* ass_styles_file = NULL;
 int ass_hinting = ASS_HINTING_NATIVE + 4; // native hinting for unscaled osd
 
+static void init_style(ASS_Style *style, const char *name, double playres)
+{
+	double fs;
+	uint32_t c1, c2;
+	style->Name = strdup(name);
+	style->FontName = (font_fontconfig >= 0 && sub_font_name) ? strdup(sub_font_name) : (font_fontconfig >= 0 && font_name) ? strdup(font_name) : strdup("Sans");
+	style->treat_fontname_as_pattern = 1;
+
+	fs = playres * text_font_scale_factor / 100.;
+	// approximate autoscale coefficients
+	if (subtitle_autoscale == 2)
+		fs *= 1.3;
+	else if (subtitle_autoscale == 3)
+		fs *= 1.4;
+	style->FontSize = fs;
+
+	if (ass_color) c1 = strtoll(ass_color, NULL, 16);
+	else c1 = 0xFFFF0000;
+	if (ass_border_color) c2 = strtoll(ass_border_color, NULL, 16);
+	else c2 = 0x00000000;
+
+	style->PrimaryColour = c1;
+	style->SecondaryColour = c1;
+	style->OutlineColour = c2;
+	style->BackColour = 0x00000000;
+	style->BorderStyle = 1;
+	style->Alignment = 2;
+	style->Outline = 2;
+	style->MarginL = 10;
+	style->MarginR = 10;
+	style->MarginV = 5;
+	style->ScaleX = 1.;
+	style->ScaleY = 1.;
+}
+
 ASS_Track* ass_default_track(ASS_Library* library) {
 	ASS_Track* track = ass_new_track(library);
 
@@ -62,46 +97,21 @@ ASS_Track* ass_default_track(ASS_Library* library) {
 	track->PlayResY = 288;
 	track->WrapStyle = 0;
 
+	if (track->n_styles == 0) {
+		// stupid hack to stop libass to add a default track
+		// in front in ass_read_styles - this makes it impossible
+		// to completely override the "Default" track.
+		int sid = ass_alloc_style(track);
+		init_style(track->styles + sid, "MPlayerDummy", track->PlayResY);
+	}
+
 	if (ass_styles_file)
 		ass_read_styles(track, ass_styles_file, sub_cp);
 
-	if (track->n_styles == 0) {
-		ASS_Style* style;
-		int sid;
-		double fs;
-		uint32_t c1, c2;
-
-		sid = ass_alloc_style(track);
-		style = track->styles + sid;
-		style->Name = strdup("Default");
-		style->FontName = (font_fontconfig >= 0 && sub_font_name) ? strdup(sub_font_name) : (font_fontconfig >= 0 && font_name) ? strdup(font_name) : strdup("Sans");
-		style->treat_fontname_as_pattern = 1;
-
-		fs = track->PlayResY * text_font_scale_factor / 100.;
-		// approximate autoscale coefficients
-		if (subtitle_autoscale == 2)
-			fs *= 1.3;
-		else if (subtitle_autoscale == 3)
-			fs *= 1.4;
-		style->FontSize = fs;
-
-		if (ass_color) c1 = strtoll(ass_color, NULL, 16);
-		else c1 = 0xFFFF0000;
-		if (ass_border_color) c2 = strtoll(ass_border_color, NULL, 16);
-		else c2 = 0x00000000;
-
-		style->PrimaryColour = c1;
-		style->SecondaryColour = c1;
-		style->OutlineColour = c2;
-		style->BackColour = 0x00000000;
-		style->BorderStyle = 1;
-		style->Alignment = 2;
-		style->Outline = 2;
-		style->MarginL = 10;
-		style->MarginR = 10;
-		style->MarginV = 5;
-		style->ScaleX = 1.;
-		style->ScaleY = 1.;
+	if (track->default_style <= 0) {
+		int sid = ass_alloc_style(track);
+		init_style(track->styles + sid, "Default", track->PlayResY);
+		track->default_style = sid;
 	}
 
 	ass_process_force_style(track);
@@ -142,7 +152,7 @@ int ass_process_subtitle(ASS_Track* track, subtitle* sub)
 
 	event->Start = sub->start * 10;
 	event->Duration = (sub->end - sub->start) * 10;
-	event->Style = 0;
+	event->Style = track->default_style;
 
 	for (j = 0; j < sub->lines; ++j)
 		len += sub->text[j] ? strlen(sub->text[j]) : 0;
@@ -247,10 +257,9 @@ ASS_Track* ass_read_stream(ASS_Library* library, const char *fname, char *charse
 	return track;
 }
 
-void ass_configure(ASS_Renderer* priv, int w, int h, int unscaled) {
+static void ass_configure(ASS_Renderer* priv, int w, int h, int unscaled) {
 	int hinting;
 	ass_set_frame_size(priv, w, h);
-	ass_set_margins(priv, ass_top_margin, ass_bottom_margin, 0, 0);
 	ass_set_use_margins(priv, ass_use_margins);
 	ass_set_font_scale(priv, ass_font_scale);
 	if (!unscaled && (ass_hinting & 4))
@@ -261,7 +270,7 @@ void ass_configure(ASS_Renderer* priv, int w, int h, int unscaled) {
 	ass_set_line_spacing(priv, ass_line_spacing);
 }
 
-void ass_configure_fonts(ASS_Renderer* priv) {
+static void ass_configure_fonts(ASS_Renderer* priv) {
 	char *dir, *path, *family;
 	dir = get_path("fonts");
 	if (font_fontconfig < 0 && sub_font_name) path = strdup(sub_font_name);
@@ -271,7 +280,7 @@ void ass_configure_fonts(ASS_Renderer* priv) {
 	else if (font_fontconfig >= 0 && font_name) family = strdup(font_name);
 	else family = 0;
 
-        ass_set_fonts(priv, path, family, font_fontconfig, NULL, 1);
+        ass_set_fonts(priv, path, family, font_fontconfig >= 0, NULL, 1);
 
 	free(dir);
 	free(path);
@@ -291,6 +300,16 @@ static void message_callback(int level, const char *format, va_list va, void *ct
 		mp_msg(MSGT_ASS, level, "[ass] %s\n", str);
 		free(str);
 	}
+	va_end(dst);
+}
+
+/**
+ * Reset all per-file settings for next file.
+ */
+void ass_mp_reset_config(ASS_Library *l) {
+	ass_set_extract_fonts(l, extract_embedded_fonts);
+	ass_set_style_overrides(l, ass_force_style_list);
+	ass_force_reload = 1;
 }
 
 ASS_Library* ass_init(void) {
@@ -299,23 +318,12 @@ ASS_Library* ass_init(void) {
 	priv = ass_library_init();
 	ass_set_message_cb(priv, message_callback, NULL);
 	ass_set_fonts_dir(priv, path);
-	ass_set_extract_fonts(priv, extract_embedded_fonts);
-	ass_set_style_overrides(priv, ass_force_style_list);
+	ass_mp_reset_config(priv);
 	free(path);
 	return priv;
 }
 
 int ass_force_reload = 0; // flag set if global ass-related settings were changed
-
-ASS_Image* ass_mp_render_frame(ASS_Renderer *priv, ASS_Track* track, long long now, int* detect_change) {
-	if (ass_force_reload) {
-		ass_set_margins(priv, ass_top_margin, ass_bottom_margin, 0, 0);
-		ass_set_use_margins(priv, ass_use_margins);
-		ass_set_font_scale(priv, ass_font_scale);
-		ass_force_reload = 0;
-	}
-	return ass_render_frame(priv, track, now, detect_change);
-}
 
 /* EOSD source for ASS subtitles. */
 
@@ -327,15 +335,16 @@ static void eosd_ass_update(struct mp_eosd_source *src, const struct mp_eosd_set
 	long long ts_ms = (ts + sub_delay) * 1000 + .5;
 	ASS_Image *aimg;
 	struct mp_eosd_image *img;
-	if (res->changed || !src->initialized) {
+	if (res->changed || !src->initialized || ass_force_reload) {
 		double dar = (double) (res->w - res->ml - res->mr) / (res->h - res->mt - res->mb);
 		ass_configure(ass_renderer, res->w, res->h, res->unscaled);
-		ass_set_margins(ass_renderer, res->mt, res->mb, res->ml, res->mr);
+		ass_set_margins(ass_renderer, res->mt + ass_top_margin, res->mb + ass_bottom_margin, res->ml, res->mr);
 		ass_set_aspect_ratio(ass_renderer, dar, (double)res->srcw / res->srch);
 		src->initialized = 1;
+		ass_force_reload = 0;
 	}
 	aimg = sub_visibility && ass_track && ts != MP_NOPTS_VALUE ?
-		ass_mp_render_frame(ass_renderer, ass_track, ts_ms, &src->changed) :
+		ass_render_frame(ass_renderer, ass_track, ts_ms, &src->changed) :
 		NULL;
 	if (!aimg != !src->images)
 		src->changed = 2;

@@ -2,20 +2,20 @@
  * Indeo Video Interactive 4 compatible decoder
  * Copyright (c) 2009-2010 Maxim Poliakovski
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -28,8 +28,9 @@
 #define AVCODEC_INDEO4DATA_H
 
 #include <stdint.h>
-#include "dsputil.h"
+
 #include "ivi_common.h"
+#include "mathops.h"
 
 /**
  *  standard picture dimensions
@@ -60,7 +61,7 @@ static const uint8_t ivi4_horizontal_scan_4x4[16] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
 };
 
-static const uint8_t *scan_index_to_tab[15] = {
+static const uint8_t * const scan_index_to_tab[15] = {
     // for 8x8 transforms
     ff_zigzag_direct,
     ivi4_alternate_scan_8x8,
@@ -86,7 +87,7 @@ static const uint8_t *scan_index_to_tab[15] = {
 /**
  *  Indeo 4 dequant tables
  */
-static uint16_t ivi4_quant_8x8_intra[9][64] = {
+static const uint16_t ivi4_quant_8x8_intra[9][64] = {
   {
       43,  342,  385,  470,  555,  555,  598,  726,
      342,  342,  470,  513,  555,  598,  726,  769,
@@ -179,7 +180,7 @@ static uint16_t ivi4_quant_8x8_intra[9][64] = {
   }
 };
 
-static uint16_t ivi4_quant_8x8_inter[9][64] = {
+static const uint16_t ivi4_quant_8x8_inter[9][64] = {
   {
      427,  427,  470,  427,  427,  427,  470,  470,
      427,  427,  470,  427,  427,  427,  470,  470,
@@ -272,7 +273,7 @@ static uint16_t ivi4_quant_8x8_inter[9][64] = {
   }
 };
 
-static uint16_t ivi4_quant_4x4_intra[5][16] = {
+static const uint16_t ivi4_quant_4x4_intra[5][16] = {
   {
       22,  214,  257,  299,
      214,  257,  299,  342,
@@ -305,7 +306,7 @@ static uint16_t ivi4_quant_4x4_intra[5][16] = {
   }
 };
 
-static uint16_t ivi4_quant_4x4_inter[5][16] = {
+static const uint16_t ivi4_quant_4x4_inter[5][16] = {
   {
      107,  214,  257,  299,
      214,  257,  299,  299,
@@ -342,7 +343,7 @@ static uint16_t ivi4_quant_4x4_inter[5][16] = {
  *  Table for mapping quant matrix index from the bitstream
  *  into internal quant table number.
  */
-static uint8_t  quant_index_to_tab[22] = {
+static const uint8_t quant_index_to_tab[22] = {
     0, 1, 0, 2, 1, 3, 0, 4, 1, 5, 0, 1, 6, 7, 8, // for 8x8 quant matrixes
     0, 1, 2, 2, 3, 3, 4                          // for 4x4 quant matrixes
 };

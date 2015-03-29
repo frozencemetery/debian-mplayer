@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <inttypes.h>
 
 #include "config.h"
@@ -65,7 +66,7 @@
 		"vf_zrmjpeg: " __VA_ARGS__)
 
 /// The get_pixels() routine to use. The real routine comes from dsputil
-static void (*get_pixels)(DCTELEM *restrict block, const uint8_t *pixels, int line_size);
+static void (*get_pixels)(int16_t *restrict block, const uint8_t *pixels, int line_size);
 
 /* Begin excessive code duplication ************************************/
 /* Code coming from mpegvideo.c and mjpeg.c in ../libavcodec ***********/
@@ -123,7 +124,7 @@ static void convert_matrix(MpegEncContext *s, int (*qmat)[64],
 					(QMAT_SHIFT-3))/
 					(qscale*quant_matrix[j]));
 			}
-		} else if (s->dsp.fdct == fdct_ifast) {
+		} else if (s->dsp.fdct == ff_fdct_ifast) {
 			for (i = 0; i < 64; i++) {
 				const int j = s->dsp.idct_permutation[i];
 /* 16 <= qscale * quant_matrix[i] <= 7905
@@ -196,7 +197,7 @@ static inline void encode_dc(MpegEncContext *s, int val,
  *
  * This routine is a duplicate of encode_block in mjpeg.c
  */
-static void encode_block(MpegEncContext *s, DCTELEM *block, int n) {
+static void encode_block(MpegEncContext *s, int16_t *block, int n) {
 	int mant, nbits, code, i, j;
 	int component, dc, run, last_index, val;
 	MJpegContext *m = s->mjpeg_ctx;
@@ -267,7 +268,7 @@ static void encode_block(MpegEncContext *s, DCTELEM *block, int n) {
  * The max and min level, which are clipped to, are stored in
  * s->min_qcoeff and s->max_qcoeff respectively.
  */
-static inline void clip_coeffs(MpegEncContext *s, DCTELEM *block,
+static inline void clip_coeffs(MpegEncContext *s, int16_t *block,
 		int last_index) {
 	int i;
 	const int maxlevel= s->max_qcoeff;
@@ -447,7 +448,7 @@ static jpeg_enc_t *jpeg_enc_init(int w, int h, int y_rsize,
 	j->s->out_format = FMT_MJPEG;
 	j->s->intra_only = 1;		// Generate only intra pictures for jpeg
 	j->s->encoding = 1;		// Set mode to encode
-	j->s->pict_type = FF_I_TYPE;
+	j->s->pict_type = AV_PICTURE_TYPE_I;
 	j->s->y_dc_scale = 8;
 	j->s->c_dc_scale = 8;
 
@@ -489,7 +490,7 @@ static jpeg_enc_t *jpeg_enc_init(int w, int h, int y_rsize,
 
 	// Set some a minimum amount of default values that are needed
 	// Indicates that we should generated normal MJPEG
-	j->s->avctx->codec_id = CODEC_ID_MJPEG;
+	j->s->avctx->codec_id = AV_CODEC_ID_MJPEG;
 	// Which DCT method to use. AUTO will select the fastest one
 	j->s->avctx->dct_algo = FF_DCT_AUTO;
 	j->s->intra_quant_bias= 1<<(QUANT_BIAS_SHIFT-1); //(a + x/2)/x
@@ -500,7 +501,7 @@ static jpeg_enc_t *jpeg_enc_init(int w, int h, int y_rsize,
 
 	/* make MPV_common_init allocate important buffers, like s->block
 	 * Also initializes dsputil */
-	if (MPV_common_init(j->s) < 0) {
+	if (ff_MPV_common_init(j->s) < 0) {
 		av_free(j->s);
 		av_free(j);
 		return NULL;

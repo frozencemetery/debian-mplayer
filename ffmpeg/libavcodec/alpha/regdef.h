@@ -2,20 +2,20 @@
  * Alpha optimized DSP utils
  * copyright (c) 2002 Falk Hueffner <falk@debian.org>
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -62,5 +62,16 @@
 #define gp      $29     /* global pointer */
 #define sp      $30     /* stack pointer */
 #define zero    $31     /* reads as zero, writes are noops */
+
+/* Some nicer register names.  */
+#define ta t10
+#define tb t11
+#define tc t12
+#define td AT
+/* Danger: these overlap with the argument list and the return value */
+#define te a5
+#define tf a4
+#define tg a3
+#define th v0
 
 #endif /* AVCODEC_ALPHA_REGDEF_H */

@@ -22,6 +22,7 @@
 
 #include "config.h"
 #include "video_out.h"
+#define NO_DRAW_FRAME
 #include "video_out_internal.h"
 #include "libmpcodecs/vf.h"
 #include "aspect.h"
@@ -66,9 +67,7 @@ static const vo_info_t info = {
 
 const LIBVO_EXTERN(x11)
 /* private prototypes */
-static void (*draw_alpha_fnc) (int x0, int y0, int w, int h,
-                               unsigned char *src, unsigned char *srca,
-                               int stride);
+static vo_draw_alpha_func draw_alpha_func;
 
 /* local data */
 static unsigned char *ImageData;
@@ -110,42 +109,13 @@ static void check_events(void)
         flip_page();
 }
 
-static void draw_alpha_32(int x0, int y0, int w, int h, unsigned char *src,
-                          unsigned char *srca, int stride)
+static void draw_alpha(int x0, int y0, int w, int h, unsigned char *src,
+                       unsigned char *srca, int stride)
 {
-    vo_draw_alpha_rgb32(w, h, src, srca, stride,
-                        ImageData + 4 * (y0 * image_width + x0),
-                        4 * image_width);
-}
-
-static void draw_alpha_24(int x0, int y0, int w, int h, unsigned char *src,
-                          unsigned char *srca, int stride)
-{
-    vo_draw_alpha_rgb24(w, h, src, srca, stride,
-                        ImageData + 3 * (y0 * image_width + x0),
-                        3 * image_width);
-}
-
-static void draw_alpha_16(int x0, int y0, int w, int h, unsigned char *src,
-                          unsigned char *srca, int stride)
-{
-    vo_draw_alpha_rgb16(w, h, src, srca, stride,
-                        ImageData + 2 * (y0 * image_width + x0),
-                        2 * image_width);
-}
-
-static void draw_alpha_15(int x0, int y0, int w, int h, unsigned char *src,
-                          unsigned char *srca, int stride)
-{
-    vo_draw_alpha_rgb15(w, h, src, srca, stride,
-                        ImageData + 2 * (y0 * image_width + x0),
-                        2 * image_width);
-}
-
-static void draw_alpha_null(int x0, int y0, int w, int h,
-                            unsigned char *src, unsigned char *srca,
-                            int stride)
-{
+    int bpp = pixel_stride(out_format);
+    draw_alpha_func(w, h, src, srca, stride,
+                    ImageData + bpp * (y0 * image_width + x0),
+                    bpp * image_width);
 }
 
 static struct SwsContext *swsContext = NULL;
@@ -406,29 +376,13 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
       return -1;
     }
     out_format = fmte->mpfmt;
-    switch ((bpp = myximage->bits_per_pixel))
-    {
-        case 24:
-            draw_alpha_fnc = draw_alpha_24;
-            break;
-        case 32:
-            draw_alpha_fnc = draw_alpha_32;
-            break;
-        case 15:
-        case 16:
-            if (depth == 15)
-                draw_alpha_fnc = draw_alpha_15;
-            else
-                draw_alpha_fnc = draw_alpha_16;
-            break;
-        default:
-            draw_alpha_fnc = draw_alpha_null;
-    }
+    draw_alpha_func = vo_get_draw_alpha(out_format);
+
+    bpp = myximage->bits_per_pixel;
     out_offset = 0;
-    // for these formats conversion is currently not support and
-    // we can easily "emulate" them.
-    if (out_format & 64 && (IMGFMT_IS_RGB(out_format) || IMGFMT_IS_BGR(out_format))) {
-      out_format &= ~64;
+    // We can easily "emulate" non-native RGB32 and BGR32
+    if (out_format == (IMGFMT_BGR32 | 128) || out_format == (IMGFMT_RGB32 | 128)) {
+      out_format &= ~128;
 #if HAVE_BIGENDIAN
       out_offset = 1;
 #else
@@ -483,7 +437,8 @@ static void Display_Image(XImage * myximage, uint8_t * ImageData)
 
 static void draw_osd(void)
 {
-    vo_draw_text(image_width, image_height, draw_alpha_fnc);
+    if (draw_alpha_func)
+        vo_draw_text(image_width, image_height, draw_alpha);
 }
 
 static void flip_page(void)
@@ -539,11 +494,6 @@ static int draw_slice(uint8_t * src[], int stride[], int w, int h,
     }
     sws_scale(swsContext, src, stride, y, h, dst, dstStride);
     return 0;
-}
-
-static int draw_frame(uint8_t * src[])
-{
-    return VO_ERROR;
 }
 
 static uint32_t get_image(mp_image_t * mpi)

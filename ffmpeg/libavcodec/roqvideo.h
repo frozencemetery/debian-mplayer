@@ -2,20 +2,20 @@
  * Copyright (C) 2003 Mike Melanson
  * Copyright (C) 2003 Dr. Tim Ferguson
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -24,18 +24,18 @@
 
 #include "libavutil/lfg.h"
 #include "avcodec.h"
-#include "dsputil.h"
+#include "bytestream.h"
 
-typedef struct {
+typedef struct roq_cell {
     unsigned char y[4];
     unsigned char u, v;
 } roq_cell;
 
-typedef struct {
+typedef struct roq_qcell {
     int idx[4];
 } roq_qcell;
 
-typedef struct {
+typedef struct motion_vect {
     int d[2];
 } motion_vect;
 
@@ -43,9 +43,8 @@ struct RoqTempData;
 
 typedef struct RoqContext {
 
+    const AVClass *class;
     AVCodecContext *avctx;
-    DSPContext dsp;
-    AVFrame frames[2];
     AVFrame *last_frame;
     AVFrame *current_frame;
     int first_frame;
@@ -53,8 +52,7 @@ typedef struct RoqContext {
     roq_cell cb2x2[256];
     roq_qcell cb4x4[256];
 
-    const unsigned char *buf;
-    int size;
+    GetByteContext gb;
     int width, height;
 
     /* Encoder only data */
@@ -69,9 +67,12 @@ typedef struct RoqContext {
 
     unsigned int framesSinceKeyframe;
 
-    AVFrame *frame_to_enc;
+    const AVFrame *frame_to_enc;
     uint8_t *out_buf;
     struct RoqTempData *tmpData;
+
+    int quake3_compat; // Quake 3 compatibility option
+
 } RoqContext;
 
 #define RoQ_INFO              0x1001

@@ -2,20 +2,20 @@
  * Musepack decoder
  * Copyright (c) 2006 Konstantin Shishkov
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -31,8 +31,8 @@
 
 #include "libavutil/lfg.h"
 #include "avcodec.h"
+#include "bswapdsp.h"
 #include "get_bits.h"
-#include "dsputil.h"
 #include "mpegaudio.h"
 #include "mpegaudiodsp.h"
 
@@ -41,7 +41,7 @@
 #define MPC_FRAME_SIZE   (BANDS * SAMPLES_PER_BAND)
 
 /** Subband structure - hold all variables for each subband */
-typedef struct {
+typedef struct Band {
     int msf; ///< mid-stereo flag
     int res[2];
     int scfi[2];
@@ -49,9 +49,8 @@ typedef struct {
     int Q[2];
 }Band;
 
-typedef struct {
-    AVFrame frame;
-    DSPContext dsp;
+typedef struct MPCContext {
+    BswapDSPContext bdsp;
     MPADSPContext mpadsp;
     GetBitContext gb;
     int IS, MSS, gapless;
@@ -73,6 +72,6 @@ typedef struct {
 } MPCContext;
 
 void ff_mpc_init(void);
-void ff_mpc_dequantize_and_synth(MPCContext *c, int maxband, void *dst, int channels);
+void ff_mpc_dequantize_and_synth(MPCContext *c, int maxband, int16_t **out, int channels);
 
 #endif /* AVCODEC_MPC_H */

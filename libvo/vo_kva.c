@@ -39,6 +39,7 @@
 #include "mp_msg.h"
 #include "help_mp.h"
 #include "video_out.h"
+#define NO_DRAW_FRAME
 #include "video_out_internal.h"
 #include "libmpcodecs/vf.h"
 #include "aspect.h"
@@ -56,7 +57,7 @@
 #include "libmpcodecs/vf_scale.h"
 
 static const vo_info_t info = {
-    "SNAP/WarpOverlay!/DIVE video output",
+    "SNAP/WarpOverlay!/VMAN/DIVE video output",
     "kva",
     "KO Myung-Hun <komh@chollian.net>",
     ""
@@ -182,6 +183,13 @@ static int query_format_info(int format, PBOOL pfHWAccel, PFOURCC pfcc,
         fcc             = FOURCC_YVU9;
         bpp             = 1;
         nChromaShift    = 2;
+        break;
+
+    case IMGFMT_BGR32:
+        fHWAccel        = m_int.kvac.ulInputFormatFlags & KVAF_BGR32;
+        fcc             = FOURCC_BGR4;
+        bpp             = 4;
+        nChromaShift    = 0;
         break;
 
     case IMGFMT_BGR24:
@@ -458,6 +466,35 @@ static MRESULT EXPENTRY WndProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
         return (MRESULT)TRUE;
         }
 
+    case WM_SIZE:
+        {
+        RECTL rcl;
+        struct vo_rect src_rect;
+        struct vo_rect dst_rect;
+
+        WinQueryWindowRect(hwnd, &rcl);
+
+        vo_dwidth  = rcl.xRight - rcl.xLeft;
+        vo_dheight = rcl.yTop - rcl.yBottom;
+
+        calc_src_dst_rects(SRC_WIDTH, SRC_HEIGHT, &src_rect, &dst_rect,
+                           NULL, NULL);
+
+        m_int.kvas.rclSrcRect.xLeft   = src_rect.left;
+        m_int.kvas.rclSrcRect.yTop    = src_rect.top;
+        m_int.kvas.rclSrcRect.xRight  = src_rect.right;
+        m_int.kvas.rclSrcRect.yBottom = src_rect.bottom;
+        m_int.kvas.rclDstRect.xLeft   = dst_rect.left;
+        m_int.kvas.rclDstRect.yTop    = dst_rect.top;
+        m_int.kvas.rclDstRect.xRight  = dst_rect.right;
+        m_int.kvas.rclDstRect.yBottom = dst_rect.bottom;
+
+        // setup to resize
+        setAspectRatio((vo_fs || vo_keepaspect) ? KVAR_FORCEANY : KVAR_NONE);
+
+        return 0;
+        }
+
     case WM_BUTTON1DOWN:
     case WM_BUTTON3DOWN:
     case WM_BUTTON2DOWN:
@@ -470,6 +507,19 @@ static MRESULT EXPENTRY WndProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
             mplayer_put_key(lookup_keymap_table(m_mouse_map, msg));
 
         return (MRESULT)TRUE;
+
+    case WM_MOUSEMOVE:
+        {
+        int x = SHORT1FROMMP(mp1);
+        int y = SHORT2FROMMP(mp1);
+
+        // invert Y
+        y = (vo_dheight - 1) - y;
+
+        vo_mouse_movement(x, y);
+
+        break;
+        }
 
     case WM_PAINT:
         {
@@ -545,18 +595,20 @@ static int preinit(const char *arg)
 
     int     fUseSnap = 0;
     int     fUseWO   = 0;
+    int     fUseVman = 0;
     int     fUseDive = 0;
     int     fFixT23  = 0;
 
     const opt_t subopts[] = {
         {"snap", OPT_ARG_BOOL, &fUseSnap, NULL},
         {"wo",   OPT_ARG_BOOL, &fUseWO,   NULL},
+        {"vman", OPT_ARG_BOOL, &fUseVman, NULL},
         {"dive", OPT_ARG_BOOL, &fUseDive, NULL},
         {"t23",  OPT_ARG_BOOL, &fFixT23,  NULL},
         {NULL,              0, NULL,      NULL}
     };
 
-    PCSZ pcszVideoModeStr[3] = {"DIVE", "WarpOverlay!", "SNAP"};
+    PCSZ pcszVideoModeStr[3] = {"DIVE", "WarpOverlay!", "SNAP", "VMAN"};
 
     if (subopt_parse(arg, subopts) != 0)
         return -1;
@@ -613,13 +665,15 @@ static int preinit(const char *arg)
         m_int.pfnwpOldFrame = WinSubclassWindow(m_int.hwndFrame,
                                                 NewFrameWndProc);
 
-    if (!!fUseSnap + !!fUseWO + !!fUseDive > 1)
+    if (!!fUseSnap + !!fUseWO + !!fUseVman + !!fUseDive > 1)
         mp_msg(MSGT_VO, MSGL_WARN,"KVA: Multiple mode specified!!!\n");
 
     if (fUseSnap)
         kvaMode = KVAM_SNAP;
     else if (fUseWO)
         kvaMode = KVAM_WO;
+    else if (fUseVman)
+        kvaMode = KVAM_VMAN;
     else if (fUseDive)
         kvaMode = KVAM_DIVE;
     else
@@ -701,6 +755,8 @@ static int config(uint32_t width, uint32_t height,
             dstFormat = IMGFMT_YUY2;
         else if (m_int.kvac.ulInputFormatFlags & KVAF_YVU9)
             dstFormat = IMGFMT_YVU9;
+        else if (m_int.kvac.ulInputFormatFlags & KVAF_BGR32)
+            dstFormat = IMGFMT_BGR32;
         else if (m_int.kvac.ulInputFormatFlags & KVAF_BGR24)
             dstFormat = IMGFMT_BGR24;
         else if (m_int.kvac.ulInputFormatFlags & KVAF_BGR16)
@@ -782,6 +838,11 @@ static int config(uint32_t width, uint32_t height,
         WinQueryWindowRect(HWNDFROMWINID(WinID), &m_int.rclDst);
         rcl = m_int.rclDst;
     }
+
+    // trick to setup image parameters in WM_SIZE
+    // if new sizes of a window are same as old ones,
+    // WM_SIZE is not called
+    WinSetWindowPos(m_int.hwndFrame, NULLHANDLE, 0, 0, 0, 0, SWP_SIZE);
 
     WinCalcFrameRect(m_int.hwndFrame, &rcl, FALSE);
 
@@ -989,11 +1050,6 @@ static int control(uint32_t request, void *data)
     }
 
     return VO_NOTIMPL;
-}
-
-static int draw_frame(uint8_t *src[])
-{
-    return VO_ERROR;
 }
 
 static int draw_slice(uint8_t *src[], int stride[], int w, int h, int x, int y)

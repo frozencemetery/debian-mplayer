@@ -34,27 +34,29 @@
 #include "libvo/video_out.h"
 #include "osdep/priority.h"
 #include "mixer.h"
-#include "gui/ui/gmplayer.h"
+#include "gui/ui/ui.h"
 #include "gui/interface.h"
 #include "gui.h"
 
+static const char gui_configuration[] =  "gui.conf";
+
 /* params */
-int   gtkAONorm = 0;
-int   gtkAOExtraStereo = 0;
-float gtkAOExtraStereoMul = 1.0;
-int   gtkCacheOn = 0;
+int   gtkAONorm = FALSE;
+int   gtkAOExtraStereo = FALSE;
+float gtkAOExtraStereoMul = 1.0f;
+int   gtkCacheOn = FALSE;
 int   gtkCacheSize = 2048;
-int   gtkAutoSyncOn = 0;
+int   gtkAutoSyncOn = FALSE;
 int   gtkAutoSync = 0;
 
-int sub_window = 1;
-int console = 0;
+int video_window = TRUE;
+int console = FALSE;
 
-int gui_save_pos = 1;
+int gui_save_pos = TRUE;
 int gui_main_pos_x = -2;
 int gui_main_pos_y = -2;
-int gui_sub_pos_x = -1;
-int gui_sub_pos_y = -1;
+int gui_video_pos_x = -1;
+int gui_video_pos_y = -1;
 
 m_config_t *gui_conf;
 static const m_option_t gui_opts[] =
@@ -72,15 +74,15 @@ static const m_option_t gui_opts[] =
     {   "delay", &audio_delay, CONF_TYPE_FLOAT, CONF_RANGE, -100.0, 100.0, NULL},
     {   "osd_level", &osd_level, CONF_TYPE_INT, CONF_RANGE, 0, 3, NULL },
     {   "cache", &gtkCacheOn, CONF_TYPE_FLAG, 0, 0, 1, NULL },
-    {   "cache_size", &gtkCacheSize, CONF_TYPE_INT, CONF_RANGE, -1, 65535, NULL },
+    {   "cache_size", &gtkCacheSize, CONF_TYPE_INT, CONF_RANGE, 32, 0x7fffffff, NULL },
     {   "autosync", &gtkAutoSyncOn, CONF_TYPE_FLAG, 0, 0, 1, NULL },
     {   "autosync_size", &gtkAutoSync, CONF_TYPE_INT, CONF_RANGE, 0, 10000, NULL },
     {   "gui_skin", &skinName, CONF_TYPE_STRING, 0, 0, 0, NULL },
     {   "gui_main_pos_x", &gui_main_pos_x, CONF_TYPE_INT, 0, 0, 0, NULL },
     {   "gui_main_pos_y", &gui_main_pos_y, CONF_TYPE_INT, 0, 0, 0, NULL },
-    {   "gui_sub_pos_x", &gui_sub_pos_x, CONF_TYPE_INT, 0, 0, 0, NULL },
-    {   "gui_sub_pos_y", &gui_sub_pos_y, CONF_TYPE_INT, 0, 0, 0, NULL },
-    {   "sub_window", &sub_window, CONF_TYPE_FLAG, 0, 0, 1, NULL},
+    {   "gui_sub_pos_x", &gui_video_pos_x, CONF_TYPE_INT, 0, 0, 0, NULL },
+    {   "gui_sub_pos_y", &gui_video_pos_y, CONF_TYPE_INT, 0, 0, 0, NULL },
+    {   "sub_window", &video_window, CONF_TYPE_FLAG, 0, 0, 1, NULL},
     {   "console", &console, CONF_TYPE_FLAG, 0, 0, 1, NULL},
     {   "idle", &player_idle_mode, CONF_TYPE_FLAG, CONF_GLOBAL, 0, 1, NULL},
     {   NULL, NULL, 0, 0, 0, 0, NULL }
@@ -93,25 +95,24 @@ int cfg_gui_include(m_option_t *conf, const char *filename)
     return m_config_parse_config_file(gui_conf, filename, 0);
 }
 
-int cfg_read(void)
+void cfg_read(void)
 {
-    char *cfg = get_path("gui.conf");
+    char *cfg = get_path(gui_configuration);
 
-    player_idle_mode = 1;   // GUI is in idle mode by default
+    player_idle_mode = TRUE;   // GUI is in idle mode by default
 
     /* read configuration */
     mp_msg(MSGT_GPLAYER, MSGL_V, "[GUI] [cfg] reading config file: %s\n", cfg);
     gui_conf = m_config_new();
     m_config_register_options(gui_conf, gui_opts);
     if (m_config_parse_config_file(gui_conf, cfg, 1) < 0)
-        mp_msg(MSGT_GPLAYER, MSGL_FATAL, MSGTR_ConfigFileError);
+        mp_msg(MSGT_GPLAYER, MSGL_ERR, MSGTR_ConfigFileError "\n");
     free(cfg);
-    return 0;
 }
 
-int cfg_write(void)
+void cfg_write(void)
 {
-    char *cfg = get_path("gui.conf");
+    char *cfg = get_path(gui_configuration);
     FILE *f;
     int i;
 
@@ -122,17 +123,20 @@ int cfg_write(void)
         {
             char *v = m_option_print(&gui_opts[i], gui_opts[i].p);
             if(v == (char *)-1) {
-                mp_msg(MSGT_GPLAYER, MSGL_WARN, MSGTR_UnableToSaveOption, gui_opts[i].name);
+                mp_msg(MSGT_GPLAYER, MSGL_WARN, MSGTR_GUI_MSG_UnableToSaveOption, gui_opts[i].name);
                 v = NULL;
             }
             if(v)
             {
-                fprintf(f, "%s = \"%s\"\n", gui_opts[i].name, v);
+                char delim[] = "\"";
+
+                if (!strchr(v, ' ')) *delim = 0;
+
+                fprintf(f, "%s=%s%s%s\n", gui_opts[i].name, delim, v, delim);
                 free(v);
             }
         }
         fclose(f);
     }
     free(cfg);
-    return 0;
 }

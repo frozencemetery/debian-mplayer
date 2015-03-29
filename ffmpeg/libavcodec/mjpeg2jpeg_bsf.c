@@ -2,20 +2,20 @@
  * MJPEG/AVI1 to JPEG/JFIF bitstream format filter
  * Copyright (c) 2010 Adrian Daerr and Nicolas George
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -25,6 +25,10 @@
  */
 
 #include <string.h>
+
+#include "libavutil/error.h"
+#include "libavutil/mem.h"
+
 #include "avcodec.h"
 #include "mjpeg.h"
 
@@ -59,15 +63,15 @@ static uint8_t *append(uint8_t *buf, const uint8_t *src, int size)
 static uint8_t *append_dht_segment(uint8_t *buf)
 {
     buf = append(buf, dht_segment_head, sizeof(dht_segment_head));
-    buf = append(buf, ff_mjpeg_bits_dc_luminance + 1, 16);
+    buf = append(buf, avpriv_mjpeg_bits_dc_luminance + 1, 16);
     buf = append(buf, dht_segment_frag, sizeof(dht_segment_frag));
-    buf = append(buf, ff_mjpeg_val_dc, 12);
+    buf = append(buf, avpriv_mjpeg_val_dc, 12);
     *(buf++) = 0x10;
-    buf = append(buf, ff_mjpeg_bits_ac_luminance + 1, 16);
-    buf = append(buf, ff_mjpeg_val_ac_luminance, 162);
+    buf = append(buf, avpriv_mjpeg_bits_ac_luminance + 1, 16);
+    buf = append(buf, avpriv_mjpeg_val_ac_luminance, 162);
     *(buf++) = 0x11;
-    buf = append(buf, ff_mjpeg_bits_ac_chrominance + 1, 16);
-    buf = append(buf, ff_mjpeg_val_ac_chrominance, 162);
+    buf = append(buf, avpriv_mjpeg_bits_ac_chrominance + 1, 16);
+    buf = append(buf, avpriv_mjpeg_val_ac_chrominance, 162);
     return buf;
 }
 

@@ -25,24 +25,28 @@
 #include "m_option.h"
 #include "m_struct.h"
 #include "av_helpers.h"
+#include "libmpdemux/demuxer.h"
 
 static int fill_buffer(stream_t *s, char *buffer, int max_len)
 {
-    int r = url_read_complete(s->priv, buffer, max_len);
+    int r = avio_read(s->priv, buffer, max_len);
     return (r <= 0) ? -1 : r;
 }
 
 static int write_buffer(stream_t *s, char *buffer, int len)
 {
-    /* url_write retries internally on short writes and EAGAIN */
-    int r = url_write(s->priv, buffer, len);
-    return (r <= 0) ? -1 : r;
+    AVIOContext *ctx = s->priv;
+    avio_write(s->priv, buffer, len);
+    avio_flush(s->priv);
+    if (ctx->error)
+        return -1;
+    return len;
 }
 
-static int seek(stream_t *s, off_t newpos)
+static int seek(stream_t *s, int64_t newpos)
 {
     s->pos = newpos;
-    if (url_seek(s->priv, s->pos, SEEK_SET) < 0) {
+    if (avio_seek(s->priv, s->pos, SEEK_SET) < 0) {
         s->eof = 1;
         return 0;
     }
@@ -51,20 +55,23 @@ static int seek(stream_t *s, off_t newpos)
 
 static int control(stream_t *s, int cmd, void *arg)
 {
+    AVIOContext *ctx = s->priv;
     int64_t size, ts;
     double pts;
     switch(cmd) {
     case STREAM_CTRL_GET_SIZE:
-        size = url_filesize(s->priv);
+        size = avio_size(s->priv);
         if(size >= 0) {
-            *(off_t *)arg = size;
+            *(uint64_t *)arg = size;
             return 1;
         }
         break;
     case STREAM_CTRL_SEEK_TO_TIME:
         pts = *(double *)arg;
         ts = pts * AV_TIME_BASE;
-        ts = av_url_read_seek(s->priv, -1, ts, 0);
+        if (!ctx->read_seek)
+            break;
+        ts = ctx->read_seek(s->priv, -1, ts, 0);
         if (ts >= 0)
             return 1;
         break;
@@ -74,7 +81,7 @@ static int control(stream_t *s, int cmd, void *arg)
 
 static void close_f(stream_t *stream)
 {
-    url_close(stream->priv);
+    avio_close(stream->priv);
 }
 
 static const char prefix[] = "ffmpeg://";
@@ -83,21 +90,28 @@ static int open_f(stream_t *stream, int mode, void *opts, int *file_format)
 {
     int flags = 0;
     const char *filename;
-    URLContext *ctx = NULL;
+    AVIOContext *ctx = NULL;
     int res = STREAM_ERROR;
     int64_t size;
     int dummy;
 
     init_avformat();
     if (mode == STREAM_READ)
-        flags = URL_RDONLY;
+        flags = AVIO_FLAG_READ;
     else if (mode == STREAM_WRITE)
-        flags = URL_WRONLY;
+        flags = AVIO_FLAG_WRITE;
     else {
         mp_msg(MSGT_OPEN, MSGL_ERR, "[ffmpeg] Unknown open mode %d\n", mode);
         res = STREAM_UNSUPPORTED;
         goto out;
     }
+
+#ifdef AVIO_FLAG_DIRECT
+    flags |= AVIO_FLAG_DIRECT;
+#else
+    mp_msg(MSGT_OPEN, MSGL_WARN, "[ffmpeg] No support for AVIO_FLAG_DIRECT, might cause performance and other issues.\n"
+                                 "Please update to and rebuild against an FFmpeg version supporting it.\n");
+#endif
 
     if (stream->url)
         filename = stream->url;
@@ -107,23 +121,25 @@ static int open_f(stream_t *stream, int mode, void *opts, int *file_format)
     }
     if (!strncmp(filename, prefix, strlen(prefix)))
         filename += strlen(prefix);
-    dummy = !strncmp(filename, "rtsp:", 5);
+    dummy = !strncmp(filename, "rtsp:", 5) || !strncmp(filename, "dummy:", 6);
     mp_msg(MSGT_OPEN, MSGL_V, "[ffmpeg] Opening %s\n", filename);
 
-    if (!dummy && url_open(&ctx, filename, flags) < 0)
+    if (!dummy && avio_open(&ctx, filename, flags) < 0)
         goto out;
 
     stream->priv = ctx;
-    size = dummy ? 0 : url_filesize(ctx);
+    size = dummy ? 0 : avio_size(ctx);
     if (size >= 0)
         stream->end_pos = size;
     stream->type = STREAMTYPE_FILE;
     stream->seek = seek;
-    if (dummy || ctx->is_streamed) {
+    if (dummy || !ctx->seekable) {
         stream->type = STREAMTYPE_STREAM;
         stream->seek = NULL;
     }
-    if (!dummy) {
+    if (dummy) {
+        *file_format = DEMUXER_TYPE_LAVF;
+    } else {
         stream->fill_buffer = fill_buffer;
         stream->write_buffer = write_buffer;
         stream->control = control;
@@ -141,7 +157,7 @@ const stream_info_t stream_info_ffmpeg = {
   "",
   "",
   open_f,
-  { "ffmpeg", "rtmp", NULL },
+  { "ffmpeg", "rtmp", "rtsp", "https", NULL },
   NULL,
   1 // Urls are an option string
 };

@@ -3,20 +3,20 @@
  *
  * Copyright (C) 2008-2009 Splitted-Desktop Systems
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -24,7 +24,7 @@
 #include "vc1.h"
 #include "vc1data.h"
 
-/** Translate Libav MV modes to VA API */
+/** Translate FFmpeg MV modes to VA API */
 static int get_VAMvModeVC1(enum MVModes mv_mode)
 {
     switch (mv_mode) {
@@ -128,7 +128,7 @@ static inline int vc1_get_TTFRM(VC1Context *v)
     return 0;
 }
 
-/** Pack Libav bitplanes into a VABitPlaneBuffer element */
+/** Pack FFmpeg bitplanes into a VABitPlaneBuffer element */
 static inline void vc1_pack_bitplanes(uint8_t *bitplane, int n, const uint8_t *ff_bp[3], int x, int y, int stride)
 {
     const int bitplane_index = n / 2;
@@ -169,7 +169,7 @@ static int vaapi_vc1_start_frame(AVCodecContext *avctx, av_unused const uint8_t 
     pic_param->sequence_fields.bits.psf                             = v->psf;
     pic_param->sequence_fields.bits.multires                        = v->multires;
     pic_param->sequence_fields.bits.overlap                         = v->overlap;
-    pic_param->sequence_fields.bits.syncmarker                      = s->resync_marker;
+    pic_param->sequence_fields.bits.syncmarker                      = v->resync_marker;
     pic_param->sequence_fields.bits.rangered                        = v->rangered;
     pic_param->sequence_fields.bits.max_b_frames                    = s->avctx->max_b_frames;
 #if VA_CHECK_VERSION(0,32,0)
@@ -258,10 +258,10 @@ static int vaapi_vc1_start_frame(AVCodecContext *avctx, av_unused const uint8_t 
 
     switch (s->pict_type) {
     case AV_PICTURE_TYPE_B:
-        pic_param->backward_reference_picture = ff_vaapi_get_surface_id(&s->next_picture);
+        pic_param->backward_reference_picture = ff_vaapi_get_surface_id(s->next_picture.f);
         // fall-through
     case AV_PICTURE_TYPE_P:
-        pic_param->forward_reference_picture = ff_vaapi_get_surface_id(&s->last_picture);
+        pic_param->forward_reference_picture = ff_vaapi_get_surface_id(s->last_picture.f);
         break;
     }
 
@@ -310,13 +310,6 @@ static int vaapi_vc1_start_frame(AVCodecContext *avctx, av_unused const uint8_t 
     return 0;
 }
 
-static int vaapi_vc1_end_frame(AVCodecContext *avctx)
-{
-    VC1Context * const v = avctx->priv_data;
-
-    return ff_vaapi_common_end_frame(&v->s);
-}
-
 static int vaapi_vc1_decode_slice(AVCodecContext *avctx, const uint8_t *buffer, uint32_t size)
 {
     VC1Context * const v = avctx->priv_data;
@@ -326,7 +319,7 @@ static int vaapi_vc1_decode_slice(AVCodecContext *avctx, const uint8_t *buffer, 
     av_dlog(avctx, "vaapi_vc1_decode_slice(): buffer %p, size %d\n", buffer, size);
 
     /* Current bit buffer is beyond any marker for VC-1, so skip it */
-    if (avctx->codec_id == CODEC_ID_VC1 && IS_MARKER(AV_RB32(buffer))) {
+    if (avctx->codec_id == AV_CODEC_ID_VC1 && IS_MARKER(AV_RB32(buffer))) {
         buffer += 4;
         size -= 4;
     }
@@ -344,10 +337,10 @@ static int vaapi_vc1_decode_slice(AVCodecContext *avctx, const uint8_t *buffer, 
 AVHWAccel ff_wmv3_vaapi_hwaccel = {
     .name           = "wmv3_vaapi",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_WMV3,
-    .pix_fmt        = PIX_FMT_VAAPI_VLD,
+    .id             = AV_CODEC_ID_WMV3,
+    .pix_fmt        = AV_PIX_FMT_VAAPI_VLD,
     .start_frame    = vaapi_vc1_start_frame,
-    .end_frame      = vaapi_vc1_end_frame,
+    .end_frame      = ff_vaapi_mpeg_end_frame,
     .decode_slice   = vaapi_vc1_decode_slice,
 };
 #endif
@@ -355,9 +348,9 @@ AVHWAccel ff_wmv3_vaapi_hwaccel = {
 AVHWAccel ff_vc1_vaapi_hwaccel = {
     .name           = "vc1_vaapi",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_VC1,
-    .pix_fmt        = PIX_FMT_VAAPI_VLD,
+    .id             = AV_CODEC_ID_VC1,
+    .pix_fmt        = AV_PIX_FMT_VAAPI_VLD,
     .start_frame    = vaapi_vc1_start_frame,
-    .end_frame      = vaapi_vc1_end_frame,
+    .end_frame      = ff_vaapi_mpeg_end_frame,
     .decode_slice   = vaapi_vc1_decode_slice,
 };

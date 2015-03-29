@@ -2,26 +2,29 @@
  * Copyright (c) 2006 Aurelien Jacobs <aurel@gnuage.org>
  * Copyright (c) 2010 Mans Rullgard <mans@mansr.com>
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <stdint.h>
+
+#include "libavutil/attributes.h"
 #include "avcodec.h"
 #include "vp56dsp.h"
+#include "libavutil/common.h"
 
 /* Gives very similar result than the vp6 version except in a few cases */
 static int vp5_adjust(int v, int t)
@@ -74,9 +77,9 @@ VP56_EDGE_FILTER(vp5, ver, stride, 1)
 VP56_EDGE_FILTER(vp6, hor, 1, stride)
 VP56_EDGE_FILTER(vp6, ver, stride, 1)
 
-void ff_vp56dsp_init(VP56DSPContext *s, enum CodecID codec)
+av_cold void ff_vp56dsp_init(VP56DSPContext *s, enum AVCodecID codec)
 {
-    if (codec == CODEC_ID_VP5) {
+    if (codec == AV_CODEC_ID_VP5) {
         s->edge_filter_hor = vp5_edge_filter_hor;
         s->edge_filter_ver = vp5_edge_filter_ver;
     } else {
@@ -85,9 +88,11 @@ void ff_vp56dsp_init(VP56DSPContext *s, enum CodecID codec)
 
         if (CONFIG_VP6_DECODER) {
             s->vp6_filter_diag4 = ff_vp6_filter_diag4_c;
+
+            if (ARCH_ARM)
+                ff_vp6dsp_init_arm(s, codec);
+            if (ARCH_X86)
+                ff_vp6dsp_init_x86(s, codec);
         }
     }
-
-    if (ARCH_ARM) ff_vp56dsp_init_arm(s, codec);
-    if (HAVE_MMX) ff_vp56dsp_init_x86(s, codec);
 }

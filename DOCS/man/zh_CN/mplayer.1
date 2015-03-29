@@ -1,6 +1,6 @@
-.\" sync with en/mplayer.1 rev. 34463
-.\" This man page was/is done by Gabucino, Diego Biurrun, Jonas Jermann
-.\" translation by JRaSH<jrash06 at 163.com>
+.\" sync with en/mplayer.1 rev. 37376
+.\" MPlayer (C) 2000-2015 MPlayer Team
+.\" This man page was/is translated by JRaSH<jrash06 at gmail.com>
 .
 .\" --------------------------------------------------------------------------
 .\" Macro definitions
@@ -31,7 +31,7 @@
 .\" 标题
 .\" --------------------------------------------------------------------------
 .
-.TH MPlayer 1 "2009-03-25" "MPlayer 项目" "影视播放器"
+.TH MPlayer 1 "2015-02-13" "MPlayer 项目" "影视播放器"
 .
 .SH 名称
 mplayer  \- 影视播放器
@@ -343,7 +343,7 @@ MPlayer 有一个完全可配置的，命令驱动的控制层面，\
 .PD 1
 .PP
 .RS
-（以下的按键仅当使用 sdl 
+（以下的按键仅当使用 sdl
 视频输出驱动时有效。）
 .RE
 .PP
@@ -533,6 +533,8 @@ flip=yes
 mf=type=png:fps=25
 # 怪异的负片图像好酷。
 vf=eq2=1.0:\-0.8
+# OSD 播放进度条垂直放置方式
+progbar-align=50
 .fi
 .PP
 .I "MENCODER 配置文件示例："
@@ -601,6 +603,7 @@ equ_channel_1 ... equ_channel_6
 gui_main_pos_x，\
 gui_main_pos_y，\
 gui_save_pos (yes/no)，\
+gui_tv_digital（yes/no），\
 gui_video_out_pos_x，\
 gui_video_out_pos_y，\
 load_fullscreen  (yes/no)，\
@@ -635,7 +638,7 @@ font_autoscale
 font_blur
 .RB ( subfont-blur ")（仅用于 FreeType），"
 font_encoding
-.RB ( subfont-encoding ")（仅用于 FreeType），"
+.RB ( subfont-encoding ")，"
 font_factor
 .RB ( ffactor )，
 font_name
@@ -648,6 +651,8 @@ font_text_scale
 .RB ( subfont-text-scale ")（仅用于 FreeType），"
 gui_skin
 .RB ( skin )，
+idle
+.RB ( idle ),
 osd_level
 .RB ( osdlevel )，
 softvol
@@ -664,6 +669,8 @@ sub_pos
 .RB ( subpos )，
 sub_unicode
 .RB ( unicode )，
+sub_utf8
+.RB ( utf8 ),
 v_flip
 .RB ( flip )，
 v_framedrop
@@ -1019,7 +1026,7 @@ EDL 记录含有一些只对这个特定文件来说是正确的绝对数值。\
 强制使用单个固定的视频系统用于多个文件的播放\
 （一次初始化/终止操作用于所有文件）。\
 这样只打开一个窗口，将用于所有文件的播放。\
-目前以下驱动兼容 fixed-vo：gl、gl2、mga、svga、x11、xmga、\
+目前以下驱动兼容 fixed-vo：gl、gl_tiled、mga、svga、x11、xmga、\
 xv、xvidix 和 dfbmga。
 .
 .TP
@@ -1072,6 +1079,10 @@ mplayer \-heartbeat\-cmd "xscreensaver\-command \-deactivate" file
 mplayer \-heartbeat\-cmd "gnome\-screensaver\-command \-p" file
 .RE
 .PD 1
+.
+.TP
+.B \-heartbeat\-interval
+指定每隔多久 \-heartbeat\-cmd 要执行一次，以两次执行间相隔的秒数为单位（默认值：30.0）。
 .
 .TP
 .B \-identify
@@ -1202,7 +1213,7 @@ mplayer \-heartbeat\-cmd "gnome\-screensaver\-command \-p" file
 指针移动事件。\
 选择 DVD 菜单中的按钮需要该选项。\
 支持基于 X11 的视频输出（x11、xv、xvmc等）\
-以及 gl、gl2、direct3d 和 corevideo 的视频输出
+以及 gl、gl_tiled、direct3d 和 corevideo 的视频输出
 .
 .TP
 .B \-noar
@@ -1240,6 +1251,26 @@ mplayer \-heartbeat\-cmd "gnome\-screensaver\-command \-p" file
 时方式的 sleep 时，这些内核已经以相类似的精度唤醒进程了。
 .
 .TP
+.B \-pausing <0\-3>（仅用于 MPlayer）
+指定命令默认使用的暂时行为，也就是命令结后，\
+MPlayer 是继续播放还是暂停。\
+参见 DOCS/tech/slave.txt 以了解更多详情。
+.PD 0
+.RSs
+.IPs 0
+继续
+.IPs 1
+暂停（pausing）
+.IPs 2
+保持暂停 / 播放状态（pausing_keep）
+.IPs 3
+切换暂停 / 播放状态（pausing_toggle）
+.IPs 4
+暂停同时画面帧无步进（实验性）（pausing_keep_force）
+.RE
+.PD 1
+.
+.TP
 .B \-playing\-msg <字符串>
 开始播放前打印字符串。\
 支持以下的变量替换：
@@ -1257,11 +1288,27 @@ mplayer \-heartbeat\-cmd "gnome\-screensaver\-command \-p" file
 根据播放列表播放文件（支持 ASX、Winamp、SMIL、或\
 每行一个文件名的格式）。
 .br
+.I 警告：\
+MPlayer 解析及使用播放列表文件的方式不具备防范恶意构建文件的\
+安全性。\
+这些文件可能触发危险行为。\
+该隐患存在于迄今所有的 MPlayer 的版本中，但不幸的是之前未能\
+将此情况妥善写入文档中，而且一些用户已受此误导而将 -playlist 用于\
+不可信来源的参数。\
+请勿将 -playlist 用于任意的因特网来源或你不信任的文件！
+.br
 .I 注意：
 该选项处理为一项条目，其后的选项仅应用于该播放列表\
 的元素。
 .br
 FIXME: 需彻底解释清楚并记入文档。
+.
+.TP
+.B \-allow-dangerous-playlist-parsing
+该选项允许将任何文件解析为播放列表。用于例如一台服务将一个文件公告为播放列表\
+类型的情况。\
+仅当清楚知道所有涉及的服务器都可信任时才启用该选项。\
+MPlayer 的播放列表处理代码设计上并不能应对恶意播放列表文件。
 .
 .TP
 .B \-rtc\-device <设备>
@@ -1426,10 +1473,6 @@ MPlayer 在输出详细信息模式下（\-v）运行时会打印可用的语言
 这个选项可以告诉 MPlayer 使用哪个角度（默认值：1）。
 .
 .TP
-.B \-bluray\-chapter <章节代码>（仅用于蓝光 DVD）
-告诉 MPlayer 从哪个蓝光 DVD 章节开始播放当前标题的内容（默认值：1）。
-.
-.TP
 .B \-bluray\-device <碟片路径>（仅用于蓝光 DVD）
 指定蓝光碟片的位置。必须是一个具有蓝光 DVD 结构的目录。
 .
@@ -1537,7 +1580,7 @@ MPlayer 要求解码器将音频解码为该选项所指定的\
 .PD 1
 .
 .TP
-.B \-chapter <章节代码>[\-<中止章节代码>]（仅用于 dvd:// 和 dvdnav://）
+.B \-chapter <章节代码>[\-<中止章节代码>]
 指定从哪个章节开始播放。\
 可同时指定播放至哪个场景中止（默认值：1）。
 .
@@ -1667,7 +1710,8 @@ MPlayer 在关闭时将驱动器的速度重置为默认值。\
 .I 注意：
 字节数表示的位置可能不精确，因为只能停在帧数据块的边界上。\
 当与 \-ss 选项组合使用时，如非以字节数指定位置，\-endpos 的时间\
-会向前平移 \-ss 所指定的秒数。
+会向前平移 \-ss 所指定的秒数。\
+另外，当与任何 \-dump 选项一同使用时，该选项可能无法正确或有效地起作用。
 .sp 1
 .I 示例：
 .PD 0
@@ -1799,9 +1843,12 @@ MPlayer 并不防止加载产生自不同 AVI 文件的索引，\
 .PD 1
 .
 .TP
-.B \-ni（仅用于 AVI）
-强制使用非交错 AVI 解析器（修复某些异常 AVI 文件\
-的播放错误）。
+.B \-ni
+强制将文件作为非交错格式处理。\
+特别是强制使用非交错格式的 AVI 解析器（可使某些损坏的 AVI 文件\
+重新可以播放）。\
+也可能有助于播放一些默认方式下交替而非同时播放音频和\
+视频的文件。
 .
 .TP
 .B \-nobps（仅用于 AVI）
@@ -2067,7 +2114,8 @@ radio://1, radio://104.4, radio_set_channel 1
 .TP
 .B \-speed <0.01\-100>
 以所给的参数因子减慢或加快播放速度。\
-与 \-oac copy 一起使用时不能保证正常起作用。
+与 \-oac copy 一起使用时不能保证正常起作用。\
+添加 \-af scaletempo 参数可以在播放时突破 4 倍速度限制。
 .
 .TP
 .B \-srate <Hz>
@@ -2081,7 +2129,8 @@ radio://1, radio://104.4, radio_set_channel 1
 .
 .TP
 .B \-ss <时间点>（另见 \-sb）
-定位到所给时间的位置。
+定位到所给时间的位置。\
+要禁止定位操作，需使用 \-ss nopts ，\-ss 0 的行为并非所愿。
 .sp 1
 .I 示例：
 .PD 0
@@ -2516,9 +2565,9 @@ SSA/ASS 渲染器能在那里放置字幕（与 \-ass\-use\-margins 组合使用
 .
 .TP
 .B \-font <font.desc 文件的路径，字体的路径（FreeType），字体样式（Fontconfig）>
-在别的目录中寻找 OSD/\:SUB 的字体\
-（普通字体的默认路径为：~/\:.mplayer/\:font/\:font.desc，\
-FreeType 字体的默认路径为：~/.mplayer/\:subfont.ttf)。
+在别的目录中寻找 OSD/\:字幕的字体\
+（普通字体的默认路径为：~/\:.mplayer/\:font/\:font.desc，FreeType 字体的默认\
+路径为：~/.mplayer/\:subfont.ttf，Fontconfig 的默认字体：“sans-serif”)。
 .br
 .I 注意：
 使用 FreeType 时，该选项决定了文本字体文件的路径。\
@@ -2539,12 +2588,13 @@ FreeType 字体的默认路径为：~/.mplayer/\:subfont.ttf)。
 .
 .TP
 .B \-fontconfig（仅用于 fontconfig）
-启用 fontconfig 管理字体。
+启用 fontconfig 管理字体（默认值：自动侦测）。
 .br
 .I 注意：
 默认情况下，fontconfig 用于 libass 渲染的字幕，而不用于 OSD 界面。\
 使用 \-fontconfig 后，则将 fontconfig 同时用于 libass 和 OSD；\
-使用 \-nofontconfig 后，则完全不使用 fontconfig。
+使用 \-nofontconfig 后，则完全不使用 fontconfig，也就是说只有这时，\
+\-font 与 \-subfont 选项中可以指定字体的路径。
 .
 .TP
 .B \-forcedsubsonly
@@ -2607,6 +2657,11 @@ FreeType 字体的默认路径为：~/.mplayer/\:subfont.ttf)。
 允许当前有字幕显示仍显示下一个字幕\
 （默认方式是只在使用特定字幕格式时\
 启用该项支持）。
+.
+.TP
+.B \-progbar\-align <0-100>
+指定播放进度条垂直方向放置方式\
+（0：置顶，100：置底，默认值为 50，即居中）。
 .
 .TP
 .B \-sid <代码>（也请参见 \-slang、\-vobsubid）
@@ -2743,8 +2798,10 @@ DVD/\:VOBsub 的抗锯齿/\:缩放模式。\
 .PD 1
 .
 .TP
-.B "\-subcc <1\-4>\ "
+.B "\-subcc <1\-8>\ "
 显示来自指定通道的 DVD 可隐藏字幕（DVD Closed Caption）。\
+值 5 至 8 用以选择从 EIA-708 数据中抽取兼容 EIA-608 数据流的\
+一种模式。\
 这些字幕
 .B 不
 是 VOB 字幕，而是为听力有障碍的人准备的特殊的 ASCII 字幕，\
@@ -2754,7 +2811,8 @@ DVD/\:VOBsub 的抗锯齿/\:缩放模式。\
 .TP
 .B \-subcp <编码页>（仅用于 iconv）
 如果系统支持 iconv(3)，可使用该选项指定字幕的\
-编码页。
+编码页。其优先级高于 -utf8 和 -unicode 选\
+项。
 .sp 1
 .I 示例：
 .PD 0
@@ -2847,10 +2905,13 @@ sub,subtitles,/tmp/subs，那么 MPlayer 将在这些目录下搜索\
 设置字体模糊化半径（默认值：2）。
 .
 .TP
-.B \-subfont\-encoding <参数值>（仅用于 FreeType）
+.B \-subfont\-encoding <参数值>
 设置字幕编码方式。\
 当设为‘unicode’时，将渲染字体文件中的所有字形，\
-并使用 unicode 编码（默认值：unicode）。
+并使用 unicode 编码（默认值：unicode）。（没有使用 FreeType 字体时，设为\
+‘unicode’以外的值将禁用 font.desc 文件的 unicode 字形渲染。\
+使用 FreeType 并且设为‘unicode’以外的值时，系统必须支持\
+support iconv(3) 以使用该选项可正常工作。）
 .
 .TP
 .B \-subfont\-osd\-scale <0\-100>（仅用于 FreeType）
@@ -2874,9 +2935,10 @@ sub,subtitles,/tmp/subs，那么 MPlayer 将在这些目录下搜索\
 而使基于时间的字幕文件减慢播放字幕。
 .
 .TP
-.B \-subpos <0\-100>（有助于与 \-vf expand 一同使用）
+.B \-subpos <0\-150>（有助于与 \-vf expand 一同使用）
 指定字幕在屏幕上显示的位置。\
-参数值是以屏幕高度的百分比为单位的字幕垂直位置。
+参数值是以屏幕高度的百分比为单位的字幕垂直位置。\
+值大于 100 时将截断部分字幕的显示。
 .
 .TP
 .B \-subwidth <10\-100>
@@ -2898,7 +2960,8 @@ sub,subtitles,/tmp/subs，那么 MPlayer 将在这些目录下搜索\
 .
 .TP
 .B \-unicode
-告诉 MPlayer 将字幕文件作为 unicode 文本处理。
+告诉 MPlayer 将字幕文件作为 unicode 文本处理。（只有当 -subcp 和 -utf8 都未\
+使用时，该选项才可生效）
 .
 .TP
 .B \-unrarexec <unrar 可执行文件的路径>（MingW 平台上不支持。）
@@ -2908,7 +2971,8 @@ sub,subtitles,/tmp/subs，那么 MPlayer 将在这些目录下搜索\
 .
 .TP
 .B "\-utf8 \ \ "
-告诉 MPlayer 将字幕文件作为 UTF-8 文本来处理。
+告诉 MPlayer 将字幕文件作为 UTF-8 文本来处理。（只有当 -subcp 未指定时该选项才\
+生效，并且其优先级高于 -unicode。）
 .
 .TP
 .B \-vobsub <无后缀名的 VOBsub 文件名>
@@ -3069,6 +3133,10 @@ OSS 音频输出驱动
 通过 JACK（Jack 音频连接组件）的音频输出
 .PD 0
 .RSs
+.IPs (no)connect
+自动创建至输出端口的连接（默认值：启用）。\
+当启用时，输出信道的数量最大限制为可用的\
+输出端口数量。
 .IPs port=<名称>
 连接至所给名称的端口（默认值：物理端口）。
 .IPs name=<客户端名称>
@@ -3108,10 +3176,14 @@ Mac OS X 自带的音频输出驱动
 PulseAudio 音频输出驱动
 .PD 0
 .RSs
-.IPs "<主机>[:<输出泄漏值>]"
+.IPs "[<主机>[:<输出目标>[:broken_pause]]]"
 指定所使用的主机，并可指定所使用的输出泄漏值。\
 <主机> 字符串为空的话，则使用本地连接。指定“localhost”则使用网络传输\
-（很可能并非所希望的方式）。
+（很可能并非所希望的方式）。\
+还可以明确表明强制使用变通逻辑，以修复存在故障的暂停功能（broken_pause）。\
+（默认值：自动侦测）。\
+如果只需要启用该功能而不指定主机/输出目标，则\
+形式为 \-ao pulse:::broken_pause。
 .RE
 .PD 1
 .
@@ -3281,7 +3353,11 @@ IVTV 专用的 MPEG 音频输出驱动。\
 .
 .TP
 .B "\-dr \ \ \ "
-打开直接渲染功能（不是所有的编解码器和视频输出都支持）
+开启直接渲染功能（不是所有的编解码器和视频输出都支持）\
+在一系统上这能显著加快位块传输的速度，但在大多数情况下\
+差异非常小。\
+在某些情况下，尤其是当解码器不恰当地指定了所需的缓冲大小时，\
+该功能可能变得非常慢。
 .br
 .I 警告：
 可能导致 OSD/字幕功能异常！
@@ -3435,6 +3511,18 @@ VESA 帧缓冲不支持改变模式。
 .PD 1
 .
 .TP
+.B \-fs-border-left   <像素数>
+.TP
+.B \-fs-border-right  <像素数>
+.TP
+.B \-fs-border-top    <像素数>
+.TP
+.B \-fs-border-bottom <像素数>
+指定全屏模式下额外边框的宽度。\
+该边框用于所有显示的元素：视频、OSD 和 EOSD。\
+像素数是相对于屏幕分辨率的像素量而指定的。\
+目前仅 gl 视频输出驱动支持。
+.TP
 .B \-gamma <\-100\-100>
 调整视频信号的伽玛校正值（默认值：0）。\
 不是所有视频输出驱动都支持。
@@ -3453,13 +3541,14 @@ x 和 y 指定的是从屏幕左上角到所显示图像的左上角\
 如果使用 \-wid 选项指定了外部窗口，\
 那么 x 和 y 坐标是相对于窗口而非\
 屏幕的左上角。\
-使用完全支持 \-xineramascreen 的视频输出的驱动（direct3d、gl、gl2、\
+使用完全支持 \-xineramascreen 的视频输出的驱动（direct3d、gl、gl_tiled、\
 vdpau、x11、xv、xvmc、corevideo）时，坐标是相对于 \-xineramascreen 选项\
 所给屏幕的值。
 .br
 .I 注意：
-该选项仅 x11、xmga、xv、xvmc、xvidix、gl、gl2、directx、fbdev、tdfxfb 和 \
-corevideo 视频输出驱动支持。
+该选项仅 x11、xmga、xv、xvmc、xvidix、gl、gl_tiled、direct3d、\
+directx、fbdev、sdl、dfxfb 和 corevideo 视频输出驱动\
+支持。
 .sp 1
 .I 示例：
 .PD 0
@@ -3546,15 +3635,15 @@ corevideo 视频输出驱动支持。
 .B "\-ontop\ "
 让播放器窗口保持位于其他窗口之上。\
 使用 X11 的视频输出驱动（除了 SDL），以及使用 directx、corevideo、quartz、\
-ggi 和 gl2 的驱动都支持。
+ggi 和 gl_tiled 的驱动都支持。
 .
 .TP
 .B \-panscan <0.0\-1.0>
 启用全景显示功能（裁剪诸如 16:9 影片的两边以适应 4:3 不带\
 黑边的显示方式）。\
 该范围内的参数值用来控制裁减多少图像。\
-只能与 xv, xmga, mga, gl, gl2, quartz, corevideo 和 xvidix 的\
-视频输出驱动一同起作用。
+只能与 directx、xv、xmga、mga、gl、gl_tiled、quartz、corevideo 和 xvidix 的\
+视频输出驱动一同使用。
 .br
 .I 注意：
 也允许 \-1 和 0 间的值，但这些值处于高度试验阶段，\
@@ -3567,8 +3656,26 @@ ggi 和 gl2 的驱动都支持。
 值为正数表示默认范围所乘的倍数。\
 值为负数表示可以放大至 \-panscanrange+1 所表示的因数。\
 例如 \-panscanrange \-3 允许缩放因子达到 4。\
-该功能是实验性的。\
-不要报告相关缺隐，除非在使用 \-vo gl。
+该功能是实验性的。
+.
+.TP
+.B \-border\-pos\-x <0.0\-1.0>（仅用于 -vo gl,xv,xvmc,vdpau,direct3d，默认值为 0.5）
+当使用黑边以调整画面大小适应屏幕宽高比时，该选项用于确定在何处摆放黑边。\
+值为 0.0 时将黑边放在右边，1.0 则放在左边。\
+值超出 0.0 \- 1.0 的范围时将在所对应的一边额外增加黑边的宽度并使另一边的部分画面\
+被移除。
+.
+.TP
+.B \-border\-pos\-y <0.0\-1.0>（仅用于 -vo gl,xv,xvmc,vdpau,direct3d only，默认值为 0.5）
+与 \-border\-pos\-x 相似，但用于上下位置的黑边。\
+值为 0.0 时将黑边放在底部，1.0 则放在底部。
+.
+.TP
+.B \-monitor\-orientation <0-3>（实验性选项）
+将显示的图像旋转 90、180 或 270 度。\
+也旋转 OSD，而不只是视频图像本身。\
+当前只有 gl 视频输出驱动支持。\
+对于其它视频输出类型可以使用 -vf ass,expand=osd=1,rotate=n。以后甚至可以自动应用这一行为。
 .
 .TP
 .B \-refreshrate <Hz>
@@ -3648,7 +3755,7 @@ dga、x11、xv、sdl 和 directx 视频输出驱动支持该选项。\
 （因为其总是在所给屏幕上全屏显示），\
 \-geometry 是目前可用于此目的的最好\
 选项。\
-至少 direct3d、gl、gl2、x11、xv 和 corevideo 视频输出\
+至少 direct3d、gl、gl_tiled、x11、xv 和 corevideo 视频输出\
 驱动支持该选项。
 .
 .TP
@@ -4022,6 +4129,7 @@ Mac OS X CoreVideo 视频输出驱动
 .PD 0
 .RSs
 .IPs device_id=<数值>
+过时选项，可使用 \-xineramascreen 代替。
 选择用于全屏模式的显示设备，或将其设为 \-1 以总是使用视频窗口所在的屏幕\
 （默认值：\-1 \- 自动选择）。
 .IPs shared_buffer
@@ -4131,6 +4239,10 @@ OpenGL 视频输出驱动，简单版本。\
 2：SDL
 .br
 3：X11/EGL（高度处于实验阶段）
+.br
+4：OSX/Cocoa
+.br
+5：Android（十分糟糕的实现，仅用于测试）
 .RE
 .IPs (no)ati\-hack
 当使用了 PBO 时（当使用了 \-dr 或强制使用 \-pbo 时），\
@@ -4172,8 +4284,9 @@ OSD 的颜色（默认值是：0x00ffffff，对应不透明的白色）。
 需要 GLX_SGI_swap_control 支持以起作用。\
 某些（大多数/所有？）实现设备仅能在全屏模式下起作用。
 .IPs ycbcr
-使用 GL_MESA_ycbcr_texture 扩展组件将 YUV 转换为 RGB 格式。\
-在大多数情况下，该方法很可能比使用软件转换成 RGB 慢。
+使用 GL_APPLE_ycbcr_422 扩展组件将 YUV 转换为 RGB 格式。\
+如果指定了 yuv= 则默认为禁用，否则默认为自动检测。\
+注意该选项将启用一些特殊的设置以进入驱动程序中的一种特殊的快速通道。
 .IPs yuv=<n>
 选择 YUV 到 RGB 转换的类型。\
 默认方式是自动侦测，选取 0 到 2 之间的一个值。
@@ -4188,15 +4301,15 @@ OSD 的颜色（默认值是：0x00ffffff，对应不透明的白色）。
 提供饱和度和色调的控制功能。\
 该方法速度快但不精确。
 .br
-2：使用片断程序。\
-需要 GL_ARB_fragment_program 扩展组件和至少三个纹理处理单元。\
-提供亮度、对比度、饱和度和色调控制。
-.br
-3：使用利用 POW 指令的片断程序。\
+2：使用利用 POW 指令的片断程序。\
 需要 GL_ARB_fragment_program 扩展组件和至少三个纹理处理单元。\
 提供亮度、对比度、饱和度、色调和伽玛校正值的控制功能。\
 伽玛校正值也能在红、绿和蓝三个方面单独设置。\
 方法 4 通常更快。
+.br
+3：与 2 相同。\
+为该类型专门分配一个值是出于历史原因，MPlayer 现在为按需启用的\
+伽玛校正值控制功能插入额外的指令。
 .br
 4：使用具有额外查阅操作的片断程序。\
 需要 GL_ARB_fragment_program 扩展组件和至少四个纹理处理单元。\
@@ -4258,8 +4371,10 @@ GL_ARB_fragment_shader！）。\
 可能在一些显卡上运行较快。
 .IPs 4
 使用实验性的非锐化的蔽码，支持 3x3 模式并具有默认强化值 0.5。（参见 filter-strength）
-.IPs 2
+.IPs 5
 使用实验性的非锐化的蔽码，支持 5x5 模式并具有默认强化值 0.5。（参见 filter-strength）
+.IPs 64
+使用最近邻方式缩放。
 .RE
 .IPs cscale=<n>
 选择用于色度缩放的缩放函数。\
@@ -4284,7 +4399,16 @@ GL_ARB_fragment_shader！）。\
 .IPs 3
 将画面并行排列的输入信号转换为四重缓冲的立体图像。\
 只有少数 OpenGL 显卡支持
+.IPs 4
+以按像素排列的方式将左右眼的图像混合在一起。\
+混合样式由 stipple 选项指定。
 .RE
+.IPs stipple=<以比特表示的方式>
+数值的最低 16 位用以指定所使用 4x4 排列样式（默认值：0x0f0f）。\
+可供尝试的示例：\
+0x0f0f, 0xf0f0：按水平线排列；
+0xaaaa, 0x5555：按垂直线排列；
+0xa5a5, 0x5a5a：交错网格排列
 .RE
 .sp 1
 .RS
@@ -4348,7 +4472,7 @@ GL_ARB_fragment_shader！）。\
 .PD 1
 .
 .TP
-.B "gl2\ \ \ \ "
+.B "gl_tiled \ \ \ "
 OpenGL 视频输出驱动的修改版。\
 支持大于最大纹理尺寸的视频，但是缺少\
 许多 GL 驱动的高级功能和优化选项，\
@@ -6093,7 +6217,17 @@ unsigned long long counter   /*用于保持同步, 每当有新
 收集并打印音频流的统计信息，尤其是音量信息。\
 这些统计信息特别用于帮助调节音量\
 以防止削波。\
-音量以 dB 为单位打印并与用于音量的音频过滤器兼容。
+音量以 dB 为单位打印并与用于音量的音频过滤器相兼容，\
+这些数值总是向 -0dB 方向取整。
+.sp 1
+‘n_samples’字段是过滤器读到的采样总数。\
+‘mean_volume’字段是均方值的平方根。\
+‘max_volume’字段的含义与其名完全一致（最大音量）。\
+‘histogram_Xdb’字段统计的是会有多少采样的值是 -XdB，此时 X 为\
+刚好低于最大音量的值。
+.sp 1
+例如，如果 max_volume 为 -7dB 并且 histogram_7dB 为 19，则‘volume=7’不会\
+导致削波，而‘volume=8’将在刚好 19 个采样中导致削波。
 .
 .
 .
@@ -7821,13 +7955,16 @@ xtile * ytile的数。\
 .RE
 .
 .TP
-.B screenshot
+.B screenshot=前缀字符串
 允许使用可以与按键绑定的被动模式下的命令\
 获取影片的截屏。\
 参见被动模式的说明文档以及交互式控制一节\
 以获取详细信息。\
-命名为‘shotNNNN.png’的文件将保存在工作目录下，\
+默认情况下命名为‘shotNNNN.png’的文件将保存在工作目录下，\
 所用的编号为第一个可以用的编号——不会覆盖任何文件。\
+指定前缀字符串可改变文件的名字和位置，例如，
+\-vf screenshot=shots/now 将把文件保存在 shots 目录下\
+并以 nowNNNN.png 为文件名。\
 该过滤器在不用时不占用资源，并且支持任意色彩空间，\
 所以将其添加进配置文件中很安全。\
 需确保 screenshot 过滤器位于所有产生希望保存于图像的\
@@ -8826,10 +8963,6 @@ iter（迭代重叠的区块，仅用于 snow）
 .B "loop\ \ \ "
 遁环过滤（H.263+）\
 注意，该选项有问题
-.
-.TP
-.B inter_threshold <\-1000\-1000>
-当前没有任何作用。
 .
 .TP
 .B keyint=<0\-300>
@@ -10617,6 +10750,10 @@ H.264 的量化参数是基于对数尺度的。\
 通常情况下应使用该选项而非 qp。
 .
 .TP
+.B crf_max=<浮点值>
+当使用 CRF 和 VBV 时，限制 RF 最多为该值（可以导致 VBV 下溢！）。
+.
+.TP
 .B pass=<1\-3>
 启用 2 或 3 阶段编码模式。\
 推荐总是以 2 或 3 阶段编码模式编码，因为该模式使比特的\
@@ -10752,7 +10889,7 @@ trellis=0 fast_pskip。\
 .
 .TP
 .B keyint_min=<1\-keyint/2>
-设置 IDR 帧间的最小间隔（默认值：25）。\
+设置 IDR 帧间的最小间隔（默认值：自动）。\
 如果间隔中出现了场景切换，那么切换仍然编码为 I 帧，\
 但不产生新的画面组。\
 在 H.264 中，I 帧并不一定是封闭画面组的边界，\
@@ -10830,6 +10967,39 @@ B2 与前面所述的一样，但 B1 是从 IO 和 B2 预测出来的，\
 必须使用。
 .IPs "none\ "
 禁止使用 B 帧作为引用帧。
+.RE
+.PD 1
+.
+.TP
+.B (no)open_gop
+使用恢复点闭合图像组；只可用于 B 帧。
+.
+.TP
+.B (no)bluray_compat
+启用提供兼容性的破解逻辑以支持蓝光播放。
+.
+.TP
+.B (no)fake_interlaced
+将媒体流标记为隔行扫描模式，但以逐行扫描模式编码。这使编码 25p 和 30p 的蓝光\
+媒体流成为可能。在隔行扫描模式下忽略该选项。
+.
+.TP
+.B frame_packing=<0-5>
+指定立体视频中帧的排列方式。
+.PD 0
+.RSs
+.IPs 0
+花格式交替 - 左右眼画面的像素交替出现。
+.IPs 1
+按列交替 - 左右眼画面按像素列交替排列。
+.IPs 2
+按行交替 - 左右眼画面按像素行交替排列。
+.IPs 3
+边靠边排列 - 左眼画面在左边，右眼画面在右边。
+.IPs 4
+上下排列 - 左眼画面在上面，右眼画面在下边。
+.IPs 5
+按帧交替 - 每帧为单眼的画面。
 .RE
 .PD 1
 .
@@ -10992,9 +11162,9 @@ direct_pred=none 不仅运行速度较慢而且质量也较差。
 .IPs 0
 禁用（运行最快）
 .IPs 1
-盲目模式（质量稍好）
+基于权重的帧引用方式（质量较好）
 .IPs 2
-智能模式（质量最好）
+基于权重的帧引用方式 + 重复输出（质量最好）
 .RE
 .PD 1
 .
@@ -11068,7 +11238,7 @@ p4x4 只在 subq >= 5，并且分辨率低时才推荐使用。
 彻底性运动搜索或多六边形运动搜索的半径（默认值：16）
 .
 .TP
-.B subq=<0\-9>
+.B subq=<0\-11>
 调整亚像素优化质量。\
 该参数控制的是运动估计决策过程中质量与\
 速度间的权衡。\
@@ -11108,7 +11278,11 @@ subq=5 能比 subq=1 多压缩掉 10%。
 .IPs 8
 启用运动矢量的码率失真优化模式，以及 I 帧和 P 帧中的内部预测模式。
 .IPs 9
-启用运动矢量的码率失真优化模式，以及所有帧中的内部预测模式。（最佳）
+启用运动矢量的码率失真优化模式，以及所有帧中的内部预测模式。
+.IPs 10
+量化参数上码率失真模式；需要指定 trellis=2 并且 aq_mode=1 或更高的参数（最佳）。
+.IPs 11
+完全码率失真模式；禁用所有提前终止逻辑。
 .RE
 .PD 1
 .RS
@@ -11291,6 +11465,11 @@ Windows CMD.EXE 的用户如果尝试使用全部 CQM 列表时，\
 才可使用这个参数。
 .
 .TP
+.B (no)cpu_independent
+保证不同的 CPU 下有可重现的输出，而不是当有更好的算法时选择一个\
+不同的算法（默认值：启用）。
+.
+.TP
 .B threads=<0\-16>
 生成线程以在多个 CPU上 并行编码（默认值：0）。\
 该选项对于压缩质量稍有一些影响。\
@@ -11336,14 +11515,30 @@ Windows CMD.EXE 的用户如果尝试使用全部 CQM 列表时，\
 默认行为是使 SPS 和 PPS 在每个 IDR 帧前重复出现。
 .
 .TP
-.B (no)interlaced
-将视频内容作为隔行扫描内容对待。
+.B (no)tff
+启用隔行扫描模式，上半扫描场在前（默认值：禁用）
+.
+.TP
+.B (no)bff
+启用隔行扫描模式，下半扫描场在前（默认值：禁用）
+.
+.TP
+.B nal_hrd=<none|vbr|cbr>
+通知 HRD 信息（需要指定 vbv_bufsize）（默认值：无）。
+.
+.TP
+.B (no)pic_struct
+在图像计时 SEI 中强制使用 pic_struct（默认值：禁用）。
 .
 .TP
 .B (no)constrained_intra
 启用受限制的帧内预测模式（默认值：禁用）。\
 该选项稍稍降低压缩率，但对于 SVC 编码中的\
 基础编码层次是必须的。
+.
+.TP
+.B output_csp=<i420|i422|i444|rgb>
+指定输出信号的色彩空间（默认值：i420）。
 .
 .TP
 .B (no)aud
@@ -12230,7 +12425,7 @@ rar p test-SVCD.rar | mencoder \-ovc lavc \-lavcopts vcodec=mpeg4:vbitrate=800 \
 MPlayer 最初由 Arpad Gereoffy 制作。\
 参见 AUTHORS 文件以查看其它众多贡献者的部分列表。
 .PP
-MPlayer 为 (C) 2000\-2011 MPlayer 团队所有
+MPlayer 为 (C) 2000\-2015 MPlayer 团队所有
 .PP
 本（英文）手册主要由 Gabucino、Jonas Jermann 和 Diego Biurrun 编写，\
 由 Diego Biurrun 维护。中文版由 JRaSH <jrash06 AT 163.com> 翻译。\

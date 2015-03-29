@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <strings.h>
 #include <ctype.h>
 #include <sys/time.h>
 #include <errno.h>
@@ -88,6 +89,9 @@ int pvr_param_bitrate = 0;
 char *pvr_param_bitrate_mode = NULL;
 int pvr_param_bitrate_peak = 0;
 char *pvr_param_stream_type = NULL;
+
+#define BUFSTRCPY(d, s) av_strlcpy(d, s, sizeof(d))
+#define BUFPRINTF(d, ...) snprintf(d, sizeof(d), __VA_ARGS__)
 
 typedef struct station_elem_s {
   char name[8];
@@ -185,7 +189,7 @@ pvr_uninit (struct pvr_t *pvr)
     return;
 
   /* close device */
-  if (pvr->dev_fd)
+  if (pvr->dev_fd != -1)
     close (pvr->dev_fd);
 
   free (pvr->video_dev);
@@ -227,13 +231,12 @@ copycreate_stationlist (stationlist_t *stationlist, int num)
 
   /* transport the channel list data to our extented struct */
   stationlist->total = num;
-  av_strlcpy (stationlist->name, chanlists[chantab].name, PVR_STATION_NAME_SIZE);
+  BUFSTRCPY(stationlist->name, chanlists[chantab].name);
 
   for (i = 0; i < chanlists[chantab].count; i++)
   {
     stationlist->list[i].station[0]= '\0'; /* no station name yet */
-    av_strlcpy (stationlist->list[i].name,
-             chanlists[chantab].list[i].name, PVR_STATION_NAME_SIZE);
+    BUFSTRCPY(stationlist->list[i].name, chanlists[chantab].list[i].name);
     stationlist->list[i].freq = chanlists[chantab].list[i].freq;
     stationlist->list[i].enabled = 1; /* default enabled */
     stationlist->enabled++;
@@ -319,14 +322,11 @@ set_station (struct pvr_t *pvr, const char *station,
     }
 
     if (station)
-      av_strlcpy (pvr->stationlist.list[i].station,
-               station, PVR_STATION_NAME_SIZE);
+      BUFSTRCPY(pvr->stationlist.list[i].station, station);
     else if (channel)
-      av_strlcpy (pvr->stationlist.list[i].station,
-               channel, PVR_STATION_NAME_SIZE);
+      BUFSTRCPY(pvr->stationlist.list[i].station, channel);
     else
-      snprintf (pvr->stationlist.list[i].station,
-                PVR_STATION_NAME_SIZE, "F %d", freq);
+      BUFPRINTF(pvr->stationlist.list[i].station, "F %d", freq);
 
     mp_msg (MSGT_OPEN, MSGL_DBG2,
             "%s Set user station channel: %8s - freq: %8d - station: %s\n",
@@ -376,13 +376,11 @@ set_station (struct pvr_t *pvr, const char *station,
   pvr->stationlist.enabled++;
 
   if (station)
-    av_strlcpy (pvr->stationlist.list[i].station,
-             station, PVR_STATION_NAME_SIZE);
+    BUFSTRCPY(pvr->stationlist.list[i].station, station);
   if (channel)
-    av_strlcpy (pvr->stationlist.list[i].name, channel, PVR_STATION_NAME_SIZE);
+    BUFSTRCPY(pvr->stationlist.list[i].name, channel);
   else
-    snprintf (pvr->stationlist.list[i].name,
-              PVR_STATION_NAME_SIZE, "F %d", freq);
+    BUFPRINTF(pvr->stationlist.list[i].name, "F %d", freq);
 
   pvr->stationlist.list[i].freq = freq;
 
@@ -471,10 +469,10 @@ parse_setup_stationlist (struct pvr_t *pvr)
       if (!sep)
         continue; /* Wrong syntax, but mplayer should not crash */
 
-      av_strlcpy (station, sep + 1, PVR_STATION_NAME_SIZE);
+      BUFSTRCPY(station, sep + 1);
 
       sep[0] = '\0';
-      av_strlcpy (channel, tmp, PVR_STATION_NAME_SIZE);
+      BUFSTRCPY(channel, tmp);
 
       while ((sep = strchr (station, '_')))
         sep[0] = ' ';
@@ -1590,8 +1588,7 @@ pvr_stream_open (stream_t *stream, int mode, void *opts, int *file_format)
   {
     mp_msg (MSGT_OPEN, MSGL_ERR,
             "%s error opening device %s\n", LOG_LEVEL_PVR, pvr->video_dev);
-    pvr_uninit (pvr);
-    return STREAM_ERROR;
+    goto err_out;
   }
 
   /* query capabilities (i.e test V4L2 support) */
@@ -1600,8 +1597,7 @@ pvr_stream_open (stream_t *stream, int mode, void *opts, int *file_format)
     mp_msg (MSGT_OPEN, MSGL_ERR,
             "%s device is not V4L2 compliant (%s).\n",
             LOG_LEVEL_PVR, strerror (errno));
-    pvr_uninit (pvr);
-    return STREAM_ERROR;
+    goto err_out;
   }
   else
     mp_msg (MSGT_OPEN, MSGL_INFO,
@@ -1613,8 +1609,7 @@ pvr_stream_open (stream_t *stream, int mode, void *opts, int *file_format)
     mp_msg (MSGT_OPEN, MSGL_ERR,
             "%s device is not a valid V4L2 capture device.\n",
             LOG_LEVEL_PVR);
-    pvr_uninit (pvr);
-    return STREAM_ERROR;
+    goto err_out;
   }
 
   /* check for device hardware MPEG encoding capability */
@@ -1626,7 +1621,7 @@ pvr_stream_open (stream_t *stream, int mode, void *opts, int *file_format)
   {
     mp_msg (MSGT_OPEN, MSGL_ERR,
             "%s device do not support MPEG input.\n", LOG_LEVEL_ENCODER);
-    return STREAM_ERROR;
+    goto err_out;
   }
 
   /* list V4L2 capabilities */
@@ -1634,8 +1629,7 @@ pvr_stream_open (stream_t *stream, int mode, void *opts, int *file_format)
   {
     mp_msg (MSGT_OPEN, MSGL_ERR,
             "%s can't get v4l2 capabilities\n", LOG_LEVEL_PVR);
-    pvr_uninit (pvr);
-    return STREAM_ERROR;
+    goto err_out;
   }
 
   /* apply V4L2 settings */
@@ -1643,8 +1637,7 @@ pvr_stream_open (stream_t *stream, int mode, void *opts, int *file_format)
   {
     mp_msg (MSGT_OPEN, MSGL_ERR,
             "%s can't set v4l2 settings\n", LOG_LEVEL_PVR);
-    pvr_uninit (pvr);
-    return STREAM_ERROR;
+    goto err_out;
   }
 
   /* apply encoder settings */
@@ -1652,8 +1645,7 @@ pvr_stream_open (stream_t *stream, int mode, void *opts, int *file_format)
   {
     mp_msg (MSGT_OPEN, MSGL_ERR,
             "%s can't set encoder settings\n", LOG_LEVEL_PVR);
-    pvr_uninit (pvr);
-    return STREAM_ERROR;
+    goto err_out;
   }
 
   /* display current V4L2 settings */
@@ -1661,8 +1653,7 @@ pvr_stream_open (stream_t *stream, int mode, void *opts, int *file_format)
   {
     mp_msg (MSGT_OPEN, MSGL_ERR,
             "%s can't get v4l2 settings\n", LOG_LEVEL_PVR);
-    pvr_uninit (pvr);
-    return STREAM_ERROR;
+    goto err_out;
   }
 
   stream->priv = pvr;
@@ -1671,6 +1662,10 @@ pvr_stream_open (stream_t *stream, int mode, void *opts, int *file_format)
   stream->close = pvr_stream_close;
 
   return STREAM_OK;
+
+err_out:
+  pvr_uninit (pvr);
+  return STREAM_ERROR;
 }
 
 /* PVR Public API access */

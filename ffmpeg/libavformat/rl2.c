@@ -2,20 +2,20 @@
  * RL2 Format Demuxer
  * Copyright (c) 2008 Sascha Sommer (saschasommer@freenet.de)
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -31,6 +31,8 @@
  * 256 * 3 bytes rgb palette
  * optional background_frame
  */
+
+#include <stdint.h>
 
 #include "libavutil/intreadwrite.h"
 #include "libavutil/mathematics.h"
@@ -69,11 +71,9 @@ static int rl2_probe(AVProbeData *p)
 /**
  * read rl2 header data and setup the avstreams
  * @param s demuxer context
- * @param ap format parameters
  * @return 0 on success, AVERROR otherwise
  */
-static av_cold int rl2_read_header(AVFormatContext *s,
-                            AVFormatParameters *ap)
+static av_cold int rl2_read_header(AVFormatContext *s)
 {
     AVIOContext *pb = s->pb;
     AVStream *st;
@@ -116,7 +116,7 @@ static av_cold int rl2_read_header(AVFormatContext *s,
          return AVERROR(ENOMEM);
 
     st->codec->codec_type = AVMEDIA_TYPE_VIDEO;
-    st->codec->codec_id = CODEC_ID_RL2;
+    st->codec->codec_id = AV_CODEC_ID_RL2;
     st->codec->codec_tag = 0;  /* no fourcc */
     st->codec->width = 320;
     st->codec->height = 200;
@@ -127,17 +127,16 @@ static av_cold int rl2_read_header(AVFormatContext *s,
     if(signature == RLV3_TAG && back_size > 0)
         st->codec->extradata_size += back_size;
 
-    st->codec->extradata = av_mallocz(st->codec->extradata_size +
-                                          FF_INPUT_BUFFER_PADDING_SIZE);
-    if(!st->codec->extradata)
+    if(ff_get_extradata(st->codec, pb, st->codec->extradata_size) < 0)
         return AVERROR(ENOMEM);
-
-    if(avio_read(pb,st->codec->extradata,st->codec->extradata_size) !=
-                      st->codec->extradata_size)
-        return AVERROR(EIO);
 
     /** setup audio stream if present */
     if(sound_rate){
+        if (!channels || channels > 42) {
+            av_log(s, AV_LOG_ERROR, "Invalid number of channels: %d\n", channels);
+            return AVERROR_INVALIDDATA;
+        }
+
         pts_num = def_sound_size;
         pts_den = rate;
 
@@ -145,7 +144,7 @@ static av_cold int rl2_read_header(AVFormatContext *s,
         if (!st)
             return AVERROR(ENOMEM);
         st->codec->codec_type = AVMEDIA_TYPE_AUDIO;
-        st->codec->codec_id = CODEC_ID_PCM_U8;
+        st->codec->codec_id = AV_CODEC_ID_PCM_U8;
         st->codec->codec_tag = 1;
         st->codec->channels = channels;
         st->codec->bits_per_coded_sample = 8;
@@ -231,7 +230,7 @@ static int rl2_read_packet(AVFormatContext *s,
     }
 
     if(stream_id == -1)
-        return AVERROR(EIO);
+        return AVERROR_EOF;
 
     ++rl2->index_pos[stream_id];
 
@@ -288,11 +287,10 @@ static int rl2_read_seek(AVFormatContext *s, int stream_index, int64_t timestamp
 
 AVInputFormat ff_rl2_demuxer = {
     .name           = "rl2",
-    .long_name      = NULL_IF_CONFIG_SMALL("RL2 format"),
+    .long_name      = NULL_IF_CONFIG_SMALL("RL2"),
     .priv_data_size = sizeof(Rl2DemuxContext),
     .read_probe     = rl2_probe,
     .read_header    = rl2_read_header,
     .read_packet    = rl2_read_packet,
     .read_seek      = rl2_read_seek,
 };
-

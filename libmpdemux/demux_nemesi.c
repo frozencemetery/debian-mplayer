@@ -30,9 +30,6 @@
 #include "nemesi/rtp.h"
 #include <sched.h>
 
-int rtsp_transport_http = 0;
-int rtsp_transport_tcp = 0;
-int rtsp_transport_sctp = 0;
 int rtsp_port = 0;
 
 typedef struct {
@@ -240,7 +237,6 @@ static demuxer_t* demux_open_rtp(demuxer_t* demuxer)
 
                 sh_audio->wf = wf;
                 d_audio->sh = sh_audio;
-                sh_audio->ds = d_audio;
                 wf->nSamplesPerSec = 0;
 
                 wf->wFormatTag =
@@ -274,7 +270,6 @@ static demuxer_t* demux_open_rtp(demuxer_t* demuxer)
                 sh_video->bih = bih;
                 d_video = demuxer->video;
                 d_video->sh = sh_video;
-                sh_video->ds = d_video;
 
                 if (fps) {
                     sh_video->fps = fps;

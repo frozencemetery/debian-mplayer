@@ -7,7 +7,7 @@ The latest version can be found at http://www.linuxstb.org/dvbstream
 
 Modified for use with MPlayer, for details see the changelog at
 http://svn.mplayerhq.hu/mplayer/trunk/
-$Id: stream_dvb.c 34262 2011-10-26 15:12:35Z diego $
+$Id: stream_dvb.c 36524 2013-11-29 12:34:21Z ib $
 
 Copyright notice:
 
@@ -51,9 +51,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #include "dvbin.h"
 
 
-#define MAX_CHANNELS 8
 #define CHANNEL_LINE_LEN 256
-#define min(a, b) ((a) <= (b) ? (a) : (b))
 
 
 //TODO: CAMBIARE list_ptr e da globale a per_priv
@@ -658,6 +656,25 @@ static int dvb_streaming_start(stream_t *stream, struct stream_priv_s *opts, int
 
 
 
+static int dvb_control(stream_t *stream, int cmd, void *arg)
+{
+    dvb_priv_t *priv = stream->priv;
+    dvb_channels_list *list;
+
+    switch (cmd) {
+    case STREAM_CTRL_GET_CURRENT_CHANNEL:
+        if (priv) {
+            list = priv->list;
+            *(char **)arg = list->channels[list->current].name;
+            return STREAM_OK;
+        } else
+            return STREAM_ERROR;
+    }
+
+    return STREAM_UNSUPPORTED;
+}
+
+
 
 static int dvb_open(stream_t *stream, int mode, void *opts, int *file_format)
 {
@@ -736,6 +753,7 @@ static int dvb_open(stream_t *stream, int mode, void *opts, int *file_format)
 
 	stream->type = STREAMTYPE_DVB;
 	stream->fill_buffer = dvb_streaming_read;
+	stream->control = dvb_control;
 	stream->close = dvbin_close;
 	m_struct_free(&stream_opts, opts);
 

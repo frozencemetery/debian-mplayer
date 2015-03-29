@@ -2,20 +2,20 @@
  * ADX ADPCM codecs
  * Copyright (c) 2001,2003 BERO
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -35,12 +35,11 @@
 
 #include "avcodec.h"
 
-typedef struct {
+typedef struct ADXChannelState {
     int s1,s2;
 } ADXChannelState;
 
-typedef struct {
-    AVFrame frame;
+typedef struct ADXContext {
     int channels;
     ADXChannelState prev[2];
     int header_parsed;
@@ -75,7 +74,7 @@ void ff_adx_calculate_coeffs(int cutoff, int sample_rate, int bits, int *coeff);
  * @param[out] coeff        2 LPC coefficients, can be NULL
  * @return data offset or negative error code if header is invalid
  */
-int avpriv_adx_decode_header(AVCodecContext *avctx, const uint8_t *buf,
-                             int bufsize, int *header_size, int *coeff);
+int ff_adx_decode_header(AVCodecContext *avctx, const uint8_t *buf,
+                         int bufsize, int *header_size, int *coeff);
 
 #endif /* AVCODEC_ADX_H */

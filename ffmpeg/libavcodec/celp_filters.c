@@ -3,20 +3,20 @@
  *
  * Copyright (c) 2008 Vladimir Voroshilov
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -24,6 +24,8 @@
 
 #include "avcodec.h"
 #include "celp_filters.h"
+#include "libavutil/avassert.h"
+#include "libavutil/common.h"
 
 void ff_celp_convolve_circ(int16_t* fc_out, const int16_t* fc_in,
                            const int16_t* filter, int len)
@@ -58,22 +60,21 @@ void ff_celp_circ_addf(float *out, const float *in,
 int ff_celp_lp_synthesis_filter(int16_t *out, const int16_t *filter_coeffs,
                                 const int16_t *in, int buffer_length,
                                 int filter_length, int stop_on_overflow,
-                                int rounder)
+                                int shift, int rounder)
 {
     int i,n;
 
     for (n = 0; n < buffer_length; n++) {
-        int sum = rounder;
+        int sum = -rounder, sum1;
         for (i = 1; i <= filter_length; i++)
-            sum -= filter_coeffs[i-1] * out[n-i];
+            sum += filter_coeffs[i-1] * out[n-i];
 
-        sum = (sum >> 12) + in[n];
+        sum1 = ((-sum >> 12) + in[n]) >> shift;
+        sum  = av_clip_int16(sum1);
 
-        if (sum + 0x8000 > 0xFFFFU) {
-            if (stop_on_overflow)
-                return 1;
-            sum = (sum >> 31) ^ 32767;
-        }
+        if (stop_on_overflow && sum != sum1)
+            return 1;
+
         out[n] = sum;
     }
 
@@ -104,6 +105,8 @@ void ff_celp_lp_synthesis_filterf(float *out, const float *filter_coeffs,
     c -= filter_coeffs[1] * filter_coeffs[0];
     c -= filter_coeffs[0] * b;
 
+    av_assert2((filter_length&1)==0 && filter_length>=4);
+
     old_out0 = out[-4];
     old_out1 = out[-3];
     old_out2 = out[-2];
@@ -133,9 +136,8 @@ void ff_celp_lp_synthesis_filterf(float *out, const float *filter_coeffs,
         out2 -= val * old_out2;
         out3 -= val * old_out3;
 
-        old_out3 = out[-5];
-
-        for (i = 5; i <= filter_length; i += 2) {
+        for (i = 5; i < filter_length; i += 2) {
+            old_out3 = out[-i];
             val = filter_coeffs[i-1];
 
             out0 -= val * old_out3;
@@ -154,7 +156,6 @@ void ff_celp_lp_synthesis_filterf(float *out, const float *filter_coeffs,
 
             FFSWAP(float, old_out0, old_out2);
             old_out1 = old_out3;
-            old_out3 = out[-i-2];
         }
 
         tmp0 = out0;
@@ -206,4 +207,13 @@ void ff_celp_lp_zero_synthesis_filterf(float *out, const float *filter_coeffs,
         for (i = 1; i <= filter_length; i++)
             out[n] += filter_coeffs[i-1] * in[n-i];
     }
+}
+
+void ff_celp_filter_init(CELPFContext *c)
+{
+    c->celp_lp_synthesis_filterf        = ff_celp_lp_synthesis_filterf;
+    c->celp_lp_zero_synthesis_filterf   = ff_celp_lp_zero_synthesis_filterf;
+
+    if(HAVE_MIPSFPU)
+        ff_celp_filter_init_mips(c);
 }

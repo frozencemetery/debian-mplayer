@@ -20,11 +20,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#define _XOPEN_SOURCE 600
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "config.h"
 #include "mp_msg.h"
@@ -284,9 +282,7 @@ static int dts_decode_header(uint8_t *indata_ptr, int *rate, int *nblks, int *sf
 {
   int ftype;
   int surp;
-  int unknown_bit;
   int fsize;
-  int amode;
 
   int word_mode;
   int le_mode;
@@ -343,7 +339,6 @@ static int dts_decode_header(uint8_t *indata_ptr, int *rate, int *nblks, int *sf
     surp = (surp + 1) % 32;
 
     /* One unknown bit, crc? */
-    unknown_bit = indata_ptr[4+le_mode] >> 1 & 0x01;
 
     /* NBLKS 7 bits: Valid Range=5-127, Invalid Range=0-4 */
     *nblks = (indata_ptr[4+le_mode] & 0x01) << 6 | indata_ptr[5-le_mode] >> 2;
@@ -359,7 +354,6 @@ static int dts_decode_header(uint8_t *indata_ptr, int *rate, int *nblks, int *sf
     ++fsize;
 
     /* Audio Channel Arrangement ACC AMODE 6 bits */
-    amode = (indata_ptr[7-le_mode] & 0x0f) << 2 | indata_ptr[8+le_mode] >> 6;
 
     /* Source Sampling rate ACC SFREQ 4 bits */
     *sfreq = indata_ptr[8+le_mode] >> 2 & 0x0f;
@@ -402,8 +396,6 @@ static int dts_decode_header(uint8_t *indata_ptr, int *rate, int *nblks, int *sf
     fsize = fsize * 8 / 14 * 2;
 
     /* Audio Channel Arrangement ACC AMODE 6 bits */
-    amode = (indata_ptr[8+le_mode] & 0x03) << 4
-            | (indata_ptr[9-le_mode] & 0xf0) >> 4;
 
     /* Source Sampling rate ACC SFREQ 4 bits */
     *sfreq = indata_ptr[9-le_mode] & 0x0f;
@@ -551,23 +543,24 @@ static int decode_audio_dts(unsigned char *indata_ptr, int len, unsigned char *b
   buf16[3] = fsize << 3;
 
   if (!convert_16bits) {
-#if HAVE_BIGENDIAN
-  /* BE stream */
-  if (indata_ptr[0] == 0x1f || indata_ptr[0] == 0x7f)
-#else
-  /* LE stream */
-  if (indata_ptr[0] == 0xff || indata_ptr[0] == 0xfe)
-#endif
-  memcpy(&buf[8], indata_ptr, fsize);
-  else
-  {
-  swab(indata_ptr, &buf[8], fsize);
-  if (fsize & 1) {
-    buf[8+fsize-1] = 0;
-    buf[8+fsize] = indata_ptr[fsize-1];
-    fsize++;
-  }
-  }
+    int be_stream = indata_ptr[0] == 0x1f || indata_ptr[0] == 0x7f;
+    if (be_stream == HAVE_BIGENDIAN)
+      memcpy(&buf[8], indata_ptr, fsize);
+    else
+    {
+      int i = fsize >> 1;
+      uint16_t *d = buf16 + 4;
+      uint8_t *s = indata_ptr;
+      while (i--) {
+        *d++ = HAVE_BIGENDIAN ? AV_RL16(s) : AV_RB16(s);
+        s += 2;
+      }
+      if (fsize & 1) {
+        // treat as if there was an additional 0
+        *d++ = HAVE_BIGENDIAN ? *s : *s << 8;
+        fsize++;
+      }
+    }
   }
   memset(&buf[fsize + 8], 0, nr_samples * 2 * 2 - (fsize + 8));
 

@@ -6,24 +6,24 @@
  * Based on Simple IDCT
  * Copyright (c) 2001 Michael Niedermayer <michaelni@gmx.at>
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include "asm.S"
+#include "libavutil/arm/asm.S"
 
 #define W1  22725  //cos(i*M_PI/16)*sqrt(2)*(1<<14) + 0.5
 #define W2  21407  //cos(i*M_PI/16)*sqrt(2)*(1<<14) + 0.5
@@ -159,8 +159,8 @@ function idct_col4_neon
         vmull.s16       q15, d30, w4 /* q15 = W4*(col[0]+(1<<COL_SHIFT-1)/W4)*/
         vld1.64         {d8}, [r2,:64], ip /* d5 = col[3] */
 
-        ldrd            r4,  [r2]
-        ldrd            r6,  [r2, #16]
+        ldrd            r4,  r5,  [r2]
+        ldrd            r6,  r7,  [r2, #16]
         orrs            r4,  r4,  r5
 
         idct_col4_top
@@ -176,7 +176,7 @@ function idct_col4_neon
         vadd.i32        q14, q14, q7
 
 1:      orrs            r6,  r6,  r7
-        ldrd            r4,  [r2, #16]
+        ldrd            r4,  r5,  [r2, #16]
         it              eq
         addeq           r2,  r2,  #16
         beq             2f
@@ -188,7 +188,7 @@ function idct_col4_neon
         vmlal.s16       q6,  d5,  w3    /* q6  += W3 * col[5] */
 
 2:      orrs            r4,  r4,  r5
-        ldrd            r4,  [r2, #16]
+        ldrd            r4,  r5,  [r2, #16]
         it              eq
         addeq           r2,  r2,  #16
         beq             3f
@@ -261,7 +261,7 @@ endconst
         pop             {r4-r7, pc}
         .endm
 
-/* void ff_simple_idct_put_neon(uint8_t *dst, int line_size, DCTELEM *data); */
+/* void ff_simple_idct_put_neon(uint8_t *dst, int line_size, int16_t *data); */
 function ff_simple_idct_put_neon, export=1
         idct_start      r2
 
@@ -316,7 +316,7 @@ function idct_col4_add8_neon
         bx              lr
 endfunc
 
-/* void ff_simple_idct_add_neon(uint8_t *dst, int line_size, DCTELEM *data); */
+/* void ff_simple_idct_add_neon(uint8_t *dst, int line_size, int16_t *data); */
 function ff_simple_idct_add_neon, export=1
         idct_start      r2
 
@@ -355,7 +355,7 @@ function idct_col4_st16_neon
         bx              lr
 endfunc
 
-/* void ff_simple_idct_neon(DCTELEM *data); */
+/* void ff_simple_idct_neon(int16_t *data); */
 function ff_simple_idct_neon, export=1
         idct_start      r0
 

@@ -221,6 +221,11 @@ static int init_audio(sh_audio_t *sh_audio, char *codecname, char *afm,
 		   sh_audio->codec->name, sh_audio->codec->drv);
 	    continue;
 	}
+	/* only allow dummy codecs if specified via -ac */
+	if (sh_audio->codec->flags & CODECS_FLAG_DUMMY && !codecname) {
+	    continue;
+	}
+
 	// it's available, let's try to init!
 	// init()
 	mp_msg(MSGT_DECAUDIO, MSGL_INFO, MSGTR_OpeningAudioDecoder,
@@ -449,6 +454,8 @@ int mp_decode_audio(sh_audio_t *sh_audio, int minlen)
      * more space in the output buffer than the minimum length we try to
      * decode. */
     int max_decode_len = sh_audio->a_buffer_size - sh_audio->audio_out_minsize;
+    if (!unitsize)
+        return -1;
     max_decode_len -= max_decode_len % unitsize;
 
     while (sh_audio->a_out_buffer_len < minlen) {

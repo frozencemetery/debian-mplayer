@@ -44,14 +44,11 @@
 #include "aspect.h"
 #include "pnm_loader.h"
 
+GLenum (GLAPIENTRY *mpglGetError)(void);
 void (GLAPIENTRY *mpglBegin)(GLenum);
 void (GLAPIENTRY *mpglEnd)(void);
 void (GLAPIENTRY *mpglViewport)(GLint, GLint, GLsizei, GLsizei);
-void (GLAPIENTRY *mpglMatrixMode)(GLenum);
-void (GLAPIENTRY *mpglLoadIdentity)(void);
-void (GLAPIENTRY *mpglLoadMatrixf)(float *);
-void (GLAPIENTRY *mpglPushMatrix)(void);
-void (GLAPIENTRY *mpglPopMatrix)(void);
+void (GLAPIENTRY *mpglLoadMatrixf)(const float *);
 void (GLAPIENTRY *mpglClear)(GLbitfield);
 GLuint (GLAPIENTRY *mpglGenLists)(GLsizei);
 void (GLAPIENTRY *mpglDeleteLists)(GLuint, GLsizei);
@@ -61,12 +58,10 @@ void (GLAPIENTRY *mpglCallList)(GLuint);
 void (GLAPIENTRY *mpglCallLists)(GLsizei, GLenum, const GLvoid *);
 void (GLAPIENTRY *mpglGenTextures)(GLsizei, GLuint *);
 void (GLAPIENTRY *mpglDeleteTextures)(GLsizei, const GLuint *);
-void (GLAPIENTRY *mpglTexEnvf)(GLenum, GLenum, GLfloat);
 void (GLAPIENTRY *mpglTexEnvi)(GLenum, GLenum, GLint);
 void (GLAPIENTRY *mpglColor4ub)(GLubyte, GLubyte, GLubyte, GLubyte);
-void (GLAPIENTRY *mpglColor4f)(GLfloat, GLfloat, GLfloat, GLfloat);
 void (GLAPIENTRY *mpglClearColor)(GLclampf, GLclampf, GLclampf, GLclampf);
-void (GLAPIENTRY *mpglClearDepth)(GLclampd);
+void (GLAPIENTRY *mpglClearDepth)(double);
 void (GLAPIENTRY *mpglDepthFunc)(GLenum);
 void (GLAPIENTRY *mpglEnable)(GLenum);
 void (GLAPIENTRY *mpglDisable)(GLenum);
@@ -91,6 +86,7 @@ void (GLAPIENTRY *mpglLightfv)(GLenum, GLenum, const GLfloat *);
 void (GLAPIENTRY *mpglColorMaterial)(GLenum, GLenum);
 void (GLAPIENTRY *mpglShadeModel)(GLenum);
 void (GLAPIENTRY *mpglGetIntegerv)(GLenum, GLint *);
+static void (GLAPIENTRY *mpglGetTexLevelParameteriv)(GLenum, GLint, GLenum, GLint *);
 void (GLAPIENTRY *mpglColorMask)(GLboolean, GLboolean, GLboolean, GLboolean);
 
 /**
@@ -103,7 +99,8 @@ void (GLAPIENTRY *mpglColorMask)(GLboolean, GLboolean, GLboolean, GLboolean);
 void (GLAPIENTRY *mpglGenBuffers)(GLsizei, GLuint *);
 void (GLAPIENTRY *mpglDeleteBuffers)(GLsizei, const GLuint *);
 void (GLAPIENTRY *mpglBindBuffer)(GLenum, GLuint);
-GLvoid* (GLAPIENTRY *mpglMapBuffer)(GLenum, GLenum);
+static GLvoid* (GLAPIENTRY *mpglMapBuffer)(GLenum, GLenum);
+GLvoid* (GLAPIENTRY *mpglMapBufferRange)(GLenum, ptrdiff_t, ptrdiff_t, unsigned);
 GLboolean (GLAPIENTRY *mpglUnmapBuffer)(GLenum);
 void (GLAPIENTRY *mpglBufferData)(GLenum, intptr_t, const GLvoid *, GLenum);
 void (GLAPIENTRY *mpglCombinerParameterfv)(GLenum, const GLfloat *);
@@ -145,7 +142,28 @@ void (GLAPIENTRY *mpglTexCoordPointer)(GLint, GLenum, GLsizei, const GLvoid *);
 void (GLAPIENTRY *mpglClientActiveTexture)(GLenum);
 void (GLAPIENTRY *mpglEnableClientState)(GLenum);
 void (GLAPIENTRY *mpglDisableClientState)(GLenum);
+
+void (GLAPIENTRY *mpglVertexAttribPointer)(GLuint, GLint, GLenum, GLboolean, GLsizei, const void *);
+void (GLAPIENTRY *mpglEnableVertexAttribArray)(GLuint);
 void (GLAPIENTRY *mpglDrawArrays)(GLenum, GLint, GLsizei);
+
+GLuint (GLAPIENTRY *mpglCreateProgram)(void);
+GLuint (GLAPIENTRY *mpglCreateShader)(GLenum);
+void (GLAPIENTRY *mpglShaderSource)(GLuint, GLsizei, const char **, const GLint *);
+void (GLAPIENTRY *mpglCompileShader)(GLuint);
+void (GLAPIENTRY *mpglGetShaderiv)(GLuint, GLenum, GLint *);
+void (GLAPIENTRY *mpglGetShaderInfoLog)(GLuint, GLsizei, GLsizei *, char *);
+void (GLAPIENTRY *mpglGetAttachedShaders)(GLuint, GLsizei, GLsizei *, GLuint *);
+void (GLAPIENTRY *mpglAttachShader)(GLuint, GLuint);
+void (GLAPIENTRY *mpglDetachShader)(GLuint, GLuint);
+void (GLAPIENTRY *mpglDeleteShader)(GLuint);
+void (GLAPIENTRY *mpglBindAttribLocation)(GLuint, GLuint, const char *);
+void (GLAPIENTRY *mpglLinkProgram)(GLuint);
+void (GLAPIENTRY *mpglGetProgramInfoLog)(GLuint, GLsizei, GLsizei *, char *);
+void (GLAPIENTRY *mpglUseProgram)(GLuint);
+GLint (GLAPIENTRY *mpglGetUniformLocation)(GLuint, const char *);
+void (GLAPIENTRY *mpglUniform1iv)(GLint, GLsizei, const GLint *);
+void (GLAPIENTRY *mpglUniformMatrix4fv)(GLint, GLsizei, GLboolean, const float *);
 
 //! \defgroup glgeneral OpenGL general helper functions
 
@@ -156,6 +174,12 @@ void (GLAPIENTRY *mpglDrawArrays)(GLenum, GLint, GLsizei);
 //! \defgroup glconversion OpenGL conversion helper functions
 
 static GLint hqtexfmt;
+static int use_depth_l16;
+static GLenum l16_format;
+static GLuint gpu_def_sl_program;
+static GLuint gpu_yuv_sl_program;
+static GLuint gpu_cur_sl_program;
+static float transform_matrix[16];
 
 /**
  * \brief adjusts the GL_UNPACK_ALIGNMENT to fit the stride.
@@ -270,8 +294,19 @@ int glFindFormat(uint32_t fmt, int *bpp, GLint *gl_texfmt,
   }
 
   *bpp = IMGFMT_IS_BGR(fmt)?IMGFMT_BGR_DEPTH(fmt):IMGFMT_RGB_DEPTH(fmt);
-  *gl_texfmt = 3;
+  if (IMGFMT_IS_XYZ(fmt)) {
+    supported = 0; // no native XYZ support
+    *bpp = 24;
+    fmt = IMGFMT_RGB24;
+    if (IMGFMT_XYZ_DEPTH(fmt) > 8) {
+      *bpp = 48;
+      fmt = IMGFMT_RGB48NE;
+    }
+  }
+  *gl_texfmt = GL_RGB;
   switch (fmt) {
+    case IMGFMT_RGB64NE:
+      *gl_texfmt = GL_RGBA16;
     case IMGFMT_RGB48NE:
       *gl_format = GL_RGB;
       *gl_type = GL_UNSIGNED_SHORT;
@@ -281,7 +316,7 @@ int glFindFormat(uint32_t fmt, int *bpp, GLint *gl_texfmt,
       *gl_type = GL_UNSIGNED_BYTE;
       break;
     case IMGFMT_RGBA:
-      *gl_texfmt = 4;
+      *gl_texfmt = GL_RGBA;
       *gl_format = GL_RGBA;
       *gl_type = GL_UNSIGNED_BYTE;
       break;
@@ -292,23 +327,27 @@ int glFindFormat(uint32_t fmt, int *bpp, GLint *gl_texfmt,
       *gl_format = GL_LUMINANCE;
       *gl_type = GL_UNSIGNED_SHORT;
       break;
+    case IMGFMT_NV12:
+    case IMGFMT_NV21:
     case IMGFMT_YV12:
       supported = 0; // no native YV12 support
     case IMGFMT_Y800:
     case IMGFMT_Y8:
-      *gl_texfmt = 1;
+      *gl_texfmt = GL_LUMINANCE;
       *bpp = 8;
       *gl_format = GL_LUMINANCE;
       *gl_type = GL_UNSIGNED_BYTE;
       break;
+    case IMGFMT_YUY2:
     case IMGFMT_UYVY:
-    // IMGFMT_YUY2 would be more logical for the _REV format,
-    // but gives clearly swapped colors.
-    case IMGFMT_YVYU:
-      *gl_texfmt = GL_YCBCR_MESA;
+      *gl_texfmt = GL_RGB;
       *bpp = 16;
-      *gl_format = GL_YCBCR_MESA;
+      *gl_format = GL_YCBCR_422_APPLE;
+#if HAVE_BIGENDIAN
+      *gl_type = fmt == IMGFMT_YUY2 ? GL_UNSIGNED_SHORT_8_8 : GL_UNSIGNED_SHORT_8_8_REV;
+#else
       *gl_type = fmt == IMGFMT_UYVY ? GL_UNSIGNED_SHORT_8_8 : GL_UNSIGNED_SHORT_8_8_REV;
+#endif
       break;
 #if 0
     // we do not support palettized formats, although the format the
@@ -349,12 +388,16 @@ int glFindFormat(uint32_t fmt, int *bpp, GLint *gl_texfmt,
       *gl_type = GL_UNSIGNED_BYTE;
       break;
     case IMGFMT_BGRA:
-      *gl_texfmt = 4;
+      *gl_texfmt = GL_RGBA;
       *gl_format = GL_BGRA;
       *gl_type = GL_UNSIGNED_BYTE;
       break;
+    case IMGFMT_BGR48NE:
+      *gl_format = GL_BGR;
+      *gl_type = GL_UNSIGNED_SHORT;
+      break;
     default:
-      *gl_texfmt = 4;
+      *gl_texfmt = GL_RGBA;
       *gl_format = GL_RGBA;
       *gl_type = GL_UNSIGNED_BYTE;
       supported = 0;
@@ -392,22 +435,20 @@ typedef struct {
   void *fallback;
 } extfunc_desc_t;
 
+#define SIMPLE_FUNC_DESC(name) {&mpgl##name, NULL, {"gl"#name, NULL}, NULL}
 #if !defined(CONFIG_GL_WIN32) && !defined(CONFIG_GL_X11)
-#define DEF_FUNC_DESC(name) {&mpgl##name, NULL, {"gl"#name, NULL}, NULL}
+#define DEF_FUNC_DESC(name) SIMPLE_FUNC_DESC(name)
 #else
 #define DEF_FUNC_DESC(name) {&mpgl##name, NULL, {"gl"#name, NULL}, gl ##name}
 #endif
 static const extfunc_desc_t extfuncs[] = {
   // these aren't extension functions but we query them anyway to allow
   // different "backends" with one binary
+  DEF_FUNC_DESC(GetError),
   DEF_FUNC_DESC(Begin),
   DEF_FUNC_DESC(End),
   DEF_FUNC_DESC(Viewport),
-  DEF_FUNC_DESC(MatrixMode),
-  DEF_FUNC_DESC(LoadIdentity),
   DEF_FUNC_DESC(LoadMatrixf),
-  DEF_FUNC_DESC(PushMatrix),
-  DEF_FUNC_DESC(PopMatrix),
   DEF_FUNC_DESC(Clear),
   DEF_FUNC_DESC(GenLists),
   DEF_FUNC_DESC(DeleteLists),
@@ -417,10 +458,8 @@ static const extfunc_desc_t extfuncs[] = {
   DEF_FUNC_DESC(CallLists),
   DEF_FUNC_DESC(GenTextures),
   DEF_FUNC_DESC(DeleteTextures),
-  DEF_FUNC_DESC(TexEnvf),
   DEF_FUNC_DESC(TexEnvi),
   DEF_FUNC_DESC(Color4ub),
-  DEF_FUNC_DESC(Color4f),
   DEF_FUNC_DESC(ClearColor),
   DEF_FUNC_DESC(ClearDepth),
   DEF_FUNC_DESC(DepthFunc),
@@ -446,6 +485,7 @@ static const extfunc_desc_t extfuncs[] = {
   DEF_FUNC_DESC(ColorMaterial),
   DEF_FUNC_DESC(ShadeModel),
   DEF_FUNC_DESC(GetIntegerv),
+  DEF_FUNC_DESC(GetTexLevelParameteriv),
   DEF_FUNC_DESC(ColorMask),
 
   // here start the real extensions
@@ -453,6 +493,7 @@ static const extfunc_desc_t extfuncs[] = {
   {&mpglDeleteBuffers, NULL, {"glDeleteBuffers", "glDeleteBuffersARB", NULL}},
   {&mpglBindBuffer, NULL, {"glBindBuffer", "glBindBufferARB", NULL}},
   {&mpglMapBuffer, NULL, {"glMapBuffer", "glMapBufferARB", NULL}},
+  {&mpglMapBufferRange, "ARB_map_buffer_range", {"glMapBufferRange", "glMapBufferRangeARB", NULL}},
   {&mpglUnmapBuffer, NULL, {"glUnmapBuffer", "glUnmapBufferARB", NULL}},
   {&mpglBufferData, NULL, {"glBufferData", "glBufferDataARB", NULL}},
   {&mpglCombinerParameterfv, "NV_register_combiners", {"glCombinerParameterfv", "glCombinerParameterfvNV", NULL}},
@@ -480,14 +521,48 @@ static const extfunc_desc_t extfuncs[] = {
   {&mpglFreeMemoryMESA, "GLX_MESA_allocate_memory", {"glXFreeMemoryMESA", NULL}},
 
   // Things needed to run on GLES
-  {&mpglVertexPointer, NULL, {"glVertexPointer", NULL}},
-  {&mpglTexCoordPointer, NULL, {"glTexCoordPointer", NULL}},
-  {&mpglClientActiveTexture, NULL, {"glClientActiveTexture", NULL}},
-  {&mpglEnableClientState, NULL, {"glEnableClientState", NULL}},
-  {&mpglDisableClientState, NULL, {"glDisableClientState", NULL}},
-  {&mpglDrawArrays, NULL, {"glDrawArrays", NULL}},
+  SIMPLE_FUNC_DESC(VertexPointer),
+  SIMPLE_FUNC_DESC(TexCoordPointer),
+  SIMPLE_FUNC_DESC(ClientActiveTexture),
+  SIMPLE_FUNC_DESC(EnableClientState),
+  SIMPLE_FUNC_DESC(DisableClientState),
+
+  SIMPLE_FUNC_DESC(VertexAttribPointer),
+  SIMPLE_FUNC_DESC(EnableVertexAttribArray),
+  SIMPLE_FUNC_DESC(DrawArrays),
+
+
+  SIMPLE_FUNC_DESC(CreateProgram),
+  SIMPLE_FUNC_DESC(CreateShader),
+  SIMPLE_FUNC_DESC(ShaderSource),
+  SIMPLE_FUNC_DESC(CompileShader),
+  SIMPLE_FUNC_DESC(GetShaderiv),
+  SIMPLE_FUNC_DESC(GetShaderInfoLog),
+  SIMPLE_FUNC_DESC(GetAttachedShaders),
+  SIMPLE_FUNC_DESC(AttachShader),
+  SIMPLE_FUNC_DESC(DetachShader),
+  SIMPLE_FUNC_DESC(DeleteShader),
+  SIMPLE_FUNC_DESC(BindAttribLocation),
+  SIMPLE_FUNC_DESC(LinkProgram),
+  SIMPLE_FUNC_DESC(GetProgramiv),
+  SIMPLE_FUNC_DESC(GetProgramInfoLog),
+  SIMPLE_FUNC_DESC(UseProgram),
+  SIMPLE_FUNC_DESC(GetUniformLocation),
+  SIMPLE_FUNC_DESC(Uniform1iv),
+  SIMPLE_FUNC_DESC(UniformMatrix4fv),
   {NULL}
 };
+
+static GLvoid *wrap_glMapBuffer(GLenum target, ptrdiff_t offset, ptrdiff_t range, unsigned flags) {
+  GLenum access = GL_READ_WRITE;
+  if (offset != 0 || range == 0 || !(flags & (GL_MAP_WRITE_BIT | GL_MAP_READ_BIT)))
+    return NULL;
+  if (!(flags & GL_MAP_WRITE_BIT))
+    access = GL_READ_ONLY;
+  else if (!(flags & GL_MAP_READ_BIT))
+    access = GL_WRITE_ONLY;
+  return mpglMapBuffer(target, access);
+}
 
 /**
  * \brief find the function pointers of some useful OpenGL extensions
@@ -497,7 +572,7 @@ static const extfunc_desc_t extfuncs[] = {
 static void getFunctions(void *(*getProcAddress)(const GLubyte *),
                          const char *ext2) {
   const extfunc_desc_t *dsc;
-  const char *extensions;
+  const char *extensions = NULL;
   char *allexts;
 
   if (!getProcAddress)
@@ -505,10 +580,13 @@ static void getFunctions(void *(*getProcAddress)(const GLubyte *),
 
   // special case, we need glGetString before starting to find the other functions
   mpglGetString = getProcAddress("glGetString");
+#if defined(CONFIG_GL_WIN32) || defined(CONFIG_GL_X11)
   if (!mpglGetString)
       mpglGetString = glGetString;
+#endif
 
-  extensions = (const char *)mpglGetString(GL_EXTENSIONS);
+  if (mpglGetString)
+    extensions = (const char *)mpglGetString(GL_EXTENSIONS);
   if (!extensions) extensions = "";
   if (!ext2) ext2 = "";
   allexts = malloc(strlen(extensions) + strlen(ext2) + 2);
@@ -533,7 +611,14 @@ static void getFunctions(void *(*getProcAddress)(const GLubyte *),
     hqtexfmt = GL_FLOAT_RGB32_NV;
   else
     hqtexfmt = GL_RGB16;
+  use_depth_l16 = !!strstr(allexts, "GL_EXT_shadow") ||
+                  !!strstr(allexts, "GL_ARB_shadow") ||
+                  !!strstr(allexts, "GL_OES_depth_texture");
   free(allexts);
+
+  // replacement functions
+  if (!mpglMapBufferRange && mpglMapBuffer)
+    mpglMapBufferRange = wrap_glMapBuffer;
 }
 
 /**
@@ -558,16 +643,43 @@ void glCreateClearTex(GLenum target, GLenum fmt, GLenum format, GLenum type, GLi
   if (h == 0) h = 1;
   stride = w * glFmt2bpp(format, type);
   if (!stride) return;
+  // For BGRA internal format must be BGRA for GLES and RGBA for GL...
+  if (format == GL_BGRA && !mpglBegin) fmt = GL_BGRA;
   init = malloc(stride * h);
   memset(init, val, stride * h);
   glAdjustAlignment(stride);
   mpglPixelStorei(GL_UNPACK_ROW_LENGTH, w);
+  // This needs to be here before the very first TexImage call to get
+  // best performance on PPC Mac Mini running OSX 10.5
+  mpglTexParameteri(target, GL_TEXTURE_STORAGE_HINT_APPLE, GL_STORAGE_CACHED_APPLE);
   mpglTexImage2D(target, 0, fmt, w, h, 0, format, type, init);
+  if (format == GL_LUMINANCE && type == GL_UNSIGNED_SHORT) {
+    // ensure we get enough bits
+    GLint bits = 0;
+    if (mpglGetTexLevelParameteriv)
+      mpglGetTexLevelParameteriv(target, 0, GL_TEXTURE_LUMINANCE_SIZE, &bits);
+    if (bits >= 0 && bits < 14 && (use_depth_l16 || HAVE_BIGENDIAN)) {
+      fmt = GL_DEPTH_COMPONENT;
+      format = GL_DEPTH_COMPONENT;
+      if (!use_depth_l16) {
+        // if we cannot get 16 bit anyway, we can fall back
+        // to L8A8 on big-endian, which is at least faster...
+        fmt = format = GL_LUMINANCE_ALPHA;
+        type = GL_UNSIGNED_BYTE;
+      }
+      mpglTexImage2D(target, 0, fmt, w, h, 0, format, type, init);
+    }
+    l16_format = format;
+  }
   mpglTexParameterf(target, GL_TEXTURE_PRIORITY, 1.0);
   mpglTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
   mpglTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
   mpglTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   mpglTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  if (format == GL_DEPTH_COMPONENT) {
+      mpglTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+      mpglTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
+  }
   // Border texels should not be used with CLAMP_TO_EDGE
   // We set a sane default anyway.
   mpglTexParameterfv(target, GL_TEXTURE_BORDER_COLOR, border);
@@ -630,6 +742,8 @@ int glFmt2bpp(GLenum format, GLenum type) {
     case GL_UNSIGNED_SHORT_1_5_5_5_REV:
     case GL_UNSIGNED_SHORT_5_6_5:
     case GL_UNSIGNED_SHORT_5_6_5_REV:
+    case GL_UNSIGNED_SHORT_8_8:
+    case GL_UNSIGNED_SHORT_8_8_REV:
       return 2;
     case GL_UNSIGNED_BYTE:
       component_size = 1;
@@ -641,7 +755,11 @@ int glFmt2bpp(GLenum format, GLenum type) {
   switch (format) {
     case GL_LUMINANCE:
     case GL_ALPHA:
+    case GL_DEPTH_COMPONENT:
       return component_size;
+    case GL_LUMINANCE_ALPHA:
+      return 2 * component_size;
+    case GL_YCBCR_422_APPLE:
     case GL_YCBCR_MESA:
       return 2;
     case GL_RGB:
@@ -665,24 +783,41 @@ int glFmt2bpp(GLenum format, GLenum type) {
  * \param y y offset in texture
  * \param w width of the texture part to upload
  * \param h height of the texture part to upload
- * \param slice height of an upload slice, 0 for all at once
+ * \param slice height of an upload slice, 0 for all at once, -1 forces use of
+ *              TexImage instead of TexSubImage
  * \ingroup gltexture
  */
 void glUploadTex(GLenum target, GLenum format, GLenum type,
                  const void *dataptr, int stride,
                  int x, int y, int w, int h, int slice) {
+  int bpp;
   const uint8_t *data = dataptr;
   int y_max = y + h;
   if (w <= 0 || h <= 0) return;
-  if (slice <= 0)
+  if (slice == 0)
     slice = h;
   if (stride < 0) {
     data += (h - 1) * stride;
     stride = -stride;
   }
+  if (format == GL_LUMINANCE && type == GL_UNSIGNED_SHORT) {
+    format = l16_format;
+    if (l16_format == GL_LUMINANCE_ALPHA) type = GL_UNSIGNED_BYTE;
+  }
+  bpp = glFmt2bpp(format, type);
+  if (!mpglBegin) {
+    // we have to copy line-by-line for GLES
+    if (stride != w*bpp) slice = 1;
+  }
   // this is not always correct, but should work for MPlayer
   glAdjustAlignment(stride);
-  mpglPixelStorei(GL_UNPACK_ROW_LENGTH, stride / glFmt2bpp(format, type));
+  mpglPixelStorei(GL_UNPACK_ROW_LENGTH, stride / bpp);
+  if (slice < 0) {
+    mpglPixelStorei(GL_UNPACK_CLIENT_STORAGE_APPLE, GL_TRUE);
+    mpglTexImage2D(target, 0, GL_RGB, w, h, 0, format, type, data);
+    mpglPixelStorei(GL_UNPACK_CLIENT_STORAGE_APPLE, GL_FALSE);
+    return;
+  }
   for (; y + slice <= y_max; y += slice) {
     mpglTexSubImage2D(target, 0, x, y, w, slice, format, type, data);
     data += stride * slice;
@@ -1034,7 +1169,9 @@ static const char unsharp_filt_template[] =
   "TEX b.g, coord2.zwzw, texture[%c], %s;\n"
   "DP3 b, b, {0.25, 0.25, 0.25};\n"
   "SUB b.r, a.r, b.r;\n"
-  "MAD yuv.%c, b.r, {%e}, a.r;\n";
+  // NOTE: destination component is only write mask, not swizzle
+  // so calculate result in all three components
+  "MAD yuv.%c, b.rrrr, {%e, %e, %e}, a.rrrr;\n";
 
 static const char unsharp_filt_template2[] =
   "PARAM dcoord%c = {%e, %e, %e, %e};\n"
@@ -1058,7 +1195,9 @@ static const char unsharp_filt_template2[] =
   "TEX b.g, coord2.zwzw, texture[%c], %s;\n"
   "DP4 b.r, b, {-0.1171875, -0.1171875, -0.1171875, -0.09765625};\n"
   "MAD b.r, a.r, {0.859375}, b.r;\n"
-  "MAD yuv.%c, b.r, {%e}, a.r;\n";
+  // NOTE: destination component is only write mask, not swizzle
+  // so calculate result in all three components
+  "MAD yuv.%c, b.rrrr, {%e, %e, %e}, a.rrrr;\n";
 
 static const char yuv_prog_template[] =
   "PARAM ycoef = {%e, %e, %e};\n"
@@ -1168,7 +1307,7 @@ static void create_conv_textures(gl_conversion_params_t *params, int *texu, char
       break;
     case YUV_CONVERSION_FRAGMENT_LOOKUP3D:
       {
-        int sz = LOOKUP_3DRES + 2; // texture size including borders
+        int sz = LOOKUP_3DRES; // texture size
         if (!mpglTexImage3D) {
           mp_msg(MSGT_VO, MSGL_ERR, "[gl] Missing 3D texture function!\n");
           break;
@@ -1179,14 +1318,14 @@ static void create_conv_textures(gl_conversion_params_t *params, int *texu, char
         mp_gen_yuv2rgb_map(&params->csp_params, lookup_data, LOOKUP_3DRES);
         glAdjustAlignment(sz);
         mpglPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-        mpglTexImage3D(GL_TEXTURE_3D, 0, 3, sz, sz, sz, 1,
+        mpglTexImage3D(GL_TEXTURE_3D, 0, 3, sz, sz, sz, 0,
                        GL_RGB, GL_UNSIGNED_BYTE, lookup_data);
         mpglTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_PRIORITY, 1.0);
         mpglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         mpglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        mpglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        mpglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-        mpglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP);
+        mpglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        mpglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        mpglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
         mpglActiveTexture(GL_TEXTURE0);
         texs[0] += '0';
       }
@@ -1258,7 +1397,7 @@ static void add_scaler(int scaler, char **prog_pos, int *remain, char *texs,
                out_comp, 0.5 * ptw, 0.5 * pth, 0.5 * ptw, -0.5 * pth,
                in_tex, out_comp, in_tex, out_comp, in_tex,
                in_tex, ttype, in_tex, ttype, in_tex, ttype, in_tex, ttype,
-               in_tex, ttype, out_comp, strength);
+               in_tex, ttype, out_comp, strength, strength, strength);
       break;
     case YUV_SCALER_UNSHARP2:
       snprintf(*prog_pos, *remain, unsharp_filt_template2,
@@ -1268,7 +1407,7 @@ static void add_scaler(int scaler, char **prog_pos, int *remain, char *texs,
                in_tex, ttype, in_tex, ttype, in_tex, ttype, in_tex, ttype,
                in_tex, ttype, in_tex, out_comp, in_tex, out_comp,
                in_tex, ttype, in_tex, ttype, in_tex, ttype,
-               in_tex, ttype, out_comp, strength);
+               in_tex, ttype, out_comp, strength, strength, strength);
       break;
   }
   *remain -= strlen(*prog_pos);
@@ -1343,6 +1482,8 @@ static void glSetupYUVFragprog(gl_conversion_params_t *params) {
   int texw = params->texw;
   int texh = params->texh;
   int rect = params->target == GL_TEXTURE_RECTANGLE;
+  int convtype = YUV_CONVERSION(type);
+  int has_gamma = params->csp_params.rgamma != 1 || params->csp_params.bgamma != 1 || params->csp_params.bgamma != 1;
   static const char prog_hdr[] =
     "!!ARBfp1.0\n"
     "OPTION ARB_precision_hint_fastest;\n"
@@ -1351,7 +1492,7 @@ static void glSetupYUVFragprog(gl_conversion_params_t *params) {
     "TEMP coord, coord2, cdelta, parmx, parmy, a, b, yuv;\n";
   int prog_remain;
   char *yuv_prog, *prog_pos;
-  int cur_texu = 3;
+  int cur_texu = 3 + params->has_alpha_tex;
   char lum_scale_texs[1];
   char chrom_scale_texs[1];
   char conv_texs[1];
@@ -1386,14 +1527,32 @@ static void glSetupYUVFragprog(gl_conversion_params_t *params) {
   strcpy(yuv_prog, prog_hdr);
   prog_pos    = yuv_prog + sizeof(prog_hdr) - 1;
   prog_remain = MAX_PROGSZ - sizeof(prog_hdr);
+  if (!params->is_planar) {
+    // interleaved
+    snprintf(prog_pos, prog_remain, "TEX yuv.rgb, fragment.texcoord[0], texture[0], %s;\n", rect ? "RECT" : "2D");
+    prog_remain -= strlen(prog_pos);
+    prog_pos    += strlen(prog_pos);
+  } else {
   add_scaler(YUV_LUM_SCALER(type), &prog_pos, &prog_remain, lum_scale_texs,
              '0', 'r', rect, texw, texh, params->filter_strength);
   add_scaler(YUV_CHROM_SCALER(type), &prog_pos, &prog_remain, chrom_scale_texs,
              '1', 'g', rect, params->chrom_texw, params->chrom_texh, params->filter_strength);
   add_scaler(YUV_CHROM_SCALER(type), &prog_pos, &prog_remain, chrom_scale_texs,
              '2', 'b', rect, params->chrom_texw, params->chrom_texh, params->filter_strength);
+  }
+  if (params->csp_params.format == MP_CSP_XYZ) {
+    snprintf(prog_pos, prog_remain, "PARAM xyzgamma = {2.6};\nPOW yuv.r, yuv.r, xyzgamma.r;\nPOW yuv.g, yuv.g, xyzgamma.r;\nPOW yuv.b, yuv.b, xyzgamma.r;\n");
+    prog_remain -= strlen(prog_pos);
+    prog_pos    += strlen(prog_pos);
+  }
   mp_get_yuv2rgb_coeffs(&params->csp_params, yuv2rgb);
-  switch (YUV_CONVERSION(type)) {
+
+  // enable/disable gamma on demand
+  if (has_gamma && convtype == YUV_CONVERSION_FRAGMENT) convtype = YUV_CONVERSION_FRAGMENT_POW;
+  else if (!has_gamma && (convtype == YUV_CONVERSION_FRAGMENT_POW || convtype == YUV_CONVERSION_FRAGMENT_LOOKUP))
+    convtype = YUV_CONVERSION_FRAGMENT;
+
+  switch (convtype) {
     case YUV_CONVERSION_FRAGMENT:
       snprintf(prog_pos, prog_remain, yuv_prog_template,
                yuv2rgb[ROW_R][COL_Y], yuv2rgb[ROW_G][COL_Y], yuv2rgb[ROW_B][COL_Y],
@@ -1443,6 +1602,11 @@ static void glSetupYUVFragprog(gl_conversion_params_t *params) {
     prog_remain -= strlen(prog_pos);
     prog_pos    += strlen(prog_pos);
   }
+  if (params->has_alpha_tex) {
+    snprintf(prog_pos, prog_remain, "TEX result.color.a, fragment.texcoord[3], texture[3], 2D;\n");
+    prog_remain -= strlen(prog_pos);
+    prog_pos    += strlen(prog_pos);
+  }
   snprintf(prog_pos, prog_remain, "MOV result.color.rgb, res;\nEND");
 
   mp_msg(MSGT_VO, MSGL_DBG2, "[gl] generated fragment program:\n%s\n", yuv_prog);
@@ -1450,16 +1614,174 @@ static void glSetupYUVFragprog(gl_conversion_params_t *params) {
   free(yuv_prog);
 }
 
+static void print_result(int link, GLuint obj) {
+  char msgtmp[500];
+  GLint status;
+  (link ? mpglGetProgramiv : mpglGetShaderiv)(obj, link ? GL_LINK_STATUS : GL_COMPILE_STATUS, &status);
+  if (!status)
+    mp_msg(MSGT_VO, MSGL_ERR, "[gl] Shader %s failed.\n", link ? "linking" : "compilation");
+  msgtmp[0] = 0;
+  (link ? mpglGetProgramInfoLog : mpglGetShaderInfoLog)(obj, sizeof(msgtmp), NULL, msgtmp);
+  mp_msg(MSGT_VO, status ? MSGL_V : MSGL_ERR, "[gl] %s messages:\n%s\n", link ? "Linker" : "Compiler", msgtmp);
+}
+
+static GLuint compile_shader(GLenum type, const char *source) {
+  GLuint shader = mpglCreateShader(type);
+  mp_msg(MSGT_VO, MSGL_DBG2, "[gl] Compiling shader:\n%s\n", source);
+  mpglShaderSource(shader, 1, &source, NULL);
+  mpglCompileShader(shader);
+  print_result(0, shader);
+  return shader;
+}
+
+static const char vertex_shader[] =
+  "uniform mat4 matrix;\n"
+  "attribute vec4 vPos;\n"
+  "attribute vec2 tca, tca2, tca3;\n"
+  "varying vec2 tcv, tcv2, tcv3;\n"
+  "void main() {\n"
+  "#ifdef GL_ES\n"
+  "  gl_Position = matrix * vPos;\n"
+  "  tcv = tca; tcv2 = tca2; tcv3 = tca3;\n"
+  "#else\n"
+  "  gl_Position = gl_ModelViewProjectionMatrix * vPos;\n"
+  "  tcv  = vec2(gl_MultiTexCoord0);\n"
+  "  tcv2 = vec2(gl_MultiTexCoord1);\n"
+  "  tcv3 = vec2(gl_MultiTexCoord2);\n"
+  "#endif\n"
+  "}\n";
+
+static GLuint new_gpu_program(void) {
+  GLuint program = mpglCreateProgram();
+  GLuint shader = compile_shader(GL_VERTEX_SHADER, vertex_shader);
+  mpglAttachShader(program, shader);
+  mpglDeleteShader(shader);
+  return program;
+}
+
+static const char def_frag_shader[] =
+  "#ifdef GL_ES\n"
+  "precision mediump float;\n"
+  "#endif\n"
+  "uniform sampler2D texs[4];\n"
+  "varying vec2 tcv;\n"
+  "void main() {\n"
+  "  gl_FragColor = texture2D(texs[0], tcv);\n"
+  "}\n";
+
+static const char yuv_frag_shader_template[] =
+  "#ifdef GL_ES\n"
+  "precision mediump float;\n"
+  "#endif\n"
+  "uniform sampler2D texs[4];\n"
+  "varying vec2 tcv, tcv2, tcv3;\n"
+  "void main() {\n"
+  "  const vec3 gamma = vec3(%e, %e, %e);\n"
+  "  const float xyz_gamma = %e;\n"
+  "  const mat4 yuv_conv = mat4(\n"
+  "    %e, %e, %e, 0,\n"
+  "    %e, %e, %e, 0,\n"
+  "    %e, %e, %e, 0,\n"
+  "    %e, %e, %e, 1\n"
+  "  );\n"
+  "  vec4 yuv = vec4(0.0, 0.5, 0.5, 1.0);\n"
+  "  if (%i == 0) {\n"
+  "    yuv = texture2D(texs[0], tcv);\n"
+  "  } else {\n"
+  "    yuv.r = texture2D(texs[0], tcv).r;\n"
+  "    yuv.g = texture2D(texs[1], tcv2).r;\n"
+  "    yuv.b = texture2D(texs[2], tcv2).r;\n"
+  "  }\n"
+  "  if (xyz_gamma != 1.0)\n"
+  "    yuv.rgb = pow(yuv.rgb, vec3(xyz_gamma, xyz_gamma, xyz_gamma));\n"
+  "  vec4 rgb = yuv_conv * yuv;\n"
+  "  if (gamma != vec3(1.0, 1.0, 1.0))\n"
+  "    rgb.rgb = pow(rgb.rgb, gamma);\n"
+  "  rgb.a = %i == 0 ? 1.0 : texture2D(texs[3], tcv3).r;\n"
+  "  gl_FragColor = rgb;\n"
+  "}\n";
+
+static void detach_shader(GLuint prog, GLenum type) {
+  GLuint attached[4];
+  GLsizei num_attached;
+  mpglGetAttachedShaders(prog, 4, &num_attached, attached);
+  while (num_attached--) {
+    GLint cur_type;
+    mpglGetShaderiv(attached[num_attached], GL_SHADER_TYPE, &cur_type);
+    if (cur_type == type)
+      mpglDetachShader(prog, attached[num_attached]);
+  }
+}
+
+static void set_frag_shader(GLuint prog, GLuint shader) {
+  detach_shader(prog, GL_FRAGMENT_SHADER);
+  mpglAttachShader(prog, shader);
+  mpglBindAttribLocation(prog, 0, "vPos");
+  mpglBindAttribLocation(prog, 1, "tca");
+  mpglBindAttribLocation(prog, 2, "tca2");
+  mpglBindAttribLocation(prog, 3, "tca3");
+  mpglLinkProgram(prog);
+  print_result(1, prog);
+}
+
+static void set_frag_src(GLuint prog, const char *src) {
+  GLuint shader = compile_shader(GL_FRAGMENT_SHADER, src);
+  set_frag_shader(prog, shader);
+  mpglDeleteShader(shader);
+}
+
+static void update_yuv_frag_src(const gl_conversion_params_t *params) {
+  char buffer[2000];
+  float yuv2rgb[3][4];
+  mp_get_yuv2rgb_coeffs(&params->csp_params, yuv2rgb);
+  snprintf(buffer, sizeof(buffer), yuv_frag_shader_template,
+    1.0 / params->csp_params.rgamma,
+    1.0 / params->csp_params.ggamma,
+    1.0 / params->csp_params.bgamma,
+    params->csp_params.format == MP_CSP_XYZ ? 2.6 : 1.0,
+    yuv2rgb[0][0], yuv2rgb[1][0], yuv2rgb[2][0],
+    yuv2rgb[0][1], yuv2rgb[1][1], yuv2rgb[2][1],
+    yuv2rgb[0][2], yuv2rgb[1][2], yuv2rgb[2][2],
+    yuv2rgb[0][3], yuv2rgb[1][3], yuv2rgb[2][3],
+    params->is_planar, 0);
+  set_frag_src(gpu_yuv_sl_program, buffer);
+}
+
+static void GLAPIENTRY matrix_uniform(const float *matrix)
+{
+  GLint loc;
+  if (matrix != transform_matrix)
+    memcpy(transform_matrix, matrix, sizeof(transform_matrix));
+  loc = mpglGetUniformLocation(gpu_cur_sl_program, "matrix");
+  mpglUniformMatrix4fv(loc, 1, GL_FALSE, transform_matrix);
+}
+
+static void use_program(GLuint prog) {
+  GLint loc;
+  static const GLint texs[] = {0, 1, 2, 3, 4};
+  mpglUseProgram(prog);
+  gpu_cur_sl_program = prog;
+  if (!prog) return;
+  loc = mpglGetUniformLocation(prog, "texs");
+  mpglUniform1iv(loc, sizeof(texs)/sizeof(texs[0]), texs);
+  matrix_uniform(transform_matrix);
+}
+
 /**
  * \brief detect the best YUV->RGB conversion method available
  */
 int glAutodetectYUVConversion(void) {
   const char *extensions = mpglGetString(GL_EXTENSIONS);
+  const char *vendor     = mpglGetString(GL_VENDOR);
+  // Imagination cannot parse floats in exponential representation (%e)
+  int is_img = vendor && strstr(vendor, "Imagination") != NULL;
+  if (!mpglBegin)
+    return YUV_CONVERSION_SL_PROGRAM;
   if (!extensions || !mpglMultiTexCoord2f)
     return YUV_CONVERSION_NONE;
-  if (strstr(extensions, "GL_ARB_fragment_program"))
-    return YUV_CONVERSION_FRAGMENT;
-  if (strstr(extensions, "GL_ATI_text_fragment_shader"))
+  if (strstr(extensions, "GL_ARB_fragment_program") && !is_img)
+    return YUV_CONVERSION_FRAGMENT_LOOKUP;
+  if (strstr(extensions, "GL_ATI_text_fragment_shader") && !is_img)
     return YUV_CONVERSION_TEXT_FRAGMENT;
   if (strstr(extensions, "GL_ATI_fragment_shader"))
     return YUV_CONVERSION_COMBINERS_ATI;
@@ -1492,6 +1814,11 @@ void glSetupYUVConversion(gl_conversion_params_t *params) {
     case YUV_CONVERSION_FRAGMENT:
     case YUV_CONVERSION_FRAGMENT_POW:
       glSetupYUVFragprog(params);
+      break;
+    case YUV_CONVERSION_SL_PROGRAM:
+      if (!gpu_yuv_sl_program)
+        gpu_yuv_sl_program = new_gpu_program();
+      update_yuv_frag_src(params);
       break;
     case YUV_CONVERSION_NONE:
       break;
@@ -1539,6 +1866,9 @@ void glEnableYUVConversion(GLenum target, int type) {
     case YUV_CONVERSION_NONE:
       mpglEnable(GL_FRAGMENT_PROGRAM);
       break;
+    case YUV_CONVERSION_SL_PROGRAM:
+      use_program(gpu_yuv_sl_program);
+      break;
   }
 }
 
@@ -1585,7 +1915,28 @@ void glDisableYUVConversion(GLenum target, int type) {
     case YUV_CONVERSION_NONE:
       mpglDisable(GL_FRAGMENT_PROGRAM);
       break;
+    case YUV_CONVERSION_SL_PROGRAM:
+      use_program(gpu_def_sl_program);
+      break;
   }
+}
+
+void glSetupAlphaStippleTex(unsigned pattern) {
+  int i;
+  uint8_t stipple[16];
+  for (i = 0; i < 16; i++) {
+    stipple[i] = (pattern & 1) * 0xff;
+    pattern >>= 1;
+  }
+  mpglActiveTexture(GL_TEXTURE3);
+  glAdjustAlignment(2);
+  mpglPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+  mpglTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, 4, 4, 0, GL_ALPHA, GL_UNSIGNED_BYTE, stipple);
+  mpglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  mpglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  mpglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  mpglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  mpglActiveTexture(GL_TEXTURE0);
 }
 
 void glEnable3DLeft(int type) {
@@ -1614,6 +1965,13 @@ void glEnable3DLeft(int type) {
           break;
       }
       mpglDrawBuffer(buffer);
+      break;
+    case GL_3D_STIPPLE:
+      mpglActiveTexture(GL_TEXTURE3);
+      mpglEnable(GL_TEXTURE_2D);
+      mpglActiveTexture(GL_TEXTURE0);
+      mpglEnable(GL_BLEND);
+      mpglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       break;
   }
 }
@@ -1645,6 +2003,13 @@ void glEnable3DRight(int type) {
       }
       mpglDrawBuffer(buffer);
       break;
+    case GL_3D_STIPPLE:
+      mpglActiveTexture(GL_TEXTURE3);
+      mpglEnable(GL_TEXTURE_2D);
+      mpglActiveTexture(GL_TEXTURE0);
+      mpglEnable(GL_BLEND);
+      mpglBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+      break;
   }
 }
 
@@ -1672,7 +2037,53 @@ void glDisable3D(int type) {
       }
       mpglDrawBuffer(buffer);
       break;
+    case GL_3D_STIPPLE:
+      mpglActiveTexture(GL_TEXTURE3);
+      mpglDisable(GL_TEXTURE_2D);
+      mpglActiveTexture(GL_TEXTURE0);
+      mpglDisable(GL_BLEND);
+      break;
   }
+}
+
+static void draw_vertices(GLfloat x, GLfloat y, GLfloat w, GLfloat h,
+                          GLfloat tx, GLfloat ty, GLfloat tw, GLfloat th,
+                          GLfloat tx2, GLfloat ty2, GLfloat tw2, GLfloat th2,
+                          int is_yv12, int use_stipple)
+{
+  int i;
+  GLfloat vertices  [8] = { x,   y,   x,   y  +  h,   x  +  w,   y,   x  +  w,   y  +  h};
+  GLfloat texcoords [8] = {tx,  ty,  tx,  ty  + th,  tx  + tw,  ty,  tx  + tw,  ty  + th};
+  GLfloat texcoords2[8] = {tx2, ty2, tx2, ty2 + th2, tx2 + tw2, ty2, tx2 + tw2, ty2 + th2};
+  GLfloat texcoords3[8] = {vo_dx / 4.0, vo_dy / 4.0, vo_dx / 4.0, (vo_dy + vo_dheight) / 4.0, (vo_dx + vo_dwidth) / 4.0, vo_dy / 4.0, (vo_dx + vo_dwidth) / 4.0, (vo_dy + vo_dheight) / 4.0};
+
+  if (!mpglBegin) {
+    mpglVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
+    mpglEnableVertexAttribArray(0);
+    mpglVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, texcoords);
+    mpglEnableVertexAttribArray(1);
+    mpglVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, texcoords2);
+    mpglEnableVertexAttribArray(2);
+    mpglVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 0, texcoords3);
+    mpglEnableVertexAttribArray(3);
+    mpglDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    return;
+  }
+
+  mpglBegin(GL_TRIANGLE_STRIP);
+  for (i = 0; i < 4; i++) {
+    int px = 2*i;
+    int py = 2*i + 1;
+    mpglTexCoord2f(texcoords[px], texcoords[py]);
+    if (is_yv12) {
+      mpglMultiTexCoord2f(GL_TEXTURE1, texcoords2[px], texcoords2[py]);
+      mpglMultiTexCoord2f(GL_TEXTURE2, texcoords2[px], texcoords2[py]);
+    }
+    if (use_stipple)
+      mpglMultiTexCoord2f(GL_TEXTURE3, texcoords3[px], texcoords3[py]);
+    mpglVertex2f(vertices[px], vertices[py]);
+  }
+  mpglEnd();
 }
 
 /**
@@ -1691,11 +2102,13 @@ void glDisable3D(int type) {
  * \param is_yv12 if != 0, also draw the textures from units 1 and 2,
  *                bits 8 - 15 and 16 - 23 specify the x and y scaling of those textures
  * \param flip flip the texture upside down
+ * \param use_stipple overlay texture 3 as 4x4 alpha stipple
  * \ingroup gltexture
  */
 void glDrawTex(GLfloat x, GLfloat y, GLfloat w, GLfloat h,
                GLfloat tx, GLfloat ty, GLfloat tw, GLfloat th,
-               int sx, int sy, int rect_tex, int is_yv12, int flip) {
+               int sx, int sy, int rect_tex, int is_yv12, int flip,
+               int use_stipple) {
   int chroma_x_shift = (is_yv12 >>  8) & 31;
   int chroma_y_shift = (is_yv12 >> 16) & 31;
   GLfloat xscale = 1 << chroma_x_shift;
@@ -1703,68 +2116,13 @@ void glDrawTex(GLfloat x, GLfloat y, GLfloat w, GLfloat h,
   GLfloat tx2 = tx / xscale, ty2 = ty / yscale, tw2 = tw / xscale, th2 = th / yscale;
   if (!rect_tex) {
     tx /= sx; ty /= sy; tw /= sx; th /= sy;
-    tx2 = tx, ty2 = ty, tw2 = tw, th2 = th;
+    tx2 = tx; ty2 = ty; tw2 = tw; th2 = th;
   }
   if (flip) {
     y += h;
     h = -h;
   }
-
-  if (!mpglBegin) {
-    GLfloat vertices  [8] = { x,   y,   x,   y  +  h,   x  +  w,   y,   x  +  w,   y  +  h};
-    GLfloat texcoords [8] = {tx,  ty,  tx,  ty  + th,  tx  + tw,  ty,  tx  + tw,  ty  + th};
-    GLfloat texcoords2[8] = {tx2, ty2, tx2, ty2 + th2, tx2 + tw2, ty2, tx2 + tw2, ty2 + th2};
-    mpglEnableClientState(GL_VERTEX_ARRAY);
-    mpglVertexPointer(2, GL_FLOAT, 0, vertices);
-    mpglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    mpglTexCoordPointer(2, GL_FLOAT, 0, texcoords);
-    if (is_yv12) {
-      mpglClientActiveTexture(GL_TEXTURE1);
-      mpglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-      mpglTexCoordPointer(2, GL_FLOAT, 0, texcoords2);
-      mpglClientActiveTexture(GL_TEXTURE2);
-      mpglEnableClientState(GL_TEXTURE_COORD_ARRAY);
-      mpglTexCoordPointer(2, GL_FLOAT, 0, texcoords2);
-      mpglClientActiveTexture(GL_TEXTURE0);
-    }
-    mpglDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    if (is_yv12) {
-      mpglClientActiveTexture(GL_TEXTURE1);
-      mpglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-      mpglClientActiveTexture(GL_TEXTURE2);
-      mpglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-      mpglClientActiveTexture(GL_TEXTURE0);
-    }
-    mpglDisableClientState(GL_VERTEX_ARRAY);
-    return;
-  }
-
-  mpglBegin(GL_QUADS);
-  mpglTexCoord2f(tx, ty);
-  if (is_yv12) {
-    mpglMultiTexCoord2f(GL_TEXTURE1, tx2, ty2);
-    mpglMultiTexCoord2f(GL_TEXTURE2, tx2, ty2);
-  }
-  mpglVertex2f(x, y);
-  mpglTexCoord2f(tx, ty + th);
-  if (is_yv12) {
-    mpglMultiTexCoord2f(GL_TEXTURE1, tx2, ty2 + th2);
-    mpglMultiTexCoord2f(GL_TEXTURE2, tx2, ty2 + th2);
-  }
-  mpglVertex2f(x, y + h);
-  mpglTexCoord2f(tx + tw, ty + th);
-  if (is_yv12) {
-    mpglMultiTexCoord2f(GL_TEXTURE1, tx2 + tw2, ty2 + th2);
-    mpglMultiTexCoord2f(GL_TEXTURE2, tx2 + tw2, ty2 + th2);
-  }
-  mpglVertex2f(x + w, y + h);
-  mpglTexCoord2f(tx + tw, ty);
-  if (is_yv12) {
-    mpglMultiTexCoord2f(GL_TEXTURE1, tx2 + tw2, ty2);
-    mpglMultiTexCoord2f(GL_TEXTURE2, tx2 + tw2, ty2);
-  }
-  mpglVertex2f(x + w, y);
-  mpglEnd();
+  draw_vertices(x, y, w, h, tx, ty, tw, th, tx2, ty2, tw2, th2, is_yv12, use_stipple);
 }
 
 #ifdef CONFIG_GL_WIN32
@@ -1785,11 +2143,10 @@ static void *w32gpa(const GLubyte *procName) {
 
 static int setGlWindow_w32(MPGLContext *ctx)
 {
-  HWND win = vo_w32_window;
   int *vinfo = &ctx->vinfo.w32;
   HGLRC *context = &ctx->context.w32;
   int new_vinfo;
-  HDC windc = vo_w32_get_dc(win);
+  HDC windc = vo_w32_get_dc(vo_w32_window);
   HGLRC new_context = 0;
   int keep_context = 0;
   int res = SET_WINDOW_FAILED;
@@ -1822,10 +2179,9 @@ static int setGlWindow_w32(MPGLContext *ctx)
   }
 
   // set new values
-  vo_w32_window = win;
   {
     RECT rect;
-    GetClientRect(win, &rect);
+    GetClientRect(vo_w32_window, &rect);
     vo_dwidth = rect.right;
     vo_dheight = rect.bottom;
   }
@@ -1836,13 +2192,16 @@ static int setGlWindow_w32(MPGLContext *ctx)
     *vinfo = new_vinfo;
     getFunctions(w32gpa, NULL);
 
+    gpu_def_sl_program = 0;
+    gpu_yuv_sl_program = 0;
+
     // and inform that reinit is neccessary
     res = SET_WINDOW_REINIT;
   } else
     res = SET_WINDOW_OK;
 
 out:
-  vo_w32_release_dc(win, windc);
+  vo_w32_release_dc(vo_w32_window, windc);
   return res;
 }
 
@@ -1983,6 +2342,9 @@ static int setGlWindow_x11(MPGLContext *ctx)
     }
     free(glxstr);
 
+    gpu_def_sl_program = 0;
+    gpu_yuv_sl_program = 0;
+
     // and inform that reinit is neccessary
     return SET_WINDOW_REINIT;
   }
@@ -2031,10 +2393,12 @@ static void *sdlgpa(const GLubyte *name) {
 }
 
 static int setGlWindow_sdl(MPGLContext *ctx) {
-  if (sdl_set_mode(0, SDL_OPENGL | SDL_RESIZABLE) < 0)
+  if (!sdl_set_mode(0, SDL_OPENGL | SDL_RESIZABLE))
     return SET_WINDOW_FAILED;
   SDL_GL_LoadLibrary(NULL);
   getFunctions(sdlgpa, NULL);
+  gpu_def_sl_program = 0;
+  gpu_yuv_sl_program = 0;
   return SET_WINDOW_OK;
 }
 
@@ -2053,7 +2417,7 @@ static int sdl_check_events(void) {
 
 #endif
 
-#ifdef CONFIG_GL_EGL_X11
+#if defined(CONFIG_GL_EGL_X11) || defined(CONFIG_GL_EGL_ANDROID)
 static EGLDisplay eglDisplay = EGL_NO_DISPLAY;
 static EGLSurface eglSurface = EGL_NO_SURFACE;
 
@@ -2063,26 +2427,79 @@ static EGLSurface eglSurface = EGL_NO_SURFACE;
  * So we have to use a non-portable way that in addition
  * might also return symbols from a different library
  * that the one providing the current context, great job!
+ * In addition the implementation of eglGetProcAddress
+ * on Galaxy S2 Android seems to actively return wrong
+ * pointers, it just gets better and better...
  */
+#ifdef CONFIG_GL_EGL_ANDROID
+static EGLNativeWindowType vo_window;
+#define eglGetProcAddress(a) 0
+#define mDisplay EGL_DEFAULT_DISPLAY
+static EGLNativeWindowType (*android_createDisplaySurface)(void);
+#endif
 static void *eglgpa(const GLubyte *name) {
   void *res = eglGetProcAddress(name);
   if (!res) {
-    void *h = dlopen("/usr/lib/libGLESv1_CM.so", RTLD_LAZY);
+    static const char * const paths[] = {
+      "/usr/lib/libGLESv2.so",
+      "/usr/lib/x86_64-linux-gnu/libGLESv2.so",
+      "/usr/lib/i386-linux-gnu/libGLESv2.so",
+      NULL};
+    int i;
+    void *h = NULL;
+    for (i = 0; !h && paths[i]; i++)
+      h = dlopen(paths[i], RTLD_LAZY);
+    if (!h) return NULL;
     res = dlsym(h, name);
     dlclose(h);
   }
   return res;
 }
 
+static void GLAPIENTRY dummy_color(GLubyte r, GLubyte g, GLubyte b, GLubyte a) {
+}
+
+static void GLAPIENTRY dummy_texenvi(GLenum t, GLenum p, GLint v) {
+}
+
+static int GLAPIENTRY SwapInterval_egl(int i) {
+  return eglSwapInterval(eglDisplay, i);
+}
+
 static int setGlWindow_egl(MPGLContext *ctx)
 {
-  static const EGLint cfg_attribs[] = { EGL_NONE };
-  static const EGLint ctx_attribs[] = { EGL_NONE };
+  static const EGLint cfg_attribs[] = { EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT, EGL_NONE };
+  static const EGLint ctx_attribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
   EGLContext *context = &ctx->context.egl;
-  Window win = vo_window;
   EGLContext new_context = NULL;
   EGLConfig eglConfig;
+  EGLint id;
   int num_configs;
+#ifdef CONFIG_GL_EGL_ANDROID
+  EGLint w, h;
+  if (vo_window) {
+    eglQuerySurface(eglDisplay, eglSurface, EGL_WIDTH, &w);
+    eglQuerySurface(eglDisplay, eglSurface, EGL_HEIGHT, &h);
+    vo_screenwidth = vo_dwidth = w;
+    vo_screenheight = vo_dheight = h;
+    return SET_WINDOW_OK;
+  }
+  if (WinID != -1)
+    vo_window = (EGLNativeWindowType)(intptr_t)WinID;
+  if (!vo_window) {
+    if (!android_createDisplaySurface) {
+      void *handle = dlopen("libui.so", RTLD_LAZY);
+      if (!handle)
+        return SET_WINDOW_FAILED;
+      android_createDisplaySurface = dlsym(handle, "android_createDisplaySurface");
+      if (!android_createDisplaySurface)
+        return SET_WINDOW_FAILED;
+    }
+    vo_window = android_createDisplaySurface();
+  }
+  if (!vo_window)
+    return SET_WINDOW_FAILED;
+#endif
   if (eglDisplay == EGL_NO_DISPLAY) {
     eglDisplay = eglGetDisplay(mDisplay);
     if (eglDisplay == EGL_NO_DISPLAY) {
@@ -2099,10 +2516,49 @@ static int setGlWindow_egl(MPGLContext *ctx)
     eglDestroyContext(eglDisplay, *context);
     eglDestroySurface(eglDisplay, eglSurface);
   }
+  if (mp_msg_test(MSGT_VO, MSGL_DBG2)) {
+    EGLConfig *configs;
+    EGLint count = 0, i;
+    eglGetConfigs(eglDisplay, NULL, 0, &count);
+    configs = calloc(count, sizeof(*configs));
+    eglGetConfigs(eglDisplay, configs, count, &count);
+    mp_msg(MSGT_VO, MSGL_V, " ID  |     sizes     | gl |es2| samples | caveat\n"
+                            "       r  g  b  a  d  s | es| vg | surfaces |\n");
+    for (i = 0; i < count; i++) {
+      EGLint rs, gs, bs, as, ds, ss, samples, surfaces, renderable, caveat;
+      const char *caveatstr = "unknown";
+      eglGetConfigAttrib(eglDisplay, configs[i], EGL_CONFIG_ID, &id);
+      eglGetConfigAttrib(eglDisplay, configs[i], EGL_RED_SIZE, &rs);
+      eglGetConfigAttrib(eglDisplay, configs[i], EGL_GREEN_SIZE, &gs);
+      eglGetConfigAttrib(eglDisplay, configs[i], EGL_BLUE_SIZE, &bs);
+      eglGetConfigAttrib(eglDisplay, configs[i], EGL_ALPHA_SIZE, &as);
+      eglGetConfigAttrib(eglDisplay, configs[i], EGL_DEPTH_SIZE, &ds);
+      eglGetConfigAttrib(eglDisplay, configs[i], EGL_STENCIL_SIZE, &ss);
+      eglGetConfigAttrib(eglDisplay, configs[i], EGL_SAMPLES, &samples);
+      eglGetConfigAttrib(eglDisplay, configs[i], EGL_SURFACE_TYPE, &surfaces);
+      eglGetConfigAttrib(eglDisplay, configs[i], EGL_RENDERABLE_TYPE, &renderable);
+      eglGetConfigAttrib(eglDisplay, configs[i], EGL_CONFIG_CAVEAT, &caveat);
+      switch (caveat) {
+      case EGL_SLOW_CONFIG:           caveatstr = "slow"; break;
+      case EGL_NON_CONFORMANT_CONFIG: caveatstr = "nonconf"; break;
+      case EGL_NONE:                  caveatstr = "none"; break;
+      }
+      mp_msg(MSGT_VO, MSGL_V, "0x%03x %2i %2i %2i %2i %2i %2i %c %c %c %c %2i 0x%03x %s (0x%x)\n",
+        id, rs, gs, bs, as, ds, ss,
+        renderable & EGL_OPENGL_BIT ? '+' : '-',
+        renderable & EGL_OPENGL_ES_BIT ? '+' : '-',
+        renderable & EGL_OPENGL_ES2_BIT ? '+' : '-',
+        renderable & EGL_OPENVG_BIT ? '+' : '-',
+        samples, surfaces, caveatstr, caveat);
+    }
+    free(configs);
+  }
   if (!eglChooseConfig(eglDisplay, cfg_attribs, &eglConfig, 1, &num_configs) ||
       num_configs != 1)
     return SET_WINDOW_FAILED;
-  eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, win, NULL);
+  eglGetConfigAttrib(eglDisplay, eglConfig, EGL_CONFIG_ID, &id);
+  mp_msg(MSGT_VO, MSGL_V, "Chosen config %x\n", id);
+  eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, vo_window, NULL);
   if (eglSurface == EGL_NO_SURFACE)
     return SET_WINDOW_FAILED;
 
@@ -2113,13 +2569,29 @@ static int setGlWindow_egl(MPGLContext *ctx)
     return SET_WINDOW_FAILED;
 
   // set new values
-  vo_window = win;
+#ifdef CONFIG_GL_EGL_X11
   vo_x11_update_geometry();
+#else
+  eglQuerySurface(eglDisplay, eglSurface, EGL_WIDTH, &w);
+  eglQuerySurface(eglDisplay, eglSurface, EGL_HEIGHT, &h);
+  vo_screenwidth = vo_dwidth = w;
+  vo_screenheight = vo_dheight = h;
+#endif
   *context = new_context;
 
   getFunctions(eglgpa, eglQueryString(eglDisplay, EGL_EXTENSIONS));
   mpglBegin = NULL;
   mpglDrawBuffer = NULL;
+  mpglSwapInterval = SwapInterval_egl;
+
+  gpu_def_sl_program = new_gpu_program();
+  set_frag_src(gpu_def_sl_program, def_frag_shader);
+  mpglLoadMatrixf = matrix_uniform;
+  mpglColor4ub = dummy_color;
+  mpglTexEnvi = dummy_texenvi;
+  use_program(gpu_def_sl_program);
+
+  gpu_yuv_sl_program = 0;
 
   // and inform that reinit is necessary
   return SET_WINDOW_REINIT;
@@ -2131,13 +2603,18 @@ static int setGlWindow_egl(MPGLContext *ctx)
  */
 static void releaseGlContext_egl(MPGLContext *ctx) {
   EGLContext *context = &ctx->context.egl;
-  if (*context != EGL_NO_CONTEXT)
-  {
+  if (*context != EGL_NO_CONTEXT) {
     mpglFinish();
     eglMakeCurrent(eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     eglDestroyContext(eglDisplay, *context);
   }
   *context = EGL_NO_CONTEXT;
+  if (eglSurface != EGL_NO_SURFACE)
+    eglDestroySurface(eglDisplay, eglSurface);
+  eglSurface = EGL_NO_SURFACE;
+  if (eglDisplay != EGL_NO_DISPLAY)
+    eglTerminate(eglDisplay);
+  eglDisplay = EGL_NO_DISPLAY;
 }
 
 static void swapGlBuffers_egl(MPGLContext *ctx) {
@@ -2148,14 +2625,23 @@ static void swapGlBuffers_egl(MPGLContext *ctx) {
 
 static int setGlWindow_dummy(MPGLContext *ctx) {
   getFunctions(NULL, NULL);
+  gpu_def_sl_program = 0;
+  gpu_yuv_sl_program = 0;
   return SET_WINDOW_OK;
 }
 
 static void releaseGlContext_dummy(MPGLContext *ctx) {
 }
 
+static void swapGlBuffers_dummy(MPGLContext *ctx) {
+}
+
 static int dummy_check_events(void) {
   return 0;
+}
+
+static void dummy_fullscreen(void) {
+  vo_fs = !vo_fs;
 }
 
 static void dummy_update_xinerama_info(void) {
@@ -2172,9 +2658,13 @@ int init_mpglcontext(MPGLContext *ctx, enum MPGLType type) {
   if (type == GLTYPE_AUTO) {
     int res = init_mpglcontext(ctx, GLTYPE_W32);
     if (res) return res;
+    res = init_mpglcontext(ctx, GLTYPE_OSX);
+    if (res) return res;
     res = init_mpglcontext(ctx, GLTYPE_X11);
     if (res) return res;
     res = init_mpglcontext(ctx, GLTYPE_SDL);
+    if (res) return res;
+    res = init_mpglcontext(ctx, GLTYPE_EGL_ANDROID);
     if (res) return res;
     res = init_mpglcontext(ctx, GLTYPE_EGL_X11);
     return res;
@@ -2182,8 +2672,10 @@ int init_mpglcontext(MPGLContext *ctx, enum MPGLType type) {
   memset(ctx, 0, sizeof(*ctx));
   ctx->setGlWindow = setGlWindow_dummy;
   ctx->releaseGlContext = releaseGlContext_dummy;
+  ctx->swapGlBuffers = swapGlBuffers_dummy;
   ctx->update_xinerama_info = dummy_update_xinerama_info;
   ctx->check_events = dummy_check_events;
+  ctx->fullscreen = dummy_fullscreen;
   ctx->type = type;
   switch (ctx->type) {
 #ifdef CONFIG_GL_WIN32
@@ -2219,6 +2711,13 @@ int init_mpglcontext(MPGLContext *ctx, enum MPGLType type) {
     ctx->fullscreen = vo_sdl_fullscreen;
     return vo_sdl_init();
 #endif
+#ifdef CONFIG_GL_EGL_ANDROID
+  case GLTYPE_EGL_ANDROID:
+    ctx->setGlWindow = setGlWindow_egl;
+    ctx->releaseGlContext = releaseGlContext_egl;
+    ctx->swapGlBuffers = swapGlBuffers_egl;
+    return 1;
+#endif
 #ifdef CONFIG_GL_EGL_X11
   case GLTYPE_EGL_X11:
     ctx->setGlWindow = setGlWindow_egl;
@@ -2231,9 +2730,73 @@ int init_mpglcontext(MPGLContext *ctx, enum MPGLType type) {
     ctx->ontop = vo_x11_ontop;
     return vo_init();
 #endif
+#ifdef CONFIG_GL_OSX
+  case GLTYPE_OSX:
+    ctx->swapGlBuffers = vo_osx_swap_buffers;
+    ctx->update_xinerama_info = vo_osx_update_xinerama_info;
+    ctx->check_events = vo_osx_check_events;
+    ctx->fullscreen = vo_osx_fullscreen;
+    ctx->ontop = vo_osx_ontop;
+    return vo_osx_init();
+#endif
   default:
     return 0;
   }
+}
+
+int mpglcontext_create_window(MPGLContext *ctx, uint32_t d_width, uint32_t d_height,
+                              uint32_t flags, const char *title)
+{
+#ifdef CONFIG_GL_WIN32
+  if (ctx->type == GLTYPE_W32 && !vo_w32_config(d_width, d_height, flags))
+    return -1;
+#endif
+#ifdef CONFIG_GL_OSX
+  if (ctx->type == GLTYPE_OSX && !vo_osx_config(d_width, d_height, flags))
+    return -1;
+#endif
+#ifdef CONFIG_GL_EGL_X11
+  if (ctx->type == GLTYPE_EGL_X11) {
+    XVisualInfo vinfo = { .visual = CopyFromParent, .depth = CopyFromParent };
+    vo_x11_create_vo_window(&vinfo, vo_dx, vo_dy, d_width, d_height, flags,
+            CopyFromParent, "gl", title);
+  }
+#endif
+#ifdef CONFIG_GL_X11
+  if (ctx->type == GLTYPE_X11) {
+    int default_glx_attribs[] = {
+      GLX_RGBA, GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1, GLX_BLUE_SIZE, 1,
+      GLX_DOUBLEBUFFER, GLX_DEPTH_SIZE, (flags & VOFLAG_DEPTH) ? 1 : 0, None
+    };
+    static const int stereo_glx_attribs[]  = {
+      GLX_RGBA, GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1, GLX_BLUE_SIZE, 1,
+      GLX_DOUBLEBUFFER, GLX_STEREO, None
+    };
+    XVisualInfo *vinfo = NULL;
+    if (flags & VOFLAG_STEREO) {
+      vinfo = glXChooseVisual(mDisplay, mScreen, stereo_glx_attribs);
+      if (!vinfo)
+        mp_msg(MSGT_VO, MSGL_ERR, "[gl] Could not find a stereo visual, "
+                                  "3D will probably not work!\n");
+    }
+    if (!vinfo)
+      vinfo = glXChooseVisual(mDisplay, mScreen, default_glx_attribs);
+    if (!vinfo) {
+      mp_msg(MSGT_VO, MSGL_ERR, "[gl] no GLX support present\n");
+      return -1;
+    }
+    mp_msg(MSGT_VO, MSGL_V, "[gl] GLX chose visual with ID 0x%x\n", (int)vinfo->visualid);
+
+    vo_x11_create_vo_window(vinfo, vo_dx, vo_dy, d_width, d_height, flags,
+            XCreateColormap(mDisplay, mRootWin, vinfo->visual, AllocNone),
+            "gl", title);
+  }
+#endif
+#ifdef CONFIG_GL_SDL
+  if (ctx->type == GLTYPE_SDL && !vo_sdl_config(d_width, d_height, flags, title))
+    return -1;
+#endif
+  return 0;
 }
 
 void uninit_mpglcontext(MPGLContext *ctx) {
@@ -2252,6 +2815,11 @@ void uninit_mpglcontext(MPGLContext *ctx) {
 #ifdef CONFIG_GL_SDL
   case GLTYPE_SDL:
     vo_sdl_uninit();
+    break;
+#endif
+#ifdef CONFIG_GL_OSX
+  case GLTYPE_OSX:
+    vo_osx_uninit();
     break;
 #endif
   }

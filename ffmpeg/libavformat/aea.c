@@ -3,27 +3,27 @@
  *
  * Copyright (c) 2009 Benjamin Larsson
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include "libavutil/channel_layout.h"
+#include "libavutil/intreadwrite.h"
 #include "avformat.h"
 #include "pcm.h"
-#include "libavutil/intreadwrite.h"
-#include "libavutil/audioconvert.h"
 
 #define AT1_SU_SIZE     212
 
@@ -34,12 +34,8 @@ static int aea_read_probe(AVProbeData *p)
 
     /* Magic is '00 08 00 00' in Little Endian*/
     if (AV_RL32(p->buf)==0x800) {
-        int bsm_s, bsm_e, inb_s, inb_e, ch;
-        ch    = p->buf[264];
-        bsm_s = p->buf[2048];
-        inb_s = p->buf[2048+1];
-        inb_e = p->buf[2048+210];
-        bsm_e = p->buf[2048+211];
+        int ch, i;
+        ch = p->buf[264];
 
         if (ch != 1 && ch != 2)
             return 0;
@@ -48,14 +44,22 @@ static int aea_read_probe(AVProbeData *p)
          * the block size mode bytes have to be the same
          * the info bytes have to be the same
          */
-        if (bsm_s == bsm_e && inb_s == inb_e)
-            return AVPROBE_SCORE_MAX / 4 + 1;
+        for (i = 2048; i + 211 < p->buf_size; i+= 212) {
+            int bsm_s, bsm_e, inb_s, inb_e;
+            bsm_s = p->buf[0];
+            inb_s = p->buf[1];
+            inb_e = p->buf[210];
+            bsm_e = p->buf[211];
+
+            if (bsm_s != bsm_e || inb_s != inb_e)
+                return 0;
+        }
+        return AVPROBE_SCORE_MAX / 4 + 1;
     }
     return 0;
 }
 
-static int aea_read_header(AVFormatContext *s,
-                           AVFormatParameters *ap)
+static int aea_read_header(AVFormatContext *s)
 {
     AVStream *st = avformat_new_stream(s, NULL);
     if (!st)
@@ -68,13 +72,13 @@ static int aea_read_header(AVFormatContext *s,
 
 
     st->codec->codec_type     = AVMEDIA_TYPE_AUDIO;
-    st->codec->codec_id       = CODEC_ID_ATRAC1;
+    st->codec->codec_id       = AV_CODEC_ID_ATRAC1;
     st->codec->sample_rate    = 44100;
     st->codec->bit_rate       = 292000;
 
     if (st->codec->channels != 1 && st->codec->channels != 2) {
         av_log(s,AV_LOG_ERROR,"Channels %d not supported!\n",st->codec->channels);
-        return -1;
+        return AVERROR_INVALIDDATA;
     }
 
     st->codec->channel_layout = (st->codec->channels == 1) ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO;
@@ -100,8 +104,7 @@ AVInputFormat ff_aea_demuxer = {
     .read_probe     = aea_read_probe,
     .read_header    = aea_read_header,
     .read_packet    = aea_read_packet,
-    .read_seek      = pcm_read_seek,
-    .flags= AVFMT_GENERIC_INDEX,
-    .extensions = "aea",
+    .read_seek      = ff_pcm_read_seek,
+    .flags          = AVFMT_GENERIC_INDEX,
+    .extensions     = "aea",
 };
-

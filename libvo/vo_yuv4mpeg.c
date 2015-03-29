@@ -47,6 +47,7 @@
 #include "config.h"
 #include "subopt-helper.h"
 #include "video_out.h"
+#define NO_DRAW_FRAME
 #include "video_out_internal.h"
 
 #include "mp_msg.h"
@@ -105,7 +106,6 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
 	    "Video formats differ (w:%i=>%i, h:%i=>%i, fps:%f=>%f), "
 	    "restarting output.\n",
 	    image_width, width, image_height, height, image_fps, vo_fps);
-	  uninit();
 	}
 	image_height = height;
 	image_width = width;
@@ -130,9 +130,11 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
 	}
 
 	write_bytes = image_width * image_height * 3 / 2;
+	free(image);
 	image = malloc(write_bytes);
 
-	yuv_out = fopen(yuv_filename, "wb");
+	if (!yuv_out)
+		yuv_out = strcmp(yuv_filename, "-") ? fopen(yuv_filename, "wb") : stdout;
 	if (!yuv_out || image == 0)
 	{
 		mp_msg(MSGT_VO,MSGL_FATAL,
@@ -169,6 +171,7 @@ static void vo_y4m_write(const void *ptr, const size_t num_bytes)
 	if (fwrite(ptr, 1, num_bytes, yuv_out) != num_bytes)
 		mp_msg(MSGT_VO,MSGL_ERR,
 			MSGTR_VO_YUV4MPEG_OutFileWriteError);
+	fflush(yuv_out);
 }
 
 static int write_last_frame(void)
@@ -219,12 +222,6 @@ static int draw_slice(uint8_t *srcimg[], int stride[], int w,int h,int x,int y)
 	return 0;
 }
 
-static int draw_frame(uint8_t * src[])
-{
-			// gets done in draw_slice
-    return 0;
-}
-
 static int query_format(uint32_t format)
 {
 	if (format == IMGFMT_YV12)
@@ -238,7 +235,7 @@ static void uninit(void)
 	free(image);
 	image = NULL;
 
-	if(yuv_out)
+	if(yuv_out && yuv_out != stdout)
 		fclose(yuv_out);
 	yuv_out = NULL;
 

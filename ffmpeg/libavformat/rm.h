@@ -2,20 +2,20 @@
  * "Real" compatible muxer and demuxer.
  * Copyright (c) 2000, 2001 Fabrice Bellard
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -26,7 +26,6 @@
 #include "internal.h"
 
 extern const char * const ff_rm_metadata[4];
-extern const unsigned char ff_sipr_subpk_size[4];
 extern const AVCodecTag ff_rm_codec_tags[];
 
 typedef struct RMStream RMStream;
@@ -51,7 +50,7 @@ extern AVInputFormat ff_rdt_demuxer;
  */
 int ff_rm_read_mdpr_codecdata (AVFormatContext *s, AVIOContext *pb,
                                AVStream *st, RMStream *rst,
-                               int codec_data_size);
+                               unsigned int codec_data_size, const uint8_t *mime);
 
 /**
  * Parse one rm-stream packet from the input bytestream.
@@ -92,12 +91,5 @@ int ff_rm_parse_packet (AVFormatContext *s, AVIOContext *pb,
  */
 int ff_rm_retrieve_cache (AVFormatContext *s, AVIOContext *pb,
                           AVStream *st, RMStream *rst, AVPacket *pkt);
-
-/**
- * Perform 4-bit block reordering for SIPR data.
- *
- * @param buf SIPR data
- */
-void ff_rm_reorder_sipr_data(uint8_t *buf, int sub_packet_h, int framesize);
 
 #endif /* AVFORMAT_RM_H */

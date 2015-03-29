@@ -4,20 +4,20 @@
  * Copyright (c) 2007 Reynaldo H. Verdejo Pinochet (QCELP decoder)
  * Copyright (c) 2008 Vladimir Voroshilov
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -27,7 +27,8 @@
 #define FRAC_BITS 14
 #include "mathops.h"
 #include "lsp.h"
-#include "celp_math.h"
+#include "libavcodec/mips/lsp_mips.h"
+#include "libavutil/avassert.h"
 
 void ff_acelp_reorder_lsf(int16_t* lsfq, int lsfq_min_distance, int lsfq_min, int lsfq_max, int lp_order)
 {
@@ -53,6 +54,30 @@ void ff_set_min_dist_lsf(float *lsf, double min_spacing, int size)
     float prev = 0.0;
     for (i = 0; i < size; i++)
         prev = lsf[i] = FFMAX(lsf[i], prev + min_spacing);
+}
+
+
+/* Cosine table: base_cos[i] = (1 << 15) * cos(i * PI / 64) */
+static const int16_t tab_cos[65] =
+{
+  32767,  32738,  32617,  32421,  32145,  31793,  31364,  30860,
+  30280,  29629,  28905,  28113,  27252,  26326,  25336,  24285,
+  23176,  22011,  20793,  19525,  18210,  16851,  15451,  14014,
+  12543,  11043,   9515,   7965,   6395,   4810,   3214,   1609,
+      1,  -1607,  -3211,  -4808,  -6393,  -7962,  -9513, -11040,
+ -12541, -14012, -15449, -16848, -18207, -19523, -20791, -22009,
+ -23174, -24283, -25334, -26324, -27250, -28111, -28904, -29627,
+ -30279, -30858, -31363, -31792, -32144, -32419, -32616, -32736, -32768,
+};
+
+static int16_t ff_cos(uint16_t arg)
+{
+    uint8_t offset= arg;
+    uint8_t ind = arg >> 8;
+
+    av_assert2(arg <= 0x3fff);
+
+    return tab_cos[ind] + (offset * (tab_cos[ind+1] - tab_cos[ind]) >> 8);
 }
 
 void ff_acelp_lsf2lsp(int16_t *lsp, const int16_t *lsf, int lp_order)
@@ -150,7 +175,11 @@ void ff_acelp_lp_decode(int16_t* lp_1st, int16_t* lp_2nd, const int16_t* lsp_2nd
 
     /* LSP values for first subframe (3.2.5 of G.729, Equation 24)*/
     for(i=0; i<lp_order; i++)
+#ifdef G729_BITEXACT
+        lsp_1st[i] = (lsp_2nd[i] >> 1) + (lsp_prev[i] >> 1);
+#else
         lsp_1st[i] = (lsp_2nd[i] + lsp_prev[i]) >> 1;
+#endif
 
     ff_acelp_lsp2lpc(lp_1st, lsp_1st, lp_order >> 1);
 
@@ -158,6 +187,7 @@ void ff_acelp_lp_decode(int16_t* lp_1st, int16_t* lp_2nd, const int16_t* lsp_2nd
     ff_acelp_lsp2lpc(lp_2nd, lsp_2nd, lp_order >> 1);
 }
 
+#ifndef ff_lsp2polyf
 void ff_lsp2polyf(const double *lsp, double *f, int lp_half_order)
 {
     int i, j;
@@ -174,13 +204,14 @@ void ff_lsp2polyf(const double *lsp, double *f, int lp_half_order)
         f[1] += val;
     }
 }
+#endif /* ff_lsp2polyf */
 
 void ff_acelp_lspd2lpc(const double *lsp, float *lpc, int lp_half_order)
 {
     double pa[MAX_LP_HALF_ORDER+1], qa[MAX_LP_HALF_ORDER+1];
     float *lpc2 = lpc + (lp_half_order << 1) - 1;
 
-    assert(lp_half_order <= MAX_LP_HALF_ORDER);
+    av_assert2(lp_half_order <= MAX_LP_HALF_ORDER);
 
     ff_lsp2polyf(lsp,     pa, lp_half_order);
     ff_lsp2polyf(lsp + 1, qa, lp_half_order);

@@ -2,20 +2,20 @@
  * "Real" compatible muxer.
  * Copyright (c) 2000, 2001 Fabrice Bellard
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 #include "avformat.h"
@@ -23,7 +23,7 @@
 #include "rm.h"
 #include "libavutil/dict.h"
 
-typedef struct {
+typedef struct StreamInfo {
     int nb_packets;
     int packet_total_size;
     int packet_max_size;
@@ -36,7 +36,7 @@ typedef struct {
     AVCodecContext *enc;
 } StreamInfo;
 
-typedef struct {
+typedef struct RMMuxContext {
     StreamInfo streams[2];
     StreamInfo *audio_stream, *video_stream;
     int data_pos; /* position of the data after the header */
@@ -44,6 +44,10 @@ typedef struct {
 
 /* in ms */
 #define BUFFER_DURATION 0
+/* the header needs at most 7 + 4 + 12 B */
+#define MAX_HEADER_SIZE (7 + 4 + 12)
+/* UINT16_MAX is the maximal chunk size */
+#define MAX_PACKET_SIZE (UINT16_MAX - MAX_HEADER_SIZE)
 
 
 static void put_str(AVIOContext *s, const char *tag)
@@ -217,8 +221,8 @@ static int rv10_write_header(AVFormatContext *ctx,
                 coded_frame_size--;
             avio_wb32(s, coded_frame_size); /* frame length */
             avio_wb32(s, 0x51540); /* unknown */
-            avio_wb32(s, 0x249f0); /* unknown */
-            avio_wb32(s, 0x249f0); /* unknown */
+            avio_wb32(s, stream->enc->bit_rate / 8 * 60); /* bytes per minute */
+            avio_wb32(s, stream->enc->bit_rate / 8 * 60); /* bytes per minute */
             avio_wb16(s, 0x01);
             /* frame length : seems to be very important */
             avio_wb16(s, coded_frame_size);
@@ -242,7 +246,7 @@ static int rv10_write_header(AVFormatContext *ctx,
             /* video codec info */
             avio_wb32(s,34); /* size */
             ffio_wfourcc(s, "VIDO");
-            if(stream->enc->codec_id == CODEC_ID_RV10)
+            if(stream->enc->codec_id == AV_CODEC_ID_RV10)
                 ffio_wfourcc(s,"RV10");
             else
                 ffio_wfourcc(s,"RV20");
@@ -256,7 +260,7 @@ static int rv10_write_header(AVFormatContext *ctx,
             /* Seems to be the codec version: only use basic H263. The next
                versions seems to add a diffential DC coding as in
                MPEG... nothing new under the sun */
-            if(stream->enc->codec_id == CODEC_ID_RV10)
+            if(stream->enc->codec_id == AV_CODEC_ID_RV10)
                 avio_wb32(s,0x10000000);
             else
                 avio_wb32(s,0x20103001);
@@ -309,7 +313,14 @@ static int rm_write_header(AVFormatContext *s)
     int n;
     AVCodecContext *codec;
 
+    if (s->nb_streams > 2) {
+        av_log(s, AV_LOG_ERROR, "At most 2 streams are currently supported for muxing in RM\n");
+        return AVERROR_PATCHWELCOME;
+    }
+
     for(n=0;n<s->nb_streams;n++) {
+        AVStream *st = s->streams[n];
+
         s->streams[n]->id = n;
         codec = s->streams[n]->codec;
         stream = &rm->streams[n];
@@ -329,7 +340,8 @@ static int rm_write_header(AVFormatContext *s)
             break;
         case AVMEDIA_TYPE_VIDEO:
             rm->video_stream = stream;
-            stream->frame_rate = (float)codec->time_base.den / (float)codec->time_base.num;
+            // TODO: should be avg_frame_rate
+            stream->frame_rate = (float)st->time_base.den / (float)st->time_base.num;
             /* XXX: dummy values */
             stream->packet_max_size = 4096;
             stream->nb_packets = 0;
@@ -356,10 +368,12 @@ static int rm_write_audio(AVFormatContext *s, const uint8_t *buf, int size, int 
 
     /* XXX: suppress this malloc */
     buf1 = av_malloc(size * sizeof(uint8_t));
+    if (!buf1)
+        return AVERROR(ENOMEM);
 
     write_packet_header(s, stream, size, !!(flags & AV_PKT_FLAG_KEY));
 
-    if (stream->enc->codec_id == CODEC_ID_AC3) {
+    if (stream->enc->codec_id == AV_CODEC_ID_AC3) {
         /* for AC-3, the words seem to be reversed */
         for(i=0;i<size;i+=2) {
             buf1[i] = buf[i+1];
@@ -369,7 +383,6 @@ static int rm_write_audio(AVFormatContext *s, const uint8_t *buf, int size, int 
     } else {
         avio_write(pb, buf, size);
     }
-    avio_flush(pb);
     stream->nb_frames++;
     av_free(buf1);
     return 0;
@@ -387,6 +400,10 @@ static int rm_write_video(AVFormatContext *s, const uint8_t *buf, int size, int 
     /* Well, I spent some time finding the meaning of these bits. I am
        not sure I understood everything, but it works !! */
 #if 1
+    if (size > MAX_PACKET_SIZE) {
+        av_log(s, AV_LOG_ERROR, "Muxing packets larger than 64 kB (%d) is not supported\n", size);
+        return AVERROR_PATCHWELCOME;
+    }
     write_packet_header(s, stream, size + 7 + (size >= 0x4000)*4, key_frame);
     /* bit 7: '1' if final packet of a frame converted in several packets */
     avio_w8(pb, 0x81);
@@ -414,7 +431,6 @@ static int rm_write_video(AVFormatContext *s, const uint8_t *buf, int size, int 
     avio_w8(pb, stream->nb_frames & 0xff);
 
     avio_write(pb, buf, size);
-    avio_flush(pb);
 
     stream->nb_frames++;
     return 0;
@@ -455,21 +471,21 @@ static int rm_write_trailer(AVFormatContext *s)
         avio_wb32(pb, 0);
         avio_wb32(pb, 0);
     }
-    avio_flush(pb);
+
     return 0;
 }
 
 
 AVOutputFormat ff_rm_muxer = {
     .name              = "rm",
-    .long_name         = NULL_IF_CONFIG_SMALL("RealMedia format"),
+    .long_name         = NULL_IF_CONFIG_SMALL("RealMedia"),
     .mime_type         = "application/vnd.rn-realmedia",
     .extensions        = "rm,ra",
     .priv_data_size    = sizeof(RMMuxContext),
-    .audio_codec       = CODEC_ID_AC3,
-    .video_codec       = CODEC_ID_RV10,
+    .audio_codec       = AV_CODEC_ID_AC3,
+    .video_codec       = AV_CODEC_ID_RV10,
     .write_header      = rm_write_header,
     .write_packet      = rm_write_packet,
     .write_trailer     = rm_write_trailer,
-    .codec_tag= (const AVCodecTag* const []){ff_rm_codec_tags, 0},
+    .codec_tag         = (const AVCodecTag* const []){ ff_rm_codec_tags, 0 },
 };

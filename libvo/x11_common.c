@@ -21,6 +21,7 @@
 #include <math.h>
 #include <inttypes.h>
 #include <limits.h>
+#include <locale.h>
 
 #include "config.h"
 #include "mp_msg.h"
@@ -29,6 +30,7 @@
 #include "x11_common.h"
 
 #include <string.h>
+#include <strings.h>
 #include <unistd.h>
 #include <assert.h>
 
@@ -83,7 +85,7 @@
 #define WIN_LAYER_ONTOP                  6
 #define WIN_LAYER_ABOVE_DOCK             10
 
-int fs_layer = WIN_LAYER_ABOVE_DOCK;
+static int fs_layer = WIN_LAYER_ABOVE_DOCK;
 static int orig_layer = 0;
 static int old_gravity = NorthWestGravity;
 
@@ -115,11 +117,13 @@ static Atom XA_NET_WM_STATE_ABOVE;
 static Atom XA_NET_WM_STATE_STAYS_ON_TOP;
 static Atom XA_NET_WM_STATE_BELOW;
 static Atom XA_NET_WM_PID;
+static Atom XA_NET_WM_NAME;
 static Atom XA_WIN_PROTOCOLS;
 static Atom XA_WIN_LAYER;
 static Atom XA_WIN_HINTS;
 static Atom XAWM_PROTOCOLS;
 static Atom XAWM_DELETE_WINDOW;
+static Atom XAUTF8_STRING;
 
 #define XA_INIT(x) XA##x = XInternAtom(mDisplay, #x, False)
 
@@ -129,8 +133,9 @@ static int vo_old_width = 0;
 static int vo_old_height = 0;
 
 #ifdef CONFIG_XF86VM
-XF86VidModeModeInfo **vidmodes = NULL;
-XF86VidModeModeLine modeline;
+static int modecount;
+static XF86VidModeModeInfo **vidmodes;
+static XF86VidModeModeLine modeline;
 #endif
 
 static int vo_x11_get_fs_type(int supported);
@@ -215,7 +220,7 @@ static int x11_errorhandler(Display * display, XErrorEvent * event)
 
     XGetErrorText(display, event->error_code, (char *) &msg, MSGLEN);
 
-    mp_msg(MSGT_VO, MSGL_ERR, "X11 error: %s\n", msg);
+    mp_msg(MSGT_VO, MSGL_ERR, MSGTR_X11Error, msg);
 
     mp_msg(MSGT_VO, MSGL_V,
            "Type: %x, display: %p, resourceid: %lx, serial: %lx\n",
@@ -251,7 +256,7 @@ void fstype_help(void)
     mp_msg(MSGT_VO, MSGL_INFO, "    %-15s %s\n", "stays_on_top",
            "use _NETWM_STATE_STAYS_ON_TOP hint if available");
     mp_msg(MSGT_VO, MSGL_INFO,
-           "You can also negate the settings with simply putting '-' in the beginning");
+           "You can also negate individual flags by preceding them with a '-' character");
     mp_msg(MSGT_VO, MSGL_INFO, "\n");
 }
 
@@ -357,11 +362,13 @@ static void init_atoms(void)
     XA_INIT(_NET_WM_STATE_STAYS_ON_TOP);
     XA_INIT(_NET_WM_STATE_BELOW);
     XA_INIT(_NET_WM_PID);
+    XA_INIT(_NET_WM_NAME);
     XA_INIT(_WIN_PROTOCOLS);
     XA_INIT(_WIN_LAYER);
     XA_INIT(_WIN_HINTS);
     XA_INIT(WM_PROTOCOLS);
     XA_INIT(WM_DELETE_WINDOW);
+    XA_INIT(UTF8_STRING);
 }
 
 void update_xinerama_info(void) {
@@ -422,6 +429,9 @@ int vo_init(void)
         return 1;               // already called
     }
 
+    // Required so that XLookupString returns UTF-8
+    if (!setlocale(LC_CTYPE, "C.UTF-8") && !setlocale(LC_CTYPE, "en_US.utf8"))
+        mp_msg(MSGT_VO, MSGL_WARN, MSGTR_CouldntFindUTF8Locale);
     XSetErrorHandler(x11_errorhandler);
 
     dispName = XDisplayName(mDisplayName);
@@ -432,7 +442,7 @@ int vo_init(void)
     if (!mDisplay)
     {
         mp_msg(MSGT_VO, MSGL_ERR,
-               "vo: couldn't open the X11 display (%s)!\n", dispName);
+               MSGTR_CouldntOpenDisplay, dispName);
         return 0;
     }
     mScreen = DefaultScreen(mDisplay);  // screen ID
@@ -674,7 +684,7 @@ void vo_x11_decoration(Display * vo_Display, Window w, int d)
     int mformat;
     unsigned long mn, mb;
 
-    if (!WinID)
+    if (WinID >= 0)
         return;
 
     if (vo_fsmode & 8)
@@ -768,7 +778,7 @@ void vo_x11_uninit(void)
         if (vo_window != None)
         {
             XClearWindow(mDisplay, vo_window);
-            if (WinID < 0)
+            if (WinID < 0 && vo_window != mRootWin)
             {
                 XEvent xev;
 
@@ -805,14 +815,131 @@ static int check_resize(void)
     return rc;
 }
 
+static int to_utf8(const uint8_t *in)
+{
+    uint32_t v = 0;
+    GET_UTF8(v, *in++, goto err;)
+    if (*in || v >= KEY_BASE)
+        goto err;
+    return v;
+err:
+    return 0;
+}
+
+static int handle_x11_event(Display *mydisplay, XEvent *event)
+{
+    int key = 0;
+    uint8_t buf[16] = {0};
+    KeySym keySym;
+    static XComposeStatus stat;
+    static int ctrl_state;
+#ifdef CONFIG_GUI
+        if (use_gui)
+        {
+            gui(GUI_HANDLE_X_EVENT, event);
+            if (vo_window != event->xany.window)
+                return 0;
+        }
+#endif
+        switch (event->type)
+        {
+            case Expose:
+                return VO_EVENT_EXPOSE;
+            case ConfigureNotify:
+                if (vo_window == None)
+                    break;
+                return check_resize();
+            case KeyPress:
+            case KeyRelease:
+                {
+                    int key, utf8;
+
+#ifdef CONFIG_GUI
+                    if ( use_gui ) { break; }
+#endif
+
+                    XLookupString(&event->xkey, buf, sizeof(buf), &keySym,
+                                  &stat);
+                    key =
+                        ((keySym & 0xff00) !=
+                         0 ? ((keySym & 0x00ff) + 256) : (keySym));
+                    utf8 = buf[0] > 0xc0 ? to_utf8(buf) : 0;
+                    if (utf8) key = 0;
+                    if (key == wsLeftCtrl || key == wsRightCtrl) {
+                        ctrl_state = event->type == KeyPress;
+                        mplayer_put_key(KEY_CTRL |
+                            (ctrl_state ? MP_KEY_DOWN : 0));
+                    } else if (event->type == KeyRelease) {
+                        break;
+                    }
+                    // Attempt to fix if somehow our state got out of
+                    // sync with reality.
+                    // This usually happens when a shortcut involving CTRL
+                    // was used to switch to a different window/workspace.
+                    if (ctrl_state != !!(event->xkey.state & 4)) {
+                        ctrl_state = !!(event->xkey.state & 4);
+                        mplayer_put_key(KEY_CTRL |
+                            (ctrl_state ? MP_KEY_DOWN : 0));
+                    }
+                    if (!vo_x11_putkey_ext(keySym)) {
+                        if (utf8) mplayer_put_key(utf8);
+                        else vo_x11_putkey(key);
+                    }
+                    return VO_EVENT_KEYPRESS;
+                }
+                break;
+            case MotionNotify:
+                vo_mouse_movement(event->xmotion.x, event->xmotion.y);
+
+                return VO_EVENT_MOUSE;
+            case ButtonPress:
+                key = MP_KEY_DOWN;
+                /* Fallthrough, treat like release otherwise */
+            case ButtonRelease:
+#ifdef CONFIG_GUI
+                // Ignore mouse button 1-3 under GUI.
+                if (use_gui && (event->xbutton.button >= 1)
+                    && (event->xbutton.button <= 3))
+                    return VO_EVENT_MOUSE;
+#endif
+                key |= MOUSE_BTN0 + event->xbutton.button - 1;
+                mplayer_put_key(key);
+                return VO_EVENT_MOUSE;
+            case PropertyNotify:
+                {
+                    char *name =
+                        XGetAtomName(mydisplay, event->xproperty.atom);
+
+                    if (!name)
+                        break;
+
+                    XFree(name);
+                }
+                break;
+            case MapNotify:
+                if (WinID < 0) {
+                    vo_hint.win_gravity = old_gravity;
+                    XSetWMNormalHints(mDisplay, vo_window, &vo_hint);
+                    vo_fs_flip = 0;
+                }
+                break;
+            case DestroyNotify:
+                mp_msg(MSGT_VO, MSGL_WARN, MSGTR_WindowDestroyed);
+                mplayer_put_key(KEY_CLOSE_WIN);
+                break;
+	    case ClientMessage:
+                if (event->xclient.message_type == XAWM_PROTOCOLS &&
+                    event->xclient.data.l[0] == XAWM_DELETE_WINDOW)
+                    mplayer_put_key(KEY_CLOSE_WIN);
+                break;
+        }
+        return 0;
+}
+
 int vo_x11_check_events(Display * mydisplay)
 {
     int ret = 0;
     XEvent Event;
-    char buf[100];
-    KeySym keySym;
-    static XComposeStatus stat;
-    static int ctrl_state;
 
     if (vo_mouse_autohide && mouse_waiting_hide &&
                                  (GetTimerMS() - mouse_timer >= 1000)) {
@@ -825,132 +952,28 @@ int vo_x11_check_events(Display * mydisplay)
     while (XPending(mydisplay))
     {
         XNextEvent(mydisplay, &Event);
-#ifdef CONFIG_GUI
-        if (use_gui)
-        {
-            gui(GUI_HANDLE_X_EVENT, &Event);
-            if (vo_window != Event.xany.window)
-                continue;
-        }
-#endif
-//       printf("\rEvent.type=%X  \n",Event.type);
-        switch (Event.type)
-        {
-            case Expose:
-                ret |= VO_EVENT_EXPOSE;
-                break;
-            case ConfigureNotify:
-                if (vo_window == None)
-                    break;
-                ret |= check_resize();
-                break;
-            case KeyPress:
-            case KeyRelease:
-                {
-                    int key;
-
-#ifdef CONFIG_GUI
-                    if ( use_gui ) { break; }
-#endif
-
-                    XLookupString(&Event.xkey, buf, sizeof(buf), &keySym,
-                                  &stat);
-                    key =
-                        ((keySym & 0xff00) !=
-                         0 ? ((keySym & 0x00ff) + 256) : (keySym));
-                    if (key == wsLeftCtrl || key == wsRightCtrl) {
-                        ctrl_state = Event.type == KeyPress;
-                        mplayer_put_key(KEY_CTRL |
-                            (ctrl_state ? MP_KEY_DOWN : 0));
-                    } else if (Event.type == KeyRelease) {
-                        break;
-                    }
-                    // Attempt to fix if somehow our state got out of
-                    // sync with reality.
-                    // This usually happens when a shortcut involving CTRL
-                    // was used to switch to a different window/workspace.
-                    if (ctrl_state != !!(Event.xkey.state & 4)) {
-                        ctrl_state = !!(Event.xkey.state & 4);
-                        mplayer_put_key(KEY_CTRL |
-                            (ctrl_state ? MP_KEY_DOWN : 0));
-                    }
-                    if (!vo_x11_putkey_ext(keySym)) {
-                        vo_x11_putkey(key);
-                    }
-                    ret |= VO_EVENT_KEYPRESS;
-                }
-                break;
-            case MotionNotify:
-                vo_mouse_movement(Event.xmotion.x, Event.xmotion.y);
-
-                if (vo_mouse_autohide)
-                {
-                    vo_showcursor(mydisplay, vo_window);
-                    mouse_waiting_hide = 1;
-                    mouse_timer = GetTimerMS();
-                }
-                break;
-            case ButtonPress:
-                if (vo_mouse_autohide)
-                {
-                    vo_showcursor(mydisplay, vo_window);
-                    mouse_waiting_hide = 1;
-                    mouse_timer = GetTimerMS();
-                }
-#ifdef CONFIG_GUI
-                // Ignore mouse button 1-3 under GUI.
-                if (use_gui && (Event.xbutton.button >= 1)
-                    && (Event.xbutton.button <= 3))
-                    break;
-#endif
-                mplayer_put_key((MOUSE_BTN0 + Event.xbutton.button -
-                                 1) | MP_KEY_DOWN);
-                break;
-            case ButtonRelease:
-                if (vo_mouse_autohide)
-                {
-                    vo_showcursor(mydisplay, vo_window);
-                    mouse_waiting_hide = 1;
-                    mouse_timer = GetTimerMS();
-                }
-#ifdef CONFIG_GUI
-                // Ignore mouse button 1-3 under GUI.
-                if (use_gui && (Event.xbutton.button >= 1)
-                    && (Event.xbutton.button <= 3))
-                    break;
-#endif
-                mplayer_put_key(MOUSE_BTN0 + Event.xbutton.button - 1);
-                break;
-            case PropertyNotify:
-                {
-                    char *name =
-                        XGetAtomName(mydisplay, Event.xproperty.atom);
-
-                    if (!name)
-                        break;
-
-//          fprintf(stderr,"[ws] PropertyNotify ( 0x%x ) %s ( 0x%x )\n",vo_window,name,Event.xproperty.atom );
-
-                    XFree(name);
-                }
-                break;
-            case MapNotify:
-                vo_hint.win_gravity = old_gravity;
-                XSetWMNormalHints(mDisplay, vo_window, &vo_hint);
-                vo_fs_flip = 0;
-                break;
-            case DestroyNotify:
-                mp_msg(MSGT_VO, MSGL_WARN, "Our window was destroyed, exiting\n");
-                mplayer_put_key(KEY_CLOSE_WIN);
-                break;
-	    case ClientMessage:
-                if (Event.xclient.message_type == XAWM_PROTOCOLS &&
-                    Event.xclient.data.l[0] == XAWM_DELETE_WINDOW)
-                    mplayer_put_key(KEY_CLOSE_WIN);
-                break;
-        }
+        ret |= handle_x11_event(mydisplay, &Event);
+    }
+    if (vo_mouse_autohide && (ret & VO_EVENT_MOUSE))
+    {
+        vo_showcursor(mydisplay, vo_window);
+        mouse_waiting_hide = 1;
+        mouse_timer = GetTimerMS();
     }
     return ret;
+}
+
+static void vo_x11_update_fs_borders(void)
+{
+    if (!vo_fs)
+        return;
+    if (vo_dwidth  <= vo_fs_border_l + vo_fs_border_r ||
+        vo_dheight <= vo_fs_border_t + vo_fs_border_b) {
+        mp_msg(MSGT_VO, MSGL_ERR, "[x11] borders too wide, ignored.\n");
+        return;
+    }
+    vo_dwidth  -= vo_fs_border_l + vo_fs_border_r;
+    vo_dheight -= vo_fs_border_t + vo_fs_border_b;
 }
 
 /**
@@ -1091,6 +1114,16 @@ void vo_x11_create_vo_window(XVisualInfo *vis, int x, int y,
                              Colormap col_map,
                              const char *classname, const char *title)
 {
+  if (flags & VOFLAG_HIDDEN) {
+    // unmapped windows cause lots of issues, in particular
+    // -geometry might be ignore when finally mapping them etc.
+    if (vo_window == None)
+      vo_window = mRootWin;
+    window_state = VOFLAG_HIDDEN;
+    goto final;
+  } else if (vo_window == mRootWin && (window_state & VOFLAG_HIDDEN)) {
+    vo_window = None;
+  }
   if (vo_wintitle)
     title = vo_wintitle;
   if (WinID >= 0) {
@@ -1125,13 +1158,14 @@ void vo_x11_create_vo_window(XVisualInfo *vis, int x, int y,
     vo_fs = 0;
     vo_dwidth = width;
     vo_dheight = height;
+    vo_x11_update_fs_borders();
     vo_window = vo_x11_create_smooth_window(mDisplay, mRootWin, vis->visual,
                       x, y, width, height, vis->depth, col_map);
     window_state = VOFLAG_HIDDEN;
   }
-  if (flags & VOFLAG_HIDDEN)
-    goto final;
   XStoreName(mDisplay, vo_window, title);
+  XChangeProperty(mDisplay, vo_window, XA_NET_WM_NAME, XAUTF8_STRING,
+                  8, PropModeReplace, title, strlen(title));
   if (window_state & VOFLAG_HIDDEN) {
     XSizeHints hint;
     XEvent xev;
@@ -1151,10 +1185,9 @@ void vo_x11_create_vo_window(XVisualInfo *vis, int x, int y,
     // wait for map
     do {
       XNextEvent(mDisplay, &xev);
+      handle_x11_event(mDisplay, &xev);
     } while (xev.type != MapNotify || xev.xmap.event != vo_window);
     vo_x11_clearwindow(mDisplay, vo_window);
-    XSelectInput(mDisplay, vo_window, NoEventMask);
-    XSync(mDisplay, False);
     vo_x11_selectinput_witherr(mDisplay, vo_window,
           StructureNotifyMask | KeyPressMask | KeyReleaseMask | PointerMotionMask |
           ButtonPressMask | ButtonReleaseMask | ExposureMask);
@@ -1170,6 +1203,7 @@ void vo_x11_create_vo_window(XVisualInfo *vis, int x, int y,
     // set the size values right.
     vo_dwidth  = vo_screenwidth;
     vo_dheight = vo_screenheight;
+    vo_x11_update_fs_borders();
   }
 final:
   if (vo_gc != None)
@@ -1362,7 +1396,11 @@ int vo_x11_update_geometry(void) {
     Window dummy_win;
     XGetGeometry(mDisplay, vo_window, &dummy_win, &dummy_int, &dummy_int,
                  &w, &h, &dummy_int, &depth);
-    if (w <= INT_MAX && h <= INT_MAX) { vo_dwidth = w; vo_dheight = h; }
+    if (w <= INT_MAX && h <= INT_MAX) {
+        vo_dwidth = w;
+        vo_dheight = h;
+        vo_x11_update_fs_borders();
+    }
     XTranslateCoordinates(mDisplay, vo_window, mRootWin, 0, 0, &vo_dx, &vo_dy,
                           &dummy_win);
 
@@ -1511,7 +1549,7 @@ void saver_on(Display * mDisplay)
         {
             if (!DPMSEnable(mDisplay))
             {                   // restoring power saving settings
-                mp_msg(MSGT_VO, MSGL_WARN, "DPMS not available?\n");
+                mp_msg(MSGT_VO, MSGL_WARN, MSGTR_DPMSnotAvailable);
             } else
             {
                 // DPMS does not seem to be enabled unless we call DPMSInfo
@@ -1526,7 +1564,7 @@ void saver_on(Display * mDisplay)
                            "Successfully enabled DPMS\n");
                 } else
                 {
-                    mp_msg(MSGT_VO, MSGL_WARN, "Could not enable DPMS\n");
+                    mp_msg(MSGT_VO, MSGL_WARN, MSGTR_DPMSnotEnabled);
                 }
             }
         }
@@ -1573,9 +1611,9 @@ static int x11_selectinput_errorhandler(Display * display,
     {
         selectinput_err = 1;
         mp_msg(MSGT_VO, MSGL_ERR,
-               "X11 error: BadAccess during XSelectInput Call\n");
+               MSGTR_BadAccessXSelectInput);
         mp_msg(MSGT_VO, MSGL_ERR,
-               "X11 error: The 'ButtonPressMask' mask of specified window has probably already used by another appication (see man XSelectInput)\n");
+               MSGTR_ButtonPressMaskInUse);
         /* If you think MPlayer should shutdown with this error,
          * comment out the following line */
         return 0;
@@ -1607,7 +1645,7 @@ void vo_x11_selectinput_witherr(Display * display, Window w,
     if (selectinput_err)
     {
         mp_msg(MSGT_VO, MSGL_ERR,
-               "X11 error: MPlayer discards mouse control (reconfiguring)\n");
+               MSGTR_DiscardMouseControl);
         XSelectInput(display, w,
                      event_mask &
                      (~
@@ -1625,8 +1663,6 @@ void vo_vm_switch(void)
     int X = vo_dwidth, Y = vo_dheight;
     int modeline_width, modeline_height;
 
-    int modecount;
-
     if (XF86VidModeQueryExtension(mDisplay, &vm_event, &vm_error))
     {
         XF86VidModeQueryVersion(mDisplay, &vm_ver, &vm_rev);
@@ -1635,7 +1671,7 @@ void vo_vm_switch(void)
         have_vm = 1;
     } else {
         mp_msg(MSGT_VO, MSGL_WARN,
-               "XF86VidMode extension not available.\n");
+               MSGTR_NoXF86VidModeExtension);
     }
 
     if (have_vm)
@@ -1680,7 +1716,7 @@ void vo_vm_close(void)
 {
     if (vidmodes != NULL)
     {
-        int i, modecount;
+        int i;
 
         free(vidmodes);
         vidmodes = NULL;
@@ -1691,7 +1727,7 @@ void vo_vm_close(void)
                 && (vidmodes[i]->vdisplay == vo_screenheight))
             {
                 mp_msg(MSGT_VO, MSGL_INFO,
-                       "Returning to original mode %dx%d\n",
+                       MSGTR_ReturningOriginalMode,
                        vo_screenwidth, vo_screenheight);
                 break;
             }
@@ -1700,6 +1736,7 @@ void vo_vm_close(void)
         XF86VidModeSwitchToMode(mDisplay, mScreen, vidmodes[i]);
         free(vidmodes);
         vidmodes = NULL;
+        modecount = 0;
     }
 }
 #endif
@@ -1736,7 +1773,7 @@ int vo_find_depth_from_visuals(Display * dpy, int screen,
                    visuals[i].blue_mask);
             /*
              * Save the visual index and its depth, if this is the first
-             * truecolor visul, or a visual that is 'preferred' over the
+             * truecolor visual, or a visual that is 'preferred' over the
              * previous 'best' visual.
              */
             if (bestvisual_depth == -1
@@ -2232,7 +2269,7 @@ int vo_xv_init_colorkey(void)
         if ( rez != Success )
         {
           mp_msg( MSGT_VO, MSGL_FATAL,
-                  "[xv common] Couldn't set colorkey!\n" );
+                  MSGTR_CouldntSetColorkey );
           return 0; // error setting colorkey
         }
       }
@@ -2249,8 +2286,7 @@ int vo_xv_init_colorkey(void)
       else
       {
         mp_msg( MSGT_VO, MSGL_FATAL,
-                "[xv common] Couldn't get colorkey!"
-                "Maybe the selected Xv port has no overlay.\n" );
+                MSGTR_CouldntGetColorkey );
         return 0; // error getting colorkey
       }
     }

@@ -22,9 +22,12 @@
 #include <stdio.h>
 #include <limits.h>
 #include <ctype.h>
+#include <strings.h>
+
 #include "libavutil/common.h"
 #include "libavutil/aes.h"
 #include "libavutil/sha.h"
+#include "libavutil/avstring.h"
 #include "libmpdemux/demuxer.h"
 #include "libavutil/intreadwrite.h"
 #include "m_struct.h"
@@ -100,7 +103,7 @@ struct bd_priv {
     stream_t     *title_file;
     struct AVAES *aescbc;
     struct AVAES *aeseed;
-    off_t         pos;
+    int64_t       pos;
     struct uks    uks;
     int           nr_lang_maps;
     struct lang_map *lang_maps;
@@ -116,7 +119,7 @@ static void bd_stream_close(stream_t *s)
     free(bd);
 }
 
-static int bd_stream_seek(stream_t *s, off_t pos)
+static int bd_stream_seek(stream_t *s, int64_t pos)
 {
     struct bd_priv *bd = s->priv;
 
@@ -274,7 +277,7 @@ static int bd_get_uks(struct bd_priv *bd)
 }
 
 // NOTE: we assume buf is sufficiently aligned to 64 bit read/writes
-static off_t bd_read(struct bd_priv *bd, uint8_t *buf, int len)
+static int64_t bd_read(struct bd_priv *bd, uint8_t *buf, int len)
 {
     int read_len;
     int unit_offset = bd->pos % BD_UNIT_SIZE;
@@ -372,7 +375,7 @@ static int is_sub_type(int type)
     return 0;
 }
 
-const char *bd_lang_from_id(stream_t *s, int id)
+static const char *bd_lang_from_id(stream_t *s, int id)
 {
     struct bd_priv *bd = s->priv;
     int i;
@@ -451,6 +454,22 @@ static void get_clipinf(struct bd_priv *bd)
     free_stream(file);
 }
 
+static int bd_stream_control(stream_t *s, int cmd, void *arg)
+{
+    switch (cmd) {
+    case STREAM_CTRL_GET_LANG:
+    {
+        struct stream_lang_req *req = arg;
+        const char *lang = bd_lang_from_id(s, req->id);
+        if (!lang)
+            return STREAM_ERROR;
+        av_strlcpy(req->buf, lang, sizeof(req->buf));
+        return STREAM_OK;
+    }
+    }
+    return STREAM_UNSUPPORTED;
+}
+
 static int bd_stream_open(stream_t *s, int mode, void* opts, int* file_format)
 {
     char filename[PATH_MAX];
@@ -470,6 +489,7 @@ static int bd_stream_open(stream_t *s, int mode, void* opts, int* file_format)
     s->flags       = STREAM_READ | MP_STREAM_SEEK;
     s->fill_buffer = bd_stream_fill_buffer;
     s->seek        = bd_stream_seek;
+    s->control     = bd_stream_control;
     s->close       = bd_stream_close;
     s->start_pos   = 0;
     s->priv        = bd;

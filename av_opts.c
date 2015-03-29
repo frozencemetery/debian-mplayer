@@ -23,7 +23,7 @@
 #include <string.h>
 
 #include "av_opts.h"
-#include "libavcodec/opt.h"
+#include "libavutil/opt.h"
 
 int parse_avopts(void *v, char *str){
     char *start;
@@ -42,7 +42,7 @@ int parse_avopts(void *v, char *str){
         arg     = strchr(str, '=');
         if(arg)      *arg++= 0;
 
-        if(av_set_string3(v, str, arg, 0, NULL) < 0){
+        if (av_opt_set(v, str, arg, 0) < 0) {
             free(start);
             return -1;
         }

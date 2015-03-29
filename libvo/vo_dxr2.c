@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
@@ -32,6 +33,7 @@
 #include "config.h"
 #include "aspect.h"
 #include "video_out.h"
+#define NO_DRAW_SLICE
 #include "video_out_internal.h"
 #include "mp_msg.h"
 #include "m_option.h"
@@ -719,8 +721,6 @@ static int config(uint32_t s_width, uint32_t s_height, uint32_t width, uint32_t 
     break;
   }
 
-  if (vo_ontop) vo_x11_setlayer(mDisplay, vo_window, vo_ontop);
-
   // start playing
   if(ioctl(dxr2_fd, DXR2_IOC_PLAY, NULL) == 0) {
     playing = 1;
@@ -760,11 +760,6 @@ static void flip_page (void)
 {
   if(sub_vo && ol_osd && vo_osd_changed_flag)
     sub_vo->flip_page();
-}
-
-static int draw_slice( uint8_t *srcimg[], int stride[], int w, int h, int x0, int y0 )
-{
-  return 0;
 }
 
 
@@ -936,6 +931,9 @@ static int control(uint32_t request, void *data)
   case VOCTRL_ONTOP:
     vo_x11_ontop();
     return VO_TRUE;
+  case VOCTRL_GUISUPPORT:
+    if (sub_vo) return sub_vo->control(VOCTRL_GUISUPPORT, NULL);
+    else return VO_FALSE;
   case VOCTRL_FULLSCREEN:
     if(!use_ol)
       return VO_NOTIMPL;

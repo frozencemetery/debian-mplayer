@@ -1,26 +1,26 @@
 /*
  * Copyright (C) 2001-2002 Michael Niedermayer (michaelni@gmx.at)
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or modify
+ * FFmpeg is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Libav; if not, write to the Free Software
+ * along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 /**
  * @file
- * internal api header.
+ * internal API header.
  */
 
 #ifndef POSTPROC_POSTPROCESS_INTERNAL_H
@@ -28,6 +28,7 @@
 
 #include <string.h>
 #include "libavutil/avutil.h"
+#include "libavutil/intmath.h"
 #include "libavutil/log.h"
 #include "postprocess.h"
 
@@ -53,7 +54,7 @@
 #define H_X1_FILTER     0x2000                  // 8192
 #define H_A_DEBLOCK     0x4000
 
-/// select between full y range (255-0) or standart one (234-16)
+/// select between full y range (255-0) or standard one (234-16)
 #define FULL_Y_RANGE    0x8000                  // 32768
 
 //Deinterlacing Filters
@@ -67,6 +68,8 @@
 
 #define TEMP_NOISE_FILTER               0x100000
 #define FORCE_QUANT                     0x200000
+#define BITEXACT                        0x1000000
+#define VISUALIZE                       0x2000000
 
 //use if you want a faster postprocessing code
 //cannot differentiate between chroma & luma filters (both on or both off)
@@ -74,12 +77,8 @@
 //filters on
 //#define COMPILE_TIME_MODE 0x77
 
-static inline int CLIP(int a){
-    if(a&256) return ((a)>>31)^(-1);
-    else      return a;
-}
 /**
- * Postprocessng filter.
+ * Postprocessing filter.
  */
 struct PPFilter{
     const char *shortName;
@@ -91,15 +90,15 @@ struct PPFilter{
 };
 
 /**
- * Postprocessng mode.
+ * Postprocessing mode.
  */
 typedef struct PPMode{
-    int lumMode;                    ///< acivates filters for luminance
-    int chromMode;                  ///< acivates filters for chrominance
+    int lumMode;                    ///< activates filters for luminance
+    int chromMode;                  ///< activates filters for chrominance
     int error;                      ///< non zero on error
 
-    int minAllowedY;                ///< for brigtness correction
-    int maxAllowedY;                ///< for brihtness correction
+    int minAllowedY;                ///< for brightness correction
+    int maxAllowedY;                ///< for brightness correction
     float maxClippedThreshold;      ///< amount of "black" you are willing to lose to get a brightness-corrected picture
 
     int maxTmpNoise[3];             ///< for Temporal Noise Reducing filter (Maximal sum of abs differences)

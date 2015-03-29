@@ -170,7 +170,7 @@ static int fill_buffer(stream_t* s, char* buffer, int max_len) {
   return CD_FRAMESIZE_RAW;
 }
 
-static int seek(stream_t* s,off_t newpos) {
+static int seek(stream_t* s, int64_t newpos) {
   cdda_priv* p = (cdda_priv*)s->priv;
   cd_track_t *cd_track;
   int sec;
@@ -267,7 +267,10 @@ static int control(stream_t *stream, int cmd, void *arg) {
       track += start_track;
       if (track > end_track) {
         seek(stream, (p->end_sector + 1) * CD_FRAMESIZE_RAW);
-        return STREAM_ERROR;
+        // seeking beyond EOF should not be an error,
+        // the cache cannot handle changing stream pos and
+        // returning error.
+        return STREAM_OK;
       }
       seek_sector = track <= 0 ? p->start_sector
                                : p->cd->disc_toc[track].dwStartSector;
@@ -275,6 +278,13 @@ static int control(stream_t *stream, int cmd, void *arg) {
       if (r)
         return STREAM_OK;
       break;
+    }
+    case STREAM_CTRL_GET_CURRENT_TITLE:
+    {
+      int cur_track = get_track_by_sector(p, p->sector);
+      if (cur_track == -1) return STREAM_ERROR;
+      *(unsigned int *)arg = cur_track;
+      return STREAM_OK;
     }
     case STREAM_CTRL_GET_CURRENT_CHAPTER:
     {
@@ -364,7 +374,7 @@ static int open_cdda(stream_t *st,int m, void* opts, int* file_format) {
   }
 
   cd_info = cd_info_new();
-  mp_msg(MSGT_OPEN,MSGL_INFO,MSGTR_MPDEMUX_CDDA_AudioCDFoundWithNTracks,cdda_tracks(cdd));
+  mp_msg(MSGT_OPEN,MSGL_INFO,MSGTR_MPDEMUX_CDDA_AudioCDFoundWithNTracks,(int)cdda_tracks(cdd));
   for(i=0;i<cdd->tracks;i++) {
 	  char track_name[80];
 	  long sec=cdda_track_firstsector(cdd,i+1);

@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <strings.h>
 
 #include "config.h"
 #include "mp_msg.h"
@@ -231,6 +232,8 @@ static unsigned int guess_mjpeg_type(unsigned char *data, unsigned int size,
 static mp_image_t* decode(sh_video_t *sh, void* data, int len, int flags) {
 	mp_image_t* mpi;
 	vd_zrmjpeg_ctx_t *ctx = sh->context;
+
+	if (len <= 0 && !data) return NULL; // delay flush
 
 	if (!ctx->vo_initialized) {
 		ctx->preferred_csp = guess_mjpeg_type(data, len, sh->disp_h);

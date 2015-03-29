@@ -113,7 +113,8 @@ void rtpCodecInitialize_video(demuxer_t* demuxer,
   bih->biSize = sizeof(BITMAPINFOHEADER);
   sh_video->bih = bih;
   demux_stream_t* d_video = demuxer->video;
-  d_video->sh = sh_video; sh_video->ds = d_video;
+  d_video->sh = sh_video;
+  d_video->id = 0;
 
   // Map known video MIME types to the BITMAPINFOHEADER parameters
   // that this program uses.  (Note that not all types need all
@@ -140,8 +141,8 @@ void rtpCodecInitialize_video(demuxer_t* demuxer,
     int fooLen;
     const uint8_t* fooData;
     avcodec_register_all();
-    h264parserctx = av_parser_init(CODEC_ID_H264);
-    avcctx = avcodec_alloc_context();
+    h264parserctx = av_parser_init(AV_CODEC_ID_H264);
+    avcctx = avcodec_alloc_context3(NULL);
     // Pass the config to the parser
     h264parserctx->parser->parser_parse(h264parserctx, avcctx,
                   &fooData, &fooLen, configData, configLen);
@@ -226,7 +227,7 @@ void rtpCodecInitialize_audio(demuxer_t* demuxer,
   WAVEFORMATEX* wf = (WAVEFORMATEX*)calloc(1,sizeof(WAVEFORMATEX));
   sh_audio->wf = wf;
   demux_stream_t* d_audio = demuxer->audio;
-  d_audio->sh = sh_audio; sh_audio->ds = d_audio;
+  d_audio->sh = sh_audio;
   d_audio->id = sh_audio->aid;
 
   wf->nChannels = subsession->numChannels();

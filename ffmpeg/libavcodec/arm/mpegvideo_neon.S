@@ -1,24 +1,24 @@
 /*
  * Copyright (c) 2010 Mans Rullgard
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include "asm.S"
+#include "libavutil/arm/asm.S"
 #include "asm-offsets.h"
 
 function ff_dct_unquantize_h263_inter_neon, export=1
@@ -100,7 +100,7 @@ function ff_dct_unquantize_h263_intra_neon, export=1
         smulbb          r4,  r4,  r6
 2:      lsl             r0,  r3,  #1
         add             r3,  r12, #1
-        bl              ff_dct_unquantize_h263_neon
+        bl              X(ff_dct_unquantize_h263_neon)
         vmov.16         d0[0], r4
         vst1.16         {d0[0]},  [r5]
         pop             {r4-r6,pc}

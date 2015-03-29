@@ -2,24 +2,27 @@
  * DVD subtitle decoding
  * Copyright (c) 2005 Fabrice Bellard
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <string.h>
+
 #include "libavutil/intreadwrite.h"
+#include "libavutil/mem.h"
 #include "avcodec.h"
 
 /* parser definition */
@@ -42,8 +45,11 @@ static int dvdsub_parse(AVCodecParserContext *s,
     DVDSubParseContext *pc = s->priv_data;
 
     if (pc->packet_index == 0) {
-        if (buf_size < 2)
-            return 0;
+        if (buf_size < 2 || AV_RB16(buf) && buf_size < 6) {
+            if (buf_size)
+                av_log(avctx, AV_LOG_DEBUG, "Parser input %d too small\n", buf_size);
+            return buf_size;
+        }
         pc->packet_len = AV_RB16(buf);
         if (pc->packet_len == 0) /* HD-DVD subpicture packet */
             pc->packet_len = AV_RB32(buf+2);
@@ -77,7 +83,7 @@ static av_cold void dvdsub_parse_close(AVCodecParserContext *s)
 }
 
 AVCodecParser ff_dvdsub_parser = {
-    .codec_ids      = { CODEC_ID_DVD_SUBTITLE },
+    .codec_ids      = { AV_CODEC_ID_DVD_SUBTITLE },
     .priv_data_size = sizeof(DVDSubParseContext),
     .parser_init    = dvdsub_parse_init,
     .parser_parse   = dvdsub_parse,

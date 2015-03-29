@@ -33,8 +33,18 @@
 #include "av_helpers.h"
 
 #include "libavcodec/avcodec.h"
-#include "libavcodec/ac3.h"
+#include "libavutil/common.h"
 #include "libavutil/intreadwrite.h"
+
+#define AC3_MAX_CHANNELS            6
+#define AC3_FRAME_SIZE           1536
+#define AC3_MAX_CODED_FRAME_SIZE 3840
+//#define AC3_BIT_RATES_COUNT        19
+
+static const int ac3_bit_rates[] = {
+    32000, 40000, 48000, 56000, 64000, 80000, 96000, 112000, 128000, 160000,
+    192000, 224000, 256000, 320000, 384000, 448000, 512000, 576000, 640000
+};
 
 // Data for specific instances of this filter
 typedef struct af_ac3enc_s {
@@ -96,10 +106,10 @@ static int control(struct af_instance_s *af, int cmd, void *arg)
             // Put sample parameters
             s->lavc_actx->channels = af->data->nch;
             s->lavc_actx->sample_rate = af->data->rate;
-            s->lavc_actx->sample_fmt  = AV_SAMPLE_FMT_S16;
+            s->lavc_actx->sample_fmt  = AV_SAMPLE_FMT_S16P;
             s->lavc_actx->bit_rate = bit_rate;
 
-            if(avcodec_open(s->lavc_actx, s->lavc_acodec) < 0) {
+            if(avcodec_open2(s->lavc_actx, s->lavc_acodec, NULL) < 0) {
                 mp_msg(MSGT_AFILTER, MSGL_ERR, MSGTR_CouldntOpenCodec, "ac3", bit_rate);
                 return AF_ERROR;
             }
@@ -117,10 +127,10 @@ static int control(struct af_instance_s *af, int cmd, void *arg)
         if (s->bit_rate < 1000)
             s->bit_rate *= 1000;
         if (s->bit_rate) {
-            for (i = 0; i < 19; ++i)
-                if (ff_ac3_bitrate_tab[i] * 1000 == s->bit_rate)
+            for (i = 0; i < FF_ARRAY_ELEMS(ac3_bit_rates); ++i)
+                if (ac3_bit_rates[i] == s->bit_rate)
                     break;
-            if (i >= 19) {
+            if (i >= FF_ARRAY_ELEMS(ac3_bit_rates)) {
                 mp_msg(MSGT_AFILTER, MSGL_WARN, "af_lavcac3enc unable set unsupported "
                        "bitrate %d, use default bitrate (check manpage to see "
                        "supported bitrates).\n", s->bit_rate);
@@ -192,6 +202,7 @@ static af_data_t* play(struct af_instance_s* af, af_data_t* data)
 
 
     while (left > 0) {
+        void *in = NULL;
         if (left + s->pending_len < s->expect_len) {
             memcpy(s->pending_data + s->pending_len, src, left);
             src += left;
@@ -210,31 +221,18 @@ static af_data_t* play(struct af_instance_s* af, af_data_t* data)
                 src += needs;
                 left -= needs;
             }
-
-            if (c->nch >= 5)
-                reorder_channel_nch(s->pending_data,
-                                    AF_CHANNEL_LAYOUT_MPLAYER_DEFAULT,
-                                    AF_CHANNEL_LAYOUT_LAVC_DEFAULT,
-                                    c->nch,
-                                    s->expect_len / 2, 2);
-
-            len = avcodec_encode_audio(s->lavc_actx, dest, destsize,
-                                       (void *)s->pending_data);
+            in = s->pending_data;
             s->pending_len = 0;
         }
         else {
-            if (c->nch >= 5)
-                reorder_channel_nch(src,
-                                    AF_CHANNEL_LAYOUT_MPLAYER_DEFAULT,
-                                    AF_CHANNEL_LAYOUT_LAVC_DEFAULT,
-                                    c->nch,
-                                    s->expect_len / 2, 2);
-            len = avcodec_encode_audio(s->lavc_actx,dest,destsize,(void *)src);
+            in = src;
             src += s->expect_len;
             left -= s->expect_len;
         }
+        len = lavc_encode_audio(s->lavc_actx, in, s->expect_len, dest, destsize);
         mp_msg(MSGT_AFILTER, MSGL_DBG2, "avcodec_encode_audio got %d, pending %d.\n",
                len, s->pending_len);
+        if (len < 0) len = 0;
 
         if (s->add_iec61937_header) {
             int bsmod = dest[5] & 0x7;
@@ -282,7 +280,7 @@ static int af_open(af_instance_t* af){
         return AF_ERROR;
     }
 
-    s->lavc_actx = avcodec_alloc_context();
+    s->lavc_actx = avcodec_alloc_context3(NULL);
     if (!s->lavc_actx) {
         mp_msg(MSGT_AFILTER, MSGL_ERR, MSGTR_CouldntAllocateLavcContext);
         return AF_ERROR;

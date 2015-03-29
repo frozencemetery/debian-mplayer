@@ -4,20 +4,20 @@
  *
  * Copyright (c) 2000, 2001 Fabrice Bellard
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -78,20 +78,6 @@ static const int bitinv32[32] = {
     3,  19, 11, 27,  7,  23,  15,  31
 };
 
-
-static int16_t filter_bank[512];
-
-static int scale_factor_table[64];
-#ifdef USE_FLOATS
-static float scale_factor_inv_table[64];
-#else
-static int8_t scale_factor_shift[64];
-static unsigned short scale_factor_mult[64];
-#endif
-static unsigned char scale_diff_table[128];
-
-/* total number of bits per allocation group */
-static unsigned short total_quant_bits[17];
 
 /* signal to noise ratio of each quantification step (could be
    computed from quant_steps[]). The values are dB multiplied by 10

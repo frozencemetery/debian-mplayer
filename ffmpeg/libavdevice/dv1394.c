@@ -2,20 +2,20 @@
  * Linux DV1394 interface
  * Copyright (c) 2003 Max Krasnyansky <maxk@qualcomm.com>
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -26,12 +26,11 @@
 #include <poll.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
-#include <sys/time.h>
-#include <time.h>
 
+#include "libavutil/internal.h"
 #include "libavutil/log.h"
 #include "libavutil/opt.h"
-#include "libavformat/avformat.h"
+#include "avdevice.h"
 #include "libavformat/dv.h"
 #include "dv1394.h"
 
@@ -81,7 +80,7 @@ static int dv1394_start(struct dv1394_data *dv)
     return 0;
 }
 
-static int dv1394_read_header(AVFormatContext * context, AVFormatParameters * ap)
+static int dv1394_read_header(AVFormatContext * context)
 {
     struct dv1394_data *dv = context->priv_data;
 
@@ -90,7 +89,7 @@ static int dv1394_read_header(AVFormatContext * context, AVFormatParameters * ap
         goto failed;
 
     /* Open and initialize DV1394 device */
-    dv->fd = open(context->filename, O_RDONLY);
+    dv->fd = avpriv_open(context->filename, O_RDONLY);
     if (dv->fd < 0) {
         av_log(context, AV_LOG_ERROR, "Failed to open DV interface: %s\n", strerror(errno));
         goto failed;
@@ -187,7 +186,7 @@ restart_poll:
 
     size = avpriv_dv_produce_packet(dv->dv_demux, pkt,
                              dv->ring + (dv->index * DV1394_PAL_FRAME_SIZE),
-                             DV1394_PAL_FRAME_SIZE);
+                             DV1394_PAL_FRAME_SIZE, -1);
     dv->index = (dv->index + 1) % DV1394_RING_FRAMES;
     dv->done++; dv->avail--;
 
@@ -207,16 +206,16 @@ static int dv1394_close(AVFormatContext * context)
         av_log(context, AV_LOG_ERROR, "Failed to munmap DV1394 ring buffer: %s\n", strerror(errno));
 
     close(dv->fd);
-    av_free(dv->dv_demux);
+    av_freep(&dv->dv_demux);
 
     return 0;
 }
 
 static const AVOption options[] = {
-    { "standard", "", offsetof(struct dv1394_data, format), AV_OPT_TYPE_INT, {.dbl = DV1394_NTSC}, DV1394_PAL, DV1394_NTSC, AV_OPT_FLAG_DECODING_PARAM, "standard" },
-    { "PAL",      "", 0, AV_OPT_TYPE_CONST, {.dbl = DV1394_PAL},   0, 0, AV_OPT_FLAG_DECODING_PARAM, "standard" },
-    { "NTSC",     "", 0, AV_OPT_TYPE_CONST, {.dbl = DV1394_NTSC},  0, 0, AV_OPT_FLAG_DECODING_PARAM, "standard" },
-    { "channel",  "", offsetof(struct dv1394_data, channel), AV_OPT_TYPE_INT, {.dbl = DV1394_DEFAULT_CHANNEL}, 0, INT_MAX, AV_OPT_FLAG_DECODING_PARAM },
+    { "standard", "", offsetof(struct dv1394_data, format), AV_OPT_TYPE_INT, {.i64 = DV1394_NTSC}, DV1394_NTSC, DV1394_PAL, AV_OPT_FLAG_DECODING_PARAM, "standard" },
+    { "PAL",      "", 0, AV_OPT_TYPE_CONST, {.i64 = DV1394_PAL},   0, 0, AV_OPT_FLAG_DECODING_PARAM, "standard" },
+    { "NTSC",     "", 0, AV_OPT_TYPE_CONST, {.i64 = DV1394_NTSC},  0, 0, AV_OPT_FLAG_DECODING_PARAM, "standard" },
+    { "channel",  "", offsetof(struct dv1394_data, channel), AV_OPT_TYPE_INT, {.i64 = DV1394_DEFAULT_CHANNEL}, 0, INT_MAX, AV_OPT_FLAG_DECODING_PARAM },
     { NULL },
 };
 
@@ -225,6 +224,7 @@ static const AVClass dv1394_class = {
     .item_name  = av_default_item_name,
     .option     = options,
     .version    = LIBAVUTIL_VERSION_INT,
+    .category   = AV_CLASS_CATEGORY_DEVICE_VIDEO_INPUT,
 };
 
 AVInputFormat ff_dv1394_demuxer = {

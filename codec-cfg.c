@@ -40,10 +40,11 @@
 #include <ctype.h>
 #include <assert.h>
 #include <string.h>
+#include <strings.h>
 
 #include "config.h"
 #include "mp_msg.h"
-#ifdef CODECS2HTML
+#if defined(CODECS2HTML) || defined(TESTING)
 #ifdef __GNUC__
 #define mp_msg(t, l, m, args...) fprintf(stderr, m, ##args)
 #else
@@ -54,6 +55,7 @@
 #include "help_mp.h"
 
 #include "libavutil/avutil.h"
+#include "libavutil/common.h"
 #include "libmpcodecs/img_format.h"
 #include "codec-cfg.h"
 
@@ -178,43 +180,67 @@ static const struct {
     {"420P16LE",    IMGFMT_420P16_LE},
     {"420P16BE",    IMGFMT_420P16_BE},
     {"444P16",      IMGFMT_444P16},
+    {"444P14",      IMGFMT_444P14},
+    {"444P12",      IMGFMT_444P12},
     {"444P10",      IMGFMT_444P10},
     {"444P9",       IMGFMT_444P9},
     {"422P16",      IMGFMT_422P16},
+    {"422P14",      IMGFMT_422P14},
+    {"422P12",      IMGFMT_422P12},
     {"422P10",      IMGFMT_422P10},
     {"422P9",       IMGFMT_422P9},
     {"420P16",      IMGFMT_420P16},
+    {"420P14",      IMGFMT_420P14},
+    {"420P12",      IMGFMT_420P12},
     {"420P10",      IMGFMT_420P10},
     {"420P9",       IMGFMT_420P9},
     {"420A",        IMGFMT_420A},
     {"444P",        IMGFMT_444P},
+    {"444A",        IMGFMT_444A},
     {"422P",        IMGFMT_422P},
+    {"422A",        IMGFMT_422A},
     {"411P",        IMGFMT_411P},
     {"440P",        IMGFMT_440P},
     {"Y800",        IMGFMT_Y800},
+    {"Y8A",         IMGFMT_Y8A},
     {"Y8",          IMGFMT_Y8},
+    {"Y16LE",       IMGFMT_Y16_LE},
+    {"Y16BE",       IMGFMT_Y16_BE},
+    {"Y16",         IMGFMT_Y16},
 
     {"YUY2",        IMGFMT_YUY2},
     {"UYVY",        IMGFMT_UYVY},
     {"YVYU",        IMGFMT_YVYU},
 
+    {"RGB64LE",     IMGFMT_RGB64LE},
+    {"RGB64BE",     IMGFMT_RGB64BE},
     {"RGB48LE",     IMGFMT_RGB48LE},
     {"RGB48BE",     IMGFMT_RGB48BE},
+    {"BGR48LE",     IMGFMT_BGR48LE},
+    {"BGR48BE",     IMGFMT_BGR48BE},
     {"RGB4",        IMGFMT_RGB4},
     {"RGB8",        IMGFMT_RGB8},
     {"RGB15",       IMGFMT_RGB15},
     {"RGB16",       IMGFMT_RGB16},
     {"RGB24",       IMGFMT_RGB24},
     {"RGB32",       IMGFMT_RGB32},
+    {"RGBA",        IMGFMT_RGBA},
+    {"ARGB",        IMGFMT_ARGB},
     {"BGR4",        IMGFMT_BGR4},
     {"BGR8",        IMGFMT_BGR8},
+    {"BGR15LE",     IMGFMT_BGR15LE},
     {"BGR15",       IMGFMT_BGR15},
     {"BGR16",       IMGFMT_BGR16},
     {"BGR24",       IMGFMT_BGR24},
     {"BGR32",       IMGFMT_BGR32},
+    {"BGRA",        IMGFMT_BGRA},
+    {"ABGR",        IMGFMT_ABGR},
     {"RGB1",        IMGFMT_RGB1},
     {"BGR1",        IMGFMT_BGR1},
+    {"XYZ12",       IMGFMT_XYZ12},
     {"GBR24P",      IMGFMT_GBR24P},
+    {"GBR12P",      IMGFMT_GBR12P},
+    {"GBR14P",      IMGFMT_GBR14P},
 
     {"MPES",        IMGFMT_MPEGPES},
     {"ZRMJPEGNI",   IMGFMT_ZRMJPEGNI},
@@ -731,6 +757,9 @@ int parse_codec_cfg(const char *cfgfile)
             if (!strcmp(token[0], "align16"))
                 codec->flags |= CODECS_FLAG_ALIGN16;
             else
+            if (!strcmp(token[0], "dummy"))
+                codec->flags |= CODECS_FLAG_DUMMY;
+            else
                 goto err_out_parse_error;
         } else if (!strcmp(token[0], "status")) {
             if (get_token(1, 1) < 0)
@@ -849,8 +878,7 @@ codecs_t* find_codec(unsigned int fourcc,unsigned int *fourccmap,
         for (/* NOTHING */; i--; c++) {
             if(start && c<=start) continue;
             for (j = 0; j < CODECS_MAX_FOURCC; j++) {
-                // FIXME: do NOT hardwire 'null' name here:
-                if (c->fourcc[j]==fourcc || !strcmp(c->drv,"null")) {
+                if (c->fourcc[j]==fourcc || c->flags & CODECS_FLAG_DUMMY) {
                     if (fourccmap)
                         *fourccmap = c->fourccmap[j];
                     return c;

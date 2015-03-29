@@ -38,6 +38,13 @@
 #include "help_mp.h"
 #include "stream_dvd_common.h"
 
+#ifndef DVDNAV_FORMAT_AC3
+#define DVDNAV_FORMAT_AC3 DVD_AUDIO_FORMAT_AC3
+#define DVDNAV_FORMAT_DTS DVD_AUDIO_FORMAT_DTS
+#define DVDNAV_FORMAT_LPCM DVD_AUDIO_FORMAT_LPCM
+#define DVDNAV_FORMAT_MPEGAUDIO DVD_AUDIO_FORMAT_MPEG
+#endif
+
 /* state flags */
 typedef enum {
   NAV_FLAG_EOF                  = 1 << 0,  /* end of stream has been reached */
@@ -87,7 +94,7 @@ static const struct m_struct_st stream_opts = {
   stream_opts_fields
 };
 
-static int seek(stream_t *s, off_t newpos);
+static int seek(stream_t *s, int64_t newpos);
 static void show_audio_subs_languages(dvdnav_t *nav);
 
 static dvdnav_priv_t * new_dvdnav_stream(char * filename) {
@@ -107,14 +114,10 @@ static dvdnav_priv_t * new_dvdnav_stream(char * filename) {
 
   dvd_set_speed(priv->filename, dvd_speed);
 
-  if(dvdnav_open(&(priv->dvdnav),priv->filename)!=DVDNAV_STATUS_OK)
+  if(dvdnav_open(&(priv->dvdnav),priv->filename)!=DVDNAV_STATUS_OK || !priv->dvdnav)
   {
+    dvd_set_speed(priv->filename, -1);
     free(priv->filename);
-    free(priv);
-    return NULL;
-  }
-
-  if (!priv->dvdnav) {
     free(priv);
     return NULL;
   }
@@ -191,80 +194,8 @@ static int dvdnav_stream_read(dvdnav_priv_t * priv, unsigned char *buf, int *len
     mp_msg(MSGT_OPEN,MSGL_V, "Error getting next block from DVD %d (%s)\n",event, dvdnav_err_to_string(priv->dvdnav) );
     *len=-1;
   }
-  else if (event!=DVDNAV_BLOCK_OK) {
-    // need to handle certain events internally (like skipping stills)
-    switch (event) {
-      case DVDNAV_NAV_PACKET:
-        return event;
-      case DVDNAV_STILL_FRAME: {
-        dvdnav_still_event_t *still_event = (dvdnav_still_event_t *) buf;
-        priv->still_length = still_event->length;
-        /* set still frame duration */
-        priv->duration = dvdnav_get_duration (priv->still_length);
-        if (priv->still_length <= 1) {
-          pci_t *pnavpci = dvdnav_get_current_nav_pci (priv->dvdnav);
-          priv->duration = mp_dvdtimetomsec (&pnavpci->pci_gi.e_eltm);
-        }
-        break;
-      }
-      case DVDNAV_HIGHLIGHT: {
-        dvdnav_get_highlight (priv, 1);
-        break;
-      }
-      case DVDNAV_CELL_CHANGE: {
-        dvdnav_cell_change_event_t *ev =  (dvdnav_cell_change_event_t*)buf;
-        uint32_t nextstill;
-
-        priv->state &= ~NAV_FLAG_WAIT_SKIP;
-        priv->state |= NAV_FLAG_STREAM_CHANGE;
-        if(ev->pgc_length)
-          priv->duration = ev->pgc_length/90;
-
-        if (dvdnav_is_domain_vts(priv->dvdnav)) {
-          mp_msg(MSGT_IDENTIFY, MSGL_INFO, "DVDNAV_TITLE_IS_MOVIE\n");
-          priv->state &= ~NAV_FLAG_VTS_DOMAIN;
-        } else {
-          mp_msg(MSGT_IDENTIFY, MSGL_INFO, "DVDNAV_TITLE_IS_MENU\n");
-          priv->state |= NAV_FLAG_VTS_DOMAIN;
-        }
-
-        nextstill = dvdnav_get_next_still_flag (priv->dvdnav);
-        if (nextstill) {
-          priv->duration = dvdnav_get_duration (nextstill);
-          priv->still_length = nextstill;
-          if (priv->still_length <= 1) {
-            pci_t *pnavpci = dvdnav_get_current_nav_pci (priv->dvdnav);
-            priv->duration = mp_dvdtimetomsec (&pnavpci->pci_gi.e_eltm);
-          }
-        }
-
-        break;
-      }
-      case DVDNAV_SPU_CLUT_CHANGE: {
-        memcpy(priv->spu_clut, buf, 16*sizeof(unsigned int));
-        priv->state |= NAV_FLAG_SPU_SET;
-        break;
-      }
-      case DVDNAV_WAIT: {
-        if ((priv->state & NAV_FLAG_WAIT_SKIP) &&
-            !(priv->state & NAV_FLAG_WAIT))
-          dvdnav_wait_skip (priv->dvdnav);
-        else
-          priv->state |= NAV_FLAG_WAIT;
-        break;
-      }
-      case DVDNAV_VTS_CHANGE: {
-        priv->state &= ~NAV_FLAG_WAIT_SKIP;
-        priv->state |= NAV_FLAG_STREAM_CHANGE;
-        break;
-      }
-      case DVDNAV_SPU_STREAM_CHANGE: {
-        priv->state |= NAV_FLAG_STREAM_CHANGE;
-        break;
-      }
-    }
-
-    *len=0;
+  else if (event != DVDNAV_BLOCK_OK && event != DVDNAV_NAV_PACKET) {
+    *len = 0;
   }
   return event;
 }
@@ -276,7 +207,7 @@ static void update_title_len(stream_t *stream) {
 
   status = dvdnav_get_position(priv->dvdnav, &pos, &len);
   if(status == DVDNAV_STATUS_OK && len) {
-    stream->end_pos = (off_t) len * 2048;
+    stream->end_pos = len * 2048ull;
     stream->seek = seek;
   } else {
     stream->seek = NULL;
@@ -285,7 +216,7 @@ static void update_title_len(stream_t *stream) {
 }
 
 
-static int seek(stream_t *s, off_t newpos) {
+static int seek(stream_t *s, int64_t newpos) {
   uint32_t sector = 0;
   dvdnav_priv_t *priv = s->priv;
 
@@ -335,15 +266,39 @@ static int fill_buffer(stream_t *s, char *but, int len)
       if (event != DVDNAV_BLOCK_OK)
         dvdnav_get_highlight (priv, 1);
       switch (event) {
+      case DVDNAV_STILL_FRAME: {
+        dvdnav_still_event_t *still_event = (dvdnav_still_event_t *)s->buffer;
+        priv->still_length = still_event->length;
+        /* set still frame duration */
+        priv->duration = dvdnav_get_duration (priv->still_length);
+        if (priv->still_length <= 1) {
+          pci_t *pnavpci = dvdnav_get_current_nav_pci (priv->dvdnav);
+          priv->duration = mp_dvdtimetomsec (&pnavpci->pci_gi.e_eltm);
+        }
+        return 0;
+      }
+      case DVDNAV_HIGHLIGHT: {
+        dvdnav_get_highlight (priv, 1);
+        break;
+      }
+      case DVDNAV_SPU_CLUT_CHANGE: {
+        memcpy(priv->spu_clut, s->buffer, 16*sizeof(unsigned int));
+        priv->state |= NAV_FLAG_SPU_SET;
+        break;
+      }
         case DVDNAV_STOP: {
           priv->state |= NAV_FLAG_EOF;
           return len;
         }
         case DVDNAV_BLOCK_OK:
         case DVDNAV_NAV_PACKET:
-        case DVDNAV_STILL_FRAME:
           return len;
         case DVDNAV_WAIT: {
+          if ((priv->state & NAV_FLAG_WAIT_SKIP) &&
+              !(priv->state & NAV_FLAG_WAIT))
+            dvdnav_wait_skip (priv->dvdnav);
+          else
+            priv->state |= NAV_FLAG_WAIT;
           if (priv->state & NAV_FLAG_WAIT)
             return len;
           break;
@@ -355,6 +310,7 @@ static int fill_buffer(stream_t *s, char *but, int len)
           priv->state |= NAV_FLAG_CELL_CHANGE;
           priv->state |= NAV_FLAG_AUDIO_CHANGE;
           priv->state |= NAV_FLAG_SPU_CHANGE;
+          priv->state |= NAV_FLAG_STREAM_CHANGE;
           priv->state &= ~NAV_FLAG_WAIT_SKIP;
           priv->state &= ~NAV_FLAG_WAIT;
           s->end_pos = 0;
@@ -373,6 +329,32 @@ static int fill_buffer(stream_t *s, char *but, int len)
           break;
         }
         case DVDNAV_CELL_CHANGE: {
+        dvdnav_cell_change_event_t *ev =  (dvdnav_cell_change_event_t*)s->buffer;
+        uint32_t nextstill;
+
+        priv->state &= ~NAV_FLAG_WAIT_SKIP;
+        priv->state |= NAV_FLAG_STREAM_CHANGE;
+        if(ev->pgc_length)
+          priv->duration = ev->pgc_length/90;
+
+        if (dvdnav_is_domain_vts(priv->dvdnav)) {
+          mp_msg(MSGT_IDENTIFY, MSGL_INFO, "DVDNAV_TITLE_IS_MOVIE\n");
+          priv->state &= ~NAV_FLAG_VTS_DOMAIN;
+        } else {
+          mp_msg(MSGT_IDENTIFY, MSGL_INFO, "DVDNAV_TITLE_IS_MENU\n");
+          priv->state |= NAV_FLAG_VTS_DOMAIN;
+        }
+
+        nextstill = dvdnav_get_next_still_flag (priv->dvdnav);
+        if (nextstill) {
+          priv->duration = dvdnav_get_duration (nextstill);
+          priv->still_length = nextstill;
+          if (priv->still_length <= 1) {
+            pci_t *pnavpci = dvdnav_get_current_nav_pci (priv->dvdnav);
+            priv->duration = mp_dvdtimetomsec (&pnavpci->pci_gi.e_eltm);
+          }
+        }
+
           priv->state |= NAV_FLAG_CELL_CHANGE;
           priv->state |= NAV_FLAG_AUDIO_CHANGE;
           priv->state |= NAV_FLAG_SPU_CHANGE;
@@ -395,12 +377,16 @@ static int fill_buffer(stream_t *s, char *but, int len)
         break;
         case DVDNAV_SPU_STREAM_CHANGE:
           priv->state |= NAV_FLAG_SPU_CHANGE;
+          priv->state |= NAV_FLAG_STREAM_CHANGE;
         break;
       }
   }
   mp_msg(MSGT_STREAM,MSGL_DBG2,"DVDNAV fill_buffer len: %d\n",len);
   return len;
 }
+
+static int mp_dvdnav_lang_from_sid(stream_t *stream, int sid);
+static int mp_dvdnav_lang_from_aid(stream_t *stream, int sid);
 
 static int control(stream_t *stream, int cmd, void* arg) {
   dvdnav_priv_t* priv=stream->priv;
@@ -495,6 +481,25 @@ static int control(stream_t *stream, int cmd, void* arg) {
             break;
         if(dvdnav_angle_change(priv->dvdnav, new_angle) != DVDNAV_STATUS_OK)
         return 1;
+    }
+    case STREAM_CTRL_GET_LANG:
+    {
+        struct stream_lang_req *req = arg;
+        int lang = 0;
+        switch(req->type) {
+        case stream_ctrl_audio:
+            lang = mp_dvdnav_lang_from_aid(stream, req->id);
+            break;
+        case stream_ctrl_sub:
+            lang = mp_dvdnav_lang_from_sid(stream, req->id);
+            break;
+        }
+        if (!lang)
+            break;
+        req->buf[0] = lang >> 8;
+        req->buf[1] = lang;
+        req->buf[2] = 0;
+        return STREAM_OK;
     }
   }
 
@@ -600,6 +605,7 @@ static int open_s(stream_t *stream,int mode, void* opts, int* file_format) {
     priv->title = p->track;
     if(dvdnav_title_play(priv->dvdnav, p->track) != DVDNAV_STATUS_OK) {
       mp_msg(MSGT_OPEN,MSGL_FATAL,"dvdnav_stream, couldn't select title %d, error '%s'\n", p->track, dvdnav_err_to_string(priv->dvdnav));
+      stream_dvdnav_close(stream);
       return STREAM_UNSUPPORTED;
     }
     mp_msg(MSGT_IDENTIFY, MSGL_INFO, "ID_DVD_CURRENT_TITLE=%d\n", p->track);
@@ -758,13 +764,12 @@ int mp_dvdnav_aid_from_lang(stream_t *stream, const unsigned char *language) {
 }
 
 /**
- * \brief mp_dvdnav_lang_from_aid() assigns to buf the language corresponding to audio id 'aid'
+ * \brief mp_dvdnav_lang_from_aid() returns the language corresponding to audio id 'aid'
  * \param stream: - stream pointer
  * \param sid: physical subtitle id
- * \param buf: buffer to contain the 2-chars language string
- * \return 0 on error, 1 if successful
+ * \return 0 on error, otherwise language id
  */
-int mp_dvdnav_lang_from_aid(stream_t *stream, int aid, unsigned char *buf) {
+static int mp_dvdnav_lang_from_aid(stream_t *stream, int aid) {
   uint8_t lg;
   uint16_t lang;
   dvdnav_priv_t * priv = stream->priv;
@@ -775,10 +780,7 @@ int mp_dvdnav_lang_from_aid(stream_t *stream, int aid, unsigned char *buf) {
   if(lg == 0xff) return 0;
   lang = dvdnav_audio_stream_to_lang(priv->dvdnav, lg);
   if(lang == 0xffff) return 0;
-  buf[0] = lang >> 8;
-  buf[1] = lang & 0xFF;
-  buf[2] = 0;
-  return 1;
+  return lang;
 }
 
 
@@ -810,13 +812,12 @@ int mp_dvdnav_sid_from_lang(stream_t *stream, const unsigned char *language) {
 }
 
 /**
- * \brief mp_dvdnav_lang_from_sid() assigns to buf the language corresponding to subtitle id 'sid'
+ * \brief mp_dvdnav_lang_from_sid() returns the language corresponding to subtitle id 'sid'
  * \param stream: - stream pointer
  * \param sid: physical subtitle id
- * \param buf: buffer to contain the 2-chars language string
- * \return 0 on error, 1 if successful
+ * \return 0 on error, otherwise language id
  */
-int mp_dvdnav_lang_from_sid(stream_t *stream, int sid, unsigned char *buf) {
+static int mp_dvdnav_lang_from_sid(stream_t *stream, int sid) {
     uint8_t k;
     uint16_t lang;
     dvdnav_priv_t *priv = stream->priv;
@@ -828,10 +829,7 @@ int mp_dvdnav_lang_from_sid(stream_t *stream, int sid, unsigned char *buf) {
         return 0;
     lang = dvdnav_spu_stream_to_lang(priv->dvdnav, k);
     if(lang == 0xffff) return 0;
-    buf[0] = lang >> 8;
-    buf[1] = lang & 0xFF;
-    buf[2] = 0;
-    return 1;
+    return lang;
 }
 
 /**

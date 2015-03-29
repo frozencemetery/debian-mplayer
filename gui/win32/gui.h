@@ -24,16 +24,18 @@
 #ifndef MPLAYER_GUI_GUI_H
 #define MPLAYER_GUI_GUI_H
 
-#include "config.h"
 #include "mplayer.h"
 #include "playtree.h"
 #include "m_config.h"
 #include "skinload.h"
 #include "playlist.h"
 
-extern float sub_aspect;
+/* Name of the program the GUI utilizes */
+#define MPlayer "MPlayer"
+
+extern float video_aspect;
 extern play_tree_t* playtree;
-extern int sub_window;
+extern int video_window;
 extern int console;
 extern NOTIFYICONDATA nid;
 extern char *codecname;
@@ -60,7 +62,7 @@ struct gui_t
     window_priv_t **window_priv;
 
     HWND mainwindow;
-    HWND subwindow;
+    HWND videowindow;
 
     /* for event handling */
     widget *activewidget;
@@ -73,7 +75,7 @@ struct gui_t
     HMENU traymenu;
     HMENU trayplaymenu;
     HMENU trayplaybackmenu;
-    HMENU submenu;
+    HMENU videomenu;
     HMENU subtitlemenu;
     HMENU aspectmenu;
     HMENU dvdmenu;
@@ -82,6 +84,9 @@ struct gui_t
     int skinbrowserwindow;
     int playlistwindow;
     int aboutwindow;
+
+    float default_volume;
+    float default_balance;
 
     skin_t *skin;
     playlist_t *playlist;
@@ -101,10 +106,11 @@ struct gui_t
 gui_t *create_gui(char *skindir, void (*playercontrol)(int event));
 int destroy_window(gui_t *gui);
 int create_window(gui_t *gui, char *skindir);
-int create_subwindow(gui_t *gui);
+int create_videowindow(gui_t *gui);
 int parse_filename(char *file, play_tree_t *playtree, m_config_t *mconfig, int clear);
-void capitalize(char *filename);
+void capitalize(char *fname);
 LPSTR acp(LPCSTR utf8);
+double appRadian(widget *item, int x, int y);
 
 void renderinfobox(skin_t *skin, window_priv_t *priv);
 void renderwidget(skin_t *skin, image *dest, widget *item, int state);

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Revision: 34475 $ -->
+<!-- $Revision: 37177 $ -->
 <appendix id="skin">
 <title><application>MPlayer</application> skin format</title>
 
@@ -20,7 +20,7 @@ for example), so it is up to you to create something great.
 <para>
 Currently there are four windows to be decorated: the
 <link linkend="skin-file-main">main window</link>, the
-<link linkend="skin-file-subwindow">subwindow</link>, the
+<link linkend="skin-file-subwindow">video window</link>, the
 <link linkend="skin-file-main">playbar</link>, and the
 <link linkend="skin-file-menu">skin menu</link>.
 
@@ -39,16 +39,15 @@ Currently there are four windows to be decorated: the
 
   <para>
   A <emphasis role="bold">button</emphasis> has three states (pressed, released,
-  disabled), thus its image must be divided into three parts vertically. See the
+  disabled), thus its image must be divided into three parts placed below each other. See the
   <link linkend="skin-button">button</link> item for details.
   </para>
 
   <para>
   A <emphasis role="bold">potmeter</emphasis> (mainly used for the seek bar and
   volume/balance control) can have any number of phases by dividing its image
-  into different parts below each other. See
-  <link linkend="skin-hpotmeter">hpotmeter</link> and
-  <link linkend="skin-potmeter">potmeter</link> for details.
+  into different parts. See
+  <link linkend="skin-hpotmeter">hpotmeter</link> for details.
   </para>
 
   <para>
@@ -73,7 +72,7 @@ Currently there are four windows to be decorated: the
 </listitem>
 
 <listitem><para>
-  The <emphasis role="bold">subwindow</emphasis> is where the video appears. It
+  The <emphasis role="bold">video window</emphasis> is where the video appears. It
   can display a specified image if there is no movie loaded (it is quite boring
   to have an empty window :-)) <emphasis role="bold">Note:</emphasis>
   transparency is <emphasis role="bold">not allowed</emphasis> here.
@@ -142,7 +141,7 @@ You need the following files to build a skin:
   description files needed to draw labels).
 </para></listitem>
 <listitem><para>
-  The image to be displayed in the subwindow (optional).
+  The image to be displayed in the video window (optional).
 </para></listitem>
 <listitem><para>
   Two images for the skin menu (they are needed only if you want to create
@@ -206,7 +205,7 @@ where <replaceable>window name</replaceable> can be one of these strings:
   <emphasis role="bold">main</emphasis> - for the main window
 </para></listitem>
 <listitem><para>
-  <emphasis role="bold">sub</emphasis> - for the subwindow
+  <emphasis role="bold">video</emphasis> - for the video window
 </para></listitem>
 <listitem><para>
   <emphasis role="bold">playbar</emphasis> - for the playbar
@@ -218,8 +217,8 @@ where <replaceable>window name</replaceable> can be one of these strings:
 </para>
 
 <para>
-(The sub, playbar and menu blocks are optional - you do not need to decorate
-the subwindow, have a playbar or create a menu. A default menu is always
+(The video, playbar and menu blocks are optional - you do not need to decorate
+the video window, have a playbar or create a menu. A default menu is always
 available by a right mouse button click.)
 </para>
 
@@ -240,8 +239,8 @@ section = movieplayer
   ; ... items for main window ...
   end
 
-  window = sub
-  ; ... items for subwindow ...
+  window = video
+  ; ... items for video window ...
   end
 
   window = menu
@@ -266,7 +265,7 @@ and <literal>PNG</literal> are tried for <filename>&lt;ext&gt;</filename>
 </para>
 
 <para>
-Finally some words about positioning. The main window and the subwindow can be
+Finally some words about positioning. The main window and the video window can be
 placed in the different corners of the screen by giving <literal>X</literal>
 and <literal>Y</literal> coordinates. <literal>0</literal> is top or left,
 <literal>-1</literal> is center and <literal>-2</literal> is right or bottom, as
@@ -307,6 +306,21 @@ blocks.
 <variablelist>
 <varlistentry>
   <term><literal>
+  <anchor id="skin-decoration"/>decoration = enable|disable
+  </literal></term>
+  <listitem>
+  <para>
+  Enable or disable window manager decoration of the main window. Default is
+  <emphasis role="bold">disable</emphasis>.
+  </para>
+  <note><para>
+  This isn't available for the playbar.
+  </para></note>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><literal>
   <anchor id="skin-main-base"/>base = image, X, Y
   </literal></term>
   <listitem>
@@ -344,21 +358,9 @@ blocks.
 +------------+<!--
   --></screen>
   </informalfigure>
-  </listitem>
-</varlistentry>
-
-<varlistentry>
-  <term><literal>
-  <anchor id="skin-decoration"/>decoration = enable|disable
-  </literal></term>
-  <listitem>
   <para>
-  Enable or disable window manager decoration of the main window. Default is
-  <emphasis role="bold">disable</emphasis>.
+  A special value of <literal>NULL</literal> can be used if you want no <literal>image</literal>.
   </para>
-  <note><para>
-  This isn't available for the playbar.
-  </para></note>
   </listitem>
 </varlistentry>
 
@@ -375,18 +377,29 @@ blocks.
   <anchor id="skin-vpotmeter"/>vpotmeter = button, bwidth, bheight, phases, numphases, default, X, Y, width, height, message
   </literal></term>
   <listitem><para>
-  Place a horizontal (hpotmeter) or vertical (vpotmeter) potmeter of
+  </para></listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><literal>
+  <anchor id="skin-rpotmeter"/>rpotmeter = button, bwidth, bheight, phases, numphases, x<subscript>0</subscript>, y<subscript>0</subscript>, x<subscript>1</subscript>, y<subscript>1</subscript>, default, X, Y, width, height, message
+  </literal></term>
+  <listitem><para>
+  Place a horizontal (<literal>hpotmeter</literal>), vertical (<literal>vpotmeter</literal>) or rotary (<literal>rpotmeter</literal>) potmeter of
   <literal>width</literal> * <literal>height</literal> size at position
   <literal>X,Y</literal>. The image can be divided into different parts for the
   different phases of the potmeter (for example, you can have a pot for volume
   control that turns from green to red while its value changes from the minimum
-  to the maximum.). <literal>hpotmeter</literal> can have a button that can be
-  dragged horizontally. The parameters are:
+  to the maximum). All potentiometers can have a button that can be dragged
+  with a <literal>hpotmeter</literal> and <literal>vpotmeter</literal>. A
+  <literal>rpotmeter</literal> can be spun even without a button. The
+  parameters are:
   <itemizedlist>
   <listitem><para>
     <literal>button</literal> - the image to be used for the
     button (must have three parts below each other, like in case of
-    <link linkend="skin-button">button</link>)
+    <link linkend="skin-button">button</link>). A special value of
+    <literal>NULL</literal> can be used if you want no image.
   </para></listitem>
   <listitem><para>
     <literal>bwidth</literal>, <literal>bheight</literal> - size
@@ -394,16 +407,17 @@ blocks.
   </para></listitem>
   <listitem><para>
     <literal>phases</literal> - the image to be used for the
-    different phases of the hpotmeter. A special value of <literal>NULL</literal>
+    different phases of the potentiometer. A special value of <literal>NULL</literal>
     can be used if you want no such image. The image must be divided into
-    <literal>numphases</literal> parts vertically like this:
+    <literal>numphases</literal> parts below each other (resp. side by side
+    for <literal>vpotmeter</literal>) like this:
     <informalfigure><screen>
 +------------+
-|  phase #1  |
+|  phase #1  |                vpotmeter only:
 +------------+
-|  phase #2  |
-+------------+
-     ...
+|  phase #2  |                +------------+------------+     +------------+
++------------+                |  phase #1  |  phase #2  | ... |  phase #n  |
+     ...                      +------------+------------+     +------------+
 +------------+
 |  phase #n  |
 +------------+<!--
@@ -414,19 +428,31 @@ blocks.
     <literal>phases</literal> image
   </para></listitem>
   <listitem><para>
-    <literal>default</literal> - default value for hpotmeter
+    <literal>x<subscript>0</subscript></literal>,
+    <literal>y<subscript>0</subscript></literal> and
+    <literal>x<subscript>1</subscript></literal>,
+    <literal>y<subscript>1</subscript></literal> - position of the 0% start
+    point and 100% stop point for the potentiometer <emphasis role="bold">(<literal>rpotmeter</literal> only)</emphasis></para>
+    <para>The first coordinate <literal>x<subscript>0</subscript>,y<subscript>0</subscript></literal>
+    defines the 0% start point (on the edge of the potentiometer) in the
+    image for phase #1 and the second coordinate <literal>x<subscript>1</subscript>,y<subscript>1</subscript></literal>
+    the 100% stop point in the image for phase #n - in other words, the
+    coordinates of the tip of the mark on the potentiometer in the two
+    individual images.</para></listitem>
+  <listitem><para>
+    <literal>default</literal> - default value for the potentiometer
     (in the range <literal>0</literal> to <literal>100</literal>)
   </para></listitem>
   <listitem><para>
-    <literal>X</literal>, <literal>Y</literal> - position for the hpotmeter
+    <literal>X</literal>, <literal>Y</literal> - position for the potentiometer
   </para></listitem>
   <listitem><para>
     <literal>width</literal>, <literal>height</literal> - width and height
-    of the <literal>hpotmeter</literal>
+    of the potentiometer
   </para></listitem>
   <listitem><para>
     <literal>message</literal> - the message to be generated when the
-    value of <literal>hpotmeter</literal> is changed
+    value of the potentiometer is changed
   </para></listitem>
   </itemizedlist>
   </para></listitem>
@@ -434,15 +460,21 @@ blocks.
 
 <varlistentry>
   <term><literal>
-  <anchor id="skin-potmeter"/>potmeter = phases, numphases, default, X, Y, width, height, message
+  <anchor id="skin-pimage"/>pimage = phases, numphases, default, X, Y, width, height, message
   </literal></term>
   <listitem><para>
-  A <literal>hpotmeter</literal> without a button. (I guess it is meant to be
-  turned around, but it reacts to horizontal dragging only.) For the description
-  of the parameters see <link linkend="skin-hpotmeter">hpotmeter</link>.
-  <literal>phases</literal> can be <literal>NULL</literal>, but it is quite
-  useless, since you cannot see where the <literal>potmeter</literal> is set.
-  </para></listitem>
+  Place different phases of an image at position <literal>X,Y</literal>.
+  This element goes nicely with potentiometers to visualize their state.
+  <literal>phases</literal> can be <literal>NULL</literal>, but this is quite
+  useless, since nothing will be displayed then.
+  For a description of the parameters see
+  <link linkend="skin-hpotmeter">hpotmeter</link>. There is only a difference
+  concerning the message:</para>
+  <itemizedlist><listitem><para>
+  <literal>message</literal> - the message to be reacted on, i.e. which
+  shall cause a change of <literal>pimage</literal>.
+  </para></listitem></itemizedlist>
+  </listitem>
 </varlistentry>
 
 <varlistentry>
@@ -484,8 +516,8 @@ blocks.
   of a character). If the text to be displayed is wider than that, it will be
   scrolled,
   otherwise it is aligned within the specified space by the value of the
-  <literal>align</literal> parameter: <literal>0</literal> is for right,
-  <literal>1</literal> is for center, <literal>2</literal> is for left.
+  <literal>align</literal> parameter: <literal>0</literal> is for left,
+  <literal>1</literal> is for center, <literal>2</literal> is for right.
   </para>
   <para>
   The text to be displayed is given by <literal>text</literal>: It must be
@@ -538,7 +570,11 @@ blocks.
   </row>
   <row>
     <entry>$V</entry>
-    <entry>volume in <emphasis>xxx.xx</emphasis> format</entry>
+    <entry>volume in <emphasis>xxx.x</emphasis> format</entry>
+  </row>
+  <row>
+    <entry>$U</entry>
+    <entry>volume in <emphasis>xxx</emphasis> format</entry>
   </row>
   <row>
     <entry>$b</entry>
@@ -546,7 +582,11 @@ blocks.
   </row>
   <row>
     <entry>$B</entry>
-    <entry>balance in <emphasis>xxx.xx</emphasis> format</entry>
+    <entry>balance in <emphasis>xxx.x</emphasis> format</entry>
+  </row>
+  <row>
+    <entry>$D</entry>
+    <entry>balance in <emphasis>xxx</emphasis> format</entry>
   </row>
   <row>
     <entry>$$</entry>
@@ -555,7 +595,7 @@ blocks.
   <row>
     <entry>$a</entry>
     <entry>a character according to the audio type (none: <keycap>n</keycap>,
-    mono: <keycap>m</keycap>, stereo: <keycap>t</keycap>)</entry>
+    mono: <keycap>m</keycap>, stereo: <keycap>t</keycap>, surround: <keycap>r</keycap>)</entry>
   </row>
   <row>
     <entry>$t</entry>
@@ -578,8 +618,12 @@ blocks.
     <entry>
     a character according to the stream type (file: <keycap>f</keycap>,
     CD: <keycap>a</keycap>, Video CD: <keycap>v</keycap>, DVD: <keycap>d</keycap>,
-    URL: <keycap>u</keycap>)
+    URL: <keycap>u</keycap>, TV/DVB: <keycap>b</keycap>)
     </entry>
+  </row>
+  <row>
+    <entry>$P</entry>
+    <entry>a character according to the playback state (stopped: <keycap>s</keycap>, playing: <keycap>p</keycap>, paused: <keycap>e</keycap>)</entry>
   </row>
   <row>
     <entry>$p</entry>
@@ -610,7 +654,7 @@ blocks.
   </informaltable>
 
   <note><para>
-  The <literal>$a, $T, $p, $s</literal> and <literal>$e</literal>
+  The <literal>$a, $T, $P, $p, $s</literal> and <literal>$e</literal>
   variables all return characters that should be displayed as special symbols
   (for example, <keycap>e</keycap> is for the pause symbol that usually looks
   something like ||). You should have a font for normal characters and
@@ -625,11 +669,11 @@ blocks.
 <!-- ********** -->
 
 <sect2 id="skin-file-subwindow">
-<title>Subwindow</title>
+<title>Video window</title>
 
 <para>
 The following entries can be used in the
-'<literal>window = sub</literal>' . . . '<literal>end</literal>' block.
+'<literal>window = video</literal>' . . . '<literal>end</literal>' block.
 </para>
 
 <variablelist>
@@ -642,6 +686,9 @@ The following entries can be used in the
   <literal>width</literal> and <literal>height</literal>
   denote the size of the window; they are optional (if they are missing, the
   window is the same size as the image).
+  A special value of <literal>NULL</literal> can be used if you want no image
+  (in which case <literal>width</literal> and <literal>height</literal> are
+  mandatory).
   </para></listitem>
 </varlistentry>
 
@@ -783,11 +830,14 @@ symbols (and thus require a different font).
   <row><entry><keycap>n</keycap></entry><entry>no sound</entry></row>
   <row><entry><keycap>m</keycap></entry><entry>mono sound</entry></row>
   <row><entry><keycap>t</keycap></entry><entry>stereo sound</entry></row>
+  <row><entry><keycap>r</keycap></entry><entry>surround sound</entry></row>
+  <row><entry><keycap>space</keycap></entry><entry>no (known)stream</entry></row>
   <row><entry><keycap>f</keycap></entry><entry>stream is a file</entry></row>
   <row><entry><keycap>a</keycap></entry><entry>stream is a CD</entry></row>
   <row><entry><keycap>v</keycap></entry><entry>stream is a Video CD</entry></row>
   <row><entry><keycap>d</keycap></entry><entry>stream is a DVD</entry></row>
   <row><entry><keycap>u</keycap></entry><entry>stream is a URL</entry></row>
+  <row><entry><keycap>b</keycap></entry><entry>stream is a TV/DVB broadcast</entry></row>
 </tbody>
 </tgroup>
 </informaltable>
@@ -813,7 +863,9 @@ menu entries.
   Empty message, it has no effect.
   </para></listitem>
 </varlistentry>
+</variablelist>
 
+<variablelist>
 <title>Playback control:</title>
 <varlistentry>
   <term><emphasis role="bold">evPlay</emphasis></term>
@@ -828,7 +880,6 @@ menu entries.
   Stop playing.
   </para></listitem>
 </varlistentry>
-</variablelist>
 
 <varlistentry>
   <term><emphasis role="bold">evPause</emphasis></term>
@@ -923,6 +974,13 @@ menu entries.
 </varlistentry>
 
 <varlistentry>
+  <term><emphasis role="bold">evPlayTV</emphasis></term>
+  <listitem><para>
+  Tries to start TV/DVB broadcast.
+  </para></listitem>
+</varlistentry>
+
+<varlistentry>
   <term><emphasis role="bold">evPlaySwitchToPause</emphasis></term>
   <listitem><para>
   The opposite of <literal>evPauseSwitchToPlay</literal>. This message starts
@@ -942,6 +1000,7 @@ menu entries.
   playing).
   </para></listitem>
 </varlistentry>
+</variablelist>
 
 <variablelist>
 <title>Seeking:</title>
@@ -1028,6 +1087,12 @@ menu entries.
   Set the video window to its original aspect ratio.
   </para></listitem>
 </varlistentry>
+<varlistentry>
+  <term><emphasis role="bold">evSetRotation</emphasis></term>
+  <listitem><para>
+  Set the video to its original orientation.
+  </para></listitem>
+</varlistentry>
 </variablelist>
 
 <variablelist>
@@ -1101,6 +1166,13 @@ menu entries.
 </varlistentry>
 
 <varlistentry>
+  <term><emphasis role="bold">evMenu</emphasis></term>
+  <listitem><para>
+  Open the (default) menu.
+  </para></listitem>
+</varlistentry>
+
+<varlistentry>
   <term><emphasis role="bold">evIconify</emphasis></term>
   <listitem><para>
   Iconify the window.
@@ -1152,7 +1224,7 @@ it satisfies all the criteria listed below since version 1.5.
 </para></listitem>
 
 <listitem><para>
-  There should be a file <filename>VERSION</filename>
+  There must be a file <filename>VERSION</filename>
   with nothing more than the version number of the skin on a single
   line (e.g. 1.0).
 </para></listitem>
@@ -1165,7 +1237,7 @@ it satisfies all the criteria listed below since version 1.5.
 </para></listitem>
 
 <listitem><para>
-  Skin elements should have the right sizes declared
+  Skin elements shall have the right sizes declared
   in the skin file. If this is not the case you can click outside of
   e.g. a button and still trigger it or click inside its area and not
   trigger it.
@@ -1174,7 +1246,8 @@ it satisfies all the criteria listed below since version 1.5.
 <listitem><para>
   The <filename>skin</filename> file should be
   prettyprinted and not contain tabs. Prettyprinted means that the
-  numbers should line up neatly in columns.
+  numbers should line up neatly in columns
+  and definitions should be indented appropriately.
 </para></listitem>
 </itemizedlist>
 

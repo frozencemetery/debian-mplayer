@@ -2,24 +2,25 @@
  * Session Announcement Protocol (RFC 2974) demuxer
  * Copyright (c) 2010 Martin Storsjo
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "avformat.h"
+#include "libavutil/avassert.h"
 #include "libavutil/avstring.h"
 #include "libavutil/intreadwrite.h"
 #include "network.h"
@@ -27,10 +28,10 @@
 #include "internal.h"
 #include "avio_internal.h"
 #include "url.h"
+#include "rtpdec.h"
 #if HAVE_POLL_H
 #include <poll.h>
 #endif
-#include <sys/time.h>
 
 struct SAPState {
     URLContext *ann_fd;
@@ -60,12 +61,11 @@ static int sap_read_close(AVFormatContext *s)
     return 0;
 }
 
-static int sap_read_header(AVFormatContext *s,
-                           AVFormatParameters *ap)
+static int sap_read_header(AVFormatContext *s)
 {
     struct SAPState *sap = s->priv_data;
     char host[1024], path[1024], url[1024];
-    uint8_t recvbuf[1500];
+    uint8_t recvbuf[RTP_MAX_PACKET_LENGTH];
     int port;
     int ret, i;
     AVInputFormat* infmt;
@@ -159,6 +159,10 @@ static int sap_read_header(AVFormatContext *s,
     sap->sdp_ctx->max_delay = s->max_delay;
     sap->sdp_ctx->pb        = &sap->sdp_pb;
     sap->sdp_ctx->interrupt_callback = s->interrupt_callback;
+
+    if ((ret = ff_copy_whitelists(sap->sdp_ctx, s)) < 0)
+        goto fail;
+
     ret = avformat_open_input(&sap->sdp_ctx, "temp.sdp", infmt, NULL);
     if (ret < 0)
         goto fail;
@@ -188,7 +192,7 @@ static int sap_fetch_packet(AVFormatContext *s, AVPacket *pkt)
     int fd = ffurl_get_file_handle(sap->ann_fd);
     int n, ret;
     struct pollfd p = {fd, POLLIN, 0};
-    uint8_t recvbuf[1500];
+    uint8_t recvbuf[RTP_MAX_PACKET_LENGTH];
 
     if (sap->eof)
         return AVERROR_EOF;
@@ -229,12 +233,11 @@ static int sap_fetch_packet(AVFormatContext *s, AVPacket *pkt)
 
 AVInputFormat ff_sap_demuxer = {
     .name           = "sap",
-    .long_name      = NULL_IF_CONFIG_SMALL("SAP input format"),
+    .long_name      = NULL_IF_CONFIG_SMALL("SAP input"),
     .priv_data_size = sizeof(struct SAPState),
     .read_probe     = sap_probe,
     .read_header    = sap_read_header,
     .read_packet    = sap_fetch_packet,
     .read_close     = sap_read_close,
-    .flags = AVFMT_NOFILE,
+    .flags          = AVFMT_NOFILE,
 };
-

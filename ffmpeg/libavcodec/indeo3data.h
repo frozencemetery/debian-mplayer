@@ -2,20 +2,20 @@
  * Indeo Video v3 compatible decoder
  * Copyright (c) 2009 - 2011 Maxim Poliakovski
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -235,7 +235,7 @@
 
 /**
  * Pack two delta values (a,b) into one 16bit word
- * according with endianess of the host machine.
+ * according with endianness of the host machine.
  */
 #if HAVE_BIGENDIAN
 #define PD(a,b) (((a) << 8) + (b))
@@ -247,8 +247,8 @@
  * Expand a pair of delta values (a,b)
  * into two/four delta entries.
  */
-#define E2(a, b) PD(a, b), PD(-a, -b)
-#define E4(a, b) PD(a, b), PD(-a, -b), PD(b, a), PD(-b, -a)
+#define E2(a, b) PD(a, b), PD(-(a), -(b))
+#define E4(a, b) PD(a, b), PD(-(a), -(b)), PD(b, a), PD(-(b), -(a))
 
 /*
  * VQ tables for 4x4 block modes.
@@ -282,7 +282,7 @@ static const int16_t delta_tab_3_5[79]  = { TAB_3_5 };
 
 /**
  * Pack four delta values (a,a,b,b) into one 32bit word
- * according with endianess of the host machine.
+ * according with endianness of the host machine.
  */
 #if HAVE_BIGENDIAN
 #define PD(a,b) (((a) << 24) + ((a) << 16) + ((b) << 8) + (b))
@@ -320,7 +320,7 @@ static const int32_t delta_tab_3_4_m10[79]  = { TAB_3_4 };
 static const int32_t delta_tab_3_5_m10[79]  = { TAB_3_5 };
 
 
-typedef struct {
+typedef struct vqEntry {
     const int16_t  *deltas;     ///< delta tables for 4x4 block modes
     const int32_t  *deltas_m10; ///< delta tables for 8x8 block modes
     uint8_t        num_dyads;   ///< number of two-pixel deltas

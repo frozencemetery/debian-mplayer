@@ -2,20 +2,20 @@
  * IEC 61937 common header
  * Copyright (c) 2009 Bartlomiej Wolowiec
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -23,6 +23,7 @@
 #define AVFORMAT_SPDIF_H
 
 #include <stdint.h>
+#include "avformat.h"
 
 #define SYNCWORD1 0xF872
 #define SYNCWORD2 0x4E1F
@@ -40,9 +41,9 @@ enum IEC61937DataType {
     IEC61937_DTS1               = 0x0B,          ///< DTS type I   (512 samples)
     IEC61937_DTS2               = 0x0C,          ///< DTS type II  (1024 samples)
     IEC61937_DTS3               = 0x0D,          ///< DTS type III (2048 samples)
-    IEC61937_ATRAC              = 0x0E,          ///< Atrac data
-    IEC61937_ATRAC3             = 0x0F,          ///< Atrac 3 data
-    IEC61937_ATRACX             = 0x10,          ///< Atrac 3 plus data
+    IEC61937_ATRAC              = 0x0E,          ///< ATRAC data
+    IEC61937_ATRAC3             = 0x0F,          ///< ATRAC3 data
+    IEC61937_ATRACX             = 0x10,          ///< ATRAC3+ data
     IEC61937_DTSHD              = 0x11,          ///< DTS HD data
     IEC61937_WMAPRO             = 0x12,          ///< WMA 9 Professional data
     IEC61937_MPEG2_AAC_LSF_2048 = 0x13,          ///< MPEG-2 AAC ADTS half-rate low sampling frequency
@@ -58,5 +59,7 @@ static const uint16_t spdif_mpeg_pkt_offset[2][3] = {
 };
 
 void ff_spdif_bswap_buf16(uint16_t *dst, const uint16_t *src, int w);
+int ff_spdif_read_packet(AVFormatContext *s, AVPacket *pkt);
+int ff_spdif_probe(const uint8_t *p_buf, int buf_size, enum AVCodecID *codec);
 
 #endif /* AVFORMAT_SPDIF_H */

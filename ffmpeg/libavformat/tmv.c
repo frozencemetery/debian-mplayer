@@ -2,20 +2,20 @@
  * 8088flex TMV file demuxer
  * Copyright (c) 2009 Daniel Verkamp <daniel at drv.nu>
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -26,6 +26,7 @@
  * @see http://www.oldskool.org/pc/8088_Corruption
  */
 
+#include "libavutil/channel_layout.h"
 #include "libavutil/intreadwrite.h"
 #include "avformat.h"
 #include "internal.h"
@@ -63,7 +64,7 @@ static int tmv_probe(AVProbeData *p)
     return 0;
 }
 
-static int tmv_read_header(AVFormatContext *s, AVFormatParameters *ap)
+static int tmv_read_header(AVFormatContext *s)
 {
     TMVContext *tmv   = s->priv_data;
     AVIOContext *pb = s->pb;
@@ -111,8 +112,14 @@ static int tmv_read_header(AVFormatContext *s, AVFormatParameters *ap)
     }
 
     ast->codec->codec_type            = AVMEDIA_TYPE_AUDIO;
-    ast->codec->codec_id              = CODEC_ID_PCM_U8;
-    ast->codec->channels              = features & TMV_STEREO ? 2 : 1;
+    ast->codec->codec_id              = AV_CODEC_ID_PCM_U8;
+    if (features & TMV_STEREO) {
+        ast->codec->channels       = 2;
+        ast->codec->channel_layout = AV_CH_LAYOUT_STEREO;
+    } else {
+        ast->codec->channels       = 1;
+        ast->codec->channel_layout = AV_CH_LAYOUT_MONO;
+    }
     ast->codec->bits_per_coded_sample = 8;
     ast->codec->bit_rate              = ast->codec->sample_rate *
                                         ast->codec->bits_per_coded_sample;
@@ -123,8 +130,8 @@ static int tmv_read_header(AVFormatContext *s, AVFormatParameters *ap)
     av_reduce(&fps.num, &fps.den, fps.num, fps.den, 0xFFFFFFFFLL);
 
     vst->codec->codec_type = AVMEDIA_TYPE_VIDEO;
-    vst->codec->codec_id   = CODEC_ID_TMV;
-    vst->codec->pix_fmt    = PIX_FMT_PAL8;
+    vst->codec->codec_id   = AV_CODEC_ID_TMV;
+    vst->codec->pix_fmt    = AV_PIX_FMT_PAL8;
     vst->codec->width      = char_cols * 8;
     vst->codec->height     = char_rows * 8;
     avpriv_set_pts_info(vst, 32, fps.den, fps.num);
@@ -147,7 +154,7 @@ static int tmv_read_packet(AVFormatContext *s, AVPacket *pkt)
     int ret, pkt_size = tmv->stream_index ?
                         tmv->audio_chunk_size : tmv->video_chunk_size;
 
-    if (pb->eof_reached)
+    if (avio_feof(pb))
         return AVERROR_EOF;
 
     ret = av_get_packet(pb, pkt, pkt_size);
@@ -174,7 +181,8 @@ static int tmv_read_seek(AVFormatContext *s, int stream_index,
     pos = timestamp *
           (tmv->audio_chunk_size + tmv->video_chunk_size + tmv->padding);
 
-    avio_seek(s->pb, pos + TMV_HEADER_SIZE, SEEK_SET);
+    if (avio_seek(s->pb, pos + TMV_HEADER_SIZE, SEEK_SET) < 0)
+        return -1;
     tmv->stream_index = 0;
     return 0;
 }
@@ -187,5 +195,5 @@ AVInputFormat ff_tmv_demuxer = {
     .read_header    = tmv_read_header,
     .read_packet    = tmv_read_packet,
     .read_seek      = tmv_read_seek,
-    .flags = AVFMT_GENERIC_INDEX,
+    .flags          = AVFMT_GENERIC_INDEX,
 };

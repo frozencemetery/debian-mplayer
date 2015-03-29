@@ -66,6 +66,8 @@ const ao_functions_t* init_best_audio_out(char** ao_list,int use_plugin,int rate
 // NULL terminated array of all drivers
 extern const ao_functions_t* const audio_out_drivers[];
 
+void mp_ao_resume_refill(const ao_functions_t *ao, int prepause_space);
+
 #define CONTROL_OK 1
 #define CONTROL_TRUE 1
 #define CONTROL_FALSE 0
@@ -80,6 +82,7 @@ extern const ao_functions_t* const audio_out_drivers[];
 #define AOCONTROL_SET_VOLUME 5
 #define AOCONTROL_SET_PLUGIN_DRIVER 6
 #define AOCONTROL_SET_PLUGIN_LIST 7
+#define AOCONTROL_FILENAME 8
 
 #define AOPLAY_FINAL_CHUNK 1
 

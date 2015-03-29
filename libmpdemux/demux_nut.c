@@ -117,7 +117,7 @@ static demuxer_t * demux_open_nut(demuxer_t * demuxer) {
 			int j;
 			mp_msg(MSGT_DEMUX, MSGL_INFO, MSGTR_AudioID, "nut", i);
 
-			sh_audio->wf= wf; sh_audio->ds = demuxer->audio;
+			sh_audio->wf= wf;
 			sh_audio->audio.dwSampleSize = 0; // FIXME
 			sh_audio->audio.dwScale = s[i].time_base.num;
 			sh_audio->audio.dwRate = s[i].time_base.den;
@@ -154,7 +154,6 @@ static demuxer_t * demux_open_nut(demuxer_t * demuxer) {
 			mp_msg(MSGT_DEMUX, MSGL_INFO, MSGTR_VideoID, "nut", i);
 
 			sh_video->bih = bih;
-			sh_video->ds = demuxer->video;
 			sh_video->disp_w = s[i].width;
 			sh_video->disp_h = s[i].height;
 			sh_video->video.dwScale = s[i].time_base.num;
@@ -166,8 +165,8 @@ static demuxer_t * demux_open_nut(demuxer_t * demuxer) {
 			sh_video->format = 0;
 			for (j = 0; j < s[i].fourcc_len && j < 4; j++)
 				sh_video->format |= s[i].fourcc[j]<<(j*8);
-			if (!s[i].sample_height) sh_video->aspect = 0;
-			else sh_video->aspect =
+			if (!s[i].sample_height) sh_video->original_aspect = 0;
+			else sh_video->original_aspect =
 				s[i].sample_width / (float)s[i].sample_height;
 			sh_video->i_bps = 0; // FIXME
 

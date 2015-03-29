@@ -1,18 +1,18 @@
 /*
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -21,8 +21,10 @@
 
 #include "get_bits.h"
 #include "mpegvideo.h"
+#include "intrax8dsp.h"
+#include "wmv2dsp.h"
 
-typedef struct{
+typedef struct IntraX8Context {
     VLC * j_ac_vlc[4];//they point to the static j_mb_vlc
     VLC * j_orient_vlc;
     VLC * j_dc_vlc[3];
@@ -31,8 +33,11 @@ typedef struct{
 //set by ff_intrax8_common_init
     uint8_t * prediction_table;//2*(mb_w*2)
     ScanTable scantable[3];
+    WMV2DSPContext wdsp;
+    uint8_t idct_permutation[64];
 //set by the caller codec
     MpegEncContext * s;
+    IntraX8DSPContext dsp;
     int quant;
     int dquant;
     int qsum;

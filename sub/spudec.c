@@ -36,12 +36,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <strings.h>
 #include <math.h>
 #include "sub.h"
 #include "libvo/video_out.h"
 #include "spudec.h"
 #include "vobsub.h"
 #include "libavutil/avutil.h"
+#include "libavutil/common.h"
 #include "libavutil/intreadwrite.h"
 #include "libswscale/swscale.h"
 
@@ -57,8 +59,8 @@ int spu_aamode = 3;
 int spu_alignment = -1;
 float spu_gaussvar = 1.0;
 
-typedef struct packet_t packet_t;
-struct packet_t {
+typedef struct spu_packet_t packet_t;
+struct spu_packet_t {
   int is_decoded;
   unsigned char *packet;
   int data_len;
@@ -227,7 +229,9 @@ static int spudec_alloc_image(spudec_handle_t *this, int stride, int height)
   if (this->image_size < this->stride * this->height) {
     if (this->image != NULL) {
       free(this->image);
+      this->image = NULL;
       free(this->pal_image);
+      this->pal_image = NULL;
       this->image_size = 0;
       this->pal_width = this->pal_height  = 0;
     }
@@ -250,7 +254,7 @@ static int spudec_alloc_image(spudec_handle_t *this, int stride, int height)
 static void pal2gray_alpha(const uint16_t *pal,
                            const uint8_t *src, int src_stride,
                            uint8_t *dst, uint8_t *dsta,
-                           int dst_stride, int w, int h)
+                           int dst_stride, int w, int h, int skip_stride)
 {
   int x, y;
   for (y = 0; y < h; y++) {
@@ -259,7 +263,10 @@ static void pal2gray_alpha(const uint16_t *pal,
       *dst++  = pixel;
       *dsta++ = pixel >> 8;
     }
-    for (; x < dst_stride; x++)
+    if (skip_stride) {
+      dst += dst_stride - w;
+      dsta += dst_stride - w;
+    } else for (; x < dst_stride; x++)
       *dsta++ = *dst++ = 0;
     src += src_stride;
   }
@@ -273,11 +280,17 @@ static int apply_palette_crop(spudec_handle_t *this,
   uint8_t *src;
   uint16_t pal[4];
   unsigned stride = (crop_w + 7) & ~7;
+  int ret = 1;
   if (crop_x > this->pal_width || crop_y > this->pal_height ||
       crop_w > this->pal_width - crop_x || crop_h > this->pal_width - crop_y ||
       crop_w > 0x8000 || crop_h > 0x8000 ||
       stride * crop_h  > this->image_size) {
-    return 0;
+    // this might be an actual error or just signal that
+    // the highlight should be removed.
+    this->width = 0;
+    this->height = 0;
+    ret = 0;
+    goto out;
   }
   for (i = 0; i < 4; ++i) {
     int color;
@@ -296,7 +309,7 @@ static int apply_palette_crop(spudec_handle_t *this,
   src = this->pal_image + crop_y * this->pal_width + crop_x;
   pal2gray_alpha(pal, src, this->pal_width,
                  this->image, this->aimage, stride,
-                 crop_w, crop_h);
+                 crop_w, crop_h, 0);
   this->width  = crop_w;
   this->height = crop_h;
   this->stride = stride;
@@ -304,11 +317,12 @@ static int apply_palette_crop(spudec_handle_t *this,
   this->start_row = this->pal_start_row + crop_y;
   spudec_cut_image(this);
 
+out:
   // reset scaled image
   this->scaled_frame_width = 0;
   this->scaled_frame_height = 0;
   this->palette_crop_cache.valid = 0;
-  return 1;
+  return ret;
 }
 
 int spudec_apply_palette_crop(void *this, uint32_t palette,
@@ -533,11 +547,6 @@ static void spudec_process_control(spudec_handle_t *this, int pts100)
 	       current_nibble[0] / 2, current_nibble[1] / 2);
 	off+=4;
 	break;
-      case 0xff:
-	/* All done, bye-bye */
-	mp_msg(MSGT_SPUDEC,MSGL_DBG2,"Done!\n");
-	return;
-//	break;
       default:
 	mp_msg(MSGT_SPUDEC,MSGL_WARN,"spudec: Error determining control type 0x%02x.  Skipping %d bytes.\n",
 	       type, next_off - off);
@@ -741,10 +750,24 @@ void spudec_draw(void *this, void (*draw_alpha)(int x0,int y0, int w,int h, unsi
     }
 }
 
+static void validate_dimensions(spudec_handle_t *spu, unsigned dxs, unsigned dys)
+{
+    if (spu->orig_frame_width == 0 || spu->orig_frame_height == 0) {
+        spu->width  = FFMIN(spu->width,  dxs);
+        spu->height = FFMIN(spu->height, dys);
+        spu->start_col = FFMIN(spu->start_col, dxs - spu->width);
+        spu->start_row = FFMIN(spu->start_row, dys - spu->height);
+        return;
+    }
+    spu->orig_frame_width  = FFMAX(spu->orig_frame_width,  spu->start_col + spu->width);
+    spu->orig_frame_height = FFMAX(spu->orig_frame_height, spu->start_row + spu->height);
+}
+
 /* calc the bbox for spudec subs */
 void spudec_calc_bbox(void *me, unsigned int dxs, unsigned int dys, unsigned int* bbox)
 {
   spudec_handle_t *spu = me;
+  validate_dimensions(spu, dxs, dys);
   if (spu->orig_frame_width == 0 || spu->orig_frame_height == 0
   || (spu->orig_frame_width == dxs && spu->orig_frame_height == dys)) {
     // unscaled
@@ -870,9 +893,9 @@ static void sws_spu_image(unsigned char *d1, unsigned char *d2, int dw, int dh,
 
 	ctx=sws_getContext(sw, sh, PIX_FMT_GRAY8, dw, dh, PIX_FMT_GRAY8, SWS_GAUSS, &filter, NULL, NULL);
 	sws_scale(ctx,&s1,&ss,0,sh,&d1,&ds);
-	for (i=ss*sh-1; i>=0; i--) if (!s2[i]) s2[i] = 255; //else s2[i] = 1;
+	for (i=ss*sh-1; i>=0; i--) s2[i] = -s2[i];
 	sws_scale(ctx,&s2,&ss,0,sh,&d2,&ds);
-	for (i=ds*dh-1; i>=0; i--) if (d2[i]==0) d2[i] = 1; else if (d2[i]==255) d2[i] = 0;
+	for (i=ds*dh-1; i>=0; i--) d2[i] = -d2[i];
 	sws_freeContext(ctx);
 }
 
@@ -889,6 +912,7 @@ void spudec_draw_scaled(void *me, unsigned int dxs, unsigned int dys, void (*dra
 	return;
     }
 
+    validate_dimensions(spu, dxs, dys);
     if (!(spu_aamode&16) && (spu->orig_frame_width == 0 || spu->orig_frame_height == 0
 	|| (spu->orig_frame_width == dxs && spu->orig_frame_height == dys))) {
       spudec_draw(spu, draw_alpha);
@@ -937,6 +961,11 @@ void spudec_draw_scaled(void *me, unsigned int dxs, unsigned int dys, void (*dra
 	  table_y = calloc(spu->scaled_height, sizeof(scale_pixel));
 	  if (!table_x || !table_y) {
 	    mp_msg(MSGT_SPUDEC, MSGL_FATAL, "Fatal: spudec_draw_scaled: calloc failed\n");
+	    free(table_x);
+	    table_x = NULL;
+	    free(table_y);
+	    table_y = NULL;
+	    break;
 	  }
 	  scale_table(0, 0, spu->width - 1, spu->scaled_width - 1, table_x);
 	  scale_table(0, 0, spu->height - 1, spu->scaled_height - 1, table_y);
@@ -1342,25 +1371,12 @@ void spudec_set_hw_spu(void *this, const vo_functions_t *hw_spu)
 
 #define MP_NOPTS_VALUE (-1LL<<63) //both int64_t and double should be able to represent this exactly
 
-/**
- * palette must contain at least 256 32-bit entries, otherwise crashes
- * are possible
- */
-void spudec_set_paletted(void *this, const uint8_t *pal_img, int pal_stride,
-                         const void *palette,
-                         int x, int y, int w, int h,
-                         double pts, double endpts)
+packet_t *spudec_packet_create(int x, int y, int w, int h)
 {
-  int i;
-  uint16_t g8a8_pal[256];
   packet_t *packet;
-  const uint32_t *pal = palette;
-  spudec_handle_t *spu = this;
-  uint8_t *img;
-  uint8_t *aimg;
   int stride = (w + 7) & ~7;
   if ((unsigned)w >= 0x8000 || (unsigned)h > 0x4000)
-    return;
+    return NULL;
   packet = calloc(1, sizeof(packet_t));
   packet->is_decoded = 1;
   packet->width = w;
@@ -1370,26 +1386,72 @@ void spudec_set_paletted(void *this, const uint8_t *pal_img, int pal_stride,
   packet->start_row = y;
   packet->data_len = 2 * stride * h;
   if (packet->data_len) { // size 0 is a special "clear" packet
-      packet->packet = malloc(packet->data_len);
-      img  = packet->packet;
-      aimg = packet->packet + stride * h;
-      for (i = 0; i < 256; i++) {
-          uint32_t pixel = pal[i];
-          int alpha = pixel >> 24;
-          int gray = (((pixel & 0x000000ff) >>  0) +
-                      ((pixel & 0x0000ff00) >>  7) +
-                      ((pixel & 0x00ff0000) >> 16)) >> 2;
-          gray = FFMIN(gray, alpha);
-          g8a8_pal[i] = (-alpha << 8) | gray;
-      }
-      pal2gray_alpha(g8a8_pal, pal_img, pal_stride,
-                     img, aimg, stride, w, h);
+    packet->packet = malloc(packet->data_len);
+    if (!packet->packet) {
+      free(packet);
+      packet = NULL;
+    }
   }
+  return packet;
+}
+
+void spudec_packet_clear(packet_t *packet)
+{
+  /* clear alpha and value, as value is premultiplied */
+  memset(packet->packet, 0, packet->data_len);
+}
+
+void spudec_packet_fill(packet_t *packet,
+                        const uint8_t *pal_img, int pal_stride,
+                        const void *palette,
+                        int x, int y, int w, int h)
+{
+  const uint32_t *pal = palette;
+  uint8_t *img  = packet->packet + x + y * packet->stride;
+  uint8_t *aimg = img + packet->stride * packet->height;
+  int i;
+  uint16_t g8a8_pal[256];
+
+  for (i = 0; i < 256; i++) {
+      uint32_t pixel = pal[i];
+      int alpha = pixel >> 24;
+      int gray = (((pixel & 0x000000ff) >>  0) +
+                  ((pixel & 0x0000ff00) >>  7) +
+                  ((pixel & 0x00ff0000) >> 16)) >> 2;
+      gray = FFMIN(gray, alpha);
+      g8a8_pal[i] = (-alpha << 8) | gray;
+  }
+  pal2gray_alpha(g8a8_pal, pal_img, pal_stride,
+                 img, aimg, packet->stride, w, h, 1);
+}
+
+void spudec_packet_send(void *spu, packet_t *packet, double pts, double endpts)
+{
   packet->start_pts = 0;
   packet->end_pts = 0x7fffffff;
+  // Note: valid timestamps from e.g. DVB subtitles can
+  // overflow. Just ignoring the overflow seems to work
+  // best for now, but should be fixed properly at some point.
   if (pts != MP_NOPTS_VALUE)
     packet->start_pts = pts * 90000;
   if (endpts != MP_NOPTS_VALUE)
     packet->end_pts = endpts * 90000;
   spudec_queue_packet(spu, packet);
+}
+
+/**
+ * palette must contain at least 256 32-bit entries, otherwise crashes
+ * are possible
+ */
+void spudec_set_paletted(void *spu, const uint8_t *pal_img, int pal_stride,
+                         const void *palette,
+                         int x, int y, int w, int h,
+                         double pts, double endpts)
+{
+  packet_t *packet = spudec_packet_create(x, y, w, h);
+  if (!packet)
+      return;
+  if (packet->data_len) // size 0 is a special "clear" packet
+    spudec_packet_fill(packet, pal_img, pal_stride, palette, 0, 0, w, h);
+  spudec_packet_send(spu, packet, pts, endpts);
 }

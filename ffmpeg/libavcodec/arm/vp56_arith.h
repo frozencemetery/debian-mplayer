@@ -1,20 +1,20 @@
 /*
  * Copyright (C) 2010 Mans Rullgard <mans@mansr.com>
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -29,7 +29,15 @@
 #   define T(x)
 #endif
 
-#if HAVE_ARMV6 && HAVE_INLINE_ASM
+#if CONFIG_THUMB || defined __clang__
+#   define L(x)
+#   define U(x) x
+#else
+#   define L(x) x
+#   define U(x)
+#endif
+
+#if HAVE_ARMV6_INLINE
 
 #define vp56_rac_get_prob vp56_rac_get_prob_armv6
 static inline int vp56_rac_get_prob_armv6(VP56RangeCoder *c, int pr)
@@ -42,8 +50,8 @@ static inline int vp56_rac_get_prob_armv6(VP56RangeCoder *c, int pr)
     __asm__ ("adds    %3,  %3,  %0           \n"
              "itt     cs                     \n"
              "cmpcs   %7,  %4                \n"
-           A("ldrcsh  %2,  [%4], #2          \n")
-           T("ldrhcs  %2,  [%4], #2          \n")
+           L("ldrcsh  %2,  [%4], #2          \n")
+           U("ldrhcs  %2,  [%4], #2          \n")
              "rsb     %0,  %6,  #256         \n"
              "smlabb  %0,  %5,  %6,  %0      \n"
            T("itttt   cs                     \n")
@@ -80,8 +88,8 @@ static inline int vp56_rac_get_prob_branchy_armv6(VP56RangeCoder *c, int pr)
     __asm__ ("adds    %3,  %3,  %0           \n"
              "itt     cs                     \n"
              "cmpcs   %7,  %4                \n"
-           A("ldrcsh  %2,  [%4], #2          \n")
-           T("ldrhcs  %2,  [%4], #2          \n")
+           L("ldrcsh  %2,  [%4], #2          \n")
+           U("ldrhcs  %2,  [%4], #2          \n")
              "rsb     %0,  %6,  #256         \n"
              "smlabb  %0,  %5,  %6,  %0      \n"
            T("itttt   cs                     \n")

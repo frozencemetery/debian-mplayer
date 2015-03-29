@@ -45,6 +45,35 @@ typedef struct {
 
 #define GIF_SIGNATURE (('G' << 16) | ('I' << 8) | 'F')
 
+#if defined GIFLIB_MAJOR && GIFLIB_MAJOR >= 5
+#define DGifOpen(a, b) DGifOpen(a, b, NULL)
+#define DGifOpenFileHandle(a) DGifOpenFileHandle(a, NULL)
+#define GifError() (gif ? gif->Error : 0)
+#define GifErrorString() GifErrorString(err)
+#if defined GIFLIB_MINOR && GIFLIB_MINOR >= 1
+#define DGifCloseFile(a) DGifCloseFile(a, NULL)
+#endif
+#endif
+
+/* >= 4.2 prior GIFLIB did not have MAJOR/MINOR defines */
+#if defined GIFLIB_MAJOR && GIFLIB_MAJOR >= 4
+static void print_gif_error(GifFileType *gif)
+{
+  int err = GifError();
+  char *err_str = GifErrorString();
+
+  if (err_str)
+    mp_msg(MSGT_DEMUX, MSGL_ERR, "\n[gif] GIF-LIB error: %s.\n", err_str);
+  else
+    mp_msg(MSGT_DEMUX, MSGL_ERR, "\n[gif] GIF-LIB undefined error %d.\n", err);
+}
+#else
+static void print_gif_error(GifFileType *gif)
+{
+  PrintGifError();
+}
+#endif
+
 #ifndef CONFIG_GIF_TVT_HACK
 // not supported by certain versions of the library
 static int my_read_gif(GifFileType *gif, uint8_t *buf, int len)
@@ -94,14 +123,14 @@ static int demux_gif_fill_buffer(demuxer_t *demuxer, demux_stream_t *ds)
 
   while (type != IMAGE_DESC_RECORD_TYPE) {
     if (DGifGetRecordType(gif, &type) == GIF_ERROR) {
-      PrintGifError();
+      print_gif_error(priv->gif);
       return 0; // oops
     }
     if (type == TERMINATE_RECORD_TYPE)
       return 0; // eof
     if (type == SCREEN_DESC_RECORD_TYPE) {
       if (DGifGetScreenDesc(gif) == GIF_ERROR) {
-        PrintGifError();
+        print_gif_error(priv->gif);
         return 0; // oops
       }
     }
@@ -109,7 +138,7 @@ static int demux_gif_fill_buffer(demuxer_t *demuxer, demux_stream_t *ds)
       int code;
       unsigned char *p = NULL;
       if (DGifGetExtension(gif, &code, &p) == GIF_ERROR) {
-        PrintGifError();
+        print_gif_error(priv->gif);
         return 0; // oops
       }
       if (code == 0xF9) {
@@ -138,7 +167,7 @@ static int demux_gif_fill_buffer(demuxer_t *demuxer, demux_stream_t *ds)
 	  comments[length] = 0;
 	  printf("%s", comments);
           if (DGifGetExtensionNext(gif, &p) == GIF_ERROR) {
-            PrintGifError();
+            print_gif_error(priv->gif);
             return 0; // oops
           }
 	}
@@ -146,7 +175,7 @@ static int demux_gif_fill_buffer(demuxer_t *demuxer, demux_stream_t *ds)
       }
       while (p != NULL) {
         if (DGifGetExtensionNext(gif, &p) == GIF_ERROR) {
-          PrintGifError();
+          print_gif_error(priv->gif);
           return 0; // oops
         }
       }
@@ -154,7 +183,7 @@ static int demux_gif_fill_buffer(demuxer_t *demuxer, demux_stream_t *ds)
   }
 
   if (DGifGetImageDesc(gif) == GIF_ERROR) {
-    PrintGifError();
+    print_gif_error(priv->gif);
     return 0; // oops
   }
 
@@ -167,8 +196,9 @@ static int demux_gif_fill_buffer(demuxer_t *demuxer, demux_stream_t *ds)
     memset(dp->buffer, gif->SBackGroundColor, priv->w * priv->h);
 
   if (DGifGetLine(gif, buf, len) == GIF_ERROR) {
-    PrintGifError();
+    print_gif_error(priv->gif);
     free(buf);
+    free_demux_packet(dp);
     return 0; // oops
   }
 
@@ -260,7 +290,7 @@ static demuxer_t* demux_open_gif(demuxer_t* demuxer)
   gif = DGifOpen(demuxer->stream, my_read_gif);
 #endif
   if (!gif) {
-    PrintGifError();
+    print_gif_error(NULL);
     free(priv);
     return NULL;
   }
@@ -270,12 +300,8 @@ static demuxer_t* demux_open_gif(demuxer_t* demuxer)
 
   // make sure the demuxer knows about the new video stream header
   // (even though new_sh_video() ought to take care of it)
+  demuxer->video->id = 0;
   demuxer->video->sh = sh_video;
-
-  // make sure that the video demuxer stream header knows about its
-  // parent video demuxer stream (this is getting wacky), or else
-  // video_read_properties() will choke
-  sh_video->ds = demuxer->video;
 
   sh_video->format = mmioFOURCC(8, 'R', 'G', 'B');
 
@@ -302,7 +328,7 @@ static void demux_close_gif(demuxer_t* demuxer)
   gif_priv_t *priv = demuxer->priv;
   if (!priv) return;
   if (priv->gif && DGifCloseFile(priv->gif) == GIF_ERROR)
-    PrintGifError();
+    print_gif_error(NULL);
   free(priv->refimg);
   free(priv);
 }

@@ -2,25 +2,25 @@
  * Optimization of some functions from mpegvideo.c for armv5te
  * Copyright (c) 2007 Siarhei Siamashka <ssvb@users.sourceforge.net>
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "config.h"
-#include "asm.S"
+#include "libavutil/arm/asm.S"
 
 /*
  * Special optimized version of dct_unquantize_h263_helper_c, it
@@ -61,9 +61,9 @@ function ff_dct_unquantize_h263_armv5te, export=1
         mov             ip, #0
         subs            r3, r3, #2
         ble             2f
-        ldrd            r4, [r0, #0]
+        ldrd            r4, r5, [r0, #0]
 1:
-        ldrd            r6, [r0, #8]
+        ldrd            r6, r7, [r0, #8]
 
         dequant_t       r9, r4, r1, r2, r9
         dequant_t       lr, r5, r1, r2, lr
@@ -87,7 +87,7 @@ function ff_dct_unquantize_h263_armv5te, export=1
 
         subs            r3, r3, #8
         it              gt
-        ldrdgt          r4, [r0, #0] /* load data early to avoid load/use pipeline stall */
+        ldrdgt          r4, r5, [r0, #0] /* load data early to avoid load/use pipeline stall */
         bgt             1b
 
         adds            r3, r3, #2

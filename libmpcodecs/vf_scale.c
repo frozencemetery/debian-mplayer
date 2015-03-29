@@ -68,6 +68,10 @@ static const unsigned int outfmt_list[]={
     IMGFMT_444P,
     IMGFMT_444P16_LE,
     IMGFMT_444P16_BE,
+    IMGFMT_444P14_LE,
+    IMGFMT_444P14_BE,
+    IMGFMT_444P12_LE,
+    IMGFMT_444P12_BE,
     IMGFMT_444P10_LE,
     IMGFMT_444P10_BE,
     IMGFMT_444P9_LE,
@@ -75,6 +79,10 @@ static const unsigned int outfmt_list[]={
     IMGFMT_422P,
     IMGFMT_422P16_LE,
     IMGFMT_422P16_BE,
+    IMGFMT_422P14_LE,
+    IMGFMT_422P14_BE,
+    IMGFMT_422P12_LE,
+    IMGFMT_422P12_BE,
     IMGFMT_422P10_LE,
     IMGFMT_422P10_BE,
     IMGFMT_422P9_LE,
@@ -83,11 +91,17 @@ static const unsigned int outfmt_list[]={
     IMGFMT_I420,
     IMGFMT_420P16_LE,
     IMGFMT_420P16_BE,
+    IMGFMT_420P14_LE,
+    IMGFMT_420P14_BE,
+    IMGFMT_420P12_LE,
+    IMGFMT_420P12_BE,
     IMGFMT_420P10_LE,
     IMGFMT_420P10_BE,
     IMGFMT_420P9_LE,
     IMGFMT_420P9_BE,
     IMGFMT_420A,
+    IMGFMT_422A,
+    IMGFMT_444A,
     IMGFMT_IYUV,
     IMGFMT_YVU9,
     IMGFMT_IF09,
@@ -103,6 +117,10 @@ static const unsigned int outfmt_list[]={
     IMGFMT_BGR24,
     IMGFMT_RGB24,
     IMGFMT_GBR24P,
+    IMGFMT_GBR12PLE,
+    IMGFMT_GBR12PBE,
+    IMGFMT_GBR14PLE,
+    IMGFMT_GBR14PBE,
     IMGFMT_RGB48LE,
     IMGFMT_RGB48BE,
     IMGFMT_BGR16,
@@ -113,6 +131,9 @@ static const unsigned int outfmt_list[]={
     IMGFMT_RGB12,
     IMGFMT_Y800,
     IMGFMT_Y8,
+    IMGFMT_Y8A,
+    IMGFMT_Y16_LE,
+    IMGFMT_Y16_BE,
     IMGFMT_BGR8,
     IMGFMT_RGB8,
     IMGFMT_BGR4,
@@ -147,15 +168,16 @@ static int preferred_conversions[][2] = {
 static unsigned int find_best_out(vf_instance_t *vf, int in_format){
     unsigned int best=0;
     int i = -1;
-    int j = -1;
+    int normalized_format = normalize_yuvp16(in_format);
+    int j = normalized_format ? -2 : -1;
     int format = 0;
 
     // find the best outfmt:
     while (1) {
         int ret;
         if (j < 0) {
-            format = in_format;
-            j = 0;
+            format = j == -1 && normalized_format ? normalized_format : in_format;
+            j++;
         } else if (i < 0) {
             while (preferred_conversions[j][0] &&
                    preferred_conversions[j][0] != in_format)
@@ -191,14 +213,14 @@ static int config(struct vf_instance *vf,
     int round_w=0, round_h=0;
     int i;
     SwsFilter *srcFilter, *dstFilter;
-    enum PixelFormat dfmt, sfmt;
+    enum AVPixelFormat dfmt, sfmt;
 
     if(!best){
         mp_msg(MSGT_VFILTER,MSGL_WARN,"SwScale: no supported outfmt found :(\n");
         return 0;
     }
     sfmt = imgfmt2pixfmt(outfmt);
-    if (outfmt == IMGFMT_RGB8 || outfmt == IMGFMT_BGR8) sfmt = PIX_FMT_PAL8;
+    if (outfmt == IMGFMT_BGR8) sfmt = PIX_FMT_PAL8;
     dfmt = imgfmt2pixfmt(best);
 
     vo_flags=vf->next->query_format(vf->next,best);
@@ -577,7 +599,7 @@ void sws_getFlagsAndFilterFromCmdLine(int *flags, SwsFilter **srcFilterParam, Sw
         static int firstTime=1;
         *flags=0;
 
-#if ARCH_X86
+#if ARCH_X86 && HAVE_MMX_INLINE
         if(gCpuCaps.hasMMX)
                 __asm__ volatile("emms\n\t"::: "memory"); //FIXME this should not be required but it IS (even for non-MMX versions)
 #endif
@@ -620,7 +642,7 @@ struct SwsContext *sws_getContextFromCmdLine(int srcW, int srcH, int srcFormat, 
 {
         int flags;
         SwsFilter *dstFilterParam, *srcFilterParam;
-        enum PixelFormat dfmt, sfmt;
+        enum AVPixelFormat dfmt, sfmt;
 
         dfmt = imgfmt2pixfmt(dstFormat);
         sfmt = imgfmt2pixfmt(srcFormat);
@@ -632,7 +654,7 @@ struct SwsContext *sws_getContextFromCmdLine(int srcW, int srcH, int srcFormat, 
 
 /// An example of presets usage
 static const struct size_preset {
-  char* name;
+  const char* name;
   int w, h;
 } vf_size_presets_defs[] = {
   // TODO add more 'standard' resolutions

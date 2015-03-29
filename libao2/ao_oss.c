@@ -29,6 +29,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
+#include <strings.h>
 
 #include "config.h"
 #include "mp_msg.h"
@@ -182,7 +183,7 @@ static int control(int cmd,void *arg){
 	    if(AF_FORMAT_IS_AC3(ao_data.format))
 		return CONTROL_TRUE;
 
-	    if ((fd = open(oss_mixer_device, O_RDONLY)) > 0)
+	    if ((fd = open(oss_mixer_device, O_RDONLY)) != -1)
 	    {
 		ioctl(fd, SOUND_MIXER_READ_DEVMASK, &devs);
 		if (devs & (1 << oss_mixer_channel))
@@ -473,14 +474,8 @@ static void audio_pause(void)
 // resume playing, after audio_pause()
 static void audio_resume(void)
 {
-    int fillcnt;
     reset();
-    fillcnt = get_space() - prepause_space;
-    if (fillcnt > 0 && !(ao_data.format & AF_FORMAT_SPECIAL_MASK)) {
-      void *silence = calloc(fillcnt, 1);
-      play(silence, fillcnt, 0);
-      free(silence);
-    }
+    mp_ao_resume_refill(&audio_out_oss, prepause_space);
 }
 
 

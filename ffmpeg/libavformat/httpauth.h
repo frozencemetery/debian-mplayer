@@ -2,20 +2,20 @@
  * HTTP authentication
  * Copyright (c) 2010 Martin Storsjo
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -32,7 +32,7 @@ typedef enum HTTPAuthType {
     HTTP_AUTH_DIGEST,      /**< HTTP 1.1 Digest auth from RFC 2617 */
 } HTTPAuthType;
 
-typedef struct {
+typedef struct DigestParams {
     char nonce[300];       /**< Server specified nonce */
     char algorithm[10];    /**< Server specified digest algorithm */
     char qop[30];          /**< Quality of protection, containing the one
@@ -41,6 +41,9 @@ typedef struct {
     char opaque[300];      /**< A server-specified string that should be
                              *  included in authentication responses, not
                              *  included in the actual digest calculation. */
+    char stale[10];        /**< The server indicated that the auth was ok,
+                             * but needs to be redone with a new, non-stale
+                             * nonce. */
     int nc;                /**< Nonce count, the number of earlier replies
                              *  where this particular nonce has been used. */
 } DigestParams;
@@ -49,7 +52,7 @@ typedef struct {
  * HTTP Authentication state structure. Must be zero-initialized
  * before used with the functions below.
  */
-typedef struct {
+typedef struct HTTPAuthState {
     /**
      * The currently chosen auth type.
      */
@@ -62,6 +65,10 @@ typedef struct {
      * The parameters specifiec to digest authentication.
      */
     DigestParams digest_params;
+    /**
+     * Auth ok, but needs to be resent with a new nonce.
+     */
+    int stale;
 } HTTPAuthState;
 
 void ff_http_auth_handle_header(HTTPAuthState *state, const char *key,

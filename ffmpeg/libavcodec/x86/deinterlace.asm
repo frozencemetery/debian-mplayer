@@ -1,27 +1,26 @@
 ;******************************************************************************
-;* MMX optimized deinterlacing functions
+;* SIMD-optimized deinterlacing functions
 ;* Copyright (c) 2010 Vitor Sessak
 ;* Copyright (c) 2002 Michael Niedermayer
 ;*
-;* This file is part of Libav.
+;* This file is part of FFmpeg.
 ;*
-;* Libav is free software; you can redistribute it and/or
+;* FFmpeg is free software; you can redistribute it and/or
 ;* modify it under the terms of the GNU Lesser General Public
 ;* License as published by the Free Software Foundation; either
 ;* version 2.1 of the License, or (at your option) any later version.
 ;*
-;* Libav is distributed in the hope that it will be useful,
+;* FFmpeg is distributed in the hope that it will be useful,
 ;* but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ;* Lesser General Public License for more details.
 ;*
 ;* You should have received a copy of the GNU Lesser General Public
-;* License along with Libav; if not, write to the Free Software
+;* License along with FFmpeg; if not, write to the Free Software
 ;* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 ;******************************************************************************
 
-%include "x86inc.asm"
-%include "x86util.asm"
+%include "libavutil/x86/x86util.asm"
 
 SECTION_RODATA
 
@@ -39,7 +38,7 @@ cglobal deinterlace_line_mmx,         7,7,7, dst, lum_m4, lum_m3, lum_m2, lum_m1
 %endif
     pxor  mm7, mm7
     movq  mm6, [pw_4]
-.nextrow
+.nextrow:
     movd  mm0, [lum_m4q]
     movd  mm1, [lum_m3q]
     movd  mm2, [lum_m2q]

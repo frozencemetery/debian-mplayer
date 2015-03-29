@@ -20,7 +20,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* $Id: vo_zr2.c 33392 2011-05-07 10:59:11Z iive $ */
+/* $Id: vo_zr2.c 36613 2014-01-18 21:39:07Z reimar $ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,6 +38,8 @@
 #include "config.h"
 #include "videodev_mjpeg.h"
 #include "video_out.h"
+#define NO_DRAW_FRAME
+#define NO_DRAW_SLICE
 #include "video_out_internal.h"
 #include "mp_msg.h"
 #include "subopt-helper.h"
@@ -459,15 +461,6 @@ static int control(uint32_t request, void *data) {
 			return draw_image(data);
   	}
 	return VO_NOTIMPL;
-}
-
-static int draw_frame(uint8_t *src[]) {
-	return 0;
-}
-
-static int draw_slice(uint8_t *image[], int stride[],
-		int w, int h, int x, int y) {
- 	return 0;
 }
 
 static void draw_osd(void) {

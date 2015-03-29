@@ -2,20 +2,20 @@
  * MPEG-4 Parametric Stereo definitions and declarations
  * Copyright (c) 2010 Alex Converse <alex.converse@gmail.com>
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -24,6 +24,7 @@
 
 #include <stdint.h>
 
+#include "aacpsdsp.h"
 #include "avcodec.h"
 #include "get_bits.h"
 
@@ -37,7 +38,7 @@
 #define PS_AP_LINKS 3
 #define PS_MAX_AP_DELAY 5
 
-typedef struct {
+typedef struct PSContext {
     int    start;
     int    enable_iid;
     int    iid_quant;
@@ -60,18 +61,21 @@ typedef struct {
     int    is34bands;
     int    is34bands_old;
 
-    float  in_buf[5][44][2];
-    float  delay[PS_MAX_SSB][PS_QMF_TIME_SLOTS + PS_MAX_DELAY][2];
-    float  ap_delay[PS_MAX_AP_BANDS][PS_AP_LINKS][PS_QMF_TIME_SLOTS + PS_MAX_AP_DELAY][2];
-    float  peak_decay_nrg[34];
-    float  power_smooth[34];
-    float  peak_decay_diff_smooth[34];
-    float  H11[2][PS_MAX_NUM_ENV+1][PS_MAX_NR_IIDICC];
-    float  H12[2][PS_MAX_NUM_ENV+1][PS_MAX_NR_IIDICC];
-    float  H21[2][PS_MAX_NUM_ENV+1][PS_MAX_NR_IIDICC];
-    float  H22[2][PS_MAX_NUM_ENV+1][PS_MAX_NR_IIDICC];
+    DECLARE_ALIGNED(16, float, in_buf)[5][44][2];
+    DECLARE_ALIGNED(16, float, delay)[PS_MAX_SSB][PS_QMF_TIME_SLOTS + PS_MAX_DELAY][2];
+    DECLARE_ALIGNED(16, float, ap_delay)[PS_MAX_AP_BANDS][PS_AP_LINKS][PS_QMF_TIME_SLOTS + PS_MAX_AP_DELAY][2];
+    DECLARE_ALIGNED(16, float, peak_decay_nrg)[34];
+    DECLARE_ALIGNED(16, float, power_smooth)[34];
+    DECLARE_ALIGNED(16, float, peak_decay_diff_smooth)[34];
+    DECLARE_ALIGNED(16, float, H11)[2][PS_MAX_NUM_ENV+1][PS_MAX_NR_IIDICC];
+    DECLARE_ALIGNED(16, float, H12)[2][PS_MAX_NUM_ENV+1][PS_MAX_NR_IIDICC];
+    DECLARE_ALIGNED(16, float, H21)[2][PS_MAX_NUM_ENV+1][PS_MAX_NR_IIDICC];
+    DECLARE_ALIGNED(16, float, H22)[2][PS_MAX_NUM_ENV+1][PS_MAX_NR_IIDICC];
+    DECLARE_ALIGNED(16, float, Lbuf)[91][32][2];
+    DECLARE_ALIGNED(16, float, Rbuf)[91][32][2];
     int8_t opd_hist[PS_MAX_NR_IIDICC];
     int8_t ipd_hist[PS_MAX_NR_IIDICC];
+    PSDSPContext dsp;
 } PSContext;
 
 void ff_ps_init(void);

@@ -1,6 +1,59 @@
-MPlayer (1.0)
+MPlayer
 
-  rc5:
+    Decoders:
+    * Hardware accelerated decoding on OS X via VDA.
+    * Internal libmpeg2 disabled by default, on the assumption
+      that nobody really needs it anymore.
+
+    Other:
+    * "run" slave/keybinding command now supports expanding properties
+    * better support for > 8 bit formats in -vo gl
+    * support for XYZ color space in -vo gl
+    * -vo gl now supports OSD (not EOSD though) with GLES backend.
+    * GLES backend now uses GLES v2 with YUV support via shaders
+    * -vo gl supports rotated display without needing video filters via
+      -monitor-orientation command-line option.
+    * -vo gl now has an OSX/Cocoa backend, so it should be a better
+      alternative to -vo corevideo now.
+    * -vo gl2 renamed to -vo gl_tiled to stop people from assuming it is
+      better than -vo gl (it is in many ways worse).
+    * Fixes for DVB, teletext and closed-caption based subtitles.
+    * Support teletext and CC subtitles in WTV.
+    * Support binding keys corresponding to non-ASCII characters.
+    * Limited -endpos support for -dump*
+    * Danish messages header file renamed from help_mp-dk.h to help_mp-da.h
+      in order to comply with ISO 639 language code (configure language
+      options will now require da instead of dk)
+    * configure: options --enable-gtk1, --with-glib-config= and
+      --with-gtk-config= removed
+
+    Ports:
+    * Windows: support file names as UTF-8 in slave mode and passing
+      file names as wchar command line arguments.
+    * Android: MPlayer can be run from adb shell and display videos
+      via OpenGL ES.
+      Note that just a bit of seeking etc. would cause reproducible
+      system reboots after just a few seconds on my Galaxy S2.
+    * Android: -wid is supported. This should allow using MPlayer in slave
+      mode, a native window pointer needs to be passed as -wid. Untested.
+
+    GUI:
+    * Support for TV/DVB
+    * Various improvements of the context menu and the preferences dialog
+    * Revision of the user interface texts
+    * Console message with information on deprecated (but still supported)
+      entries in the skin configuration file
+    * New symbol character (r) and new dynamic label variables ($D, $U, $P)
+    * New items (pimage, rpotmeter)
+    * Updated skins (avifile, Blue, Blue-small, Clearlooks, Corelian,
+      disappearer, mentalic, mplayer_red, nativeRed, neutron, phony, plastic,
+      slim, softgrip, standard, trium, tvisor, xanim)
+    * Video can be rotated
+    * New GUI message: evSetRotation
+    * GUI now officially needs GTK+ and GLib versions 2 (it hadn't compiled
+      with versions 1 for quite some time)
+
+  1.1: "We gave up on 1.0"
 
     Decoders:
     * FFmpeg AAC decoder is now preferred over libfaad2 and the internal
@@ -15,19 +68,28 @@ MPlayer (1.0)
     * lavfi: libavfilter filter graphs (experimental).
 
     Other:
+    * -dr support for H.264 B-frames.
     * support adding noise at output resolution with -vo gl:noise-strength=8
-    * experimental support for PGS (BluRay-compatible), DVB and XSUB subtitles.
-    * experimental af_cmdline slave command to change e.g. audio equalizer options at runtime.
+    * experimental support for OpenGL ES 1.0 in -vo gl
+    * support for PGS (BluRay-compatible), DVB and XSUB subtitles.
+    * af_cmdline slave command to change e.g. audio equalizer options at runtime.
     * vo x11: don't hide or show cursor any more if attached to an existing window (-wid)
+    * try reconnecting network streams e.g. after network timeouts
+    * lots of bug fixes as always (and surely a few new bugs, too :-( )
 
-    GUI:
+    GUI: Support for the GUI continues.
+    * numerous fixes, improvements and updates
+    * UTF-8 support
     * all skin messages available as slave commands (gui <message>)
+    * fancy new icon
 
     Ports:
     * Wine (see DOCS/tech/crosscompile.txt)
 
     MEncoder:
     * -force-key-frames option to set explicit seek points.
+
+MPlayer (1.0)
 
   rc4: "Yes We Can"
 

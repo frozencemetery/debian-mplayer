@@ -1,8 +1,7 @@
 LIBAVCODEC_$MAJOR {
         global: av*;
+                #deprecated, remove after next bump
                 audio_resample;
                 audio_resample_close;
-                #deprecated, remove after next bump
-                img_get_alpha_info;
         local:  *;
 };

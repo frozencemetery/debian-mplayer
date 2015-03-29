@@ -4,20 +4,20 @@
  * Copyright (c) 2010 Alex Converse <alex.converse@gmail.com>
  * Copyright (c) 2010 Vitor Sessak
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
@@ -28,6 +28,7 @@
  */
 
 #include <math.h>
+#include <string.h>
 
 #include "libavutil/mathematics.h"
 #include "dct.h"
@@ -39,7 +40,7 @@
 /* cos((M_PI * x / (2 * n)) */
 #define COS(s, n, x) (s->costab[x])
 
-static void ff_dst_calc_I_c(DCTContext *ctx, FFTSample *data)
+static void dst_calc_I_c(DCTContext *ctx, FFTSample *data)
 {
     int n = 1 << ctx->nbits;
     int i;
@@ -69,7 +70,7 @@ static void ff_dst_calc_I_c(DCTContext *ctx, FFTSample *data)
     data[n - 1] = 0;
 }
 
-static void ff_dct_calc_I_c(DCTContext *ctx, FFTSample *data)
+static void dct_calc_I_c(DCTContext *ctx, FFTSample *data)
 {
     int n = 1 << ctx->nbits;
     int i;
@@ -99,7 +100,7 @@ static void ff_dct_calc_I_c(DCTContext *ctx, FFTSample *data)
         data[i] = data[i - 2] - data[i];
 }
 
-static void ff_dct_calc_III_c(DCTContext *ctx, FFTSample *data)
+static void dct_calc_III_c(DCTContext *ctx, FFTSample *data)
 {
     int n = 1 << ctx->nbits;
     int i;
@@ -132,7 +133,7 @@ static void ff_dct_calc_III_c(DCTContext *ctx, FFTSample *data)
     }
 }
 
-static void ff_dct_calc_II_c(DCTContext *ctx, FFTSample *data)
+static void dct_calc_II_c(DCTContext *ctx, FFTSample *data)
 {
     int n = 1 << ctx->nbits;
     int i;
@@ -189,10 +190,10 @@ av_cold int ff_dct_init(DCTContext *s, int nbits, enum DCTTransformType inverse)
         ff_init_ff_cos_tabs(nbits + 2);
 
         s->costab = ff_cos_tabs[nbits + 2];
-        s->csc2   = av_malloc(n / 2 * sizeof(FFTSample));
+        s->csc2   = av_malloc_array(n / 2, sizeof(FFTSample));
 
         if (ff_rdft_init(&s->rdft, nbits, inverse == DCT_III) < 0) {
-            av_free(s->csc2);
+            av_freep(&s->csc2);
             return -1;
         }
 
@@ -200,16 +201,16 @@ av_cold int ff_dct_init(DCTContext *s, int nbits, enum DCTTransformType inverse)
             s->csc2[i] = 0.5 / sin((M_PI / (2 * n) * (2 * i + 1)));
 
         switch (inverse) {
-        case DCT_I  : s->dct_calc = ff_dct_calc_I_c;   break;
-        case DCT_II : s->dct_calc = ff_dct_calc_II_c;  break;
-        case DCT_III: s->dct_calc = ff_dct_calc_III_c; break;
-        case DST_I  : s->dct_calc = ff_dst_calc_I_c;   break;
+        case DCT_I  : s->dct_calc = dct_calc_I_c;   break;
+        case DCT_II : s->dct_calc = dct_calc_II_c;  break;
+        case DCT_III: s->dct_calc = dct_calc_III_c; break;
+        case DST_I  : s->dct_calc = dst_calc_I_c;   break;
         }
     }
 
     s->dct32 = ff_dct32_float;
-    if (HAVE_MMX)
-        ff_dct_init_mmx(s);
+    if (ARCH_X86)
+        ff_dct_init_x86(s);
 
     return 0;
 }
@@ -217,5 +218,5 @@ av_cold int ff_dct_init(DCTContext *s, int nbits, enum DCTTransformType inverse)
 av_cold void ff_dct_end(DCTContext *s)
 {
     ff_rdft_end(&s->rdft);
-    av_free(s->csc2);
+    av_freep(&s->csc2);
 }

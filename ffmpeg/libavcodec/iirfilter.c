@@ -2,20 +2,20 @@
  * IIR filter
  * Copyright (c) 2008 Konstantin Shishkov
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -26,6 +26,8 @@
 
 #include "iirfilter.h"
 #include <math.h>
+#include "libavutil/attributes.h"
+#include "libavutil/common.h"
 
 /**
  * IIR filter global parameters
@@ -47,10 +49,11 @@ typedef struct FFIIRFilterState{
 /// maximum supported filter order
 #define MAXORDER 30
 
-static int butterworth_init_coeffs(void *avc, struct FFIIRFilterCoeffs *c,
-                                   enum IIRFilterMode filt_mode,
-                                   int order, float cutoff_ratio,
-                                   float stopband)
+static av_cold int butterworth_init_coeffs(void *avc,
+                                           struct FFIIRFilterCoeffs *c,
+                                           enum IIRFilterMode filt_mode,
+                                           int order, float cutoff_ratio,
+                                           float stopband)
 {
     int i, j;
     double wa;
@@ -112,9 +115,9 @@ static int butterworth_init_coeffs(void *avc, struct FFIIRFilterCoeffs *c,
     return 0;
 }
 
-static int biquad_init_coeffs(void *avc, struct FFIIRFilterCoeffs *c,
-                              enum IIRFilterMode filt_mode, int order,
-                              float cutoff_ratio, float stopband)
+static av_cold int biquad_init_coeffs(void *avc, struct FFIIRFilterCoeffs *c,
+                                      enum IIRFilterMode filt_mode, int order,
+                                      float cutoff_ratio, float stopband)
 {
     double cos_w0, sin_w0;
     double a0, x0, x1;
@@ -193,7 +196,7 @@ av_cold struct FFIIRFilterCoeffs* ff_iir_filter_init_coeffs(void *avc,
         return c;
 
 init_fail:
-    ff_iir_filter_free_coeffs(c);
+    ff_iir_filter_free_coeffsp(&c);
     return NULL;
 }
 
@@ -296,22 +299,29 @@ void ff_iir_filter_flt(const struct FFIIRFilterCoeffs *c,
     }
 }
 
-av_cold void ff_iir_filter_free_state(struct FFIIRFilterState *state)
+av_cold void ff_iir_filter_free_statep(struct FFIIRFilterState **state)
 {
-    av_free(state);
+    av_freep(state);
 }
 
-av_cold void ff_iir_filter_free_coeffs(struct FFIIRFilterCoeffs *coeffs)
+av_cold void ff_iir_filter_free_coeffsp(struct FFIIRFilterCoeffs **coeffsp)
 {
+    struct FFIIRFilterCoeffs *coeffs = *coeffsp;
     if(coeffs){
-        av_free(coeffs->cx);
-        av_free(coeffs->cy);
+        av_freep(&coeffs->cx);
+        av_freep(&coeffs->cy);
     }
-    av_free(coeffs);
+    av_freep(coeffsp);
+}
+
+void ff_iir_filter_init(FFIIRFilterContext *f) {
+    f->filter_flt = ff_iir_filter_flt;
+
+    if (HAVE_MIPSFPU)
+        ff_iir_filter_init_mips(f);
 }
 
 #ifdef TEST
-#undef printf
 #include <stdio.h>
 
 #define FILT_ORDER 4
@@ -338,8 +348,8 @@ int main(void)
     for (i = 0; i < SIZE; i++)
         printf("%6d %6d\n", x[i], y[i]);
 
-    ff_iir_filter_free_coeffs(fcoeffs);
-    ff_iir_filter_free_state(fstate);
+    ff_iir_filter_free_coeffsp(&fcoeffs);
+    ff_iir_filter_free_statep(&fstate);
     return 0;
 }
 #endif /* TEST */

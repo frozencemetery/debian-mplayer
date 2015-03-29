@@ -1,5 +1,5 @@
-.\" $Revision: 34463 $
-.\" MPlayer (C) 2000-2010 MPlayer Team
+.\" $Revision: 37376 $
+.\" MPlayer (C) 2000-2015 MPlayer Team
 .\" This man page was/is done by Gabucino, Diego Biurrun, Jonas Jermann
 .
 .\" --------------------------------------------------------------------------
@@ -31,7 +31,7 @@
 .\" Title
 .\" --------------------------------------------------------------------------
 .
-.TH MPlayer 1 "2009-03-25" "The MPlayer Project" "The Movie Player"
+.TH MPlayer 1 "2015-02-13" "The MPlayer Project" "The Movie Player"
 .
 .SH NAME
 mplayer  \- movie player
@@ -533,6 +533,8 @@ flip=yes
 mf=type=png:fps=25
 # Eerie negative images are cool.
 vf=eq2=1.0:\-0.8
+# OSD progress bar vertical alignment
+progbar-align=50
 .fi
 .PP
 .I "EXAMPLE MENCODER CONFIGURATION FILE:"
@@ -601,6 +603,7 @@ equ_channel_1 ... equ_channel_6
 gui_main_pos_x,
 gui_main_pos_y,
 gui_save_pos (yes/no),
+gui_tv_digital (yes/no),
 gui_video_out_pos_x,
 gui_video_out_pos_y,
 load_fullscreen  (yes/no),
@@ -635,7 +638,7 @@ font_autoscale
 font_blur
 .RB ( subfont-blur ") (FreeType only),"
 font_encoding
-.RB ( subfont-encoding ") (FreeType only),"
+.RB ( subfont-encoding ),
 font_factor
 .RB ( ffactor ),
 font_name
@@ -648,6 +651,8 @@ font_text_scale
 .RB ( subfont-text-scale ") (FreeType only),"
 gui_skin
 .RB ( skin ),
+idle
+.RB ( idle ),
 osd_level
 .RB ( osdlevel ),
 softvol
@@ -664,6 +669,8 @@ sub_pos
 .RB ( subpos ),
 sub_unicode
 .RB ( unicode ),
+sub_utf8
+.RB ( utf8 ),
 v_flip
 .RB ( flip ),
 v_framedrop
@@ -1019,7 +1026,7 @@ immediately.
 Enforces a fixed video system for multiple files (one (un)initialization for
 all files).
 Therefore only one window will be opened for all files.
-Currently the following drivers are fixed-vo compliant: gl, gl2, mga, svga, x11,
+Currently the following drivers are fixed-vo compliant: gl, gl_tiled, mga, svga, x11,
 xmga, xv, xvidix and dfbmga.
 .
 .TP
@@ -1072,6 +1079,10 @@ mplayer \-heartbeat\-cmd "xscreensaver\-command \-deactivate" file
 mplayer \-heartbeat\-cmd "gnome\-screensaver\-command \-p" file
 .RE
 .PD 1
+.
+.TP
+.B \-heartbeat\-interval
+Specify how often the \-heartbeat\-cmd should be executed, in seconds between executions (default: 30.0).
 .
 .TP
 .B \-identify
@@ -1201,7 +1212,7 @@ Display the main menu at MPlayer startup.
 Permit MPlayer to receive pointer events reported by the video
 output driver.
 Necessary to select the buttons in DVD menus.
-Supported for X11-based VOs (x11, xv, xvmc, etc) and the gl, gl2, direct3d and
+Supported for X11-based VOs (x11, xv, xvmc, etc) and the gl, gl_tiled, direct3d and
 corevideo VOs.
 .
 .TP
@@ -1240,6 +1251,26 @@ Useless with modern Linux kernels configured for desktop use as they already
 wake up the process with similar accuracy when using normal timed sleep.
 .
 .TP
+.B \-pausing <0\-3> (MPlayer only)
+Specifies the default pausing behaviour of commands, i.e. whether MPlayer
+will continue playback or stay paused after the command has finished.
+See DOCS/tech/slave.txt for further details.
+.PD 0
+.RSs
+.IPs 0
+resume
+.IPs 1
+pause (pausing)
+.IPs 2
+keep the paused / playing status (pausing_keep)
+.IPs 3
+toggle the paused / playing status (pausing_toggle)
+.IPs 4
+pause without frame step (experimental) (pausing_keep_force)
+.RE
+.PD 1
+.
+.TP
 .B \-playing\-msg <string>
 Print out a string before starting playback.
 The following expansions are supported:
@@ -1257,11 +1288,27 @@ Expand TEXT only if the property NAME is not available.
 Play files according to a playlist file (ASX, Winamp, SMIL, or
 one-file-per-line format).
 .br
+.I WARNING:
+The way MPlayer parses and uses playlist files is not safe against
+maliciously constructed files.
+Such files may trigger harmful actions.
+This has been the case for all MPlayer versions, but unfortunately this
+fact was not well documented earlier, and some people have even misguidedly
+recommended use of -playlist with untrusted sources.
+Do NOT use -playlist with random internet sources or files you don't trust!
+.br
 .I NOTE:
 This option is considered an entry so options found after it will apply
 only to the elements of this playlist.
 .br
 FIXME: This needs to be clarified and documented thoroughly.
+.
+.TP
+.B \-allow-dangerous-playlist-parsing
+This enables parsing any file as a playlist if e.g. a server advertises
+a file as playlist.
+Only enable if you know all servers involved are trustworthy.
+MPlayer's playlist code is not designed to handle malicious playlist files.
 .
 .TP
 .B \-rtc\-device <device>
@@ -1426,10 +1473,6 @@ Some Blu\-ray discs contain scenes that can be viewed from multiple angles.
 Here you can tell MPlayer which angles to use (default: 1).
 .
 .TP
-.B \-bluray\-chapter <chapter ID> (Blu\-ray only)
-Tells MPlayer which Blu\-ray chapter to start the current title from (default: 1).
-.
-.TP
 .B \-bluray\-device <path to disc> (Blu\-ray only)
 Specify the Blu\-ray disc location. Must be a directory with Blu\-ray structure.
 .
@@ -1537,7 +1580,7 @@ full 7.1
 .PD 1
 .
 .TP
-.B \-chapter <chapter ID>[\-<endchapter ID>] (dvd:// and dvdnav:// only)
+.B \-chapter <chapter ID>[\-<endchapter ID>]
 Specify which chapter to start playing at.
 Optionally specify which chapter to end playing at (default: 1).
 .
@@ -1668,6 +1711,7 @@ Stop at given time or byte position.
 Byte position may not be accurate, as it can only stop at a frame boundary.
 When used in conjunction with \-ss option, \-endpos time will shift forward by
 seconds specified with \-ss if not a byte position.
+In addition it may not work well or not at all when used with any of the \-dump options.
 .sp 1
 .I EXAMPLE:
 .PD 0
@@ -1799,9 +1843,12 @@ input file type (available: jpeg, png, tga, sgi)
 .PD 1
 .
 .TP
-.B \-ni (AVI only)
-Force usage of non-interleaved AVI parser (fixes playback
+.B \-ni
+Force treating files as non-interleaved.
+In particular forces usage of non-interleaved AVI parser (fixes playback
 of some bad AVI files).
+Can also help playing files that otherwise play audio
+and video alternating instead of at the same time.
 .
 .TP
 .B \-nobps (AVI only)
@@ -2068,6 +2115,7 @@ Useful for playback from CD-ROM images or VOB files with junk at the beginning.
 .B \-speed <0.01\-100>
 Slow down or speed up playback by the factor given as parameter.
 Not guaranteed to work correctly with \-oac copy.
+Add \-af scaletempo to get past the 4x limit on playback.
 .
 .TP
 .B \-srate <Hz>
@@ -2082,6 +2130,7 @@ The default is fast resampling that may cause distortion.
 .TP
 .B \-ss <time> (also see \-sb)
 Seek to given time position.
+Use \-ss nopts to disable seeking, \-ss 0 has different behaviour.
 .sp 1
 .I EXAMPLE:
 .PD 0
@@ -2516,12 +2565,12 @@ instead of at the end.
 .
 .TP
 .B \-font <path to font.desc file, path to font (FreeType), font pattern (Fontconfig)>
-Search for the OSD/\:SUB fonts in an alternative directory (default for normal
+Search for the OSD/\:subtitle fonts in an alternative directory (default for normal
 fonts: ~/\:.mplayer/\:font/\:font.desc, default for FreeType fonts:
-~/.mplayer/\:subfont.ttf).
+~/.mplayer/\:subfont.ttf, default for Fontconfig: "sans-serif").
 .br
 .I NOTE:
-With FreeType, this option determines the path to the text font file.
+With FreeType, this option determines the path to the font file.
 With Fontconfig, this option determines the Fontconfig font pattern.
 .sp 1
 .I EXAMPLE:
@@ -2539,12 +2588,13 @@ With Fontconfig, this option determines the Fontconfig font pattern.
 .
 .TP
 .B \-fontconfig (fontconfig only)
-Enables the usage of fontconfig managed fonts.
+Enables the usage of fontconfig managed fonts (default: autodetect).
 .br
 .I NOTE:
 By default fontconfig is used for libass-rendered subtitles and not used for
 OSD. With \-fontconfig it is used for both libass and OSD, with \-nofontconfig
-it is not used at all.
+it is not used at all, i.e. only then \-font and \-subfont will work with a
+given path to font.
 .
 .TP
 .B \-forcedsubsonly
@@ -2607,6 +2657,11 @@ volume + seek + timer + percentage + total time
 Allows the next subtitle to be displayed while the current one is
 still visible (default is to enable the support only for specific
 formats).
+.
+.TP
+.B \-progbar\-align <0-100>
+Specify the vertical alignment of the progress bar
+(0: top, 100: bottom, default is 50, i.e. centered).
 .
 .TP
 .B \-sid <ID> (also see \-slang, \-vobsubid)
@@ -2743,8 +2798,10 @@ Align subtitle bottom edge (default).
 .PD 1
 .
 .TP
-.B "\-subcc <1\-4>\ "
+.B "\-subcc <1\-8>\ "
 Display DVD Closed Caption (CC) subtitles from the specified channel.
+Values 5 to 8 select a mode that can extract EIA-608 compatibility
+streams from EIA-708 data.
 These are
 .B not
 the VOB subtitles, these are special ASCII subtitles for the
@@ -2754,7 +2811,8 @@ CC subtitles have not been spotted on DVDs from other regions so far.
 .TP
 .B \-subcp <codepage> (iconv only)
 If your system supports iconv(3), you can use this option to
-specify the subtitle codepage.
+specify the subtitle codepage. It takes priority over both -utf8 and
+-unicode.
 .sp 1
 .I EXAMPLE:
 .PD 0
@@ -2847,10 +2905,13 @@ proportional to movie diagonal (default)
 Sets the font blur radius (default: 2).
 .
 .TP
-.B \-subfont\-encoding <value> (FreeType only)
+.B \-subfont\-encoding <value>
 Sets the font encoding.
 When set to 'unicode', all the glyphs from the font file will be rendered and
-unicode will be used (default: unicode).
+unicode will be used (default: unicode). (Without FreeType, setting any other
+value than 'unicode' will disable unicode glyphs rendering for font.desc
+files. With FreeType and for other values than 'unicode' your system has to
+support iconv(3) in order for this to work.)
 .
 .TP
 .B \-subfont\-osd\-scale <0\-100> (FreeType only)
@@ -2874,9 +2935,10 @@ Specify the framerate of the subtitle file (default: movie fps).
 slows them down for time-based ones.
 .
 .TP
-.B \-subpos <0\-100> (useful with \-vf expand)
+.B \-subpos <0\-150> (useful with \-vf expand)
 Specify the position of subtitles on the screen.
 The value is the vertical position of the subtitle in % of the screen height.
+Values larger than 100 allow part of the subtitle to be cut off.
 .
 .TP
 .B \-subwidth <10\-100>
@@ -2898,7 +2960,8 @@ used for the OSD and clear it (default: ^[[A\\r^[[K).
 .
 .TP
 .B \-unicode
-Tells MPlayer to handle the subtitle file as unicode.
+Tells MPlayer to handle the subtitle file as unicode. (It will only take
+effect if neither -subcp nor -utf8 is given.)
 .
 .TP
 .B \-unrarexec <path to unrar executable> (not supported on MingW)
@@ -2908,7 +2971,8 @@ The path must include the executable's filename, i.e.\& /usr/local/bin/unrar.
 .
 .TP
 .B "\-utf8 \ \ "
-Tells MPlayer to handle the subtitle file as UTF-8.
+Tells MPlayer to handle the subtitle file as UTF-8. (It will only take effect
+if -subcp isn't given, and it takes priority over -unicode.)
 .
 .TP
 .B \-vobsub <VOBsub file without extension>
@@ -3069,6 +3133,10 @@ Explicitly choose the ESD server to use (default: localhost).
 audio output through JACK (Jack Audio Connection Kit)
 .PD 0
 .RSs
+.IPs (no)connect
+Automatically create connections to output ports (default: enabled).
+When enabled, the maximum number of output channels will be limited to
+the number of available output ports.
 .IPs port=<name>
 Connects to the ports with the given name (default: physical ports).
 .IPs name=<client name>
@@ -3108,10 +3176,14 @@ Experimental OpenAL audio output driver
 PulseAudio audio output driver
 .PD 0
 .RSs
-.IPs "[<host>][:<output sink>]"
+.IPs "[<host>[:<output sink>[:broken_pause]]]"
 Specify the host and optionally output sink to use.
 An empty <host> string uses a local connection, "localhost"
 uses network transfer (most likely not what you want).
+You can also explicitly force the workaround for broken
+pause functionality (default: autodetected).
+To only enable that without specifying a host/sink the
+syntax is \-ao pulse:::broken_pause
 .RE
 .PD 1
 .
@@ -3281,7 +3353,11 @@ on.
 .
 .TP
 .B "\-dr \ \ \ "
-Turns on direct rendering (not supported by all codecs and video outputs)
+Turns on direct rendering (not supported by all codecs and video outputs).
+This can result in significantly faster blitting on some systems, on most
+the difference will be minimal.
+In some cases, particularly with decoders specifying their buffer requirements
+badly, it can be vastly slower.
 .br
 .I WARNING:
 May cause OSD/SUB corruption!
@@ -3435,6 +3511,18 @@ Fixes fullscreen switching on OpenBox 1.x.
 .PD 1
 .
 .TP
+.B \-fs-border-left   <pixels>
+.TP
+.B \-fs-border-right  <pixels>
+.TP
+.B \-fs-border-top    <pixels>
+.TP
+.B \-fs-border-bottom <pixels>
+Specify extra borders in full screen mode.
+The borders apply to all displayed elements: video, OSD and EOSD.
+The number of pixels is specified in terms of screen resolution.
+Currently only supported with by the gl video output driver.
+.TP
 .B \-gamma <\-100\-100>
 Adjust the gamma of the video signal (default: 0).
 Not supported by all video output drivers.
@@ -3454,12 +3542,13 @@ If an external window is specified using the \-wid option, then the x and
 y coordinates are relative to the top-left corner of the window rather
 than the screen.
 The coordinates are relative to the screen given with \-xineramascreen for
-the video output drivers that fully support \-xineramascreen (direct3d, gl, gl2,
+the video output drivers that fully support \-xineramascreen (direct3d, gl, gl_tiled,
 vdpau, x11, xv, xvmc, corevideo).
 .br
 .I NOTE:
 This option is only supported by the x11, xmga, xv, xvmc, xvidix,
-gl, gl2, directx, fbdev, tdfxfb and corevideo video output drivers.
+gl, gl_tiled, direct3d, directx, fbdev, sdl, dfxfb and corevideo
+video output drivers.
 .sp 1
 .I EXAMPLE:
 .PD 0
@@ -3546,15 +3635,15 @@ Furthermore under X11 your window manager has to honor window aspect hints.
 .B "\-ontop\ "
 Makes the player window stay on top of other windows.
 Supported by video output drivers which use X11, except SDL,
-as well as directx, corevideo, quartz, ggi and gl2.
+as well as directx, corevideo, quartz, ggi and gl_tiled.
 .
 .TP
 .B \-panscan <0.0\-1.0>
 Enables pan-and-scan functionality (cropping the sides of e.g.\& a 16:9
 movie to make it fit a 4:3 display without black bands).
 The range controls how much of the image is cropped.
-Only works with the xv, xmga, mga, gl, gl2, quartz, corevideo and xvidix
-video output drivers.
+Only works with the directx, xv, xmga, mga, gl, gl_tiled, quartz,
+corevideo and xvidix video output drivers.
 .br
 .I NOTE:
 Values between \-1 and 0 are allowed as well, but highly experimental
@@ -3568,7 +3657,25 @@ Positive values mean multiples of the default range.
 Negative numbers mean you can zoom in up to a factor of \-panscanrange+1.
 E.g.\& \-panscanrange \-3 allows a zoom factor of up to 4.
 This feature is experimental.
-Do not report bugs unless you are using \-vo gl.
+.
+.TP
+.B \-border\-pos\-x <0.0\-1.0> (-vo gl,xv,xvmc,vdpau,direct3d only, default 0.5)
+When black borders are added to adjust for aspect, this determines where they are placed.
+0.0 places borders on the right, 1.0 on the left.
+Values outside the range 0.0 \- 1.0 will add extra black borders on one side
+and remove part of the image on the other side.
+.
+.TP
+.B \-border\-pos\-y <0.0\-1.0> (-vo gl,xv,xvmc,vdpau,direct3d only, default 0.5)
+As \-border\-pos\-x but for top/bottom borders.
+0.0 places borders on the bottom, 1.0 on the top.
+.
+.TP
+.B \-monitor\-orientation <0-3> (experimental)
+Rotate display by 90, 180 or 270 degrees.
+Rotates also the OSD, not just the video image itself.
+Currently only supported by the gl video output driver.
+For all other video outputs -vf ass,expand=osd=1,rotate=n can be used, in the future this might even happen automatically.
 .
 .TP
 .B \-refreshrate <Hz>
@@ -3648,7 +3755,7 @@ This option is not suitable to only set the startup screen (because
 it will always display on the given screen in fullscreen mode),
 \-geometry is the best that is available for that purpose
 currently.
-Supported by at least the direct3d, gl, gl2, x11, xv and corevideo video output
+Supported by at least the direct3d, gl, gl_tiled, x11, xv and corevideo video output
 drivers.
 .
 .TP
@@ -4022,6 +4129,7 @@ Mac OS X CoreVideo video output driver
 .PD 0
 .RSs
 .IPs device_id=<number>
+DEPRECATED, use \-xineramascreen instead.
 Choose the display device to use for fullscreen or set it to \-1 to
 always use the same screen the video window is on (default: \-1 \- auto).
 .IPs shared_buffer
@@ -4131,6 +4239,10 @@ Select the backend/OpenGL implementation to use (default: -1).
 2: SDL
 .br
 3: X11/EGL (highly experimental)
+.br
+4: OSX/Cocoa
+.br
+5: Android (very bad hack, only for testing)
 .RE
 .IPs (no)ati\-hack
 ATI drivers may give a corrupted image when PBOs are used (when using \-dr
@@ -4172,8 +4284,9 @@ This limits the framerate to (horizontal refresh rate / n).
 Requires GLX_SGI_swap_control support to work.
 With some (most/all?) implementations this only works in fullscreen mode.
 .IPs ycbcr
-Use the GL_MESA_ycbcr_texture extension to convert YUV to RGB.
-In most cases this is probably slower than doing software conversion to RGB.
+Use the GL_APPLE_ycbcr_422 extension to convert YUV to RGB.
+Default is disabled if yuv= is specified, auto-detected otherwise.
+Note that this will enable a few special settings to get into a special driver fast-path.
 .IPs yuv=<n>
 Select the type of YUV to RGB conversion.
 The default is auto-detection deciding between values 0 and 2.
@@ -4188,15 +4301,15 @@ At least three texture units are needed.
 Provides saturation and hue control.
 This method is fast but inexact.
 .br
-2: Use a fragment program.
-Needs the GL_ARB_fragment_program extension and at least three texture units.
-Provides brightness, contrast, saturation and hue control.
-.br
-3: Use a fragment program using the POW instruction.
+2: Use a fragment program using the POW instruction.
 Needs the GL_ARB_fragment_program extension and at least three texture units.
 Provides brightness, contrast, saturation, hue and gamma control.
 Gamma can also be set independently for red, green and blue.
 Method 4 is usually faster.
+.br
+3: Same as 2.
+They exist as distinct values for legacy reasons, MPlayer now inserts
+the extra instructions for gamma control on-demand.
 .br
 4: Use a fragment program with additional lookup.
 Needs the GL_ARB_fragment_program extension and at least four texture units.
@@ -4260,6 +4373,8 @@ Might be faster on some cards.
 Use experimental unsharp masking with 3x3 support and a default strength of 0.5 (see filter-strength).
 .IPs 5
 Use experimental unsharp masking with 5x5 support and a default strength of 0.5 (see filter-strength).
+.IPs 64
+Use nearest-neighbor scaling.
 .RE
 .IPs cscale=<n>
 Select the scaling function to use for chrominance scaling.
@@ -4284,7 +4399,16 @@ Convert side by side input to full-color green-magenta stereo.
 .IPs 3
 Convert side by side input to quadbuffered stereo.
 Only supported by very few OpenGL cards.
+.IPs 4
+Mix left and right in a pixel pattern.
+Pattern is given by stipple option.
 .RE
+.IPs stipple=<bit pattern>
+Lowest 16 bit give the 4x4 pattern to use (default: 0x0f0f).
+Examples to try:
+0x0f0f, 0xf0f0: horizontal lines;
+0xaaaa, 0x5555: vertical lines;
+0xa5a5, 0x5a5a: checkerboard pattern
 .RE
 .sp 1
 .RS
@@ -4348,7 +4472,7 @@ Disabling might increase speed.
 .PD 1
 .
 .TP
-.B "gl2\ \ \ \ "
+.B gl_tiled
 Variant of the OpenGL video output driver.
 Supports videos larger than the maximum texture size but lacks many of the
 advanced features and optimizations of the gl driver and is unlikely to be
@@ -6093,7 +6217,17 @@ Changing playback speed, would change pitch, leaving audio tempo at 1.2x.
 Collects and prints statistics about the audio stream, especially the volume.
 These statistics are especially intended to help adjusting the volume while
 avoiding clipping.
-The volumes are printed in dB and compatible with the volume audio filter.
+The volumes are printed in dB and compatible with the volume audio filter,
+they are always rounded towards -0dB.
+.sp 1
+The 'n_samples' field is the total number of samples seen by the filter.
+The 'mean_volume' field is the root mean square.
+The 'max_volume' field is exactly what it says.
+The 'histogram_Xdb' fields count how many samples were at -XdB, for X just
+below max_volume.
+.sp 1
+For example, if max_volume is -7dB and histogram_7dB is 19, 'volume=7' will
+not cause clipping and 'volume=8' will cause clipping on exactly 19 samples.
 .
 .
 .
@@ -7821,13 +7955,16 @@ decimation (ugly).
 .RE
 .
 .TP
-.B screenshot
+.B screenshot=prefix
 Allows acquiring screenshots of the movie using slave mode
 commands that can be bound to keypresses.
 See the slave mode documentation and the INTERACTIVE CONTROL
 section for details.
-Files named 'shotNNNN.png' will be saved in the working directory,
+By default files named 'shotNNNN.png' will be saved in the working directory,
 using the first available number \- no files will be overwritten.
+Specify a prefix to change the name or location, e.g.
+\-vf screenshot=shots/now will save the files in the directory
+shots with nowNNNN.png as name.
 The filter has no overhead when not used and accepts an arbitrary
 colorspace, so it is safe to add it to the configuration file.
 Make sure that the screenshot filter is added after all other filters
@@ -8826,10 +8963,6 @@ overlapped block motion compensation (H.263+)
 .B "loop\ \ \ "
 loop filter (H.263+)
 note, this is broken
-.
-.TP
-.B inter_threshold <\-1000\-1000>
-Does absolutely nothing at the moment.
 .
 .TP
 .B keyint=<0\-300>
@@ -10617,6 +10750,10 @@ different QP based on the frame's complexity.
 This option should generally be used instead of qp.
 .
 .TP
+.B crf_max=<float>
+With CRF and VBV, limit RF to this value (may cause VBV underflows!).
+.
+.TP
 .B pass=<1\-3>
 Enable 2 or 3-pass mode.
 It is recommended to always encode in 2 or 3-pass mode as it leads to a
@@ -10752,7 +10889,7 @@ values of keyint.
 .
 .TP
 .B keyint_min=<1\-keyint/2>
-Sets minimum interval between IDR-frames (default: 25).
+Sets minimum interval between IDR-frames (default: auto).
 If scenecuts appear within this interval, they are still encoded as
 I-frames, but do not start a new GOP.
 In H.264, I-frames do not necessarily bound a closed GOP because it is
@@ -10830,6 +10967,39 @@ Disallow P-frames referencing B-frames. Gives worse compression, but is
 required for Blu-ray compatibility.
 .IPs "none\ "
 Disable using B-frames as references.
+.RE
+.PD 1
+.
+.TP
+.B (no)open_gop
+Use recovery points to close GOPs; only available with bframes.
+.
+.TP
+.B (no)bluray_compat
+Enable compatibility hacks for Blu-Ray support.
+.
+.TP
+.B (no)fake_interlaced
+Flag stream as interlaced but encode progressive. Makes it posssible to
+encode 25p and 30p Blu-Ray streams. Ignored in interlaced mode.
+.
+.TP
+.B frame_packing=<0-5>
+Define frame arrangement for stereoscopic videos.
+.PD 0
+.RSs
+.IPs 0
+Checkerboard - pixels are alternately from L and R.
+.IPs 1
+Column alternation - L and R are interlaced by column.
+.IPs 2
+Row alternation - L and R are interlaced by row.
+.IPs 3
+Side by side - L is on the left, R is on the right.
+.IPs 4
+Top-bottom - L is on top, R is on the bottom.
+.IPs 5
+Frame alternation - one view per frame.
 .RE
 .PD 1
 .
@@ -10992,9 +11162,9 @@ Weighted P-frame prediction mode (default: 2).
 .IPs 0
 disabled (fastest)
 .IPs 1
-blind mode (slightly better quality)
+weighted refs (better quality)
 .IPs 2
-smart mode (best)
+weighted refs + duplicates (best)
 .RE
 .PD 1
 .
@@ -11068,7 +11238,7 @@ exhaustive search (very slow, and no better than umh)
 radius of exhaustive or multi-hexagon motion search (default: 16)
 .
 .TP
-.B subq=<0\-9>
+.B subq=<0\-11>
 Adjust subpel refinement quality.
 This parameter controls quality versus speed tradeoffs involved in the motion
 estimation decision process.
@@ -11108,7 +11278,11 @@ Enables rate-distortion optimization of macroblock types in all frames (default)
 .IPs 8
 Enables rate-distortion optimization of motion vectors and intra prediction modes in I- and P-frames.
 .IPs 9
-Enables rate-distortion optimization of motion vectors and intra prediction modes in all frames (best).
+Enables rate-distortion optimization of motion vectors and intra prediction modes in all frames.
+.IPs 10
+QP-RD; requires trellis=2 and aq_mode=1 or higher (best).
+.IPs 11
+Full RD; disable all early terminations.
 .RE
 .PD 1
 .RS
@@ -11291,6 +11465,11 @@ Use this parameter only if you know what it means,
 and you have a need to set it.
 .
 .TP
+.B (no)cpu_independent
+Ensure exact reproducibility across different CPUs instead of chosing
+different algorithms when available/better (default:enabled).
+.
+.TP
 .B threads=<0\-16>
 Spawn threads to encode in parallel on multiple CPUs (default: 0).
 This has a slight penalty to compression quality.
@@ -11336,14 +11515,30 @@ Some players, such as the Sony PSP, require the use of this option.
 The default behavior causes SPS and PPS to repeat prior to each IDR frame.
 .
 .TP
-.B (no)interlaced
-Treat the video content as interlaced.
+.B (no)tff
+Enable interlaced mode, top field first (default: disabled)
+.
+.TP
+.B (no)bff
+Enable interlaced mode, bottom field first (default: disabled)
+.
+.TP
+.B nal_hrd=<none|vbr|cbr>
+Signal HRD information (requires vbv_bufsize) (default: none).
+.
+.TP
+.B (no)pic_struct
+Force pic_struct in Picture Timing SEI (default: disabled).
 .
 .TP
 .B (no)constrained_intra
 Enable constrained intra prediction (default: disabled).
 This significantly reduces compression, but is required for the base layer of
 SVC encodes.
+.
+.TP
+.B output_csp=<i420|i422|i444|rgb>
+Specify output colorspace (default: i420).
 .
 .TP
 .B (no)aud
@@ -12230,7 +12425,7 @@ explains how to create useful bug reports.
 MPlayer was initially written by Arpad Gereoffy.
 See the AUTHORS file for a list of some of the many other contributors.
 .PP
-MPlayer is (C) 2000\-2009 The MPlayer Team
+MPlayer is (C) 2000\-2015 The MPlayer Team
 .PP
 This man page was written mainly by Gabucino, Jonas Jermann and Diego Biurrun.
 It is maintained by Diego Biurrun.

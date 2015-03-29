@@ -1,20 +1,20 @@
 /*
  * Copyright (C) 2008  David Conrad
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
@@ -33,7 +33,7 @@ static int dirac_header(AVFormatContext *s, int idx)
     GetBitContext gb;
 
     // already parsed the header
-    if (st->codec->codec_id == CODEC_ID_DIRAC)
+    if (st->codec->codec_id == AV_CODEC_ID_DIRAC)
         return 0;
 
     init_get_bits(&gb, os->buf + os->pstart + 13, (os->psize - 13) * 8);
@@ -41,9 +41,9 @@ static int dirac_header(AVFormatContext *s, int idx)
         return -1;
 
     st->codec->codec_type = AVMEDIA_TYPE_VIDEO;
-    st->codec->codec_id = CODEC_ID_DIRAC;
+    st->codec->codec_id = AV_CODEC_ID_DIRAC;
     // dirac in ogg always stores timestamps as though the video were interlaced
-    avpriv_set_pts_info(st, 64, st->codec->time_base.num, 2*st->codec->time_base.den);
+    avpriv_set_pts_info(st, 64, st->codec->framerate.den, 2*st->codec->framerate.num);
     return 1;
 }
 
@@ -79,7 +79,7 @@ static int old_dirac_header(AVFormatContext *s, int idx)
         return 0;
 
     st->codec->codec_type = AVMEDIA_TYPE_VIDEO;
-    st->codec->codec_id = CODEC_ID_DIRAC;
+    st->codec->codec_id = AV_CODEC_ID_DIRAC;
     avpriv_set_pts_info(st, 64, AV_RB32(buf+12), AV_RB32(buf+8));
     return 1;
 }
@@ -104,6 +104,7 @@ const struct ogg_codec ff_dirac_codec = {
     .header = dirac_header,
     .gptopts = dirac_gptopts,
     .granule_is_start = 1,
+    .nb_header = 1,
 };
 
 const struct ogg_codec ff_old_dirac_codec = {
@@ -112,4 +113,5 @@ const struct ogg_codec ff_old_dirac_codec = {
     .header = old_dirac_header,
     .gptopts = old_dirac_gptopts,
     .granule_is_start = 1,
+    .nb_header = 1,
 };

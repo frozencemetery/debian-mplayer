@@ -3,25 +3,27 @@
  *
  * Copyright (c) 2010 Marcelo Galvao Povoa
  *
- * This file is part of Libav.
+ * This file is part of FFmpeg.
  *
- * Libav is free software; you can redistribute it and/or
+ * FFmpeg is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * Libav is distributed in the hope that it will be useful,
+ * FFmpeg is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with Libav; if not, write to the Free Software
+ * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #ifndef AVCODEC_AMR_H
 #define AVCODEC_AMR_H
+
+#include <string.h>
 
 #include "avcodec.h"
 
@@ -61,7 +63,7 @@ static inline void ff_amr_bit_reorder(uint16_t *out, int size,
            field <<= 1;
            field |= data[bit >> 3] >> (bit & 7) & 1;
         }
-        out[field_offset] = field;
+        out[field_offset >> 1] = field;
     }
 }
 

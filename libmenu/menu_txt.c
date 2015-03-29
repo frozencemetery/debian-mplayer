@@ -24,6 +24,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "libavutil/attributes.h"
+
 #include "libmpcodecs/img_format.h"
 #include "libmpcodecs/mp_image.h"
 
@@ -129,13 +131,12 @@ static void draw(menu_t* menu,mp_image_t* mpi) {
 
 #define BUF_SIZE 1024
 
-static int open_txt(menu_t* menu, char* args) {
+static int open_txt(menu_t* menu, char* av_unused args) {
   FILE* fd;
   char buf[BUF_SIZE];
   char *l;
   int s;
   int pos = 0, r = 0;
-  args = NULL; // Warning kill
 
   menu->draw = draw;
   menu->read_cmd = read_cmd;
@@ -153,6 +154,8 @@ static int open_txt(menu_t* menu, char* args) {
 
   while(1) {
     r = fread(buf+pos,1,BUF_SIZE-pos-1,fd);
+    if (r > 0) pos += r;
+    buf[pos] = '\0';
     if(r <= 0) {
       if(pos > 0) {
 	mpriv->lines = realloc(mpriv->lines,(mpriv->num_lines + 1)*sizeof(char*));
@@ -162,8 +165,6 @@ static int open_txt(menu_t* menu, char* args) {
       fclose(fd);
       break;
     }
-    pos += r;
-    buf[pos] = '\0';
 
     while((l = strchr(buf,'\n')) != NULL) {
       s = l-buf;
