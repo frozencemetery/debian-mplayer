@@ -1,13 +1,11 @@
 Source: mplayer
 Section: video
 Priority: optional
-Maintainer: Debian multimedia packages maintainers <pkg-multimedia-maintainers@lists.alioth.debian.org>
+Maintainer: Robbie Harwood (frozencemetery) <rharwood@club.cc.cmu.edu>
 Uploaders:
- A Mennucc1 <mennucc1@debian.org>,
- Reinhard Tartler <siretart@tauware.de>
+ Dafydd Harries <daf@debian.org>,
+ Paul Tagliamonte <paultag@debian.org>
 Standards-Version: 3.9.2
-Vcs-Git: git://git.debian.org/git/pkg-multimedia/mplayer.git
-Vcs-Browser: http://git.debian.org/?p=pkg-multimedia/mplayer.git;a=summary
 Homepage: http://www.mplayerhq.hu/
 Build-Depends:
  debhelper (>= 7),

@@ -1,3 +1,14 @@
+mplayer (2:1.1.1+r37381-1) unstable; urgency=medium
+
+  * New maintainer
+  * Upload to unstable
+  * Update dependencies (ffmpeg, svga)  
+  * Ignore ffmpeg's debian/ stuff
+  * Disable currently-broken HURD patch for now
+  * Imported Upstream version 1.1.1+r37381
+
+ -- Robbie Harwood (frozencemetery) <rharwood@club.cc.cmu.edu>  Sat, 28 Mar 2015 21:55:30 -0400
+
 mplayer (2:1.0~rc4.dfsg1+svn34540-1) unstable; urgency=low
 
   * New upstream snapshot
