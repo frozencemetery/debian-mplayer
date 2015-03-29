@@ -107,20 +107,25 @@ static void write_png(struct vf_priv_s *priv)
     AVPacket pkt;
     int res, got_pkt;
 
+    av_init_packet(&pkt);
+    pkt.data = priv->outbuffer;
+    pkt.size = priv->outbuffer_size;
+    res = avcodec_encode_video2(priv->avctx, &pkt, priv->pic, &got_pkt);
+    if (res < 0 || !got_pkt || pkt.size <= 0) {
+        mp_msg(MSGT_VFILTER,MSGL_ERR,"\nFailed to encode screenshot %s!\n", fname);
+        return;
+    }
+
     fp = fopen (fname, "wb");
     if (fp == NULL) {
         mp_msg(MSGT_VFILTER,MSGL_ERR,"\nPNG Error opening %s for writing!\n", fname);
         return;
     }
 
-    av_init_packet(&pkt);
-    pkt.data = priv->outbuffer;
-    pkt.size = priv->outbuffer_size;
-    res = avcodec_encode_video2(priv->avctx, &pkt, priv->pic, &got_pkt);
-    if (res >= 0 && got_pkt && pkt.size > 0)
-        fwrite(priv->outbuffer, pkt.size, 1, fp);
+    fwrite(priv->outbuffer, pkt.size, 1, fp);
 
     fclose (fp);
+    mp_msg(MSGT_VFILTER,MSGL_INFO,"*** screenshot '%s' ***\n",priv->fname);
 }
 
 static int fexists(char *fname)
@@ -138,9 +143,6 @@ static void gen_fname(struct vf_priv_s* priv)
         priv->fname[0] = '\0';
         return;
     }
-
-    mp_msg(MSGT_VFILTER,MSGL_INFO,"*** screenshot '%s' ***\n",priv->fname);
-
 }
 
 static void scale_image(struct vf_priv_s* priv, mp_image_t *mpi)

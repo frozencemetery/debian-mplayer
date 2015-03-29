@@ -392,6 +392,10 @@ int glFindFormat(uint32_t fmt, int *bpp, GLint *gl_texfmt,
       *gl_format = GL_BGRA;
       *gl_type = GL_UNSIGNED_BYTE;
       break;
+    case IMGFMT_BGR48NE:
+      *gl_format = GL_BGR;
+      *gl_type = GL_UNSIGNED_SHORT;
+      break;
     default:
       *gl_texfmt = GL_RGBA;
       *gl_format = GL_RGBA;
@@ -489,7 +493,7 @@ static const extfunc_desc_t extfuncs[] = {
   {&mpglDeleteBuffers, NULL, {"glDeleteBuffers", "glDeleteBuffersARB", NULL}},
   {&mpglBindBuffer, NULL, {"glBindBuffer", "glBindBufferARB", NULL}},
   {&mpglMapBuffer, NULL, {"glMapBuffer", "glMapBufferARB", NULL}},
-  {&mpglMapBufferRange, NULL, {"glMapBufferRange", "glMapBufferRangeARB", NULL}},
+  {&mpglMapBufferRange, "ARB_map_buffer_range", {"glMapBufferRange", "glMapBufferRangeARB", NULL}},
   {&mpglUnmapBuffer, NULL, {"glUnmapBuffer", "glUnmapBufferARB", NULL}},
   {&mpglBufferData, NULL, {"glBufferData", "glBufferDataARB", NULL}},
   {&mpglCombinerParameterfv, "NV_register_combiners", {"glCombinerParameterfv", "glCombinerParameterfvNV", NULL}},

@@ -1580,8 +1580,8 @@ libavmuxers=$(echo $libavmuxers_all)
 libavprotocols=$(echo $libavprotocols_all)
 libavfilters=$(echo $libavfilters_all)
 
-libavdecoders=$(filter_out_component decoder 'LIB[A-Z0-9_]*')
-libavencoders=$(filter_out_component encoder 'LIB[A-Z0-9_]*')
+libavdecoders=$(filter_out_component decoder 'LIB[A-Z0-9_]* H264_QSV')
+libavencoders=$(filter_out_component encoder 'LIB[A-Z0-9_]* NVENC.*')
 libavdemuxers=$(filter_out_component demuxer 'AVISYNTH LIB[A-Z0-9_]* REDIR')
 libavmuxers=$(filter_out_component muxer 'LIB[A-Z0-9_]* RTP RTSP SAP')
 libavprotocols=$(filter_out_component protocol 'BLURAY FFRTMPCRYPT HTTPS LIB[A-Z0-9_]* TLS')
@@ -1716,6 +1716,7 @@ if test -z "$_target" ; then
       alpha) host_arch=alpha ;;
       sun4*|sparc*) host_arch=sparc ;;
       parisc*|hppa*|9000*) host_arch=hppa ;;
+      aarch64*) host_arch=aarch64 ;;
       arm*|zaurus|cats) host_arch=arm ;;
       sh3|sh4|sh4a) host_arch=sh ;;
       s390) host_arch=s390 ;;
@@ -1812,10 +1813,16 @@ if os2 ; then
   def_dos_paths="#define HAVE_DOS_PATHS 1"
   def_priority="#define CONFIG_PRIORITY 1"
   def_path_max_check="#define CONFIG_PATH_MAX_CHECK 1"
+  # On OS/2, passing -static to gcc fails at linking time because linking
+  # statically against libc runtime is prevented on purpose. To avoid this,
+  # pass -static to a linker directly.
+  # And ensure that $ld_static should be at first in a library list because it
+  # has effects only libraries after it.
+  test -n "$ld_static" && ld_static='-Wl,-static'
 fi
 
 if wine ; then
-  extra_cflags="-fno-pic -UWIN32 -U_WIN32 -U__WIN32 -U__WIN32__ -DWINE_NOWINSOCK -Dstricmp=lstrcmpiA $extra_cflags"
+  extra_cflags="-fno-pic -UWIN32 -U_WIN32 -U__WIN32 -U__WIN32__ -DWINE_NOWINSOCK $extra_cflags"
 fi
 
 if darwin && test "$cc_vendor" != "clang" ; then
@@ -1977,22 +1984,22 @@ EOF
     return 0
   }
 
-  extcheck $_mmx      "mmx"      "emms"
-  extcheck $_mmxext   "mmxext"   "sfence"
-  extcheck $_3dnow    "3dnow"    "femms"
-  extcheck $_3dnowext "3dnowext" "pswapd %%mm0, %%mm0"
-  extcheck $_sse      "sse"      "xorps %%xmm0, %%xmm0" || _gcc3_ext="$_gcc3_ext -mno-sse"
-  extcheck $_sse2     "sse2"     "xorpd %%xmm0, %%xmm0" || _gcc3_ext="$_gcc3_ext -mno-sse2"
-  extcheck $_sse3     "sse3"     "addsubps %%xmm0, %%xmm0"
-  extcheck $_ssse3    "ssse3"    "pabsd %%xmm0, %%xmm0"
-  extcheck $_sse4_1   "sse4_1"   "pmaxsb %%xmm0, %%xmm0"
-  extcheck $_sse4_2   "sse4_2"   "pcmpgtq %%xmm0, %%xmm0"
-  extcheck $_avx      "avx"      "vpabsw %%xmm0, %%xmm0"
-  extcheck $_avx2     "avx2"     "vextracti128 $0, %%ymm0, %%xmm0"
-  extcheck $_xop      "xop"      "vpmacsdd %%xmm0, %%xmm1, %%xmm2, %%xmm3"
-  extcheck $_fma3     "fma3"     "vfmadd132ps %%ymm0, %%ymm1, %%ymm2"
-  extcheck $_fma4     "fma4"     "vfmaddps %%ymm0, %%ymm1, %%ymm2, %%ymm3"
-  extcheck $_cmov     "cmov"     "cmovb %%eax,  %%ebx"
+  extcheck $_mmx      'mmx'      'emms'
+  extcheck $_mmxext   'mmxext'   'sfence'
+  extcheck $_3dnow    '3dnow'    'femms'
+  extcheck $_3dnowext '3dnowext' 'pswapd %%mm0, %%mm0'
+  extcheck $_sse      'sse'      'xorps %%xmm0, %%xmm0' || _gcc3_ext="$_gcc3_ext -mno-sse"
+  extcheck $_sse2     'sse2'     'xorpd %%xmm0, %%xmm0' || _gcc3_ext="$_gcc3_ext -mno-sse2"
+  extcheck $_sse3     'sse3'     'addsubps %%xmm0, %%xmm0'
+  extcheck $_ssse3    'ssse3'    'pabsd %%xmm0, %%xmm0'
+  extcheck $_sse4_1   'sse4_1'   'pmaxsb %%xmm0, %%xmm0'
+  extcheck $_sse4_2   'sse4_2'   'pcmpgtq %%xmm0, %%xmm0'
+  extcheck $_avx      'avx'      'vpabsw %%xmm0, %%xmm0'
+  extcheck $_avx2     'avx2'     'vextracti128 $0, %%ymm0, %%xmm0'
+  extcheck $_xop      'xop'      'vpmacsdd %%xmm0, %%xmm1, %%xmm2, %%xmm3'
+  extcheck $_fma3     'fma3'     'vfmadd132ps %%ymm0, %%ymm1, %%ymm2'
+  extcheck $_fma4     'fma4'     'vfmaddps %%ymm0, %%ymm1, %%ymm2, %%ymm3'
+  extcheck $_cmov     'cmov'     'cmovb %%eax,  %%ebx'
 
   echocheck "mtrr support"
   if test "$_mtrr" = kernel_check ; then
@@ -2415,6 +2422,11 @@ case "$host_arch" in
     _optimizing="$proc"
     ;;
 
+  aarch64)
+    arch='aarch64'
+    iproc='aarch64'
+    ;;
+
   arm*)
     arch='arm'
     iproc='arm'
@@ -2780,7 +2792,7 @@ if test -z "$CFLAGS" || test "$_profile" != "" || test "$_debug" != ""; then
     CFLAGS="-O2 $_march $_mcpu $_pipe"
   else
     CFLAGS="-O4 $_march $_mcpu $_pipe -ffast-math -fomit-frame-pointer"
-    WARNFLAGS="-Wall -Wno-switch -Wno-parentheses -Wpointer-arith -Wredundant-decls"
+    WARNFLAGS="-Wall -Wno-switch -Wno-parentheses -Wpointer-arith -Wredundant-decls -Werror=format-security"
     WARN_CFLAGS="-Werror-implicit-function-declaration"
     extra_ldflags="$extra_ldflags -ffast-math"
   fi
@@ -8310,7 +8322,7 @@ CFLAGS_NO_OMIT_LEAF_FRAME_POINTER = $cflags_no_omit_leaf_frame_pointer
 CFLAGS_STACKREALIGN      = $cflags_stackrealign
 CFLAGS_SVGALIB_HELPER    = $cflags_svgalib_helper
 
-EXTRALIBS          = $extra_ldflags $ld_static $timer_libs $extra_libs
+EXTRALIBS          = $ld_static $extra_ldflags $timer_libs $extra_libs
 EXTRALIBS_MPLAYER  = $libs_mplayer
 EXTRALIBS_MENCODER = $libs_mencoder
 
@@ -8569,6 +8581,7 @@ CONFIG_EXIF    = yes
 CONFIG_FAANDCT = yes
 CONFIG_FAANIDCT= yes
 CONFIG_FDCTDSP = yes
+CONFIG_FMTCONVERT = yes
 CONFIG_FRAME_THREAD_ENCODER = yes
 CONFIG_FFT     = yes
 CONFIG_GOLOMB  = yes
@@ -8580,11 +8593,13 @@ CONFIG_H264QPEL= yes
 CONFIG_HPELDSP = yes
 CONFIG_IIRFILTER = yes
 CONFIG_QPELDSP = yes
+CONFIG_QSV     = no
 CONFIG_HUFFYUVDSP = yes
 CONFIG_HUFFYUVENCDSP = yes
 CONFIG_IDCTDSP = yes
 CONFIG_TPELDSP = yes
 CONFIG_HUFFMAN = yes
+CONFIG_IMDCT15 = yes
 CONFIG_INTRAX8 = yes
 CONFIG_LLAUDDSP= yes
 CONFIG_LLVIDDSP= yes
@@ -9170,10 +9185,12 @@ $def_gnutls
 #define CONFIG_SMALL 0
 #define CONFIG_SWSCALE_ALPHA 1
 #define SWS_MAX_FILTER_SIZE 256
+#define CONFIG_QSV 0
 #define CONFIG_VAAPI 0
 
 #define HAVE_ALIGNED_STACK 1
 #define HAVE_AS_DN_DIRECTIVE 1
+#define HAVE_AS_FUNC 1
 #define HAVE_ASM_MOD_Q 1
 #define HAVE_ATOMICS_GCC 1
 #define HAVE_SYNC_VAL_COMPARE_AND_SWAP 1
@@ -9218,6 +9235,7 @@ $def_gnutls
 #define CONFIG_FAANDCT 1
 #define CONFIG_FAANIDCT 1
 #define CONFIG_FDCTDSP 1
+#define CONFIG_FMTCONVERT 1
 #define CONFIG_FRAME_THREAD_ENCODER 1
 #define CONFIG_FFT 1
 #define CONFIG_GOLOMB 1

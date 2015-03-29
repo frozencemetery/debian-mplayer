@@ -21,7 +21,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include <string.h>
+#include <strings.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
@@ -146,7 +146,7 @@ static image *pngRead(skin_t *skin, const char *fname)
     char *filename = NULL;
     FILE *fp;
 
-    if(!stricmp(fname, "NULL")) return 0;
+    if(!strcasecmp(fname, "NULL")) return 0;
 
     /* find filename in order file file.png */
     if(!(fp = fopen(fname, "rb")))
