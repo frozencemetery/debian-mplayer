@@ -45,8 +45,6 @@ CONFIGURE_FLAGS = \
 	--enable-radio --enable-radio-capture \
 	--disable-arts \
 	--language=all \
-	--disable-dvdread-internal \
-	--disable-libdvdcss-internal \
 	--disable-libmpeg2-internal \
 	--disable-ffmpeg_a \
 	$(archconf)
