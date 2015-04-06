@@ -35,8 +35,10 @@ DEB_HOST_ARCH_OS    ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
 DEB_HOST_ARCH_CPU   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_CPU)
 DEB_VENDOR          ?= $(shell dpkg-vendor --query Vendor)
 
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
-# XXX enable-menu is frowned upon by upstream
+# mplayer's configure does not provide a handle for extending CPPFLAGS
+# I find this marginally less obnoxious than using the env variable
 CONFIGURE_FLAGS = \
 	--prefix=/usr \
 	--confdir=/etc/mplayer \
@@ -47,6 +49,8 @@ CONFIGURE_FLAGS = \
 	--language=all \
 	--disable-libmpeg2-internal \
 	--disable-ffmpeg_a \
+	--extra-cflags="$(shell dpkg-buildflags --get CFLAGS) $(shell dpkg-buildflags --get CPPFLAGS)" \
+	--extra-ldflags="$(shell dpkg-buildflags --get LDFLAGS)" \
 	$(archconf)
 
 ifeq ($(DEB_HOST_ARCH),i386)
