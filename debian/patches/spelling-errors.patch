@@ -1,0 +1,37 @@
+Subject: Some spelling error fixes
+ Thanks to Lintian for pointing them out.
+Author: Robbie Harwood (frozencemetery) <rharwood@club.cc.cmu.edu>
+Forwarded: https://lists.mplayerhq.hu/pipermail/mplayer-dev-eng/2015-April/072897.html
+--- a/DOCS/man/en/mplayer.1
++++ b/DOCS/man/en/mplayer.1
+@@ -6158,7 +6158,7 @@
+ (default: 1.0)
+ .IPs stride=<amount>
+ Length in milliseconds to output each stride.
+-Too high of value will cause noticable skips at high scale amounts and
++Too high of value will cause noticeable skips at high scale amounts and
+ an echo at low scale amounts.
+ Very low values will alter pitch.
+ Increasing improves performance.
+--- a/gui/wm/wsxdnd.c
++++ b/gui/wm/wsxdnd.c
+@@ -217,7 +217,7 @@
+ 
+   if (event->message_type == XA_XdndDrop) {
+     if ((Window) event->data.l[0] != XGetSelectionOwner(wsDisplay, XA_XdndSelection)){
+-      puts("Wierd selection owner... QT?");
++      puts("Weird selection owner... QT?");
+     }
+     if (atom_support != None) {
+       XConvertSelection(wsDisplay, XA_XdndSelection, atom_support,
+--- a/stream/freesdp/errorlist.c
++++ b/stream/freesdp/errorlist.c
+@@ -41,7 +41,7 @@
+   "Syntax error in connection item", /** FSDPE_INVALID_CONNECTION **/
+   "Unrecognized address type in connection item", /** FSDPE_INVALID_CONNECTION_ADDRTYPE **/
+   "Unrecognized network type in connection item", /** FSDPE_INVALID_CONNECTION_NETTYPE **/
+-  "Parse error in bandwith item", /** FSDPE_INVALID_BANDWIDTH **/
++  "Parse error in bandwidth item", /** FSDPE_INVALID_BANDWIDTH **/
+   "No time period for the session", /** FSDPE_MISSING_TIME **/
+   "Parse error in time item", /** FSDPE_INVALID_TIME **/
+   "Parse error in repeat time item", /** FSDPE_INVALID_REPEAT **/

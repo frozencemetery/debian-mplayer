@@ -2,6 +2,7 @@ mplayer (2:1.1.1+r37381-2) UNRELEASED; urgency=medium
 
   * Harden buildflags
   * Override lintian spelling false-positives
+  * Patch other spelling errors from lintian
 
  -- Robbie Harwood <rharwood@club.cc.cmu.edu>  Mon, 06 Apr 2015 00:37:15 -0400
 
