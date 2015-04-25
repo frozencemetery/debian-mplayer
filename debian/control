@@ -5,7 +5,7 @@ Maintainer: Robbie Harwood (frozencemetery) <rharwood@club.cc.cmu.edu>
 Uploaders:
  Dafydd Harries <daf@debian.org>,
  Paul Tagliamonte <paultag@debian.org>
-Standards-Version: 3.9.2
+Standards-Version: 3.9.6
 Homepage: http://www.mplayerhq.hu/
 Build-Depends:
  debhelper (>= 7),
