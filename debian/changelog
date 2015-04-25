@@ -4,6 +4,7 @@ mplayer (2:1.1.1+r37381-2) UNRELEASED; urgency=medium
   * Override lintian spelling false-positives
   * Patch other spelling errors from lintian
   * Bump standards version from 3.9.2 to 3.9.6
+  * Update mplayer-gui description to distinguish from mplayer
 
  -- Robbie Harwood (frozencemetery) <rharwood@club.cc.cmu.edu>  Mon, 06 Apr 2015 00:37:15 -0400
 

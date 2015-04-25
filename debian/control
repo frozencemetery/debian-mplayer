@@ -88,7 +88,7 @@ Depends:
 Replaces:
  mplayer (<< 2:1.0~rc3+svn20090426-2),
  mplayer-doc (<< 2:1.0~rc3+svn20090426-2)
-Description: movie player for Unix-like systems
+Description: movie player for Unix-like systems (with GUI)
  MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
  ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
  supported by many native, XAnim, RealPlayer, and Win32 DLL codecs. It can
