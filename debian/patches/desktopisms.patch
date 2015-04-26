@@ -1,0 +1,14 @@
+Subject: Some menu-related fixes
+ Thanks to Lintian for pointing them out.
+Author: Robbie Harwood (frozencemetery) <rharwood@club.cc.cmu.edu>
+Forwarded: https://lists.mplayerhq.hu/pipermail/mplayer-dev-eng/2015-April/072904.html
+--- a/etc/mplayer.desktop
++++ b/etc/mplayer.desktop
+@@ -1,6 +1,7 @@
+ [Desktop Entry]
+ Type=Application
+ Name=MPlayer
++Keywords=Player;Capture;Audio;Video;Movie;Film;Clip;Player;DVD;TV;Disc;
+ GenericName=Media Player
+ GenericName[ca]=Reproductor multimèdia
+ GenericName[de]=Medienwiedergabe
