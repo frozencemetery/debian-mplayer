@@ -1,0 +1,636 @@
+Subject: Docs: Correct hyphens to minus signs
+ Errors uncovered by lintian.
+Author: Robbie Harwood (frozencemetery) <rharwood@club.cc.cmu.edu>
+Forwarded: https://lists.mplayerhq.hu/pipermail/mplayer-dev-eng/2015-May/072921.html
+--- a/DOCS/man/cs/mplayer.1
++++ b/DOCS/man/cs/mplayer.1
+@@ -1750,7 +1750,7 @@
+ .I POZNÁMKA:
+ Při použití ovladače bsdbt848 můžete zadat jméno zařízení bktr i tuner.
+ Oddělte je čárkou, tuner až po bktr
+-(čili -tv device=/dev/bktr1,/dev/tuner1).
++(čili \-tv device=/dev/bktr1,/dev/tuner1).
+ .IPs input=<hodnota>
+ Nastaví vstup (výchozí: 0 (TV), viz seznam vypsaný na konzoli).
+ .IPs freq=<hodnota>
+@@ -1898,7 +1898,7 @@
+ .TP
+ .B \-tvscan <parametr1:parametr2:...> (pouze TV a MPlayer)
+ Doladí scanner TV kanálu.
+-MPlayer rovněž vypíše hodnotu pro volbu "-tv channels="
++MPlayer rovněž vypíše hodnotu pro volbu "\-tv channels="
+ a to pro existující i právě nalezené kanály.
+ .sp 1
+ Dostupné parametry jsou:
+@@ -5266,7 +5266,7 @@
+ .br
+ \-3:   Vypočítá š/v pomocí druhého rozměru a původního poměru stran.
+ .br
+--(n+8): Jako výše uvedené -n, ale zaokrouhlí rozměr na nejbližší násobek 16.
++-(n+8): Jako výše uvedené \-n, ale zaokrouhlí rozměr na nejbližší násobek 16.
+ .REss
+ .IPs <proklad>
+ Přepíná prokládané škálování.
+@@ -7775,7 +7775,7 @@
+ else
+ .br
+ provádět normální řízení toku (nefixovat se na kvantizer následujícího P-snímku) a
+-nastavit q= -q * v{b|i}_qfactor + v{b|i}_qoffset
++nastavit q= \-q * v{b|i}_qfactor + v{b|i}_qoffset
+ .br
+ .I TIP:
+ Chcete-li enkódovat s konstantním kvantizerem a odlišnými kvantizery pro
+--- a/DOCS/man/de/mplayer.1
++++ b/DOCS/man/de/mplayer.1
+@@ -2271,7 +2271,7 @@
+ .TP
+ .B \-tvscan <Option1:Option2:...> (nur bei TV und MPlayer)
+ Mache Einstellungen für den TV-Kanal-Scanner.
+-MPlayer wird auch Werte für die Option "-tv channels=" ausgeben,
++MPlayer wird auch Werte für die Option "\-tv channels=" ausgeben,
+ inklusive der existierenden und der gerade gefundenen Kanäle.
+ .sp 1
+ Verfügbare Unteroptionen sind:
+@@ -2740,8 +2740,8 @@
+ .TP
+ .B \-subcp <Codepage> (nur bei iconv)
+ Wenn dein System iconv(3) unterstützt, kannst du mit dieser Option
+-die Codepage für die Untertitel angeben. Sie hat Vorrang sowohl vor -utf8
+-wie auch vor -unicode.
++die Codepage für die Untertitel angeben. Sie hat Vorrang sowohl vor \-utf8
++wie auch vor \-unicode.
+ .sp 1
+ .I BEISPIEL:
+ .PD 0
+@@ -2870,7 +2870,7 @@
+ .TP
+ .B \-unicode
+ Weist MPlayer an, die Untertiteldatei als Unicode zu behandeln. (Diese Option
+-ist nur wirksam, wenn weder -subcp noch -utf8 verwendet werden.)
++ist nur wirksam, wenn weder \-subcp noch \-utf8 verwendet werden.)
+ .
+ .TP
+ .B \-unrarexec <Pfad zum unrar-Programm> (unter MingW nicht unterstützt)
+@@ -2883,8 +2883,8 @@
+ .TP
+ .B "\-utf8 \ \ "
+ Weist MPlayer an, die Untertiteldatei als UTF-8 zu behandeln. (Diese Option
+-ist nur wirksam, wenn -subcp nicht verwendet wird, und sie hat Vorrang vor
+--unicode.)
++ist nur wirksam, wenn \-subcp nicht verwendet wird, und sie hat Vorrang vor
++\-unicode.)
+ .
+ .TP
+ .B \-vobsub <VOBsub-Datei ohne Erweiterung>
+@@ -2956,7 +2956,7 @@
+ .B \-volume <-1\-100> (siehe auch \-af volume)
+ Setze die Lautstärke im Mixer zum Programmstart, entweder in Hardware oder
+ Software (in Verbindung mit \-softvol).
+-Ein Wert von -1 (Standard) ändert die Lautstärke nicht.
++Ein Wert von \-1 (Standard) ändert die Lautstärke nicht.
+ .
+ .
+ .
+--- a/DOCS/man/es/mplayer.1
++++ b/DOCS/man/es/mplayer.1
+@@ -80,7 +80,7 @@
+ .
+ .br
+ .B mplayer
+-[dvd|dvdnav]://[título|[título_inicial]-título_final] [/dispositivo]
++[dvd|dvdnav]://[título|[título_inicial]\-título_final] [/dispositivo]
+ [opciones]
+ .
+ .br
+@@ -2626,7 +2626,7 @@
+ .B \-volume <-1\-100> (vea también \-af volume)
+ Establece el volumen inicial en el mezclador, ya sea por hardware o
+ software (si se usa con \-softvol).
+-Un valor de -1 (que es el valor por defecto) no cambiará el volumen.
++Un valor de \-1 (que es el valor por defecto) no cambiará el volumen.
+ .
+ .
+ .
+--- a/DOCS/man/fr/mplayer.1
++++ b/DOCS/man/fr/mplayer.1
+@@ -1216,7 +1216,7 @@
+ Sélectionne le canal audio (MPEG: 0\-31 AVI/\:OGM: 1\-99 ASF/\:RM: 0\-127
+ VOB(AC-3): 128\-159 VOB(LPCM): 160\-191 MPEG-TS 17\-8190).
+ MPlayer affiche les IDs audios disponibles quand il est lancé en mode
+-bavard (-v).
++bavard (\-v).
+ Pour jouer des flux MPEG-TS, MPlayer/\:MEncoder utilisera le premier programme
+ (si présent) avec le flux audio choisi.
+ .
+@@ -1961,7 +1961,7 @@
+ .I NOTE\ :
+ Pour le pilote bsdbt848 vous pouvez donner autant bktr que tuner en tant que nom
+ de périphérique, séparé par une virgule, en plaçant tuner après bktr
+-(ex\ : -tv device=/dev/bktr1,/dev/tuner1).
++(ex\ : \-tv device=/dev/bktr1,/dev/tuner1).
+ .IPs input=<valeur>
+ Défini une autre entrée que celle par défaut 0 (Télévision) (voir
+ la sortie console pour en obtenir la liste)
+@@ -2135,7 +2135,7 @@
+ .TP
+ .B \-tvscan <option1:option2:...> (TV et MPlayer uniquement)
+ Ajuste le scanner de chaînes TV.
+-MPlayer affichera aussi des informations avec l'option "-tv channels=",
++MPlayer affichera aussi des informations avec l'option "\-tv channels=",
+ comprenant les chaînes existantes et celles nouvellement trouvées.
+ .sp 1
+ Les sous-options disponibles sont:
+@@ -2729,7 +2729,7 @@
+ .B \-volume <-1\-100> (voir aussi \-af volume)
+ Défini le niveau de démarrage du volume mixeur, soit matériel ou matériel
+ (si l'option \-softvol est aussi activée).
+-La valeur -1 (par défaut) ne change pas le volume.
++La valeur \-1 (par défaut) ne change pas le volume.
+ .
+ .
+ .SH "OPTIONS DE SORTIE AUDIO (MPLAYER UNIQUEMENT)"
+@@ -3869,8 +3869,8 @@
+ .PD 0
+ .RSs
+ .IPs device_id=<numéro>
+-Choisir le moniteur à utiliser en plein-écran (par défaut\ : -1).
+-La valeur -1 laisse la vidéo sur le même écran.
++Choisir le moniteur à utiliser en plein-écran (par défaut\ : \-1).
++La valeur \-1 laisse la vidéo sur le même écran.
+ .IPs shared_buffer
+ Écrit la sortie dans un tampon partagé au lieu de l'afficher, et essaye
+ d'établir une NSConnection avec une IHM existante.
+@@ -4836,7 +4836,7 @@
+ .br
+ 32: vecteur de mouvement (MV)
+ .br
+-0x0040: visualisation du vecteur de mouvement (utilisez -noslices)
++0x0040: visualisation du vecteur de mouvement (utilisez \-noslices)
+ .br
+ 0x0080: saut macro-bloc (MB)
+ .br
+@@ -8535,7 +8535,7 @@
+ .
+ .TP
+ .B vqdiff=<1\-31>
+-différence maximale de quantum entre chaque trame-I ou -P
++différence maximale de quantum entre chaque trame-I ou \-P
+ consécutive (passe 1/2) (par défaut\ : 3)
+ .
+ .TP
+@@ -8919,7 +8919,7 @@
+ .br
+ .I ASTUCE\ :
+ Pour faire de l'encodage à quantum constant avec des
+-quantum différents pour les trames-I/P et -B vous pouvez utiliser\ :
++quantum différents pour les trames-I/P et \-B vous pouvez utiliser\ :
+ lmin= <ip_quant>:lmax= <ip_quant>:vb_qfactor= <b_quant/\:ip_quant>.
+ .
+ .TP
+@@ -10579,7 +10579,7 @@
+ .TP
+ .B frameref=<1\-15>
+ Nombre des trames précédentes à utiliser comme prédicteur pour les
+-trames-B et -P (par défaut\ : 1).
++trames-B et \-P (par défaut\ : 1).
+ Est efficace avec les dessins animés, mais avec des films dont les
+ sujets sont réels, on n'observe plus d'amélioration significative
+ au-delà d'environ 6 trames de référence.
+--- a/DOCS/man/hu/mplayer.1
++++ b/DOCS/man/hu/mplayer.1
+@@ -536,7 +536,7 @@
+ .nf
+ # Az MEncoder kimenetének alapértelmezett fájlneve.
+ o=encoded.avi
+-# A következő 4 sor megengedi a mencoder tv:// -nek, hogy azonnal kezdje el a mentést.
++# A következő 4 sor megengedi a mencoder tv:// \-nek, hogy azonnal kezdje el a mentést.
+ oac=pcm=yes
+ ovc=lavc=yes
+ lavcopts=vcodec=mjpeg
+@@ -971,7 +971,7 @@
+ .PD 0
+ .RSs
+ .IPs conf=<fájlnév>
+-Az alapértelmezett ~/\:.mplayer/\:input.conf -tól eltérő bemeneti
++Az alapértelmezett ~/\:.mplayer/\:input.conf \-tól eltérő bemeneti
+ konfigurációs fájl megadása.
+ Ha nincs elérési út megadva, a ~/\:.mplayer/\:<fájlnév> a feltételezett.
+ .IPs ar-dev=<eszköz>
+@@ -1075,7 +1075,7 @@
+ input-ról. Hasznos, ha a standard input-ról olvasol be adatot.
+ Ez automatikusan engedélyeződik, ha \- van a parancssorban.
+ Vannak esetek, amikor kézzel kell beállítanod, pl.\&
+-ha megnyitod a /dev/\:stdin -t (vagy a rendszereden az ennek megfelelőt),
++ha megnyitod a /dev/\:stdin \-t (vagy a rendszereden az ennek megfelelőt),
+ lejátszási listában használod az stdin-t vagy később akarsz olvastatni
+ az stdin-ről a loadfile vagy loadlist szolga parancsok segítségével.
+ .
+@@ -2131,7 +2131,7 @@
+ .TP
+ .B \-tvscan <opció1:opció2:...> (csak TV és MPlayer)
+ A TV csatorna kereső finomhangolására használható opció.
+-Az MPlayer kiírja az értékeket a "-tv channels=" opcióhoz,
++Az MPlayer kiírja az értékeket a "\-tv channels=" opcióhoz,
+ beleértve a már meglévő és az épp megtalált csatornákat.
+ .sp 1
+ Az elérhető alopciók:
+@@ -2308,7 +2308,7 @@
+ .B \-embeddedfonts (csak FreeType)
+ Engedélyezi a matroska beágyazott betűinek kicsomagolását (alapértelmezett: kikapcsolva).
+ Ezek a betűtípusok használhatóak az SSA/ASS feliratok
+-rendereléséhez (-ass kapcsoló).
++rendereléséhez (\-ass kapcsoló).
+ A betűtípus fájlok a ~/.mplayer/fonts könyvtárban lesznek létrehozva.
+ .br
+ .I MEGJEGYZÉS:
+@@ -2772,7 +2772,7 @@
+ .B \-volume <-1\-100> (lásd még \-af volume)
+ Beállítja a kezdő hangerőt a keverőben, akár hardveres, akár szoftveres (ha a
+ \-softvol-lal együtt használod).
+-A -1-es érték (alapértelmezett) nem változtat a hangerőn.
++A \-1-es érték (alapértelmezett) nem változtat a hangerőn.
+ .
+ .
+ .
+@@ -3237,7 +3237,7 @@
+ írsz az érték mögé, akkor a képernyő adott irányú méretének százalék
+ érték lesz. Támogatja továbbá a szabványos X11 \-geometry opció formátumot
+ is, melyben pl. a +10-50 azt jelenti, hogy "tedd 10 pixellel a bal szegély
+-mellé és 50 pixellel az alsó szegély fölé", a "--20+-10" pedig azt, hogy
++mellé és 50 pixellel az alsó szegély fölé", a "\-\-20+\-10" pedig azt, hogy
+ "tedd 20 pixellel a jobb szegélyen túl és 10 pixellel a felső szegély fölé".
+ Ha egy külső ablak is meg van adva a \-wid opcióval, akkor az x és y
+ koordináták az ablak bal felső sarkához viszonyulnak a képernyő helyett.
+@@ -3814,7 +3814,7 @@
+ .PD 0
+ .RSs
+ .IPs device_id=<szám>
+-Teljes képernyős lejátszásnál a használni kívánt képernyő eszköz, vagy -1-re állítva
++Teljes képernyős lejátszásnál a használni kívánt képernyő eszköz, vagy \-1-re állítva
+ mindig ugyan azt a képernyőt használja, amelyiken a videó ablak van (alapértelmezett: \-1 \- auto).
+ .
+ .IPs shared_buffer
+@@ -4057,7 +4057,7 @@
+ Beállítja a lscale/cscale szűrők erősségét, ahol ez támogatott.
+ .IPs stereo=<érték>
+ Kiválaszt egy módszert a sztereó képernyőkhöz.
+-Valószínűleg használnod kell a -aspect kapcsolót a képarány javításához.
++Valószínűleg használnod kell a \-aspect kapcsolót a képarány javításához.
+ Kísérleti dolog, ne várj tőle túl sokat.
+ .RSss
+ 0: Normális 2D képernyő
+@@ -4469,7 +4469,7 @@
+ hasznos, ha a videót az mjpegtools-szal akarod feldolgozni.
+ Az YV12 formátumot támogatja.
+ Ha a forrás fájlodnak eltérő formátuma van és átlapolt, akkor használd
+-a -vf scale=::1 opciót, hogy kényszerítsd az átlapolt módú konvertálást.
++a \-vf scale=::1 opciót, hogy kényszerítsd az átlapolt módú konvertálást.
+ Kombinálhatod a \-fixed\-vo opcióval ugyanolyan képméretű és fps
+ értékű fájlok összefűzéséhez.
+ .PD 0
+@@ -4683,7 +4683,7 @@
+ Ha az előírt codec családok nem működnek, visszatér az alapértelmezett codec-re.
+ .br
+ .I MEGJEGYZÉS:
+-Lásd a \-afm help -et az elérhető codec családok listájához.
++Lásd a \-afm help \-et az elérhető codec családok listájához.
+ .sp 1
+ .I PÉLDA:
+ .PD 0
+@@ -7660,7 +7660,7 @@
+ .sp 1
+ .RS
+ .I MEGJEGYZÉS:
+-Ezen szűrő és bármelyik keresési forma (beleértve a -ss -t és az EDL-eket)
++Ezen szűrő és bármelyik keresési forma (beleértve a \-ss -t és az EDL-eket)
+ együttes használata kiszabadíthatja a szellemet a palackból.
+ .RE
+ .
+--- a/DOCS/man/it/mplayer.1
++++ b/DOCS/man/it/mplayer.1
+@@ -2393,7 +2393,7 @@
+ .TP
+ .B \-tvscan <opzione1:opzione2:...> (solo TV e MPlayer)
+ Imposta lo scanner dei canali TV.
+-MPlayer emetterà anche dei valori per l'opzione "-tv channels=", includendo
++MPlayer emetterà anche dei valori per l'opzione "\-tv channels=", includendo
+ canali esistenti e appena trovati.
+ .sp 1
+ Le sotto opzioni disponibili sono:
+@@ -3092,7 +3092,7 @@
+ .B \-volume <-1\-100> (vedi anche \-af volume)
+ Imposta sul mixer il volume in apertura, sia hardware o software (se usato con
+ \-softvol).
+-Un valore di -1 (default) non modifica il volume.
++Un valore di \-1 (default) non modifica il volume.
+ .
+ .
+ .
+@@ -3572,7 +3572,7 @@
+ dello schermo in quella direzione.
+ Supporta anche il formato dell'opzione standard di X \-geometry, nel quale
+ +10-50 significa "posiziona 10 pixel dal bordo sinistro e 50 pixel dal bordo in
+-basso", mentre "--20+-10" significa "posiziona 20 pixel oltre la destra e 10
++basso", mentre "\-\-20+\-10" significa "posiziona 20 pixel oltre la destra e 10
+ pixel oltre il bordo in alto".
+ Se viene specificata una finestra esterna utilizzando l'opzione \-wid
+ allora le coordinate x ed y sono relative all'angolo in alto a sinistra
+@@ -4901,7 +4901,7 @@
+ se vuoi elaborare il video con la suite mjpegtools.
+ Supporta il formato YV12.
+ Se il tuo file ha un formato differente ed è interlacciato, assicurati di usare
+--vf scale=::1 affinché la conversione utilizzi la modalità interlacciata.
++\-vf scale=::1 affinché la conversione utilizzi la modalità interlacciata.
+ Può combinarlo con l'opzione \-fixed\-vo per concatenare file con le stesse
+ dimensioni e la stessa frequenza (fps).
+ .PD 0
+@@ -8257,7 +8257,7 @@
+ .RS
+ .I NOTA:
+ Utilizzare questo filtro con qualsiasi tipo di posizionamento (seek) (inclusi
+--ss e EDL), può causare comportamenti inattesi e bizzarri.
++\-ss e EDL), può causare comportamenti inattesi e bizzarri.
+ .RE
+ .
+ .
+--- a/DOCS/man/en/mplayer.1
++++ b/DOCS/man/en/mplayer.1
+@@ -1294,8 +1294,8 @@
+ Such files may trigger harmful actions.
+ This has been the case for all MPlayer versions, but unfortunately this
+ fact was not well documented earlier, and some people have even misguidedly
+-recommended use of -playlist with untrusted sources.
+-Do NOT use -playlist with random internet sources or files you don't trust!
++recommended use of \-playlist with untrusted sources.
++Do NOT use \-playlist with random internet sources or files you don't trust!
+ .br
+ .I NOTE:
+ This option is considered an entry so options found after it will apply
+@@ -2185,7 +2185,7 @@
+ .I NOTE:
+ For the bsdbt848 driver you can provide both bktr and tuner device
+ names separating them with a comma, tuner after
+-bktr (e.g.\& -tv device=/dev/bktr1,/dev/tuner1).
++bktr (e.g.\& \-tv device=/dev/bktr1,/dev/tuner1).
+ .IPs input=<value>
+ Specify input (default: 0 (TV), see console output for available inputs).
+ .IPs freq=<value>
+@@ -2353,7 +2353,7 @@
+ .TP
+ .B \-tvscan <option1:option2:...> (TV and MPlayer only)
+ Tune the TV channel scanner.
+-MPlayer will also print value for "-tv channels=" option,
++MPlayer will also print value for "\-tv channels=" option,
+ including existing and just found channels.
+ .sp 1
+ Available suboptions are:
+@@ -2811,8 +2811,8 @@
+ .TP
+ .B \-subcp <codepage> (iconv only)
+ If your system supports iconv(3), you can use this option to
+-specify the subtitle codepage. It takes priority over both -utf8 and
+--unicode.
++specify the subtitle codepage. It takes priority over both \-utf8 and
++\-unicode.
+ .sp 1
+ .I EXAMPLE:
+ .PD 0
+@@ -2961,7 +2961,7 @@
+ .TP
+ .B \-unicode
+ Tells MPlayer to handle the subtitle file as unicode. (It will only take
+-effect if neither -subcp nor -utf8 is given.)
++effect if neither \-subcp nor \-utf8 is given.)
+ .
+ .TP
+ .B \-unrarexec <path to unrar executable> (not supported on MingW)
+@@ -2972,7 +2972,7 @@
+ .TP
+ .B "\-utf8 \ \ "
+ Tells MPlayer to handle the subtitle file as UTF-8. (It will only take effect
+-if -subcp isn't given, and it takes priority over -unicode.)
++if \-subcp isn't given, and it takes priority over \-unicode.)
+ .
+ .TP
+ .B \-vobsub <VOBsub file without extension>
+@@ -3043,7 +3043,7 @@
+ .B \-volume <-1\-100> (also see \-af volume)
+ Set the startup volume in the mixer, either hardware or software (if
+ used with \-softvol).
+-A value of -1 (the default) will not change the volume.
++A value of \-1 (the default) will not change the volume.
+ .
+ .
+ .
+@@ -3536,7 +3536,7 @@
+ screen size in that direction.
+ It also supports the standard X11 \-geometry option format, in which e.g.
+ +10-50 means "place 10 pixels from the left border and 50 pixels from the lower
+-border" and "--20+-10" means "place 20 pixels beyond the right and 10 pixels
++border" and "\-\-20+\-10" means "place 20 pixels beyond the right and 10 pixels
+ beyond the top border".
+ If an external window is specified using the \-wid option, then the x and
+ y coordinates are relative to the top-left corner of the window rather
+@@ -3675,7 +3675,7 @@
+ Rotate display by 90, 180 or 270 degrees.
+ Rotates also the OSD, not just the video image itself.
+ Currently only supported by the gl video output driver.
+-For all other video outputs -vf ass,expand=osd=1,rotate=n can be used, in the future this might even happen automatically.
++For all other video outputs \-vf ass,expand=osd=1,rotate=n can be used, in the future this might even happen automatically.
+ .
+ .TP
+ .B \-refreshrate <Hz>
+@@ -4228,9 +4228,9 @@
+ .PD 0
+ .RSs
+ .IPs backend=<n>
+-Select the backend/OpenGL implementation to use (default: -1).
++Select the backend/OpenGL implementation to use (default: \-1).
+ .RSss
+--1: Autoselect
++\-1: Autoselect
+ .br
+ 0: Win32/WGL
+ .br
+@@ -4800,7 +4800,7 @@
+ useful if you want to process the video with the mjpegtools suite.
+ It supports the YV12 format.
+ If your source file has a different format and is interlaced, make sure
+-to use -vf scale=::1 to ensure the conversion uses interlaced mode.
++to use \-vf scale=::1 to ensure the conversion uses interlaced mode.
+ You can combine it with the \-fixed\-vo option to concatenate files
+ with the same dimensions and fps value.
+ .PD 0
+@@ -6218,15 +6218,15 @@
+ These statistics are especially intended to help adjusting the volume while
+ avoiding clipping.
+ The volumes are printed in dB and compatible with the volume audio filter,
+-they are always rounded towards -0dB.
++they are always rounded towards \-0dB.
+ .sp 1
+ The 'n_samples' field is the total number of samples seen by the filter.
+ The 'mean_volume' field is the root mean square.
+ The 'max_volume' field is exactly what it says.
+-The 'histogram_Xdb' fields count how many samples were at -XdB, for X just
++The 'histogram_Xdb' fields count how many samples were at \-XdB, for X just
+ below max_volume.
+ .sp 1
+-For example, if max_volume is -7dB and histogram_7dB is 19, 'volume=7' will
++For example, if max_volume is \-7dB and histogram_7dB is 19, 'volume=7' will
+ not cause clipping and 'volume=8' will cause clipping on exactly 19 samples.
+ .
+ .
+@@ -7155,7 +7155,7 @@
+ .I EXAMPLE:
+ .br
+ overlay="movie=$small_video, scale=160:120 [ca]; [in] [ca] overlay=16:8"
+-mplayer -vf lavfi='$overlay' $big_video
++mplayer \-vf lavfi='$overlay' $big_video
+ .
+ .TP
+ .B kerndeint[=thresh[:map[:order[:sharp[:twoway]]]]]
+@@ -8115,7 +8115,7 @@
+ full-screen on a row-interleaved 3D display, you will need to scale the
+ video to the correct height first using the "scale" filter, if it is not
+ already the right height.  Typically, that is 1080 rows (so use e.g.
+-"-vf scale=1440:1080,stereo3d=sbsl:irl" for a 720p side-by-side encoded
++"\-vf scale=1440:1080,stereo3d=sbsl:irl" for a 720p side-by-side encoded
+ movie).
+ .RE
+ .PD 1
+@@ -8179,7 +8179,7 @@
+ .sp 1
+ .RS
+ .I NOTE:
+-Using this filter together with any sort of seeking (including -ss and EDLs)
++Using this filter together with any sort of seeking (including \-ss and EDLs)
+ may make demons fly out of your nose.
+ .RE
+ .
+--- a/DOCS/man/zh_CN/mplayer.1
++++ b/DOCS/man/zh_CN/mplayer.1
+@@ -1293,9 +1293,9 @@
+ 安全性。\
+ 这些文件可能触发危险行为。\
+ 该隐患存在于迄今所有的 MPlayer 的版本中，但不幸的是之前未能\
+-将此情况妥善写入文档中，而且一些用户已受此误导而将 -playlist 用于\
++将此情况妥善写入文档中，而且一些用户已受此误导而将 \-playlist 用于\
+ 不可信来源的参数。\
+-请勿将 -playlist 用于任意的因特网来源或你不信任的文件！
++请勿将 \-playlist 用于任意的因特网来源或你不信任的文件！
+ .br
+ .I 注意：
+ 该选项处理为一项条目，其后的选项仅应用于该播放列表\
+@@ -2811,7 +2811,7 @@
+ .TP
+ .B \-subcp <编码页>（仅用于 iconv）
+ 如果系统支持 iconv(3)，可使用该选项指定字幕的\
+-编码页。其优先级高于 -utf8 和 -unicode 选\
++编码页。其优先级高于 \-utf8 和 \-unicode 选\
+ 项。
+ .sp 1
+ .I 示例：
+@@ -2960,7 +2960,7 @@
+ .
+ .TP
+ .B \-unicode
+-告诉 MPlayer 将字幕文件作为 unicode 文本处理。（只有当 -subcp 和 -utf8 都未\
++告诉 MPlayer 将字幕文件作为 unicode 文本处理。（只有当 \-subcp 和 \-utf8 都未\
+ 使用时，该选项才可生效）
+ .
+ .TP
+@@ -2971,8 +2971,8 @@
+ .
+ .TP
+ .B "\-utf8 \ \ "
+-告诉 MPlayer 将字幕文件作为 UTF-8 文本来处理。（只有当 -subcp 未指定时该选项才\
+-生效，并且其优先级高于 -unicode。）
++告诉 MPlayer 将字幕文件作为 UTF-8 文本来处理。（只有当 \-subcp 未指定时该选项才\
++生效，并且其优先级高于 \-unicode。）
+ .
+ .TP
+ .B \-vobsub <无后缀名的 VOBsub 文件名>
+@@ -3043,7 +3043,7 @@
+ .B \-volume <-1\-100>（另见 \-af volume）
+ 设置硬件或软件（如果使用了 \-softvol）混音器\
+ 的起始音量。\
+-值为 -1（默认值）将不改变音量。
++值为 \-1（默认值）将不改变音量。
+ .
+ .
+ .
+@@ -3675,7 +3675,7 @@
+ 将显示的图像旋转 90、180 或 270 度。\
+ 也旋转 OSD，而不只是视频图像本身。\
+ 当前只有 gl 视频输出驱动支持。\
+-对于其它视频输出类型可以使用 -vf ass,expand=osd=1,rotate=n。以后甚至可以自动应用这一行为。
++对于其它视频输出类型可以使用 \-vf ass,expand=osd=1,rotate=n。以后甚至可以自动应用这一行为。
+ .
+ .TP
+ .B \-refreshrate <Hz>
+@@ -4230,7 +4230,7 @@
+ .IPs backend=<n>
+ 选择要使用的后端/OpenGL的实现方式（默认值：-1）。
+ .RSss
+--1：自动选择
++\-1：自动选择
+ .br
+ 0：Win32/WGL
+ .br
+@@ -4799,7 +4799,7 @@
+ 使用的格式与 mjpegtools 所用的相同，所以有助于想用 mjpegtools 套装软件\
+ 处理视频的情况。\
+ 该选项支持 YV12 格式。\
+-如果源文件格式不同且为隔行扫描格式，则注意要使用 -vf scale=::1 以确保转换时\
++如果源文件格式不同且为隔行扫描格式，则注意要使用 \-vf scale=::1 以确保转换时\
+ 使用隔行扫描模式。\
+ 可与 \-fixed\-vo 选项组合使用以拼接具有相同宽高值和\
+ 频率的文件。
+@@ -6218,15 +6218,15 @@
+ 这些统计信息特别用于帮助调节音量\
+ 以防止削波。\
+ 音量以 dB 为单位打印并与用于音量的音频过滤器相兼容，\
+-这些数值总是向 -0dB 方向取整。
++这些数值总是向 \-0dB 方向取整。
+ .sp 1
+ ‘n_samples’字段是过滤器读到的采样总数。\
+ ‘mean_volume’字段是均方值的平方根。\
+ ‘max_volume’字段的含义与其名完全一致（最大音量）。\
+-‘histogram_Xdb’字段统计的是会有多少采样的值是 -XdB，此时 X 为\
++‘histogram_Xdb’字段统计的是会有多少采样的值是 \-XdB，此时 X 为\
+ 刚好低于最大音量的值。
+ .sp 1
+-例如，如果 max_volume 为 -7dB 并且 histogram_7dB 为 19，则‘volume=7’不会\
++例如，如果 max_volume 为 \-7dB 并且 histogram_7dB 为 19，则‘volume=7’不会\
+ 导致削波，而‘volume=8’将在刚好 19 个采样中导致削波。
+ .
+ .
+@@ -7155,7 +7155,7 @@
+ .I 示例：
+ .br
+ overlay="movie=$small_video, scale=160:120 [ca]; [in] [ca] overlay=16:8"
+-mplayer -vf lavfi='$overlay' $big_video
++mplayer \-vf lavfi='$overlay' $big_video
+ .
+ .TP
+ .B kerndeint[=阈值[:映射[:次序[:锐化[:双向]]]]]
+@@ -8179,7 +8179,7 @@
+ .sp 1
+ .RS
+ .I 注意：
+-将该过滤器与任何种类的定位选项（包括 -ss 和 EDL）\
++将该过滤器与任何种类的定位选项（包括 \-ss 和 EDL）\
+ 一同使用可能会产生意想不到的结果。
+ .RE
+ .
+--- a/DOCS/man/ru/mplayer.1
++++ b/DOCS/man/ru/mplayer.1
+@@ -2615,7 +2615,7 @@
+ .B \-volume <-1\-100> (смотрите также \-af volume)
+ Устанавливает исходную громкость микшера, аппаратного либо
+ программного (если используется совместно с \-softvol).
+-Значение -1 (умолчание) не изменяет громкость.
++Значение \-1 (умолчание) не изменяет громкость.
+ .
+ .
+ .

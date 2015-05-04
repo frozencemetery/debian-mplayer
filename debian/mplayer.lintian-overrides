@@ -3,3 +3,50 @@ spelling-error-in-binary usr/bin/mplayer abitrate arbitrate
 
 # spelling error present in id3v2 specification
 spelling-error-in-binary usr/bin/mplayer Psychadelic Psychedelic
+
+# false-positives
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:1012
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:1987
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:1993
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:2003
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:3001
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:4112
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:4315
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:4643
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:5255
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:5755
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:6192
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:6201
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:6204
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:6474
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:6649
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:7145
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:9507
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:9512
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:9517
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:9535
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:9539
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:9653
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:9667
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:10532
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:10534
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:10535
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:11229
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:11234
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:11423
+hyphen-used-as-minus-sign usr/share/man/de/man1/mplayer.1.gz:11627
+hyphen-used-as-minus-sign usr/share/man/fr/man1/mplayer.1.gz:10592
+hyphen-used-as-minus-sign usr/share/man/fr/man1/mplayer.1.gz:10701
+hyphen-used-as-minus-sign usr/share/man/fr/man1/mplayer.1.gz:10705
+hyphen-used-as-minus-sign usr/share/man/fr/man1/mplayer.1.gz:10894
+hyphen-used-as-minus-sign usr/share/man/hu/man1/mplayer.1.gz:642
+hyphen-used-as-minus-sign usr/share/man/hu/man1/mplayer.1.gz:1678
+hyphen-used-as-minus-sign usr/share/man/hu/man1/mplayer.1.gz:2049
+hyphen-used-as-minus-sign usr/share/man/hu/man1/mplayer.1.gz:2815
+hyphen-used-as-minus-sign usr/share/man/hu/man1/mplayer.1.gz:4215
+hyphen-used-as-minus-sign usr/share/man/hu/man1/mplayer.1.gz:5061
+hyphen-used-as-minus-sign usr/share/man/hu/man1/mplayer.1.gz:6089
+hyphen-used-as-minus-sign usr/share/man/hu/man1/mplayer.1.gz:7663
+hyphen-used-as-minus-sign usr/share/man/hu/man1/mplayer.1.gz:10390
+hyphen-used-as-minus-sign usr/share/man/hu/man1/mplayer.1.gz:11224
+hyphen-used-as-minus-sign usr/share/man/hu/man1/mplayer.1.gz:11297
