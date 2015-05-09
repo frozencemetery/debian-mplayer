@@ -50,7 +50,7 @@ CONFIGURE_FLAGS = \
 	--disable-libmpeg2-internal \
 	--disable-ffmpeg_a \
 	--extra-cflags="$(shell dpkg-buildflags --get CFLAGS) $(shell dpkg-buildflags --get CPPFLAGS)" \
-	--extra-ldflags="$(shell dpkg-buildflags --get LDFLAGS)" \
+	--extra-ldflags="$(shell dpkg-buildflags --get LDFLAGS) -Wl,--as-needed" \
 	$(archconf)
 
 ifeq ($(DEB_HOST_ARCH),i386)
