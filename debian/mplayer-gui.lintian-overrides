@@ -1,8 +1,0 @@
-# "abitrate" is a technical term
-spelling-error-in-binary usr/bin/gmplayer abitrate arbitrate
-
-# spelling error present in id3v2 specification
-spelling-error-in-binary usr/bin/gmplayer Psychadelic Psychedelic
-
-# mplayer-gui is a mplayer frontend
-binary-without-manpage usr/bin/gmplayer

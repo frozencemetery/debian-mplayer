@@ -73,33 +73,6 @@ Build-Depends:
  yasm,
  zlib1g-dev
 
-Package: mplayer-gui
-Architecture: any
-Suggests:
- bzip2,
- fontconfig,
- mplayer-doc,
- ttf-freefont
-Depends:
- mplayer,
- mplayer-skin,
- ${misc:Depends},
- ${shlibs:Depends}
-Replaces:
- mplayer (<< 2:1.0~rc3+svn20090426-2),
- mplayer-doc (<< 2:1.0~rc3+svn20090426-2)
-Description: movie player for Unix-like systems (with GUI)
- MPlayer plays most MPEG, VOB, AVI, Ogg/OGM, VIVO,
- ASF/WMA/WMV, QT/MOV/MP4, FLI, RM, NuppelVideo, yuv4mpeg, FILM, RoQ, PVA files,
- supported by many native, XAnim, RealPlayer, and Win32 DLL codecs. It can
- also play VideoCD, SVCD, DVD, 3ivx, RealMedia, and DivX movies.
- .
- Another big feature of MPlayer is the wide range of supported output
- drivers. It works with X11, Xv, DGA, OpenGL, SVGAlib, fbdev,
- DirectFB, but also SDL.
- .
- This package includes the gui variant of mplayer.
-
 Package: mencoder
 Architecture: any
 Suggests:
