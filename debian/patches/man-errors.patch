@@ -1,0 +1,268 @@
+Subject: Some error fixes for man pages
+ Lintian found these too.
+Author: Robbie Harwood (frozencemetery) <rharwood@club.cc.cmu.edu>
+Forwarded: no
+--- a/DOCS/man/es/mplayer.1
++++ b/DOCS/man/es/mplayer.1
+@@ -523,8 +523,9 @@
+ las que se pasan por línea de comandos sustituyen a éstas.
+ La sintaxis del fichero de configuración es 'opción=<valor>', todo lo que haya
+ después de un '#' se considera un comentario.
+-Se pueden activar las opciones que funcionan sin valores poniendo su valor a
+-'yes' o '1' o 'true' y desactivarlas poniendo su valor a 'no' o '0' o 'false'.
++Se pueden activar las opciones que funcionan sin valores poniendo su valor
++a 'yes' o '1' o 'true' y desactivarlas poniendo su valor a 'no' o '0'
++o 'false'.
+ Se pueden especificar de este modo incluso las subopciones.
+ .PP
+ También se pueden escribir ficheros de configuración para medios específicos.
+@@ -5041,7 +5042,7 @@
+ .RSs
+ .IPs quality
+ 0\-6 (por defecto: 3)
+-.OPs "qp\ \ \ "
++.IPs "qp\ \ \ "
+ parámetro para forzar la cuantización (por defecto: 0, usa qp del video)
+ .IPs "modo\ \ \ "
+ 0: umbral fuerte (por defecto)
+--- a/DOCS/man/fr/mplayer.1
++++ b/DOCS/man/fr/mplayer.1
+@@ -219,7 +219,7 @@
+ .TP
+ .B contrôle au clavier
+ .PD 0
+-.Rs
++.RS
+ .IPs "<\- et \->"
+ Recule/\:avance de 10 secondes.
+ .IPs "haut et bas"
+@@ -4253,8 +4253,6 @@
+ (par défaut\ : \-1 - auto).
+ IPs dfbopts=<liste>
+ Défini une liste de paramètres DirectFB.
+-.
+-.TP
+ .RE
+ .PD 1
+ .
+@@ -6121,7 +6119,7 @@
+ .RE
+ .
+ .TP
+-.B scale[=l:h[:interlaced[:chr_drop[:par[:par2[:presize[:noup[:arnd]]]]]]]]
++.B scale[=l:h[:i[:chr_drop[:par[:par2[:presize[:noup[:arnd]]]]]]]]
+ Redimensionne l'image avec le zoom logiciel (lent) et applique une conversion
+ de palette YUV<\->RGB (voir également l'option \-sws).
+ .RSs
+@@ -6146,7 +6144,7 @@
+ \-(n+8): Comme \-n ci-dessus, mais en arrondissant les dimensions au plus
+ proche multiple de 16.
+ .REss
+-.IPs <interlaced>
++.IPs <i>
+ Active le redimensionnement entrelacé.
+ .RSss
+ 0: désactivé (par défaut)
+@@ -6740,7 +6738,7 @@
+ .PD 1
+ .
+ .TP
+-.Bs eq2[=gamma:contraste:luminosité:saturation:gr:gv:gb:poids]
++.B eq2[=gamma:contraste:luminosité:saturation:gr:gv:gb:poids]
+ Égaliseur logiciel alternatif qui utilise des tables de lookup (très lent),
+ autorisant une correction du gamma en plus d'un simple ajustement de
+ luminosité et de contraste.
+@@ -9818,7 +9816,8 @@
+ .B aglobal=<0\-3>
+ Pareil que vglobal pour les en-têtes audios.
+ .
+-.TP level=<valeur>
++.TP
++.B level=<valeur>
+ Spécifie le niveau CodecContext Level.
+ Utilisez 31 ou 41 pour pouvoir lire la vidéo sur une Playstation 3.
+ .
+--- a/DOCS/man/hu/mplayer.1
++++ b/DOCS/man/hu/mplayer.1
+@@ -4177,8 +4177,8 @@
+ .TP
+ .B "aa\ \ \ \ \ "
+ ASCII art kimeneti videó vezérlő, ami működik szöveges konzolon.
+-Az elérhető alopciók listáját és azok leírását megkaphatod egy
+-'mplayer \-vo aa:help' paranccsal.
++Az elérhető alopciók listáját és azok leírását megkaphatod egy 'mplayer \-vo
++aa:help' paranccsal.
+ .br
+ .I MEGJEGYZÉS:
+ A vezérlő nem kezeli jól a \-aspect opciót.
+@@ -6039,7 +6039,7 @@
+ .RE
+ .
+ .TP
+-.B scale[=w:h[:interlaced[:chr_drop[:par[:par2[:presize[:noup[:arnd]]]]]]]]
++.B scale[=w:h[:i[:chr_drop[:par[:par2[:presize[:noup[:arnd]]]]]]]]
+ Átméretezi a képet szoftveres méretezővel (lassú) és végrehajt egy YUV<\->RGB
+ színtér konverziót (lásd még \-sws).
+ .RSs
+@@ -6060,7 +6060,7 @@
+ .br
+ \-(n+8): Mint a \-n fent, csak a dimenziót 16 legközelebbi többszörösére kerekíti.
+ .REss
+-.IPs <interlaced>
++.IPs <i>
+ Beállítja az átlapolt méretezést.
+ .RSss
+ 0: ki (alapértelmezett)
+@@ -7188,8 +7188,8 @@
+ .TP
+ .B telecine[=start]
+ 3:2-es 'telecine' eljárást alkalmaz a frameráta 20%-os növelésére.
+-Ez valószínűleg nem fog jól működni az MPlayerrel, de használható a
+-'mencoder \-fps 30000/1001 \-ofps 30000/1001 \-vf telecine' paranccsal.
++Ez valószínűleg nem fog jól működni az MPlayerrel, de használható a 'mencoder
++\-fps 30000/1001 \-ofps 30000/1001 \-vf telecine' paranccsal.
+ Mintkét fps opció fontos!
+ (A/V szinkron sérül, ha valamelyik rossz.)
+ Az opcionális start paraméter megmondja a szűrőnek, hogy hol kezdjen a
+@@ -7563,8 +7563,8 @@
+ Megengedi képernyőmentések készítését a filmből szolga módú
+ parancsokkal, melyek billentyű lenyomásokhoz köthetőek.
+ Lásd a szolga mód dokumentációját és az INTERAKTÍV VEZÉRLÉS
+-fejezetet a részletekért.
+-'shotNNNN.png' nevű fájlok fognak létrejönni a munkakönyvtárban,
++fejezetet a részletekért. 'shotNNNN.png'
++nevű fájlok fognak létrejönni a munkakönyvtárban,
+ az első szabad szám felhasználásával \- egy fájl sem lesz felülírva.
+ A szűrő nem jelent hátrányt, ha nem használod és elfogad minden
+ színteret, így nyugodtan beleírható a konfigurációs fájlba.
+@@ -9846,7 +9846,7 @@
+ Nagyobb bitrátáknál úgy tűnik, hogy az MPEG kvantálás jobban megőrzi a részleteket.
+ Alacsony bitrátáknál a H.263 simítása csökkenti a blokk zajt.
+ Ha saját matricákat használsz, az MPEG kvantálást
+-.b kell
++.B kell
+ használni.
+ .
+ .TP
+--- a/DOCS/man/it/mplayer.1
++++ b/DOCS/man/it/mplayer.1
+@@ -5737,8 +5737,8 @@
+ se ad 1 allora il filtro verrà interpolato linearmente tra i valori
+ di polifase
+ .IPs <conteggio>
+-log2 del numero di valori di polifase (..., 10->1024, 11->2048, 12->4096,
+-...) (default: 10->1024)
++log2 del numero di valori di polifase (..., 10->1024, 11->2048, 12->4096, ...)
++(default: 10->1024)
+ .IPs <taglio>
+ frequenza di taglio (0.0\-1.0), il valore di default dipende dalla
+ lunghezza del filtro
+@@ -5950,11 +5950,11 @@
+ .RSs
+ .IPs <formato>
+ Attiva il formato desiderato.
+-La forma generale è 'sbe', dove 's' indica il segno ('s' per valori con segno,
+-'u' per valori senza segno, unsigned), 'b' indica il numero di bit per campionamento
+-(16, 24 o 32) e 'e' indica l'ordine con cui i campionamenti sono memorizzati
+-(endianness, 'le' indica little-endian, 'be' big-endian e 'ne' la modalità del computer
+-su cui sta girando MPlayer).
++La forma generale è 'sbe', dove 's' indica il segno ('s' per valori con
++segno, 'u' per valori senza segno, unsigned), 'b' indica il numero di bit per
++campionamento (16, 24 o 32) e 'e' indica l'ordine con cui i campionamenti sono
++memorizzati (endianness, 'le' indica little-endian, 'be' big-endian e 'ne' la
++modalità del computer su cui sta girando MPlayer).
+ Valori validi (tra gli altri) sono: 's16le', 'u32be' e 'u24ne'.
+ Esistono anche altri formati validi che sono una eccezione a questa regola:
+ u8, s8, floatle, floatbe, floatne, mulaw, alaw, mpeg2, ac3 e imaadpcm.
+@@ -6555,7 +6555,7 @@
+ .RE
+ .
+ .TP
+-.B scale[=w:h[:interlaced[:chr_drop[:par[:par2[:presize[:noup[:arnd]]]]]]]]
++.B scale[=w:h[:i[:chr_drop[:par[:par2[:presize[:noup[:arnd]]]]]]]]
+ Scala l'immagine con la modalità software (lento) ed esegue una conversione
+ dello spazio colore YUV<\->RGB (vedi anche \-sws).
+ .RSs
+@@ -6577,7 +6577,7 @@
+ .br
+ \-(n+8): Come \-n sopra ma arrotonda la dimensione al più vicino multiplo di 16.
+ .REss
+-.IPs <interlaced>
++.IPs <i>
+ Attiva la scalatura interlacciata.
+ .RSss
+ 0: non attiva (default)
+--- a/DOCS/man/zh_CN/mplayer.1
++++ b/DOCS/man/zh_CN/mplayer.1
+@@ -8138,7 +8138,7 @@
+ 应用变化坡度的周边区域大小。\
+ 较大的半径值带来较平缓的变化坡度，但同时使过滤器无法修改\
+ 靠近颜色变化丰富区域的像素（默认值：16）。
+-.RE.
++.RE
+ .
+ .TP
+ .B fixpts[=若干选项]
+--- a/DOCS/man/en/mplayer.1
++++ b/DOCS/man/en/mplayer.1
+@@ -6404,7 +6404,7 @@
+ .RE
+ .
+ .TP
+-.B scale[=w:h[:interlaced[:chr_drop[:par[:par2[:presize[:noup[:arnd]]]]]]]]
++.B scale[=w:h[:i[:chr_drop[:par[:par2[:presize[:noup[:arnd]]]]]]]]
+ Scales the image with the software scaler (slow) and performs a YUV<\->RGB
+ colorspace conversion (also see \-sws).
+ .RSs
+@@ -6425,7 +6425,7 @@
+ .br
+ \-(n+8): Like \-n above, but rounding the dimension to the closest multiple of 16.
+ .REss
+-.IPs <interlaced>
++.IPs <i>
+ Toggle interlaced scaling.
+ .RSss
+ 0: off (default)
+--- a/DOCS/man/de/mplayer.1
++++ b/DOCS/man/de/mplayer.1
+@@ -6085,7 +6085,7 @@
+ .RE
+ .
+ .TP
+-.B scale[=b:h[:interlaced[:chr_drop[:par[:par2[:presize[:noup[:arnd]]]]]]]]
++.B scale[=b:h[:i[:chr_drop[:par[:par2[:presize[:noup[:arnd]]]]]]]]
+ Skaliert das Bild mit dem Softwareskalierer (langsam) und führt eine
+ Farbraumkonvertierung zwischen YUV und RGB durch (siehe auch \-sws).
+ .RSs
+@@ -6110,7 +6110,7 @@
+ \-(n+8): wie \-n oben, rundet aber die Abmessung auf das nächste Vielfache von
+ 16.
+ .REss
+-.IPs <interlaced>
++.IPs <i>
+ Schalte Interlaced-Skalierung an/\:aus.
+ .RSss
+ 0: aus (Standard)
+@@ -10728,8 +10728,8 @@
+ .
+ .TP
+ .B zones=<Zone0>[/<Zone1>[/...]]
+-Vom Benutzer festgelegte Qualität für besondere Abschnitte (Ende, Abspann,
+-...).
++Vom Benutzer festgelegte Qualität für besondere Abschnitte (Ende,
++Abspann, ...).
+ Jede Zone ist <Start-Frame>,<End-Frame>,<Option>, wobei Option die folgenden
+ Werte annehmen kann:
+ .PD 0
+--- a/DOCS/man/ru/mplayer.1
++++ b/DOCS/man/ru/mplayer.1
+@@ -62,7 +62,8 @@
+ .
+ .br
+ .B mplayer
+-[dvd|dvdnav]://[заголовок|[первый_заголовок]\-последний_заголовок][/устройство]
++[dvd|dvdnav]://
++[заголовок|[первый_заголовок]\-последний_заголовок][/устройство]
+ [опции]
+ .
+ .br
