@@ -785,6 +785,9 @@ static void child_sighandler(int x)
     do {
         pid = waitpid(-1, NULL, WNOHANG);
     } while (pid > 0);
+    // Without this, we will be called only once at
+    // least on Linux 3.16.
+    signal(SIGCHLD, child_sighandler);
 }
 
 #endif
@@ -2132,7 +2135,6 @@ static int fill_audio_out_buffers(void)
     int playflags = 0;
     int audio_eof = 0;
     int bytes_to_write;
-    int format_change = 0;
     int timeout = 0;
     sh_audio_t *const sh_audio = mpctx->sh_audio;
 
@@ -2171,11 +2173,11 @@ static int fill_audio_out_buffers(void)
         // Fill buffer if needed:
         current_module = "decode_audio";
         t = GetTimer();
-        if (!format_change) {
+        if (!sh_audio->a_buffer_format_change) {
             res = mp_decode_audio(sh_audio, playsize);
-            format_change = res == -2;
+            sh_audio->a_buffer_format_change = res == -2;
         }
-        if (!format_change && res < 0) // EOF or error
+        if (!sh_audio->a_buffer_format_change && res < 0) // EOF or error
             if (mpctx->d_audio->eof) {
                 audio_eof = 1;
                 if (sh_audio->a_out_buffer_len == 0)
@@ -2186,7 +2188,7 @@ static int fill_audio_out_buffers(void)
         audio_time_usage += tt;
         if (playsize > sh_audio->a_out_buffer_len) {
             playsize = sh_audio->a_out_buffer_len;
-            if (audio_eof || format_change)
+            if (audio_eof || sh_audio->a_buffer_format_change)
                 playflags |= AOPLAY_FINAL_CHUNK;
         }
         if (!playsize)
@@ -2206,19 +2208,21 @@ static int fill_audio_out_buffers(void)
             memmove(sh_audio->a_out_buffer, &sh_audio->a_out_buffer[playsize],
                     sh_audio->a_out_buffer_len);
             mpctx->delay += playback_speed * playsize / (double)ao_data.bps;
-        } else if ((format_change || audio_eof) && mpctx->audio_out->get_delay() < .04) {
+        } else if ((sh_audio->a_buffer_format_change || audio_eof) &&
+                   mpctx->audio_out->get_delay() < .04) {
             // Sanity check to avoid hanging in case current ao doesn't output
             // partial chunks and doesn't check for AOPLAY_FINAL_CHUNK
             mp_msg(MSGT_CPLAYER, MSGL_WARN, MSGTR_AudioOutputTruncated);
             sh_audio->a_out_buffer_len = 0;
         }
     }
-    if (format_change) {
+    if (sh_audio->a_buffer_format_change && !sh_audio->a_out_buffer_len) {
         uninit_player(INITIALIZED_AO);
         af_uninit(sh_audio->afilter);
         free(sh_audio->afilter);
         sh_audio->afilter = NULL;
         reinit_audio_chain();
+        sh_audio->a_buffer_format_change = 0;
     }
     return 1;
 }
@@ -3024,6 +3028,8 @@ int main(int argc, char *argv[])
 
     // Catch signals
 #ifndef __MINGW32__
+    // TODO: use newer POSIX SIG_IGN behaviour instead to
+    // automatically handle children?
     signal(SIGCHLD, child_sighandler);
 #endif
 
