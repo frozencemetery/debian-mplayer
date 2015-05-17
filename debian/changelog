@@ -1,4 +1,11 @@
-mplayer (2:1.1.1+r37381-2) UNRELEASED; urgency=medium
+mplayer (2:1.1.1+r37401-1) UNRELEASED; urgency=medium
+
+  * Import new mplayer version (svn r37401)
+  * Import new ffmpeg version (2.6.2)
+
+ -- Robbie Harwood (frozencemetery) <rharwood@club.cc.cmu.edu>  Sat, 16 May 2015 20:48:52 -0400
+
+mplayer (2:1.1.1+r37381-3) unstable; urgency=medium
 
   * Harden buildflags
   * Override lintian false-positives
@@ -9,7 +16,7 @@ mplayer (2:1.1.1+r37381-2) UNRELEASED; urgency=medium
   * Link as-needed to reduce unneeded dependencies
   * Drop mplayer-gui and put desktop features in normal mplayer
 
- -- Robbie Harwood (frozencemetery) <rharwood@club.cc.cmu.edu>  Mon, 06 Apr 2015 00:37:15 -0400
+ -- Robbie Harwood (frozencemetery) <rharwood@club.cc.cmu.edu>  Sat, 16 May 2015 20:48:40 -0400
 
 mplayer (2:1.1.1+r37381-1) unstable; urgency=medium
 
