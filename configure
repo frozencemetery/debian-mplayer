@@ -1580,8 +1580,8 @@ libavmuxers=$(echo $libavmuxers_all)
 libavprotocols=$(echo $libavprotocols_all)
 libavfilters=$(echo $libavfilters_all)
 
-libavdecoders=$(filter_out_component decoder 'LIB[A-Z0-9_]* H264_QSV')
-libavencoders=$(filter_out_component encoder 'LIB[A-Z0-9_]* NVENC.*')
+libavdecoders=$(filter_out_component decoder 'LIB[A-Z0-9_]* H264_QSV H264_MMAL')
+libavencoders=$(filter_out_component encoder 'LIB[A-Z0-9_]* H264_QSV NVENC[A-Z0-9_]*')
 libavdemuxers=$(filter_out_component demuxer 'AVISYNTH LIB[A-Z0-9_]* REDIR')
 libavmuxers=$(filter_out_component muxer 'LIB[A-Z0-9_]* RTP RTSP SAP')
 libavprotocols=$(filter_out_component protocol 'BLURAY FFRTMPCRYPT HTTPS LIB[A-Z0-9_]* TLS')
@@ -8592,6 +8592,7 @@ CONFIG_H264PRED= yes
 CONFIG_H264QPEL= yes
 CONFIG_HPELDSP = yes
 CONFIG_IIRFILTER = yes
+CONFIG_JPEGTABLES = yes
 CONFIG_QPELDSP = yes
 CONFIG_QSV     = no
 CONFIG_HUFFYUVDSP = yes
@@ -9211,6 +9212,7 @@ $def_gnutls
 #define HAVE_MM_EMPTY 0
 #define HAVE_PPC4XX 0
 #define HAVE_RDTSC 0
+#define HAVE_SECTION_DATA_REL_RO 0
 #define HAVE_SIMD_ALIGN_16 1
 #define HAVE_STRERROR_R 0
 #define HAVE_STRPTIME 0
